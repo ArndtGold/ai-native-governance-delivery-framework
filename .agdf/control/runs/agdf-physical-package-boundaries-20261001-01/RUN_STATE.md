@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-physical-package-boundaries-20261001-01
 - lifecycle: active
-- revision: 26
-- revision_id: 2f7a1a4b-19f9-4d87-9150-6f09b86a580e
-- content_seal: sha256:3e2907ace35a9ed53936d4bf4196bfa23f8777fd83fc2c16f5b899d2077de233
+- revision: 29
+- revision_id: 4152a430-724b-46d3-82c5-74b64dc6a38d
+- content_seal: sha256:6941d9f131f2eb7ae5de73813d1842d37cd637bdd3197a2e328120023fba1256
 - approval_seal: sha256:5022f0aa795629895ec393d2aa0196365a580111a785e3edb28bbc44e3aa8194
-- updated_at: 2026-10-02T06:23:30.514Z
+- updated_at: 2026-10-02T07:00:19.605Z
 - mode: structured_delivery
 - current_gate: QA
 - decision: revise
@@ -23,9 +23,9 @@ Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, ka
 
 | Question | Answer |
 |---|---|
-| What is known? | CI-001..007 repaired; local workflow/process checks pass; baseline remote Node24 passed. QA remains revise on original TPR-E001/E002. |
+| What is known? | CI-008 repaired with real locked npm installation proof; complete npm smoke/fresh wrapper/community/compatibility pass. QA revise on original TPR-E001/E002. |
 | What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
-| What is missing? | Authoritative reconciliation of original TPR-E001/E002; corrected remote matrix/evidence run awaits follow-up push. |
+| What is missing? | Authoritative reconciliation of original TPR-E001/E002; corrected fresh remote matrix awaits push. Shared workspace ignored generated-output drift remains explicitly unclaimed. |
 | What is the next allowed action? | Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report. |
 | What is explicitly forbidden right now? | request QA approval; request UAT approval; release; claim delivery readiness |
 
@@ -51,11 +51,11 @@ Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, ka
 | SD | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/SD.md` | approved | criteria-chain-v1; SDD-001–012; AC-001–015 vollständig zugeordnet; optionale Profilabweichungen ausdrücklich vorgelegt |
 | TP | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/TP.md` | approved | criteria-chain-v1; T-001–013; SCN-001–042; alle AC-/SDD-Zuordnungen vollständig |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/BROWNFIELD_ANALYSIS.md` | done | pre_implementation_analysis; pass; source/index/checkpoint boundary and existing owners bound |
-| CD+Tests | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CD_TESTS.md | done | CI_REPAIR.md follow-up: locked MCP prerequisites, negative workflow cases, real legacy process suite, build/preparation, 56 compatibility cases and community check pass locally. |
-| CR | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | done | Actual CI-006/007 diff reviewed and canonical run-step review pass recorded; corrected remote platform execution pending. |
-| QA | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/QA_REPORT.md | revise | qa-gate refresh: CI-006/007 locally repaired; TPR-E001/E002 remain open evidence obligations; no QA approval requested. |
-| TP Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/TASK_PLAN_REVIEW.md | done | 11/13 fully_done; current workflow/process evidence refreshed; original TPR-E001/E002 unchanged. |
-| Clean Implementation Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md | done | pass: locked prerequisite ordering and standard file URL; no optional dependency bypass or parallel owner. |
+| CD+Tests | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CD_TESTS.md | done | Real early/corrected npm installations and complete smoke exit 0; fresh wrapper/community/56-case compatibility pass. CI_REPAIR.md retains all failures and limits. |
+| CR | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | done | Actual CI-008 diff reviewed and canonical run-step pass recorded; no source/runtime/lock bypass added. |
+| QA | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/QA_REPORT.md | revise | qa-gate refresh: CI-008 locally repaired and fully exercised; original TPR-E001/E002 unchanged; remote execution pending. |
+| TP Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/TASK_PLAN_REVIEW.md | done | Real-install consumer evidence refreshed; 11/13 fully_done; original historical evidence gaps remain open. |
+| Clean Implementation Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md | done | pass: canonical build before local package packing and SDK before consumers; no replacement link or dependency-copy repair. |
 | Evidence Reconciliation | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/EVIDENCE_RECONCILIATION.md | draft | Concrete proposed deviation decision; no waiver or approval recorded. |
 
 ## Mode/Slice Decision
@@ -95,6 +95,8 @@ Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, ka
 | CI repair 2026-10-02 | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CI_REPAIR.md; .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/RESULTS.json | CI consumer/test path repairs; fresh-source and local npm stages; original remote failure and full npm exit preserved | direct |
 | Code Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | decision pass: CI-006/007 resolved through actual locked dependency ordering and file-URL preload; negative contracts and real process suite pass locally; corrected remote platform execution remains pending; original TPR-E001/E002 remain open. | direct |
 | CI prerequisites 2026-10-02 | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CI_REPAIR.md; .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-prerequisites-20261002/RESULTS.json | Actual pushed baseline failures; workflow prerequisites and preload URL; local positive/negative test evidence | direct |
+| Code Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | decision pass: CI-008 resolved: actual locked npm ci reproduces unprepared CLI-copy ENOENT; preparation-before-install fixes it; complete npm smoke and fresh wrapper/community/compatibility checks exit 0. Corrected remote jobs pending; original TPR-E001/E002 remain open. | direct |
+| Real dependency CI repair | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CI_REPAIR.md; .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-local-dependency-20261002/RESULTS.json | Three remote failures, real npm installation negative/positive and complete smoke exit 0; original gaps preserved | direct |
 
 ## Context Graph Impact
 

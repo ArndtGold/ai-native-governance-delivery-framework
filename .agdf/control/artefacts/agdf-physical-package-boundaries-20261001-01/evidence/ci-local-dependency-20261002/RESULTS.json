@@ -1,0 +1,80 @@
+{
+  "baseline_commit": "a95779ef81c3c7b5f86b355d762347797539a402",
+  "binding_revision_id": "2f7a1a4b-19f9-4d87-9150-6f09b86a580e",
+  "node": "22.22.3",
+  "npm": "12.1.0",
+  "platform": "darwin",
+  "fixture": "/tmp/agdf-ci-real-install-wDLL4U",
+  "fixture_method": "copySourceFixture(git:true,dependencies:false); actual locked npm ci from registry, no bundled dependency injection",
+  "source_sha256": {
+    ".github/workflows/agdf-guardrails.yml": "b43406151640def545d65a45d5c1c27c435513f4f261ce096f3e997e79fe99eb",
+    ".github/workflows/host-compatibility-evidence.yml": "53f397fdf7e12cf5fdc4c1c5accb3ad23b6010466a97976ebb09ba5335986bda",
+    "CONTRIBUTING.md": "102cf3986267fcb1abaf4bc623ab3bb92585d6981f4e7b28a90d72b62c90634d",
+    "packages/cli/scripts/release-workflow-contract-test.js": "821fc9c58806dba467ad7817e87a9a81143421565cf4d74ceeb4bb0744e46b6a"
+  },
+  "checks": [
+    {
+      "log": "root.log",
+      "exit_code": 0
+    },
+    {
+      "log": "early-mcp.log",
+      "exit_code": 0
+    },
+    {
+      "log": "build.log",
+      "exit_code": 0
+    },
+    {
+      "log": "negative-contract.log",
+      "exit_code": 1
+    },
+    {
+      "log": "prepare.log",
+      "exit_code": 0
+    },
+    {
+      "log": "corrected-mcp.log",
+      "exit_code": 0
+    },
+    {
+      "log": "corrected-contract.log",
+      "exit_code": 0
+    },
+    {
+      "log": "full-smoke.log",
+      "exit_code": 0
+    },
+    {
+      "log": "wrapper.log",
+      "exit_code": 0
+    },
+    {
+      "log": "community-test.log",
+      "exit_code": 0
+    },
+    {
+      "log": "community-check.log",
+      "exit_code": 0
+    },
+    {
+      "log": "fresh-check.log",
+      "exit_code": 0
+    },
+    {
+      "log": "workspace-source-check.log",
+      "exit_code": 1
+    },
+    {
+      "log": "workflow-contract.log",
+      "exit_code": 0
+    }
+  ],
+  "negative_contract_expected_failure": true,
+  "limitations": [
+    "Fresh corrected remote jobs have not run at recording time.",
+    "Existing workspace generated payload contains extra ignored runtime files; its source check fails. Participating source fingerprints are unchanged, and the fresh prepared fixture passes the committed snapshot. No ignored user/generated files were removed.",
+    "Original TPR-E001/E002 remain open."
+  ],
+  "staged_duplicate_entries_preserved": true
+}

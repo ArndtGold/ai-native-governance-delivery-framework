@@ -1,0 +1,842 @@
+npm notice run create-agdf@0.14.5 smoke-test
+npm notice run npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (50 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+Public plugin tests passed (51 inventoried candidate files; digest c2b27087678d01df3e04421ce5b4bf2b23d6019fd97e84e2f01860327e607a09)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest c2b27087678d01df3e04421ce5b4bf2b23d6019fd97e84e2f01860327e607a09
+npm notice run create-agdf@0.14.5 test:release-workflows
+npm notice run node scripts/release-workflow-contract-test.js
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+npm notice run create-agdf@0.14.5 test:release-registry-state
+npm notice run node scripts/release-registry-state-test.js
+Release registry state classification passed.
+npm notice run create-agdf@0.14.5 test:instruction-footprint
+npm notice run node scripts/instruction-footprint-test.js
+{
+  "status": "pass",
+  "evidence_plane": "source_composed",
+  "profile_surface": "generated_and_temporary_install_fixture",
+  "evaluator_surface": "node_deterministic",
+  "loaded_host_evidence": false,
+  "generated_digest": "0fea03e3edf75d4a85c04b8c9450e68083837426242f27cdb982540cc4b86014",
+  "canonical_kernel_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+  "measurements": [
+    {
+      "surface_id": "activationKernel",
+      "instance_id": "canonical",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-path-search",
+      "raw_bytes": 281,
+      "normalized_bytes": 281,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "brownfield-analysis",
+      "raw_bytes": 361,
+      "normalized_bytes": 361,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ux-intent-definition",
+      "raw_bytes": 376,
+      "normalized_bytes": 376,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "clean-implementation-review",
+      "raw_bytes": 231,
+      "normalized_bytes": 231,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "code-review",
+      "raw_bytes": 243,
+      "normalized_bytes": 243,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-closeout",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "gate-check",
+      "raw_bytes": 419,
+      "normalized_bytes": 419,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "qa-gate",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "release-or",
+      "raw_bytes": 168,
+      "normalized_bytes": 168,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "task-plan-review",
+      "raw_bytes": 227,
+      "normalized_bytes": 227,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "allSkillDiscoveryDescriptions",
+      "instance_id": "definition-order",
+      "raw_bytes": 2678,
+      "normalized_bytes": 2678,
+      "max_normalized_bytes": 3000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "codex",
+      "raw_bytes": 2027,
+      "normalized_bytes": 1896,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "claude",
+      "raw_bytes": 2028,
+      "normalized_bytes": 1897,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "copilot",
+      "raw_bytes": 2029,
+      "normalized_bytes": 1898,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "runtimeCheckSupplement",
+      "instance_id": "codex-consented",
+      "raw_bytes": 1138,
+      "normalized_bytes": 771,
+      "max_normalized_bytes": 1200,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "repository",
+      "raw_bytes": 1496,
+      "normalized_bytes": 1496,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "global-installed",
+      "raw_bytes": 1572,
+      "normalized_bytes": 1572,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeActiveDynamicContext",
+      "instance_id": "active",
+      "raw_bytes": 840,
+      "normalized_bytes": 746,
+      "max_normalized_bytes": 1000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeInactiveDynamicContext",
+      "instance_id": "inactive",
+      "raw_bytes": 0,
+      "normalized_bytes": 0,
+      "max_normalized_bytes": 0,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "repository",
+      "raw_bytes": 2337,
+      "normalized_bytes": 2243,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "global-installed",
+      "raw_bytes": 2413,
+      "normalized_bytes": 2319,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeCompactionAddition",
+      "instance_id": "active",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "canonical-generated",
+      "raw_bytes": 5473,
+      "normalized_bytes": 5473,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "global-installed",
+      "raw_bytes": 6788,
+      "normalized_bytes": 6788,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    }
+  ]
+}
+Instruction-footprint tests passed
+npm notice run create-agdf@0.14.5 test:request-activation
+npm notice run npm run test:instruction-footprint && node scripts/request-activation-test.js && node scripts/request-activation-evals-test.js && npm run test:request-activation-callbacks && npm run test:request-activation-host-schema
+npm notice run create-agdf@0.14.5 test:instruction-footprint
+npm notice run node scripts/instruction-footprint-test.js
+{
+  "status": "pass",
+  "evidence_plane": "source_composed",
+  "profile_surface": "generated_and_temporary_install_fixture",
+  "evaluator_surface": "node_deterministic",
+  "loaded_host_evidence": false,
+  "generated_digest": "0fea03e3edf75d4a85c04b8c9450e68083837426242f27cdb982540cc4b86014",
+  "canonical_kernel_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+  "measurements": [
+    {
+      "surface_id": "activationKernel",
+      "instance_id": "canonical",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-path-search",
+      "raw_bytes": 281,
+      "normalized_bytes": 281,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "brownfield-analysis",
+      "raw_bytes": 361,
+      "normalized_bytes": 361,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ux-intent-definition",
+      "raw_bytes": 376,
+      "normalized_bytes": 376,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "clean-implementation-review",
+      "raw_bytes": 231,
+      "normalized_bytes": 231,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "code-review",
+      "raw_bytes": 243,
+      "normalized_bytes": 243,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-closeout",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "gate-check",
+      "raw_bytes": 419,
+      "normalized_bytes": 419,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "qa-gate",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "release-or",
+      "raw_bytes": 168,
+      "normalized_bytes": 168,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "task-plan-review",
+      "raw_bytes": 227,
+      "normalized_bytes": 227,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "allSkillDiscoveryDescriptions",
+      "instance_id": "definition-order",
+      "raw_bytes": 2678,
+      "normalized_bytes": 2678,
+      "max_normalized_bytes": 3000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "codex",
+      "raw_bytes": 2027,
+      "normalized_bytes": 1896,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "claude",
+      "raw_bytes": 2028,
+      "normalized_bytes": 1897,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "copilot",
+      "raw_bytes": 2029,
+      "normalized_bytes": 1898,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "runtimeCheckSupplement",
+      "instance_id": "codex-consented",
+      "raw_bytes": 1138,
+      "normalized_bytes": 771,
+      "max_normalized_bytes": 1200,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "repository",
+      "raw_bytes": 1496,
+      "normalized_bytes": 1496,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "global-installed",
+      "raw_bytes": 1572,
+      "normalized_bytes": 1572,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeActiveDynamicContext",
+      "instance_id": "active",
+      "raw_bytes": 840,
+      "normalized_bytes": 746,
+      "max_normalized_bytes": 1000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeInactiveDynamicContext",
+      "instance_id": "inactive",
+      "raw_bytes": 0,
+      "normalized_bytes": 0,
+      "max_normalized_bytes": 0,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "repository",
+      "raw_bytes": 2337,
+      "normalized_bytes": 2243,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "global-installed",
+      "raw_bytes": 2413,
+      "normalized_bytes": 2319,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeCompactionAddition",
+      "instance_id": "active",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "canonical-generated",
+      "raw_bytes": 5473,
+      "normalized_bytes": 5473,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "global-installed",
+      "raw_bytes": 6788,
+      "normalized_bytes": 6788,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    }
+  ]
+}
+Instruction-footprint tests passed
+Request activation projection tests passed
+Request Activation eval tests passed (37 cases; source and callback policy current)
+npm notice run create-agdf@0.14.5 test:request-activation-callbacks
+npm notice run node scripts/request-activation-callback-test.js
+Request Activation callback and ordering integration tests passed
+npm notice run create-agdf@0.14.5 test:request-activation-host-schema
+npm notice run node scripts/request-activation-host-schema-test.js
+Request Activation host observation schema tests passed
+npm notice run create-agdf@0.14.5 test:gate-check-missing-control
+npm notice run node scripts/gate-check-missing-control-test.js
+Gate-check missing-control tests passed.
+npm notice run create-agdf@0.14.5 test:canonical-init
+npm notice run node scripts/canonical-init-test.js
+Canonical init tests passed.
+npm notice run create-agdf@0.14.5 test:cli-modularization
+npm notice run node scripts/cli-modularization-test.js
+cli modularization tests passed
+npm notice run create-agdf@0.14.5 test:install-setup-contract
+npm notice run node scripts/install-setup-contract-test.js
+install setup contract tests passed
+npm notice run create-agdf@0.14.5 test:install-setup-interaction
+npm notice run node scripts/install-setup-interaction-test.js
+install setup interaction tests passed
+npm notice run create-agdf@0.14.5 test:install-setup-service
+npm notice run node scripts/install-setup-service-test.js
+install setup service tests passed
+npm notice run create-agdf@0.14.5 test:install-control-migration
+npm notice run node ../core/test/install-control-migration-test.js
+Installation control migration: batch consent, partial migration, read-only deferral, bound snapshots, backups, CLI/JSON and EN/DE rendering passed.
+npm notice run create-agdf@0.14.5 test:install-control-repair
+npm notice run node scripts/install-control-repair-test.js
+Installation repair: 1/2/3, verified checkpoint/Git sources, missing inputs, backups, approval reset, conflicts, interruptions, CLI and EN/DE passed.
+npm notice run create-agdf@0.14.5 test:control-maintenance
+npm notice run node scripts/control-maintenance-test.js && node scripts/control-maintenance-command-test.js && node ./scripts/repository-control-startup-test.js
+Control maintenance shared service and interaction tests passed.
+Control maintenance source/generated command tests passed.
+Repository control bounded startup, consent and reentry tests passed.
+npm notice run create-agdf@0.14.5 test:runtime-check-consent
+npm notice run node scripts/runtime-check-consent-test.js && node scripts/codex-plugin-consent-test.js
+Codex hook observation tests passed.
+Runtime-check consent tests passed
+Codex plugin consent: exact tool policy, readback, disable preservation, failures and input validation passed; revocation removes only the approval key.
+npm notice run create-agdf@0.14.5 test:task-target-resolution
+npm notice run node ../core/test/task-target-resolution-test.js
+task target resolution tests passed
+npm notice run create-agdf@0.14.5 test:skill-dispatch
+npm notice run node scripts/skill-dispatch-function-contract-test.js && node scripts/skill-dispatch-test.js && node scripts/skill-dispatch-binding-test.js && node scripts/delivery-run-assignment-test.js
+Skill dispatch semantic function contract tests passed
+agdf_inspect function contract pins passed.
+skill dispatch tests passed
+presentation_required preview tests passed.
+40 adapter-to-dispatch cases passed (generated SessionStart and source-composed OpenCode, not loaded-host evidence)
+Skill dispatch binding tests passed
+Delivery run assignment: zero/one/multiple runs, UR references, explicit scope binding, new scope, stale and racing revisions, ambient selector, integrity and EN/DE status passed.
+npm notice run create-agdf@0.14.5 test:control-inspect
+npm notice run node scripts/control-inspect-test.js
+control-inspect parity, shared selection, read-only and preview tests passed.
+npm notice run create-agdf@0.14.5 test:host-command
+npm notice run node scripts/host-command-test.js
+[host-command-test] SKIPPED live Windows shim assertions on darwin
+Host command tests passed
+npm notice run create-agdf@0.14.5 test:mcp-lifecycle
+npm notice run node scripts/mcp-lifecycle-test.js
+AGDF MCP lifecycle, package acquisition and host adapter tests passed.
+npm notice run create-agdf@0.14.5 test:plugin-mcp-runtime
+npm notice run node scripts/plugin-mcp-runtime-test.js
+Plugin MCP runtime tests passed
+npm notice run create-agdf@0.14.5 test:claude-plugin-mcp
+npm notice run node scripts/claude-plugin-mcp-test.js
+Claude plugin MCP tests passed
+npm notice run create-agdf@0.14.5 test:codex-plugin-mcp
+npm notice run node scripts/codex-plugin-mcp-test.js
+Codex plugin MCP tests passed
+npm notice run create-agdf@0.14.5 test:mcp-server
+npm notice run npm --prefix ../mcp-server test
+npm notice run @agdf/mcp-server@0.14.5 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:continuation
+npm notice run node ./test/continuation.test.js
+All nine MCP skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.14.5 test:protocol
+npm notice run node ./test/protocol.test.js
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:safety
+npm notice run node ./test/safety.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:provenance
+npm notice run node ./test/provenance.test.js
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[594.713,575.753,577.408,576.353,589.021,598.323,647.813,627.28,640.541,629.43,606.484,665.404,767.365,667.1,614.963,592.223,608.468,589.516,605.261,587.959],"cold_p95_ms":667.1,"warm_dispatch_ms":[576.211,1725.81,760.165,604.399,516.57,459.185,500.712,454.723,445.828,430.915,436.236,441.734,442.626,462.893,417.373,420.924,464.898,416.328,446.087,411.086],"warm_p95_ms":760.165}
+npm notice run @agdf/mcp-server@0.14.5 test:package
+npm notice run node ./test/package.test.js
+AGDF MCP package boundary tests passed.
+npm notice run create-agdf@0.14.5 test:local-validator
+npm notice run node scripts/local-validator-test.js
+Local validator tests passed
+npm notice run create-agdf@0.14.5 test:local-marketplace
+npm notice run node scripts/local-marketplace-test.js
+Local marketplace tests passed
+npm notice run create-agdf@0.14.5 test:claude-cache-recovery
+npm notice run node scripts/claude-cache-recovery-test.js
+Claude cache recovery tests passed
+npm notice run create-agdf@0.14.5 test:copilot-profile
+npm notice run node scripts/copilot-profile-test.js
+Copilot profile tests passed (inventory, drift, exclusions and growth fail closed)
+npm notice run create-agdf@0.14.5 test:copilot-installer
+npm notice run node scripts/copilot-installer-test.js
+Copilot installer tests passed (native Git checkout, same-version updates, migration, rollback, discovery and isolation)
+npm notice run create-agdf@0.14.5 test:local-preparation
+npm notice run node scripts/local-preparation-test.js
+local host preparation: isolation, clean bootstrap, runtime validation and release guard passed
+npm notice run create-agdf@0.14.5 test:local-development-install
+npm notice run npm run release:prepare && node scripts/local-development-install-test.js
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (50 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+Public plugin tests passed (51 inventoried candidate files; digest c2b27087678d01df3e04421ce5b4bf2b23d6019fd97e84e2f01860327e607a09)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest c2b27087678d01df3e04421ce5b4bf2b23d6019fd97e84e2f01860327e607a09
+Local development install tests passed
+npm notice run create-agdf@0.14.5 test:package-build
+npm notice run node scripts/package-build-test.js
+Package build tests passed (all generated profiles byte-identical across complete builds; source untouched)
+npm notice run create-agdf@0.14.5 test:package-contents
+npm notice run node scripts/package-contents-test.js
+Package contents tests passed (659 files; complete release-built plugin present)
+npm notice run create-agdf@0.14.5 test:lifecycle
+npm notice run node scripts/lifecycle-test.js
+lifecycle tests passed
+npm notice run create-agdf@0.14.5 test:copilot-repository-retention
+npm notice run node scripts/copilot-repository-retention-test.js
+Copilot repository retention tests passed (install, update, status, disable, uninstall and failure)
+npm notice run create-agdf@0.14.5 test:control-command
+npm notice run node scripts/control-command-test.js
+PASS SCN-016 Windows replay flush uses a writable handle without changing canonical bytes
+PASS SCN-002 undeclared {"role":"user"}
+PASS SCN-002 undeclared {"seen":true}
+PASS SCN-002 undeclared {"trusted":true}
+PASS SCN-002 undeclared {"tool_provenance":"human"}
+PASS SCN-002 accessor schema_version rejected without evaluation
+PASS SCN-002 accessor action rejected without evaluation
+PASS SCN-002 accessor target_id rejected without evaluation
+PASS SCN-002 accessor run_id rejected without evaluation
+PASS SCN-002 accessor gate rejected without evaluation
+PASS SCN-002 accessor expected_revision_id rejected without evaluation
+PASS SCN-002 accessor presentation_id rejected without evaluation
+PASS SCN-002 accessor response rejected without evaluation
+PASS SCN-002 accessor operation_id rejected without evaluation
+PASS SCN-002 accessor assurance rejected without evaluation
+PASS SCN-009 "authenticated_human"
+PASS SCN-009 "verified_human"
+PASS SCN-009 "host_attested"
+PASS SCN-009 "signed"
+PASS SCN-009 "trusted"
+PASS SCN-009 ""
+PASS SCN-002 malformed {"schema_version":"2"}
+PASS SCN-002 malformed {"action":"present"}
+PASS SCN-002 malformed {"operation_id":"x"}
+PASS SCN-002 malformed {"run_id":"../foreign"}
+PASS SCN-002 malformed {"expected_revision_id":null}
+PASS SCN-002 malformed {}
+PASS SCN-002/009 closed schema and unsupported authority, zero mutation
+PASS SCN-008 ""
+PASS SCN-008 "Ja"
+PASS SCN-008 "Leg los"
+PASS SCN-008 "Approval: PRD"
+PASS SCN-008 "`Approval: UR`"
+PASS SCN-008 "Zitat: Approval: UR"
+PASS SCN-007/008 read, present, derived and nonexact replies do not approve
+PASS SCN-011 {"target_id":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+PASS SCN-011 {"expected_revision_id":"49051dc8-78bc-43e8-aea2-664631c91325"}
+PASS SCN-011 {"presentation_id":"415eccce-7c82-4d24-b058-1e8781c21543"}
+PASS SCN-011 {"gate":"PRD"}
+PASS SCN-011 exact target, revision and presentation bindings
+PASS SCN-015 live and unknown locks are retained and never succeed
+PASS SCN-020 temp_opened
+PASS SCN-020 temp_written
+PASS SCN-020 after_file_sync
+PASS SCN-020 before_rename
+PASS SCN-020 write checkpoints before rename leave no approval or receipt
+PASS SCN-012 final presentation validation under lock
+PASS SCN-012 prepared presentation mutation is rejected at final validation
+PASS SCN-001/003/004/010 one revision, atomic receipt and explicit cooperative result
+PASS SCN-025 invalid receipt subcase 0
+PASS SCN-025 invalid receipt subcase 1
+PASS SCN-025 invalid receipt subcase 2
+PASS SCN-025 invalid receipt subcase 3
+PASS SCN-025 invalid receipt subcase 4
+PASS SCN-025 invalid receipt subcase 5
+PASS SCN-025 invalid receipt subcase 6
+PASS SCN-023/025 receipt version, row identity, effect and encoding validation
+PASS SCN-016/017 same request replays; changed bytes conflict without a revision
+PASS SCN-018/019 historical effect survives revocation, current state is separately observed
+PASS SCN-023/025 receipt corruption, deletion and seal tampering fail closed
+PASS SCN-018 receipt-preserving recovery never restores approval
+PASS SCN-022 postrename failure exposes canonical effect; retry acknowledges without writing
+PASS SCN-018 bounded PRD supersession preserves UR receipt and never reapproves PRD
+PASS SCN-024 legacy seal bytes and CLI rejection/assurance remain compatible
+PASS SCN-011 symlink run paths are rejected before mutation
+Control command tests passed: 18 scenario groups.
+PASS SCN-020/022 postcommit after_directory_sync acknowledged without another revision
+PASS SCN-020/022 postcommit before_response acknowledged without another revision
+PASS SCN-020/022 postcommit before_lock_release acknowledged without another revision
+PASS SCN-020/022 postcommit after_lock_release acknowledged without another revision
+npm notice run create-agdf@0.14.5 test:control-command-process
+npm notice run node scripts/control-command-process-test.js
+PASS SCN-021/016 kill before_rename, confirmed death, one committed revision
+PASS SCN-021/016 kill after_rename, confirmed death, one committed revision
+PASS SCN-021/016 kill before_response, confirmed death, one committed revision
+PASS SCN-013/014/015 CLI/API concurrent identical
+PASS SCN-013/014/015 CLI/API concurrent distinct
+PASS SCN-013/014/015 CLI/API concurrent changed_payload
+Control command process tests passed on darwin/x64.
+PASS SCN-026 real legacy CLI interruption before_rename
+PASS SCN-026 real legacy CLI interruption after_rename
+SCN-026 INTERRUPTION_METRICS [{"lane":"command","point":"before_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"accepted","manual_corrections":0,"human_decision":"unavailable"},{"lane":"command","point":"after_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"already_applied","manual_corrections":0,"human_decision":"unavailable"},{"lane":"command","point":"before_response","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"already_applied","manual_corrections":0,"human_decision":"unavailable"},{"lane":"legacy","point":"before_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"approved","manual_corrections":0,"human_decision":"unavailable"},{"lane":"legacy","point":"after_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"rejected","manual_corrections":0,"human_decision":"unavailable"}]
+PROCESS_EVIDENCE [{"point":"before_rename","child_pid":98532,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"85776c86-ea7d-4d85-a756-566e190a069e","retry":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"420c8c1d-966d-43a2-9063-b6fa4c74bca4","request_digest":"sha256:43ee1164e45859d676fd78705e1ef78778659f53a0a2e3424974b34e3b063f45","binding":{"target_id":"sha256:9fd33b097a28018ae9ceb37e033f8f2bffb802cbc383d82ef436371d3c1affad","run_id":"command-test","gate":"UR","expected_revision_id":"85776c86-ea7d-4d85-a756-566e190a069e","presentation_id":"a462fa49-fbb5-47d5-bb76-e267987bfb08"},"effect":{"previous_revision_id":"85776c86-ea7d-4d85-a756-566e190a069e","resulting_revision_id":"3c2560a1-232c-4fb8-8d57-629437285238","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:4bf04c00e0425a3addd015b482be0fef511f5bc5127ca878ef7769380e32946f","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"3c2560a1-232c-4fb8-8d57-629437285238","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"point":"after_rename","child_pid":98564,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"1803a515-22d8-4fda-bca5-52f491cd7678","retry":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"d1af20c6-41ed-4ec0-9396-abfdf483fc67","request_digest":"sha256:ea3d564e96fd9e415366130b46f290c556223b14a8def781ecb7c91ec1a55461","binding":{"target_id":"sha256:5076029b67612cc96a2644a632ec212aa1558e5632e7ef7e37fcb9685e473307","run_id":"command-test","gate":"UR","expected_revision_id":"f303fd33-f793-4c5f-bb52-4243ff90b4a1","presentation_id":"a607f5ed-41ba-45f4-a9af-5576d555efa6"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:0bde81157b9efd4f04af92391f73977b3b3f17fa04be8dbd846eda874b93708c","previous_revision_id":"f303fd33-f793-4c5f-bb52-4243ff90b4a1","resulting_revision_id":"1803a515-22d8-4fda-bca5-52f491cd7678","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"1803a515-22d8-4fda-bca5-52f491cd7678","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"point":"before_response","child_pid":98587,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"4eebb2fc-abb9-4da4-ac05-d44c1e31f0dd","retry":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"f991ea4f-d104-400a-848d-0970c7afabec","request_digest":"sha256:ddc99a4e641a56061ab8b5f09a607be5ce26d5cee7959e18b49647dc849420ba","binding":{"target_id":"sha256:5a9dea1e6d2a476aeb79602dda075310185d9d6c96f01cadb5bd8034e395d184","run_id":"command-test","gate":"UR","expected_revision_id":"23b9087c-919a-4de1-9514-cddf20284164","presentation_id":"365fc12b-a52d-4100-a8e1-e2076146a88a"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:a6ec9a3bcd6f5d0d34a093293ffb67aa3341e2a203521a05fb908c05dcbd5332","previous_revision_id":"23b9087c-919a-4de1-9514-cddf20284164","resulting_revision_id":"4eebb2fc-abb9-4da4-ac05-d44c1e31f0dd","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"4eebb2fc-abb9-4da4-ac05-d44c1e31f0dd","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"mode":"identical","child_pid":98613,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"13ae31f8-0f46-46ad-b13c-75494274c5ba","request_digest":"sha256:56c3498242f1283b2a9d101654daca04795c410c04bb2fa53282f44e2c60bb29","binding":{"target_id":"sha256:246b94b9cdc8f5a1d9c0664b4b66569d39f838ee85f024e8247d22efa94a37d9","run_id":"command-test","gate":"UR","expected_revision_id":"1143a45e-dac9-4ba0-b588-2fdfb5c427b4","presentation_id":"6ea49e16-de12-4d38-904d-c7baf7fab947"},"effect":{"previous_revision_id":"1143a45e-dac9-4ba0-b588-2fdfb5c427b4","resulting_revision_id":"8cebedee-22bc-42ef-8af1-06d7da8cbd96","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:c325fb39e2b508b80c0c6d5b3b72b148808d48b34ef2624a08f7a7563e275b39","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"8cebedee-22bc-42ef-8af1-06d7da8cbd96","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"13ae31f8-0f46-46ad-b13c-75494274c5ba","request_digest":"sha256:56c3498242f1283b2a9d101654daca04795c410c04bb2fa53282f44e2c60bb29","binding":{"target_id":"sha256:246b94b9cdc8f5a1d9c0664b4b66569d39f838ee85f024e8247d22efa94a37d9","run_id":"command-test","gate":"UR","expected_revision_id":"1143a45e-dac9-4ba0-b588-2fdfb5c427b4","presentation_id":"6ea49e16-de12-4d38-904d-c7baf7fab947"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"1143a45e-dac9-4ba0-b588-2fdfb5c427b4","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":0,"result":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"13ae31f8-0f46-46ad-b13c-75494274c5ba","request_digest":"sha256:56c3498242f1283b2a9d101654daca04795c410c04bb2fa53282f44e2c60bb29","binding":{"target_id":"sha256:246b94b9cdc8f5a1d9c0664b4b66569d39f838ee85f024e8247d22efa94a37d9","run_id":"command-test","gate":"UR","expected_revision_id":"1143a45e-dac9-4ba0-b588-2fdfb5c427b4","presentation_id":"6ea49e16-de12-4d38-904d-c7baf7fab947"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:c325fb39e2b508b80c0c6d5b3b72b148808d48b34ef2624a08f7a7563e275b39","previous_revision_id":"1143a45e-dac9-4ba0-b588-2fdfb5c427b4","resulting_revision_id":"8cebedee-22bc-42ef-8af1-06d7da8cbd96","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"8cebedee-22bc-42ef-8af1-06d7da8cbd96","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}},{"mode":"distinct","child_pid":98638,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"8b57c8ca-2313-4492-9c9b-434c4f6d0b22","request_digest":"sha256:e0a4765fa1076ce40251ce696a99adb34860ba709d338ad4c63854748ff1f644","binding":{"target_id":"sha256:5b988ba1984256d022ea583d5ab134a98e360ef8c3edaa1552f449f1748ee01f","run_id":"command-test","gate":"UR","expected_revision_id":"f4532bab-ae3c-4a20-a785-050d1da33c09","presentation_id":"ba93bf59-c983-491d-814b-447ba3e8830a"},"effect":{"previous_revision_id":"f4532bab-ae3c-4a20-a785-050d1da33c09","resulting_revision_id":"16c5e38d-4d19-4806-a59f-f006911d6498","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:ccbe98b6899fdb80257df47d5a25eac333f22c4c75de1a4b744c3ba8a7e9b3be","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"16c5e38d-4d19-4806-a59f-f006911d6498","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"08474e11-ea2f-4d1d-b33a-5956d14adfe9","request_digest":"sha256:e0a4765fa1076ce40251ce696a99adb34860ba709d338ad4c63854748ff1f644","binding":{"target_id":"sha256:5b988ba1984256d022ea583d5ab134a98e360ef8c3edaa1552f449f1748ee01f","run_id":"command-test","gate":"UR","expected_revision_id":"f4532bab-ae3c-4a20-a785-050d1da33c09","presentation_id":"ba93bf59-c983-491d-814b-447ba3e8830a"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"f4532bab-ae3c-4a20-a785-050d1da33c09","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":2,"result":{"schema_version":"1","outcome":"rejected","reason":"gate_not_ready","operation_id":"08474e11-ea2f-4d1d-b33a-5956d14adfe9","request_digest":"sha256:e0a4765fa1076ce40251ce696a99adb34860ba709d338ad4c63854748ff1f644","binding":{"target_id":"sha256:5b988ba1984256d022ea583d5ab134a98e360ef8c3edaa1552f449f1748ee01f","run_id":"command-test","gate":"UR","expected_revision_id":"f4532bab-ae3c-4a20-a785-050d1da33c09","presentation_id":"ba93bf59-c983-491d-814b-447ba3e8830a"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"16c5e38d-4d19-4806-a59f-f006911d6498","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}},{"mode":"changed_payload","child_pid":98664,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"d781f094-741b-42d7-99e5-8ab3dc63895d","request_digest":"sha256:7895340ba9ccfcb1697fd0f164bb63b6dbf74820f22d90b2a1687792a235a41f","binding":{"target_id":"sha256:082554c762aa1a90110d3c1eee4bcb497c2a9e2a420d1ea695a0701f0dc7098e","run_id":"command-test","gate":"UR","expected_revision_id":"54ecd366-f05d-4d09-a218-9c452328b946","presentation_id":"39315fde-4c33-45dc-a4c8-208c9b0223df"},"effect":{"previous_revision_id":"54ecd366-f05d-4d09-a218-9c452328b946","resulting_revision_id":"4565a6df-4bea-4a70-885c-709080ea05d5","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:93bdbbd8d89293169beadc393e4dc2733ca117b624caac3f1e7ffa0507203276","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"4565a6df-4bea-4a70-885c-709080ea05d5","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"d781f094-741b-42d7-99e5-8ab3dc63895d","request_digest":"sha256:63563bdc530f50d435babcfcc6ccc7840d2f6faafd0afe01bec521a556e05d30","binding":{"target_id":"sha256:082554c762aa1a90110d3c1eee4bcb497c2a9e2a420d1ea695a0701f0dc7098e","run_id":"command-test","gate":"UR","expected_revision_id":"54ecd366-f05d-4d09-a218-9c452328b946","presentation_id":"39315fde-4c33-45dc-a4c8-208c9b0223df"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"54ecd366-f05d-4d09-a218-9c452328b946","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":2,"result":{"schema_version":"1","outcome":"rejected","reason":"operation_payload_conflict","operation_id":"d781f094-741b-42d7-99e5-8ab3dc63895d","request_digest":"sha256:63563bdc530f50d435babcfcc6ccc7840d2f6faafd0afe01bec521a556e05d30","binding":{"target_id":"sha256:082554c762aa1a90110d3c1eee4bcb497c2a9e2a420d1ea695a0701f0dc7098e","run_id":"command-test","gate":"UR","expected_revision_id":"54ecd366-f05d-4d09-a218-9c452328b946","presentation_id":"39315fde-4c33-45dc-a4c8-208c9b0223df"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"4565a6df-4bea-4a70-885c-709080ea05d5","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":null}}}]
+PASS SCN-012 real child final-checkpoint artefact, no command effect
+FRESHNESS_EVIDENCE {"kind":"artefact","child_pid":98744,"result":{"schema_version":"1","outcome":"recovery_required","reason":"canonical_state_unconfirmed","operation_id":"d24c3259-9066-4883-8262-28a3015493bc","request_digest":"sha256:a06eec40ad530decc03f64e8adf1cabe33db64861f4e1ba27d2f6b046dd0957e","binding":{"target_id":"sha256:9b9d6352cd79870a5c2a8a3b97c66042eba5a51b31e0aebd3f75ea89f9c0dd64","run_id":"command-test","gate":"UR","expected_revision_id":"8559d0c3-a175-48f3-9ebd-b0da327ce910","presentation_id":"e5f936a1-5ebe-4300-b559-cbc73d3292cc"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":false,"reason":"seal_invalid"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Inspect the canonical run and pending transaction before retrying; do not infer approval from this response."}}
+PASS SCN-012 real child final-checkpoint presentation, no command effect
+FRESHNESS_EVIDENCE {"kind":"presentation","child_pid":98767,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"bfffc090-913a-4dae-8458-6ca55d18f16a","request_digest":"sha256:1bc45acdc455d3243680d0e1cfa614ac00a790dab7b71fba422b3f3fa6d8338d","binding":{"target_id":"sha256:2ad1e85760062c0dc0ea05c41bacc4438529f044bcdc38bf4222fb53cd58d8b3","run_id":"command-test","gate":"UR","expected_revision_id":"db3d52f1-7fa6-4709-b23d-f0508cf121a1","presentation_id":"d9320554-b870-45e8-801f-3c2e611b7b43"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"db3d52f1-7fa6-4709-b23d-f0508cf121a1","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+PASS SCN-012 real child final-checkpoint revision, no command effect
+FRESHNESS_EVIDENCE {"kind":"revision","child_pid":98790,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"976fc9f6-6f9f-40dc-8e24-cede7409b001","request_digest":"sha256:d4a2444dad58c9289334193c6a25a413f579492dad7a64fa710bb12665552984","binding":{"target_id":"sha256:00eb236835ae8e3ce0d93830d65d5105537887a4a534195b3e27a65a50d456b4","run_id":"command-test","gate":"UR","expected_revision_id":"80455a94-5158-43c9-b177-e67d4a3d71a1","presentation_id":"aa6e4343-ef8a-4a80-84c3-d18691a95c39"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"334d3e48-bf28-4772-8242-546bff679701","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+PASS SCN-012 real child final-checkpoint gate_eligibility, no command effect
+FRESHNESS_EVIDENCE {"kind":"gate_eligibility","child_pid":98813,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"617e1466-19b1-4fa1-8de4-9328724062ca","request_digest":"sha256:9b9c4a6da0e7b4c164826141b5e25174256023a279da940c49c2ce3c18ff4ab3","binding":{"target_id":"sha256:7ed9f1d0f61ee738ea3723f9e02e831cb28935a0968b0e37743c0010c7993f85","run_id":"command-test","gate":"UR","expected_revision_id":"b7d8d74d-3594-4d9c-9385-3880d2b74f92","presentation_id":"80125483-3df0-43a5-a31f-eb6100f35f9b"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"b7d8d74d-3594-4d9c-9385-3880d2b74f92","approval_status":"missing","lifecycle":"completed","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+npm notice run create-agdf@0.14.5 test:control-command-package
+npm notice run node scripts/control-command-package-test.js
+PASS package containment accepts POSIX/Windows dependencies and rejects sibling, parent and foreign-drive paths
+PASS SCN-024/028 CLI modularization against the current source and documentation in isolated snapshot
+PASS SCN-029/032 isolated package-build regression
+PASS SCN-029/032 isolated copilot-profile regression
+PASS SCN-029/032 isolated release-version-coherence regression
+PASS SCN-029/032 isolated package-contents regression
+PASS SCN-029/032 isolated local-validator regression
+PASS SCN-029/032 isolated plugin-mcp-runtime regression
+PASS SCN-029/032 isolated runtime-integrity-layout regression
+PASS SCN-029/032 isolated runtime-integrity-negative regression
+PASS SCN-005/006/027 package exports and 41 pure runtime dependency modules
+PASS SCN-006 external import has only package-owned reads and no target/process/write/print/exit effects
+SCN-001 PACKED_API_RESULT {"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"fc485ec3-0d9f-405b-93a4-fd39f846fce3","request_digest":"sha256:c30e5cd81282613eb8f7d76404a346b960de4b745d5e21711e85437c01ca367f","binding":{"target_id":"sha256:0001dabb396babc00fcf04313193703f8e1f4f227d63365f57f7d327e45231d7","run_id":"external-consumer","gate":"UR","expected_revision_id":"e814e2b4-3404-4f79-9b0c-ce6aa308ad43","presentation_id":"077e23d9-bf2d-4d31-a10e-51000b4aa189"},"effect":{"previous_revision_id":"e814e2b4-3404-4f79-9b0c-ce6aa308ad43","resulting_revision_id":"dcfcc9f9-0270-4db0-99e1-f0550922f948","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:ea7e74fa9859af7d507b4ca74d0b2460627be95219ba3c94779ba16f805decb7","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"dcfcc9f9-0270-4db0-99e1-f0550922f948","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}
+PASS SCN-001/028/029 packed external CLI/API approve/replay/Git/locale parity
+PASS SCN-029 missing packed locale resource fails without canonical mutation
+SCN-032 RUNTIME_IDENTITY {"profile":"generated/plugins/agdf","version":"0.14.5","digest":"5f41a1dd996c998e0b8fe8c6db533a673baaf8fd2a4b8fd8b763abf4b2bea16d","result":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"89d953f7-c593-4cea-8cd1-c39a53d5c932","request_digest":"sha256:6d4d61592a06f8e047077dc8318f3aca090d7d6c5d13552a56c410b14825fa69","binding":{"target_id":"sha256:19a716943a893537e48888068683b04244950d3a885e9ce4790ca34568d8f1d3","run_id":"generated-shared","gate":"UR","expected_revision_id":"961f96cb-90e4-44c1-a87e-9d89f0cd6aed","presentation_id":"dfc8f510-4e28-407b-8723-5d7f121ea559"},"effect":{"previous_revision_id":"961f96cb-90e4-44c1-a87e-9d89f0cd6aed","resulting_revision_id":"e814835f-62dc-4849-a79d-1aa420755267","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:8bfe964f029fd0850293b1368282167e4587a8a99ca9497a72442a0640425080","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"e814835f-62dc-4849-a79d-1aa420755267","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}
+PASS SCN-032 generated generated/plugins/agdf module/resource closure and missing resource fail closed
+SCN-032 RUNTIME_IDENTITY {"profile":"generated/plugins/copilot/agdf","version":"0.14.5","digest":"f1e4575862ceb79abb086a75526684e5b955309c85d51a3f085de2b030db296e","result":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"68fdaf89-e6cc-4cd2-9b46-c0d03a739a84","request_digest":"sha256:ee97b0a297104b7942eab939d28cc9e101f7858c094805d4f4a501b6fbad9bee","binding":{"target_id":"sha256:8522861f77f5f961e9f74a6cd00ebf5d948e67031b7020384d93739ff83d97f2","run_id":"generated-copilot","gate":"UR","expected_revision_id":"f80ef4b2-80c6-4e50-9aa0-045f1ac89b38","presentation_id":"dbda9199-9a0d-4b93-8ac3-5467e949a1b7"},"effect":{"previous_revision_id":"f80ef4b2-80c6-4e50-9aa0-045f1ac89b38","resulting_revision_id":"c22141ae-da8b-4701-bc91-8725edd2ccff","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:6a950ad8c6e8293b80516f56c1c78e5e2035096e0e1340e26e663cfec5da5a82","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"c22141ae-da8b-4701-bc91-8725edd2ccff","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}
+PASS SCN-032 generated generated/plugins/copilot/agdf module/resource closure and missing resource fail closed
+SCN-026 WORKFLOW_METRICS [{"lane":"legacy","boundary":"recorded_UR_to_inspected_approval","success_calls":3,"presentation_prepared":1,"presentations_visibly_shown":"unavailable","manual_corrections":0,"simulated_replies":1,"observed_human_decisions":"unavailable","retry_calls":1,"retry_outcome":"rejected","stale_calls":1,"stale_outcome":"rejected"},{"lane":"command","boundary":"recorded_UR_to_inspected_approval","success_calls":3,"presentation_prepared":1,"presentations_visibly_shown":"unavailable","manual_corrections":0,"simulated_replies":1,"observed_human_decisions":"unavailable","retry_calls":1,"retry_outcome":"already_applied","stale_calls":1,"stale_outcome":"rejected"}]
+SCN-030/031 QUALIFICATION {"source":"passed","packed_external":"passed","generated_validator":"passed","native_platform":"darwin/x64","native_linux":"unavailable","native_windows":"unavailable","new_installed_plugin":"not_installed","visible_host":"not_observed","independent_human_proof":"unavailable"}
+PACKAGE_IDENTITY {"version":"0.14.5","tarball_sha256":"e8e181d3a0449028f2221f6228d83327bfcc3a3f918e238be1e4f3005a79a7bd","command_schema_version":"1","receipt_schema_version":"1","approval_seal_legacy_version":"1","receipt_approval_seal_version":"2","files":659,"node":"v22.22.3","platform":"darwin","arch":"x64"}
+Control command package tests passed (659 real packed files).
+npm notice run create-agdf@0.14.5 test:cli-gates
+npm notice run node scripts/cli-gate-scenarios-test.js
+[cli-gates] START new-ur
+[cli-gates] PASS new-ur (5.3s)
+[cli-gates] START duplicate-prd
+[cli-gates] PASS duplicate-prd (5.6s)
+[cli-gates] START bound-ur
+[cli-gates] PASS bound-ur (5.8s)
+npm notice run create-agdf@0.14.5 test:control-state
+npm notice run node ../core/test/control-state-test.js
+control-state tests passed
+backlog status vocabulary tests passed
+npm notice run create-agdf@0.14.5 test:run-step-transaction
+npm notice run node ../core/test/run-step-transaction-test.js
+Run-step transaction boundaries passed.
+npm notice run create-agdf@0.14.5 test:run-recovery
+npm notice run node scripts/run-recovery-test.js
+run recovery tests passed
+npm notice run create-agdf@0.14.5 test:run-lock
+npm notice run node ../core/test/run-lock-test.js
+Run lock owner recovery passed.
+npm notice run create-agdf@0.14.5 test:prd-readiness
+npm notice run node ../core/test/prd-readiness-test.js
+PRD readiness tests passed
+npm notice run create-agdf@0.14.5 test:run-revision
+npm notice run node ../core/test/run-revision-test.js
+run-revise tests passed
+npm notice run create-agdf@0.14.5 test:intake-continuation
+npm notice run node scripts/intake-continuation-test.js
+intake continuation packaged-runtime E2E passed (new/resume, binding, rejection, read-only, recovery, route); runtime sha256:90628ade81f47b45dc20cce5819d7aaa5258851c75cc3c2b6f688e20f5e25aa5
+npm notice run create-agdf@0.14.5 test:parent-reconciliation
+npm notice run node ../core/test/parent-reconciliation-test.js
+AGDF parent reconciliation tests passed
+npm notice run create-agdf@0.14.5 test:interaction-presentation
+npm notice run node ../core/test/interaction-presentation-test.js
+interaction presentation tests passed
+gate rationale and why tests passed
+scope classification card tests passed
+task target orientation tests passed
+npm notice run create-agdf@0.14.5 test:operational-localization
+npm notice run node scripts/operational-localization-test.js
+operational localization tests passed
+npm notice run create-agdf@0.14.5 test:verified-change
+npm notice run node scripts/verified-change-test.js
+Verified Change tests passed
+npm notice run create-agdf@0.14.5 test:runtime-integrity-layout
+npm notice run node scripts/runtime-integrity-layout-test.js
+Runtime integrity layout tests passed
+npm notice run create-agdf@0.14.5 test:runtime-integrity-negative
+npm notice run node scripts/runtime-integrity-negative-test.js
+Runtime integrity negative tests passed
+npm notice run create-agdf@0.14.5 test:agent-skills-conformance
+npm notice run node scripts/agent-skills-conformance-test.js
+Agent Skills conformance tests passed (source, policy, metadata, resources, symlinks and 4 generated surfaces)
+npm notice run create-agdf@0.14.5 test:skill-evals
+npm notice run node scripts/skill-evals-test.js
+AGDF skill eval tests passed
+npm notice run create-agdf@0.14.5 eval:skills
+npm notice run node ../../evals/scripts/run-skill-evals.js
+AGDF skill evals: pass (90/90 cases; 10 skills; deterministic replay, not live host execution)
+npm notice run create-agdf@0.14.5 test:proportionality
+npm notice run node scripts/proportionality-benchmark-test.js
+AGDF proportionality benchmark tests passed
+npm notice run create-agdf@0.14.5 test:delivery-path-search
+npm notice run node scripts/delivery-path-search-test.js
+Delivery Path Search focused tests passed.
+npm notice run create-agdf@0.14.5 test:delivery-path-search-unit
+npm notice run node ../core/test/delivery-path-search-unit-test.js
+Delivery Path Search unit tests passed.
+npm notice run create-agdf@0.14.5 test:delivery-path-search-generator
+npm notice run node scripts/delivery-path-search-generator-test.js
+Delivery Path Search generator tests passed.
+npm notice run create-agdf@0.14.5 test:opencode-hardening
+npm notice run node scripts/opencode-hardening-test.js
+OpenCode hardening tests passed.
+[smoke 0.0s] CLI metadata and release guards
+[smoke 0.4s] codex global
+[smoke 4.5s] host installer scenarios
+[smoke 6.9s] claude install
+[smoke 11.4s] claude update
+[smoke 16.2s] Claude installer scenarios
+[smoke 21.3s] OpenCode global installation and validator
+[smoke 33.7s] OpenCode installation and status scenarios
+[smoke 47.1s] opencode global preservation
+[smoke 64.4s] opencode global collision
+[smoke 65.6s] opencode validator package collision
+[smoke 84.9s] repository bootstrap scenarios
+[smoke 85.8s] opencode agent migration
+[smoke 86.3s] opencode existing config
+[smoke 86.8s] configuration and locale scenarios
+[smoke 87.2s] init
+[smoke 88.8s] gate check status card
+[smoke 90.4s] language explicit
+[smoke 91.0s] language config update
+[smoke 91.9s] language locale
+[smoke 92.4s] localized status cards
+[smoke 94.7s] status card tp transition
+[smoke 96.9s] gate check implicit consent
+[smoke 98.5s] late gate transition scenarios
+[smoke 120.8s] QA and UAT gate scenarios
+[smoke 122.5s] doctor qa status mismatch
+[smoke 124.0s] doctor missing
+[smoke 125.0s] gate check ur triage
+[smoke 126.5s] gate-check presentation scenarios
+[smoke 128.7s] Mode and slice decision scenarios
+[smoke 131.0s] gate check or handoff
+[smoke 133.2s] gate check mode slice incomplete
+[smoke 134.8s] delivery map chain
+[smoke 136.8s] delivery map and backlog scenarios
+[smoke 138.3s] invalid compact backlog
+[smoke 139.3s] completed only backlog
+[smoke 140.3s] gate check missing ur artifact
+[smoke 141.8s] missing artefact and package compatibility scenarios
+[smoke 148.2s] generated host surface scenarios
+create-agdf smoke test passed
+AGDF routing render test passed for plugin-only Copilot skills

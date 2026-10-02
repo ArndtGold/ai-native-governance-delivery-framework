@@ -103,15 +103,18 @@ the `npx --yes @agdf/cli@latest ...` path documented in [INSTALL.md](INSTALL.md)
 
 ## Local validation
 
-Install both dependency sets before running full-source fixture checks:
+Install repository dependencies, prepare the CLI payload, then install MCP dependencies
+before running full-source fixture checks:
 
 ```bash
 npm ci --ignore-scripts
+npm run build && npm --prefix packages/cli run release:prepare
 npm --prefix packages/mcp-server ci --ignore-scripts
 ```
 
 The repository install covers the Core/CLI workspace. The separate MCP lock supplies the SDK
-also copied by host-compatibility fixtures and used by the CLI smoke suite.
+also copied by host-compatibility fixtures and used by the CLI smoke suite. Its development
+lock packs `file:../cli`, which must already contain the generated plugin payload at installation.
 
 Choose the commands relevant to your scope. Larger repository changes typically include:
 

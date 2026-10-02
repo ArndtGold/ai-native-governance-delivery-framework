@@ -1,0 +1,18 @@
+node:fs:440
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open '/private/tmp/agdf-ci-real-install-wDLL4U/packages/mcp-server/node_modules/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json'
+    at readFileSync (node:fs:440:20)
+    at createResourceContext (file:///private/tmp/agdf-ci-real-install-wDLL4U/packages/core/lib/resources/context.js:16:39)
+    at file:///private/tmp/agdf-ci-real-install-wDLL4U/packages/mcp-server/node_modules/create-agdf/lib/runtime/control-context.js:8:26
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/private/tmp/agdf-ci-real-install-wDLL4U/packages/mcp-server/node_modules/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json'
+}
+
+Node.js v22.22.3

@@ -78,3 +78,7 @@ All five CI findings are consumed as resolved implementation_gap to CD+Tests fro
 ## CI prerequisites plan evidence refresh — 2026-10-02
 
 Dispatcher revision 23 / 6b7e8c86-5608-495e-afc2-28d0b84a7eaf. T-008/T-012 current CI consumer/review evidence extends to the locked MCP prerequisite and actual legacy preload cases in CI_REPAIR.md. Coverage remains 11/13 fully_done; T-001/T-011 remain partial. TPR-E001/E002 classifications, routing and open status are unchanged. CI-006/007 are resolved implementation_gap findings routed to CD+Tests, with corrected remote execution still pending. No historical obligation is satisfied by the fresh test or current index proof.
+
+## Real dependency installation plan evidence refresh — 2026-10-02
+
+Dispatcher revision 26 / 2f7a1a4b-19f9-4d87-9150-6f09b86a580e. T-008/T-012 consumer evidence now includes actual registry-backed locked installs and a complete npm smoke exit 0. The earlier dependency-copy fixture proof did not cover this install-before-build failure. CI-008 is resolved implementation_gap / CD+Tests; corrected remote execution remains pending. Coverage remains 11/13 fully_done; T-001/T-011 remain partial and TPR-E001/E002 remain evidence_gap / evidence_obligation / open. The fresh proof does not recreate historical checkpoints or original index identities.

@@ -53,3 +53,21 @@ Current workflow contract, host fixture contract, full build/release preparation
 | CI-007 | implementation_gap | CD+Tests | resolved | file URL preload; process.log; windows-path-probe.log | Run the corrected Windows job on the next push. |
 
 The five unrelated staged duplicate entries remain byte-identical. TPR-E001/E002 remain open; QA remains revise. This source push grants no QA/UAT/release approval. Earlier no-commit/no-push statements describe the evidence at their original recording time.
+
+## Local file dependency preparation repair — 2026-10-02
+
+Baseline a95779ef81c3c7b5f86b355d762347797539a402; remote Guardrails run 36973447046. All three jobs passed the earlier prerequisite checks, then failed in MCP contract loading: npm ci had packed file:../cli before its generated payload existed. The prior fixture helper removes copied create-agdf dependencies and resolves the source workspace, which masked this production installation condition in the previous local checks.
+
+Both Guardrails and compatibility-evidence recording now install MCP dependencies after full build/release preparation and before fixture consumers. No SDK/version/lock change, dependency skipping, copy repair or extra package source was introduced. The existing workflow contract rejects early installation as well as missing/late installation; CONTRIBUTING.md documents the complete order.
+
+A new source fixture began with no generated output/dist/dependencies and used real locked npm ci from the registry. An actual early MCP installation created a directory copy with no generated plugin definition; after root build, the MCP semantic contract failed on exactly the remote ENOENT path (expected exit 1). Full release preparation followed by a new locked MCP installation included the generated definition, and the same MCP contract passed. Neither installation used a linked CLI replacement or copied preinstalled dependency files.
+
+The complete npm --prefix packages/cli run smoke-test invocation then finished with exit 0, including every prerequisite stage, all MCP tests, the direct CLI suite and terminal routing. The wrapper, community baseline/29 negatives, community check and 56-case compatibility check also passed in that fresh installation. Current workflow positive/missing/late/early contract cases pass. Logs and four source hashes are in evidence/ci-local-dependency-20261002/RESULTS.json. Local execution is macOS Node22.22.3/npm12.1.0; the next pushed GitHub matrix is still unverified at recording time.
+
+The current shared workspace's existing ignored generated runtime contains extra files (for example control-evaluation 3 and index 2.js), so its separate compatibility check failed. Participating source fingerprints are unchanged; the fresh fixture passes the committed compatibility snapshot. This local generated-output limitation remains visible, and no existing ignored or staged user files were removed.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CI-008 | implementation_gap | CD+Tests | resolved | Actual early/corrected npm installations, matching ENOENT negative, complete npm smoke exit 0, workflow early-install negative | Verify corrected Ubuntu22/Ubuntu24/Windows jobs after push. |
+
+Original approvals remain unchanged; the five unrelated staged duplicate entries are byte-identical. TPR-E001/E002 remain open and QA remains revise. A green build does not authorize QA/UAT/release.

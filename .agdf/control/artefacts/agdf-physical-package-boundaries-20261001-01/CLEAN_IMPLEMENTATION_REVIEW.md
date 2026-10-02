@@ -51,3 +51,14 @@ Exact payload delta is explained and reflected without headroom; negative exclus
 - evidence: CI_REPAIR.md and evidence/ci-prerequisites-20261002/RESULTS.json. CI-006/007 resolved through CD+Tests.
 - exit_criteria: Negative missing/late dependency cases and real legacy interruption suite pass; remote platform confirmation remains outstanding.
 - required_next_step: qa-gate consumes unchanged TPR-E001/E002.
+
+## Local dependency preparation integrity review — 2026-10-02
+
+- decision: pass
+- binding: dispatcher revision 26 / 2f7a1a4b-19f9-4d87-9150-6f09b86a580e
+- primary_solution: Complete canonical CLI payload preparation before its locked file dependency is packed, and install before source-fixture consumers.
+- fallbacks: none; no optional dependency bypass, postinstall patch or synthetic CLI link added.
+- parallel_structures: none; current build, development lock and workflow owners retained.
+- evidence: Real npm directory copies and exact matching negative; complete npm smoke exit 0; missing/late/early workflow negatives.
+- exit_criteria: Local real-install path verified; fresh remote confirmation remains pending. Existing ignored workspace output drift is an explicit verification limitation, not concealed by a payload claim.
+- required_next_step: qa-gate consumes unchanged original TPR-E001/E002.

@@ -59,3 +59,14 @@ The test harness comparison initially used an unselected run and a noncanonical 
 - missing_evidence: Corrected remote Windows execution remains unverified; original TPR-E001/E002 unchanged.
 - risks: Platform confirmation awaits next pushed commit; the live staged duplicates stay excluded.
 - required_next_step: Record current CR and consume the same open TP evidence obligations in qa-gate.
+
+## Local dependency ordering diff review — 2026-10-02
+
+- decision: pass
+- binding: dispatcher revision 26 / 2f7a1a4b-19f9-4d87-9150-6f09b86a580e; baseline a95779e
+- reviewed_scope: Actual four-file workflow/contract/contributor diff; local file dependency consumption and existing source-fixture masking boundary.
+- evidence: CI_REPAIR.md and real installation positive/negative witnesses, complete smoke exit 0, source hashes in evidence/ci-local-dependency-20261002/RESULTS.json.
+- findings: CI-008 resolved implementation_gap routed to CD+Tests. The initial SDK-before-fixtures correction was incomplete because it packed an unprepared CLI.
+- missing_evidence: Fresh remote matrix, live host behavior and original TPR-E001/E002 remain unverified/open; existing ignored workspace payload drift is separately documented.
+- risks: npm installs a local directory snapshot rather than a build-aware link; the positive and negative ordering contract now guards both sides of this boundary.
+- required_next_step: Record CR, rerun qa-gate without waiving original obligations, and verify new CI.

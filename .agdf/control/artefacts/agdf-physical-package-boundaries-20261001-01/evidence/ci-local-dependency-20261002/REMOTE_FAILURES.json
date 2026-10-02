@@ -1,0 +1,22 @@
+{
+  "run_id": 36973447046,
+  "source_commit": "a95779ef81c3c7b5f86b355d762347797539a402",
+  "jobs": [
+    {
+      "id": 110732114010,
+      "name": "verify (windows-latest)"
+    },
+    {
+      "id": 110732114218,
+      "name": "verify (ubuntu-latest, node 24)"
+    },
+    {
+      "id": 110732114228,
+      "name": "verify (ubuntu-latest)"
+    }
+  ],
+  "common_failed_step": "Verify create-agdf package",
+  "common_error": "ENOENT packages/mcp-server/node_modules/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json",
+  "cause": "MCP file:../cli dependency was packed by npm ci before CLI payload preparation.",
+  "local_reproduction": "negative-contract.log reproduces this exact missing file after real early npm ci and later root build."
+}

@@ -104,3 +104,18 @@ Binding: qa-gate skill_continuation; revision 25 / a510d21d-8757-49a5-b343-a2a11
 Decisive reason: original checkpoint/index evidence obligations remain open. Permissible next step: reconcile those obligations against original proof or the documented authoritative deviation process; do not request Approval: QA from revise.
 
 CI-006/007 are consumed unchanged as resolved implementation_gap findings routed to CD+Tests; their actual evidence is CI_REPAIR.md and evidence/ci-prerequisites-20261002/RESULTS.json. Baseline 31602aa remote Node24 passed; Ubuntu Node22/evidence recording failed on missing MCP fixture dependencies and Windows failed at the raw-path legacy preload. The follow-up source repairs pass current local checks; corrected remote jobs await push. No full replacement npm smoke or corrected Windows success is claimed. TPR-E001/E002 remain evidence_gap / evidence_obligation / open. Existing Context Graph/SoT reconciliation remains resolved; this scope adds no product owner. The explicitly requested commit/push does not authorize QA/UAT/release.
+
+## Real local dependency QA refresh — 2026-10-02
+
+Binding: qa-gate skill_continuation; revision 28 / fd5569ef-94dd-44df-be46-2a1be9a341a5.
+
+| Quality dimension | Current evidence |
+|---|---|
+| Plan coverage | 11/13 fully_done; TPR-E001/E002 remain open |
+| Solution integrity | pass for scoped workflow order; canonical build/lock retained |
+| Code quality | pass; actual diff, real installation witnesses and canonical CR recording |
+| QA decision | revise; qa-gate sole decision owner |
+
+Decisive reason: Original mandatory checkpoint/index proof obligations remain open. Permissible next step: reconcile those obligations against original evidence or the documented authoritative deviation process; do not request Approval: QA from revise.
+
+CI-008 is consumed unchanged as resolved implementation_gap / CD+Tests. Real early installation reproduces the remote ENOENT, then preparation-before-install fixes it. The complete npm smoke command, wrapper, community and 56-case compatibility check pass in the fresh source installation. Current shared-workspace ignored generated payload drift is separately documented as a verification limitation; fresh source fingerprints/snapshot pass. The next corrected GitHub matrix is pending at this recording. TPR-E001/E002 remain evidence_gap / evidence_obligation / open; no historical evidence or approval is transferred. Existing Context Graph/SoT reconciliation remains resolved. User-authorized source commit/push grants no QA/UAT/release authority.

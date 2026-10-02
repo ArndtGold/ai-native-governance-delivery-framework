@@ -52,11 +52,6 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --ignore-scripts
 
-      # Full-source fixtures and the CLI smoke suite consume the locked MCP SDK too.
-      - name: Install MCP validation dependencies from checkout
-        working-directory: packages/mcp-server
-        run: npm ci --ignore-scripts
-
       - name: Verify maintenance and release-evidence contracts
         run: npm run test:maintenance-contracts
 
@@ -66,6 +61,12 @@ jobs:
       # Integrity and compatibility checks consume the generated host payloads.
       - name: Prepare and verify release assets
         run: npm run build && npm --prefix packages/cli run release:prepare
+
+      # The MCP lock packs file:../cli, so prepare its payload before installation.
+      # Install before full-source fixtures and the CLI smoke suite consume the SDK.
+      - name: Install MCP validation dependencies from checkout
+        working-directory: packages/mcp-server
+        run: npm ci --ignore-scripts
 
       - name: Verify runtime integrity
         run: node plugins/agdf/scripts/check-runtime-integrity.mjs

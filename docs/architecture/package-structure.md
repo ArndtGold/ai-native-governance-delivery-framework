@@ -98,7 +98,7 @@ keine fremden Hostausgaben. Diese Ausgaben werden ebenfalls atomar ersetzt.
 | Source/public | Keine aktive MCP-/Hook-Laufzeit; öffentliche Skills-only-Ausgabe |
 | Codex-Runtime | Root `mcp.json` mit `type: stdio`; Installer bindet absolute Plugin-/Datenpfade; Hooks bleiben deklarierte Fallback-Komposition |
 | Claude-Runtime | `mcp/claude.mcp.json`, eigener Launcher und deklarierte Hooks |
-| Copilot-Runtime | Fokussierter Offline-Validator, Contracts unter `copilot-skills/contracts`; keine Installer-/SDK-/MCP-Payload |
+| Copilot-Runtime | Agent Plugins 1.0, fokussierter Offline-Validator, Contracts unter `skills/contracts`, Copilot-Hook unter `com.github.copilot/hooks` und pluginverwalteter MCP-Server mit gelocktem SDK |
 | OpenCode | Eigene Konfigurationskomposition und das installierte `create-agdf`-Paket |
 
 Source-, Runtime- und Installationsdigests haben unterschiedliche Aufgaben.

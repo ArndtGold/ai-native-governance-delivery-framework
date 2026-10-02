@@ -251,9 +251,9 @@ function pluginFailurePhase(report) {
 function completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport, control }) {
   const full = selection === "full";
   const reports = PREFLIGHT_MCP_REPORTS.get(preflight) ?? {};
-  // The Claude plugin declares its own MCP server, so plugin-only already includes it there.
+  // Plugin-managed hosts include the MCP server in plugin-only setup.
   const mcp = full ? mcpReport ?? { status: "not_requested" }
-    : ["claude", "codex"].includes(preflight.surface) ? { status: "plugin_managed" } : reports.project ?? { status: "not_checked" };
+    : ["claude", "codex", "copilot"].includes(preflight.surface) ? { status: "plugin_managed" } : reports.project ?? { status: "not_checked" };
   let failure = null;
   let nextAction = "restart_host";
   if (!pluginHealthy(pluginReport)) {
@@ -335,10 +335,11 @@ export async function runInstallSetup({ options, interactive = false, env = proc
     throw new Error("AGDF_INSTALL_SETUP_INPUT_INVALID");
   }
   const effectiveInteractive = Boolean(interactive && !options.json);
-  // The Claude and Codex runtime plugins declare their own MCP server, so plugin-only is the complete setup.
-  if (options.target === "claude" || options.target === "codex") {
+  // These runtime plugins declare their own MCP server, so plugin-only is the complete setup.
+  if (["claude", "codex", "copilot"].includes(options.target)) {
     if (options.setupRequest === "full") {
-      const host = options.target === "claude" ? "Claude Code" : "Codex";
+      const host = options.target === "claude" ? "Claude Code"
+        : options.target === "codex" ? "Codex" : "GitHub Copilot";
       throw new Error(`${host} starts the AGDF MCP server from the AGDF plugin; omit --with-mcp.`);
     }
     options = { ...options, setupRequest: options.setupRequest ?? "plugin_only" };

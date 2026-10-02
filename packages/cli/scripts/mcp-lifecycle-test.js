@@ -332,12 +332,16 @@ const sharedExec = (executable, args, options) => executable === "copilot"
   : sharedInstall(executable, args, options);
 const sharedCodex = runMcpLifecycle({ action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: sharedFixture.target,
   env: sharedFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: sharedExec });
-const sharedCopilot = runMcpLifecycle({ action: "enable", surface: "copilot", target: sharedFixture.target,
+const sharedCopilot = runMcpLifecycle({ action: "enable", surface: "copilot", pluginManagedSurfaces: ["claude", "codex"], target: sharedFixture.target,
   env: sharedFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: sharedExec });
 assert.equal(sharedCodex.result, "configured_pending_restart");
 assert.equal(sharedCopilot.result, "configured_pending_restart");
 assert.equal(sharedCalls.length, 1, "four-host lifecycle reuses one scope runtime");
 assert.equal(sharedCopilot.runtime.entrypoint, sharedCodex.runtime.entrypoint);
+const pluginManagedCopilot = runMcpLifecycle({ action: "enable", surface: "copilot", target: sharedFixture.target,
+  env: sharedFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: sharedExec });
+assert.deepEqual([pluginManagedCopilot.result, pluginManagedCopilot.diagnostics, pluginManagedCopilot.next_action.code],
+  ["not_configured", [{ code: "copilot_plugin_managed" }], "use_copilot_plugin_mcp"]);
 const copilotPath = join(sharedFixture.target, ".github", "mcp.json");
 const copilotConfig = JSON.parse(readFileSync(copilotPath, "utf8"));
 assert.deepEqual(copilotConfig.mcpServers.agdf, {
@@ -377,7 +381,7 @@ assert.equal(conflictStatus.result, "degraded");
 assert.equal(conflictStatus.registration.status, "precedence_conflict");
 assert.equal(conflictStatus.registration.selected_source, "project");
 assert.equal(conflictStatus.registration.effective_source, "project_override");
-const conflictEnable = runMcpLifecycle({ action: "enable", surface: "copilot", target: copilotConflict.target,
+const conflictEnable = runMcpLifecycle({ action: "enable", surface: "copilot", pluginManagedSurfaces: ["claude", "codex"], target: copilotConflict.target,
   env: copilotConflict.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: conflictExec });
 assert.equal(conflictEnable.result, "failed");
 assert.equal(existsSync(join(copilotConflict.target, ".github", "mcp.json")), false);
@@ -387,10 +391,10 @@ copilotScopes.env.COPILOT_HOME = join(copilotScopes.root, "copilot-user");
 const copilotScopeExec = (executable, args, options) => executable === "copilot"
   ? (args[0] === "--version" ? "0.0.401\n" : "{}\n")
   : installFixture([])(executable, args, options);
-assert.equal(runMcpLifecycle({ action: "enable", surface: "copilot", scope: "user", target: copilotScopes.target,
+assert.equal(runMcpLifecycle({ action: "enable", surface: "copilot", pluginManagedSurfaces: ["claude", "codex"], scope: "user", target: copilotScopes.target,
   env: copilotScopes.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: copilotScopeExec }).result,
 "configured_pending_restart");
-assert.equal(runMcpLifecycle({ action: "enable", surface: "copilot", target: copilotScopes.target,
+assert.equal(runMcpLifecycle({ action: "enable", surface: "copilot", pluginManagedSurfaces: ["claude", "codex"], target: copilotScopes.target,
   env: copilotScopes.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: copilotScopeExec }).result,
 "configured_pending_restart");
 const projectDisabledWithUserRemaining = runMcpLifecycle({ action: "disable", surface: "copilot",

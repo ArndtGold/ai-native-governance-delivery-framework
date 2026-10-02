@@ -15,12 +15,12 @@ digraph distribution {
 
   mcp_package [label="@agdf/mcp-server\nSDK v2 · stdio"];
   runtime [label="Gemeinsame exakte MCP-Laufzeit\nServer · Dispatcher · Herkunft", fillcolor="#E5F0FC", color="#5284AD"];
-  registration [label="Native MCP-Registrierung\nOpenCode, GitHub Copilot", fillcolor="#EEE9FF", color="#8270AE"];
+  registration [label="Native MCP-Registrierung\nOpenCode", fillcolor="#EEE9FF", color="#8270AE"];
 
   restart [label="Host vollständig neu starten"];
   loaded [label="Frische geladene Sitzung\nSkills und/oder MCP-Werkzeug", fillcolor="#EEE9FF", color="#8270AE"];
   observed [label="Direkte Host-Beobachtung\nIdentität · Discovery · Aufruf · Fehler · Cleanup", fillcolor="#E5F0FC", color="#5284AD"];
-  note [label="Claude Code und Codex: Plugin-Installation aktiviert auch MCP;\nSDK-Bezug von npm bei Vorbereitung oder erstem Start.\nOpenCode und Copilot: Plugin-Installation aktiviert MCP nicht,\nMCP-Registrierung installiert kein Plugin.\nErst die frische Sitzung zeigt geladenes Verhalten.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
+  note [label="Claude Code, Codex und Copilot: Plugin-Installation aktiviert auch MCP;\nSDK-Bezug von npm bei Vorbereitung oder erstem Start.\nOpenCode: Plugin-Installation aktiviert MCP nicht,\nMCP-Registrierung installiert kein Plugin.\nErst die frische Sitzung zeigt geladenes Verhalten.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
 
   source -> plugin_payload [label="generieren"];
   plugin_payload -> plugin_package [label="packen"];

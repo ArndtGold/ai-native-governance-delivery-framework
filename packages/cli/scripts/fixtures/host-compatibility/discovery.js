@@ -5,7 +5,7 @@ import { pluginDefinition } from "../../../lib/cli/runtime-context.js";
 import { digestNormalizedPluginSource } from "#agdf-core/runtime/plugin-provenance.js";
 
 export function observePlugin(root, surface) {
-  const skillsRoot = surface === "copilot" ? "copilot-skills" : "skills";
+  const skillsRoot = "skills";
   const skills = pluginDefinition.skillSet.map(({ slug }) => {
     const name = surface === "copilot" ? `agdf-${slug}` : slug;
     const path = join(root, skillsRoot, name, "SKILL.md");

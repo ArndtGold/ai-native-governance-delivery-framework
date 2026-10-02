@@ -141,16 +141,16 @@ export function ensurePluginMcpRuntime({
   }
 }
 
-// Claude Code passes ${CLAUDE_PLUGIN_DATA} in the environment and needs no arguments. Codex passes no
-// plugin variables, so its installer-written declaration names the surface and an absolute data root.
+// Claude Code passes ${CLAUDE_PLUGIN_DATA} in the environment and needs no arguments. Codex and
+// Copilot declarations pass the surface and an absolute data root after host variable expansion.
 export function parseLauncherArguments(argv, env = {}) {
   const args = [...argv];
   const prepareOnly = args.at(-1) === "--prepare";
   if (prepareOnly) args.pop();
   if (args.length === 0) return { surface: "claude", dataRoot: env.CLAUDE_PLUGIN_DATA, prepareOnly };
-  if (args.length === 4 && args[0] === "--surface" && args[1] === "codex" && args[2] === "--data"
+  if (args.length === 4 && args[0] === "--surface" && ["codex", "copilot"].includes(args[1]) && args[2] === "--data"
       && typeof args[3] === "string" && isAbsolute(args[3])) {
-    return { surface: "codex", dataRoot: args[3], prepareOnly };
+    return { surface: args[1], dataRoot: args[3], prepareOnly };
   }
   return null;
 }

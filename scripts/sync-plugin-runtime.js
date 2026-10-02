@@ -137,7 +137,7 @@ export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "lib/npm-invocation.js",
 ]);
 
-export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
+export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = false } = {}) {
   outputRoot = safeOutputRoot(outputRoot);
   const bundledPackageRoot = join(outputRoot, "create-agdf");
   const expectedPackageFiles = new Set();
@@ -183,14 +183,14 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",
     "generated/plugins/agdf/meta/agdf-interaction-locales.json",
     "NOTICE",
-    ...(claudeMcp ? CLAUDE_MCP_RUNTIME_ENTRIES : []),
+    ...(mcpRuntime ? CLAUDE_MCP_RUNTIME_ENTRIES : []),
   ];
   for (const entry of runtimeEntries) {
     const source = join(packageRoot, entry);
     const destination = join(bundledPackageRoot, entry);
     copyRuntimeText(source, destination, expectedPackageFiles, bundledPackageRoot);
   }
-  projectCore(bundledPackageRoot, { copilot: !claudeMcp });
+  projectCore(bundledPackageRoot, { copilot });
   copyRuntimeText(join(bundledPackageRoot, "runtime", "core"), join(bundledPackageRoot, "runtime", "core"), expectedPackageFiles, bundledPackageRoot);
   const runtimePackageManifest = {
     name: "@agdf/local-validator-runtime",
@@ -244,7 +244,7 @@ if (process.argv.length !== 2) {
   const validator = fileURLToPath(new URL("./agdf-local.js", import.meta.url));
   const routeSourceAfterActivation = existsSync(join(pluginRoot, "meta", "contracts", "request-activation.md"))
     ? "../meta/contracts/request-activation.md"
-    : "../copilot-skills/contracts/request-activation.md";
+    : "../skills/contracts/request-activation.md";
   const manifest = JSON.parse(readFileSync(new URL("./runtime-manifest.json", import.meta.url), "utf8"));
   let dispatchBinding;
   try {

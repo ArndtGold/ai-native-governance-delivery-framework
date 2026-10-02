@@ -29,7 +29,7 @@ const identity = root => ({ canonical_version: pluginDefinition.version, source_
 
 function changedPayload(built, destination, host) {
   cpSync(built, destination, { recursive: true });
-  const skill = join(destination, host === "copilot" ? "copilot-skills/agdf-gate-check/SKILL.md" : "skills/gate-check/SKILL.md");
+  const skill = join(destination, host === "copilot" ? "skills/agdf-gate-check/SKILL.md" : "skills/gate-check/SKILL.md");
   writeFileSync(skill, readFileSync(skill, "utf8") + `\nHost compatibility changed-content fixture ${destination.split(/[/\\]/).at(-1)}.\n`);
   if (host === "copilot") {
     const inventory = json(join(destination, ".agdf-payload-inventory.json"));
@@ -92,7 +92,7 @@ export async function runCompatibilitySuite({ onDiagnostic = () => {} } = {}) {
         const initial = payload(cache(), host);
         record(host, "installed", "installed", expected, { payload_present: existsSync(cache()), payload_digest: initial.digest, original_result: first.verificationStatus ?? "installed" }, "demonstrated");
         record(host, "discovered", "discovered", expected, discoveryFacts(initial), "demonstrated");
-        const missingSkill = join(cache(), host === "copilot" ? "copilot-skills/agdf-gate-check/SKILL.md" : "skills/gate-check/SKILL.md");
+        const missingSkill = join(cache(), host === "copilot" ? "skills/agdf-gate-check/SKILL.md" : "skills/gate-check/SKILL.md");
         const skillBytes = readFileSync(missingSkill); rmSync(missingSkill);
         record(host, "discovery-missing", "discovered", expected, discoveryFacts(payload(cache(), host)), "failed");
         writeFileSync(missingSkill, skillBytes);

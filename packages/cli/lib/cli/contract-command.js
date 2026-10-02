@@ -15,7 +15,7 @@ import { runtimeContractModules, readRuntimeContract as readOwnedContract } from
 export function readRuntimeContract(module, { pluginRoot = process.env.AGDF_DISPATCH_PLUGIN_ROOT, definition = pluginDefinition, packageGeneratedRoot = resources.generatedRoot } = {}) {
   const modules = runtimeContractModules(definition);
   if (!modules.includes(module)) return Object.freeze({ ok: false, reason: "module_unknown", modules });
-  if (pluginRoot) for (const root of [join(pluginRoot, "meta", "contracts"), join(pluginRoot, "copilot-skills", "contracts")]) {
+  if (pluginRoot) for (const root of [join(pluginRoot, "meta", "contracts"), join(pluginRoot, "skills", "contracts")]) {
     const path = join(root, `${module}.md`);
     if (existsSync(path)) return Object.freeze({ ok: true, module, path, content: readFileSync(path, "utf8") });
   }

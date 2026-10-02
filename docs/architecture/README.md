@@ -129,7 +129,7 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../packages/core/lib/control-evaluation/) |
 | Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../packages/core/lib/control-state/) |
 | Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../packages/core/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../packages/cli/lib/mcp-lifecycle/presentation.js) |
-| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Für Claude Code und Codex enthält das Laufzeit-Plugin zusätzlich die AGDF-MCP-Deklaration und startet den Server selbst; für OpenCode und GitHub Copilot bleibt MCP ein getrennter Lebenszyklus. | [`installers/`](../../packages/cli/lib/installers/), [`host-adapters/`](../../packages/cli/lib/host-adapters/) |
+| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Für Claude Code, Codex und GitHub Copilot enthält das Laufzeit-Plugin zusätzlich die AGDF-MCP-Deklaration und startet den Server selbst; für OpenCode bleibt MCP ein getrennter Lebenszyklus. | [`installers/`](../../packages/cli/lib/installers/), [`host-adapters/`](../../packages/cli/lib/host-adapters/) |
 | Plugin-MCP-Laufzeit | Startet den gebündelten Server über einen Launcher, bezieht beim ersten Bedarf das gepinnte MCP-SDK von npm und hält die Laufzeit in einem hosteigenen Datenverzeichnis. | [`mcp-lifecycle/plugin-runtime.js`](../../packages/cli/lib/mcp-lifecycle/plugin-runtime.js), [`sync-plugin-mcp.js`](../../scripts/sync-plugin-mcp.js) |
 | Geführte Installation | Liest Plugin- und MCP-Zustand, erfasst eine bewusste Setup-Auswahl und komponiert die getrennten Lebenszyklen in sicherer Reihenfolge. | [`install-setup/`](../../packages/cli/lib/install-setup/), [`cli/application.js`](../../packages/cli/lib/cli/application.js) |
 
@@ -414,7 +414,7 @@ keine zusätzlichen Zustände erfinden.
 
 ## 6. Vom Quellstand zur geladenen Sitzung
 
-![Verteilung: Kanonische Quellen werden zu Plugin-Payload und MCP-Paket. Für Claude Code und Codex bündelt das Laufzeit-Plugin den MCP-Server, der beim ersten Start das gepinnte SDK von npm bezieht. Für OpenCode und GitHub Copilot sind Plugin-Installation und MCP-Registrierung unabhängige Hostzustände. Erst eine frische Sitzung kann geladenes Verhalten zeigen.](diagrams/04-distribution.svg)
+![Verteilung: Kanonische Quellen werden zu Plugin-Payload und MCP-Paket. Für Claude Code, Codex und GitHub Copilot bündelt das Laufzeit-Plugin den MCP-Server, der beim ersten Start das gepinnte SDK von npm bezieht. Für OpenCode sind Plugin-Installation und MCP-Registrierung unabhängige Hostzustände. Erst eine frische Sitzung kann geladenes Verhalten zeigen.](diagrams/04-distribution.svg)
 
 *Abbildung 5: Quelle, Paket, Installation, Registrierung und geladene Sitzung benötigen eigene
 Nachweise. [Diagrammquelle](diagrams/04-distribution.dot).*
@@ -428,18 +428,16 @@ Aus den Quellen entstehen drei Lieferpfade:
 
 1. **Plugin-Pfad:** Skills, Verträge, Hooks und Host-Metadaten werden erzeugt, paketiert und durch
    den jeweiligen Plugin-Installer installiert.
-2. **Plugin-MCP-Pfad (Claude Code, Codex):** Das Laufzeit-Plugin enthält Server, Dispatcher und
+2. **Plugin-MCP-Pfad (Claude Code, Codex, GitHub Copilot):** Das Laufzeit-Plugin enthält Server, Dispatcher und
    Launcher. Der Host startet den Server aus der Plugin-Deklaration. Details stehen in
    [Abschnitt 6.1](#61-plugin-mcp-für-claude-code-und-codex).
-3. **Registrierter MCP-Pfad (OpenCode, GitHub Copilot):** Das Paket `@agdf/mcp-server` und die
+3. **Registrierter MCP-Pfad (OpenCode):** Das Paket `@agdf/mcp-server` und die
    passende `create-agdf`-Laufzeit werden vorbereitet. Der Lifecycle-Service registriert den
    Einstieg anschließend in einer nativen Host-Konfiguration.
 
-Für OpenCode und GitHub Copilot darf ein Plugin auf `mcp status` oder `mcp enable` hinweisen. Ein
-reiner Host- oder Marketplace-Installationsweg aktiviert dort kein MCP. Der geführte CLI-Weg darf MCP
-erst nach der ausdrücklichen vollständigen Auswahl und einer erfolgreichen Plugin-Prüfung aktivieren.
-Für Claude Code und Codex aktiviert die Installation des Laufzeit-Plugins dagegen auch den
-AGDF-MCP-Server.
+Für OpenCode darf ein Plugin auf `mcp status` oder `mcp enable` hinweisen. Ein reiner Host- oder
+Marketplace-Installationsweg aktiviert dort kein MCP. Für Claude Code, Codex und GitHub Copilot
+aktiviert die Installation des Laufzeit-Plugins dagegen auch den AGDF-MCP-Server.
 Der öffentliche OpenAI-Kandidat bleibt ein Skills-only-Payload ohne MCP-Laufzeit und
 Lifecycle-Metadaten.
 
@@ -486,7 +484,7 @@ Registry-Mirror mit abweichenden Paketen. Der Launcher installiert dann ohne Loc
 `AGDF_MCP_SDK_UNVERIFIED_OVERRIDE` bei Vorbereitung und jedem Start. Ohne die Variable wird eine so
 installierte Laufzeit beim nächsten Start ersetzt.
 
-Der registrierte MCP-Weg für OpenCode und GitHub Copilot (`mcp enable`) installiert
+Der registrierte MCP-Weg für OpenCode (`mcp enable`) installiert
 `@agdf/mcp-server` weiterhin ohne Lockfile und Sollwert. Diese Lücke ist als eigene Folgearbeit
 offen.
 

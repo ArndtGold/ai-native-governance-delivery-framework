@@ -7,7 +7,7 @@ import { pluginDefinition } from "../../../lib/cli/runtime-context.js";
 const built = fileURLToPath(new URL("../../../generated/plugins/copilot/agdf", import.meta.url));
 const json = path => JSON.parse(readFileSync(path, "utf8"));
 const writeJson = (path, value) => { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(value, null, 2)+"\n"); };
-export const skills = root => pluginDefinition.skillSet.map(({ slug }) => ({ name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(root, "copilot-skills", `agdf-${slug}`) }));
+export const skills = root => pluginDefinition.skillSet.map(({ slug }) => ({ name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(root, "skills", `agdf-${slug}`) }));
 
 export function createCopilotFixture(base) {
   const settingsPath = join(base, 'home/settings.json');

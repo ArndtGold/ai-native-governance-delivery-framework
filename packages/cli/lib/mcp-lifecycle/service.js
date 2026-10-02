@@ -28,7 +28,7 @@ import { createMcpLifecycleResult } from "./result.js";
 const ACTIONS = new Set(["status", "enable", "disable"]);
 const SURFACES = new Set(["codex", "claude", "opencode", "copilot"]);
 const SCOPES = new Set(["project", "user"]);
-export const PLUGIN_MANAGED_SURFACES = Object.freeze(["claude", "codex"]);
+export const PLUGIN_MANAGED_SURFACES = Object.freeze(["claude", "codex", "copilot"]);
 
 function major(version) { return Number.parseInt(String(version).split(".")[0], 10); }
 
@@ -193,7 +193,7 @@ export function runMcpLifecycle({
   const base = { action, surface, scope, target: selectedTarget, execPath, nodeVersion, expectedVersion,
     permissionEffect: mcpPermissionEffect(surface, { scope, target: selectedTarget }) };
 
-  // Claude Code and Codex start the AGDF MCP server from the runtime plugin. A second host registration
+  // Claude Code, Codex and Copilot start the AGDF MCP server from the runtime plugin. A second host registration
   // would duplicate it and survive plugin removal; status and disable remain available to inspect and
   // retire registrations made by earlier releases.
   if (action === "enable" && pluginManagedSurfaces.includes(surface)) {

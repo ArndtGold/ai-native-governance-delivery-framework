@@ -1386,17 +1386,17 @@ smokePhase("status card tp transition");
 {
   const transitionSkillPaths = [
     join(generatedRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md"),
-    join(generatedRoot, "plugins", "copilot", "agdf", "copilot-skills", "agdf-gate-check", "SKILL.md"),
+    join(generatedRoot, "plugins", "copilot", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
     join(generatedRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"),
   ];
   const transitionContractPaths = [
     join(generatedRoot, "plugins", "agdf", "meta", "contracts", "interaction.md"),
-    join(generatedRoot, "plugins", "copilot", "agdf", "copilot-skills", "contracts", "interaction.md"),
+    join(generatedRoot, "plugins", "copilot", "agdf", "skills", "contracts", "interaction.md"),
     join(generatedRoot, ".opencode", "contracts", "interaction.md"),
   ];
   const transitionLocalePaths = [
     join(generatedRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"),
-    join(generatedRoot, "plugins", "copilot", "agdf", "copilot-skills", "agdf-interaction-locales.json"),
+    join(generatedRoot, "plugins", "copilot", "agdf", "skills", "agdf-interaction-locales.json"),
     join(generatedRoot, ".opencode", "agdf-interaction-locales.json"),
   ];
 

@@ -85,7 +85,9 @@ assert.deepEqual(parseLauncherArguments(["--prepare"], { CLAUDE_PLUGIN_DATA: "/c
 const absolute = join(tmpdir(), "codex-data");
 assert.deepEqual(parseLauncherArguments(["--surface", "codex", "--data", absolute], {}), { surface: "codex", dataRoot: absolute, prepareOnly: false });
 assert.deepEqual(parseLauncherArguments(["--surface", "codex", "--data", absolute, "--prepare"], {}), { surface: "codex", dataRoot: absolute, prepareOnly: true });
-for (const invalid of [["--surface", "claude"], ["--surface", "codex", "--data", "relative"], ["--surface", "codex"], ["--unknown"]]) {
+assert.deepEqual(parseLauncherArguments(["--surface", "copilot", "--data", absolute], {}), { surface: "copilot", dataRoot: absolute, prepareOnly: false });
+assert.deepEqual(parseLauncherArguments(["--surface", "copilot", "--data", absolute, "--prepare"], {}), { surface: "copilot", dataRoot: absolute, prepareOnly: true });
+for (const invalid of [["--surface", "claude"], ["--surface", "codex", "--data", "relative"], ["--surface", "copilot", "--data", "relative"], ["--surface", "codex"], ["--unknown"]]) {
   assert.equal(parseLauncherArguments(invalid, {}), null, invalid.join(" "));
 }
 

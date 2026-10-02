@@ -104,13 +104,13 @@ export function validateCopilotPayload({ profileRoot, repoRoot, expectedVersion,
       }
     }
   }
-  const excluded = actualFiles.filter((path) => path === "skills" || path.startsWith("skills/")
+  const excluded = actualFiles.filter((path) => path === "copilot-skills" || path.startsWith("copilot-skills/")
     || path.startsWith(".codex-plugin/") || path.startsWith(".claude-plugin/")
     || path === "hooks/hooks.json" || path === "hooks/session-start.sh"
     || path.startsWith("submission/"));
   if (excluded.length) throw new Error(`AGDF_COPILOT_PAYLOAD_EXCLUDED_SURFACE: ${excluded.join(", ")}`);
-  const skillFiles = actualFiles.filter((path) => /^copilot-skills\/agdf-[^/]+\/SKILL\.md$/.test(path));
-  const expectedSkillFiles = expectedSkills.map((slug) => `copilot-skills/agdf-${slug}/SKILL.md`).sort();
+  const skillFiles = actualFiles.filter((path) => /^skills\/agdf-[^/]+\/SKILL\.md$/.test(path));
+  const expectedSkillFiles = expectedSkills.map((slug) => `skills/agdf-${slug}/SKILL.md`).sort();
   if (JSON.stringify(skillFiles.sort()) !== JSON.stringify(expectedSkillFiles)) {
     throw new Error("AGDF_COPILOT_PAYLOAD_SKILL_SET_MISMATCH");
   }

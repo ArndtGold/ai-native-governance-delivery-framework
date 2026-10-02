@@ -51,7 +51,7 @@ try {
       },
       packagedCopilotExec(_executable, args) {
         if (args.slice(-3).join(" ") === "skill list --json") return JSON.stringify(pluginDefinition.skillSet.map(({ slug }) => ({
-          name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(builtPluginRoot, "copilot-skills", `agdf-${slug}`),
+          name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(builtPluginRoot, "skills", `agdf-${slug}`),
         })));
         if (args.at(-2) === "plugin" && args.at(-1) === "list") {
           listCalls += 1;

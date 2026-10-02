@@ -111,7 +111,7 @@ const claudeSourceMarketplacePath = sourceMode ? join(repoRoot, ".claude-plugin"
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
 const copilotPluginPath = join(pluginRoot, "plugin.json");
-const copilotHooksPath = join(pluginRoot, "hooks", "copilot-hooks.json");
+const copilotHooksPath = join(pluginRoot, "com.github.copilot", "hooks", "hooks.json");
 const installationProvenancePath = join(pluginRoot, ".agdf-installation.json");
 const legacyLocalInstallMarkerPath = join(pluginRoot, ".agdf-local-install.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
@@ -1116,8 +1116,8 @@ if (pluginDefinition) {
   if (pluginDefinition.codex?.logo !== "./assets/agdf-logo.svg") failures.push("canonical AGDF plugin definition Codex logo must point to ./assets/agdf-logo.svg");
   if (pluginDefinition.claude?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Claude agent router must point to meta/agdf-agent-router.md");
   if (pluginDefinition.copilot?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition Copilot skill prefix must be agdf-");
-  if (pluginDefinition.copilot?.pluginManifest !== "plugin.json" || pluginDefinition.copilot?.skills !== "copilot-skills/" || pluginDefinition.copilot?.hooks !== "hooks/copilot-hooks.json") {
-    failures.push("canonical AGDF plugin definition Copilot paths must point to the generated root manifest, prefixed skills and hook config");
+  if (pluginDefinition.copilot?.pluginManifest !== "plugin.json" || pluginDefinition.copilot?.skills !== "skills/" || pluginDefinition.copilot?.hooks !== "com.github.copilot/hooks/hooks.json") {
+    failures.push("canonical AGDF plugin definition Copilot paths must follow Agent Plugins 1.0 component discovery");
   }
   if (pluginDefinition.opencode?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition OpenCode skill prefix must be agdf-");
   if (pluginDefinition.opencode?.globalSkillPrefix !== "agdf-global-") failures.push("canonical AGDF plugin definition OpenCode global skill prefix must be agdf-global-");
@@ -1629,9 +1629,11 @@ if (!sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugi
   const copilotPlugin = isFile(copilotPluginPath) ? readJson(copilotPluginPath, "Copilot plugin manifest") : null;
   const copilotHooks = isFile(copilotHooksPath) ? readJson(copilotHooksPath, "Copilot plugin hooks") : null;
   if (!copilotPlugin) failures.push("installed runtime plugin must include root plugin.json for GitHub Copilot");
-  if (copilotPlugin && (copilotPlugin.name !== "agdf" || copilotPlugin.version !== pluginDefinition?.version
-      || copilotPlugin.skills !== "copilot-skills/" || copilotPlugin.hooks !== "hooks/copilot-hooks.json")) {
-    failures.push("Copilot root plugin manifest must preserve AGDF identity, version and generated component paths");
+  const copilotManifestKeys = ["$schema", "name", "version", "description", "author", "homepage", "repository", "license", "keywords"];
+  if (copilotPlugin && (copilotPlugin.$schema !== "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+      || copilotPlugin.name !== "agdf" || copilotPlugin.version !== pluginDefinition?.version
+      || JSON.stringify(Object.keys(copilotPlugin)) !== JSON.stringify(copilotManifestKeys))) {
+    failures.push("Copilot root plugin manifest must conform to the closed Agent Plugins 1.0 manifest schema");
   }
   const copilotSessionStart = copilotHooks?.hooks?.sessionStart;
   if (JSON.stringify(Object.keys(copilotHooks?.hooks ?? {}).sort()) !== JSON.stringify(["sessionStart"])) {
@@ -1642,9 +1644,28 @@ if (!sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugi
       && hook?.env?.AGDF_SURFACE === "copilot")) {
     failures.push("Copilot hooks must declare the fixed consent-bound AGDF sessionStart command");
   }
+  const copilotMcp = isFile(join(pluginRoot, "mcp.json")) ? readJson(join(pluginRoot, "mcp.json"), "Copilot MCP declaration") : null;
+  const expectedCopilotMcp = {
+    $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    mcpServers: {
+      agdf: {
+        type: "stdio",
+        command: "node",
+        args: ["${PLUGIN_ROOT}/mcp/agdf-mcp-launch.js", "--surface", "copilot", "--data", "${PLUGIN_DATA}"],
+      },
+    },
+  };
+  if (JSON.stringify(copilotMcp) !== JSON.stringify(expectedCopilotMcp)) {
+    failures.push("Copilot Agent Plugins profile must declare the canonical plugin-managed MCP server");
+  }
+  for (const required of ["mcp/agdf-mcp-launch.js", "mcp/sdk/package.json", "mcp/sdk/package-lock.json",
+    "mcp/sdk/expected-sdk.json", "mcp/server/package.json", "mcp/server/bin/agdf-mcp.js",
+    "runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js"]) {
+    assertFile(join(pluginRoot, required), `Copilot plugin MCP runtime ${required}`);
+  }
   for (const skill of pluginDefinition?.skillSet ?? []) {
     if (!skillSlugPattern.test(skill?.slug ?? "")) continue;
-    assertFile(join(pluginRoot, "copilot-skills", `agdf-${skill.slug}`, "SKILL.md"), `Copilot prefixed plugin skill agdf-${skill.slug}`);
+    assertFile(join(pluginRoot, "skills", `agdf-${skill.slug}`, "SKILL.md"), `Copilot prefixed plugin skill agdf-${skill.slug}`);
   }
 }
 

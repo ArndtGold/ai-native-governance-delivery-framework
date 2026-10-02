@@ -44,7 +44,7 @@ const copilotTestRoot = join(copilotTestDataRoot, "marketplaces", "agdf-copilot"
 function discoveredCopilotSkills(root = builtCopilotPluginRoot) {
   return JSON.stringify(pluginDefinition.skillSet.map(({ slug }) => ({
     name: `agdf-${slug}`, source: "plugin", enabled: true,
-    path: join(root, "copilot-skills", `agdf-${slug}`),
+    path: join(root, "skills", `agdf-${slug}`),
   })));
 }
 function installCopilotGlobalPlugin(options) {

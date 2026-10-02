@@ -130,9 +130,9 @@ try {
   assert.equal(existsSync(join(copilotProjection.root, ".claude-plugin")), false);
   assert.equal(existsSync(join(copilotProjection.root, ".agents")), false);
   assert.equal(json(join(copilotProjection.root, ".github", "plugin", "marketplace.json")).plugins[0].version, pluginDefinition.version);
-  assert.equal(existsSync(join(copilotProjection.pluginRoot, "skills")), false);
+  assert.equal(existsSync(join(copilotProjection.pluginRoot, "copilot-skills")), false);
   assert.equal(existsSync(join(copilotProjection.pluginRoot, ".codex-plugin")), false);
-  assert.equal(existsSync(join(copilotProjection.pluginRoot, "copilot-skills", "agdf-gate-check", "SKILL.md")), true);
+  assert.equal(existsSync(join(copilotProjection.pluginRoot, "skills", "agdf-gate-check", "SKILL.md")), true);
   assert.equal(digestDirectory(first.pluginRoot), sharedDigestBeforeCopilot, "Copilot staging must not mutate the shared Codex and Claude profile");
   const copilotResolution = spawnSync(process.execPath, [join(copilotProjection.pluginRoot, "runtime", "agdf-local.js"), "--resolve-only", "--json"], { encoding: "utf8" });
   assert.equal(copilotResolution.status, 0, copilotResolution.stderr);

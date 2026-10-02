@@ -30,6 +30,19 @@ export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, data
   }, null, 2)}\n`;
 }
 
+export function renderCopilotPluginMcpConfig() {
+  return `${JSON.stringify({
+    $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    mcpServers: {
+      agdf: {
+        type: "stdio",
+        command: "node",
+        args: ["${PLUGIN_ROOT}/mcp/agdf-mcp-launch.js", "--surface", "copilot", "--data", "${PLUGIN_DATA}"],
+      },
+    },
+  }, null, 2)}\n`;
+}
+
 // Returns the template for any config of the owned shape, so an installed file with absolute paths
 // digests exactly like the generated one; any other content is returned unchanged and therefore
 // changes the digest.
@@ -203,7 +216,7 @@ export function inspectCopilotPayloadInventory(pluginRoot, expectedVersion) {
       return { status: "invalid", reason: "copilot_payload_digest_mismatch", entry: entry.destination };
     }
   }
-  const excluded = actual.some((path) => path.startsWith("skills/") || path.startsWith(".codex-plugin/")
+  const excluded = actual.some((path) => path.startsWith("copilot-skills/") || path.startsWith(".codex-plugin/")
     || path.startsWith(".claude-plugin/") || path.startsWith("submission/")
     || path === "hooks/hooks.json" || path === "hooks/session-start.sh");
   if (excluded) return { status: "invalid", reason: "copilot_payload_excluded_surface" };

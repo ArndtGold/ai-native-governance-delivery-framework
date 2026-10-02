@@ -11,7 +11,8 @@ and technical enforcement are separate claims. Use local status and a fresh host
 your own installation.
 
 > [!IMPORTANT]
-> **MCP development status:** AGDF 0.14.5 does not include MCP support. The guided MCP setup,
+> **MCP development status:** The published AGDF 0.14.5 package does not include MCP support. The current
+> development tree includes plugin-managed MCP for Codex, Claude Code and GitHub Copilot. The guided MCP setup,
 > `mcp` commands, `--with-mcp` and `--mcp-scope` documented below describe unreleased work for the
 > next AGDF version. Until that version is published, examples containing those commands are
 > development previews and do not describe the behavior of `@agdf/cli@latest`. The ordinary plugin
@@ -59,18 +60,17 @@ plugin-only. Complete setup requires `--with-mcp` and an absolute `--dir` entere
 
 ```bash
 # Existing automation remains plugin-only.
-npx --yes @agdf/cli@latest copilot --plugin-only
+npx --yes @agdf/cli@latest opencode --plugin-only
 
 # Install the plugin and register MCP for one project.
-npx --yes @agdf/cli@latest copilot --with-mcp --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest opencode --with-mcp --dir /absolute/path/to/repository
 
 # Use the broader user MCP scope deliberately. The invocation target is still explicit.
-npx --yes @agdf/cli@latest copilot --with-mcp --scope user --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest opencode --with-mcp --scope user --dir /absolute/path/to/repository
 ```
 
-Claude Code and Codex are the exception: their AGDF plugin declares the MCP server itself, so the
-plugin-only installation is already the complete setup and `claude --with-mcp` or `codex --with-mcp`
-is rejected. See [Claude Code and Codex: MCP lives in the plugin](#claude-code-and-codex-mcp-lives-in-the-plugin).
+Claude Code, Codex and GitHub Copilot are the exception: their AGDF plugin declares the MCP server
+itself, so plugin-only installation is already complete and `--with-mcp` is rejected for those hosts.
 
 `--with-mcp` and `--plugin-only` cannot be combined. In non-interactive use, project scope is the
 complete-setup default and user scope must be written explicitly. Interactive use always asks for
@@ -104,7 +104,8 @@ native MCP registration path and effective source.
 
 ### Optional local MCP dispatcher (unreleased development preview)
 
-The optional MCP path registers one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode.
+The optional registered MCP path configures one local STDIO server for OpenCode. Codex, Claude Code
+and GitHub Copilot instead discover the same server from their installed runtime plugin.
 MCP tools: `agdf_dispatch`, `agdf_inspect`.
 Dispatch uses the same canonical semantic definition and
 dispatcher as the CLI; inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
@@ -117,13 +118,13 @@ The MCP process requires Node.js 22 or later. The CLI uses the same Node.js 22 b
 Use an absolute repository path and inspect the project scope before enabling it:
 
 ```bash
-npx --yes @agdf/cli@latest mcp status --surface copilot --dir /absolute/path/to/repository --json
-npx --yes @agdf/cli@latest mcp enable --surface copilot --dir /absolute/path/to/repository
-npx --yes @agdf/cli@latest mcp disable --surface copilot --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp status --surface opencode --dir /absolute/path/to/repository --json
+npx --yes @agdf/cli@latest mcp enable --surface opencode --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp disable --surface opencode --dir /absolute/path/to/repository
 ```
 
-Replace `copilot` with `opencode` for the other adapter that registers MCP. For Claude Code and
-Codex, `mcp enable` registers nothing because the plugin already starts the server; `status` and
+For Claude Code, Codex and GitHub Copilot, `mcp enable` registers nothing because the plugin already
+starts the server; `status` and
 `disable` remain available for registrations made by earlier releases. Project scope is the
 default. Choose `--scope user` explicitly when the broader registration is intended. `status` never
 downloads a package or edits configuration. `enable` acquires the exact matching
@@ -417,7 +418,7 @@ AGDF supports four usage surfaces:
 
 1. **Codex** through the complete generated shared plugin containing the projected Codex manifest
 2. **Claude Code** through the same shared plugin containing the projected Claude manifest
-3. **GitHub Copilot** through a dedicated generated Copilot profile with a root `plugin.json`, prefixed skills and a consent-bound hook
+3. **GitHub Copilot** through a dedicated Agent Plugins 1.0 profile with a root `plugin.json`, prefixed skills and a consent-bound Copilot extension hook
 4. **OpenCode** through repository instructions, generated native skills, permissions and the `create-agdf` npm plugin
 
 Codex, Claude Code and GitHub Copilot consume AGDF as installable generated plugin runtimes. All profiles are
@@ -543,9 +544,9 @@ collisions with higher-priority personal or repository skills while preserving o
 Example:
 
 ```text
-copilot-skills/agdf-gate-check/SKILL.md
-copilot-skills/agdf-brownfield-analysis/SKILL.md
-copilot-skills/agdf-qa-gate/SKILL.md
+skills/agdf-gate-check/SKILL.md
+skills/agdf-brownfield-analysis/SKILL.md
+skills/agdf-qa-gate/SKILL.md
 ```
 
 The prefix is generated from the shared AGDF skill definition model and must not be manually duplicated across independent files.
@@ -1049,9 +1050,9 @@ plugins/agdf/.codex-plugin/plugin.json
 For Claude Code, the generated complete bundle uses the same canonical `plugins/agdf/` source projection.
 The source directory itself is not registered as an installable plugin package.
 
-GitHub Copilot discovers its dedicated generated profile through the root `plugin.json`. Its manifest points
-to `copilot-skills/` and `hooks/copilot-hooks.json` so prefixed skills and the consent-bound session
-check are native plugin components. The installer stages it independently under
+GitHub Copilot discovers its dedicated generated profile through the root Agent Plugins 1.0
+`plugin.json`. Portable prefixed skills use the standard `skills/` location; the consent-bound
+session check uses `com.github.copilot/hooks/hooks.json`. The installer stages it independently under
 `<AGDF data directory>/marketplaces/agdf-copilot`; the visible Marketplace identity remains `agdf`.
 
 All three surfaces load AGDF skills, hooks and shared meta instructions from the plugin bundle.

@@ -21,7 +21,7 @@ const writeJson = (path, value) => { mkdirSync(dirname(path), { recursive: true 
 function changedPayload(name) {
   const root = join(fixture, name);
   cpSync(built, root, { recursive: true });
-  const file = join(root, 'copilot-skills/agdf-gate-check/SKILL.md');
+  const file = join(root, 'skills/agdf-gate-check/SKILL.md');
   writeFileSync(file, readFileSync(file, 'utf8')+'\nChanged source fixture.\n');
   const inventory = json(join(root, '.agdf-payload-inventory.json'));
   buildCopilotPayloadInventory({ profileRoot: root, version: pluginDefinition.version, baseline: inventory.baseline,

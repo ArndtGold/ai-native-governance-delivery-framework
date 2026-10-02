@@ -618,7 +618,7 @@ export function syncPackageAssets({
   const generatedCodexRuntimeRoot = assertGeneratedPathSafe(join(generatedCodexPluginRoot, "runtime"), "generated Codex runtime");
   // The runtime plugin root is shared by Codex and Claude Code; it always carries the plugin-local
   // MCP launcher so `claude plugin uninstall` removes the MCP registration and its runtime.
-  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, claudeMcp: true });
+  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, mcpRuntime: true });
   syncPluginMcp({ pluginRoot: generatedCodexPluginRoot });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
   write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
@@ -629,7 +629,21 @@ export function syncPackageAssets({
     writeCopilotSupportFiles();
     for (const skillSlug of skillSlugs) syncCopilotPluginSkill(skillSlug);
     const generatedCopilotRuntimeRoot = assertGeneratedPathSafe(join(generatedCopilotPluginRoot, "runtime"), "generated Copilot runtime");
-    syncPluginRuntime({ outputRoot: generatedCopilotRuntimeRoot });
+    syncPluginRuntime({ outputRoot: generatedCopilotRuntimeRoot, mcpRuntime: true, copilot: true });
+    syncPluginMcp({ pluginRoot: generatedCopilotPluginRoot, profile: "copilot" });
+    copilotMappings.push({
+      destination: "mcp.json",
+      component: "mcp_declaration",
+      owner: "scripts/sync-plugin-mcp.js",
+      rule: "render_agent_plugins_mcp",
+      requirement: "Agent Plugins 1.0 MCP discovery",
+    });
+    mapGeneratedDirectory(join(generatedCopilotPluginRoot, "mcp"), {
+      component: "mcp_runtime",
+      owner: "scripts/sync-plugin-mcp.js",
+      rule: "generated_exact_mcp_runtime",
+      requirement: "plugin-managed MCP runtime",
+    });
     mapGeneratedDirectory(join(generatedCopilotPluginRoot, "runtime"), {
       component: "runtime",
       owner: "scripts/sync-plugin-runtime.js",

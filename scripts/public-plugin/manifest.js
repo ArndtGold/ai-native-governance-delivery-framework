@@ -99,13 +99,6 @@ export function renderClaudePluginManifest(definition, options) {
   return `${JSON.stringify(createClaudePluginManifest(definition, options), null, 2)}\n`;
 }
 
-function requireCopilotPath(value, field) {
-  if (typeof value !== "string" || !value || value.startsWith("/") || value.includes("..") || value.includes("\\")) {
-    throw new Error(`AGDF_COPILOT_PLUGIN_CONTRACT_INVALID: ${field} must be a relative POSIX path`);
-  }
-  return value;
-}
-
 export function createCopilotPluginManifest(definition) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(definition.id ?? "") || definition.id.length > 64) {
     throw new Error("AGDF_COPILOT_PLUGIN_CONTRACT_INVALID: kebab-case name is required");
@@ -113,8 +106,8 @@ export function createCopilotPluginManifest(definition) {
   if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(definition.version ?? "")) {
     throw new Error("AGDF_COPILOT_PLUGIN_CONTRACT_INVALID: semantic version is required");
   }
-  const copilot = definition.copilot ?? {};
   return {
+    $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
     name: definition.id,
     version: definition.version,
     description: definition.description,
@@ -123,9 +116,6 @@ export function createCopilotPluginManifest(definition) {
     repository: definition.repository,
     license: definition.license,
     keywords: definition.keywords,
-    category: definition.category,
-    skills: requireCopilotPath(copilot.skills, "skills"),
-    hooks: requireCopilotPath(copilot.hooks, "hooks"),
   };
 }
 

@@ -98,14 +98,17 @@ assert.equal(existsSync(join(pluginRoot, definition.codex.hooks)), false, "sourc
 assert.equal(existsSync(join(pluginRoot, "host-templates", "shared", definition.codex.hooks)), true, "canonical build-only hook template must remain present");
 
 const copilotManifest = JSON.parse(renderCopilotPluginManifest(definition));
+assert.equal(copilotManifest.$schema, "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json");
 assert.equal(copilotManifest.name, "agdf");
 assert.equal(copilotManifest.version, definition.version);
-assert.equal(copilotManifest.skills, "copilot-skills/");
-assert.equal(copilotManifest.hooks, "hooks/copilot-hooks.json");
+assert.equal(Object.hasOwn(copilotManifest, "skills"), false);
+assert.equal(Object.hasOwn(copilotManifest, "hooks"), false);
 assert.equal(Object.hasOwn(copilotManifest, "mcpServers"), false);
 assert.equal(Object.hasOwn(copilotManifest, "lspServers"), false);
+assert.deepEqual(Object.keys(copilotManifest), [
+  "$schema", "name", "version", "description", "author", "homepage", "repository", "license", "keywords",
+]);
 assert.throws(() => renderCopilotPluginManifest({ ...definition, id: "AGDF" }), /kebab-case name/);
-assert.throws(() => renderCopilotPluginManifest({ ...definition, copilot: { ...definition.copilot, skills: "../skills" } }), /relative POSIX path/);
 
 const first = buildPublicPluginCandidate({ repoRoot, outputRoot, validateSchema });
 const firstInventory = inventory(outputRoot);

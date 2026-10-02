@@ -166,7 +166,7 @@ function buildBinding(canonicalKernel, version = sourceDefinition.version, surfa
       route_source_after_activation: {
         relative_to: "validator_directory",
         path: surface === "copilot"
-          ? "../copilot-skills/contracts/request-activation.md"
+          ? "../skills/contracts/request-activation.md"
           : "../meta/contracts/request-activation.md",
       },
     }),

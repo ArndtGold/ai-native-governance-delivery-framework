@@ -12,7 +12,7 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   rmSync(join(target, 'lib'), { recursive: true, force: true });
   cpSync(join(coreRoot, 'lib'), join(target, 'lib'), { recursive: true });
   // Only the explicit build-owned resource descriptor differs from private source composition.
-  const contracts = copilot ? '../../copilot-skills/contracts/' : 'plugins/agdf/meta/contracts/';
+  const contracts = copilot ? '../../skills/contracts/' : 'plugins/agdf/meta/contracts/';
   writeFileSync(join(target, 'lib', 'resources', 'binding.js'), `// Generated resource binding; canonical Core implementation bytes are copied unchanged.\nexport const packageURL = new URL("../../../../", import.meta.url);\nexport const generatedURL = new URL("generated/", packageURL);\nexport const contractsURL = new URL(${JSON.stringify(contracts)}, ${copilot ? 'packageURL' : 'generatedURL'});\n`);
   return target;
 }

@@ -372,8 +372,8 @@ function recordingIo() {
 {
   const pluginRoot = mkdtempSync(join(tmpdir(), "agdf-contract-root-"));
   try {
-    mkdirSync(join(pluginRoot, "copilot-skills", "contracts"), { recursive: true });
-    writeFileSync(join(pluginRoot, "copilot-skills", "contracts", "quality.md"), "copilot quality\n");
+    mkdirSync(join(pluginRoot, "skills", "contracts"), { recursive: true });
+    writeFileSync(join(pluginRoot, "skills", "contracts", "quality.md"), "copilot quality\n");
     assert.equal(readRuntimeContract("quality", { pluginRoot }).content, "copilot quality\n", "the Copilot payload layout is served");
     mkdirSync(join(pluginRoot, "meta", "contracts"), { recursive: true });
     writeFileSync(join(pluginRoot, "meta", "contracts", "quality.md"), "plugin quality\n");

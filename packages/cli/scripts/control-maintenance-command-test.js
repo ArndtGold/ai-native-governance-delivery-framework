@@ -58,7 +58,7 @@ try {
     assert.ok(existsSync(entrypoint));
     const bundledLib = join(pluginRoot, "runtime/create-agdf/lib");
     for (const excluded of ["install-setup", "marketplace"]) assert.equal(existsSync(join(bundledLib, excluded)), false);
-    if (surfaces.includes("copilot")) assert.equal(existsSync(join(bundledLib, "mcp-lifecycle")), false);
+    if (surfaces.includes("copilot")) assert.equal(existsSync(join(bundledLib, "mcp-lifecycle")), true);
     // Shared Claude runtime already bundles its native MCP support. Maintenance
     // adds no dependency on configuration/installation services in any profile.
     for (const file of readdirSync(join(bundledLib, "control-maintenance"))) {

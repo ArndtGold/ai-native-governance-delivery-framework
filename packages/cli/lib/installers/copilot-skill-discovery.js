@@ -13,7 +13,7 @@ export function verifyCopilotSkillDiscovery(output, { definition, sourceDigest }
       throw new Error(`Copilot plugin skill is missing, disabled or shadowed: ${name}`);
     }
     const path = matches[0].path;
-    if (typeof path !== "string" || !isAbsolute(path) || basename(path) !== name || basename(dirname(path)) !== "copilot-skills") {
+    if (typeof path !== "string" || !isAbsolute(path) || basename(path) !== name || basename(dirname(path)) !== "skills") {
       throw new Error(`Copilot skill has an unexpected installed path: ${name}`);
     }
     roots.add(dirname(dirname(path)));

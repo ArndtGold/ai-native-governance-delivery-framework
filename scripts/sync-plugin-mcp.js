@@ -1,7 +1,7 @@
 import { chmodSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { CODEX_PLUGIN_MCP_FILE, renderCodexPluginMcpConfig } from "../packages/core/lib/runtime/plugin-provenance.js";
+import { CODEX_PLUGIN_MCP_FILE, renderCodexPluginMcpConfig, renderCopilotPluginMcpConfig } from "../packages/core/lib/runtime/plugin-provenance.js";
 
 const scriptsRoot = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptsRoot, "..");
@@ -93,20 +93,24 @@ function copyText(source, destination, expected, root) {
 
 // Writes the runtime plugin's mcp/ directory: the shared launcher and server copy plus one declaration per
 // host whose plugin starts the server itself (Claude Code, and Codex as an installer-completed template).
-export function syncPluginMcp({ pluginRoot } = {}) {
+export function syncPluginMcp({ pluginRoot, profile = "shared" } = {}) {
   if (!pluginRoot || resolve(pluginRoot) !== pluginRoot) throw new Error("Plugin MCP sync requires an absolute pluginRoot.");
+  if (!["shared", "copilot"].includes(profile)) throw new Error("Plugin MCP sync requires a supported profile.");
   const mcpRoot = join(pluginRoot, "mcp");
   mkdirSync(mcpRoot, { recursive: true });
-  const expected = new Set(["claude.mcp.json", "agdf-mcp-launch.js"]);
-  writeFileSync(join(mcpRoot, "claude.mcp.json"), `${JSON.stringify(claudePluginMcpConfig(), null, 2)}\n`, "utf8");
+  const expected = new Set(["agdf-mcp-launch.js"]);
+  if (profile === "shared") {
+    writeFileSync(join(mcpRoot, "claude.mcp.json"), `${JSON.stringify(claudePluginMcpConfig(), null, 2)}\n`, "utf8");
+    expected.add("claude.mcp.json");
+  }
   writeFileSync(join(mcpRoot, "agdf-mcp-launch.js"), LAUNCHER, "utf8");
   mkdirSync(join(mcpRoot, "sdk"), { recursive: true });
   for (const [name, content] of Object.entries(renderPluginMcpSdkBundle())) {
     writeFileSync(join(mcpRoot, "sdk", name), content, "utf8");
     expected.add(`sdk/${name}`);
   }
-  // Portable discovery requires root mcp.json; the installer completes its absolute paths.
-  writeFileSync(join(pluginRoot, CODEX_PLUGIN_MCP_FILE), renderCodexPluginMcpConfig(), "utf8");
+  writeFileSync(join(pluginRoot, CODEX_PLUGIN_MCP_FILE),
+    profile === "shared" ? renderCodexPluginMcpConfig() : renderCopilotPluginMcpConfig(), "utf8");
   for (const entry of SERVER_ENTRIES) {
     copyText(join(serverSourceRoot, entry), join(mcpRoot, "server", entry), expected, mcpRoot);
   }

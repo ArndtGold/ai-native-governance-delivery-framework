@@ -44,30 +44,40 @@ function localImport(from, specifier) {
   const candidate = resolve(dirname(from), specifier);
   return extname(candidate) ? candidate : `${candidate}.js`;
 }
-function visit(path) {
-  if (visited.has(path)) return;
+function visit(path, graph = visited) {
+  if (graph.has(path)) return;
   const content = readFileSync(path, "utf8");
-  visited.set(path, content);
+  graph.set(path, content);
   for (const match of content.matchAll(importPattern)) {
     const imported = localImport(path, match[1]);
-    if (imported && existsSync(imported)) visit(imported);
+    if (imported && existsSync(imported)) visit(imported, graph);
   }
 }
 for (const name of readdirSync(sourceRoot).filter((value) => value.endsWith(".js"))) {
   visit(fileURLToPath(new URL(name, sourceRoot)));
 }
+const dispatcherRoot = resolve(repositoryRoot, "dist/npm/create-agdf");
+const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
+  "rmdirSync", "mkdirSync", "openSync", "fsyncSync"];
+// Bound continuation composes the existing writer; the MCP adapter adds no write owner.
+const continuationWriteOwners = new Map([
+  ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync"]],
+  ["runtime/core/lib/fs-swap.js", ["renameSync"]],
+]);
+function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
+  assert.deepEqual(writeSymbols.filter(symbol => content.includes(symbol)), owners.get(packagePath) ?? [],
+    `module ${packagePath} exceeds its declared filesystem write boundary`);
+}
 for (const [path, content] of visited) {
   for (const prohibited of [
     "node:child_process", "node:net", "node:http", "node:https", "node:http2",
-    "node:tls", "node:dgram", "node:dns", "writeFileSync", "createWriteStream",
-    "renameSync", "unlinkSync", "rmSync", "rmdirSync", "mkdirSync", "openSync",
-    "fsyncSync", "fetch(",
+    "node:tls", "node:dgram", "node:dns", "fetch(",
   ]) {
     assert.equal(content.includes(prohibited), false, `reachable module ${path} includes ${prohibited}`);
   }
-  const dispatcherRoot = resolve(repositoryRoot, "dist/npm/create-agdf");
+  const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
+  assertWriteBoundary(packagePath, content);
   if (path.startsWith(`${dispatcherRoot}${sep}`)) {
-    const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
     assert.ok(
       MCP_DISPATCHER_RUNTIME_ENTRIES.some((entry) => packagePath === entry || packagePath.startsWith(`${entry}/`)),
       `reachable dispatcher module is outside the provenance digest: ${packagePath}`,
@@ -76,6 +86,17 @@ for (const [path, content] of visited) {
 }
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/skill-dispatch/service.js")));
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/control-inspect/service.js")), "the read tool is part of the scanned reachable surface");
+for (const owner of continuationWriteOwners.keys()) assert.ok(visited.has(resolve(dispatcherRoot, owner)));
+const readOnlyGraph = new Map();
+for (const owner of ["skill-dispatch/service.js", "control-inspect/service.js"]) {
+  visit(resolve(dispatcherRoot, "runtime/core/lib", owner), readOnlyGraph);
+}
+for (const [path, content] of readOnlyGraph) {
+  assertWriteBoundary(relative(dispatcherRoot, path).replaceAll("\\", "/"), content, new Map());
+}
+assert.throws(() => assertWriteBoundary("runtime/core/lib/unexpected-writer.js", "writeFileSync()"), /write boundary/);
+assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync(); mkdirSync()"), /write boundary/);
+assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync()", new Map()), /write boundary/);
 
 class SilentWorker extends EventEmitter {
   constructor() {

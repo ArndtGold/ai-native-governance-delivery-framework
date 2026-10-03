@@ -38,7 +38,8 @@ For larger or more formal work, create or update the durable artefacts fully, th
 ### Chat and Tool-Call Discipline
 
 Chat output shows decisions and outcomes. Files show evidence and detail. The agent
-minimises both the number of tool calls and the amount of accompanying chat text. This
+uses the sole Routine Continuation And Visible Events policy in interaction.md; every required
+checkpoint and review still executes. It minimises tool calls and accompanying chat text. This
 is surface-agnostic: it changes agent behaviour and framework text, not host rendering.
 Whether a host renders a tool-call block visibly is a host concern; the framework ensures
 the agent makes fewer calls and produces less text around them.

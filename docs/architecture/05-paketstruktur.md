@@ -6,6 +6,9 @@ konkreten Quell-, Build- und Auslieferungsgrenzen zu. Für das Zusammenwirken de
 Die vorgeschlagene Weiterentwicklung steht im [gemeinsamen Zielbild](03-agentenkontrolle-zielbild.md);
 der folgende Baum beschreibt die bestehende Struktur.
 
+**Stand: 3. Oktober 2026, Repository-Quelle.** Eine Quellzuordnung belegt keine Veröffentlichung
+oder Aktualisierung einer bestehenden Host-Installation.
+
 Der Repository-Baum trennt installierbare Plugin-Inhalte, ausführbare Software und
 Build-/Release-Komposition:
 
@@ -70,6 +73,40 @@ Runtime-Probe, Startup-Prozess und Terminal-I/O gehören zur CLI. Recovery prüf
 Providerdaten im Core und übernimmt daraus keine historische Freigabeautorität.
 Die öffentlichen synchronen `create-agdf/control-command`- und
 `create-agdf/mcp-dispatch-runtime`-Exports bleiben erhalten.
+
+### Quellbindungen und Schreibpfade im Core
+
+Umsetzungsfortsetzung, Artefakterfassung und begrenzte Beziehungskorrektur verwenden bestehende
+Paketgrenzen. Die CLI erweitert `run-step` um `--step artefact`; der Handler delegiert an den Core.
+CLI und MCP verwenden dieselbe Fortsetzungsorchestrierung am gemeinsamen Core-Einstieg.
+Sie umschließt den lesenden Dispatch-Service und koordiniert den bestehenden Korrektureigentümer;
+der Dispatcher importiert oder ruft diesen Schreibdienst nicht auf.
+Es entstehen kein weiterer MCP-Endpunkt und kein globales Register für Sichtbarkeit oder Freigaben.
+
+| Core-Quelle | Verantwortung |
+|---|---|
+| [skill-dispatch/service.js](../../packages/core/lib/skill-dispatch/service.js) | Eingaben validieren, Ziel binden, Kontrollzustand lesen und Route samt Präsentation bestimmen; keine Beziehungskorrektur. |
+| [delivery-continuation/service.js](../../packages/core/lib/delivery-continuation/service.js) | Am gemeinsamen [Core-Einstieg](../../packages/core/lib/index.js) höchstens eine Korrektur einer validierten gebundenen Fortsetzung koordinieren, danach Routing mit frischer Auswertung aufrufen und das Ergebnis ausgeben. |
+| [delivery-relationships.js](../../packages/core/lib/control-evaluation/delivery-relationships.js) | Gemeinsames Beziehungsregister und Anwendbarkeit anhand übergebener Policy-Fakten; keine Abhängigkeit von Writer, Siegel oder Gate-Policy. |
+| [artefact-bindings.js](../../packages/core/lib/control-state/artefact-bindings.js) | Strikter Codec für den optionalen Abschnitt `Artefact Bindings`, eindeutige aktive Bindung und erhaltene Historie. |
+| [artefact-binding-proof.js](../../packages/core/lib/control-state/artefact-binding-proof.js) | Enthaltene Dateipfade, genaue Quell-/Ziel-/Belegbytes und vollständige aufgezeichnete Quellfreigaben prüfen. |
+| [run-artefact-recording.js](../../packages/core/lib/control-state/run-artefact-recording.js) | Artefaktzeiger, geprüfte Quellbindung, Beziehung und Audit als eine Änderung für den vorhandenen Writer vorbereiten. |
+| [run-relationship-correction.js](../../packages/core/lib/control-state/run-relationship-correction.js) | Höchstens eine belegte fehlende Beziehung unter Run-Lock ergänzen; Revision prüfen, neue Revision samt Audit veröffentlichen und zulässigen Arbeitsumfang erhalten. |
+
+[run-state-writer.js](../../packages/core/lib/control-state/run-state-writer.js),
+[run-seal.js](../../packages/core/lib/control-state/run-seal.js) und
+[run-step-transaction.js](../../packages/core/lib/control-state/run-step-transaction.js) bleiben die
+Persistenz-, Integritäts- und Transaktionseigentümer. Der optionale Belegabschnitt ist Teil des
+versiegelten Run-Zustands, keine zweite Datenbank oder Freigabequelle. Seine Abwesenheit ist für
+Legacy-Runs gültig, erlaubt aber keine automatische Beziehungskorrektur.
+
+Die operative Sichtbarkeit gehört dem
+[Interaktionsvertrag](../../plugins/agdf/meta/contracts/interaction.md). Die bestehenden
+[Locale-Ressourcen](../../plugins/agdf/meta/agdf-interaction-locales.json) und der
+[Renderer](../../packages/core/lib/interaction-presentation.js) zeigen auch Korrektur und
+widersprüchliche Beziehungen. Build-Projektionen übernehmen die kanonischen Quellen über den
+bestehenden Sync. Die [Dispatcher-Referenz](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur)
+beschreibt Voraussetzungen, Fehlerfälle und die Grenze zum tatsächlichen Hostnachweis.
 
 ## Build und normale npm-Archive
 

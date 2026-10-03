@@ -1,0 +1,74 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "skill_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "unavailable",
+    "expected_version": "0.14.5",
+    "plugin_root": null,
+    "runtime_digest": null,
+    "provenance_status": null
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-after-nUtJqh",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-after-nUtJqh",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-after-nUtJqh",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "CD+Tests",
+    "gate_route": {
+      "gate": "CD+Tests",
+      "skills": []
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": null,
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+    "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+    "doctor_status": "pass"
+  },
+  "presentation": null,
+  "continuation": {
+    "phase": "implementation",
+    "skill_id": "gate-check",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-after-nUtJqh",
+    "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+    "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+    "presentation_language": "de",
+    "instruction": "Implement only the already approved TP scope, run its required checks, and maintain evidence for this bound run. Use the interaction event policy: routine internal checks need no standalone status card; meaningful events and explicit status remain visible. After recorded control changes, redispatch gate-check for this same target/run with continue_delivery. Stop at the next human decision or concrete blocker; never infer QA, UAT or release approval."
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_named_skill",
+    "source": "continuation",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 6.333,
+    "target_ms": 1.306,
+    "control_ms": 107.339,
+    "render_ms": 11.008,
+    "total_ms": 126.303
+  },
+  "diagnostics": []
+}

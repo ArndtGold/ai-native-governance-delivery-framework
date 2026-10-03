@@ -46,7 +46,7 @@ export const commandRegistry = Object.freeze([
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
   command("run-revise", { local: [" --run <run_id> --revision <revision_id>"] }),
-  command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]"] }),
+  command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout|artefact> [step fields]"] }),
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
   command("run-recovery", { local: [" --run <run_id> --action <inspect|preview>", " --run <run_id> --action apply --preview-id <uuid> --recovery-confirmation \"RECOVER <run_id> <preview_id>\""] }),
@@ -148,7 +148,8 @@ export function validateCommandOptions(options) {
   } else if (options.recoveryAction || options.recoveryPreviewId || options.recoveryConfirmation) {
     throw new Error("--action, --preview-id and --recovery-confirmation are supported only by run-recovery");
   }
-  if ((options.gate && !["run-approve", "run-present"].includes(options.target)) || (options.response !== undefined && options.target !== "run-approve")) {
+  if ((options.gate && !["run-approve", "run-present"].includes(options.target)
+      && !(options.target === "run-step" && options.runStep === "artefact")) || (options.response !== undefined && options.target !== "run-approve")) {
     throw new Error("--gate is supported by run-present/run-approve; --response only by run-approve");
   }
   if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present", "skill-dispatch"].includes(options.target)) {
@@ -160,6 +161,9 @@ export function validateCommandOptions(options) {
   if (options.target === "run-step" && (!options.runId || !options.revisionId || !options.runStep)) {
     throw new Error("run-step requires --run, --revision and --step");
   }
+  if (options.target === "run-step" && options.runStep === "artefact"
+      && (!["PRD", "SD", "TP", "QA"].includes(options.gate) || !options.stepFields?.evidence
+        || Object.keys(options.stepFields).some(key => key !== "evidence"))) throw new Error("run-step artefact requires --gate PRD|SD|TP|QA and --evidence <recording-input.json>; other step fields are rejected");
   if (options.target === "run-update" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
     throw new Error("run-update requires --run and --revision and rejects --gate and --response");
   }
@@ -279,8 +283,9 @@ Options:
                  Exact confirmation printed by run-recovery preview
   --module <runtime-contract-module>
                  Runtime-contract module for contract, for example gate-transition
-  --step <ur|route|review|evidence|closeout>
-                 Standard transition for run-step. Step fields: ur --title; route --route
+  --step <ur|route|review|evidence|closeout|artefact>
+                 Standard transition for run-step. artefact --gate PRD|SD|TP|QA --evidence <recording-input.json>;
+                 other step fields: ur --title; route --route
                  <quick_task|verified_change|structured_slice|structured_delivery|block> --reason
                  --evidence; review --decision <pass|revise|block> --evidence [--source]; evidence
                  --evidence [--source --covers]; closeout --result --evidence --risk --next

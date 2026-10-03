@@ -166,10 +166,23 @@ function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
     run_id: report.status_card?.run_id ?? null,
     revision_id: report.approval_presentation?.revision_id ?? extractField(report.status_card?.runState?.content ?? "", "revision_id") ?? null,
     doctor_status: report.doctor_status,
+    ...(report.relationship_correction ? { relationship_correction: report.relationship_correction } : {}),
     ...(includeCandidateRuns ? { candidate_runs: candidateRunsSnapshot(report) } : {}),
   });
 }
 
+export function createSkillDispatchFailure({ skill, runtime, timing, code, details, interactionLocales,
+  presentationLanguage, renderRecovery = renderSkillDispatchRecovery }) {
+  const result = baseResult({ outcome: "evaluator_error", terminal: true, skill, runtime, timing });
+  let action;
+  try { action = renderRecovery({ code }, { registry: interactionLocales, requestedLocale: presentationLanguage }); }
+  catch { action = null; }
+  result.recovery = { action: [action ?? "Repair the installed locale registry and retry once.", details].filter(Boolean).join("\n\n") };
+  result.diagnostics = [{ code: `dispatch_${code}` }];
+  return bindHostAction(result);
+}
+
+// Routing and presentation only. The application continuation owner coordinates mutations.
 export function createSkillDispatchService(dependencies = {}) {
   const now = dependencies.now ?? defaultNow;
   const resolveTarget = dependencies.resolveTaskTarget ?? resolveTaskTarget;
@@ -345,6 +358,22 @@ export function createSkillDispatchService(dependencies = {}) {
       const route = control.status_card?.mode_slice_decision ?? control.delivery_map?.mode_slice_decision?.decision;
       const structuredRoute = ["structured_slice", "structured_delivery"].includes(route);
       const tpIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "TP" && item.status === "fulfilled");
+      if (input.continue_delivery && control.status === "open" && control.current_gate === "CD+Tests"
+          && control.missing_approval === "none" && structuredRoute && tpIsFulfilled
+          && control.next_allowed_action === "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.") {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          phase: "implementation", skill_id: "gate-check", governance_target: target.governance_target,
+          run_id: result.control.run_id, revision_id: result.control.revision_id, presentation_language: input.presentation_language,
+          instruction: "Implement only the already approved TP scope, run its required checks, and maintain evidence for this bound run. Use the interaction event policy: routine internal checks need no standalone status card; meaningful events and explicit status remain visible. After recorded control changes, redispatch gate-check for this same target/run with continue_delivery. Stop at the next human decision or concrete blocker; never infer QA, UAT or release approval.",
+          ...(control.relationship_correction ? { relationship_correction: control.relationship_correction } : {}),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("gate-check")) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
       if (input.continue_delivery
           && control.status === "open"
           && control.current_gate === "Brownfield Analysis"
@@ -497,23 +526,10 @@ export function createSkillDispatchService(dependencies = {}) {
       return bindHostAction(result);
     } catch (error) {
       const recoveryCode = error instanceof SkillDispatchRuntimeError ? error.code : DISPATCH_RECOVERY.internal_failure;
-      const result = baseResult({ outcome: "evaluator_error", terminal: true, skill, runtime, timing });
-      let recoveryAction;
-      try {
-        recoveryAction = renderRecovery(
-          { code: recoveryCode },
-          { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language },
-        );
-      } catch {
-        recoveryAction = null;
-      }
-      result.recovery = {
-        action: [recoveryAction ?? "Repair the installed locale registry and retry once.", error?.details].filter(Boolean).join("\n\n"),
-      };
-      result.diagnostics = [{ code: `dispatch_${recoveryCode}` }];
       timing.total_ms = round(milliseconds(started, now()));
       timing.wrapper_ms = round(wrapperMilliseconds(now, env));
-      return bindHostAction(result);
+      return createSkillDispatchFailure({ skill, runtime, timing, code: recoveryCode, details: error?.details,
+        interactionLocales: rawInput.interactionLocales, presentationLanguage: input.presentation_language, renderRecovery });
     }
   };
 }

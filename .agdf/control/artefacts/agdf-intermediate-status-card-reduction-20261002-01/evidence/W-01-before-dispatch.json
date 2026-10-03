@@ -1,0 +1,78 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "control_result",
+  "terminal": true,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "unavailable",
+    "expected_version": "0.14.5",
+    "plugin_root": null,
+    "runtime_digest": null,
+    "provenance_status": null
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-before-29MFNg",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-before-29MFNg",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-before-29MFNg",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "CD+Tests",
+    "gate_route": {
+      "gate": "CD+Tests",
+      "skills": []
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": null,
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+    "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+    "doctor_status": "pass",
+    "candidate_runs": []
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "run_status_card",
+    "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+    "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+    "current_gate": "CD+Tests",
+    "presentation_language": "de",
+    "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Ich arbeite weiter | TP freigegeben. Keine Antwort nötig. Ich setze den genehmigten Umfang um, führe die Tests aus und erfasse CD+Tests-Nachweise. |\n| Fehlende Freigabe | keine |",
+    "authorizes": false
+  },
+  "continuation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "transmit_presentation_verbatim_and_stop",
+    "source": "presentation.markdown",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Ich arbeite weiter | TP freigegeben. Keine Antwort nötig. Ich setze den genehmigten Umfang um, führe die Tests aus und erfasse CD+Tests-Nachweise. |\n| Fehlende Freigabe | keine |",
+    "allow_surrounding_text": false,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 6.705,
+    "target_ms": 1.258,
+    "control_ms": 111.678,
+    "render_ms": 8.896,
+    "total_ms": 129.109
+  },
+  "diagnostics": []
+}

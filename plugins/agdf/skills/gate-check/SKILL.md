@@ -45,7 +45,7 @@ about the work; never start by asking users for Run IDs. Inventory failure block
 Use returned revisions after `run-create` and `run-step`; new scope starts at durable UR approval.
 After `run-approve` returns `outcome: approved`, redispatch the same target/run immediately with
 `continue_delivery: true`. `control.gate_route` identifies the current gate and responsible skills;
-invoke `continuation.skill_id`. Stop at the next user decision or blocker.
+Follow `continuation.skill_id` per interaction.md; stop at decisions or blockers.
 
 ## Executable Dispatch
 

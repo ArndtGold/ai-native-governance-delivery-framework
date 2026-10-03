@@ -1,0 +1,14 @@
+npm notice run create-agdf@0.14.5 test:artifact-language
+npm notice run node scripts/artifact-language-test.js
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/artifact-language-test.js:45
+    const created = { revision_id: spawnSync(process.execPath, [validator, "run-create", "--dir", root, "--run", "subtract"], { encoding: "utf8", env }).stdout.match(/revision_id: (\S+)/u)[1] };
+                                                                                                                                                                                            ^
+
+TypeError: Cannot read properties of null (reading '1')
+    at prepare (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/artifact-language-test.js:45:189)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/artifact-language-test.js:56:18
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

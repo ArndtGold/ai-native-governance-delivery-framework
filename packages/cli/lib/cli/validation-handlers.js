@@ -152,6 +152,7 @@ export function createValidationHandlers(io = console) {
         runId: options.runId,
         revisionId: options.revisionId,
         step: options.runStep,
+        ...(options.gate ? { gate: options.gate } : {}),
         ...options.stepFields,
       }, { policy: policyForRunContent });
       io.log(JSON.stringify(result, null, 2));

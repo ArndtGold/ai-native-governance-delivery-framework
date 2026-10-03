@@ -8,11 +8,16 @@ digraph components {
   host [label="Coding-Agent im Host", fillcolor="#EEE9FF", color="#8270AE"];
   server [label="MCP-Server\ntools/list · tools/call"];
   contract [label="Dispatch-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
-  dispatch [label="Skill-Dispatcher\nEingabe · Zielbindung"];
+  continuation [label="Core-Fortsetzungsorchestrierung\ngemeinsamer CLI-/MCP-Einstieg"];
+  dispatch [label="Lesender Skill-Dispatcher\nEingabe · Zielbindung · Route"];
   inspect_contract [label="Inspect-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
   inspect [label="Lesender Inspect-Service\nDoctor · Gate-Check · Map · Vertrag"];
   target [label="Zielauflösung"];
   gate [label="Gate-Auswertung"];
+  relationships [label="Gemeinsames Beziehungsregister\nReadiness · Erfassung · Belegprüfung", fillcolor="#FFF2CF", color="#BF9840"];
+  correction [label="Begrenzte Beziehungskorrektur\nbeauftragte gebundene Fortsetzung"];
+  recording [label="Artefakterfassung: run-step artefact\nZeiger + Quellbindung + Beziehung + Audit"];
+  writer [label="Bestehender Core-Writer\nLock · Revision · Siegel · Journal"];
   state [label=".agdf/control/\nRun · Artefakte · Freigaben", fillcolor="#E5F0FC", color="#5284AD"];
 
   profile [label="MCP-Profil v2\nHosts · Scopes · Zustände", fillcolor="#FFF2CF", color="#BF9840"];
@@ -29,12 +34,23 @@ digraph components {
   binding -> contract;
   server -> contract;
   server -> inspect_contract;
-  contract -> dispatch;
+  contract -> continuation;
+  continuation -> dispatch;
   inspect_contract -> inspect;
   dispatch -> target;
   target -> gate;
   inspect -> gate [label="gemeinsame Evaluatoren"];
   gate -> state [label="prüft"];
+  gate -> relationships [label="prüft erforderliche Bezüge"];
+  dispatch -> continuation [label="validierte gebundene Route", style=dashed, constraint=false];
+  continuation -> correction [label="höchstens ein Versuch vor Ausgabe"];
+  correction -> writer [label="prüft und ergänzt unter Run-Lock"];
+  correction -> continuation [label="Commit / Ablehnung / Fehler", style=dashed, constraint=false];
+  continuation -> dispatch [label="nach Commit frisch auswerten", style=dashed, constraint=false];
+  host -> recording [label="Agent über CLI", style=dashed, constraint=false];
+  recording -> relationships [label="gemeinsame Zuordnung"];
+  recording -> writer [label="atomar erfassen"];
+  writer -> state [label="persistiert"];
 
   profile -> service [label="validiert"];
   service -> registry;

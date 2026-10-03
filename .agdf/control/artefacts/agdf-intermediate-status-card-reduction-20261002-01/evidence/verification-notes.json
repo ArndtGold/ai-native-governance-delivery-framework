@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "visibility_fixture_attempts": [
+    {
+      "attempt": 1,
+      "result": "assertion failed at changed-resumption check; fixture replaced only displayed Current Control row, leaving authoritative next_allowed_action unchanged",
+      "production_change": false
+    },
+    {
+      "attempt": 2,
+      "result": "fixture updates every canonical action occurrence; unchanged repeat, explicit fresh status, changed resumption and en/de new messages pass",
+      "evidence": "tests/visibility.log; repeat-status-resume.json; rendered-locales.json"
+    }
+  ],
+  "final_live_recording": "Candidate run-step artefact atomically recorded real QA_REPORT revise, strict full TP mapping and QA_REPORT-tests-TP in revision 22; live-recording-evidence.json",
+  "installation": "untouched; both installed and candidate read-only primitives report QA revise and doctor pass"
+}

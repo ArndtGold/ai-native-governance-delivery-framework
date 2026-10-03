@@ -1,4 +1,5 @@
 import { prepareRunPresentation } from "../lib/control-state/run-presentation.js";
+import "./artefact-recording-test.js";
 import assert from "node:assert/strict";
 import {
   existsSync,

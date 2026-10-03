@@ -24,6 +24,13 @@ fachlichen Gruppen werden dort OP-01 bis OP-10 zugeordnet; offene Vertrags- und 
 als Umsetzungsvoraussetzungen sichtbar. Diese Ergänzung führt keine zweite Roadmap ein.
 Die [Paketstruktur](05-paketstruktur.md) ordnet bestehende Zuständigkeiten den Quellen zu.
 
+**Bestandsabgleich vom 3. Oktober 2026:** Die Repository-Implementierung ergänzt die
+Umsetzungsfortsetzung sowie atomare Artefakterfassung und eine eng begrenzte Beziehungskorrektur.
+Die [Dispatcher-Referenz](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur)
+beschreibt diese vorhandenen Schreibgrenzen. Die folgenden vorgeschlagenen allgemeinen
+MCP-Operationen und Ausführungskontrollen sind dadurch weder umgesetzt noch freigegeben;
+die Nachweisgrenzen und Roadmap dieses Konzepts gelten weiter.
+
 ### Ziel und Lesehilfe
 
 Ziel ist, zu kontrollieren, was der Coding-Agent tun darf, und zu prüfen, was er tatsächlich getan hat. Auswahl-Buttons für Freigaben sind eine Darstellungsoption innerhalb dieses Kontrollmodells. Das vollständige Modell muss vorliegen, bevor einzelne MCP-Operationen oder hostspezifisches Verhalten ergänzt werden.
@@ -190,7 +197,7 @@ Alle Operationen erfordern ausdrücklichen Zugriff auf die Ziele und Ressourcen,
 
 Tools decken explizite validierte Operationen ab. Resources sind optional für stabil lesbare Verträge und Nachweise, sofern Identität, Zugriff und Aktualität sichtbar bleiben. Prompts sind optionale Erklärungshilfen und bestimmen niemals eine Berechtigung. Elicitation ist eine optionale strukturierte Eingabe über qualifizierte Clients. MCP Apps/UI Extensions sind optionale Darstellungskanäle. Events sind, soweit unterstützt, optionale Signale zur Ungültigkeitsanzeige und Überwachung; sie sind keine Voraussetzung für lokale Governance oder Freigaben.
 
-Der Umsetzungsvertrag muss die Bedeutung von Anfragen, Ergebnissen und Fehlern gemeinsam mit der Fähigkeitsaushandlung versionieren. Bestehende Lese-/Dispatch-Clients bleiben während eines definierten Kompatibilitätszeitraums funktionsfähig. Vorgeschlagene Schreibzugriffe dürfen die aktuelle ausschließlich lesende MCP-Grenze nicht stillschweigend erweitern; Fähigkeitserkennung und menschliche Zustimmung müssen die neue Wirkung vor der Nutzung beschreiben. Ein neuer Transport rechtfertigt weder eine zweite Zustandsdatenbank noch eine zweite maßgebliche Schemaquelle.
+Der Umsetzungsvertrag muss die Bedeutung von Anfragen, Ergebnissen und Fehlern gemeinsam mit der Fähigkeitsaushandlung versionieren. Bestehende Lese-/Dispatch-Clients bleiben während eines definierten Kompatibilitätszeitraums funktionsfähig. Vorgeschlagene allgemeine Schreibzugriffe dürfen die [bestehenden Lese- und begrenzten Dispatch-Schreibgrenzen](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur) nicht stillschweigend erweitern; Fähigkeitserkennung und menschliche Zustimmung müssen die neue Wirkung vor der Nutzung beschreiben. Ein neuer Transport rechtfertigt weder eine zweite Zustandsdatenbank noch eine zweite maßgebliche Schemaquelle.
 
 Die von OpenAI dokumentierte MCP-Events-Integration verwendet Webhooks mit Protokoll 2026-07-28 in Work Web, Desktop Cloud und Dots. Daraus folgt keine Unterstützung lokaler Codex-Ereignisse. Der aktuelle AGDF-Server bietet ausschließlich Tools und hat keine Ereignisverarbeitung. Für die lokale Ausgangsbasis dieses Konzepts ist keine Webhook-Infrastruktur erforderlich. [MCP Events](https://developers.openai.com/plugins/build/mcp-events).
 

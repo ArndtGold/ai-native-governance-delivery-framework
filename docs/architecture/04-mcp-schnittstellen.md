@@ -24,7 +24,16 @@ Der [MCP-Server](../../packages/mcp-server/src/server.js) und die
 [MCP-Laufzeit](../../packages/cli/lib/mcp-dispatch-runtime.js) vermitteln diese Verträge.
 
 Der Dispatcher gibt Aufträge zurück; der Agent führt Schreibschritte separat über bestehende Writer
-aus. Das ist keine allgemeine MCP-Schreib- oder Approval-API. Quellcode, Paket, Installation und
+aus. Im nachgeführten Quellstand vom 3. Oktober 2026 kann eine ausdrücklich beauftragte,
+gebundene Dispatch-Fortsetzung außerdem genau eine fehlende Beziehung aus bereits versiegeltem,
+exakt geprüftem Beleg ergänzen. Dafür koordiniert die gemeinsame Core-Fortsetzungsorchestrierung
+den bestehenden Korrekturdienst und ruft das lesende Dispatch-Routing anschließend frisch auf. Inspect und expliziter Status
+bleiben lesend. Die Voraussetzungen und Fehlergrenzen stehen in der
+[Dispatcher-Referenz](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur).
+Der MCP-Vertrag markiert `agdf_dispatch` deshalb mit `readOnlyHint: false`; diese Angabe
+beschreibt die mögliche Wirkung des gesamten Werkzeugs, auch wenn sein Routing-Service lesend
+bleibt. `agdf_inspect` behält `readOnlyHint: true`.
+Das ist keine allgemeine MCP-Schreib- oder Approval-API. Quellcode, Paket, Installation und
 frische Host-Sitzung benötigen getrennte Nachweise. Die ursprünglichen Quellenbeobachtungen vom
 30. September werden durch diese redaktionelle Zusammenführung nicht zu neuen Host-Nachweisen.
 

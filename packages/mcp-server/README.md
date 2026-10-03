@@ -6,6 +6,11 @@ MCP tools: `agdf_dispatch`, `agdf_inspect`.
 Dispatch follows the canonical skill-dispatch contract;
 inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
 
+The shared Core continuation service may record one previously sealed relationship correction
+for an authorized bound `continue_delivery` request, then route the same run afresh. The routing
+service itself remains read-only. Accordingly, `agdf_dispatch` declares `readOnlyHint: false`;
+`agdf_inspect` declares `readOnlyHint: true`. Neither tool creates an approval.
+
 > [!IMPORTANT]
 > This package is an unreleased development component for the next AGDF version. AGDF 0.14.5 does not include MCP support.
 > Installing AGDF 0.14.5 therefore does not install this server, register

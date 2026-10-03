@@ -1,0 +1,26 @@
+npm notice run create-agdf@0.14.5 test:skill-dispatch
+npm notice run node ../core/test/skill-names-test.js && node scripts/skill-dispatch-function-contract-test.js && node scripts/skill-dispatch-test.js && node scripts/skill-dispatch-binding-test.js && node scripts/delivery-run-assignment-test.js
+skill names tests passed
+Skill dispatch semantic function contract tests passed
+agdf_inspect function contract pins passed.
+skill dispatch tests passed
+presentation_required preview tests passed.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"executable":"/usr/local/Cellar/node@22/22.22.3/bin/node","args":["/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/generated/plugins/agdf/runtime/agdf-local.js","skill-dispatch","--json","--surface","codex","--skill","gate-check","--language","en","--working-directory","/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-binding-pMXuGC/context only"],"status":2,"signal":null,"stderr":"{\"schema_version\":\"1\",\"machine_validation\":\"version_mismatch\",\"surface\":\"plugin\",\"expected_version\":\"0.14.5\",\"observed_version\":\"0.14.5\",\"source\":\"plugin_bundle\",\"registry_access\":false,\"distribution_profile\":\"runtime-plugin\",\"evidence_plane\":null,\"canonical_version\":\"0.14.5\",\"plugin_version\":\"0.14.5\",\"runtime_digest\":\"b053d2cedcbe6f3b6bbd1d85cd8721d78dcd36e0eb8edb460c2822d5b1270512\",\"source_digest\":null,\"plugin_root\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/generated/plugins/agdf\",\"provenance_status\":null,\"reason\":\"runtime_digest_mismatch\"}\n"}
+    at invoke (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/skill-dispatch-binding-test.js:196:16)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/skill-dispatch-binding-test.js:210:22
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '',
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

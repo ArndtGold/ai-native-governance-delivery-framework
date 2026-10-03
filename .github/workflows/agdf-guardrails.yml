@@ -35,6 +35,11 @@ jobs:
       run:
         shell: bash
     steps:
+      # Git must opt into long paths before materializing nested evidence fixtures on Windows.
+      - name: Enable Windows Git long paths
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

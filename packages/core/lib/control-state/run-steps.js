@@ -19,11 +19,12 @@ import {
 import { withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
 import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
 import { pendingRunStepIds } from "./run-step-pending.js";
+import { prepareArtefactRecording } from "./run-artefact-recording.js";
 
 // run-step records one standard transition of the small path in a single sealed revision. The agent
 // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
 // pointer and the policy-derived next action so no hand edit of the control state is needed.
-export const RUN_STEPS = Object.freeze(["ur", "route", "review", "evidence", "closeout"]);
+export const RUN_STEPS = Object.freeze(["ur", "route", "review", "evidence", "closeout", "artefact"]);
 export const RUN_STEP_ROUTES = Object.freeze(["quick_task", "verified_change", "structured_slice", "structured_delivery", "block"]);
 const REVIEW_DECISIONS = new Set(["pass", "revise", "block"]);
 const NEXT_GATE_BY_ROUTE = Object.freeze({
@@ -140,7 +141,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
 
   const key = runId;
   let text = canonicalRunText(run.content);
-  const control = parseControlState(text, { userGates: APPROVAL_GATES, internalSteps: ["Brownfield Review", "CR"], closeoutArtefacts: ["OR"] });
+  const control = { ...parseControlState(text, { userGates: APPROVAL_GATES, internalSteps: ["Brownfield Review", "CR"], closeoutArtefacts: ["OR"] }), content: text, meta: run.meta };
   const approved = (gate) => control.approvals.get(gate)?.status === "approved";
   const route = control.mode_slice_decision.decision;
   const before = policy(root, text, run.path);
@@ -148,6 +149,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
   let evidenceRow = null;
   let backlog = null;
   let orContent = null;
+  let recording = null;
   const edit = (fn) => {
     const result = withSectionEdit(runId, text, fn);
     if (result.rejection) return result.rejection;
@@ -155,7 +157,12 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     return null;
   };
 
-  if (step === "ur") {
+  if (step === "artefact") {
+    recording = prepareArtefactRecording(root, run, input, control, before);
+    text = recording.text;
+    known = `${input.gate} artefact and reviewed source binding recorded together.`;
+    backlog = {};
+  } else if (step === "ur") {
     if (approved("UR")) return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
     if (!filled(input.title)) return rejected(runId, "title_missing");
     const path = artefactPath(key, "UR.md");
@@ -252,12 +259,15 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     ? prepareBacklog(root, key, { ...backlog, links: backlogLinks(text), next: after.next_allowed_action })
     : { status: "unchanged", update: null };
   if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
-  const written = guardedWrite(runId, () => (orContent || backlogPlan.update)
+  const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update)
     ? commitRunStepLocked(root, {
       runId, runPath: run.path, content: text, revisionId, expectedContent: run.content,
       backlog: backlogPlan.update, or: orContent, afterWrite,
+      nextRevisionId: recording?.nextRevisionId,
+      writeOptions: recording ? { appendedBinding: recording.receipt, allowContentChange: recording.allowContentChange, validateBeforeWrite: recording.validateBeforeWrite } : {},
     })
-    : writeRunLocked(run.path, text, revisionId, { expectedContent: run.content }));
+    : writeRunLocked(run.path, text, revisionId, { expectedContent: run.content,
+      ...(recording ? { nextRevisionId: recording.nextRevisionId, appendedBinding: recording.receipt, allowContentChange: recording.allowContentChange, validateBeforeWrite: recording.validateBeforeWrite } : {}) }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",

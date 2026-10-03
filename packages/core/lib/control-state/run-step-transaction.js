@@ -8,9 +8,10 @@ import { pendingRunStepPath } from "./run-step-pending.js";
 
 const digest = (value) => createHash("sha256").update(value, "utf8").digest("hex");
 
-function recoveryError(runId) {
+function recoveryError(runId, committedRevisionId) {
   const error = new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
   error.pending_run_id = runId;
+  if (committedRevisionId) error.committed_revision_id = committedRevisionId;
   return error;
 }
 
@@ -83,7 +84,7 @@ export function recoverPendingRunStep(root, runId) {
 
 // Called only with both locks held. The Run revision is the commit point; the journal lets a
 // retry restore OR before it or finish Backlog after it without inventing another authority.
-export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, backlog, or, afterWrite = () => {} }) {
+export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, backlog, or, afterWrite = () => {}, nextRevisionId = randomUUID(), writeOptions = {} }) {
   const path = pendingRunStepPath(root, runId);
   if (existsSync(path)) throw recoveryError(runId);
   const backlogPath = join(root, ".agdf", "control", "MASTER_BACKLOG.md");
@@ -91,11 +92,11 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
   if (checkedFile(runPath) !== expectedContent || (backlog && checkedFile(backlogPath) !== backlog.old)) {
     throw new Error("AGDF_STALE_RUN_REVISION");
   }
-  if (runSealState(root, expectedContent).status !== "valid") throw new Error("AGDF_RUN_SEAL_INVALID");
+  const seal = runSealState(root, expectedContent);
+  if (seal.status !== "valid" && !(seal.status === "content_changed" && writeOptions.allowContentChange)) throw new Error("AGDF_RUN_SEAL_INVALID");
   const listedBefore = listedArtefactPaths(expectedContent).map((artefact) =>
     [artefact, artefactFileDigest(root, artefact)]);
   const oldOr = or ? checkedFile(orPath) : null;
-  const nextRevisionId = randomUUID();
   const journal = {
     schema_version: 1,
     run_id: runId,
@@ -115,8 +116,10 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
       afterWrite("or");
     }
     const state = writeRunLocked(runPath, content, revisionId, {
+      ...writeOptions,
       expectedContent, nextRevisionId, allowPendingTransaction: true, allowContentChange: true,
       validateBeforeWrite: () => {
+        writeOptions.validateBeforeWrite?.();
         if (backlog && checkedFile(backlogPath) !== backlog.old) throw recoveryError(runId);
         if (or && checkedFile(orPath) !== or) throw recoveryError(runId);
         for (const [artefact, beforeDigest] of listedBefore) {
@@ -136,6 +139,15 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
     if (recovered.status !== "completed") throw recoveryError(runId);
     return state;
   } catch (error) {
+    // Atomic rename can commit before a durability checkpoint throws. Re-read the commit point;
+    // retain its journal for existing recovery rather than claiming a pre-commit rollback.
+    if (!committed) {
+      try {
+        const current = checkedFile(runPath);
+        committed = current !== null && parseRunState(current, runId).meta?.revision_id === nextRevisionId
+          && runSealState(root, current).status === "valid";
+      } catch { /* Unknown state remains recovery-required. */ }
+    }
     if (!committed) {
       try {
         const recovered = recoverPendingRunStepLocked(root, runId);
@@ -145,6 +157,6 @@ export function commitRunStepLocked(root, { runId, runPath, content, revisionId,
         throw recoveryError(runId);
       }
     }
-    throw recoveryError(runId);
+    throw recoveryError(runId, committed ? nextRevisionId : undefined);
   }
 }

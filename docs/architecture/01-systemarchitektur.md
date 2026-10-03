@@ -6,13 +6,14 @@ Der [Dispatcher-Katalog](02-dispatcher.md) vertieft die Zuordnung und Fortsetzun
 die [Paketstruktur](05-paketstruktur.md) zeigt die zugehörigen Quell- und Auslieferungsgrenzen.
 Die Weiterentwicklung wird im [gemeinsamen Zielbild](03-agentenkontrolle-zielbild.md) beschrieben.
 
-**Dokumentrolle: Bestandsbeschreibung.** Der beschriebene Quellstand stammt vom 1. Oktober 2026;
-die redaktionelle Einordnung wurde am 2. Oktober 2026 ergänzt. Die Paketmetadaten von
+**Dokumentrolle: Bestandsbeschreibung.** Der beschriebene Repository-Quellstand wurde am
+3. Oktober 2026 um Umsetzungsfortsetzung, atomare Artefakterfassung und begrenzte
+Beziehungskorrektur nachgeführt. Die Paketmetadaten von
 [`create-agdf`](../../packages/cli/package.json) und
 [`@agdf/mcp-server`](../../packages/mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
 belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets
 oder einer geladenen Host-Installation. Quelle, Paket und frische Sitzung benötigen eigene Nachweise.
-Historische Host-Beobachtungen stehen in Abschnitt 7; die Neuordnung aktualisiert sie nicht.
+Historische Host-Beobachtungen stehen in Abschnitt 7; diese Dokumentationsänderung aktualisiert sie nicht.
 
 Die normativen Regeln stehen in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
 Die technische Ausgestaltung des MCP-Lebenszyklus steht im
@@ -75,14 +76,15 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 |---|---|---|
 | Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugins/agdf/meta/contracts/`](../../plugins/agdf/meta/contracts/), [`plugins/agdf/skills/`](../../plugins/agdf/skills/) |
 | Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../packages/core/lib/control-inspect/contract.js) |
-| Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../packages/core/lib/skill-dispatch/service.js), [Use-Case-Katalog](02-dispatcher.md) |
+| Dispatch-Routing | Prüft Eingaben, bindet das Ziel, liest den Kontrollzustand und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Verändert keinen Run-Zustand. | [`skill-dispatch/service.js`](../../packages/core/lib/skill-dispatch/service.js), [Use-Case-Katalog](02-dispatcher.md) |
+| Fortsetzungsorchestrierung | Umschließt das Routing am gemeinsamen Core-Einstieg. Koordiniert bei beauftragter gebundener Fortsetzung höchstens eine belegte Beziehungskorrektur und ruft danach das Routing mit frischer Auswertung erneut auf. | [`delivery-continuation/service.js`](../../packages/core/lib/delivery-continuation/service.js), [`index.js`](../../packages/core/lib/index.js) |
 | MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`packages/mcp-server/`](../../packages/mcp-server/), [`mcp-dispatch-runtime.js`](../../packages/cli/lib/mcp-dispatch-runtime.js) |
 | MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../packages/cli/lib/mcp-lifecycle/profile.js) |
 | MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../packages/cli/lib/mcp-lifecycle/service.js) |
 | MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../packages/cli/lib/mcp-lifecycle/adapters/) |
 | Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../packages/cli/lib/mcp-lifecycle/package.js) |
 | Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../packages/core/lib/control-evaluation/) |
-| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../packages/core/lib/control-state/) |
+| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Erfassung und begrenzte Korrektur verwenden dieselben Writer; Freigaben bleiben eigene Operationen. | [`control-state/`](../../packages/core/lib/control-state/) |
 | Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../packages/core/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../packages/cli/lib/mcp-lifecycle/presentation.js) |
 | Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Für Claude Code und Codex enthält das Laufzeit-Plugin zusätzlich die AGDF-MCP-Deklaration und startet den Server selbst; für OpenCode und GitHub Copilot bleibt MCP ein getrennter Lebenszyklus. | [`installers/`](../../packages/cli/lib/installers/), [`host-adapters/`](../../packages/cli/lib/host-adapters/) |
 | Plugin-MCP-Laufzeit | Startet den gebündelten Server über einen Launcher, bezieht beim ersten Bedarf das gepinnte MCP-SDK von npm und hält die Laufzeit in einem hosteigenen Datenverzeichnis. | [`mcp-lifecycle/plugin-runtime.js`](../../packages/cli/lib/mcp-lifecycle/plugin-runtime.js), [`sync-plugin-mcp.js`](../../scripts/sync-plugin-mcp.js) |
@@ -178,8 +180,11 @@ blockiert ist. Es kann keine menschliche Freigabe erzeugen. Ein terminales Ergeb
 als gesamte Antwort unverändert dargestellt und beendet diesen Dispatch-Aufruf. Der Host darf davor
 oder danach keine Frage, Erklärung, Übersetzung oder weitere Aktion ergänzen. Ein
 Fortsetzungsauftrag liefert entweder einen benannten Skill oder konkrete Intake-/Präsentationsschritte
-für das gebundene Ziel. Der Agent führt diese separat aus; der Dispatcher schreibt keinen
-Kontrollzustand und erteilt keine Gate-Freigabe.
+für das gebundene Ziel. Der Agent führt diese Arbeit separat aus. Der Dispatcher selbst bleibt
+lesend. Die gemeinsame Fortsetzungsorchestrierung kann vor Ausgabe einer beauftragten, gebundenen
+Fortsetzung genau eine fehlende Beziehung über den vorhandenen Core-Korrekturdienst ergänzen,
+wenn ein bereits versiegelter, eindeutiger und unveränderter Zuordnungsbeleg vorliegt. Diese
+Korrektur ändert weder Freigaben noch genehmigte Artefaktbytes oder den zulässigen Arbeitsumfang.
 
 Bei einem Umsetzungsauftrag ohne bestätigte Run-Bindung liefert der erste Intake-Dispatch
 `resolve_delivery_run`, bevor ein einzelnes Gate ausgewertet wird. Der Coding-Agent vergleicht
@@ -202,6 +207,14 @@ Gate kann der Evaluator `prepare_gate_artifact` liefern; erst nach Erstellung un
 folgt gegebenenfalls `presentation_required`. Der Agent ruft dann den separaten Writer `run-present`
 auf, zeigt dessen gebundenen Text unverändert und wartet auf eine neue menschliche Antwort.
 Eine Dispatcher-Vorschau allein bindet weder die Präsentation noch die Freigabe.
+
+Bei bereits erlaubter strukturierter Umsetzung an `CD+Tests` liefert die gebundene Fortsetzung
+`skill_continuation` mit der Phase `implementation`, der aktuellen Revision und den Runtime-Verträgen.
+Der Agent führt die vorgesehenen Kontroll-, Test- und Evidenzschritte aus, ohne für jede
+Routineprüfung eine weitere Statuskarte aufzurufen. Bedeutende Ereignisse und explizite
+Statusabfragen bleiben sichtbar. Der Ablauf und die Schreibgrenzen sind in der
+[Dispatcher-Referenz](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur) beschrieben;
+die Sichtbarkeitsregel gehört weiterhin dem [Interaktionsvertrag](../../plugins/agdf/meta/contracts/interaction.md).
 
 Wenn das Zielprojekt feststeht, aber mehrere aktive Runs möglich sind, ermittelt der
 Gate-Evaluator einmal die vollständige kanonische Kandidatenliste. Der Dispatcher übergibt diese
@@ -368,6 +381,12 @@ Das gemeinsame MCP-Ergebnis macht diese Grenze maschinenlesbar. Es enthält imme
 Codes besitzen die Bedeutung. Englische und deutsche Texte werden daraus abgeleitet und dürfen
 keine zusätzlichen Zustände erfinden.
 
+Die [atomare Artefakterfassung und begrenzte Beziehungskorrektur](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur)
+prüfen genaue Quellbindungen und verwenden die vorhandenen Writer, Siegel, Locks und
+Recovery-Pfade. Diese maschinell prüfbare Zuordnung ist weiterhin kooperative lokale Evidenz:
+Sie beweist weder eine unabhängige menschliche Prüfung noch die fachliche Ableitung. Lesende
+Kontrollabfragen und `run-present` führen keine Beziehungskorrektur aus.
+
 ## 6. Vom Quellstand zur geladenen Sitzung
 
 ![Verteilung: Kanonische Quellen werden zu Plugin-Payload und MCP-Paket. Für Claude Code und Codex bündelt das Laufzeit-Plugin den MCP-Server, der beim ersten Start das gepinnte SDK von npm bezieht. Für OpenCode und GitHub Copilot sind Plugin-Installation und MCP-Registrierung unabhängige Hostzustände. Erst eine frische Sitzung kann geladenes Verhalten zeigen.](diagrams/04-distribution.svg)
@@ -527,6 +546,14 @@ liefert Zuordnungsbelege, [`delivery-intake.js`](../../packages/core/lib/skill-d
 die gebundenen Intake-Schritte. [`control-evaluation/gate-check.js`](../../packages/core/lib/control-evaluation/gate-check.js)
 besitzt die Gate-Auswertung; [`control-state/run-presentation.js`](../../packages/core/lib/control-state/run-presentation.js)
 die separate Präsentationsbindung. Die zugehörigen Tests sind im Katalog verlinkt.
+
+Das gemeinsame [Beziehungsregister](../../packages/core/lib/control-evaluation/delivery-relationships.js)
+liefert die erforderlichen Quellbezüge. Die [Artefakterfassung](../../packages/core/lib/control-state/run-artefact-recording.js)
+veröffentlicht Zeiger, Beleg und Beziehung zusammen; die
+[begrenzte Korrektur](../../packages/core/lib/control-state/run-relationship-correction.js) ergänzt
+nur eine exakt belegte fehlende Beziehung. Die [Fortsetzungsorchestrierung](../../packages/core/lib/delivery-continuation/service.js)
+koordiniert diesen Anwendungsfall außerhalb des lesenden Dispatch-Routings. Die [Paketreferenz](05-paketstruktur.md#quellbindungen-und-schreibpfade-im-core)
+ordnet Codec, Belegprüfung und Persistenz den bestehenden Core-Eigentümern zu.
 
 Wer den MCP-Pfad erstmals untersucht, kann in dieser Reihenfolge lesen:
 

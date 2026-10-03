@@ -1,0 +1,317 @@
+{
+  "lane": "deterministic source only",
+  "synthetic_non_authorizing": true,
+  "unchanged_repeat": {
+    "first": {
+      "schema_version": "1",
+      "contract_version": 1,
+      "outcome": "skill_continuation",
+      "terminal": false,
+      "authorizes": false,
+      "skill": {
+        "skill_id": "gate-check",
+        "dispatch_mode": "deterministic_control",
+        "deterministic_command": "gate-check",
+        "requires_control_snapshot": true,
+        "contract_version": 1
+      },
+      "runtime": {
+        "machine_validation": "unavailable",
+        "expected_version": "0.14.5",
+        "plugin_root": null,
+        "runtime_digest": null,
+        "provenance_status": null
+      },
+      "target": {
+        "schema_version": "1",
+        "resolution_state": "resolved",
+        "reason_code": "continued_target",
+        "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "evidence_sources": [],
+        "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "target_source": "continued_target",
+        "target_changed": false,
+        "next_action": "",
+        "authorizes": false
+      },
+      "control": {
+        "status": "open",
+        "current_gate": "CD+Tests",
+        "gate_route": {
+          "gate": "CD+Tests",
+          "skills": []
+        },
+        "blocking_reason": "none",
+        "missing_approval": "none",
+        "next_operation": null,
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+        "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+        "doctor_status": "pass"
+      },
+      "presentation": null,
+      "continuation": {
+        "phase": "implementation",
+        "skill_id": "gate-check",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+        "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+        "presentation_language": "de",
+        "instruction": "Implement only the already approved TP scope, run its required checks, and maintain evidence for this bound run. Use the interaction event policy: routine internal checks need no standalone status card; meaningful events and explicit status remain visible. After recorded control changes, redispatch gate-check for this same target/run with continue_delivery. Stop at the next human decision or concrete blocker; never infer QA, UAT or release approval."
+      },
+      "recovery": null,
+      "host_action": {
+        "mode": "continue_named_skill",
+        "source": "continuation",
+        "bound_to_target": true
+      },
+      "timing": {
+        "wrapper_ms": 0,
+        "input_ms": 18.767,
+        "target_ms": 1.386,
+        "control_ms": 221.067,
+        "render_ms": 15.902,
+        "total_ms": 257.545
+      },
+      "diagnostics": []
+    },
+    "repeat": {
+      "schema_version": "1",
+      "contract_version": 1,
+      "outcome": "skill_continuation",
+      "terminal": false,
+      "authorizes": false,
+      "skill": {
+        "skill_id": "gate-check",
+        "dispatch_mode": "deterministic_control",
+        "deterministic_command": "gate-check",
+        "requires_control_snapshot": true,
+        "contract_version": 1
+      },
+      "runtime": {
+        "machine_validation": "unavailable",
+        "expected_version": "0.14.5",
+        "plugin_root": null,
+        "runtime_digest": null,
+        "provenance_status": null
+      },
+      "target": {
+        "schema_version": "1",
+        "resolution_state": "resolved",
+        "reason_code": "continued_target",
+        "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "evidence_sources": [],
+        "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "target_source": "continued_target",
+        "target_changed": false,
+        "next_action": "",
+        "authorizes": false
+      },
+      "control": {
+        "status": "open",
+        "current_gate": "CD+Tests",
+        "gate_route": {
+          "gate": "CD+Tests",
+          "skills": []
+        },
+        "blocking_reason": "none",
+        "missing_approval": "none",
+        "next_operation": null,
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+        "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+        "doctor_status": "pass"
+      },
+      "presentation": null,
+      "continuation": {
+        "phase": "implementation",
+        "skill_id": "gate-check",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+        "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+        "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+        "presentation_language": "de",
+        "instruction": "Implement only the already approved TP scope, run its required checks, and maintain evidence for this bound run. Use the interaction event policy: routine internal checks need no standalone status card; meaningful events and explicit status remain visible. After recorded control changes, redispatch gate-check for this same target/run with continue_delivery. Stop at the next human decision or concrete blocker; never infer QA, UAT or release approval."
+      },
+      "recovery": null,
+      "host_action": {
+        "mode": "continue_named_skill",
+        "source": "continuation",
+        "bound_to_target": true
+      },
+      "timing": {
+        "wrapper_ms": 0,
+        "input_ms": 6.519,
+        "target_ms": 0.489,
+        "control_ms": 169.17,
+        "render_ms": 12.085,
+        "total_ms": 188.338
+      },
+      "diagnostics": []
+    },
+    "extra_cards": 0
+  },
+  "explicit_fresh_status": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "control_result",
+    "terminal": true,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "gate-check",
+      "dispatch_mode": "deterministic_control",
+      "deterministic_command": "gate-check",
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "unavailable",
+      "expected_version": "0.14.5",
+      "plugin_root": null,
+      "runtime_digest": null,
+      "provenance_status": null
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "continued_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+      "target_source": "continued_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "CD+Tests",
+      "gate_route": {
+        "gate": "CD+Tests",
+        "skills": []
+      },
+      "blocking_reason": "none",
+      "missing_approval": "none",
+      "next_operation": null,
+      "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+      "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+      "doctor_status": "pass",
+      "candidate_runs": []
+    },
+    "presentation": {
+      "schema_version": "1",
+      "semantic_block": "run_status_card",
+      "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+      "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+      "current_gate": "CD+Tests",
+      "presentation_language": "de",
+      "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Ich arbeite weiter | TP freigegeben. Keine Antwort nötig. Ich setze den genehmigten Umfang um, führe die Tests aus und erfasse CD+Tests-Nachweise. |\n| Fehlende Freigabe | keine |",
+      "authorizes": false
+    },
+    "continuation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "transmit_presentation_verbatim_and_stop",
+      "source": "presentation.markdown",
+      "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Ich arbeite weiter | TP freigegeben. Keine Antwort nötig. Ich setze den genehmigten Umfang um, führe die Tests aus und erfasse CD+Tests-Nachweise. |\n| Fehlende Freigabe | keine |",
+      "allow_surrounding_text": false,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 13.02,
+      "target_ms": 0.475,
+      "control_ms": 199.605,
+      "render_ms": 18.568,
+      "total_ms": 231.843
+    },
+    "diagnostics": []
+  },
+  "changed_resumption": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "control_result",
+    "terminal": true,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "gate-check",
+      "dispatch_mode": "deterministic_control",
+      "deterministic_command": "gate-check",
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "unavailable",
+      "expected_version": "0.14.5",
+      "plugin_root": null,
+      "runtime_digest": null,
+      "provenance_status": null
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "continued_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-visibility-CjxiNA",
+      "target_source": "continued_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "CD+Tests",
+      "gate_route": {
+        "gate": "CD+Tests",
+        "skills": []
+      },
+      "blocking_reason": "none",
+      "missing_approval": "none",
+      "next_operation": null,
+      "next_allowed_action": "Resolve the newly recorded scope uncertainty before further work.",
+      "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+      "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+      "doctor_status": "pass",
+      "candidate_runs": []
+    },
+    "presentation": {
+      "schema_version": "1",
+      "semantic_block": "run_status_card",
+      "run_id": "agdf-intermediate-status-card-reduction-20261002-01",
+      "revision_id": "d68f6c55-70d7-41ec-9f76-920948d100cd",
+      "current_gate": "CD+Tests",
+      "presentation_language": "de",
+      "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Du bist dran | Ich kann die nächste Aktion des ausgewählten Runs nicht sicher bestimmen. Bitte kläre, was für diesen Run als Nächstes geschehen soll. |\n| Fehlende Freigabe | keine |",
+      "authorizes": false
+    },
+    "continuation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "transmit_presentation_verbatim_and_stop",
+      "source": "presentation.markdown",
+      "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Du bist dran | Ich kann die nächste Aktion des ausgewählten Runs nicht sicher bestimmen. Bitte kläre, was für diesen Run als Nächstes geschehen soll. |\n| Fehlende Freigabe | keine |",
+      "allow_surrounding_text": false,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 4.317,
+      "target_ms": 0.435,
+      "control_ms": 185.666,
+      "render_ms": 9.01,
+      "total_ms": 199.496
+    },
+    "diagnostics": []
+  },
+  "read_only_hash_parity": {
+    "before": "aa69f157ab8b9becd914dd2243e95a7371ccf66165672ec8cf31e1912e99e4b6",
+    "after_unchanged_reads": "aa69f157ab8b9becd914dd2243e95a7371ccf66165672ec8cf31e1912e99e4b6",
+    "after_changed_read": "9e29f58de8adee12eb5324e9c66851eaaf4a03828a4f868bf57f93c1d3359814"
+  },
+  "actual_model_observation": false
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "invalid_input",
+  "terminal": true,
+  "authorizes": false,
+  "skill": null,
+  "runtime": {
+    "machine_validation": "unavailable",
+    "plugin_root": null,
+    "runtime_digest": null,
+    "provenance_status": null
+  },
+  "target": null,
+  "control": null,
+  "presentation": null,
+  "continuation": null,
+  "recovery": {
+    "action": "Ungültige Dispatcher-Eingabe für expected_version. Korrigieren und einmal erneut versuchen."
+  },
+  "host_action": {
+    "mode": "transmit_recovery_verbatim_and_stop",
+    "source": "recovery.action",
+    "text": "Ungültige Dispatcher-Eingabe für expected_version. Korrigieren und einmal erneut versuchen.",
+    "allow_surrounding_text": false,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 4.345,
+    "target_ms": 0,
+    "control_ms": 0,
+    "render_ms": 0,
+    "total_ms": 4.345
+  },
+  "diagnostics": [
+    {
+      "code": "dispatch_input_invalid",
+      "field": "expected_version"
+    }
+  ]
+}

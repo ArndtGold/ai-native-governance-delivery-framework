@@ -5,33 +5,9 @@ import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { resolveConfiguredChatLanguage } from "../resources/context.js";
 import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
 import { gateApprovalStatus, readRunState, resolvedArtefactFile } from "./run-state.js";
+import { deliveryRelationships, relationshipRequired, sameRelationship } from "./delivery-relationships.js";
 import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
 import { evaluateReconciliationState } from "./parent-reconciliation.js";
-
-const deliveryRelationships = [
-  { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
-  { from: "PRD", relationship: "derived_from", to: "UR", requiredBy: "PRD" },
-  { from: "SD", relationship: "derived_from", to: "PRD", requiredBy: "SD" },
-  { from: "TP", relationship: "derived_from", to: "SD", requiredBy: "TP" },
-  { from: "QA_REPORT", relationship: "tests", to: "TP", requiredBy: "QA" },
-];
-
-function relationshipRequired(runState, requiredBy) {
-  if (gateApprovalStatus(runState, requiredBy) === "not_applicable") return false;
-  if (requiredBy === "QA") {
-    return isGateSatisfied(runState, "QA");
-  }
-
-  return isGateSatisfied(runState, requiredBy);
-}
-
-function findRelationship(runState, expected) {
-  return runState.artefact_chain.find((row) =>
-    row.from === expected.from
-    && row.relationship === expected.relationship
-    && row.to === expected.to
-  );
-}
 
 function severityFromImpact(value) {
   if (value === "block") return "block";
@@ -45,15 +21,20 @@ export function analyzeDeliveryMap(runState, dependencies = {}) {
   const reconciliation = evaluateReconciliationState(runState, dependencies);
   findings.push(...reconciliation.findings);
   const relationships = deliveryRelationships.map((expected) => {
-    const row = findRelationship(runState, expected);
-    const required = relationshipRequired(runState, expected.requiredBy);
+    const relevant = runState.artefact_chain.filter(row => row.from === expected.from && row.relationship === expected.relationship);
+    const row = relevant.find(row => sameRelationship(row, expected));
+    const required = relationshipRequired(expected, { approvalStatus: gateApprovalStatus(runState, expected.requiredBy),
+      satisfied: isGateSatisfied(runState, expected.requiredBy), currentGate: transitionDecisionForRunState(runState).current_gate,
+      artefact: runState.artefacts.get(expected.requiredBy), resolveFile: dependencies.resolveFile });
     const evidence = row?.evidence ?? "";
-    const status = !row ? "missing" : filled(evidence) ? "pass" : required ? "missing_evidence" : "template";
+    const status = relevant.length > 1 || relevant.some(row => !sameRelationship(row, expected)) ? "conflict"
+      : !row ? "missing" : filled(evidence) ? "pass" : required ? "missing_evidence" : "template";
 
     if (required && status !== "pass") {
       findings.push({
         severity: "revise",
-        code: status === "missing" ? "AGDF_DELIVERY_RELATIONSHIP_MISSING" : "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING",
+        code: status === "missing" ? "AGDF_DELIVERY_RELATIONSHIP_MISSING"
+          : status === "conflict" ? "AGDF_DELIVERY_RELATIONSHIP_CONFLICT" : "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING",
         message: `${expected.from} must be traceable via ${expected.relationship} ${expected.to}.`,
         path: runState.path,
         next_step: "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",

@@ -292,6 +292,7 @@ const repositoryRoot = join(packageRoot, "../..");
 const installationGuide = readFileSync(join(repositoryRoot, "INSTALL.md"), "utf8");
 const mcpReadme = readFileSync(join(repositoryRoot, "packages", "mcp-server", "README.md"), "utf8");
 const architectureReadme = readFileSync(join(repositoryRoot, "docs", "architecture", "README.md"), "utf8");
+const systemArchitecture = readFileSync(join(repositoryRoot, "docs", "architecture", "01-systemarchitektur.md"), "utf8");
 for (const [label, content] of [
   ["root README", readFileSync(join(repositoryRoot, "README.md"), "utf8")],
   ["installation guide", installationGuide],
@@ -318,10 +319,12 @@ for (const [label, content] of [
   assert.match(content, /unreleased development|development preview/, `${label} must identify MCP commands as unreleased development behavior`);
 }
 assert.match(architectureReadme, /Repository-Quelle/, "architecture must identify its source-level scope");
-assert.match(architectureReadme, /Diese Nummer allein\s+belegt weder eine Veröffentlichung/, "source metadata must not imply a published release");
-assert.match(architectureReadme, /noch den Inhalt eines von npm aufgelösten `@latest`-Pakets\s+oder einer geladenen Host-Installation/, "source metadata must not imply registry or installed-host behavior");
-assert.match(architectureReadme, /Quellstand, verteiltes Paket und frische Host-Sitzung\s+benötigen jeweils eigene Nachweise/, "source, distribution and installed-host claims need separate evidence");
-assert.doesNotMatch(architectureReadme, /kanonische Paketversion \*\*0\.14\.5\*\*/);
+assert.match(architectureReadme, /Quellcode, installiertes Paket und live beobachtetes Host-Verhalten bleiben getrennte Nachweise/, "the architecture overview must distinguish source, distribution and host evidence");
+// Version metadata and its evidence limits now belong to the dedicated system architecture page.
+assert.match(systemArchitecture, /Diese Nummer allein\s+belegt weder eine Veröffentlichung/, "source metadata must not imply a published release");
+assert.match(systemArchitecture, /noch den Inhalt eines von npm aufgelösten `@latest`-Pakets\s+oder einer geladenen Host-Installation/, "source metadata must not imply registry or installed-host behavior");
+assert.match(systemArchitecture, /Quelle, Paket und frische Sitzung benötigen eigene Nachweise/, "source, distribution and installed-host claims need separate evidence");
+for (const content of [architectureReadme, systemArchitecture]) assert.doesNotMatch(content, /kanonische Paketversion \*\*0\.14\.5\*\*/);
 
 const backlogTemplate = readFileSync(join(packageRoot, "../..", "plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"), "utf8");
 assert.match(backlogTemplate, /packages\/core\/lib\/control-evaluation\/shared\.js/);

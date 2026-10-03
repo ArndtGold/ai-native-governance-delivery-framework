@@ -1,0 +1,24 @@
+npm notice run sync-package-assets
+npm notice run node scripts/sync-package-assets.js
+node:fs:1193
+  binding.rmdir(path);
+          ^
+
+Error: ENOTEMPTY: directory not empty, rmdir '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/generated/plugins/agdf/runtime/create-agdf/runtime/core/lib'
+    at Object.rmdirSync (node:fs:1193:11)
+    at _rmdirSync (node:internal/fs/rimraf:261:21)
+    at rimrafSync (node:internal/fs/rimraf:194:7)
+    at rmSync (node:fs:1239:10)
+    at projectCore (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/core-projection.mjs:12:3)
+    at syncPluginRuntime (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-plugin-runtime.js:193:3)
+    at syncPackageAssets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:600:3)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:662:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26) {
+  errno: -66,
+  code: 'ENOTEMPTY',
+  syscall: 'rmdir',
+  path: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/generated/plugins/agdf/runtime/create-agdf/runtime/core/lib'
+}
+
+Node.js v22.22.3

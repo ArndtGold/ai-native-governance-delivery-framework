@@ -44,6 +44,7 @@ assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.descriptio
 assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);
 assert.deepEqual(tools[0].outputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.outputSchema);
 assert.deepEqual(tools[0].annotations, SKILL_DISPATCH_FUNCTION_DEFINITION.annotations);
+assert.equal(tools[0].annotations.readOnlyHint, false);
 
 const result = await client.callTool({ name: "agdf_dispatch", arguments: unresolvedArguments });
 assert.equal(result.structuredContent.outcome, "target_unresolved");

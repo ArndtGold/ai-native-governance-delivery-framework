@@ -1,0 +1,202 @@
+diff --git a/packages/core/lib/skill-dispatch/contract.js b/packages/core/lib/skill-dispatch/contract.js
+index d79355c..af1564f 100644
+--- a/packages/core/lib/skill-dispatch/contract.js
++++ b/packages/core/lib/skill-dispatch/contract.js
+@@ -62,15 +62,17 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
+       intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
+       intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
+       ur_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved UR. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
++      prd_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved PRD. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
+       continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
+     },
+     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
+     dependentSchemas: {
+       ur_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
++      prd_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
+       intake_mode: { required: ["intake", "run_id"], properties: { intake: { const: true } } },
+       expected_revision_id: { required: ["intake", "intake_mode", "run_id"], properties: { intake: { const: true }, intake_mode: { const: "resume" } } },
+     },
+-    allOf: [{
++    allOf: [{ not: { required: ["ur_action", "prd_action"] } }, {
+       if: { required: ["continue_delivery"], properties: { continue_delivery: { const: true } } },
+       then: { required: ["run_id"], properties: { intake: { const: false } }, not: { required: ["intake_mode"] } },
+     }],
+@@ -127,12 +129,12 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
+ export function skillDispatchArgumentGrammar() {
+   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
+     .map((choice) => choice.const).join("|");
+-  return `--skill <skill-id> --language <tag> --working-directory <absolute> [--target-source <${targetSources}> --primary-target <absolute>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [--ur-action revise]] [--continue-delivery]`;
++  return `--skill <id> --language <tag> --working-directory <abs> [--target-source <${targetSources}> --primary-target <abs>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [(--ur-action|--prd-action) revise]] [--continue-delivery]`;
+ }
+ 
+ export function skillDispatchCommandGrammar() {
+   return `--json ${skillDispatchArgumentGrammar()
+-    .replace("--skill <skill-id>", "--skill <skill-id> --surface <surface>")}`;
++    .replace("--skill <id>", "--skill <id> --surface <surface>")}`;
+ }
+ 
+ export function renderSkillDispatchSemanticProjection() {
+@@ -242,6 +244,11 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
+       || !input.intake || input.intakeMode !== "resume" || !runId || !input.expectedRevisionId)) {
+     throw new SkillDispatchInputError("ur_action", "ur_action revise requires gate-check and revision-bound resume intake");
+   }
++  if (input.prdAction !== undefined && (input.prdAction !== "revise" || skillId !== "gate-check"
++      || !input.intake || input.intakeMode !== "resume" || !runId || !input.expectedRevisionId
++      || input.urAction !== undefined)) {
++    throw new SkillDispatchInputError("prd_action", "prd_action revise requires gate-check and revision-bound resume intake without ur_action");
++  }
+   if (input.continueDelivery !== undefined && (typeof input.continueDelivery !== "boolean"
+       || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
+     throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
+@@ -259,6 +266,7 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
+     intake_mode: input.intakeMode,
+     expected_revision_id: input.expectedRevisionId,
+     ur_action: input.urAction,
++    prd_action: input.prdAction,
+     continue_delivery: input.continueDelivery === true,
+     expected_version: requireText(input.expectedVersion, "expected_version", 64),
+     skill,
+@@ -292,6 +300,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
+     ...(argumentsValue.intake_mode !== undefined ? { intakeMode: argumentsValue.intake_mode } : {}),
+     ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),
+     ...(argumentsValue.ur_action !== undefined ? { urAction: argumentsValue.ur_action } : {}),
++    ...(argumentsValue.prd_action !== undefined ? { prdAction: argumentsValue.prd_action } : {}),
+     ...(argumentsValue.continue_delivery !== undefined ? { continueDelivery: argumentsValue.continue_delivery } : {}),
+     surface: trustedContext.surface,
+     expectedVersion: trustedContext.expectedVersion,
+diff --git a/packages/core/lib/skill-dispatch/service.js b/packages/core/lib/skill-dispatch/service.js
+index 6c59f96..5eb5b01 100644
+--- a/packages/core/lib/skill-dispatch/service.js
++++ b/packages/core/lib/skill-dispatch/service.js
+@@ -1,3 +1,8 @@
++import { readFileSync } from "node:fs";
++import { hasSymlinkComponent } from "../control-state/contained-file.js";
++import { artefactFileDigest } from "../control-state/run-seal.js";
++import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
++import { prdDefinitionPhase } from "./prd-definition.js";
+ import process from "node:process";
+ import { extractField } from "../control-evaluation/verified-change.js";
+ import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
+@@ -8,6 +13,29 @@ import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, ur
+ import { deliveryRunAssignmentContinuation, readDeliveryRunInventory } from "./delivery-run-assignment.js";
+ import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
+ 
++// Read contained exact input facts only. Eligibility and control authority stay separate.
++function readPrdDefinitionSources(targetDir, control) {
++  if (control.current_gate !== "PRD") return null;
++  const state = control.status_card?.runState;
++  if (!state || hasSymlinkComponent(targetDir, `.agdf/control/artefacts/${control.status_card.run_id}/PRD.md`)) return null;
++  const sources = [];
++  for (const type of ["UR", "Brownfield Review"]) {
++    const path = String(state.artefacts.get(type)?.path ?? "").replace(/^`|`$/gu, "");
++    const file = resolvedArtefactFile(targetDir, path);
++    if (!file) return null;
++    sources.push({ type, path, digest: artefactFileDigest(targetDir, path) });
++  }
++  const review = readFileSync(resolvedArtefactFile(targetDir, sources[1].path), "utf8");
++  if (extractField(review, "ux_intent_definition_required") === "yes") {
++    const path = String(state.artefacts.get("UX Intent Definition")?.path
++      ?? `.agdf/control/artefacts/${control.status_card.run_id}/UX_INTENT_DEFINITION.md`).replace(/^`|`$/gu, "");
++    const file = resolvedArtefactFile(targetDir, path);
++    if (!file || extractField(readFileSync(file, "utf8"), "decision") !== "ready") return null;
++    sources.push({ type: "UX Intent Definition", path, digest: artefactFileDigest(targetDir, path) });
++  }
++  return sources;
++}
++
+ const defaultNow = () => process.hrtime.bigint();
+ const milliseconds = (start, end) => Number(end - start) / 1_000_000;
+ const round = (value) => Math.round(Math.max(0, value) * 1000) / 1000;
+@@ -260,7 +288,7 @@ export function createSkillDispatchService(dependencies = {}) {
+         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+         return bindHostAction(result);
+       };
+-      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (skill.skill_id === "ur-definition" && !input.run_id)) {
++      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (["ur-definition", "prd-definition"].includes(skill.skill_id) && !input.run_id)) {
+         let candidates;
+         try {
+           validateControlReadBoundary?.(target.governance_target);
+@@ -288,7 +316,7 @@ export function createSkillDispatchService(dependencies = {}) {
+         validateControlReadBoundary?.(target.governance_target);
+         return evaluateGate(target.governance_target, {
+           ...(input.run_id ? { runId: input.run_id } : {}),
+-          ...((input.intake || skill.skill_id === "ur-definition") ? { ignoreRunIdEnv: true } : {}),
++          ...((input.intake || ["ur-definition", "prd-definition"].includes(skill.skill_id)) ? { ignoreRunIdEnv: true } : {}),
+           presentationLanguage: input.presentation_language,
+         });
+       });
+@@ -316,7 +344,7 @@ export function createSkillDispatchService(dependencies = {}) {
+           : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
+         return bindHostAction(result);
+       }
+-      const urPhase = urDefinitionPhase(target.governance_target, control, input);
++      const urPhase = input.prd_action ? null : urDefinitionPhase(target.governance_target, control, input);
+       if (urPhase) {
+         const urSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("ur-definition");
+         if (!urSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
+@@ -330,7 +358,36 @@ export function createSkillDispatchService(dependencies = {}) {
+         timing.total_ms = round(milliseconds(started, now()));
+         return bindHostAction(result);
+       }
+-      if (input.ur_action && !urPhase) {
++      // Check the pure authoring route before reading sources. Presentation and unrelated
++      // control failures retain their existing diagnosis instead of entering authoring checks.
++      const prdEligible = prdDefinitionPhase(target.governance_target, control, input, []);
++      const prdSources = prdEligible ? runDispatchStage(DISPATCH_RECOVERY.prd_authoring_inputs_invalid,
++        () => readPrdDefinitionSources(target.governance_target, control)) : null;
++      if (prdEligible && !prdSources) {
++        const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
++        result.target = target;
++        result.control = controlSnapshot(control);
++        result.diagnostics = [{ code: "prd_authoring_inputs_invalid" }];
++        result.recovery = { action: renderRecovery({ code: DISPATCH_RECOVERY.prd_authoring_inputs_invalid },
++          { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
++        timing.total_ms = round(milliseconds(started, now()));
++        return bindHostAction(result);
++      }
++      const prdPhase = prdDefinitionPhase(target.governance_target, control, input, prdSources);
++      if (prdPhase) {
++        const prdSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("prd-definition");
++        if (!prdSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
++        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill: prdSkill, runtime, timing });
++        result.target = target;
++        result.control = controlSnapshot(control);
++        result.continuation = Object.freeze({ ...prdPhase,
++          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
++            () => dependencies.readSkillRuntimeContracts("prd-definition")) } : {}),
++        });
++        timing.total_ms = round(milliseconds(started, now()));
++        return bindHostAction(result);
++      }
++      if ((input.ur_action && !urPhase) || (input.prd_action && !prdPhase)) {
+         // A declined revision route cannot turn into post-UR or later artefact preparation.
+         if (!control.status_presentation) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
+         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
+@@ -341,7 +398,7 @@ export function createSkillDispatchService(dependencies = {}) {
+         return bindHostAction(result);
+       }
+       // Direct UR invocation must not fall through to the generic judgement writer route.
+-      if (skill.skill_id === "ur-definition") skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
++      if (["ur-definition", "prd-definition"].includes(skill.skill_id)) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
+       if (intake?.phase === "run_missing") {
+         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
+         result.target = target;
+diff --git a/plugins/agdf/meta/contracts/gate-artifact-preparation.md b/plugins/agdf/meta/contracts/gate-artifact-preparation.md
+index 15dc9e9..ca424cc 100644
+--- a/plugins/agdf/meta/contracts/gate-artifact-preparation.md
++++ b/plugins/agdf/meta/contracts/gate-artifact-preparation.md
+@@ -68,11 +68,9 @@ already emitted is never intercepted. Older runtimes have no automatic correctio
+ 
+ ### PRD
+ 
+-Derive the PRD from the approved UR and completed Brownfield Review. Preserve the
+-`criteria-chain-v1` traceability marker. Define scope, non-goals and uniquely identified, observable
+-acceptance criteria. Record product decisions needed for PRD approval in Approval Decisions; gather
+-unresolved `before_prd` answers together before recording the final PRD revision. Defer genuine
+-design and planning decisions with named owners.
++Semantic PRD drafting and clarification belongs exclusively to prd-definition under its focused
++contract. This module supplies the shared Reviewed Recording Input procedure only; gate-check
++controls prerequisites, readiness and presentation.
+ 
+ ### SD
+ 

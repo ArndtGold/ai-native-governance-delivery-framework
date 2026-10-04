@@ -1,0 +1,54 @@
+npm notice run test:maintenance-contracts
+npm notice run node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 4.839538
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 16.572481
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 0.773164
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.261468
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 1.774435
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.305217
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 333.28077

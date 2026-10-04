@@ -125,6 +125,28 @@ oder unvollständige Bedarfsfelder verhindern die Präsentation. URs ohne dieses
 dem bisherigen Vertrag. Direkter `ur-definition`-Aufruf ohne Run liefert Umfangszuordnung,
 auch wenn `AGDF_RUN_ID` gesetzt ist.
 
+`prd-definition` erhält die fachliche PRD-Erstellung über `phase: prd_definition`.
+Der Auftrag bindet das unfreigegebene PRD an Ziel, Run, Revision, freigegebene UR,
+Brownfield-Quelle und erforderliche bereite UX-Analyse. Die reine Core-Routingfunktion
+steht vor dem generischen Urteilsskillpfad; unzulässige Direktaufrufe fallen nicht in einen
+Schreibauftrag durch. Offene Produktentscheidungen dürfen fachlich geklärt werden und
+bleiben für die Freigabe gesperrt. Bereits bestätigte Antworten und UR-Grenzen bleiben maßgeblich.
+
+`prd_action: revise` (CLI `--prd-action revise`) kennzeichnet ausdrücklich gewünschte
+PRD-Entwurfsänderung ausschließlich bei `gate-check` mit Resume-Intake, Run und erwarteter
+Revision. Die Option ist nicht mit `ur_action` oder `continue_delivery` kombinierbar.
+Eine gewöhnliche Fortsetzung eines fertigen PRD führt zur Präsentation. Direkte Skillauswahl
+ersetzt keine Änderungsabsicht; ohne Run liefert sie die vorhandene Umfangszuordnung,
+unabhängig von `AGDF_RUN_ID`. Freigegebene PRDs bleiben geschützt.
+
+Die vorhandene typisierte `run-step --step artefact --gate PRD`-Operation registriert
+PRD `derived_from` UR. Eine zulässige Entwurfsänderung nutzt `update_draft: true` mit
+neuen Mapping-/Eingabebelegen, behält alte Nachweise und benötigt eine neue Präsentation
+mit neuer bewusster Antwort. `gate-check` prüft weiterhin Bereitschaft und Freigabe;
+SD-/TP-Erstellung und alle nachfolgenden Kontrollschritte behalten ihre bisherigen Eigentümer.
+Quell-, Paket- und Protokolltests sowie kooperative Fachbeobachtung belegen unterschiedliche
+Ebenen; sie behaupten keine frische native Installation oder unabhängige Begutachtung.
+
 Die Ausgabefelder haben unterschiedliche Aufgaben:
 
 | Feld | Bedeutung |

@@ -247,7 +247,8 @@
       "meta/contracts/context-graph.md",
       "meta/contracts/control-scaffold.md",
       "meta/contracts/closeout.md",
-      "meta/contracts/ur-definition.md"
+      "meta/contracts/ur-definition.md",
+      "meta/contracts/prd-definition.md"
     ]
   },
   "instructionFootprint": {
@@ -367,8 +368,8 @@
         "quality"
       ],
       "discovery": "automatic",
-      "useFor": "after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems",
-      "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission",
+      "useFor": "permitted Brownfield Review or preparation before non-trivial existing-system changes",
+      "boundary": "clarifies reuse, owners, risks and Mode/Slice; never bypasses control or grants implementation",
       "dispatch": {
         "mode": "judgement_required",
         "requiresControlSnapshot": true
@@ -381,8 +382,8 @@
         "quality"
       ],
       "discovery": "automatic",
-      "useFor": "after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness",
-      "boundary": "non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth",
+      "useFor": "approved UR with routed medium/high UX impact or ambiguous low-impact semantics before PRD",
+      "boundary": "analytical PRD input only; no intent, gate, design or parallel product authority",
       "dispatch": {
         "mode": "judgement_required",
         "requiresControlSnapshot": true
@@ -445,6 +446,20 @@
       }
     },
     {
+      "slug": "prd-definition",
+      "runtimeContractModules": [
+        "prd-definition",
+        "gate-artifact-preparation"
+      ],
+      "discovery": "automatic",
+      "useFor": "drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch",
+      "boundary": "owns product drafting and clarification; never approves or changes approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
       "slug": "gate-check",
       "runtimeContractModules": [
         "gate-transition",
@@ -452,7 +467,7 @@
         "gate-artifact-preparation"
       ],
       "discovery": "start_here",
-      "useFor": "any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context",
+      "useFor": "requested build/file/code changes, Structured Delivery or gate artifacts; approval/next-step questions within explicit AGDF or active delivery",
       "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review",
       "dispatch": {
         "mode": "deterministic_control",

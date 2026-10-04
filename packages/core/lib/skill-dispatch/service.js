@@ -1,3 +1,8 @@
+import { readFileSync } from "node:fs";
+import { hasSymlinkComponent } from "../control-state/contained-file.js";
+import { artefactFileDigest } from "../control-state/run-seal.js";
+import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
+import { prdDefinitionPhase } from "./prd-definition.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
@@ -7,6 +12,29 @@ import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resoluti
 import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, urDefinitionPhase, quoteDispatchArgument } from "./delivery-intake.js";
 import { deliveryRunAssignmentContinuation, readDeliveryRunInventory } from "./delivery-run-assignment.js";
 import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
+
+// Read contained exact input facts only. Eligibility and control authority stay separate.
+function readPrdDefinitionSources(targetDir, control) {
+  if (control.current_gate !== "PRD") return null;
+  const state = control.status_card?.runState;
+  if (!state || hasSymlinkComponent(targetDir, `.agdf/control/artefacts/${control.status_card.run_id}/PRD.md`)) return null;
+  const sources = [];
+  for (const type of ["UR", "Brownfield Review"]) {
+    const path = String(state.artefacts.get(type)?.path ?? "").replace(/^`|`$/gu, "");
+    const file = resolvedArtefactFile(targetDir, path);
+    if (!file) return null;
+    sources.push({ type, path, digest: artefactFileDigest(targetDir, path) });
+  }
+  const review = readFileSync(resolvedArtefactFile(targetDir, sources[1].path), "utf8");
+  if (extractField(review, "ux_intent_definition_required") === "yes") {
+    const path = String(state.artefacts.get("UX Intent Definition")?.path
+      ?? `.agdf/control/artefacts/${control.status_card.run_id}/UX_INTENT_DEFINITION.md`).replace(/^`|`$/gu, "");
+    const file = resolvedArtefactFile(targetDir, path);
+    if (!file || extractField(readFileSync(file, "utf8"), "decision") !== "ready") return null;
+    sources.push({ type: "UX Intent Definition", path, digest: artefactFileDigest(targetDir, path) });
+  }
+  return sources;
+}
 
 const defaultNow = () => process.hrtime.bigint();
 const milliseconds = (start, end) => Number(end - start) / 1_000_000;
@@ -260,7 +288,7 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       };
-      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (skill.skill_id === "ur-definition" && !input.run_id)) {
+      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (["ur-definition", "prd-definition"].includes(skill.skill_id) && !input.run_id)) {
         let candidates;
         try {
           validateControlReadBoundary?.(target.governance_target);
@@ -288,7 +316,7 @@ export function createSkillDispatchService(dependencies = {}) {
         validateControlReadBoundary?.(target.governance_target);
         return evaluateGate(target.governance_target, {
           ...(input.run_id ? { runId: input.run_id } : {}),
-          ...((input.intake || skill.skill_id === "ur-definition") ? { ignoreRunIdEnv: true } : {}),
+          ...((input.intake || ["ur-definition", "prd-definition"].includes(skill.skill_id)) ? { ignoreRunIdEnv: true } : {}),
           presentationLanguage: input.presentation_language,
         });
       });
@@ -316,7 +344,7 @@ export function createSkillDispatchService(dependencies = {}) {
           : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
         return bindHostAction(result);
       }
-      const urPhase = urDefinitionPhase(target.governance_target, control, input);
+      const urPhase = input.prd_action ? null : urDefinitionPhase(target.governance_target, control, input);
       if (urPhase) {
         const urSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("ur-definition");
         if (!urSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
@@ -330,7 +358,36 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
-      if (input.ur_action && !urPhase) {
+      // Check the pure authoring route before reading sources. Presentation and unrelated
+      // control failures retain their existing diagnosis instead of entering authoring checks.
+      const prdEligible = prdDefinitionPhase(target.governance_target, control, input, []);
+      const prdSources = prdEligible ? runDispatchStage(DISPATCH_RECOVERY.prd_authoring_inputs_invalid,
+        () => readPrdDefinitionSources(target.governance_target, control)) : null;
+      if (prdEligible && !prdSources) {
+        const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.diagnostics = [{ code: "prd_authoring_inputs_invalid" }];
+        result.recovery = { action: renderRecovery({ code: DISPATCH_RECOVERY.prd_authoring_inputs_invalid },
+          { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      const prdPhase = prdDefinitionPhase(target.governance_target, control, input, prdSources);
+      if (prdPhase) {
+        const prdSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("prd-definition");
+        if (!prdSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill: prdSkill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({ ...prdPhase,
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
+            () => dependencies.readSkillRuntimeContracts("prd-definition")) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      if ((input.ur_action && !urPhase) || (input.prd_action && !prdPhase)) {
         // A declined revision route cannot turn into post-UR or later artefact preparation.
         if (!control.status_presentation) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
@@ -341,7 +398,7 @@ export function createSkillDispatchService(dependencies = {}) {
         return bindHostAction(result);
       }
       // Direct UR invocation must not fall through to the generic judgement writer route.
-      if (skill.skill_id === "ur-definition") skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
+      if (["ur-definition", "prd-definition"].includes(skill.skill_id)) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
       if (intake?.phase === "run_missing") {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;

@@ -12,6 +12,7 @@
 | Release-built plugin composition and durable marketplace staging | scripts/sync-package-assets.js; packages/cli/lib/installers/local-marketplace.js; packages/cli/lib/installers/plugin-installers.js; packages/cli/lib/host-adapters/ (native mechanisms) | active | AGDF | 2026-09-05 |
 | Control templates | plugins/agdf/control/templates/ | active | AGDF | 2026-07-08 |
 | Unapproved UR drafting and material clarification | plugins/agdf/skills/ur-definition/SKILL.md; plugins/agdf/meta/contracts/ur-definition.md | active | AGDF; gate-check retains readiness and approval control | 2026-10-04 |
+| Unapproved PRD product drafting, clarification and explicit revision | plugins/agdf/skills/prd-definition/SKILL.md; plugins/agdf/meta/contracts/prd-definition.md | active | AGDF; gate-check retains readiness, existing control writers and deliberate approval authority | 2026-10-04 |
 | Skill routing | plugins/agdf/meta/agdf-plugin.definition.json | active | AGDF | 2026-07-18 |
 | Agent Skills conformance baseline and plugin-scoped portability policy | plugins/agdf/meta/agent-skills-conformance.json | active | AGDF | 2026-08-19 |
 | Public conduct, contribution, security, support and maintainer governance | CODE_OF_CONDUCT.md; CONTRIBUTING.md; SECURITY.md; SUPPORT.md; GOVERNANCE.md | active | Arndt Gold | 2026-07-23 |

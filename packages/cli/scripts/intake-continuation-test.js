@@ -224,8 +224,8 @@ try {
   const continuation = dispatch("--run", "new-run", "--continue-delivery");
   assert.equal(continuation.outcome, "skill_continuation");
   assert.equal(continuation.terminal, false, "a missing next-gate draft must not expose a bare approval card");
-  assert.equal(continuation.continuation.phase, "required_gate_artifact");
-  assert.equal(continuation.continuation.gate, "PRD");
+  assert.equal(continuation.continuation.phase, "prd_definition");
+  assert.equal(continuation.continuation.skill_id, "prd-definition");
   assert.equal(continuation.continuation.artifact_path, ".agdf/control/artefacts/new-run/PRD.md");
   assert.equal(continuation.control.next_operation.type, "prepare_gate_artifact");
   assert.equal(continuation.control.next_operation.gate, "PRD");

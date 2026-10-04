@@ -1,0 +1,41 @@
+{
+  "status": "pass",
+  "candidate_digest": "0a1e480010eff72ba6852faadda6316a4bdf9d077e78ddf5d987fd108a7fe320",
+  "lane": "synthetic deterministic packaged-runtime test",
+  "commands": 88,
+  "dispatches": 27,
+  "read_only_digest_checks": true,
+  "recovered": 1,
+  "rejected_presentations": 9,
+  "rejected_writer_operations": 7,
+  "owners": [
+    "packages/cli/scripts/prd-definition-test.js",
+    "packages/cli/scripts/skill-dispatch-test.js",
+    "packages/cli/scripts/skill-dispatch-function-contract-test.js",
+    "packages/cli/scripts/intake-continuation-test.js",
+    "packages/core/test/control-state-test.js",
+    "packages/core/test/artefact-recording-test.js",
+    "packages/core/test/run-step-transaction-test.js",
+    "packages/core/test/run-revision-test.js",
+    "packages/mcp-server/test/continuation.test.js"
+  ],
+  "actual_flow": "RECORDING_FLOW.json",
+  "scenarios": [
+    "eligible_drafting",
+    "decision_open",
+    "valid_revision_and_ordinary_ready",
+    "direct_assignment",
+    "prerequisite_matrix",
+    "forbidden_stage_matrix",
+    "stale_resume",
+    "negative_binding_matrix",
+    "interruption_replay",
+    "shared_argument_parity",
+    "invalid_argument_matrix",
+    "localized_invalid_and_recovery",
+    "presentation_freshness",
+    "approval_boundary"
+  ],
+  "semantic_outputs": "PRD_BEHAVIOR_CASES.json",
+  "evidence_boundary": "Synthetic deterministic runtime tests and separately retained cooperative actual semantic outputs; no native/independent claim"
+}

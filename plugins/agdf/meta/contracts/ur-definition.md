@@ -11,7 +11,8 @@ resolve_delivery_run assignment, then gate-check intake/resume with its expected
 Never use AGDF_RUN_ID, cwd, discovery or a previous approval as authority. Missing, stale,
 foreign, invalid or approved bindings require fresh control routing; do not write.
 Gate-check delegates UR content here and remains the read-only readiness/approval owner.
-PRD, SD and TP preparation remains in gate-artifact-preparation.
+PRD semantic preparation belongs to prd-definition. SD/TP preparation and shared registration
+remain in gate-artifact-preparation.
 
 ## Define the need
 

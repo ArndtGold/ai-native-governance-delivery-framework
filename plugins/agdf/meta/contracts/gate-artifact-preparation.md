@@ -68,11 +68,9 @@ already emitted is never intercepted. Older runtimes have no automatic correctio
 
 ### PRD
 
-Derive the PRD from the approved UR and completed Brownfield Review. Preserve the
-`criteria-chain-v1` traceability marker. Define scope, non-goals and uniquely identified, observable
-acceptance criteria. Record product decisions needed for PRD approval in Approval Decisions; gather
-unresolved `before_prd` answers together before recording the final PRD revision. Defer genuine
-design and planning decisions with named owners.
+Semantic PRD drafting and clarification belongs exclusively to prd-definition under its focused
+contract. This module supplies the shared Reviewed Recording Input procedure only; gate-check
+controls prerequisites, readiness and presentation.
 
 ### SD
 

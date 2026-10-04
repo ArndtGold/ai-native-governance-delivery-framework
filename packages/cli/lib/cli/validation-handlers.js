@@ -94,6 +94,7 @@ export function createValidationHandlers(io = console) {
         intake: options.intake,
         intakeMode: options.intakeMode,
         ...(options.urAction !== undefined ? { urAction: options.urAction } : {}),
+        ...(options.prdAction !== undefined ? { prdAction: options.prdAction } : {}),
         ...(options.revisionId ? { expectedRevisionId: options.revisionId } : {}),
         continueDelivery: options.continueDelivery,
         expectedVersion: pluginDefinition.version,

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "prd-definition-separation-20261004-01",
+  "expected_revision_id": "e6bcb9d2-2bc0-4041-93a4-19dd2a496f6e",
+  "destination": {
+    "type": "QA_REPORT",
+    "path": ".agdf/control/artefacts/prd-definition-separation-20261004-01/QA_REPORT.md",
+    "digest": "sha256:b3032b3c7b76ffc5191b7cd353e401c97e356d9aace3a1f27b333a97a3898260",
+    "status": "pass"
+  },
+  "source": {
+    "type": "TP",
+    "path": ".agdf/control/artefacts/prd-definition-separation-20261004-01/TP.md",
+    "digest": "sha256:5d2d9d83961f5f0a2afc28af96228e098c11fbc9c58499b20372994f3f231362"
+  },
+  "relationship": {
+    "from": "QA_REPORT",
+    "relationship": "tests",
+    "to": "TP"
+  },
+  "review": {
+    "reviewer": "Codex qa-gate; cooperative same-instance QA/source mapping, no independent human proof",
+    "path": ".agdf/control/artefacts/prd-definition-separation-20261004-01/QA_MAPPING_REV16.json",
+    "digest": "sha256:366cab91c284845171a44b222e1f3a0bd319ff57820bf19fadc65f4efd8e885c"
+  },
+  "update_draft": false
+}

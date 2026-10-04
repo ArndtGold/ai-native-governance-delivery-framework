@@ -1,0 +1,27 @@
+npm notice run @agdf/mcp-server@0.14.5 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:continuation
+npm notice run node ./test/continuation.test.js
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.14.5 test:protocol
+npm notice run node ./test/protocol.test.js && node ./test/skill-names.test.js
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+npm notice run @agdf/mcp-server@0.14.5 test:safety
+npm notice run node ./test/safety.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:provenance
+npm notice run node ./test/provenance.test.js
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[850.692,985.27,737.937,694.683,711.852,795.944,892.391,668.766,605.829,608.401,989.848,853.705,615.514,596.42,963.09,827.38,851.815,667.944,922.735,772.276],"cold_p95_ms":985.27,"warm_dispatch_ms":[461.347,409.683,529.043,496.777,429.59,417.338,541.904,428.444,410.725,413.984,435.909,434.992,421.38,458.14,423.655,425.026,415.836,429.553,492.734,413.774],"warm_p95_ms":529.043}
+npm notice run @agdf/mcp-server@0.14.5 test:package
+npm notice run node ./test/package.test.js
+AGDF MCP package boundary tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:sdk-digest
+npm notice run node ./test/sdk-digest.test.js
+MCP SDK digest tests passed

@@ -1,0 +1,15 @@
+# Qualification attempts and corrections
+
+Failed attempts are retained as diagnostic evidence; they are not successful qualification or production approval.
+
+- New discovery text initially exceeded the unchanged aggregate description budget (3209 > 3000). Existing catalog summaries were shortened without changing activation/kernel or focused semantic ownership; generated skill descriptions remain projections.
+- Extended argument synopsis initially exceeded the unchanged SessionStart limit (1920–1922 > 1900). Only placeholders and the shared alternative revision synopsis were compacted. Schema, argument parsing, exact target-source choices and validation stayed strict. Two exact parser/synopsis expectation snapshots were updated accordingly; no behavior assertion was removed.
+- The initial localized recovery exceeded the existing 160-character ceiling. Both canonical locale entries were compacted and projected with unchanged limits.
+- The packaged test fixture needed its existing marketplace provenance file; the fixture now copies it instead of bypassing provenance. The MCP package fixture initially contained an older registry package; only the isolated dependency fixture was replaced by the current local built package. Live installed runtime was not changed.
+- Request-activation corpus identity became stale after the catalog changed. The canonical fingerprint was recomputed; expectations and historical live observations were retained. Skill replay adds four PRD cases, retains all 94 prior cases and changes only the affected gate-check PRD ownership expectation. CORPUS_AUDIT.json verifies this boundary; replay remains offline structural evidence.
+- Review found that a declined UR revision could fall through to PRD authoring and vice versa. Existing route guards now reject cross-intent assignments; actual packaged cases verify no protected mutation.
+- Existing unpresentable-PRD regression revealed that unconditional source reading could replace its presentation diagnosis. Pure eligibility now precedes source reads; the original test and assertion are retained and pass.
+- Local development projection integrity found the missing canonical prd-definition/help.md. The required named help page was added; the existing integrity check remained unchanged and the installation fixture passed.
+- Each legitimate payload source edit was measured under the existing inventory/digest/profile validator; only its size ceiling was suspended for measurement. Final accepted inventory is exactly 193 files / 1581171 bytes, with zero spare headroom. Instruction and performance ceilings were never raised.
+
+The logs preserve original failures and later passes. Earlier cooperative candidate observations are stored under INITIAL and BEFORE_ROUTING_FIX names. The final semantic cases retain their actual candidate digest; the help-only addition does not change the MCP dispatcher closure identity. These attempts create no independent review, fresh native-host claim, production approval, installation or VCS action.

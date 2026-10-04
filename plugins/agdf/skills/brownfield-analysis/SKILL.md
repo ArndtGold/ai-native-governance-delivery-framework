@@ -1,6 +1,6 @@
 ---
 name: brownfield-analysis
-description: "Use this skill for this scope: after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems. Boundary: clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: permitted Brownfield Review or preparation before non-trivial existing-system changes. Boundary: clarifies reuse, owners, risks and Mode/Slice; never bypasses control or grants implementation. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # brownfield-analysis

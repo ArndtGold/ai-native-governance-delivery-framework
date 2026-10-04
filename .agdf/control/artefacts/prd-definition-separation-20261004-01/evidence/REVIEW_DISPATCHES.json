@@ -1,0 +1,351 @@
+{
+  "CODE": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "skill_continuation",
+    "terminal": false,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "code-review",
+      "dispatch_mode": "judgement_required",
+      "deterministic_command": null,
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "18f67c48ff911c244e32b2b40f5e0291fc54824a602ce85fe5efdc66eafe05a1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "continued_target",
+      "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "evidence_sources": [],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "target_source": "continued_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "CR",
+      "gate_route": {
+        "gate": "CR",
+        "skills": [
+          "code-review"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "none",
+      "next_operation": null,
+      "next_allowed_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "b652130d-81c8-42ab-94a8-e2e8d57d5397",
+      "doctor_status": "pass"
+    },
+    "presentation": null,
+    "continuation": {
+      "instruction": "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
+      "skill_id": "code-review",
+      "presentation_language": "de",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "b652130d-81c8-42ab-94a8-e2e8d57d5397",
+      "runtime_contracts": [
+        {
+          "module": "quality",
+          "sha256": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4"
+        },
+        {
+          "module": "context-graph",
+          "sha256": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65"
+        }
+      ]
+    },
+    "recovery": null,
+    "host_action": {
+      "mode": "continue_named_skill",
+      "source": "continuation",
+      "bound_to_target": true
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 7.298,
+      "target_ms": 1.053,
+      "control_ms": 250.206,
+      "render_ms": 12.323,
+      "total_ms": 271.869
+    },
+    "diagnostics": []
+  },
+  "CLEAN": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "skill_continuation",
+    "terminal": false,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "clean-implementation-review",
+      "dispatch_mode": "judgement_required",
+      "deterministic_command": null,
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "18f67c48ff911c244e32b2b40f5e0291fc54824a602ce85fe5efdc66eafe05a1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "continued_target",
+      "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "evidence_sources": [],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "target_source": "continued_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "QA",
+      "gate_route": {
+        "gate": "QA",
+        "skills": [
+          "qa-gate"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "Approval: QA",
+      "next_operation": null,
+      "next_allowed_action": "persist or refine the QA report",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "e163185e-e296-429e-91ad-18ba919d4151",
+      "doctor_status": "pass"
+    },
+    "presentation": null,
+    "continuation": {
+      "instruction": "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
+      "skill_id": "clean-implementation-review",
+      "presentation_language": "de",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "e163185e-e296-429e-91ad-18ba919d4151",
+      "runtime_contracts": [
+        {
+          "module": "quality",
+          "sha256": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4"
+        },
+        {
+          "module": "context-graph",
+          "sha256": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65"
+        }
+      ]
+    },
+    "recovery": null,
+    "host_action": {
+      "mode": "continue_named_skill",
+      "source": "continuation",
+      "bound_to_target": true
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 7.549,
+      "target_ms": 1.036,
+      "control_ms": 236.913,
+      "render_ms": 11.614,
+      "total_ms": 258.1
+    },
+    "diagnostics": []
+  },
+  "TP": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "skill_continuation",
+    "terminal": false,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "task-plan-review",
+      "dispatch_mode": "judgement_required",
+      "deterministic_command": null,
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "18f67c48ff911c244e32b2b40f5e0291fc54824a602ce85fe5efdc66eafe05a1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "continued_target",
+      "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "evidence_sources": [],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "target_source": "continued_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "QA",
+      "gate_route": {
+        "gate": "QA",
+        "skills": [
+          "qa-gate"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "Approval: QA",
+      "next_operation": null,
+      "next_allowed_action": "persist or refine the QA report",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "e163185e-e296-429e-91ad-18ba919d4151",
+      "doctor_status": "pass"
+    },
+    "presentation": null,
+    "continuation": {
+      "instruction": "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
+      "skill_id": "task-plan-review",
+      "presentation_language": "de",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "e163185e-e296-429e-91ad-18ba919d4151",
+      "runtime_contracts": [
+        {
+          "module": "quality",
+          "sha256": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4"
+        },
+        {
+          "module": "context-graph",
+          "sha256": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65"
+        },
+        {
+          "module": "gate-transition",
+          "sha256": "8bac35b23fa1a77280401d63b0066f19e36dae3d32495986f9fd0ed4a519d63e"
+        }
+      ]
+    },
+    "recovery": null,
+    "host_action": {
+      "mode": "continue_named_skill",
+      "source": "continuation",
+      "bound_to_target": true
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 7.79,
+      "target_ms": 1.142,
+      "control_ms": 233.519,
+      "render_ms": 12.163,
+      "total_ms": 255.812
+    },
+    "diagnostics": []
+  },
+  "QA": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "skill_continuation",
+    "terminal": false,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "qa-gate",
+      "dispatch_mode": "judgement_required",
+      "deterministic_command": null,
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "18f67c48ff911c244e32b2b40f5e0291fc54824a602ce85fe5efdc66eafe05a1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "continued_target",
+      "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "evidence_sources": [],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "target_source": "continued_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "QA",
+      "gate_route": {
+        "gate": "QA",
+        "skills": [
+          "qa-gate"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "Approval: QA",
+      "next_operation": null,
+      "next_allowed_action": "persist or refine the QA report",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "e6bcb9d2-2bc0-4041-93a4-19dd2a496f6e",
+      "doctor_status": "pass",
+      "candidate_runs": []
+    },
+    "presentation": null,
+    "continuation": {
+      "instruction": "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
+      "skill_id": "qa-gate",
+      "presentation_language": "de",
+      "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "run_id": "prd-definition-separation-20261004-01",
+      "revision_id": "e6bcb9d2-2bc0-4041-93a4-19dd2a496f6e",
+      "runtime_contracts": [
+        {
+          "module": "quality",
+          "sha256": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4"
+        },
+        {
+          "module": "context-graph",
+          "sha256": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65"
+        },
+        {
+          "module": "gate-transition",
+          "sha256": "8bac35b23fa1a77280401d63b0066f19e36dae3d32495986f9fd0ed4a519d63e"
+        }
+      ]
+    },
+    "recovery": null,
+    "host_action": {
+      "mode": "continue_named_skill",
+      "source": "continuation",
+      "bound_to_target": true
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 8.722,
+      "target_ms": 1.043,
+      "control_ms": 313.004,
+      "render_ms": 13.479,
+      "total_ms": 337.503
+    },
+    "diagnostics": []
+  }
+}

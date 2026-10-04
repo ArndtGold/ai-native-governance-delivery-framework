@@ -1,6 +1,6 @@
 ---
 name: ux-intent-definition
-description: "Use this skill for this scope: after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness. Boundary: non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: approved UR with routed medium/high UX impact or ambiguous low-impact semantics before PRD. Boundary: analytical PRD input only; no intent, gate, design or parallel product authority. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # ux-intent-definition

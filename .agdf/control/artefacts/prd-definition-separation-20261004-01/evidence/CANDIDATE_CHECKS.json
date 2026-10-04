@@ -1,0 +1,418 @@
+{
+  "status": "pass",
+  "candidate_digest": "0a1e480010eff72ba6852faadda6316a4bdf9d077e78ddf5d987fd108a7fe320",
+  "canonical_plugin_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "environment": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "arch": "x64"
+  },
+  "full_cli_smoke": {
+    "commands": 64,
+    "prefix_completed": [
+      "npm run release:prepare",
+      "npm run test:release-workflows",
+      "npm run test:release-registry-state",
+      "npm run test:instruction-footprint"
+    ],
+    "remaining_completed": [
+      {
+        "command": "npm run test:request-activation",
+        "code": 0
+      },
+      {
+        "command": "npm run test:gate-check-missing-control",
+        "code": 0
+      },
+      {
+        "command": "npm run test:canonical-init",
+        "code": 0
+      },
+      {
+        "command": "npm run test:cli-modularization",
+        "code": 0
+      },
+      {
+        "command": "npm run test:install-setup-contract",
+        "code": 0
+      },
+      {
+        "command": "npm run test:install-setup-interaction",
+        "code": 0
+      },
+      {
+        "command": "npm run test:install-setup-service",
+        "code": 0
+      },
+      {
+        "command": "npm run test:install-control-migration",
+        "code": 0
+      },
+      {
+        "command": "npm run test:install-control-repair",
+        "code": 0
+      },
+      {
+        "command": "npm run test:control-maintenance",
+        "code": 0
+      },
+      {
+        "command": "npm run test:runtime-check-consent",
+        "code": 0
+      },
+      {
+        "command": "npm run test:task-target-resolution",
+        "code": 0
+      },
+      {
+        "command": "npm run test:skill-dispatch",
+        "code": 0
+      },
+      {
+        "command": "npm run test:control-inspect",
+        "code": 0
+      },
+      {
+        "command": "npm run test:host-command",
+        "code": 0
+      },
+      {
+        "command": "npm run test:mcp-lifecycle",
+        "code": 0
+      },
+      {
+        "command": "npm run test:plugin-mcp-runtime",
+        "code": 0
+      },
+      {
+        "command": "npm run test:claude-plugin-mcp",
+        "code": 0
+      },
+      {
+        "command": "npm run test:codex-plugin-mcp",
+        "code": 0
+      },
+      {
+        "command": "npm run test:mcp-server",
+        "code": 0
+      },
+      {
+        "command": "npm run test:local-validator",
+        "code": 0
+      },
+      {
+        "command": "npm run test:local-marketplace",
+        "code": 0
+      },
+      {
+        "command": "npm run test:claude-cache-recovery",
+        "code": 0
+      },
+      {
+        "command": "npm run test:copilot-profile",
+        "code": 0
+      },
+      {
+        "command": "npm run test:copilot-installer",
+        "code": 0
+      },
+      {
+        "command": "npm run test:local-preparation",
+        "code": 0
+      },
+      {
+        "command": "npm run test:local-development-install",
+        "code": 0
+      },
+      {
+        "command": "npm run test:package-build",
+        "code": 0
+      },
+      {
+        "command": "npm run test:package-contents",
+        "code": 0
+      },
+      {
+        "command": "npm run test:lifecycle",
+        "code": 0
+      },
+      {
+        "command": "npm run test:copilot-repository-retention",
+        "code": 0
+      },
+      {
+        "command": "npm run test:control-command",
+        "code": 0
+      },
+      {
+        "command": "npm run test:control-command-process",
+        "code": 0
+      },
+      {
+        "command": "npm run test:control-command-package",
+        "code": 0
+      },
+      {
+        "command": "npm run test:cli-gates",
+        "code": 0
+      },
+      {
+        "command": "npm run test:control-state",
+        "code": 0
+      },
+      {
+        "command": "npm run test:run-step-transaction",
+        "code": 0
+      },
+      {
+        "command": "npm run test:run-recovery",
+        "code": 0
+      },
+      {
+        "command": "npm run test:run-lock",
+        "code": 0
+      },
+      {
+        "command": "npm run test:prd-readiness",
+        "code": 0
+      },
+      {
+        "command": "npm run test:run-revision",
+        "code": 0
+      },
+      {
+        "command": "npm run test:intake-continuation",
+        "code": 0
+      },
+      {
+        "command": "npm run test:prd-definition",
+        "code": 0
+      },
+      {
+        "command": "npm run test:artifact-language",
+        "code": 0
+      },
+      {
+        "command": "npm run test:parent-reconciliation",
+        "code": 0
+      },
+      {
+        "command": "npm run test:interaction-presentation",
+        "code": 0
+      },
+      {
+        "command": "npm run test:operational-localization",
+        "code": 0
+      },
+      {
+        "command": "npm run test:verified-change",
+        "code": 0
+      },
+      {
+        "command": "npm run test:runtime-integrity-layout",
+        "code": 0
+      },
+      {
+        "command": "npm run test:runtime-integrity-negative",
+        "code": 0
+      },
+      {
+        "command": "npm run test:agent-skills-conformance",
+        "code": 0
+      },
+      {
+        "command": "npm run test:skill-evals",
+        "code": 0
+      },
+      {
+        "command": "npm run eval:skills",
+        "code": 0
+      },
+      {
+        "command": "npm run test:proportionality",
+        "code": 0
+      },
+      {
+        "command": "npm run test:delivery-path-search",
+        "code": 0
+      },
+      {
+        "command": "npm run test:delivery-path-search-unit",
+        "code": 0
+      },
+      {
+        "command": "npm run test:delivery-path-search-generator",
+        "code": 0
+      },
+      {
+        "command": "npm run test:opencode-hardening",
+        "code": 0
+      },
+      {
+        "command": "node scripts/smoke-test.js",
+        "code": 0
+      },
+      {
+        "command": "node scripts/test-routing.js",
+        "code": 0
+      }
+    ],
+    "logs": [
+      "logs/agdf-prd-smoke.log",
+      "logs/agdf-prd-smoke-remaining.log"
+    ],
+    "resumed_after_documented_failures": true
+  },
+  "additional": [
+    {
+      "command": "npm run test:maintenance-contracts",
+      "status": "pass",
+      "logs": "logs/"
+    },
+    {
+      "command": "npm run test:host-compatibility",
+      "status": "pass",
+      "logs": "logs/"
+    },
+    {
+      "command": "npm run compatibility:record",
+      "status": "pass",
+      "logs": "logs/"
+    },
+    {
+      "command": "npm run compatibility:check",
+      "status": "pass",
+      "logs": "logs/"
+    },
+    {
+      "command": "npm run check:community-health",
+      "status": "pass",
+      "logs": "logs/"
+    },
+    {
+      "command": "npm run test:community-health",
+      "status": "pass",
+      "logs": "logs/"
+    }
+  ],
+  "mcp": {
+    "status": "pass",
+    "same_built_dependency_digest": true,
+    "full_suite_in_smoke": true,
+    "performance": {
+      "node": "v22.22.3",
+      "platform": "darwin-x64",
+      "runs": 20,
+      "cold_tools_list_ms": [
+        878.455,
+        602.918,
+        581.434,
+        573.714,
+        587.84,
+        576.027,
+        585.855,
+        586.676,
+        573.111,
+        580.231,
+        664.269,
+        768.74,
+        664.911,
+        756.409,
+        656.763,
+        615.01,
+        575.182,
+        574.903,
+        579.015,
+        666.144
+      ],
+      "cold_p95_ms": 768.74,
+      "warm_dispatch_ms": [
+        563.94,
+        589.067,
+        419.176,
+        409.186,
+        410.283,
+        486.023,
+        441.096,
+        419.555,
+        415.743,
+        419.711,
+        473.895,
+        406.975,
+        416.106,
+        449.903,
+        418.913,
+        412.583,
+        635.069,
+        494.894,
+        406.212,
+        393.124
+      ],
+      "warm_p95_ms": 589.067
+    },
+    "limits": {
+      "cold_p95_ms": 1500,
+      "warm_p95_ms": 1000
+    }
+  },
+  "compatibility": {
+    "status": "pass",
+    "scenarios": {
+      "evaluated": 56,
+      "failed": 0
+    },
+    "source_fingerprint": "7faa6b9d1422d88f3931409f46703ee3f5e820ac26f94181f8a38b805d472e8b"
+  },
+  "preservation": {
+    "protected_count": 2341,
+    "foreign_changed": [],
+    "approved_sources": {
+      "UR": {
+        "digest": "2cc1f95547942a59ef1607dd82a20ab91ff47749d9d0d612e7da9c890289b7dd",
+        "unchanged": true
+      },
+      "PRD": {
+        "digest": "8cb1d53750e2adb358a64aa1f714c350df725dd16c060517e5f8de4378c5a915",
+        "unchanged": true
+      },
+      "SD": {
+        "digest": "11d91375cf2d31179f4d80fc4e45af60da45211096984aa7163afa230cf3ecb6",
+        "unchanged": true
+      },
+      "TP": {
+        "digest": "5d2d9d83961f5f0a2afc28af96228e098c11fbc9c58499b20372994f3f231362",
+        "unchanged": true
+      }
+    },
+    "index_unchanged": true,
+    "head_unchanged": true
+  },
+  "skill_corpus": {
+    "previous_cases": 94,
+    "current_cases": 98,
+    "retained_old_cases": 94,
+    "sole_expected_action_change": "gate-check-normal: draft PRD -> route prd-definition",
+    "added_cases": [
+      "prd-definition-normal",
+      "prd-definition-boundary",
+      "prd-definition-adversarial",
+      "prd-definition-direct-target-unresolved"
+    ],
+    "thresholds_unchanged": {
+      "coverage": 1,
+      "routing": 1,
+      "gate": 1,
+      "actions": 1,
+      "mutation": 1,
+      "artefact_quality": 1
+    },
+    "evidence_plane": "deterministic offline structure and ownership expectations only; live observations untouched"
+  },
+  "instruction_status": "pass",
+  "payload": {
+    "files": 193,
+    "bytes": 1581171
+  },
+  "evidence_boundary": "Source, generated four-host projections, built package/stdio and cooperative semantic evidence. Fresh installed native adoption and independent review are outside the approved TP."
+}

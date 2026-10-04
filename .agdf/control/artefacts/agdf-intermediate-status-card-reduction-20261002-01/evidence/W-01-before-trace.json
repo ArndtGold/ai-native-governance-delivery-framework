@@ -1,0 +1,54 @@
+[
+  {
+    "operation": "fixture_precondition_validation",
+    "visible": false,
+    "permission": "already permitted CD+Tests"
+  },
+  {
+    "operation": "required_bound_gate_evaluation",
+    "target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-card-before-29MFNg",
+    "selection": {
+      "runId": "agdf-intermediate-status-card-reduction-20261002-01",
+      "presentationLanguage": "de"
+    }
+  },
+  {
+    "operation": "source_inspection",
+    "files": [
+      {
+        "path": "packages/core/lib/control-evaluation/gate-policy.js",
+        "digest": "sha256:643d9ad120923cc34b542d79dd94788ccdf2ce5e3c72c8b524d48d9ec5e6acf9"
+      },
+      {
+        "path": "packages/core/lib/control-evaluation/delivery-map.js",
+        "digest": "sha256:f79ff5d022d7b87cb67487877b2f3d2871d979c7b71f6a77868b3914b6c06e3c"
+      },
+      {
+        "path": "packages/core/lib/skill-dispatch/service.js",
+        "digest": "sha256:42bdaaa90efd6e9652b8e48c36409b71c2eb217b0f93e498d7ac8b4b9dbf4b7a"
+      }
+    ],
+    "visible": false
+  },
+  {
+    "operation": "required_validation",
+    "checks": [
+      "existing permission",
+      "doctor pass",
+      "valid seal",
+      "unchanged approvals/control",
+      "one existing consumer preflight"
+    ],
+    "visible": false
+  },
+  {
+    "operation": "evidence_maintenance",
+    "outputs": [
+      "W-01-before-dispatch.json",
+      "transcripts/W-01-before.md",
+      "W-01-before-measurement.json",
+      "W-01-before-trace.json"
+    ],
+    "authority_changes": false
+  }
+]

@@ -392,6 +392,7 @@
         "prdReadinessItems": "PRD readiness items",
         "traceabilityGaps": "Traceability gaps",
         "missing": "Missing approval",
+        "maintenance": "Evidence maintenance",
         "outcome": "Outcome after approval",
         "internal": "Internal next step",
         "userGate": "Next user gate",
@@ -449,6 +450,8 @@
         "blockedRunMissing": "A canonical active run is missing",
         "blockedRelationshipMissing": "A required artefact relationship is missing",
         "blockedRelationshipEvidenceMissing": "Evidence for a required artefact relationship is missing",
+        "blockedRelationshipConflict": "Required artefact relationships conflict or are duplicated",
+        "relationshipCorrected": "The missing artefact relationship was restored from exact sealed reviewed evidence.",
         "blockedEvidenceDeclared": "Required evidence is missing",
         "blockedRiskDeclared": "A declared risk requires resolution",
         "blockedUnknown": "An unresolved control finding needs attention",
@@ -1092,6 +1095,13 @@
           "partial": "partially applied",
           "needs_input": "original or correction needed"
         }
+      },
+      "activeRunInventory": {
+        "countDescription": "{count} active AGDF runs found.",
+        "noneDescription": "No active AGDF runs in this project.",
+        "absentDescription": "This project has no .agdf/control directory.",
+        "incompleteDescription": "The inventory is incomplete; the total number of active runs is unknown.",
+        "findingsDescription": "Inspection findings:"
       }
     },
     "de": {
@@ -1473,6 +1483,7 @@
         "prdReadinessItems": "PRD-Bereitschaftspunkte",
         "traceabilityGaps": "Fehlende Zuordnungen",
         "missing": "Fehlende Freigabe",
+        "maintenance": "Nachweispflege",
         "outcome": "Ergebnis nach Freigabe",
         "internal": "Interner nächster Schritt",
         "userGate": "Nächstes User-Gate",
@@ -1530,6 +1541,8 @@
         "blockedRunMissing": "Ein kanonischer aktiver Run fehlt",
         "blockedRelationshipMissing": "Eine erforderliche Artefaktbeziehung fehlt",
         "blockedRelationshipEvidenceMissing": "Der Nachweis für eine erforderliche Artefaktbeziehung fehlt",
+        "blockedRelationshipConflict": "Erforderliche Artefaktbeziehungen sind widersprüchlich oder doppelt erfasst",
+        "relationshipCorrected": "Die fehlende Artefaktbeziehung wurde anhand des exakten versiegelten Prüfnachweises wiederhergestellt.",
         "blockedEvidenceDeclared": "Ein erforderlicher Nachweis fehlt",
         "blockedRiskDeclared": "Ein erfasstes Risiko muss geklärt werden",
         "blockedUnknown": "Ein ungeklärter Kontrollbefund muss bearbeitet werden",
@@ -2173,6 +2186,13 @@
           "partial": "teilweise angewendet",
           "needs_input": "Original oder Korrektur nötig"
         }
+      },
+      "activeRunInventory": {
+        "countDescription": "{count} aktive AGDF-Runs gefunden.",
+        "noneDescription": "Keine aktiven AGDF-Runs in diesem Projekt.",
+        "absentDescription": "Dieses Projekt hat keinen Ordner .agdf/control.",
+        "incompleteDescription": "Die Inventur ist unvollständig; die Gesamtzahl aktiver Runs ist unbekannt.",
+        "findingsDescription": "Prüfbefunde:"
       }
     }
   }

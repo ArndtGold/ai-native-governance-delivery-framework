@@ -1,0 +1,27 @@
+npm notice run create-agdf@0.14.5 test:instruction-footprint
+npm notice run node scripts/instruction-footprint-test.js
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: [
+  {
+    "code": "AGDF_INSTRUCTION_FOOTPRINT_BUDGET_EXCEEDED",
+    "message": "selectedGateCheckSkill/global-installed is 6959 normalized bytes; maximum is 6900",
+    "surface_id": "selectedGateCheckSkill",
+    "instance_id": "global-installed"
+  }
+]
+
+'block' !== 'pass'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/instruction-footprint-test.js:578:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'block',
+  expected: 'pass',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

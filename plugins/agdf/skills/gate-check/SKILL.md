@@ -32,20 +32,20 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 Selected operation:
 
+- Active-run lists use `control.doctor` all-active inspection; see the Request Activation contract.
 - `skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.
 - `delivery.start`: resolve target once; unresolved: orient and stop. Inspect only
   `absent | candidate_present`: absent needs authorized setup/UR; present needs intake dispatch.
   Stop on mismatch; no legacy live run or proxy.
 
-Unbound implementation request: dispatch intake without `run_id`. At `resolve_delivery_run`, read
-candidate URs and compare original request scope. One unequivocal match: resume its ID with
-`expected_revision_id`; clear independent scope: choose an unused ID and start new. Recency, one
-candidate, shared files and `AGDF_RUN_ID` cannot bind scope. Only genuine overlap needs a question
-about the work; never start by asking users for Run IDs. Inventory failure blocks assignment.
-Use returned revisions after `run-create` and `run-step`; new scope starts at durable UR approval.
+Unbound changes: intake without `run_id`. Match original scope against candidate URs at
+`resolve_delivery_run`: unequivocal match -> resume ID + `expected_revision_id`; independent scope ->
+new unused ID. Recency, candidate count, shared files or `AGDF_RUN_ID` cannot bind scope. Ask only
+about genuinely overlapping work, never start with Run IDs. Invalid inventory blocks assignment.
+Use revisions returned by `run-create`/`run-step`; new scope needs durable UR approval.
 After `run-approve` returns `outcome: approved`, redispatch the same target/run immediately with
 `continue_delivery: true`. `control.gate_route` identifies the current gate and responsible skills;
-invoke `continuation.skill_id`. Stop at the next user decision or blocker.
+Use `continuation.skill_id` per interaction policy; stop at decisions/blockers.
 
 ## Executable Dispatch
 

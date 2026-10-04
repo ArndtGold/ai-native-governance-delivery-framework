@@ -86,6 +86,9 @@ export function validateLocaleRegistry(registry) {
       continue;
     }
     const keys = flattenKeys(pack);
+    for (const key of ["statusCard.maintenance", "operationalValues.relationshipCorrected", "operationalValues.blockedRelationshipConflict"]) {
+      if (!keys.includes(key)) errors.push(`missing_relationship_copy:${locale}:${key}`);
+    }
     if (JSON.stringify(keys) !== JSON.stringify(baseline)) errors.push(`incomplete_locale:${locale}`);
     for (const [key, value] of visibleStrings(pack)) {
       if (typeof value !== "string") {
@@ -418,6 +421,7 @@ function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
       AGDF_ACTIVE_RUN_MISSING: "blockedRunMissing",
       AGDF_DELIVERY_RELATIONSHIP_MISSING: "blockedRelationshipMissing",
       AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING: "blockedRelationshipEvidenceMissing",
+      AGDF_DELIVERY_RELATIONSHIP_CONFLICT: "blockedRelationshipConflict",
       AGDF_MISSING_EVIDENCE_DECLARED: "blockedEvidenceDeclared",
       AGDF_RISK_DECLARED: "blockedRiskDeclared",
     };
@@ -551,6 +555,8 @@ export function renderOperationalStatusCard(statusCard, {
     ...(prdReadinessItems.length ? [[labels.prdReadinessItems, prdReadinessItems.join("\n")]] : []),
     ...(traceabilityGaps.length ? [[labels.traceabilityGaps, traceabilityGaps.join("\n")]] : []),
     actorRow,
+    ...((statusCard.evidence ?? []).some(row => row.evidence === "Relationship correction")
+      ? [[labels.maintenance, pack.operationalValues.relationshipCorrected]] : []),
     ...(!approvalReady ? [[labels.missing, statusCard.missing_approval === "none" ? none : statusCard.missing_approval]] : []),
     ...(!approvalReady && statusCard.next_gate_after_approval !== "none" ? [[labels.nextGate, statusCard.next_gate_after_approval]] : []),
     ...(!approvalReady && statusCard.allowed_after_approval !== "none" ? [[labels.allowedAfter, allowedAfter]] : []),
@@ -1192,3 +1198,21 @@ export const interactionPresentationConstants = Object.freeze({
   approvalSequence: APPROVAL_SEQUENCE,
   qualityDimensions: QUALITY_DIMENSIONS,
 });
+
+// Presentation only: lifecycle selection and completeness belong to Doctor's canonical inventory.
+export function renderActiveRunInventory(report, registry, language) {
+  const copy = localePack(registry, language).activeRunInventory;
+  if (!copy) throw new Error("active_run_inventory_copy_missing");
+  const { state, active_count: count } = report.inventory;
+  const lines = [state === "absent" ? copy.absentDescription
+    : state === "complete" && count === 0 ? copy.noneDescription
+      : copy.countDescription.replace("{count}", String(count))];
+  if (state === "incomplete") lines.push("", copy.incompleteDescription);
+  if (report.runs.length) lines.push("", ...report.runs.map((run) => `- \`${run.run_id}\``));
+  if (report.findings.length) {
+    const safe = (value) => String(value).replace(/[\r\n`|]/gu, " ");
+    lines.push("", copy.findingsDescription, "",
+      ...report.findings.map((finding) => `- \`${safe(finding.code)}\`${finding.run_id ? ` · \`${safe(finding.run_id)}\`` : ""}`));
+  }
+  return { markdown: lines.join("\n"), authorizes: false };
+}

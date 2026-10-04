@@ -1,4 +1,5 @@
 import { assertApprovalOperationsChange, readApprovalOperations, validApprovalReceipt } from "./approval-operations.js";
+import { assertArtefactBindingsChange, validArtefactBinding } from "./artefact-bindings.js";
 import { randomUUID } from "node:crypto";
 import {
   closeSync,
@@ -183,7 +184,7 @@ export function withRunLock(path, work, options) {
   return withOwnedFileLock(path, work, options);
 }
 
-export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, checkpoint } = {}) {
+export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, checkpoint } = {}) {
   const root = runRootFromStatePath(path);
   if (!allowPendingTransaction && existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
     throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
@@ -204,6 +205,11 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
     }
 
     assertApprovalOperationsChange(currentContent, content, appendedReceipt);
+    assertArtefactBindingsChange(currentContent, content, appendedBinding);
+    if (appendedBinding && (!validArtefactBinding(appendedBinding) || allowApprovalChange
+        || appendedBinding.run_id !== current.meta.run_id || appendedBinding.operation.previous_revision_id !== expectedRevisionId
+        || appendedBinding.operation.resulting_revision_id !== nextRevisionId
+        || appendedBinding.operation.revision !== Number(current.meta.revision) + 1)) throw new Error("AGDF_ARTEFACT_BINDINGS_INVALID");
     if (appendedReceipt && (!allowApprovalChange || !validApprovalReceipt(appendedReceipt)
         || appendedReceipt.binding.run_id !== current.meta.run_id
         || appendedReceipt.effect.previous_revision_id !== expectedRevisionId

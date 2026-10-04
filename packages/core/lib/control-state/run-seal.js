@@ -1,5 +1,6 @@
 import { APPROVAL_GATES } from "./run-identity.js";
 import { approvalOperationsRecord, readApprovalOperations } from "./approval-operations.js";
+import { readArtefactBindings } from "./artefact-bindings.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
@@ -105,13 +106,13 @@ export function approvalSeal(content) {
     : ["agdf-approval-seal/2", approvalRecord(content), operations].join("\n"));
 }
 
-export function computeRunSeals(root, content, { selfReferenceDigest = "self" } = {}) {
+export function computeRunSeals(root, content, { selfReferenceDigest = "self", artefactDigests = new Map() } = {}) {
   const text = canonicalRunText(content);
   const runId = scalarFields(text).values.get("run_id");
   const selfPath = `.agdf/control/runs/${runId}/RUN_STATE.md`;
   // The run body is already covered above. Hashing its on-disk copy as an artefact creates
   // a circular dependency and invalidates the seal immediately after every atomic write.
-  const artefacts = listedArtefactPaths(text).map((path) => `${path}\t${path === selfPath ? selfReferenceDigest : artefactFileDigest(root, path)}`);
+  const artefacts = listedArtefactPaths(text).map((path) => `${path}\t${path === selfPath ? selfReferenceDigest : artefactDigests.get(path) ?? artefactFileDigest(root, path)}`);
   return Object.freeze({
     content_seal: sha256(["agdf-run-seal/1", withoutMetaLines(text, REVISION_META_LINE), "\0artefacts", ...artefacts].join("\n")),
     approval_seal: approvalSeal(text),
@@ -142,6 +143,7 @@ export function runSealState(root, content) {
     return Object.freeze({ status: "invalid", recorded });
   }
   if (!readApprovalOperations(text).valid) return Object.freeze({ status: "invalid", recorded });
+  if (!readArtefactBindings(text).valid) return Object.freeze({ status: "invalid", recorded });
   const actual = computeRunSeals(root, text);
   const status = actual.approval_seal !== recorded.approval_seal
     ? "approvals_changed"

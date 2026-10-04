@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "lane": "source / generated candidate; no fresh model session",
+  "attempts": [
+    {
+      "name": "control-state",
+      "exit_code": 0,
+      "log": "tests/control-state.log"
+    },
+    {
+      "name": "run-step-transaction",
+      "exit_code": 0,
+      "log": "tests/run-step-transaction.log"
+    },
+    {
+      "name": "run-lock",
+      "exit_code": 0,
+      "log": "tests/run-lock.log"
+    },
+    {
+      "name": "run-recovery",
+      "exit_code": 0,
+      "log": "tests/run-recovery.log"
+    },
+    {
+      "name": "control-command",
+      "exit_code": 0,
+      "log": "tests/control-command.log"
+    },
+    {
+      "name": "cli-gates",
+      "exit_code": 0,
+      "log": "tests/cli-gates.log"
+    },
+    {
+      "name": "prd-readiness",
+      "exit_code": 0,
+      "log": "tests/prd-readiness.log"
+    },
+    {
+      "name": "run-revision",
+      "exit_code": 0,
+      "log": "tests/run-revision.log"
+    },
+    {
+      "name": "skill-dispatch",
+      "exit_code": 1,
+      "log": "tests/skill-dispatch.log"
+    },
+    {
+      "name": "local-validator",
+      "exit_code": 0,
+      "log": "tests/local-validator.log"
+    },
+    {
+      "name": "interaction-presentation",
+      "exit_code": 0,
+      "log": "tests/interaction-presentation.log"
+    },
+    {
+      "name": "operational-localization",
+      "exit_code": 0,
+      "log": "tests/operational-localization.log"
+    },
+    {
+      "name": "artifact-language",
+      "exit_code": 1,
+      "log": "tests/artifact-language.log"
+    },
+    {
+      "name": "agent-skills-conformance",
+      "exit_code": 0,
+      "log": "tests/agent-skills-conformance.log"
+    },
+    {
+      "name": "skill-dispatch-retry",
+      "exit_code": 0,
+      "log": "tests/skill-dispatch-retry.log"
+    },
+    {
+      "name": "artifact-language-retry",
+      "exit_code": 0,
+      "log": "tests/artifact-language-retry.log"
+    },
+    {
+      "name": "runtime-integrity-layout",
+      "exit_code": 0,
+      "log": "tests/runtime-integrity-layout.log"
+    },
+    {
+      "name": "runtime-integrity-negative",
+      "exit_code": 0,
+      "log": "tests/runtime-integrity-negative.log"
+    },
+    {
+      "name": "instruction-footprint",
+      "exit_code": 1,
+      "log": "tests/instruction-footprint.log"
+    },
+    {
+      "name": "package-boundaries",
+      "exit_code": 0,
+      "log": "tests/package-boundaries.log"
+    },
+    {
+      "name": "provider-boundaries",
+      "exit_code": 0,
+      "log": "tests/provider-boundaries.log"
+    },
+    {
+      "name": "control-state-final",
+      "exit_code": 0,
+      "log": "tests/control-state-final.log"
+    },
+    {
+      "name": "run-step-transaction-final",
+      "exit_code": 0,
+      "log": "tests/run-step-transaction-final.log"
+    },
+    {
+      "name": "cli-gates-final",
+      "exit_code": 0,
+      "log": "tests/cli-gates-final.log"
+    },
+    {
+      "name": "skill-dispatch-final",
+      "exit_code": 0,
+      "log": "tests/skill-dispatch-final.log"
+    },
+    {
+      "name": "intake-continuation",
+      "exit_code": 0,
+      "log": "tests/intake-continuation.log"
+    },
+    {
+      "name": "interaction-presentation-final",
+      "exit_code": 0,
+      "log": "tests/interaction-presentation-final.log"
+    },
+    {
+      "name": "operational-localization-final",
+      "exit_code": 0,
+      "log": "tests/operational-localization-final.log"
+    },
+    {
+      "name": "runtime-integrity-layout-final",
+      "exit_code": 0,
+      "log": "tests/runtime-integrity-layout-final.log"
+    },
+    {
+      "name": "runtime-integrity-negative-final",
+      "exit_code": 1,
+      "log": "tests/runtime-integrity-negative-final.log"
+    },
+    {
+      "name": "instruction-footprint-final",
+      "exit_code": 0,
+      "log": "tests/instruction-footprint-final.log"
+    },
+    {
+      "name": "artifact-language-final",
+      "exit_code": 0,
+      "log": "tests/artifact-language-final.log"
+    },
+    {
+      "name": "agent-skills-conformance-final",
+      "exit_code": 0,
+      "log": "tests/agent-skills-conformance-final.log"
+    },
+    {
+      "name": "runtime-integrity-negative-retry-final",
+      "exit_code": 0,
+      "log": "tests/runtime-integrity-negative-retry-final.log"
+    },
+    {
+      "name": "artefact-final",
+      "exit_code": 0,
+      "log": "tests/artefact-final.log"
+    }
+  ],
+  "notes": [
+    "First skill-dispatch/artifact-language failures overlapped conformance's shared generated asset rebuild; isolated retries passed.",
+    "Initial instruction-footprint exceeded 6900 bytes; shortened canonical skill reference; final suite passed.",
+    "Final runtime-integrity-negative baseline read overlapped instruction-footprint's shared rebuild; serial retry passed.",
+    "Initial sync attempts detected exact payload growth and one concurrent rebuild ENOTEMPTY; reviewed exact inventory budget then serial sync passed; no unused headroom.",
+    "New integrated artefact recording/correction suite passes 178 assertions; included in control-state.",
+    "Projection first observation overlapped instruction-footprint rebuild; separately preserved; final serial content comparison is idempotent."
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "lane": "source renderer only; actual recording/correction tested in control-state",
+  "locales": [
+    "en",
+    "de"
+  ],
+  "renders": [
+    {
+      "locale": "en",
+      "case": "changed_resumption",
+      "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | implement the approved TP tasks<br>run the approved test plan<br>record implementation and test evidence |\n| Forbidden now | claim QA pass<br>request UAT approval<br>release |\n| I am continuing | Resolve the newly recorded scope uncertainty before further work. |\n| Missing approval | none |"
+    },
+    {
+      "locale": "de",
+      "case": "changed_resumption",
+      "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Du bist dran | Ich kann die nächste Aktion des ausgewählten Runs nicht sicher bestimmen. Bitte kläre, was für diesen Run als Nächstes geschehen soll. |\n| Fehlende Freigabe | keine |"
+    },
+    {
+      "locale": "en",
+      "case": "maintenance",
+      "synthetic_renderer_fixture": true,
+      "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | implement the approved TP tasks<br>run the approved test plan<br>record implementation and test evidence |\n| Forbidden now | claim QA pass<br>request UAT approval<br>release |\n| I am continuing | TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence. |\n| Evidence maintenance | The missing artefact relationship was restored from exact sealed reviewed evidence. |\n| Missing approval | none |"
+    },
+    {
+      "locale": "de",
+      "case": "maintenance",
+      "synthetic_renderer_fixture": true,
+      "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren<br>den freigegebenen Testplan ausführen<br>Implementierungs- und Testnachweise erfassen |\n| Aktuell verboten | QA als bestanden erklären<br>die UAT-Freigabe anfordern<br>veröffentlichen |\n| Ich arbeite weiter | TP freigegeben. Keine Antwort nötig. Ich setze den genehmigten Umfang um, führe die Tests aus und erfasse CD+Tests-Nachweise. |\n| Nachweispflege | Die fehlende Artefaktbeziehung wurde anhand des exakten versiegelten Prüfnachweises wiederhergestellt. |\n| Fehlende Freigabe | keine |"
+    },
+    {
+      "locale": "en",
+      "case": "conflicting_relationship",
+      "synthetic_renderer_fixture": true,
+      "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | blocked |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | complete the current control-state fields<br>run doctor again |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>implement gated work before the gate allows it<br>claim QA or release readiness |\n| Blocked by | Required artefact relationships conflict or are duplicated (AGDF_DELIVERY_RELATIONSHIP_CONFLICT) |\n| Affected item | AGDF_DELIVERY_RELATIONSHIP_CONFLICT: SD must be traceable via derived_from PRD. (original wording) |\n| Recovery action | Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete. |\n| I am continuing | Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete. |\n| Missing approval | none |\n| Quality outlook | Resolve blocking or revise-level delivery-map findings before making stronger quality claims. |"
+    },
+    {
+      "locale": "de",
+      "case": "conflicting_relationship",
+      "synthetic_renderer_fixture": true,
+      "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | UR: Fewer intermediate status cards with unchanged control · `agdf-intermediate-status-card-reduction-20261002-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ○ QA · ○ UAT |\n| Status | blockiert |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die aktuellen Felder des Kontrollstatus vervollständigen<br>doctor erneut ausführen |\n| Aktuell verboten | Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen<br>gesperrte Arbeit implementieren, bevor das Gate sie erlaubt<br>QA- oder Veröffentlichungsbereitschaft behaupten |\n| Blockiert durch | Erforderliche Artefaktbeziehungen sind widersprüchlich oder doppelt erfasst (AGDF_DELIVERY_RELATIONSHIP_CONFLICT) |\n| Betroffener Punkt | AGDF_DELIVERY_RELATIONSHIP_CONFLICT: SD must be traceable via derived_from PRD. (Originalwortlaut) |\n| Behebung | Die Zeile im Artefact Chain mit konkretem Nachweis füllen, bevor die Delivery Map als vollständig gilt. |\n| Ich arbeite weiter | Die Zeile im Artefact Chain mit konkretem Nachweis füllen, bevor die Delivery Map als vollständig gilt. |\n| Fehlende Freigabe | keine |\n| Qualitätsausblick | Blockierende Befunde oder Befunde mit Überarbeitungsbedarf aus der Delivery Map beheben, bevor stärkere Qualitätsaussagen getroffen werden. |"
+    }
+  ]
+}

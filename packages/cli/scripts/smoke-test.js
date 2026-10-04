@@ -1336,6 +1336,7 @@ smokePhase("status card tp transition");
 | UR | approved_by | Approval: UR | exact approval |
 | PRD | derived_from | UR | linked |
 | SD | derived_from | PRD | linked |
+| TP | derived_from | SD | TP.md: task T1 mapped to PRD-01 |
 
 ## Evidence
 

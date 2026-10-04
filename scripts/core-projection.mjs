@@ -8,8 +8,10 @@ export const mcpRoot = join(repoRoot, 'packages', 'mcp-server');
 export const coreImports = Object.freeze({ '#agdf-core': './runtime/core/lib/index.js', '#agdf-core/*': './runtime/core/lib/*' });
 export function projectCore(packageRoot, { copilot = false } = {}) {
   const target = join(packageRoot, 'runtime', 'core');
+  // The entire projection is build-owned. Replacing only lib retains sibling copies
+  // that the runtime inventory would otherwise adopt as required payload files.
+  rmSync(target, { recursive: true, force: true });
   mkdirSync(target, { recursive: true });
-  rmSync(join(target, 'lib'), { recursive: true, force: true });
   cpSync(join(coreRoot, 'lib'), join(target, 'lib'), { recursive: true });
   // Only the explicit build-owned resource descriptor differs from private source composition.
   const contracts = copilot ? '../../skills/contracts/' : 'plugins/agdf/meta/contracts/';

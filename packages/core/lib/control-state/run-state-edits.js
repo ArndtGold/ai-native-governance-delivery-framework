@@ -7,6 +7,12 @@ import { existsSync } from "node:fs";
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
 const WRITE_REJECTIONS = new Map([
+  ["AGDF_CORRECTION_COMMIT_UNCONFIRMED", "correction_commit_unconfirmed"],
+  ["AGDF_ARTEFACT_RECORDING_GATE_INVALID", "artefact_recording_gate_invalid"],
+  ["AGDF_ARTEFACT_RECORDING_INPUT_INVALID", "artefact_recording_input_invalid"],
+  ["AGDF_ARTEFACT_BINDING_PROOF_INVALID", "artefact_binding_proof_invalid"],
+  ["AGDF_ARTEFACT_BINDINGS_INVALID", "artefact_bindings_invalid"],
+  ["AGDF_ARTEFACT_BINDINGS_CHANGED", "artefact_bindings_changed"],
   ["AGDF_STALE_RUN_REVISION", "stale_revision"],
   ["AGDF_RUN_WRITE_LOCKED", "run_write_locked"],
   ["AGDF_RUN_APPROVALS_UNRECORDED", "approvals_unrecorded"],
@@ -52,6 +58,7 @@ export function guardedWrite(runId, write) {
     return { rejection: rejected(runId, reason, {
       ...(error.lock_path ? { lock_path: error.lock_path } : {}),
       ...(error.pending_run_id ? { pending_run_id: error.pending_run_id } : {}),
+      ...(error.committed_revision_id ? { committed: true, revision_id: error.committed_revision_id } : {}),
     }) };
   }
 }

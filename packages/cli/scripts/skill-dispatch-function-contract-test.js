@@ -33,7 +33,7 @@ const schema = definition.inputSchema;
 assert.deepEqual(Object.keys(definition), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
 assert.equal(definition.name, "agdf_dispatch");
 assert.deepEqual(definition.annotations, {
-  readOnlyHint: true,
+  readOnlyHint: false,
   destructiveHint: false,
   idempotentHint: true,
   openWorldHint: false,
@@ -261,7 +261,7 @@ console.log("Skill dispatch semantic function contract tests passed");
 const { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTES, controlInspectDefinitionBytes } = await import("#agdf-core/control-inspect/contract.js");
 assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
-assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, definition.annotations);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, { ...definition.annotations, readOnlyHint: true });
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation", "presentation_language", "working_directory"]);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);

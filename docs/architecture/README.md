@@ -5,7 +5,7 @@ Voraussetzungen prüfen, Arbeit vorbereiten, menschliche Entscheidungen erfassen
 prüfen. Der Agent läuft weiterhin in seinem Host, etwa Codex oder Claude Code. AGDF verbindet
 Anweisungen, ausführbare Kontrollen und den dauerhaften Projektzustand unter `.agdf/control/`.
 
-**Stand der redaktionellen Übersicht: 2. Oktober 2026.** Die folgenden Seiten unterscheiden
+**Stand der redaktionellen Übersicht: 3. Oktober 2026, Repository-Quelle.** Die folgenden Seiten unterscheiden
 bestehende Implementierung, vorgeschlagene Weiterentwicklung und noch offene Detailfragen.
 Normative Regeln bleiben in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
 
@@ -14,7 +14,11 @@ Normative Regeln bleiben in den [Runtime-Verträgen](../../plugins/agdf/meta/con
 Der Core wertet den Kontrollzustand aus. Der Dispatcher verwendet diese Auswertung, um dem Agenten
 den nächsten begrenzten Schritt zu liefern. Skills und MCP sind zwei Zugangswege zu denselben
 Diensten. Der Agent führt die Arbeit mit den Werkzeugen seines Hosts aus; separate Writer speichern
-Zustand und Entscheidungen. Reviews, Tests und menschliche Abnahme bewerten die Ergebnisse.
+Zustand und Entscheidungen. Der gemeinsame Core-Einstieg umschließt den lesenden Dispatcher
+mit einer Fortsetzungsorchestrierung. Bei ausdrücklich beauftragter, gebundener Fortsetzung kann
+sie vor der Ausgabe genau eine fehlende Beziehung aus bereits versiegeltem, exakt geprüftem
+Zuordnungsbeleg über den bestehenden Korrekturdienst ergänzen. Anschließend ruft sie den Dispatcher
+mit frischer Auswertung erneut auf. Reviews, Tests und menschliche Abnahme bewerten die Ergebnisse.
 
 ```text
 Mensch beauftragt Arbeit
@@ -49,6 +53,14 @@ Kontrolle tatsächlicher Aktionen und Prüfung ihrer Wirkungen ist Gegenstand de
 Die [Dispatcher-Referenz](02-dispatcher.md#drei-typische-abläufe) erläutert die konkreten Fortsetzungen
 und die kürzeren Wege. Der [Kontrollkatalog im Zielbild](03-agentenkontrolle-zielbild.md#4-kontrollkatalog-und-bindung-konkreter-aktionen)
 beschreibt, wie direkte Umgehungswege künftig verhindert oder ihre Wirkungen erkannt werden sollen.
+
+Innerhalb bereits erlaubter strukturierter Umsetzung liefert der Dispatcher
+`skill_continuation` mit der Phase `implementation`. Routineprüfungen brauchen dabei keine eigene
+Zwischenkarte; Entscheidungen, Blocker, relevante Änderungen und wesentliche Ergebnisse bleiben
+sichtbar. Expliziter Status wird immer frisch und lesend ausgewertet. Die
+[Artefakterfassung und begrenzte Beziehungskorrektur](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur)
+erklärt die gemeinsamen Nachweise und Schreibgrenzen. Diese Beschreibung belegt den Quellstand,
+keine aktualisierte Installation oder bereits beobachtete Verbesserung in einer frischen Host-Sitzung.
 
 ## So gehören die Dokumente zusammen
 

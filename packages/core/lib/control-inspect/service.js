@@ -4,7 +4,7 @@ import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprov
 import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateDeliveryMap } from "../control-evaluation/delivery-map.js";
 import { readRuntimeContract } from "../resources/contracts.js";
-import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
+import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
 import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput } from "./contract.js";
@@ -193,7 +193,8 @@ export function createControlInspectService(dependencies = {}) {
         switch (input.operation) {
           case "doctor": {
             const evaluated = doctor(target.governance_target, selection);
-            return { report: evaluated, presentation: null };
+            return { report: evaluated, presentation: input.all_active
+              ? renderActiveRunInventory(evaluated, rawInput.interactionLocales, input.presentation_language) : null };
           }
           case "gate-check": {
             const evaluate = () => gateCheck(target.governance_target, { ...selection, presentationLanguage: input.presentation_language });

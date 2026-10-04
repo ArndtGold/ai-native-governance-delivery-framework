@@ -55,6 +55,30 @@ artifact must be prepared. This non-authorizing operation is authoritative route
 only hands it to the named skill and must not duplicate its eligibility rules. It is null when no such
 preparation is currently required.
 
+### Routine Continuation And Visible Events
+
+Within one exactly bound, already permitted internal step, consume nonterminal continuation
+packets and retain every required evaluation and evidence checkpoint without a separate status
+invocation or chat card for each check. Brief progress and one concise reviewable result are
+sufficient for unchanged routine work. Visibility never determines whether a check executes.
+
+Show decisions, concrete blockers, relevant risk or uncertainty, target/run/scope/permission
+changes and significant reviewable outcomes before dependent work. Preserve their canonical
+presentations and complete approval orientation. Explicit status always performs a fresh read-only
+evaluation and shows the full canonical status; never disguise it as delivery continuation.
+After interruption revalidate the binding; unchanged resumption needs no duplicate card, while
+material changes must be surfaced. Do not add persistent last-card state, a second renderer or
+another approval owner. All terminal host_action text remains verbatim and stops the call.
+
+An open structured CD+Tests continuation with fulfilled TP and the canonical implementation/test
+action uses existing skill_continuation phase implementation. It carries current permission,
+target/run/revision and runtime contracts, not another approval. Recorded control changes still
+require same-run gate-check with continue_delivery. It never grants QA, UAT, VCS or release authority.
+
+When a bound authorized continuation corrects one missing relationship from exact previously
+sealed reviewed proof, mention that clerical outcome in the next concise result. No extra approval
+or standalone card is needed. Explicit fresh status retains the correction's audited evidence.
+
 ### Deterministic Operational Presentation
 
 `status_card` is the canonical machine/audit projection. The same evaluation also exposes an additive
@@ -595,8 +619,10 @@ interactions must not display gate-approval controls.
 New approvals require a previously prepared run-present record for the exact run, gate, revision
 and content. Missing or stale bindings require a NEW presentation and NEW deliberate reply;
 never bind an earlier reply to a subsequently prepared revision. Historical recorded approvals
-remain unchanged. Plain gate-check, --approval-envelope and agdf_dispatch stay read-only.
-Their unrecorded previews cannot be used as run-approve evidence.
+remain unchanged. Plain gate-check, --approval-envelope and agdf_dispatch without continue_delivery
+stay read-only. Bound continuation may coordinate one sealed relationship correction through the
+Core continuation service before fresh routing; it creates no approval or presentation binding.
+Unrecorded previews cannot be used as run-approve evidence.
 
 For an implementation request without a confirmed run binding, dispatch intake without run_id
 before inspecting runs. The dispatcher resolves the target and returns resolve_delivery_run before

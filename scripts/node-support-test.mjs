@@ -33,6 +33,23 @@ const guardrails = parse(readFileSync(new URL(".github/workflows/agdf-guardrails
 assert.deepEqual(guardrails.jobs.verify.strategy.matrix.include.map(row => [row.os, row.node]),
   [["ubuntu-latest", 22], ["windows-latest", 22], ["ubuntu-latest", 24]]);
 
+function assertWindowsCheckoutPreconditions(steps) {
+  const checkout = steps.findIndex(step => step.uses?.startsWith("actions/checkout@"));
+  const longPaths = steps.findIndex(step => step.run?.trim() === "git config --global core.longpaths true"
+    && step.if === "runner.os == 'Windows'");
+  assert.ok(longPaths >= 0 && longPaths < checkout, "Windows Git long paths must be enabled before checkout");
+}
+const guardrailSteps = guardrails.jobs.verify.steps;
+assertWindowsCheckoutPreconditions(guardrailSteps);
+const nativeRelease = parse(readFileSync(new URL(".github/workflows/codex-release-e2e.yml", root), "utf8"));
+assertWindowsCheckoutPreconditions(nativeRelease.jobs.native.steps);
+const prerequisite = guardrailSteps.find(step => step.name === "Enable Windows Git long paths");
+const withoutPrerequisite = guardrailSteps.filter(step => step !== prerequisite);
+for (const steps of [withoutPrerequisite, [...withoutPrerequisite, prerequisite],
+  guardrailSteps.map(step => step === prerequisite ? { ...step, if: "runner.os == 'Linux'" } : step),
+  guardrailSteps.map(step => step === prerequisite ? { ...step, run: "git config --global core.longpaths false" } : step),
+]) assert.throws(() => assertWindowsCheckoutPreconditions(steps), /before checkout/);
+
 // Simulate only the version gate, not execution on another Node runtime.
 for (const version of ["18.20.0", "20.19.0", "21.0.0"]) for (const path of [
   "packages/cli/bin/create-agdf.js", "packages/mcp-server/bin/agdf-mcp.js",

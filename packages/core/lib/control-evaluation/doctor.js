@@ -61,6 +61,11 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
       status,
       checked_at: new Date().toISOString(),
       target_dir: targetDir,
+      inventory: {
+        state: !existsSync(join(targetDir, ".agdf", "control")) ? "absent"
+          : selected.findings.length ? "incomplete" : "complete",
+        active_count: runs.length,
+      },
       summary: {
         findings: findings.length,
         block: findings.filter((finding) => finding.severity === "block").length,

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "checks": [
+    {
+      "id": "candidate-behavior-final",
+      "command": [
+        "bash",
+        "-c",
+        "node packages/mcp-server/test/ur-behavior-bindings.mjs && python3 /private/tmp/agdf-ur-final-observations.py && node packages/mcp-server/test/ur-behavior-check.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 10776,
+      "recorded_at": "2026-10-04T12:45:20.879Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-behavior-final.log",
+      "log_sha256": "b01b33360bbacd5eccff819ff4b47a967f99ac1512fc4d82ad202f5c54b85c73",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-final-contracts",
+      "command": [
+        "bash",
+        "-c",
+        "node packages/cli/scripts/local-development-install-test.js && node packages/cli/scripts/agent-skills-conformance-test.js && node packages/cli/scripts/skill-dispatch-function-contract-test.js && node packages/cli/scripts/request-activation-test.js && node packages/cli/scripts/request-activation-evals-test.js && node packages/cli/scripts/skill-evals-test.js && node packages/cli/scripts/intake-continuation-test.js && npm --prefix packages/cli run test:instruction-footprint"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 112439,
+      "recorded_at": "2026-10-04T12:40:35.427Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-final-contracts.log",
+      "log_sha256": "492202c71aa02c79d32dc4cee9bab4d6cf9e78e3933a2fb5019e92ed5d15f366",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-mcp-final",
+      "command": [
+        "bash",
+        "-c",
+        "npm --prefix packages/mcp-server run test:contract && npm --prefix packages/mcp-server run test:continuation && npm --prefix packages/mcp-server run test:protocol && npm --prefix packages/mcp-server run test:safety && npm --prefix packages/mcp-server run test:provenance && npm --prefix packages/mcp-server run test:package && npm --prefix packages/mcp-server run test:sdk-digest"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 63285,
+      "recorded_at": "2026-10-04T12:45:09.858Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-mcp-final.log",
+      "log_sha256": "b0e4229d67ce471fbe0338fb669da4f287877287d7682606a25e6fb6ebbea721",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-activation-owner",
+      "command": [
+        "node",
+        "packages/cli/scripts/request-activation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 3459,
+      "recorded_at": "2026-10-04T11:26:39.926Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-activation-owner.log",
+      "log_sha256": "2bcd6903174878c3e8bb3712264083fbfdf8dd431984944cd8ca91014a75f21c",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-activation",
+      "command": [
+        "node",
+        "packages/cli/scripts/request-activation-evals-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 9776,
+      "recorded_at": "2026-10-04T11:17:11.884Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-activation.log",
+      "log_sha256": "7176de68ca43179d33947280e5ffd0f6fa69764b3e5fb3c39bfd479ad0edbe2f",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-artifact-language",
+      "command": [
+        "node",
+        "packages/cli/scripts/artifact-language-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 9296,
+      "recorded_at": "2026-10-04T11:28:15.527Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-artifact-language.log",
+      "log_sha256": "1e69ece5c6596e0fd4da168297dcf05b1fcfdf5749e6c94068479536974bbff7",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-contract",
+      "command": [
+        "node",
+        "packages/cli/scripts/skill-dispatch-function-contract-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 1664,
+      "recorded_at": "2026-10-04T11:16:45.701Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-contract.log",
+      "log_sha256": "b21c6f02489adb12334367d82a5b4ee2efc273974be1d5f8c962a0e2a81b74e8",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-dispatch",
+      "command": [
+        "node",
+        "packages/cli/scripts/skill-dispatch-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 1647,
+      "recorded_at": "2026-10-04T11:17:03.704Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-dispatch.log",
+      "log_sha256": "9ab956c713fdb37e55c3d1d5e2e283cc376c09f3ce8931c364b7cc90fff44046",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-evals",
+      "command": [
+        "node",
+        "packages/cli/scripts/skill-evals-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 377,
+      "recorded_at": "2026-10-04T11:18:38.964Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-evals.log",
+      "log_sha256": "7ce3eb3152f9afbeb72f33aea5fe2fd923daab0acf3eb37cd2d0bacb79d16228",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-intake",
+      "command": [
+        "node",
+        "packages/cli/scripts/intake-continuation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 50904,
+      "recorded_at": "2026-10-04T11:17:52.942Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-intake.log",
+      "log_sha256": "90421c7db2cf64e56e91f336ab106a5241efd9d42079209d12caff9c8c18cb6a",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-localization",
+      "command": [
+        "node",
+        "packages/core/test/interaction-presentation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 3666,
+      "recorded_at": "2026-10-04T11:28:28.593Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-localization.log",
+      "log_sha256": "1c3e1a98c51a6b00d8e61d2f15e3eb8a00b5f0a0c09b6cd252745c43f0f356e7",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-mcp-clean",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:continuation"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 9550,
+      "recorded_at": "2026-10-04T11:33:07.394Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-mcp-clean.log",
+      "log_sha256": "1d43f6970c3613d41630cf2bf904b8d7c5a50cb1452e2c83405d92289fe3f638",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-mcp",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:continuation"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 1135,
+      "recorded_at": "2026-10-04T11:27:10.377Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-mcp.log",
+      "log_sha256": "87a7e66c3518bfef0425e974dfc3e7c5cca5ef2fbfce25751bb5a5bcfb6664e2",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    }
+  ],
+  "evidence_boundary": "Actual local built/packed/generated CLI and stdio MCP consumers; cooperative Root Codex behavior observations. No native reinstall, independent review, publication or CI claim.",
+  "latest_required_contract_checks_pass": true
+}

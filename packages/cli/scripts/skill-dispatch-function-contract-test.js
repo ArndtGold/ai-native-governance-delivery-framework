@@ -54,7 +54,7 @@ assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
 assert.deepEqual(Object.keys(schema.properties), [
-  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "continue_delivery",
+  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "ur_action", "continue_delivery",
 ]);
 assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
@@ -157,6 +157,20 @@ for (const revision of [undefined, expectedRevision]) {
   assert.equal(validateDispatch(args), accepted, JSON.stringify(args));
 }
 
+for (const fields of [
+  { ur_action: "revise" },
+  { ur_action: "revise", intake: true, intake_mode: "resume" },
+  { ur_action: "revise", intake: true, intake_mode: "new", expected_revision_id: expectedRevision },
+  { ur_action: "approve", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { ur_action: "revise", skill_id: "qa-gate", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { ur_action: "revise", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+]) {
+  const args = { ...deliveryInput, ...fields };
+  let accepted = true;
+  try { normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments(args, transportContext), registry); } catch { accepted = false; }
+  assert.equal(validateDispatch(args), accepted, JSON.stringify(args));
+  assert.equal(accepted, fields.ur_action === "revise" && fields.intake_mode === "resume" && !!fields.expected_revision_id && !fields.skill_id);
+}
 assert.equal(normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput,
   intake: true, intake_mode: "resume", expected_revision_id: expectedRevision }, transportContext), registry).expected_revision_id, expectedRevision);
 for (const fields of [
@@ -228,8 +242,8 @@ assert.throws(
 
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
-assert.match(skillDispatchArgumentGrammar(), /--language <language-tag>/u);
-assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]"));
+assert.match(skillDispatchArgumentGrammar(), /--language <tag>/u);
+assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [--ur-action revise]] [--continue-delivery]"));
 assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
 
 const languageProjection = renderSkillDispatchLanguageProjection();

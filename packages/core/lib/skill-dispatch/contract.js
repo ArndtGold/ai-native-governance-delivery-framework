@@ -61,10 +61,12 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       expected_revision_id: { type: "string", pattern: REVISION_ID_PATTERN.source, description: "Revision from the resolve_delivery_run candidate used for scope matching. Requires intake true, intake_mode resume and run_id. Changed or unavailable binding returns fresh assignment evidence before gate evaluation; it never adopts another run automatically." },
       intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
       intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
+      ur_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved UR. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
       continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
     dependentSchemas: {
+      ur_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
       intake_mode: { required: ["intake", "run_id"], properties: { intake: { const: true } } },
       expected_revision_id: { required: ["intake", "intake_mode", "run_id"], properties: { intake: { const: true }, intake_mode: { const: "resume" } } },
     },
@@ -125,7 +127,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
 export function skillDispatchArgumentGrammar() {
   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
     .map((choice) => choice.const).join("|");
-  return `--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]`;
+  return `--skill <skill-id> --language <tag> --working-directory <absolute> [--target-source <${targetSources}> --primary-target <absolute>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [--ur-action revise]] [--continue-delivery]`;
 }
 
 export function skillDispatchCommandGrammar() {
@@ -236,6 +238,10 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
       || !input.intake || input.intakeMode !== "resume" || !runId)) {
     throw new SkillDispatchInputError("expected_revision_id", "expected_revision_id requires intake_mode resume and run_id");
   }
+  if (input.urAction !== undefined && (input.urAction !== "revise" || skillId !== "gate-check"
+      || !input.intake || input.intakeMode !== "resume" || !runId || !input.expectedRevisionId)) {
+    throw new SkillDispatchInputError("ur_action", "ur_action revise requires gate-check and revision-bound resume intake");
+  }
   if (input.continueDelivery !== undefined && (typeof input.continueDelivery !== "boolean"
       || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
     throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
@@ -252,6 +258,7 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
     intake: input.intake === true,
     intake_mode: input.intakeMode,
     expected_revision_id: input.expectedRevisionId,
+    ur_action: input.urAction,
     continue_delivery: input.continueDelivery === true,
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
@@ -284,6 +291,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     ...(argumentsValue.intake !== undefined ? { intake: argumentsValue.intake } : {}),
     ...(argumentsValue.intake_mode !== undefined ? { intakeMode: argumentsValue.intake_mode } : {}),
     ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),
+    ...(argumentsValue.ur_action !== undefined ? { urAction: argumentsValue.ur_action } : {}),
     ...(argumentsValue.continue_delivery !== undefined ? { continueDelivery: argumentsValue.continue_delivery } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,

@@ -86,8 +86,8 @@ function fixtureCase(mutate, expectedCode, { blocking = true } = {}) {
 
 const source = validateAgentSkillsConformance({ pluginRoot, surfaceRoot: pluginRoot, surface: "source" });
 assert.equal(source.blocking, false, JSON.stringify(source.findings, null, 2));
-assert.equal(source.inspectedSkillCount, 10);
-assert.equal(source.skills.length, 10);
+assert.equal(source.inspectedSkillCount, pluginDefinition.skillSet.length);
+assert.equal(source.skills.length, pluginDefinition.skillSet.length);
 assert.equal(source.skills.every(({ portability }) => portability === "plugin_scoped"), true);
 assert.deepEqual(validateAgentSkillsConformance({ pluginRoot, surfaceRoot: pluginRoot, surface: "source" }), source, "repeated validation must be deterministic");
 const canonicalPolicy = JSON.parse(readFileSync(policySource, "utf8"));
@@ -236,7 +236,7 @@ for (const [surface, generatedPluginRoot, surfaceRoot] of [
 ]) {
   const result = validateAgentSkillsConformance({ pluginRoot: generatedPluginRoot, surfaceRoot, surface });
   assert.equal(result.blocking, false, `${surface}: ${JSON.stringify(result.findings, null, 2)}`);
-  assert.equal(result.inspectedSkillCount, 10, surface);
+  assert.equal(result.inspectedSkillCount, pluginDefinition.skillSet.length, surface);
   assert.equal(result.skills.every(({ portability }) => portability === "plugin_scoped"), true, surface);
 }
 

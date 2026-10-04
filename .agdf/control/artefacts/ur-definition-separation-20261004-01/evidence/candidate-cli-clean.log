@@ -1,0 +1,649 @@
+npm notice run create-agdf@0.14.5 smoke-test
+npm notice run npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (50 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+Public plugin tests passed (53 inventoried candidate files; digest b14ea3c0462142efb4c15bcdcdedb8c3d7ba1ef0f1fbe24588dcff9eeef8eaeb)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest b14ea3c0462142efb4c15bcdcdedb8c3d7ba1ef0f1fbe24588dcff9eeef8eaeb
+npm notice run create-agdf@0.14.5 test:release-workflows
+npm notice run node scripts/release-workflow-contract-test.js
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+npm notice run create-agdf@0.14.5 test:release-registry-state
+npm notice run node scripts/release-registry-state-test.js
+Release registry state classification passed.
+npm notice run create-agdf@0.14.5 test:instruction-footprint
+npm notice run node scripts/instruction-footprint-test.js
+{
+  "status": "pass",
+  "evidence_plane": "source_composed",
+  "profile_surface": "generated_and_temporary_install_fixture",
+  "evaluator_surface": "node_deterministic",
+  "loaded_host_evidence": false,
+  "generated_digest": "9c4ab86a29f83fe9393094c19cae43b8085135c2f78a068d1e7a12385e378ed0",
+  "canonical_kernel_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+  "measurements": [
+    {
+      "surface_id": "activationKernel",
+      "instance_id": "canonical",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-path-search",
+      "raw_bytes": 281,
+      "normalized_bytes": 281,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "brownfield-analysis",
+      "raw_bytes": 361,
+      "normalized_bytes": 361,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ux-intent-definition",
+      "raw_bytes": 376,
+      "normalized_bytes": 376,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "clean-implementation-review",
+      "raw_bytes": 231,
+      "normalized_bytes": 231,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "code-review",
+      "raw_bytes": 243,
+      "normalized_bytes": 243,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-closeout",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ur-definition",
+      "raw_bytes": 252,
+      "normalized_bytes": 252,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "gate-check",
+      "raw_bytes": 419,
+      "normalized_bytes": 419,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "qa-gate",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "release-or",
+      "raw_bytes": 168,
+      "normalized_bytes": 168,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "task-plan-review",
+      "raw_bytes": 227,
+      "normalized_bytes": 227,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "allSkillDiscoveryDescriptions",
+      "instance_id": "definition-order",
+      "raw_bytes": 2930,
+      "normalized_bytes": 2930,
+      "max_normalized_bytes": 3000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "codex",
+      "raw_bytes": 2029,
+      "normalized_bytes": 1898,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "claude",
+      "raw_bytes": 2030,
+      "normalized_bytes": 1899,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "copilot",
+      "raw_bytes": 2031,
+      "normalized_bytes": 1900,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "runtimeCheckSupplement",
+      "instance_id": "codex-consented",
+      "raw_bytes": 1133,
+      "normalized_bytes": 771,
+      "max_normalized_bytes": 1200,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "repository",
+      "raw_bytes": 1496,
+      "normalized_bytes": 1496,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "global-installed",
+      "raw_bytes": 1572,
+      "normalized_bytes": 1572,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeActiveDynamicContext",
+      "instance_id": "active",
+      "raw_bytes": 841,
+      "normalized_bytes": 748,
+      "max_normalized_bytes": 1000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeInactiveDynamicContext",
+      "instance_id": "inactive",
+      "raw_bytes": 0,
+      "normalized_bytes": 0,
+      "max_normalized_bytes": 0,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "repository",
+      "raw_bytes": 2338,
+      "normalized_bytes": 2245,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "global-installed",
+      "raw_bytes": 2414,
+      "normalized_bytes": 2321,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeCompactionAddition",
+      "instance_id": "active",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "canonical-generated",
+      "raw_bytes": 5570,
+      "normalized_bytes": 5570,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "global-installed",
+      "raw_bytes": 6873,
+      "normalized_bytes": 6873,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    }
+  ]
+}
+Instruction-footprint tests passed
+npm notice run create-agdf@0.14.5 test:request-activation
+npm notice run npm run test:instruction-footprint && node scripts/request-activation-test.js && node scripts/request-activation-evals-test.js && npm run test:request-activation-callbacks && npm run test:request-activation-host-schema
+npm notice run create-agdf@0.14.5 test:instruction-footprint
+npm notice run node scripts/instruction-footprint-test.js
+{
+  "status": "pass",
+  "evidence_plane": "source_composed",
+  "profile_surface": "generated_and_temporary_install_fixture",
+  "evaluator_surface": "node_deterministic",
+  "loaded_host_evidence": false,
+  "generated_digest": "9c4ab86a29f83fe9393094c19cae43b8085135c2f78a068d1e7a12385e378ed0",
+  "canonical_kernel_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+  "measurements": [
+    {
+      "surface_id": "activationKernel",
+      "instance_id": "canonical",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-path-search",
+      "raw_bytes": 281,
+      "normalized_bytes": 281,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "brownfield-analysis",
+      "raw_bytes": 361,
+      "normalized_bytes": 361,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ux-intent-definition",
+      "raw_bytes": 376,
+      "normalized_bytes": 376,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "clean-implementation-review",
+      "raw_bytes": 231,
+      "normalized_bytes": 231,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "code-review",
+      "raw_bytes": 243,
+      "normalized_bytes": 243,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-closeout",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ur-definition",
+      "raw_bytes": 252,
+      "normalized_bytes": 252,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "gate-check",
+      "raw_bytes": 419,
+      "normalized_bytes": 419,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "qa-gate",
+      "raw_bytes": 186,
+      "normalized_bytes": 186,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "release-or",
+      "raw_bytes": 168,
+      "normalized_bytes": 168,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "task-plan-review",
+      "raw_bytes": 227,
+      "normalized_bytes": 227,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "allSkillDiscoveryDescriptions",
+      "instance_id": "definition-order",
+      "raw_bytes": 2930,
+      "normalized_bytes": 2930,
+      "max_normalized_bytes": 3000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "codex",
+      "raw_bytes": 2029,
+      "normalized_bytes": 1898,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "claude",
+      "raw_bytes": 2030,
+      "normalized_bytes": 1899,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "copilot",
+      "raw_bytes": 2031,
+      "normalized_bytes": 1900,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "runtimeCheckSupplement",
+      "instance_id": "codex-consented",
+      "raw_bytes": 1133,
+      "normalized_bytes": 771,
+      "max_normalized_bytes": 1200,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "repository",
+      "raw_bytes": 1496,
+      "normalized_bytes": 1496,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "global-installed",
+      "raw_bytes": 1572,
+      "normalized_bytes": 1572,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeActiveDynamicContext",
+      "instance_id": "active",
+      "raw_bytes": 841,
+      "normalized_bytes": 748,
+      "max_normalized_bytes": 1000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeInactiveDynamicContext",
+      "instance_id": "inactive",
+      "raw_bytes": 0,
+      "normalized_bytes": 0,
+      "max_normalized_bytes": 0,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "repository",
+      "raw_bytes": 2338,
+      "normalized_bytes": 2245,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "global-installed",
+      "raw_bytes": 2414,
+      "normalized_bytes": 2321,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeCompactionAddition",
+      "instance_id": "active",
+      "raw_bytes": 1087,
+      "normalized_bytes": 1087,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "canonical-generated",
+      "raw_bytes": 5570,
+      "normalized_bytes": 5570,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "global-installed",
+      "raw_bytes": 6873,
+      "normalized_bytes": 6873,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    }
+  ]
+}
+Instruction-footprint tests passed
+Request activation projection tests passed
+Request Activation eval tests passed (39 cases; source and callback policy current)
+npm notice run create-agdf@0.14.5 test:request-activation-callbacks
+npm notice run node scripts/request-activation-callback-test.js
+Request Activation callback and ordering integration tests passed
+npm notice run create-agdf@0.14.5 test:request-activation-host-schema
+npm notice run node scripts/request-activation-host-schema-test.js
+Request Activation host observation schema tests passed
+npm notice run create-agdf@0.14.5 test:gate-check-missing-control
+npm notice run node scripts/gate-check-missing-control-test.js
+Gate-check missing-control tests passed.
+npm notice run create-agdf@0.14.5 test:canonical-init
+npm notice run node scripts/canonical-init-test.js
+Canonical init tests passed.
+npm notice run create-agdf@0.14.5 test:cli-modularization
+npm notice run node scripts/cli-modularization-test.js
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  {
+    acceptPluginCapabilities: false,
+    allActive: false,
+    approvalEnvelope: false,
+    confirm: false,
+...
+    targetSource: undefined,
++   urAction: undefined,
+    verbose: false,
+    workingDirectory: '/tmp/root',
+    workingDirectoryExplicit: false,
+    workingDirectorySource: 'process_cwd'
+  }
+
+    at file:///private/tmp/agdf-ur-candidate-20261004/packages/cli/scripts/cli-modularization-test.js:68:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    target: 'delivery-path-search',
+    dir: '/tmp/root/workspace',
+    dirInput: 'workspace',
+    dirInputAbsolute: false,
+    force: false,
+    json: false,
+    verbose: false,
+    statusCard: false,
+    approvalEnvelope: false,
+    dirExplicit: true,
+    language: { language: 'default' },
+    languageExplicit: false,
+    surface: 'codex',
+    surfaceExplicit: true,
+    skillId: undefined,
+    intake: false,
+    intakeMode: undefined,
+    urAction: undefined,
+    continueDelivery: false,
+    presentationId: undefined,
+    fixture: '/tmp/root/fixture.json',
+    persist: true,
+    model: undefined,
+    generateCandidates: true,
+    runId: 'run-a',
+    gate: undefined,
+    revisionId: undefined,
+    response: undefined,
+    contractModule: undefined,
+    runStep: undefined,
+    recoveryAction: undefined,
+    recoveryPreviewId: undefined,
+    recoveryConfirmation: undefined,
+    stepFields: {},
+    allActive: false,
+    scope: undefined,
+    confirm: false,
+    shared: false,
+    runtimeChecksDecision: undefined,
+    acceptPluginCapabilities: false,
+    runtimeChecksAction: 'status',
+    mcpAction: undefined,
+    mcpScope: undefined,
+    setupRequest: undefined,
+    controlDir: undefined,
+    controlMigration: undefined,
+    generatorModel: 'g',
+    maxGeneratedCandidates: 3,
+    generationTimeoutMs: 12000,
+    generationCostUnits: 2,
+    targetSource: undefined,
+    primaryTarget: undefined,
+    workingDirectory: '/tmp/root',
+    workingDirectorySource: 'process_cwd',
+    workingDirectoryExplicit: false,
+    targetChanged: false,
+    targetCandidates: [],
+    evidenceSources: []
+  },
+  expected: {
+    target: 'delivery-path-search',
+    dir: '/tmp/root/workspace',
+    dirInput: 'workspace',
+    dirInputAbsolute: false,
+    force: false,
+    json: false,
+    verbose: false,
+    statusCard: false,
+    approvalEnvelope: false,
+    dirExplicit: true,
+    language: { language: 'default' },
+    languageExplicit: false,
+    surface: 'codex',
+    surfaceExplicit: true,
+    skillId: undefined,
+    intake: false,
+    intakeMode: undefined,
+    continueDelivery: false,
+    presentationId: undefined,
+    fixture: '/tmp/root/fixture.json',
+    persist: true,
+    model: undefined,
+    generateCandidates: true,
+    runId: 'run-a',
+    gate: undefined,
+    revisionId: undefined,
+    response: undefined,
+    contractModule: undefined,
+    runStep: undefined,
+    recoveryAction: undefined,
+    recoveryPreviewId: undefined,
+    recoveryConfirmation: undefined,
+    stepFields: {},
+    allActive: false,
+    scope: undefined,
+    confirm: false,
+    shared: false,
+    runtimeChecksDecision: undefined,
+    acceptPluginCapabilities: false,
+    runtimeChecksAction: 'status',
+    mcpAction: undefined,
+    mcpScope: undefined,
+    setupRequest: undefined,
+    controlDir: undefined,
+    controlMigration: undefined,
+    generatorModel: 'g',
+    maxGeneratedCandidates: 3,
+    generationTimeoutMs: 12000,
+    generationCostUnits: 2,
+    targetSource: undefined,
+    primaryTarget: undefined,
+    workingDirectory: '/tmp/root',
+    workingDirectorySource: 'process_cwd',
+    workingDirectoryExplicit: false,
+    targetChanged: false,
+    targetCandidates: [],
+    evidenceSources: []
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:cli-modularization` failed with error:
+npm error code 1
+npm error path /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error workspace create-agdf@0.14.5
+npm error location /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error command failed
+npm error command sh -c node scripts/cli-modularization-test.js

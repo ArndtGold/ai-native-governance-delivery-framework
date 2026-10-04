@@ -80,6 +80,9 @@ Do not infer approval from "ok", "go ahead", "do it", "approved", "continue", "l
 Those phrases may express intent to proceed, but they do not unlock a gate unless the exact gate formula is present.
 Do not infer active scope from branch names, uncommitted workspace deltas, chat history or generated summaries when durable artefacts point elsewhere.
 If multiple active scopes are plausible, list the evidenced lines and route to `gate-check` or workstate clarification instead of choosing silently.
+Before UR approval, delegate the bound requirement draft and material clarification to
+`ur-definition`. Gate-check keeps control, readiness and presentation ownership.
+
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
 Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`.
 That same review records the shared UI/UX impact classification. Run `ux-intent-definition` before
@@ -103,6 +106,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
+| `ur-definition` | drafting or revising an unapproved UR after bound dispatch | owns requirement drafting and clarification; never approves or changes approved intent |
 | `gate-check` | any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
 | `qa-gate` | sole final Quality Readiness decision | only instance for `pass | revise | block` |
 | `release-or` | auditable closeout for every relevant run | not a QA substitute |

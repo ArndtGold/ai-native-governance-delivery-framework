@@ -106,6 +106,8 @@
 
 ### CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY
 
+- ur_definition_separation_20261004: The canonical ur-definition skill owns unapproved requirement drafting and material clarification. Core dispatch binds target/run/revision and routes only eligible UR work; existing run-step/run-update and run-present retain recording and deliberate approval ownership. New marked drafts must be complete before presentation; marker absence preserves legacy behavior. Approved URs remain protected. Sources: plugins/agdf/skills/ur-definition/SKILL.md; plugins/agdf/meta/contracts/ur-definition.md; packages/core/lib/skill-dispatch/delivery-intake.js; packages/core/lib/control-evaluation/ur-readiness.js; docs/architecture/02-dispatcher.md. Evidence: .agdf/control/artefacts/ur-definition-separation-20261004-01/. Local built/source evidence does not imply native installation or release readiness.
+
 - host_native_plugin_root_2026_09_08: A surface that receives both plugin-root variables must use
   its native root first. Codex selects `PLUGIN_ROOT` before `CLAUDE_PLUGIN_ROOT`; Claude Code uses
   the reverse order. Copilot accepts only `PLUGIN_ROOT`, while OpenCode has no plugin-root binding.

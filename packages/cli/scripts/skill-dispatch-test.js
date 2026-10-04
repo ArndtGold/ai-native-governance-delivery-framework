@@ -14,7 +14,7 @@ const skillSet = [
   { slug: "qa-gate", dispatch: { mode: "judgement_required", requiresControlSnapshot: true } },
 ];
 const completeRegistry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
-assert.equal(completeRegistry.size, 10);
+assert.equal(completeRegistry.size, pluginDefinition.skillSet.length);
 assert.deepEqual([...completeRegistry.keys()].sort(), pluginDefinition.skillSet.map(({ slug }) => slug).sort());
 assert.equal(completeRegistry.get("gate-check").dispatch_mode, "deterministic_control");
 for (const [skillId, entry] of completeRegistry) {
@@ -378,16 +378,6 @@ assert.equal(Object.isFrozen(runMissing.continuation), true);
 assert.equal(Object.isFrozen(runMissing.continuation.steps[0]), true);
 assert.equal(intakeCalls.at(-1).target, "/tmp/agdf-repo");
 assert.equal(intakeCalls.at(-1).control, gateReport);
-
-intakeState = { phase: "ur_missing", run_id: "delivery-run", revision_id: "rev-1" };
-const urMissing = intakeDispatch(intakeInput);
-assert.equal(urMissing.outcome, "intake_continuation");
-assert.equal(urMissing.continuation.run_id, "delivery-run");
-assert.equal(urMissing.continuation.revision_id, "rev-1");
-assert.deepEqual(urMissing.continuation.steps.map((step) => step.id), ["write_ur", "record_ur", "dispatch_again"]);
-assert.equal(urMissing.continuation.steps[0].path, ".agdf/control/artefacts/delivery-run/UR.md");
-assert.match(urMissing.continuation.steps[1].command, /--run delivery-run --revision rev-1 --step ur --title/u);
-assert.match(urMissing.continuation.steps[2].rule, /again with intake, intake_mode resume and run_id delivery-run/u);
 
 intakeState = null;
 const intakeReady = intakeDispatch(intakeInput);

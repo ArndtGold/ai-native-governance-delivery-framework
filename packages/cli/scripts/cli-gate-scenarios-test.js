@@ -70,7 +70,7 @@ function newUrWithoutArtefact() {
     assert.equal(preview.outcome, "control_result");
     assert.doesNotMatch(preview.host_action.text, /Approval: UR|Freigabe anfordern/u);
     const intake = dispatch({ root, runId }, "--intake");
-    assert.equal(intake.continuation.phase, "ur_missing");
+    assert.equal(intake.continuation.phase, "ur_definition");
     assert.equal(intake.continuation.revision_id, revisionId);
     const presentation = json(["run-present", "--dir", root, "--run", runId, "--gate", "UR",
       "--revision", revisionId], 2);

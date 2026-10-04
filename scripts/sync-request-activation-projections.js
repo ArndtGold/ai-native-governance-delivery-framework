@@ -300,8 +300,8 @@ export function parseRequestActivationOperationCatalog(contractContent) {
 }
 
 function validateSkillSet(definition) {
-  if (!Array.isArray(definition?.skillSet) || definition.skillSet.length !== 10) {
-    throw new Error("pluginDefinition.skillSet must contain exactly ten ordered skills");
+  if (!Array.isArray(definition?.skillSet) || definition.skillSet.length === 0) {
+    throw new Error("pluginDefinition.skillSet must contain a nonempty canonical ordered skill catalog");
   }
   const slugs = new Set();
   for (const skill of definition.skillSet) {

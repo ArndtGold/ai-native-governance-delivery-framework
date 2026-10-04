@@ -1,0 +1,92 @@
+npm notice run create-agdf@0.14.5 test:cli-modularization
+npm notice run node scripts/cli-modularization-test.js
+cli modularization tests passed
+npm notice run create-agdf@0.14.5 test:install-setup-contract
+npm notice run node scripts/install-setup-contract-test.js
+install setup contract tests passed
+npm notice run create-agdf@0.14.5 test:install-setup-interaction
+npm notice run node scripts/install-setup-interaction-test.js
+install setup interaction tests passed
+npm notice run create-agdf@0.14.5 test:install-setup-service
+npm notice run node scripts/install-setup-service-test.js
+install setup service tests passed
+npm notice run create-agdf@0.14.5 test:install-control-migration
+npm notice run node ../core/test/install-control-migration-test.js
+Installation control migration: batch consent, partial migration, read-only deferral, bound snapshots, backups, CLI/JSON and EN/DE rendering passed.
+npm notice run create-agdf@0.14.5 test:install-control-repair
+npm notice run node scripts/install-control-repair-test.js
+Installation repair: 1/2/3, verified checkpoint/Git sources, missing inputs, backups, approval reset, conflicts, interruptions, CLI and EN/DE passed.
+npm notice run create-agdf@0.14.5 test:control-maintenance
+npm notice run node scripts/control-maintenance-test.js && node scripts/control-maintenance-command-test.js && node ./scripts/repository-control-startup-test.js
+Control maintenance shared service and interaction tests passed.
+Control maintenance source/generated command tests passed.
+Repository control bounded startup, consent and reentry tests passed.
+npm notice run create-agdf@0.14.5 test:runtime-check-consent
+npm notice run node scripts/runtime-check-consent-test.js && node scripts/codex-plugin-consent-test.js
+Codex hook observation tests passed.
+Runtime-check consent tests passed
+Codex plugin consent: exact tool policy, readback, disable preservation, failures and input validation passed; revocation removes only the approval key.
+npm notice run create-agdf@0.14.5 test:task-target-resolution
+npm notice run node ../core/test/task-target-resolution-test.js
+task target resolution tests passed
+npm notice run create-agdf@0.14.5 test:skill-dispatch
+npm notice run node ../core/test/skill-names-test.js && node scripts/skill-dispatch-function-contract-test.js && node scripts/skill-dispatch-test.js && node scripts/skill-dispatch-binding-test.js && node scripts/delivery-run-assignment-test.js
+skill names tests passed
+Skill dispatch semantic function contract tests passed
+agdf_inspect function contract pins passed.
+skill dispatch tests passed
+presentation_required preview tests passed.
+40 adapter-to-dispatch cases passed (generated SessionStart and source-composed OpenCode, not loaded-host evidence)
+Skill dispatch binding tests passed
+Delivery run assignment: zero/one/multiple runs, UR references, explicit scope binding, new scope, stale and racing revisions, ambient selector, integrity and EN/DE status passed.
+npm notice run create-agdf@0.14.5 test:control-inspect
+npm notice run node scripts/control-inspect-test.js && node scripts/active-run-inventory-test.js
+control-inspect parity, shared selection, read-only and preview tests passed.
+Active-run inventory routing corpus, target binding, localized output and read-only runtime tests passed.
+npm notice run create-agdf@0.14.5 test:host-command
+npm notice run node scripts/host-command-test.js
+[host-command-test] SKIPPED live Windows shim assertions on darwin
+Host command tests passed
+npm notice run create-agdf@0.14.5 test:mcp-lifecycle
+npm notice run node scripts/mcp-lifecycle-test.js
+AGDF MCP lifecycle, package acquisition and host adapter tests passed.
+npm notice run create-agdf@0.14.5 test:plugin-mcp-runtime
+npm notice run node scripts/plugin-mcp-runtime-test.js
+Plugin MCP runtime tests passed
+npm notice run create-agdf@0.14.5 test:claude-plugin-mcp
+npm notice run node scripts/claude-plugin-mcp-test.js
+Claude plugin MCP tests passed
+npm notice run create-agdf@0.14.5 test:codex-plugin-mcp
+npm notice run node scripts/codex-plugin-mcp-test.js
+Codex plugin MCP tests passed
+npm notice run create-agdf@0.14.5 test:mcp-server
+npm notice run npm --prefix ../mcp-server test
+npm notice run @agdf/mcp-server@0.14.5 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+node:fs:440
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory, open '/private/tmp/agdf-ur-candidate-20261004/packages/mcp-server/node_modules/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json'
+    at readFileSync (node:fs:440:20)
+    at createResourceContext (file:///private/tmp/agdf-ur-candidate-20261004/packages/core/lib/resources/context.js:16:39)
+    at file:///private/tmp/agdf-ur-candidate-20261004/packages/mcp-server/node_modules/create-agdf/lib/runtime/control-context.js:8:26
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/private/tmp/agdf-ur-candidate-20261004/packages/mcp-server/node_modules/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:mcp-server` failed with error:
+npm error code 1
+npm error path /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error workspace create-agdf@0.14.5
+npm error location /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error command failed
+npm error command sh -c npm --prefix ../mcp-server test

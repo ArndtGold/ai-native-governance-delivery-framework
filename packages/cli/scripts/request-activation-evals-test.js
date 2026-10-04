@@ -138,7 +138,7 @@ for (const profileSurface of ["codex", "claude", "copilot", "opencode"]) {
   assert.equal(composition.loaded_profile, false);
   assert.match(composition.fingerprint, /^sha256:[a-f0-9]{64}$/);
   compositionFingerprints.set(profileSurface, composition.fingerprint);
-  assert.equal(composition.components.filter(({ kind }) => kind === "discovery").length, 10);
+  assert.equal(composition.components.filter(({ kind }) => kind === "discovery").length, JSON.parse(readFileSync(join(repoRoot, "plugins/agdf/meta/agdf-plugin.definition.json"), "utf8")).skillSet.length);
   assert.equal(composition.components.filter(({ kind }) => kind === "selected_skill").length, 1);
   assert.match(composition.model_instructions, /AGDF-REQUEST-ACTIVATION-GUARD:START/);
   assert.doesNotMatch(composition.model_instructions, /## Operation Catalog/);

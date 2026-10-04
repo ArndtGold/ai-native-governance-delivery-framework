@@ -1,0 +1,50 @@
+npm notice run create-agdf@0.14.5 test:local-development-install
+npm notice run npm run release:prepare && node scripts/local-development-install-test.js
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (50 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+Public plugin tests passed (54 inventoried candidate files; digest 811b672c36bcf40a7e527859bcff5f5480418ac4ab4cb7424cee9c4eb5e13baa)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest 811b672c36bcf40a7e527859bcff5f5480418ac4ab4cb7424cee9c4eb5e13baa
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 
+[agdf-runtime-integrity] FAIL
+- ur-definition instruction-only dispatch fallback is incomplete
+- ur-definition judgement dispatch must consume skill_continuation
+
+
+1 !== 0
+
+    at file:///private/tmp/agdf-ur-candidate-20261004/packages/cli/scripts/local-development-install-test.js:182:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:local-development-install` failed with error:
+npm error code 1
+npm error path /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error workspace create-agdf@0.14.5
+npm error location /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error command failed
+npm error command sh -c npm run release:prepare && node scripts/local-development-install-test.js

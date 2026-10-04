@@ -414,6 +414,7 @@ function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
   if (!normalized || normalized === "none") return pack.primary.none;
   if (/^[A-Za-z0-9_]+$/.test(normalized)) {
     const reasonKeys = {
+      AGDF_UR_REQUIREMENTS_INCOMPLETE: "blockedUrRequirements",
       AGDF_PRD_DECISIONS_OPEN: "blockedPrdDecisionsOpen",
       AGDF_SD_TRACEABILITY_INCOMPLETE: "blockedSdTraceability",
       AGDF_TP_TRACEABILITY_INCOMPLETE: "blockedTpTraceability",

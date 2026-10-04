@@ -28,7 +28,7 @@ export const INSTRUCTION_FOOTPRINT_SURFACE_IDS = Object.freeze([
 // or terminal-dispatch wording into a second semantic owner. Object-key order is intentionally
 // irrelevant to the schema digest. A semantic change requires an explicitly reviewed validator
 // update, not a silent limit increase, condition weakening or dispatch rewrite.
-const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "21ed53bd49c3bd785e03c475f4ca6f5ec6bcac47bdc09238182a7126b90a2f1a";
+const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "e6ad2b0d5c7fce06bd4f681dd4cf9f51f6dcbd81c182268ab67a15749aa14595";
 const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "a6c88ba3da4a022d0910f59b0bbf1d88726dcbc8077bba0ae6bd00b3bfd9b9e0";
 const AUTHORIZED_OPENCODE_EAGER_FINGERPRINTS = Object.freeze({
   canonical: "f4241ee566b2e2528a6c031281135561b411ac14602958bfdc3219a28db52f3f",
@@ -889,10 +889,10 @@ export function validateInstructionFootprintProfile({
     if (surfaceId === "skillDiscoveryDescription") {
       const actualSlugs = records.map((record) => record?.slug);
       const expectedSlugs = Object.keys(expectedDescriptions);
-      if (expectedSlugs.length !== 10 || JSON.stringify(actualSlugs) !== JSON.stringify(expectedSlugs)) {
+      if (expectedSlugs.length === 0 || JSON.stringify(actualSlugs) !== JSON.stringify(expectedSlugs)) {
         failures.push(failure(
           "AGDF_INSTRUCTION_FOOTPRINT_DESCRIPTION_INVENTORY_INVALID",
-          `${surfaceId} must contain ten unique records in definition order`,
+          `${surfaceId} must contain every canonical skill exactly once in definition order`,
           surfaceId,
         ));
       }

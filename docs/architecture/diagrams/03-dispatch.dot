@@ -20,7 +20,7 @@ digraph dispatch {
   reevaluation [label="Orchestrierung nach bestätigter Korrektur:\nlesendes Routing mit frischer Gate-Auswertung\nFreigaben und zulässiger Umfang unverändert"];
   recovery [label="Terminal: Befund / Recovery\nungültige Eingabe, offenes Ziel, Integritäts-\noder Auswertungsfehler", fillcolor="#FCE8E4", color="#B5675A"];
   terminal [label="Terminal: control_result\nkanonischen Text unverändert zeigen\nund diesen Aufruf beenden", fillcolor="#E5F0FC", color="#5284AD"];
-  work [label="Dispatcher: begrenzten Auftrag liefern\nrun_missing / ur_missing oder Skill\nBrownfield · Gate-Artefakt · Umsetzung · QA · OR"];
+  work [label="Dispatcher: begrenzten Auftrag liefern\nrun_missing / ur_definition oder Skill\nBrownfield · Gate-Artefakt · Umsetzung · QA · OR"];
   implementation [label="implementation: bereits erlaubte CD+Tests\nKontrollen, Tests und Evidenz bleiben Pflicht\nRoutine ohne zusätzliche Statuskarte", fillcolor="#EEE7FC", color="#8268AF"];
   execute [label="Agent: gelieferte Schritte / Skill ausführen\nSchreibschritte über separate kanonische Writer\nkeine Freigabe daraus ableiten", fillcolor="#EEE7FC", color="#8268AF"];
   presentation [label="Dispatcher: presentation_required\nlesende Vorschau + run-present-Schritt"];

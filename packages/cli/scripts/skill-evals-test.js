@@ -12,7 +12,7 @@ import { linkDirectory } from "../../../scripts/support/symlinks.js";
 const root = fileURLToPath(new URL("../../..", import.meta.url));
 const report = runSkillEvals(root);
 assert.equal(report.status, "pass");
-assert.equal(report.canonical_skills, 10);
+assert.equal(report.canonical_skills, JSON.parse(readFileSync(join(root, "plugins/agdf/meta/agdf-plugin.definition.json"), "utf8")).skillSet.length);
 assert.ok(report.cases >= 83);
 assert.match(report.evidence_boundary, /not live host/);
 const definition = JSON.parse(readFileSync(new URL("../../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));

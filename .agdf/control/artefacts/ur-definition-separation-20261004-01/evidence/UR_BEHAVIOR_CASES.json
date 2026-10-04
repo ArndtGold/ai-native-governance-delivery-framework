@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "cooperative_agent_observation",
+  "observer": "Current Codex agent; author and reviewer are the same instance",
+  "recorded_at": "2026-10-04T12:45:18.172302+00:00",
+  "bound_delivery_run": "ur-definition-separation-20261004-01",
+  "tested_instruction_source": "plugins/agdf/skills/ur-definition/SKILL.md",
+  "skill_sha256": "e82f83165735955d7b294ea15af185fc513a7ea6cdc23c014d5af9b35a932c91",
+  "contract_sha256": "6eb3ec9574ccb716c1ab3a234ad515dd443c2b51ec0fcef92b285b0ac04f82c1",
+  "runtime_binding": "Actual built stdio MCP continuation and canonical run-step registration in four owned synthetic runs; current Root Codex authored drafts after consuming returned bindings and focused contract.",
+  "native_host_execution": false,
+  "independent_review": false,
+  "cases": [
+    {
+      "case_id": "complete_request",
+      "input": "Ergänze in der bestehenden Ticketliste einen Filter für offene Tickets für unser Support-Team. Standardmäßig alle Tickets anzeigen. Keine neuen Statuswerte, Rechteänderungen oder Exportfunktionen.",
+      "answered_context": [],
+      "actual_draft": "# UR: Offene Tickets filtern\n\nStatus: draft\nGate: UR\nGate approval: open\nRequirements clarification: complete\n\n## Problem\n\nAnnahme aus dem angefragten Filter: Die bestehende Liste soll offene Tickets für das Support-Team gezielt auffindbar machen.\n\n## Goal\n\nOffene Tickets durch einen Statusfilter schnell eingrenzen.\n\n## Affected Users\n\nDie bereits benannten Support-Mitarbeitenden.\n\n## Scope\n\nStatusfilter für die bestehende Ticketliste; initial ohne Einschränkung.\n\n## Non-Goals\n\nKeine neuen Statuswerte, keine Rechteänderung und kein Export.\n\n## Acceptance Signals\n\nOffene Tickets sind auswählbar; Aufheben des Filters zeigt wieder die vollständige berechtigte Liste.\n\n## Existing Source Of Truth\n\nBestehende Ticketstatus und Zugriffsrechte; die technischen Eigentümer sind im Brownfield Review zu prüfen.\n\n## Risks And Unknowns\n\nPosition und visuelle Gestaltung des Filters bleiben spätere UX-/Designfragen; keine zusätzliche Produktentscheidung angenommen.\n\n## Next Step\n\nDiesen unfreigegebenen Entwurf kanonisch erfassen, frisch prüfen und vor neuer Approval: UR-Antwort präsentieren.\n",
+      "actual_question": null,
+      "expected": "Sofort vollständigen Entwurf erstellen; keine Rückfrage.",
+      "observed": "complete; keine Rückfrage; alle neun Felder; Genehmigung bleibt offen.",
+      "reason": "Zielgruppe, Umfang und Erfolg sind konkret; technische Eigentümer dürfen im Brownfield Review geklärt werden.",
+      "canonical_binding": {
+        "phase": "ur_definition",
+        "skill_id": "ur-definition",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+        "run_id": "ur-behavior-complete-request",
+        "revision_id": "76f84f9a-ae30-444d-8003-b3b0228e7424",
+        "presentation_language": "de",
+        "artifact_path": ".agdf/control/artefacts/ur-behavior-complete-request/UR.md",
+        "template_path": ".agdf/control/templates/artefacts/UR.md",
+        "draft_registered": false,
+        "instruction": "Execute ur-definition with the original request and answered context for this exact unapproved UR. Follow the focused contract, record through the existing canonical writer, then redispatch gate-check. Dispatch approves no gate; a changed draft requires a new presentation and a new deliberate response."
+      },
+      "draft_sha256": "cbcc5f108be99e1bf47b74fd32f5018c05372d454cd22dbb3d4f3351bf98e42d",
+      "recording": {
+        "argv": [
+          "node",
+          "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/node_modules/create-agdf/bin/agdf-validator.js",
+          "run-step",
+          "--dir",
+          "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+          "--run",
+          "ur-behavior-complete-request",
+          "--revision",
+          "76f84f9a-ae30-444d-8003-b3b0228e7424",
+          "--step",
+          "ur",
+          "--title",
+          "Offene Tickets filtern",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"schema_version\": \"1\",\n  \"outcome\": \"recorded\",\n  \"run_id\": \"ur-behavior-complete-request\",\n  \"step\": \"ur\",\n  \"previous_revision_id\": \"76f84f9a-ae30-444d-8003-b3b0228e7424\",\n  \"revision\": \"2\",\n  \"revision_id\": \"fa47f16e-4a8f-4d05-a8bb-fd54a90b62bb\",\n  \"current_gate\": \"UR\",\n  \"next_allowed_action\": \"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\n  \"backlog\": \"updated\"\n}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "case_id": "material_gap",
+      "input": "Baue Benachrichtigungen ein.",
+      "answered_context": [],
+      "actual_draft": "# UR: Benachrichtigungen klären\n\nStatus: draft\nGate: UR\nGate approval: open\nRequirements clarification: open\n\n## Problem\n\nBenachrichtigungen sollen ergänzt werden; auslösender fachlicher Anlass und bisheriges Problem sind noch offen.\n\n## Goal\n\nBetroffene Nutzer rechtzeitig informieren; die konkrete gewünschte Wirkung ist zu klären.\n\n## Affected Users\n\nOffen: betroffene Rollen wurden nicht benannt.\n\n## Scope\n\nOffen: Ereignisse und Kanäle sind noch nicht bestimmt.\n\n## Non-Goals\n\nKeine zusätzlichen Funktionen aus dem unvollständigen Auftrag ableiten.\n\n## Acceptance Signals\n\nOffen: Erfolg hängt von Ereignissen, Empfängern und Kanal ab.\n\n## Existing Source Of Truth\n\nUnbekannt; vorhandene Benachrichtigungswege sind nach Klärung im Brownfield Review zu untersuchen.\n\n## Risks And Unknowns\n\nMaterielle Lücken zu Anlass, Zielgruppe und Umfang verhindern Bereitschaft.\n\n## Next Step\n\nDie gebündelte fachliche Rückfrage beantworten; erst danach den Entwurf vervollständigen.\n",
+      "actual_question": "Welche Ereignisse verursachen heute welches Problem, wer soll darüber informiert werden und über welchen Kanal?",
+      "expected": "Materielle Lücken gemeinsam klären, offenen Entwurf bewahren.",
+      "observed": "open; eine gebündelte semantische Frage; kein erfundener Empfänger oder Kanal.",
+      "reason": "Diese Antworten ändern Problem, Zielgruppe und Umfang.",
+      "canonical_binding": {
+        "phase": "ur_definition",
+        "skill_id": "ur-definition",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+        "run_id": "ur-behavior-material-gap",
+        "revision_id": "e42fb3bd-35f6-4689-aa6b-7fef543ecd85",
+        "presentation_language": "de",
+        "artifact_path": ".agdf/control/artefacts/ur-behavior-material-gap/UR.md",
+        "template_path": ".agdf/control/templates/artefacts/UR.md",
+        "draft_registered": false,
+        "instruction": "Execute ur-definition with the original request and answered context for this exact unapproved UR. Follow the focused contract, record through the existing canonical writer, then redispatch gate-check. Dispatch approves no gate; a changed draft requires a new presentation and a new deliberate response."
+      },
+      "draft_sha256": "87a9b92ed722a92cb18265799fd12888032f976a7471789a284de9e730cd3b1a",
+      "recording": {
+        "argv": [
+          "node",
+          "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/node_modules/create-agdf/bin/agdf-validator.js",
+          "run-step",
+          "--dir",
+          "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+          "--run",
+          "ur-behavior-material-gap",
+          "--revision",
+          "e42fb3bd-35f6-4689-aa6b-7fef543ecd85",
+          "--step",
+          "ur",
+          "--title",
+          "Benachrichtigungen klären",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"schema_version\": \"1\",\n  \"outcome\": \"recorded\",\n  \"run_id\": \"ur-behavior-material-gap\",\n  \"step\": \"ur\",\n  \"previous_revision_id\": \"e42fb3bd-35f6-4689-aa6b-7fef543ecd85\",\n  \"revision\": \"2\",\n  \"revision_id\": \"367efb56-e1f4-4309-8715-c518ac0aec02\",\n  \"current_gate\": \"UR\",\n  \"next_allowed_action\": \"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\n  \"backlog\": \"updated\"\n}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "case_id": "answered_context",
+      "input": "Ergänze jetzt den besprochenen Statusfilter.",
+      "answered_context": [
+        "Support-Mitarbeitende brauchen die bestehende Ticketliste, gefiltert auf offene Tickets.",
+        "Initial alle berechtigten Tickets zeigen.",
+        "Keine neuen Statuswerte, Rechte oder Exporte."
+      ],
+      "actual_draft": "# UR: Besprochenen Ticketfilter ergänzen\n\nStatus: draft\nGate: UR\nGate approval: open\nRequirements clarification: complete\n\n## Problem\n\nAnnahme aus dem angefragten Filter: Die bestehende Liste soll offene Tickets für das Support-Team gezielt auffindbar machen.\n\n## Goal\n\nOffene Tickets durch einen Statusfilter schnell eingrenzen.\n\n## Affected Users\n\nDie bereits benannten Support-Mitarbeitenden.\n\n## Scope\n\nStatusfilter für die bestehende Ticketliste; initial ohne Einschränkung.\n\n## Non-Goals\n\nKeine neuen Statuswerte, keine Rechteänderung und kein Export.\n\n## Acceptance Signals\n\nOffene Tickets sind auswählbar; Aufheben des Filters zeigt wieder die vollständige berechtigte Liste.\n\n## Existing Source Of Truth\n\nBestehende Ticketstatus und Zugriffsrechte; die technischen Eigentümer sind im Brownfield Review zu prüfen.\n\n## Risks And Unknowns\n\nPosition und visuelle Gestaltung des Filters bleiben spätere UX-/Designfragen; keine zusätzliche Produktentscheidung angenommen.\n\n## Next Step\n\nDiesen unfreigegebenen Entwurf kanonisch erfassen, frisch prüfen und vor neuer Approval: UR-Antwort präsentieren.\n",
+      "actual_question": null,
+      "expected": "Bestätigten Kontext verwenden, nichts erneut fragen.",
+      "observed": "complete; Kontext vollständig übernommen; keine doppelte Rückfrage.",
+      "reason": "Das aktuelle kurze Kommando ist durch beantworteten Kontext hinreichend konkret.",
+      "canonical_binding": {
+        "phase": "ur_definition",
+        "skill_id": "ur-definition",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+        "run_id": "ur-behavior-answered-context",
+        "revision_id": "7358b2f7-5b53-4d81-a99e-a2a94ea91070",
+        "presentation_language": "de",
+        "artifact_path": ".agdf/control/artefacts/ur-behavior-answered-context/UR.md",
+        "template_path": ".agdf/control/templates/artefacts/UR.md",
+        "draft_registered": false,
+        "instruction": "Execute ur-definition with the original request and answered context for this exact unapproved UR. Follow the focused contract, record through the existing canonical writer, then redispatch gate-check. Dispatch approves no gate; a changed draft requires a new presentation and a new deliberate response."
+      },
+      "draft_sha256": "1f591c7f244e2ccb8a6c8b3187d167f532ede453926d1da4f3ce874550ef6f79",
+      "recording": {
+        "argv": [
+          "node",
+          "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/node_modules/create-agdf/bin/agdf-validator.js",
+          "run-step",
+          "--dir",
+          "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+          "--run",
+          "ur-behavior-answered-context",
+          "--revision",
+          "7358b2f7-5b53-4d81-a99e-a2a94ea91070",
+          "--step",
+          "ur",
+          "--title",
+          "Besprochenen Ticketfilter ergänzen",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"schema_version\": \"1\",\n  \"outcome\": \"recorded\",\n  \"run_id\": \"ur-behavior-answered-context\",\n  \"step\": \"ur\",\n  \"previous_revision_id\": \"7358b2f7-5b53-4d81-a99e-a2a94ea91070\",\n  \"revision\": \"2\",\n  \"revision_id\": \"0c5d1f42-b071-479b-956f-6fc29adeaca7\",\n  \"current_gate\": \"UR\",\n  \"next_allowed_action\": \"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\n  \"backlog\": \"updated\"\n}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "case_id": "minor_gap",
+      "input": "In der bestehenden Fehlerdetailansicht soll die sichtbare Fehler-ID per Klick kopierbar sein. Nutzer sollen sie nicht mehr manuell abtippen müssen. Keine weiteren Daten kopieren.",
+      "answered_context": [],
+      "actual_draft": "# UR: Fehler-ID kopieren\n\nStatus: draft\nGate: UR\nGate approval: open\nRequirements clarification: complete\n\n## Problem\n\nNutzer tippen Fehler-IDs aus der Fehlerdetailansicht manuell ab.\n\n## Goal\n\nDie vorhandene Fehler-ID direkt kopieren können.\n\n## Affected Users\n\nNutzer der bestehenden Fehlerdetailansicht.\n\n## Scope\n\nKopieraktion für die bereits sichtbare Fehler-ID.\n\n## Non-Goals\n\nKeine weiteren Daten kopieren; keine zusätzlichen Diagnosedaten ableiten.\n\n## Acceptance Signals\n\nDie Kopieraktion übernimmt die angezeigte ID exakt in die Zwischenablage.\n\n## Existing Source Of Truth\n\nDie vorhandene angezeigte Fehler-ID; deren technischer Eigentümer wird im Brownfield Review ermittelt.\n\n## Risks And Unknowns\n\nAnnahme: Position und Icon sind Detailgestaltung und verändern den beschriebenen Bedarf nicht. Technische Plattformgrenzen und Rückmeldung werden später geprüft.\n\n## Next Step\n\nEntwurf erfassen und frisch zur menschlichen UR-Freigabe präsentieren.\n",
+      "actual_question": null,
+      "expected": "Konkreten Bedarf entwerfen, unwesentliche Gestaltung offen markieren.",
+      "observed": "complete; Position/Icon als Annahme markiert; keine vorschnelle technische Festlegung.",
+      "reason": "Detailgestaltung und Plattformprüfung verändern den benannten Bedarf nicht.",
+      "canonical_binding": {
+        "phase": "ur_definition",
+        "skill_id": "ur-definition",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+        "run_id": "ur-behavior-minor-gap",
+        "revision_id": "97638e6e-3efa-4ca7-a249-63c2044faf9f",
+        "presentation_language": "de",
+        "artifact_path": ".agdf/control/artefacts/ur-behavior-minor-gap/UR.md",
+        "template_path": ".agdf/control/templates/artefacts/UR.md",
+        "draft_registered": false,
+        "instruction": "Execute ur-definition with the original request and answered context for this exact unapproved UR. Follow the focused contract, record through the existing canonical writer, then redispatch gate-check. Dispatch approves no gate; a changed draft requires a new presentation and a new deliberate response."
+      },
+      "draft_sha256": "8c7b8227119f1764fa039f4e1dd114508f657b8bfdd8356bf00e7e1e6d2e5c6e",
+      "recording": {
+        "argv": [
+          "node",
+          "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/node_modules/create-agdf/bin/agdf-validator.js",
+          "run-step",
+          "--dir",
+          "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-X6gplQ/behavior-target",
+          "--run",
+          "ur-behavior-minor-gap",
+          "--revision",
+          "97638e6e-3efa-4ca7-a249-63c2044faf9f",
+          "--step",
+          "ur",
+          "--title",
+          "Fehler-ID kopieren",
+          "--json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\n  \"schema_version\": \"1\",\n  \"outcome\": \"recorded\",\n  \"run_id\": \"ur-behavior-minor-gap\",\n  \"step\": \"ur\",\n  \"previous_revision_id\": \"97638e6e-3efa-4ca7-a249-63c2044faf9f\",\n  \"revision\": \"2\",\n  \"revision_id\": \"68fdf57d-7ac5-455f-8c18-ed436065f9c7\",\n  \"current_gate\": \"UR\",\n  \"next_allowed_action\": \"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\",\n  \"backlog\": \"updated\"\n}\n",
+        "stderr": ""
+      }
+    }
+  ]
+}

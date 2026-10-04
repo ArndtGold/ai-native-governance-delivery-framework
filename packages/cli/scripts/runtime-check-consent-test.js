@@ -261,7 +261,7 @@ try {
   assert.deepEqual(Object.keys(base.binding), ["schema_version", "executable", "argv_prefix", "environment", "arguments", "expected_version", "request_activation", "route_source_after_activation", "authorizes"]);
   assert.equal(base.binding.schema_version, "2");
   assert.deepEqual(base.binding.environment, {});
-  assert.match(base.binding.arguments, /--working-directory <absolute-path>/);
+  assert.match(base.binding.arguments, /--working-directory <absolute>/);
   assert.doesNotMatch(base.binding.arguments, /--cwd/);
   assert.deepEqual(base.binding.argv_prefix.slice(1), ["skill-dispatch", "--json", "--surface", "codex"]);
   assert.deepEqual(base.binding.request_activation, {

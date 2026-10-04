@@ -49,6 +49,8 @@ Use `continuation.skill_id` per interaction policy; stop at decisions/blockers.
 
 ## Executable Dispatch
 
+UR content is delegated through `phase: ur_definition` to `ur-definition`; never draft it here.
+
 Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
 If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only
 `environment`, declared `arguments`. Quote shell data; CLI revision uses `--revision`.

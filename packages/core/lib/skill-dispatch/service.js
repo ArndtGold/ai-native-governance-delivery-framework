@@ -4,7 +4,7 @@ import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
-import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, quoteDispatchArgument } from "./delivery-intake.js";
+import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, urDefinitionPhase, quoteDispatchArgument } from "./delivery-intake.js";
 import { deliveryRunAssignmentContinuation, readDeliveryRunInventory } from "./delivery-run-assignment.js";
 import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
 
@@ -260,7 +260,7 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       };
-      if (input.intake && (!input.run_id || input.expected_revision_id)) {
+      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (skill.skill_id === "ur-definition" && !input.run_id)) {
         let candidates;
         try {
           validateControlReadBoundary?.(target.governance_target);
@@ -288,7 +288,7 @@ export function createSkillDispatchService(dependencies = {}) {
         validateControlReadBoundary?.(target.governance_target);
         return evaluateGate(target.governance_target, {
           ...(input.run_id ? { runId: input.run_id } : {}),
-          ...(input.intake ? { ignoreRunIdEnv: true } : {}),
+          ...((input.intake || skill.skill_id === "ur-definition") ? { ignoreRunIdEnv: true } : {}),
           presentationLanguage: input.presentation_language,
         });
       });
@@ -316,7 +316,33 @@ export function createSkillDispatchService(dependencies = {}) {
           : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
         return bindHostAction(result);
       }
-      if (intake) {
+      const urPhase = urDefinitionPhase(target.governance_target, control, input);
+      if (urPhase) {
+        const urSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("ur-definition");
+        if (!urSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill: urSkill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({ ...urPhase,
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
+            () => dependencies.readSkillRuntimeContracts("ur-definition")) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      if (input.ur_action && !urPhase) {
+        // A declined revision route cannot turn into post-UR or later artefact preparation.
+        if (!control.status_presentation) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
+        const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.presentation = control.status_presentation;
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      // Direct UR invocation must not fall through to the generic judgement writer route.
+      if (skill.skill_id === "ur-definition") skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
+      if (intake?.phase === "run_missing") {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);

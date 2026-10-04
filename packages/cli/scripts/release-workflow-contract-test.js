@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
+import { verificationPlan } from "../../../scripts/verify-ci.mjs";
 
 // Validate the actual npm entrypoints, including suites not reached by individual probes.
 const packageRoot = new URL("../", import.meta.url);
@@ -25,16 +26,32 @@ const publish = YAML.parse(publishText);
 const guardrails = YAML.parse(guardrailsText);
 const native = YAML.parse(nativeText);
 const evidence = YAML.parse(evidenceText);
+// Expand shared plan steps for the same ordering assertions as direct workflow commands.
+function expandVerificationSteps(steps) {
+  return steps.flatMap(step => {
+    const invocation = /^node scripts\/verify-ci\.mjs --(stage|lane) ([\w-]+)$/u.exec(step.run ?? '');
+    if (!invocation) return [step];
+    return verificationPlan({ [invocation[1]]: invocation[2] }).flatMap(stage => stage.commands.map(command => ({
+      run: `${command.tool} ${command.args.join(' ')}`, ...(command.cwd ? { 'working-directory': command.cwd } : {}),
+    })));
+  });
+}
+const sharedGuardrails = guardrails.jobs.verify.steps.filter(step => String(step.run ?? '').includes('scripts/verify-ci.mjs'));
+assert.equal(sharedGuardrails.length, 1, 'Guardrails must execute the complete shared plan once');
+assert.equal(sharedGuardrails[0].run, "node scripts/verify-ci.mjs --lane ${{ matrix.repository_checks && 'repository' || 'runtime' }}");
+const guardrailPlan = verificationPlan().flatMap(stage => stage.commands.map(command => ({
+  run: `${command.tool} ${command.args.join(' ')}`, ...(command.cwd ? { 'working-directory': command.cwd } : {}),
+})));
 function assertFixtureDependencies(steps) {
   const installs = steps.map((step, index) => ({ step, index })).filter(({ step }) =>
     step['working-directory'] === 'packages/mcp-server' && step.run === 'npm ci --ignore-scripts');
   const fixture = steps.findIndex(step => String(step.run ?? '').includes('test:host-compatibility'));
-  const prepare = steps.findIndex(step => String(step.run ?? '').includes('npm run build') && String(step.run ?? '').includes('release:prepare'));
+  const prepare = steps.findIndex(step => String(step.run ?? '').includes('release:prepare'));
   assert.equal(installs.length, 1, 'source fixtures require one locked MCP dependency installation');
   assert.ok(prepare >= 0 && prepare < installs[0].index, 'CLI payloads must be prepared before MCP packs its local dependency');
   assert.ok(fixture >= 0 && installs[0].index < fixture, 'MCP dependencies must be installed before host compatibility fixtures');
 }
-for (const steps of [guardrails.jobs.verify.steps, evidence.jobs.record.steps]) {
+for (const steps of [guardrailPlan, expandVerificationSteps(evidence.jobs.record.steps)]) {
   assertFixtureDependencies(steps);
   const missing = steps.filter(step => step['working-directory'] !== 'packages/mcp-server');
   assert.throws(() => assertFixtureDependencies(missing), /one locked MCP dependency installation/);
@@ -58,7 +75,7 @@ assert.deepEqual(evidence.jobs.publish.permissions, { contents: "write", "pull-r
 for (const job of Object.values(evidence.jobs)) {
   assert.equal(job.steps.find(step => step.uses?.startsWith("actions/checkout@")).with["persist-credentials"], false);
 }
-const evidenceSteps = evidence.jobs.record.steps;
+const evidenceSteps = expandVerificationSteps(evidence.jobs.record.steps);
 const evidenceIndex = needle => evidenceSteps.findIndex(step => String(step.run ?? "").includes(needle));
 assert.ok(evidenceIndex("npm ci --ignore-scripts") < evidenceIndex("release:prepare"));
 assert.ok(evidenceIndex("release:prepare") < evidenceIndex("await recordComparison()"));

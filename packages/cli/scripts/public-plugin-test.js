@@ -155,8 +155,11 @@ for (const forbiddenKey of ["inquiryUrl", "sessionUrl", "identityDocument", "ide
   assert.equal(new RegExp(`\\"${forbiddenKey}\\"\\s*:`, "i").test(evidenceText), false, `evidence templates must not define ${forbiddenKey}`);
 }
 const workflow = readFileSync(join(repoRoot, ".github", "workflows", "agdf-guardrails.yml"), "utf8");
-assert.equal(workflow.includes("npm --prefix packages/cli run release:prepare"), true, "CI must execute canonical release preparation");
-assert.equal(workflow.includes("npm --prefix pages run test:public-documents"), true, "CI must execute public policy route validation");
+assert.equal(workflow.includes("node scripts/verify-ci.mjs --lane"), true, "CI must execute the shared verification plan");
+const { verificationPlan } = await import("../../../scripts/verify-ci.mjs");
+const commands = verificationPlan().flatMap(stage => stage.commands.map(command => `${command.tool} ${command.args.join(' ')}`));
+assert.equal(commands.includes("npm --prefix packages/cli run release:prepare"), true, "CI must execute canonical release preparation");
+assert.equal(commands.includes("npm --prefix pages run test:public-documents"), true, "CI must execute public policy route validation");
 for (const forbidden of ["OPENAI_API_KEY", "PERSONA", "portal publish", "portal submit"]) {
   assert.equal(workflow.includes(forbidden), false, `CI must not receive or perform ${forbidden}`);
 }

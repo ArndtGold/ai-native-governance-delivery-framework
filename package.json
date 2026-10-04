@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:maintenance-contracts": "node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
+    "test:maintenance-contracts": "npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
     "check:community-health": "node scripts/check-community-health.mjs",
     "install:claude": "npm --prefix packages/cli run install:claude",
     "install:codex": "npm --prefix packages/cli run install:codex",
@@ -25,7 +25,10 @@
     "build": "node scripts/sync-package-assets.js && node scripts/assemble-npm.mjs",
     "sync-package-assets": "node scripts/sync-package-assets.js",
     "pack": "npm run build && node scripts/pack-npm.mjs",
-    "mcp:sdk-digest": "node scripts/write-mcp-sdk-digest.mjs"
+    "mcp:sdk-digest": "node scripts/write-mcp-sdk-digest.mjs",
+    "verify:ci": "node scripts/verify-ci.mjs",
+    "verify:commit": "node scripts/verify-commit.mjs",
+    "test:verification": "node --test scripts/verification-test.mjs"
   },
   "devDependencies": {
     "acorn": "8.17.0",

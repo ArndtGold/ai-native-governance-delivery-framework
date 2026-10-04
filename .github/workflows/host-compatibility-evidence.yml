@@ -29,13 +29,12 @@ jobs:
           node-version: 22
           cache: npm
       - name: Install repository dependencies
-        run: npm ci --ignore-scripts
+        run: node scripts/verify-ci.mjs --stage dependencies
       - name: Prepare release payloads
-        run: npm run build && npm --prefix packages/cli run release:prepare
+        run: node scripts/verify-ci.mjs --stage prepare
       # file:../cli must contain its generated payload before npm packs it.
       - name: Install MCP validation dependencies from checkout
-        working-directory: packages/mcp-server
-        run: npm ci --ignore-scripts
+        run: node scripts/verify-ci.mjs --stage mcp-dependencies
       - name: Refresh only stale source evidence
         id: refresh
         run: |

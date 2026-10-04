@@ -222,21 +222,13 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
 {
   const guardrailsWorkflowPath = fileURLToPath(new URL("../../.github/workflows/agdf-guardrails.yml", packageRoot));
   const guardrailsWorkflow = readFileSync(guardrailsWorkflowPath, "utf8");
-  const syncMarker = "run: npm run build && npm --prefix packages/cli run release:prepare";
-  const runtimeIntegrityMarker = "run: node plugins/agdf/scripts/check-runtime-integrity.mjs";
-  const communityHealthMarker = "run: npm run test:community-health && npm run check:community-health";
-  const deliveryMapMarker = "run: node packages/cli/bin/create-agdf.js delivery-map --dir . --all-active";
-  if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(runtimeIntegrityMarker)
-    || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(runtimeIntegrityMarker)) {
-    throw new Error("AGDF guardrails must prepare and verify release assets before checking source runtime integrity.");
-  }
-  if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(communityHealthMarker)
-    || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(communityHealthMarker)) {
-    throw new Error("AGDF guardrails must prepare and verify release assets before checking community health compatibility evidence.");
-  }
-  if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(deliveryMapMarker)
-    || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(deliveryMapMarker)) {
-    throw new Error("AGDF guardrails must prepare and verify release assets before running delivery-map directly from source.");
+  if (!guardrailsWorkflow.includes("node scripts/verify-ci.mjs --lane")) throw new Error("Guardrails must use the shared verification plan.");
+  const { verificationPlan } = await import(new URL("../../scripts/verify-ci.mjs", packageRoot));
+  const stages = verificationPlan().map(stage => stage.id);
+  for (const stage of ['runtime', 'community', 'delivery-map']) {
+    if (stages.indexOf('prepare') < 0 || stages.indexOf(stage) < stages.indexOf('prepare')) {
+      throw new Error(`Guardrails must prepare release assets before ${stage}.`);
+    }
   }
 }
 

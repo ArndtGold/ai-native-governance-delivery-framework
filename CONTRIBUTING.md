@@ -133,7 +133,34 @@ Commit the lockfile and `sdk-runtime-digest.json` together. The build refuses a 
 package list no longer matches the lock, and `test:sdk-digest` fails when the committed digest does not
 match the installed tree. Never edit the digest by hand.
 
-Choose the commands relevant to your scope. Larger repository changes typically include:
+### Check the exact commit before pushing
+
+Stage the complete intended change, then run:
+
+```bash
+npm run verify:commit
+```
+
+This exports the Git index into a disposable repository and runs the same ordered verification
+plan as Guardrails. Unstaged edits, untracked files, existing dependencies and generated assets
+cannot repair the snapshot. Your working copy and index remain unchanged. A missing new script
+must be staged along with its callers; rerunning a test against the working copy is insufficient.
+To verify an existing commit instead, use `npm run verify:commit -- --ref HEAD`.
+
+The full plan installs locked repository dependencies, prepares all payloads before installing
+the MCP `file:` dependency, verifies contracts and current compatibility evidence, packs and
+tests the three actual archives, runs both CLI smoke suites, and checks Pages. A stale evidence
+snapshot fails; refresh it through the existing procedure below and stage the resulting files
+before rerunning. Verification never raises payload limits or refreshes evidence automatically.
+
+For diagnosis in the current working copy, `npm run verify:ci` runs the same plan in place;
+it does not establish that the staged commit is complete. Node 22 is the local baseline.
+Guardrails also runs Windows with Node 22 and Linux with Node 24. Local success proves only the
+current Node/OS lane; all three GitHub jobs must pass before merge. The repository lane retains
+Pages, community and compatibility checks; both runtime lanes retain package consumers and smoke
+tests. The compatibility-evidence workflow shares the same dependency preparation stages.
+
+For targeted debugging, the commands below are still available:
 
 ```bash
 node plugins/agdf/scripts/check-runtime-integrity.mjs

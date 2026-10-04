@@ -20,6 +20,9 @@ const staleGeneratedPaths = [
   join(generatedOpenCodeRoot, "skills", "agdf-gate-check", "stale-owned-skill.txt"),
   join(generatedCopilotPluginRoot, "runtime stale", "stale-owned-runtime.txt"),
   join(generatedCopilotPluginRoot, "plugin stale.json"),
+  join(packageRoot, "runtime", "core", "lib 2", "index 2.js"),
+  join(generatedPluginRoot, "runtime", "create-agdf", "runtime", "core", "lib 2", "index 2.js"),
+  join(generatedCopilotPluginRoot, "runtime", "create-agdf", "runtime", "core", "lib 2", "index 2.js"),
 ];
 
 function digestDirectory(root) {
@@ -73,6 +76,8 @@ function generatedDigestSnapshot() {
 
 assert.equal(existsSync(join(sourcePluginRoot, "runtime")), false, "source plugin runtime must be absent before build");
 const sourceBefore = digestDirectory(sourcePluginRoot);
+execFileSync(process.execPath, [scriptPath], { stdio: "pipe" });
+const clean = generatedDigestSnapshot();
 for (const path of staleGeneratedPaths) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, "stale generated fixture\n", "utf8");
@@ -85,6 +90,7 @@ assertLfOnly(generatedOpenCodeRoot);
 assertLfOnly(generatedPublicPluginRoot);
 assert.equal(readFileSync(generatedOpenCodeConfig).includes(Buffer.from("\r\n")), false, "generated/opencode.json must use LF line endings");
 const first = generatedDigestSnapshot();
+assert.deepEqual(first, clean, "stale Core projection directories must not change generated payloads or their digests");
 execFileSync(process.execPath, [scriptPath], { stdio: "pipe" });
 const second = generatedDigestSnapshot();
 assert.deepEqual(second, first, "two complete builds must be byte-identical across shared, Copilot, OpenCode, config and public-plugin outputs");

@@ -53,6 +53,20 @@ automatisch umgedeutet. Schemawidrige Kombinationen erreichen den MCP-Executor
 nicht; direkte Core-/CLI-Aufrufe behalten die gemeinsame Auswahlvalidierung.
 Diese Grenze belegt keine fehlerfreie Operationswahl eines frisch geladenen Modells.
 
+„Zeige die aktiven AGDF-Runs in diesem Projekt“ wählt nach dem
+[Request-Activation-Vertrag](../../plugins/agdf/meta/contracts/request-activation.md)
+`control.doctor`: `agdf_inspect` mit `operation: doctor` und `all_active: true`.
+Der Bezug „in diesem Projekt“ bindet den verifizierten Repository-Pfad des Chats als
+`primary_target` mit `target_source: current_repository`; das Arbeitsverzeichnis allein
+bleibt ohne Zielautorität. Diese Inventur wählt keinen Run und fragt keine Freigabe an.
+
+Doctor ergänzt im All-active-Bericht `inventory.state` (`complete`, `absent` oder
+`incomplete`) und `inventory.active_count`, die Anzahl der sicher erkannten aktiven Runs.
+Bei `incomplete` ist diese Anzahl keine Gesamtzahl. Inspect rendert daraus eine lokalisierte
+Liste mit Prüfbefunden. Fehlende Siegel blenden Runs nicht aus; fehlender Kontrollbestand,
+eine vollständige leere Liste und ein Prüfungsfehler bleiben unterschiedliche Ergebnisse.
+Der JSON-Bericht entspricht weiterhin dem CLI-Bericht; die Darstellung erteilt keine Autorität.
+
 ## Bindung vor Fortsetzung
 
 ### Sichtbarer Skillname und stabile AGDF-ID

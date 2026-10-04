@@ -495,5 +495,53 @@
       "persist": false
     },
     "covered_criteria": ["RAB-03", "RAB-04", "RAB-11", "RAB-13"]
-  }
+  },
+{
+  "schema_version": 1,
+  "case_id": "de-active-runs-current-project",
+  "locale": "de",
+  "case_family": "explicit_status",
+  "user_text": "Zeige die aktiven AGDF-Runs in diesem Projekt",
+  "prior_context": [],
+  "control_context": "active_run",
+  "requested_effect": "named_agdf_operation",
+  "invocation_provenance": "current_user_text",
+  "selection_origin": "router_selection",
+  "expected": {
+    "request_class": "explicit_agdf_operation",
+    "decision": "activate_named_operation",
+    "operation_id": "control.doctor",
+    "selected_skill": "none",
+    "visible_agdf": "operation_result",
+    "allowed_callbacks": [
+      "target_resolver",
+      "control_evaluator",
+      "agdf_renderer"
+    ],
+    "forbidden_callbacks": [
+      "dispatcher_v1",
+      "repository_activation",
+      "control_presence",
+      "run_selector",
+      "installation_status_owner",
+      "repository_status_owner",
+      "help_suitability_owner",
+      "lifecycle_owner",
+      "canonical_init"
+    ],
+    "callback_order": [
+      "target_resolver",
+      "control_evaluator",
+      "agdf_renderer"
+    ],
+    "authorizes": false,
+    "persist": false
+  },
+  "covered_criteria": [
+    "RAB-08",
+    "RAB-09",
+    "RAB-17",
+    "RAB-19"
+  ]
+}
 ]

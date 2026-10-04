@@ -109,7 +109,9 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | `task-plan-review` | evidence dimension: verify whether the approved Task Plan was fulfilled | supports Quality Readiness; no final QA decision |
 <!-- AGDF-SKILL-ROUTING:END -->
 
-Select exactly one primary skill first.
+For named operations, use the catalog owner in `contracts/request-activation.md`; active-run
+inventory uses `control.doctor` with all-active inspection.
+For skill or delivery routes, select exactly one primary skill first.
 Add more only when they cover a distinct concrete risk dimension.
 Do not choose `brownfield-analysis` as the first primary skill for a fresh "I want to build/change X" prompt unless `gate-check` or existing live AGDF control state already makes implementation preparation the next allowed action.
 Never jump directly from `Approval: UR`, implicit consent, or a generic "start" request to implementation. Route to Brownfield Review, then a visible Mode/Slice Decision with evidence, then the smallest safe next gate or Quick Task execution.

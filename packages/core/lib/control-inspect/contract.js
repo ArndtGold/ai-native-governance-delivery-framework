@@ -22,7 +22,7 @@ function deepFreeze(value) {
 
 export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_inspect",
-  description: "Read-only AGDF control inspection: inventory doctor/delivery-map; gate-check status; contract module. report equals CLI --json; presentation.markdown is canonical Markdown. Never writes, selects a run or grants approval; verified_change git observation is unavailable. cwd is not target; language: latest BCP 47, en if mixed.",
+  description: "Run lists: doctor, all_active:true. 'This project': verified primary_target + target_source:current_repository; cwd alone is not target. Read-only doctor/delivery-map, gate-check status, contract. Never writes, selects a run or grants approval; verified_change git observation is unavailable. report = CLI --json; canonical Markdown.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: {
     type: "object", additionalProperties: false,

@@ -1198,3 +1198,21 @@ export const interactionPresentationConstants = Object.freeze({
   approvalSequence: APPROVAL_SEQUENCE,
   qualityDimensions: QUALITY_DIMENSIONS,
 });
+
+// Presentation only: lifecycle selection and completeness belong to Doctor's canonical inventory.
+export function renderActiveRunInventory(report, registry, language) {
+  const copy = localePack(registry, language).activeRunInventory;
+  if (!copy) throw new Error("active_run_inventory_copy_missing");
+  const { state, active_count: count } = report.inventory;
+  const lines = [state === "absent" ? copy.absentDescription
+    : state === "complete" && count === 0 ? copy.noneDescription
+      : copy.countDescription.replace("{count}", String(count))];
+  if (state === "incomplete") lines.push("", copy.incompleteDescription);
+  if (report.runs.length) lines.push("", ...report.runs.map((run) => `- \`${run.run_id}\``));
+  if (report.findings.length) {
+    const safe = (value) => String(value).replace(/[\r\n`|]/gu, " ");
+    lines.push("", copy.findingsDescription, "",
+      ...report.findings.map((finding) => `- \`${safe(finding.code)}\`${finding.run_id ? ` · \`${safe(finding.run_id)}\`` : ""}`));
+  }
+  return { markdown: lines.join("\n"), authorizes: false };
+}

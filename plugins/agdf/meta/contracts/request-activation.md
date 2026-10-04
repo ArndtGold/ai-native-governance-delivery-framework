@@ -175,6 +175,18 @@ uses its existing recovery; continuation requests restoration or selection of th
 delivery intake drafts and persists a real UR before any approval presentation. No missing-control
 route synthesizes an immediate `Approval: UR` merely because a control file is absent.
 
+## Active Run Inventory
+
+"Zeige die aktiven AGDF-Runs in diesem Projekt" / "Show the active AGDF runs in this project"
+selects `control.doctor`, even with gate-check loaded. For "this project", bind its verified chat
+repository root as `primary_target`, `target_source: current_repository`; cwd alone is not authority.
+Ambiguous or unavailable projects use existing target clarification.
+Call `agdf_inspect` with `operation: doctor`, `all_active: true`, `presentation_language` and actual
+`working_directory`; fallback: surface-local `doctor --dir <verified-root> --all-active --json`.
+Omit run selection, intake and continuation. Show every returned run plus integrity findings.
+Distinguish empty, absent control, incomplete inventory and failure; partial counts are not totals.
+Listing never repairs, initializes or requests approval.
+
 ## Request Applicability Guard
 
 The block below is the only compact guard source. It is projected byte-for-byte into the canonical

@@ -1,0 +1,15 @@
+{
+  "id": "candidate-final-contracts",
+  "command": [
+    "bash",
+    "-c",
+    "node packages/cli/scripts/local-development-install-test.js && node packages/cli/scripts/agent-skills-conformance-test.js && node packages/cli/scripts/skill-dispatch-function-contract-test.js && node packages/cli/scripts/request-activation-test.js && node packages/cli/scripts/request-activation-evals-test.js && node packages/cli/scripts/skill-evals-test.js && node packages/cli/scripts/intake-continuation-test.js && npm --prefix packages/cli run test:instruction-footprint"
+  ],
+  "exit_code": 0,
+  "elapsed_ms": 112439,
+  "recorded_at": "2026-10-04T12:40:35.427Z",
+  "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-final-contracts.log",
+  "log_sha256": "492202c71aa02c79d32dc4cee9bab4d6cf9e78e3933a2fb5019e92ed5d15f366",
+  "platform": "darwin",
+  "node": "v22.22.3"
+}

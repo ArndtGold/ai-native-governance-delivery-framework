@@ -117,6 +117,36 @@ erhält seinen eigenen Auftrag ohne `continue_delivery`. `expected_revision_id` 
 Intake-Resume an die zuvor gelesene oder vom Writer zurückgegebene Revision; eine Abweichung liefert
 frische Zuordnungsbelege. Sie darf nicht automatisch einen anderen oder neuen Run auswählen.
 
+`ur_action: revise` (CLI `--ur-action revise`) bezeichnet explizite Änderungsabsicht für einen
+unfreigegebenen Entwurf. Es verlangt `gate-check`, Resume-Intake, Run und erwartete Revision.
+Der neue Entwurf braucht eine neue Präsentation und Antwort. Genehmigte URs sind geschützt.
+Neue Vorlagen kennzeichnen `Requirements clarification: open | complete`; offene Klärung
+oder unvollständige Bedarfsfelder verhindern die Präsentation. URs ohne dieses Feld folgen
+dem bisherigen Vertrag. Direkter `ur-definition`-Aufruf ohne Run liefert Umfangszuordnung,
+auch wenn `AGDF_RUN_ID` gesetzt ist.
+
+`prd-definition` erhält die fachliche PRD-Erstellung über `phase: prd_definition`.
+Der Auftrag bindet das unfreigegebene PRD an Ziel, Run, Revision, freigegebene UR,
+Brownfield-Quelle und erforderliche bereite UX-Analyse. Die reine Core-Routingfunktion
+steht vor dem generischen Urteilsskillpfad; unzulässige Direktaufrufe fallen nicht in einen
+Schreibauftrag durch. Offene Produktentscheidungen dürfen fachlich geklärt werden und
+bleiben für die Freigabe gesperrt. Bereits bestätigte Antworten und UR-Grenzen bleiben maßgeblich.
+
+`prd_action: revise` (CLI `--prd-action revise`) kennzeichnet ausdrücklich gewünschte
+PRD-Entwurfsänderung ausschließlich bei `gate-check` mit Resume-Intake, Run und erwarteter
+Revision. Die Option ist nicht mit `ur_action` oder `continue_delivery` kombinierbar.
+Eine gewöhnliche Fortsetzung eines fertigen PRD führt zur Präsentation. Direkte Skillauswahl
+ersetzt keine Änderungsabsicht; ohne Run liefert sie die vorhandene Umfangszuordnung,
+unabhängig von `AGDF_RUN_ID`. Freigegebene PRDs bleiben geschützt.
+
+Die vorhandene typisierte `run-step --step artefact --gate PRD`-Operation registriert
+PRD `derived_from` UR. Eine zulässige Entwurfsänderung nutzt `update_draft: true` mit
+neuen Mapping-/Eingabebelegen, behält alte Nachweise und benötigt eine neue Präsentation
+mit neuer bewusster Antwort. `gate-check` prüft weiterhin Bereitschaft und Freigabe;
+SD-/TP-Erstellung und alle nachfolgenden Kontrollschritte behalten ihre bisherigen Eigentümer.
+Quell-, Paket- und Protokolltests sowie kooperative Fachbeobachtung belegen unterschiedliche
+Ebenen; sie behaupten keine frische native Installation oder unabhängige Begutachtung.
+
 Die Ausgabefelder haben unterschiedliche Aufgaben:
 
 | Feld | Bedeutung |
@@ -214,7 +244,7 @@ beschreibt die eng begrenzte Beziehungskorrektur **vor** der Ausgabe; sie ist ke
 | **UC-D03 · Ziel offen** | Gültige Eingabe, aber keine belastbare Zielbindung. | `target_unresolved`, terminal; keine Run- oder Gate-Auswertung. | Agent zeigt die kanonische Zielorientierung und stoppt. |
 | **UC-D04 · Auftrag zuordnen** | Positiver Intake ohne bestätigten Run. | `intake_continuation`, Phase `resolve_delivery_run`; kanonische Kandidaten mit UR-Referenzen und Revisionen, noch kein einzelnes Gate-Ergebnis. | Agent liest die vollständigen referenzierten URs und vergleicht den Umfang. Anzahl und Aktualität der Runs sowie `AGDF_RUN_ID` ersetzen diesen Vergleich nicht. |
 | **UC-D05 · Bestehenden Umfang fortsetzen** | Der Auftrag passt eindeutig in einen bestehenden UR. | Nach Resume mit Run-ID und `expected_revision_id`: aktuelle Gate-Auswertung oder passende Fortsetzung. | Agent arbeitet nur im gebundenen Umfang; frühere Freigaben werden nicht auf einen neuen Umfang übertragen. |
-| **UC-D06 · Neuen Umfang beginnen** | Eigenständiger Auftrag; kein passender aktiver Umfang. Agent liefert eine neue, unbenutzte Run-ID mit Intake-Modus `new`. | `intake_continuation`, Phase `run_missing`; nach Erstellung und Resume gegebenenfalls `ur_missing`. | Agent ruft `run-create` auf, schreibt den UR und erfasst ihn mit `run-step`. Jede erneute Bindung verwendet die vom Writer zurückgegebene Revision. |
+| **UC-D06 · Neuen Umfang beginnen** | Eigenständiger Auftrag; kein passender aktiver Umfang. Agent liefert eine neue, unbenutzte Run-ID mit Intake-Modus `new`. | `intake_continuation`, Phase `run_missing`; nach Erstellung und Resume gegebenenfalls `ur_definition`. | Agent ruft `run-create` auf; `ur-definition` entwirft den UR und erfasst ihn mit `run-step`. Jede erneute Bindung verwendet die vom Writer zurückgegebene Revision. |
 | **UC-D07 · Fachlich mehrdeutig** | Mehrere plausible UR-Umfänge oder unklare Abgrenzung. | Die Zuordnungsfortsetzung liefert Belege, keine semantisch ausgewählte Run-ID. | Agent stellt eine gezielte fachliche Frage. Der Dispatcher entscheidet die Umfangsübereinstimmung nicht. |
 | **UC-D08 · Zuordnung veraltet / Bestand ungültig** | Intake-Revision geändert oder Run-Bestand unvollständig bzw. Integrität verletzt. | Veraltete Revision: frische `resolve_delivery_run`-Fortsetzung. Ungültiger Bestand: terminaler Kontrollbefund oder technische Recovery. | Agent vergleicht bei neuer Revision erneut. Fehlerhafte Bestände gelten nicht als leere Kandidatenliste und erlauben keinen Ersatz-Run. |
 | **UC-D09 · Interne Brownfield-Schritte** | Intake oder Fortsetzung am Brownfield Review / Mode-Slice Decision; später strukturierter Pfad an Brownfield Analysis nach erfülltem TP. | `skill_continuation`, Phase `post_ur_review` bzw. `pre_implementation_analysis`, Skill `brownfield-analysis`. | Agent führt den benannten Skill aus und persistiert Review/Analyse und interne Schritte. Danach erneute Prüfung desselben Runs; unveränderter blockierter Zustand beendet die Fortsetzung. |
@@ -232,8 +262,8 @@ beschreibt die eng begrenzte Beziehungskorrektur **vor** der Ausgabe; sie ist ke
 **Neuer Auftrag:** Der erste Intake liefert `resolve_delivery_run`. Nach dem Vergleich mit den
 referenzierten URs wählt der Agent bei eigenständigem Umfang eine unbenutzte Run-ID. Der nächste
 Intake im Modus `new` liefert `run_missing`. Der Agent erstellt den Run und setzt mit dessen
-Revision im Modus `resume` fort. `ur_missing` liefert die Schritte zum Schreiben und Erfassen des
-UR. Erst die erneute Prüfung dieses Zustands kann `presentation_required` liefern. Auf
+Revision im Modus `resume` fort. `ur_definition` delegiert den gebundenen Entwurf an `ur-definition`. Der Skill
+klärt materielle Lücken und erfasst den unfreigegebenen UR über die bestehenden Writer. Erst die erneute Prüfung dieses Zustands kann `presentation_required` liefern. Auf
 `run-present`, Anzeige und die neue menschliche Antwort folgt ein gesonderter Freigabevorgang.
 
 **Bestehender Auftrag:** Der Agent liest die referenzierte vollständige UR-Fassung und bindet

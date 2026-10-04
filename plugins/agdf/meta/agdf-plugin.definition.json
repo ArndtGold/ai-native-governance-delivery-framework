@@ -246,7 +246,9 @@
       "meta/contracts/quality.md",
       "meta/contracts/context-graph.md",
       "meta/contracts/control-scaffold.md",
-      "meta/contracts/closeout.md"
+      "meta/contracts/closeout.md",
+      "meta/contracts/ur-definition.md",
+      "meta/contracts/prd-definition.md"
     ]
   },
   "instructionFootprint": {
@@ -276,7 +278,7 @@
       "allSkillDiscoveryDescriptions": {
         "maxNormalizedBytes": 3000,
         "structuralConditions": [
-          "exactly_ten_in_definition_order",
+          "exactly_catalog_in_definition_order",
           "no_full_exclusion_taxonomy",
           "no_operation_catalog"
         ]
@@ -344,83 +346,180 @@
   "skillSet": [
     {
       "slug": "delivery-path-search",
-      "runtimeContractModules": ["control-scaffold","gate-transition","quality"],
+      "runtimeContractModules": [
+        "control-scaffold",
+        "gate-transition",
+        "quality"
+      ],
       "discovery": "optional",
       "useFor": "high-impact planning decisions with several plausible next delivery steps before implementation",
       "boundary": "read-only advisory search; never grants gate permission or replaces gate-check",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "brownfield-analysis",
-      "runtimeContractModules": ["gate-transition","modes","context-graph","quality"],
+      "runtimeContractModules": [
+        "gate-transition",
+        "modes",
+        "context-graph",
+        "quality"
+      ],
       "discovery": "automatic",
-      "useFor": "after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems",
-      "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "useFor": "permitted Brownfield Review or preparation before non-trivial existing-system changes",
+      "boundary": "clarifies reuse, owners, risks and Mode/Slice; never bypasses control or grants implementation",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "ux-intent-definition",
-      "runtimeContractModules": ["gate-transition","quality"],
+      "runtimeContractModules": [
+        "gate-transition",
+        "quality"
+      ],
       "discovery": "automatic",
-      "useFor": "after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness",
-      "boundary": "non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "useFor": "approved UR with routed medium/high UX impact or ambiguous low-impact semantics before PRD",
+      "boundary": "analytical PRD input only; no intent, gate, design or parallel product authority",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "clean-implementation-review",
-      "runtimeContractModules": ["quality","context-graph"],
+      "runtimeContractModules": [
+        "quality",
+        "context-graph"
+      ],
       "discovery": "automatic",
       "useFor": "evidence dimension: inspect whether the solution is structurally clean",
       "boundary": "supports Quality Readiness; not a TP or QA substitute",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "code-review",
-      "runtimeContractModules": ["quality","context-graph"],
+      "runtimeContractModules": [
+        "quality",
+        "context-graph"
+      ],
       "discovery": "automatic",
       "useFor": "evidence dimension: review the actual diff for defects, regression and security findings",
       "boundary": "supports Quality Readiness; does not replace QA",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "delivery-closeout",
-      "runtimeContractModules": ["closeout","context-graph","gate-transition"],
+      "runtimeContractModules": [
+        "closeout",
+        "context-graph",
+        "gate-transition"
+      ],
       "discovery": "automatic",
       "useFor": "commit/PR-near handoff after QA/OR/UAT",
       "boundary": "never performs VCS actions automatically",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "ur-definition",
+      "runtimeContractModules": [
+        "ur-definition"
+      ],
+      "discovery": "automatic",
+      "useFor": "drafting or revising an unapproved UR after bound dispatch",
+      "boundary": "owns requirement drafting and clarification; never approves or changes approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "prd-definition",
+      "runtimeContractModules": [
+        "prd-definition",
+        "gate-artifact-preparation"
+      ],
+      "discovery": "automatic",
+      "useFor": "drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch",
+      "boundary": "owns product drafting and clarification; never approves or changes approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "gate-check",
-      "runtimeContractModules": ["gate-transition","modes","gate-artifact-preparation"],
+      "runtimeContractModules": [
+        "gate-transition",
+        "modes",
+        "gate-artifact-preparation"
+      ],
       "discovery": "start_here",
-      "useFor": "any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context",
+      "useFor": "requested build/file/code changes, Structured Delivery or gate artifacts; approval/next-step questions within explicit AGDF or active delivery",
       "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review",
-      "dispatch": { "mode": "deterministic_control", "deterministicCommand": "gate-check", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "deterministic_control",
+        "deterministicCommand": "gate-check",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "qa-gate",
-      "runtimeContractModules": ["quality","context-graph","gate-transition"],
+      "runtimeContractModules": [
+        "quality",
+        "context-graph",
+        "gate-transition"
+      ],
       "discovery": "automatic",
       "useFor": "sole final Quality Readiness decision",
       "boundary": "only instance for `pass | revise | block`",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "release-or",
-      "runtimeContractModules": ["closeout","quality","context-graph","control-scaffold"],
+      "runtimeContractModules": [
+        "closeout",
+        "quality",
+        "context-graph",
+        "control-scaffold"
+      ],
       "discovery": "automatic",
       "useFor": "auditable closeout for every relevant run",
       "boundary": "not a QA substitute",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     },
     {
       "slug": "task-plan-review",
-      "runtimeContractModules": ["quality","context-graph","gate-transition"],
+      "runtimeContractModules": [
+        "quality",
+        "context-graph",
+        "gate-transition"
+      ],
       "discovery": "automatic",
       "useFor": "evidence dimension: verify whether the approved Task Plan was fulfilled",
       "boundary": "supports Quality Readiness; no final QA decision",
-      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
     }
   ],
   "distributionProfiles": {

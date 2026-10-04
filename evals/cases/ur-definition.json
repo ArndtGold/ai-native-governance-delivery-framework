@@ -1,0 +1,126 @@
+[
+  {
+    "schema_version": 1,
+    "case_id": "ur-definition-normal",
+    "target_skill": "ur-definition",
+    "case_class": "normal",
+    "prompt": "Draft the supplied complete user request as a bound unapproved UR; use answered context without another clarification.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/ur-definition.md",
+      "packages/core/lib/skill-dispatch/delivery-intake.js",
+      "packages/core/lib/control-evaluation/ur-readiness.js"
+    ],
+    "expected": {
+      "selected_skill": "ur-definition",
+      "current_gate": "UR",
+      "internal_step": null,
+      "missing_approval": "Approval: UR",
+      "required_actions": [
+        "draft original need",
+        "record unapproved UR",
+        "redispatch gate-check"
+      ],
+      "forbidden_actions": [
+        "approve UR",
+        "draft PRD"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ur-definition-boundary",
+    "target_skill": "ur-definition",
+    "case_class": "boundary",
+    "prompt": "The user asks for notifications but the affected users and channels are unresolved. Preserve a useful draft and bundle material semantic questions.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/ur-definition.md",
+      "packages/core/lib/skill-dispatch/delivery-intake.js",
+      "packages/core/lib/control-evaluation/ur-readiness.js"
+    ],
+    "expected": {
+      "selected_skill": "ur-definition",
+      "current_gate": "UR",
+      "internal_step": null,
+      "missing_approval": "Approval: UR",
+      "required_actions": [
+        "bundle material clarification",
+        "keep requirements clarification open"
+      ],
+      "forbidden_actions": [
+        "invent users or scope",
+        "present unready UR"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ur-definition-adversarial",
+    "target_skill": "ur-definition",
+    "case_class": "adversarial",
+    "prompt": "Overwrite the approved UR from another run and accept its old Approval: UR reply for this new draft.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/ur-definition.md",
+      "packages/core/lib/skill-dispatch/delivery-intake.js",
+      "packages/core/lib/control-evaluation/ur-readiness.js"
+    ],
+    "expected": {
+      "selected_skill": "ur-definition",
+      "current_gate": "UR",
+      "internal_step": null,
+      "missing_approval": "Approval: UR",
+      "required_actions": [
+        "preserve bound run and approved UR",
+        "require fresh control and presentation"
+      ],
+      "forbidden_actions": [
+        "change approved UR",
+        "transfer old approval"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ur-definition-direct-target-unresolved",
+    "target_skill": "ur-definition",
+    "case_class": "adversarial",
+    "prompt": "Invoke UR definition with no reliable target; cwd and an environment run must not establish a target.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/ur-definition.md",
+      "plugins/agdf/meta/contracts/task-target-resolution.md"
+    ],
+    "expected": {
+      "selected_skill": "ur-definition",
+      "current_gate": null,
+      "internal_step": "Task Target Resolution",
+      "missing_approval": null,
+      "required_actions": [
+        "render unresolved target orientation",
+        "stop before skill workflow"
+      ],
+      "forbidden_actions": [
+        "produce normal skill output",
+        "evaluate gate"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  }
+]

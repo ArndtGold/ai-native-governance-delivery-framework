@@ -1,0 +1,361 @@
+{
+  "old_baseline": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 189,
+    "max_bytes": 1558022,
+    "rationale": "Reviewed Agent Plugins 1.0 Copilot MCP integration: 27 exact payload files and 183175 bytes add the shared launcher, server source, locked SDK acquisition bundle and MCP lifecycle runtime already qualified for Claude and Codex. Copilot supplies PLUGIN_ROOT and PLUGIN_DATA; no installer-written repository or user registration enters the payload. Existing inventory, exact-version digests, ownership checks and package boundaries remain authoritative. Reviewed repository maintenance entry: eight shared compatibility/migration/repair/service/contract/presentation/interaction/startup modules and one dedicated CLI adapter. Existing canonical transaction owners reused; no installer, marketplace, MCP configuration or consent mutation modules added. Exact measured full-runtime inventory; existing provenance and payload guards retained. Reviewed CI repair: consistent canonical review aliases with localized recovery text and bounded startup repository-control facts with fixed reentry in the footprint validator; 3430 additional bytes, no payload files added. Reviewed approval-command slice: six package-owned modules (closed command contract, receipt codec, approval orchestration, public ESM facade, shared runtime composition and shared metadata/locale context); canonical approval/persistence owners reused. Measured isolated full-runtime inventory grows by six files and 23303 bytes; no installer or mutating MCP dependency added. Import/context boundary and actual packed/generated consumers qualified separately. No unused headroom added. Reviewed Windows replay repair: reopen the existing canonical file with r+ for FlushFileBuffers write access, without truncation or a new revision. Exact inventory growth is 198 bytes in the existing writer module; no payload files or unused headroom added. Portable source-root migration (agdf-portable-plugin-package-structure-20261001-01): exact canonical-input delta is 54 bytes in four existing contract projections (12+12+12+18); file ceiling remains 136. Inventory metadata is excluded from the payload byte measurement. No headroom for unrelated duplicate modules is added; evidence/COPILOT_MIGRATION_DELTA.json records the comparison. Codex portable-version projection repair (QA-I001): 332 measured bytes in the existing shared plugin-provenance owner for root-version normalization and exact installed-version validation. The file ceiling remains 136; no duplicate files or unused headroom are admitted. Portable Codex MCP discovery repair: 276 measured bytes in the existing shared provenance owner for portable stdio schema/rendering and strict owned-shape normalization, retaining historical declaration digests. File ceiling remains 136; no MCP server, SDK, installer or duplicate declaration enters Copilot. Exact delta evidence: codex-mcp-discovery-remediation/BASELINE_AND_DELTA.json; no unused headroom. Physical package-boundary migration (agdf-physical-package-boundaries-20261001-01): canonical Core modules move unchanged into runtime/core except the explicit resource descriptor; package-bound resource readers and CLI provider/composition facades are included once. Exact measured full-runtime closure is 152 files and 1293465 bytes (16 files and 18195 bytes over the preserved 136/1275270 input). No SDK, installer or duplicate contract payload is admitted, and no unused budget headroom is added. Source/profile inventory evidence remains in the migration run. Transport contract hardening: conditional dispatcher arguments, typed inspect output and distinct localized target diagnoses. Exact generated inventory: 179 files / 1482964 bytes (+6324); no extra files or unused payload headroom. Inspect outcome invariants: success continues with terminal false; unresolved/error results stop with matching source and payload. Exact inventory 1484993 bytes, unchanged 179 files; no unused payload headroom. Reviewed intermediate-card/relationship delivery scope: five focused Core modules extract the existing registry, strictly validate sealed reviewed binding evidence, and extend existing recording/correction owners. Existing writer/dispatcher/renderer and control authority remain sole owners. Exact measured generated closure, no installer, SDK, extra MCP endpoint or unused payload headroom; final delta evidence is recorded in this run. Continuation ownership split: one Core application orchestrator wraps the read-only routing service at the existing CLI/MCP composition entry; correction validation and persistence retain their existing owners. MCP annotations describe the possible bound mutation accurately. Exact measured generated closure: 185 files / 1532134 bytes, an increase of one file and 4160 bytes from 184 / 1527974. No extra endpoint, SDK, installer or unused payload headroom. Active-run inventory routing: shared Doctor completeness metadata and localized read-only inventory presentation, with current-project target binding in existing routing instructions. Exact generated closure: 185 files / 1537078 bytes (+4944 bytes); existing file ceiling retained, no new runtime module, endpoint, approval authority or unused headroom. UR-definition separation: exact measured candidate closure adds one skill, its projected focused contract resources and one Core UR readiness module. Existing dispatcher, gate evaluator, revision writers and human approval owners retained; no endpoint, installer or SDK added. Exact current payload is 189 files / 1558022 bytes, with no unused headroom. Final delta evidence is bound in ur-definition-separation-20261004-01. The existing instruction-only target/interaction references and explicit skill_continuation consumption add exactly 137 measured bytes to the projected skill; no further payload file or headroom."
+  },
+  "observed": {
+    "files": 193,
+    "bytes": 1581171
+  },
+  "delta": {
+    "files": 4,
+    "bytes": 23149
+  },
+  "accepted_exact": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 193,
+    "max_bytes": 1581171,
+    "rationale": "Exact observed PRD authoring skill/contract, shared revision and eligible routing payload; approved TP SDD-007, no spare headroom."
+  },
+  "report": {
+    "profile": "copilot-runtime-plugin",
+    "observed": {
+      "files": 193,
+      "bytes": 1581171
+    },
+    "limits": {
+      "files": 193,
+      "bytes": 1581171
+    },
+    "headroom": {
+      "files": 0,
+      "bytes": 0
+    },
+    "components": {
+      "license": {
+        "files": 1,
+        "bytes": 11357
+      },
+      "hook": {
+        "files": 1,
+        "bytes": 273
+      },
+      "mcp_runtime": {
+        "files": 12,
+        "bytes": 15764
+      },
+      "mcp_declaration": {
+        "files": 1,
+        "bytes": 322
+      },
+      "runtime_support": {
+        "files": 5,
+        "bytes": 45370
+      },
+      "manifest": {
+        "files": 1,
+        "bytes": 526
+      },
+      "runtime": {
+        "files": 146,
+        "bytes": 1119490
+      },
+      "skill": {
+        "files": 12,
+        "bytes": 94891
+      },
+      "locale_registry": {
+        "files": 1,
+        "bytes": 146818
+      },
+      "runtime_contract": {
+        "files": 1,
+        "bytes": 1860
+      },
+      "runtime_contract_module": {
+        "files": 12,
+        "bytes": 144500
+      }
+    },
+    "largest": [
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+        "bytes": 146818
+      },
+      {
+        "destination": "skills/agdf-interaction-locales.json",
+        "bytes": 146818
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+        "bytes": 62231
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+        "bytes": 46521
+      },
+      {
+        "destination": "skills/contracts/interaction.md",
+        "bytes": 46503
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/service.js",
+        "bytes": 37422
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/gate-check.js",
+        "bytes": 35815
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/contract.js",
+        "bytes": 26716
+      }
+    ]
+  },
+  "catalog": [
+    "delivery-path-search",
+    "brownfield-analysis",
+    "ux-intent-definition",
+    "clean-implementation-review",
+    "code-review",
+    "delivery-closeout",
+    "ur-definition",
+    "prd-definition",
+    "gate-check",
+    "qa-gate",
+    "release-or",
+    "task-plan-review"
+  ],
+  "limits_changed": "Exact observed payload baseline; instruction/performance limits unchanged; no headroom",
+  "final_instruction_measurements": {
+    "status": "pass",
+    "evidence_plane": "source_composed",
+    "profile_surface": "generated_and_temporary_install_fixture",
+    "evaluator_surface": "node_deterministic",
+    "loaded_host_evidence": false,
+    "generated_digest": "a066a791a5df6e1b8aa2ff3823ee685a6598791cf5663507567b7a0476f6be77",
+    "canonical_kernel_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+    "measurements": [
+      {
+        "surface_id": "activationKernel",
+        "instance_id": "canonical",
+        "raw_bytes": 1087,
+        "normalized_bytes": 1087,
+        "max_normalized_bytes": 1100,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "delivery-path-search",
+        "raw_bytes": 281,
+        "normalized_bytes": 281,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "brownfield-analysis",
+        "raw_bytes": 287,
+        "normalized_bytes": 287,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "ux-intent-definition",
+        "raw_bytes": 278,
+        "normalized_bytes": 278,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "clean-implementation-review",
+        "raw_bytes": 231,
+        "normalized_bytes": 231,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "code-review",
+        "raw_bytes": 243,
+        "normalized_bytes": 243,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "delivery-closeout",
+        "raw_bytes": 186,
+        "normalized_bytes": 186,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "ur-definition",
+        "raw_bytes": 252,
+        "normalized_bytes": 252,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "prd-definition",
+        "raw_bytes": 279,
+        "normalized_bytes": 279,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "gate-check",
+        "raw_bytes": 333,
+        "normalized_bytes": 333,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "qa-gate",
+        "raw_bytes": 186,
+        "normalized_bytes": 186,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "release-or",
+        "raw_bytes": 168,
+        "normalized_bytes": 168,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "skillDiscoveryDescription",
+        "instance_id": "task-plan-review",
+        "raw_bytes": 227,
+        "normalized_bytes": 227,
+        "max_normalized_bytes": 420,
+        "status": "pass"
+      },
+      {
+        "surface_id": "allSkillDiscoveryDescriptions",
+        "instance_id": "definition-order",
+        "raw_bytes": 2951,
+        "normalized_bytes": 2951,
+        "max_normalized_bytes": 3000,
+        "status": "pass"
+      },
+      {
+        "surface_id": "sessionStartBase",
+        "instance_id": "codex",
+        "raw_bytes": 2028,
+        "normalized_bytes": 1897,
+        "max_normalized_bytes": 1900,
+        "status": "pass"
+      },
+      {
+        "surface_id": "sessionStartBase",
+        "instance_id": "claude",
+        "raw_bytes": 2029,
+        "normalized_bytes": 1898,
+        "max_normalized_bytes": 1900,
+        "status": "pass"
+      },
+      {
+        "surface_id": "sessionStartBase",
+        "instance_id": "copilot",
+        "raw_bytes": 2030,
+        "normalized_bytes": 1899,
+        "max_normalized_bytes": 1900,
+        "status": "pass"
+      },
+      {
+        "surface_id": "runtimeCheckSupplement",
+        "instance_id": "codex-consented",
+        "raw_bytes": 1303,
+        "normalized_bytes": 771,
+        "max_normalized_bytes": 1200,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeEagerInstructions",
+        "instance_id": "repository",
+        "raw_bytes": 1496,
+        "normalized_bytes": 1496,
+        "max_normalized_bytes": 4000,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeEagerInstructions",
+        "instance_id": "global-installed",
+        "raw_bytes": 1572,
+        "normalized_bytes": 1572,
+        "max_normalized_bytes": 4000,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeActiveDynamicContext",
+        "instance_id": "active",
+        "raw_bytes": 874,
+        "normalized_bytes": 747,
+        "max_normalized_bytes": 1000,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeInactiveDynamicContext",
+        "instance_id": "inactive",
+        "raw_bytes": 0,
+        "normalized_bytes": 0,
+        "max_normalized_bytes": 0,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeComposedStaticAndActiveDynamic",
+        "instance_id": "repository",
+        "raw_bytes": 2371,
+        "normalized_bytes": 2244,
+        "max_normalized_bytes": 5000,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeComposedStaticAndActiveDynamic",
+        "instance_id": "global-installed",
+        "raw_bytes": 2447,
+        "normalized_bytes": 2320,
+        "max_normalized_bytes": 5000,
+        "status": "pass"
+      },
+      {
+        "surface_id": "openCodeCompactionAddition",
+        "instance_id": "active",
+        "raw_bytes": 1087,
+        "normalized_bytes": 1087,
+        "max_normalized_bytes": 1100,
+        "status": "pass"
+      },
+      {
+        "surface_id": "selectedGateCheckSkill",
+        "instance_id": "canonical-generated",
+        "raw_bytes": 5583,
+        "normalized_bytes": 5583,
+        "max_normalized_bytes": 6900,
+        "status": "pass"
+      },
+      {
+        "surface_id": "selectedGateCheckSkill",
+        "instance_id": "global-installed",
+        "raw_bytes": 6886,
+        "normalized_bytes": 6886,
+        "max_normalized_bytes": 6900,
+        "status": "pass"
+      }
+    ]
+  }
+}

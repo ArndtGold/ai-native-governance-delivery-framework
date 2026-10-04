@@ -1,0 +1,619 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-04T12:46:32.035622+00:00",
+  "validation_checkout": "/private/tmp/agdf-ur-candidate-20261004",
+  "evidence_boundary": "Actual local built/packed/generated CLI and stdio MCP consumers; cooperative Root Codex behavior observations. No native reinstall, independent review, publication or CI claim.",
+  "final_performance_pass": true,
+  "unchanged_performance_limits_ms": {
+    "cold_p95": 1500,
+    "warm_p95": 1000
+  },
+  "checks": [
+    {
+      "id": "candidate-behavior-final",
+      "command": [
+        "bash",
+        "-c",
+        "node packages/mcp-server/test/ur-behavior-bindings.mjs && python3 /private/tmp/agdf-ur-final-observations.py && node packages/mcp-server/test/ur-behavior-check.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 10776,
+      "recorded_at": "2026-10-04T12:45:20.879Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-behavior-final.log",
+      "log_sha256": "b01b33360bbacd5eccff819ff4b47a967f99ac1512fc4d82ad202f5c54b85c73",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-behavior-runtime",
+      "command": [
+        "node",
+        "packages/mcp-server/test/ur-behavior-check.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 4371,
+      "recorded_at": "2026-10-04T12:18:50.182Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-behavior-runtime.log",
+      "log_sha256": "8b71388da7b8eb6875cca6b39350dc4c9931a5da96d302f243b3cb89e78d52c2",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-build-clean",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 1956,
+      "recorded_at": "2026-10-04T11:32:25.256Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-build-clean.log",
+      "log_sha256": "21675ca17e4c0760e36f89623aa06ba8c4f682c535f2e35e4dd9c90e5ec51bf6",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-build-corrected",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 2655,
+      "recorded_at": "2026-10-04T12:23:27.721Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-build-corrected.log",
+      "log_sha256": "21675ca17e4c0760e36f89623aa06ba8c4f682c535f2e35e4dd9c90e5ec51bf6",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 2884,
+      "recorded_at": "2026-10-04T12:20:06.410Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-build-final.log",
+      "log_sha256": "21675ca17e4c0760e36f89623aa06ba8c4f682c535f2e35e4dd9c90e5ec51bf6",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 4559,
+      "recorded_at": "2026-10-04T11:20:01.619Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-build.log",
+      "log_sha256": "08e28df8f93e66cb192b6084e36fe8e3eec76d61d9340f6f0435855fea63a940",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli-clean",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "smoke-test"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 80130,
+      "recorded_at": "2026-10-04T11:35:21.343Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli-clean.log",
+      "log_sha256": "be53be1a17099b78fcec2a18d787428f6a7f089396c0a3218eb15613dd6fc765",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli-completion-corrected",
+      "command": [
+        "bash",
+        "-c",
+        "cd packages/cli && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 871932,
+      "recorded_at": "2026-10-04T12:38:12.016Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli-completion-corrected.log",
+      "log_sha256": "a00be83028726076c4cdeb92ca6c5c9483c6dc5684e28689f93c55ae987180d7",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli-completion",
+      "command": [
+        "bash",
+        "-c",
+        "cd packages/cli && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 49124,
+      "recorded_at": "2026-10-04T12:21:25.739Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli-completion.log",
+      "log_sha256": "5a5574e86a9d88f78ca339e9dffb12763bdbcab035c36e3bc0206e2ef44c1e91",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli-final",
+      "command": [
+        "bash",
+        "-c",
+        "cd packages/cli && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 131434,
+      "recorded_at": "2026-10-04T12:18:59.581Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli-final.log",
+      "log_sha256": "f446fccf6f4bff23ce5a329373fb1e27d77c7efdd29b12cb685a41bfc622d775",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli-packages",
+      "command": [
+        "bash",
+        "-c",
+        "cd packages/cli && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 121958,
+      "recorded_at": "2026-10-04T11:45:51.802Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli-packages.log",
+      "log_sha256": "bfad4a44c6e8220b093e7d434d292d3a48164a5b7b16399c95b620d5cdef349c",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli-remaining",
+      "command": [
+        "bash",
+        "-c",
+        "cd packages/cli && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 218601,
+      "recorded_at": "2026-10-04T11:41:06.340Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli-remaining.log",
+      "log_sha256": "cab39c34aace9a78168cd00423c156fc8e9e5f14ae13c43747268b0650fca570",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-cli",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "smoke-test"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 88737,
+      "recorded_at": "2026-10-04T11:23:36.750Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-cli.log",
+      "log_sha256": "c240887d08eb184f092be63a54c19880fbe3609895d4d2bbbabeceee098ed84c",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-community",
+      "command": [
+        "bash",
+        "-c",
+        "npm run check:community-health && npm run test:community-health"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 6198,
+      "recorded_at": "2026-10-04T12:44:06.326Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-community.log",
+      "log_sha256": "58ba25a81d665b7c91e8d2d774815aabbe8b57e3970f41012a6d8d3277016441",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-compatibility-check",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:check"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 1815,
+      "recorded_at": "2026-10-04T12:43:59.888Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-compatibility-check.log",
+      "log_sha256": "0bc12d37e290739a7b29132375a7ec2a89880d52c186249a917ab26d1943c630",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-compatibility-record-foreign",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:record"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 1555,
+      "recorded_at": "2026-10-04T12:41:50.088Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-compatibility-record-foreign.log",
+      "log_sha256": "fb036076482add3b85d1c07eda36d1bb64e901c34c0132fe3ced86ed0d895ced",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-compatibility-record",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:record"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 38458,
+      "recorded_at": "2026-10-04T12:43:07.893Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-compatibility-record.log",
+      "log_sha256": "72a3a491c4d9b466ae271957da931bb82fe62f349ca6d8cb196c9f841442a5b5",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-final-contracts",
+      "command": [
+        "bash",
+        "-c",
+        "node packages/cli/scripts/local-development-install-test.js && node packages/cli/scripts/agent-skills-conformance-test.js && node packages/cli/scripts/skill-dispatch-function-contract-test.js && node packages/cli/scripts/request-activation-test.js && node packages/cli/scripts/request-activation-evals-test.js && node packages/cli/scripts/skill-evals-test.js && node packages/cli/scripts/intake-continuation-test.js && npm --prefix packages/cli run test:instruction-footprint"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 112439,
+      "recorded_at": "2026-10-04T12:40:35.427Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-final-contracts.log",
+      "log_sha256": "492202c71aa02c79d32dc4cee9bab4d6cf9e78e3933a2fb5019e92ed5d15f366",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-host-compatibility",
+      "command": [
+        "npm",
+        "run",
+        "test:host-compatibility"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 55883,
+      "recorded_at": "2026-10-04T12:41:48.290Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-host-compatibility.log",
+      "log_sha256": "b1c2d7164a13d9e3a3947de3815f2f74cdeca4c40645adcc292dd57059950fbc",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-maintenance",
+      "command": [
+        "npm",
+        "run",
+        "test:maintenance-contracts"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 16500,
+      "recorded_at": "2026-10-04T12:40:52.165Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-maintenance.log",
+      "log_sha256": "fd9743a79070e88aa0442b8d41dc52d0107348c2df7b1f474868f103e91c85af",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-mcp-final",
+      "command": [
+        "bash",
+        "-c",
+        "npm --prefix packages/mcp-server run test:contract && npm --prefix packages/mcp-server run test:continuation && npm --prefix packages/mcp-server run test:protocol && npm --prefix packages/mcp-server run test:safety && npm --prefix packages/mcp-server run test:provenance && npm --prefix packages/mcp-server run test:package && npm --prefix packages/mcp-server run test:sdk-digest"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 63285,
+      "recorded_at": "2026-10-04T12:45:09.858Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-mcp-final.log",
+      "log_sha256": "b0e4229d67ce471fbe0338fb669da4f287877287d7682606a25e6fb6ebbea721",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-mcp-packaging",
+      "command": [
+        "bash",
+        "-c",
+        "npm --prefix packages/mcp-server run test:package && npm --prefix packages/mcp-server run test:sdk-digest"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 4277,
+      "recorded_at": "2026-10-04T12:06:29.889Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-mcp-packaging.log",
+      "log_sha256": "48344a7039ce197a21c3b56dffca37b9c7dda0a7d4e31325d1c05686d370ac9a",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-mcp-performance-comparison",
+      "command": [
+        "node",
+        "packages/mcp-server/test/performance.test.js"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 39824,
+      "recorded_at": "2026-10-04T11:57:20.894Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-mcp-performance-comparison.log",
+      "log_sha256": "65ec7a725646217688fdfb8e1a9fbe7c017ebf99c3d91a5c5f28539381c978cf",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-mcp-performance",
+      "command": [
+        "node",
+        "packages/mcp-server/test/performance.test.js"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 41956,
+      "recorded_at": "2026-10-04T11:49:14.137Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-mcp-performance.log",
+      "log_sha256": "85afb01bef95c655c92b309ae7bb742e9edaeda2b046e9de62095ba2bef6d3a3",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-performance-final",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:performance"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 24570,
+      "recorded_at": "2026-10-04T12:45:45.677Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-performance-final.log",
+      "log_sha256": "2144e32111378fb51dccea55a9477f4f04b028caed1a818382e704c5337dfc5b",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-sdk-preparation",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "ci",
+        "--ignore-scripts",
+        "--offline",
+        "--cache",
+        "/private/tmp/agdf-ci-fix-npm-cache-20261004"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 10642,
+      "recorded_at": "2026-10-04T11:42:46.337Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-sdk-preparation.log",
+      "log_sha256": "e1f7779233b9a04dda69b9aaddfe08be47f412447cb3a0807c6a6bfb9088219b",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "candidate-source-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 2113,
+      "recorded_at": "2026-10-04T12:38:42.749Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/candidate-source-final.log",
+      "log_sha256": "21675ca17e4c0760e36f89623aa06ba8c4f682c535f2e35e4dd9c90e5ec51bf6",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-activation-owner",
+      "command": [
+        "node",
+        "packages/cli/scripts/request-activation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 3459,
+      "recorded_at": "2026-10-04T11:26:39.926Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-activation-owner.log",
+      "log_sha256": "2bcd6903174878c3e8bb3712264083fbfdf8dd431984944cd8ca91014a75f21c",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-activation",
+      "command": [
+        "node",
+        "packages/cli/scripts/request-activation-evals-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 9776,
+      "recorded_at": "2026-10-04T11:17:11.884Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-activation.log",
+      "log_sha256": "7176de68ca43179d33947280e5ffd0f6fa69764b3e5fb3c39bfd479ad0edbe2f",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-artifact-language",
+      "command": [
+        "node",
+        "packages/cli/scripts/artifact-language-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 9296,
+      "recorded_at": "2026-10-04T11:28:15.527Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-artifact-language.log",
+      "log_sha256": "1e69ece5c6596e0fd4da168297dcf05b1fcfdf5749e6c94068479536974bbff7",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-contract",
+      "command": [
+        "node",
+        "packages/cli/scripts/skill-dispatch-function-contract-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 1664,
+      "recorded_at": "2026-10-04T11:16:45.701Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-contract.log",
+      "log_sha256": "b21c6f02489adb12334367d82a5b4ee2efc273974be1d5f8c962a0e2a81b74e8",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-dispatch",
+      "command": [
+        "node",
+        "packages/cli/scripts/skill-dispatch-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 1647,
+      "recorded_at": "2026-10-04T11:17:03.704Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-dispatch.log",
+      "log_sha256": "9ab956c713fdb37e55c3d1d5e2e283cc376c09f3ce8931c364b7cc90fff44046",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-evals",
+      "command": [
+        "node",
+        "packages/cli/scripts/skill-evals-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 377,
+      "recorded_at": "2026-10-04T11:18:38.964Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-evals.log",
+      "log_sha256": "7ce3eb3152f9afbeb72f33aea5fe2fd923daab0acf3eb37cd2d0bacb79d16228",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-intake",
+      "command": [
+        "node",
+        "packages/cli/scripts/intake-continuation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 50904,
+      "recorded_at": "2026-10-04T11:17:52.942Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-intake.log",
+      "log_sha256": "90421c7db2cf64e56e91f336ab106a5241efd9d42079209d12caff9c8c18cb6a",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-localization",
+      "command": [
+        "node",
+        "packages/core/test/interaction-presentation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 3666,
+      "recorded_at": "2026-10-04T11:28:28.593Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-localization.log",
+      "log_sha256": "1c3e1a98c51a6b00d8e61d2f15e3eb8a00b5f0a0c09b6cd252745c43f0f356e7",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-mcp-clean",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:continuation"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 9550,
+      "recorded_at": "2026-10-04T11:33:07.394Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-mcp-clean.log",
+      "log_sha256": "1d43f6970c3613d41630cf2bf904b8d7c5a50cb1452e2c83405d92289fe3f638",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "focused-mcp",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:continuation"
+      ],
+      "exit_code": 1,
+      "elapsed_ms": 1135,
+      "recorded_at": "2026-10-04T11:27:10.377Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/focused-mcp.log",
+      "log_sha256": "87a7e66c3518bfef0425e974dfc3e7c5cca5ef2fbfce25751bb5a5bcfb6664e2",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "primary-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 6086,
+      "recorded_at": "2026-10-04T12:46:39.970Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/primary-build-final.log",
+      "log_sha256": "08e28df8f93e66cb192b6084e36fe8e3eec76d61d9340f6f0435855fea63a940",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    },
+    {
+      "id": "primary-compatibility-check",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:check"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 3069,
+      "recorded_at": "2026-10-04T12:48:37.745Z",
+      "log": ".agdf/control/artefacts/ur-definition-separation-20261004-01/evidence/primary-compatibility-check.log",
+      "log_sha256": "0bc12d37e290739a7b29132375a7ec2a89880d52c186249a917ab26d1943c630",
+      "platform": "darwin",
+      "node": "v22.22.3"
+    }
+  ],
+  "cumulative_cli_coverage": {
+    "initial_command_exit_code": 1,
+    "complete_top_level_smoke_command_pass_claimed": false,
+    "segments": [
+      "candidate-cli-clean: prefix through cli-modularization boundary; corrected additive parser snapshot",
+      "candidate-cli-remaining: cli-modularization through test:mcp-server boundary; corrected npm local file peer preparation after build",
+      "candidate-cli-packages: MCP protocol/contract/continuation/safety/provenance passed; timing failed and preserved",
+      "candidate-mcp-packaging: package and SDK digest passed",
+      "candidate-cli-final: local-validator through local-development-install boundary; missing help and bootstrap references fixed",
+      "candidate-cli-completion-corrected: local-development-install through final routing passed",
+      "candidate-final-contracts and candidate-mcp-final: final skill bootstrap wording, help resource, exact payload and fingerprints requalified after last edit"
+    ]
+  },
+  "failed_attempts_retained": true,
+  "performance_risk": "Prior sporadic p95 failures persist as raw evidence. Baseline comparison is local evidence only; host contention is plausible but not proven.",
+  "primary_generated_identity": "PRIMARY_CANDIDATE_COHERENCE.json",
+  "foreign_output_handling": "Recorder refused foreign output; only validation-checkout copies of protected files were quarantined. Owned new outputs transferred; primary working-tree/index digests unchanged. The normal primary compatibility check passes with protected foreign files present."
+}

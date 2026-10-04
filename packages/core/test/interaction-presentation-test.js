@@ -482,6 +482,23 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   assert.match(englishCdTests.markdown, /TP approved/);
   assert.match(englishCdTests.markdown, /No reply needed; I am proceeding with the approved implementation/);
 
+  for (const presentationLanguage of Object.keys(sourceRegistry.locales)) {
+    const pack = sourceRegistry.locales[presentationLanguage];
+    const urBlockedCard = renderOperationalStatusCard({
+      run_id: "status-run", presentation_language: presentationLanguage, status: "blocked", current_gate: "UR",
+      allowed_now: ["complete the UR requirement clarification and record a new run revision"],
+      forbidden_now: ["present or approve UR before requirement clarification is complete"],
+      blocking_condition: "AGDF_UR_REQUIREMENTS_INCOMPLETE", missing_approval: "none",
+      next_gate_after_approval: "none", allowed_after_approval: "none",
+      next_step: "complete the UR requirement clarification, then record the revision with run-update",
+      quality_outlook: sourceRegistry.locales.en.operationalValues.noAdditionalQualityFollowUp,
+    }, { registry: sourceRegistry, humanPresentation: { gateTitle: "UR" } });
+    assert.ok(urBlockedCard, presentationLanguage);
+    assert.ok(urBlockedCard.markdown.includes(pack.operationalValues.blockedUrRequirements));
+    assert.ok(urBlockedCard.markdown.includes(pack.operationalValues.nextUrRequirements));
+    assert.doesNotMatch(urBlockedCard.markdown, /Approval: UR/u, "open requirements never ask for gate approval");
+  }
+
   const prdBlockedCard = renderOperationalStatusCard({
     run_id: "status-run", presentation_language: "de", status: "blocked", current_gate: "PRD",
     allowed_now: ["complete the listed PRD readiness items together and record a new run revision"],

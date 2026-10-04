@@ -33,6 +33,12 @@ try {
   };
   const germanUr = (root) => readFileSync(join(root, ".agdf/control/templates/artefacts/UR.md"), "utf8")
     .replace("# UR: <Title>", "# UR: subtract ergänzen")
+    .replace("Requirements clarification: open", "Requirements clarification: complete")
+    .replace("Which people or roles experience the problem and benefit from the outcome?", "Aufrufer der bestehenden Rechenbibliothek benötigen Subtraktion.")
+    .replace("What is explicitly not part of this UR?", "Keine Änderung an add und keine weiteren Rechenfunktionen.")
+    .replace("How will we know the need is clear enough for PRD?", "Subtraktion ist als eigene Funktion mit einem passenden Test beschrieben.")
+    .replace("Which existing repository artefacts, docs, code paths or decisions must be respected?", "Die bestehende add-Funktion und die Testkonvention bleiben maßgeblich.")
+    .replace("Which questions must Brownfield Review, PRD, SD or later implementation-preparation Brownfield Analysis clarify?", "Keine materielle Bedarfsfrage ist offen; technische Eigentümer werden im Brownfield Review geprüft.")
     .replace(/(## 1\. Problem\n\n)[^\n]+/u, "$1Die Bibliothek bietet nur add und keine Subtraktion.")
     .replace(/(## 2\. Goal\n\n)[^\n]+/u, "$1Die Bibliothek exportiert zusätzlich subtract mit einem Test.")
     .replace(/(## 3\. Scope\n\n)[^\n]+/u, "$1Eine neue Funktion und ein Test, sonst keine Änderungen.");

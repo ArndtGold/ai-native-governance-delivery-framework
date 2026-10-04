@@ -83,6 +83,8 @@ assert.deepEqual(parsed.options, {
   skillId: undefined,
   intake: false,
   intakeMode: undefined,
+  urAction: undefined,
+  prdAction: undefined,
   continueDelivery: false,
   presentationId: undefined,
   fixture: resolve("/tmp/root/fixture.json"),

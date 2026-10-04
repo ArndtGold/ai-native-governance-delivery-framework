@@ -1,0 +1,45 @@
+npm notice run create-agdf@0.14.5 test:mcp-server
+npm notice run npm --prefix ../mcp-server test
+npm notice run @agdf/mcp-server@0.14.5 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:continuation
+npm notice run node ./test/continuation.test.js
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.14.5 test:protocol
+npm notice run node ./test/protocol.test.js && node ./test/skill-names.test.js
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+npm notice run @agdf/mcp-server@0.14.5 test:safety
+npm notice run node ./test/safety.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:provenance
+npm notice run node ./test/provenance.test.js
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[1017.568,859.192,936.512,785.284,819.44,787.967,745.939,786.405,710.902,788.058,781.449,757.09,688.527,730.384,801.209,816.442,771.116,999.136,896.584,1411.219],"cold_p95_ms":1017.568,"warm_dispatch_ms":[1124.966,1196.952,935.654,799.739,661.602,815.368,838.65,927.61,817.704,559.115,570.31,586.457,593.495,577.539,514.893,506.17,921.416,664.718,657.647,910.657],"warm_p95_ms":1124.966}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: warm dispatch p95 exceeded 1000 ms: 1124.966191
+    at file:///private/tmp/agdf-ur-candidate-20261004/packages/mcp-server/test/performance.test.js:50:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:mcp-server` failed with error:
+npm error code 1
+npm error path /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error workspace create-agdf@0.14.5
+npm error location /private/tmp/agdf-ur-candidate-20261004/packages/cli
+npm error command failed
+npm error command sh -c npm --prefix ../mcp-server test

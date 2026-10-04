@@ -1,0 +1,272 @@
+npm notice run create-agdf@0.14.5 test:local-development-install
+npm notice run npm run release:prepare && node scripts/local-development-install-test.js
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (50 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+Public plugin tests passed (54 inventoried candidate files; digest fde8f160d7bbe4642b83b4d8f690368428ab066792883b1f65efb1c861745bbc)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest fde8f160d7bbe4642b83b4d8f690368428ab066792883b1f65efb1c861745bbc
+Local development install tests passed
+npm notice run create-agdf@0.14.5 test:package-build
+npm notice run node scripts/package-build-test.js
+Package build tests passed (all generated profiles byte-identical across complete builds; source untouched)
+npm notice run create-agdf@0.14.5 test:package-contents
+npm notice run node scripts/package-contents-test.js
+Package contents tests passed (722 files; complete release-built plugin present)
+npm notice run create-agdf@0.14.5 test:lifecycle
+npm notice run node scripts/lifecycle-test.js
+lifecycle tests passed
+npm notice run create-agdf@0.14.5 test:copilot-repository-retention
+npm notice run node scripts/copilot-repository-retention-test.js
+Copilot repository retention tests passed (install, update, status, disable, uninstall and failure)
+npm notice run create-agdf@0.14.5 test:control-command
+npm notice run node scripts/control-command-test.js
+PASS SCN-016 Windows replay flush uses a writable handle without changing canonical bytes
+PASS SCN-002 undeclared {"role":"user"}
+PASS SCN-002 undeclared {"seen":true}
+PASS SCN-002 undeclared {"trusted":true}
+PASS SCN-002 undeclared {"tool_provenance":"human"}
+PASS SCN-002 accessor schema_version rejected without evaluation
+PASS SCN-002 accessor action rejected without evaluation
+PASS SCN-002 accessor target_id rejected without evaluation
+PASS SCN-002 accessor run_id rejected without evaluation
+PASS SCN-002 accessor gate rejected without evaluation
+PASS SCN-002 accessor expected_revision_id rejected without evaluation
+PASS SCN-002 accessor presentation_id rejected without evaluation
+PASS SCN-002 accessor response rejected without evaluation
+PASS SCN-002 accessor operation_id rejected without evaluation
+PASS SCN-002 accessor assurance rejected without evaluation
+PASS SCN-009 "authenticated_human"
+PASS SCN-009 "verified_human"
+PASS SCN-009 "host_attested"
+PASS SCN-009 "signed"
+PASS SCN-009 "trusted"
+PASS SCN-009 ""
+PASS SCN-002 malformed {"schema_version":"2"}
+PASS SCN-002 malformed {"action":"present"}
+PASS SCN-002 malformed {"operation_id":"x"}
+PASS SCN-002 malformed {"run_id":"../foreign"}
+PASS SCN-002 malformed {"expected_revision_id":null}
+PASS SCN-002 malformed {}
+PASS SCN-002/009 closed schema and unsupported authority, zero mutation
+PASS SCN-008 ""
+PASS SCN-008 "Ja"
+PASS SCN-008 "Leg los"
+PASS SCN-008 "Approval: PRD"
+PASS SCN-008 "`Approval: UR`"
+PASS SCN-008 "Zitat: Approval: UR"
+PASS SCN-007/008 read, present, derived and nonexact replies do not approve
+PASS SCN-011 {"target_id":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+PASS SCN-011 {"expected_revision_id":"003c4dc2-4dca-42b7-9fde-4d372ed01d33"}
+PASS SCN-011 {"presentation_id":"c090391c-1e66-4608-95f2-3f5fb90a5054"}
+PASS SCN-011 {"gate":"PRD"}
+PASS SCN-011 exact target, revision and presentation bindings
+PASS SCN-015 live and unknown locks are retained and never succeed
+PASS SCN-020 temp_opened
+PASS SCN-020 temp_written
+PASS SCN-020 after_file_sync
+PASS SCN-020 before_rename
+PASS SCN-020 write checkpoints before rename leave no approval or receipt
+PASS SCN-012 final presentation validation under lock
+PASS SCN-012 prepared presentation mutation is rejected at final validation
+PASS SCN-001/003/004/010 one revision, atomic receipt and explicit cooperative result
+PASS SCN-025 invalid receipt subcase 0
+PASS SCN-025 invalid receipt subcase 1
+PASS SCN-025 invalid receipt subcase 2
+PASS SCN-025 invalid receipt subcase 3
+PASS SCN-025 invalid receipt subcase 4
+PASS SCN-025 invalid receipt subcase 5
+PASS SCN-025 invalid receipt subcase 6
+PASS SCN-023/025 receipt version, row identity, effect and encoding validation
+PASS SCN-016/017 same request replays; changed bytes conflict without a revision
+PASS SCN-018/019 historical effect survives revocation, current state is separately observed
+PASS SCN-023/025 receipt corruption, deletion and seal tampering fail closed
+PASS SCN-018 receipt-preserving recovery never restores approval
+PASS SCN-022 postrename failure exposes canonical effect; retry acknowledges without writing
+PASS SCN-018 bounded PRD supersession preserves UR receipt and never reapproves PRD
+PASS SCN-024 legacy seal bytes and CLI rejection/assurance remain compatible
+PASS SCN-011 symlink run paths are rejected before mutation
+Control command tests passed: 18 scenario groups.
+PASS SCN-020/022 postcommit after_directory_sync acknowledged without another revision
+PASS SCN-020/022 postcommit before_response acknowledged without another revision
+PASS SCN-020/022 postcommit before_lock_release acknowledged without another revision
+PASS SCN-020/022 postcommit after_lock_release acknowledged without another revision
+npm notice run create-agdf@0.14.5 test:control-command-process
+npm notice run node scripts/control-command-process-test.js
+PASS SCN-021/016 kill before_rename, confirmed death, one committed revision
+PASS SCN-021/016 kill after_rename, confirmed death, one committed revision
+PASS SCN-021/016 kill before_response, confirmed death, one committed revision
+PASS SCN-013/014/015 CLI/API concurrent identical
+PASS SCN-013/014/015 CLI/API concurrent distinct
+PASS SCN-013/014/015 CLI/API concurrent changed_payload
+Control command process tests passed on darwin/x64.
+PASS SCN-026 real legacy CLI interruption before_rename
+PASS SCN-026 real legacy CLI interruption after_rename
+SCN-026 INTERRUPTION_METRICS [{"lane":"command","point":"before_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"accepted","manual_corrections":0,"human_decision":"unavailable"},{"lane":"command","point":"after_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"already_applied","manual_corrections":0,"human_decision":"unavailable"},{"lane":"command","point":"before_response","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"already_applied","manual_corrections":0,"human_decision":"unavailable"},{"lane":"legacy","point":"before_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"approved","manual_corrections":0,"human_decision":"unavailable"},{"lane":"legacy","point":"after_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"rejected","manual_corrections":0,"human_decision":"unavailable"}]
+PROCESS_EVIDENCE [{"point":"before_rename","child_pid":73184,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"02d8e386-e6a4-4fea-91f2-fc574e7ab895","retry":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"0b488b05-39eb-47c8-90d2-01bd61efd131","request_digest":"sha256:89f0448bc4df6086935a47100c47e273d2aa17e4514086e5a30d6614e8574328","binding":{"target_id":"sha256:3fd8d4a9026b5d77a7c1821e22bbb3395791344d56439e71fa4908d8cbf2210c","run_id":"command-test","gate":"UR","expected_revision_id":"02d8e386-e6a4-4fea-91f2-fc574e7ab895","presentation_id":"97dadde1-ba3f-4de5-8334-710d1af7f08e"},"effect":{"previous_revision_id":"02d8e386-e6a4-4fea-91f2-fc574e7ab895","resulting_revision_id":"06c83c3e-324a-4414-b61c-14cda16cc372","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:9b80ef38d02d1150cded83221af7dd6f880f51f374c9902e09df34bffd0eeac3","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"06c83c3e-324a-4414-b61c-14cda16cc372","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"point":"after_rename","child_pid":73208,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"8eea38ca-7a2d-4fee-b1ca-71e6bdad150d","retry":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"167736da-839f-4a5b-8bc9-b873f9c91867","request_digest":"sha256:a8ccde1755ce0e56348fe8bed82aa07270e55f82df00f56e15f57bace1922e77","binding":{"target_id":"sha256:55424c71fe0d372401d5fc8cf3b98262a903cf318fc4a32ff52d3ec5f1d4e932","run_id":"command-test","gate":"UR","expected_revision_id":"68d2f077-583c-4c49-a2da-47c141cbe6e2","presentation_id":"b7bcd1ce-f28d-40f2-9d08-926df901f7ce"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:a5c33aa74caa8466f3d5233a4f196e8a29e478606a51fedc844a635c9a71e384","previous_revision_id":"68d2f077-583c-4c49-a2da-47c141cbe6e2","resulting_revision_id":"8eea38ca-7a2d-4fee-b1ca-71e6bdad150d","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"8eea38ca-7a2d-4fee-b1ca-71e6bdad150d","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"point":"before_response","child_pid":73242,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"4151df10-6882-4666-a48e-c037263c9628","retry":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"7e5bcec8-7b90-463c-ac08-b2c580ed5f18","request_digest":"sha256:7bfc29ac907dd913ca1be951e12c6d65539819f955627e5d818ec323c9f8e326","binding":{"target_id":"sha256:cd3c769ad34c7bae4ad6faf13f6b63acb71cda68d9215be8eefab89fccb4df71","run_id":"command-test","gate":"UR","expected_revision_id":"ccd6bdb3-5183-4668-92d1-22b224645d64","presentation_id":"0f758167-be14-4339-bfe6-17114dffeb38"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:b11e7f9dc1ff9462d74f3c9ee9c5504d590833ceb25af09e2be83e5a3261b4e9","previous_revision_id":"ccd6bdb3-5183-4668-92d1-22b224645d64","resulting_revision_id":"4151df10-6882-4666-a48e-c037263c9628","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"4151df10-6882-4666-a48e-c037263c9628","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"mode":"identical","child_pid":73264,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"294b9eb4-76f6-4821-a9d8-8a0f1085f58a","request_digest":"sha256:741717b7107eb7c20b095b2cd0eec2591d5c1813d94187f25d5ce1931ad71d0e","binding":{"target_id":"sha256:8c8ec3a57a8d763c5e18aa9983ba2d3633d757582843f300291314722f6d8fca","run_id":"command-test","gate":"UR","expected_revision_id":"2ad39a46-bf26-43d9-a8de-c0a68f761de8","presentation_id":"e9e7b0b7-11e0-4d3a-8759-18e646cc3dd1"},"effect":{"previous_revision_id":"2ad39a46-bf26-43d9-a8de-c0a68f761de8","resulting_revision_id":"14f6e27a-e80a-4004-b54b-11a43d44cd8f","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:9b0a9a9f07c317b175342ad5dc525f9e4c4f532eef0cd2371cbd8b0ed56a3ee4","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"14f6e27a-e80a-4004-b54b-11a43d44cd8f","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"294b9eb4-76f6-4821-a9d8-8a0f1085f58a","request_digest":"sha256:741717b7107eb7c20b095b2cd0eec2591d5c1813d94187f25d5ce1931ad71d0e","binding":{"target_id":"sha256:8c8ec3a57a8d763c5e18aa9983ba2d3633d757582843f300291314722f6d8fca","run_id":"command-test","gate":"UR","expected_revision_id":"2ad39a46-bf26-43d9-a8de-c0a68f761de8","presentation_id":"e9e7b0b7-11e0-4d3a-8759-18e646cc3dd1"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"2ad39a46-bf26-43d9-a8de-c0a68f761de8","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":0,"result":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"294b9eb4-76f6-4821-a9d8-8a0f1085f58a","request_digest":"sha256:741717b7107eb7c20b095b2cd0eec2591d5c1813d94187f25d5ce1931ad71d0e","binding":{"target_id":"sha256:8c8ec3a57a8d763c5e18aa9983ba2d3633d757582843f300291314722f6d8fca","run_id":"command-test","gate":"UR","expected_revision_id":"2ad39a46-bf26-43d9-a8de-c0a68f761de8","presentation_id":"e9e7b0b7-11e0-4d3a-8759-18e646cc3dd1"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:9b0a9a9f07c317b175342ad5dc525f9e4c4f532eef0cd2371cbd8b0ed56a3ee4","previous_revision_id":"2ad39a46-bf26-43d9-a8de-c0a68f761de8","resulting_revision_id":"14f6e27a-e80a-4004-b54b-11a43d44cd8f","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"14f6e27a-e80a-4004-b54b-11a43d44cd8f","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}},{"mode":"distinct","child_pid":73282,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"13f9f68e-ca92-482f-b934-eb93922a2c6a","request_digest":"sha256:1f52ba79cbb805f99d6dec778ebb4b8aac80bc6d60147a5cef42dff1dd585f31","binding":{"target_id":"sha256:65ee3ac5360c8043615b055e9616ad57e7350d7bc5cf77e35ec52415e94dd2f2","run_id":"command-test","gate":"UR","expected_revision_id":"74cacf11-bd7a-424d-8419-59a237b4f093","presentation_id":"36d4b39a-fd69-45ef-83ae-74b0328f02a7"},"effect":{"previous_revision_id":"74cacf11-bd7a-424d-8419-59a237b4f093","resulting_revision_id":"868b7b31-6be9-40d4-9c1a-339657f25aeb","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:587dd21997aab81830ee7ea6699c313dcb743ef9ddcb667e09dfcde2300ff94c","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"868b7b31-6be9-40d4-9c1a-339657f25aeb","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"b0c951f2-6ce8-42d0-be35-4f7921646ca8","request_digest":"sha256:1f52ba79cbb805f99d6dec778ebb4b8aac80bc6d60147a5cef42dff1dd585f31","binding":{"target_id":"sha256:65ee3ac5360c8043615b055e9616ad57e7350d7bc5cf77e35ec52415e94dd2f2","run_id":"command-test","gate":"UR","expected_revision_id":"74cacf11-bd7a-424d-8419-59a237b4f093","presentation_id":"36d4b39a-fd69-45ef-83ae-74b0328f02a7"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"74cacf11-bd7a-424d-8419-59a237b4f093","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":2,"result":{"schema_version":"1","outcome":"rejected","reason":"gate_not_ready","operation_id":"b0c951f2-6ce8-42d0-be35-4f7921646ca8","request_digest":"sha256:1f52ba79cbb805f99d6dec778ebb4b8aac80bc6d60147a5cef42dff1dd585f31","binding":{"target_id":"sha256:65ee3ac5360c8043615b055e9616ad57e7350d7bc5cf77e35ec52415e94dd2f2","run_id":"command-test","gate":"UR","expected_revision_id":"74cacf11-bd7a-424d-8419-59a237b4f093","presentation_id":"36d4b39a-fd69-45ef-83ae-74b0328f02a7"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"868b7b31-6be9-40d4-9c1a-339657f25aeb","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}},{"mode":"changed_payload","child_pid":73300,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"b8d8f284-422b-4157-8dfa-46842c01a8cd","request_digest":"sha256:029a843b8eeccbceaf9f789a84dc5037dec84eb510b3902b1b3a291c3d41c5cd","binding":{"target_id":"sha256:5ad2ab39ccbac2056ad050e9299b24527fa0f1a25fd7d97fdcb83322045ee33d","run_id":"command-test","gate":"UR","expected_revision_id":"b16e7baa-7ee3-4fe5-8511-fcfb2225949d","presentation_id":"deca974b-b883-469d-897b-ffa399c3ca07"},"effect":{"previous_revision_id":"b16e7baa-7ee3-4fe5-8511-fcfb2225949d","resulting_revision_id":"2ba91c2a-4b6a-4320-8271-2cc0ee3eeecc","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:32719d0e0dd696c31a8f82c792ba3f3d61efe90e0861e9219b345baf59d99809","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"2ba91c2a-4b6a-4320-8271-2cc0ee3eeecc","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"b8d8f284-422b-4157-8dfa-46842c01a8cd","request_digest":"sha256:24034415e71d6d80cbad4f7efe38aa2f07c1497f508b11ce114d52167d69dab9","binding":{"target_id":"sha256:5ad2ab39ccbac2056ad050e9299b24527fa0f1a25fd7d97fdcb83322045ee33d","run_id":"command-test","gate":"UR","expected_revision_id":"b16e7baa-7ee3-4fe5-8511-fcfb2225949d","presentation_id":"deca974b-b883-469d-897b-ffa399c3ca07"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"b16e7baa-7ee3-4fe5-8511-fcfb2225949d","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":2,"result":{"schema_version":"1","outcome":"rejected","reason":"operation_payload_conflict","operation_id":"b8d8f284-422b-4157-8dfa-46842c01a8cd","request_digest":"sha256:24034415e71d6d80cbad4f7efe38aa2f07c1497f508b11ce114d52167d69dab9","binding":{"target_id":"sha256:5ad2ab39ccbac2056ad050e9299b24527fa0f1a25fd7d97fdcb83322045ee33d","run_id":"command-test","gate":"UR","expected_revision_id":"b16e7baa-7ee3-4fe5-8511-fcfb2225949d","presentation_id":"deca974b-b883-469d-897b-ffa399c3ca07"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"2ba91c2a-4b6a-4320-8271-2cc0ee3eeecc","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":null}}}]
+PASS SCN-012 real child final-checkpoint artefact, no command effect
+FRESHNESS_EVIDENCE {"kind":"artefact","child_pid":73367,"result":{"schema_version":"1","outcome":"recovery_required","reason":"canonical_state_unconfirmed","operation_id":"88f800ed-0907-402a-bac7-6b5f9e78768d","request_digest":"sha256:05550073230a4d44c4cd549f920ce6ba2a784bdc468fd77caeba96031af3b18b","binding":{"target_id":"sha256:27dcb50cb4c63c9d5f79803df6b33e43de3c609eba0b19f06511898c220a90f5","run_id":"command-test","gate":"UR","expected_revision_id":"1ddc5e37-6d3d-47e8-8549-09a07ddd779d","presentation_id":"cccda865-0e9c-4e07-abbd-7e0fb0c64d8c"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":false,"reason":"seal_invalid"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Inspect the canonical run and pending transaction before retrying; do not infer approval from this response."}}
+PASS SCN-012 real child final-checkpoint presentation, no command effect
+FRESHNESS_EVIDENCE {"kind":"presentation","child_pid":73390,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"23e1da98-8eda-4b36-95fb-a453ce0de058","request_digest":"sha256:6a54e4088f224e66a9732561eeeb0127999f56af7ee6aa3551677babd3963b2d","binding":{"target_id":"sha256:19f9c38f350e89741300b538a7b8d6e7b0689fbe39ee2c9c81484ba1386323d6","run_id":"command-test","gate":"UR","expected_revision_id":"7427a6cf-e55e-4bb3-b643-93c997b4bb4a","presentation_id":"29b92ecf-53a6-43e1-9ae7-6bacb3f178b9"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"7427a6cf-e55e-4bb3-b643-93c997b4bb4a","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+PASS SCN-012 real child final-checkpoint revision, no command effect
+FRESHNESS_EVIDENCE {"kind":"revision","child_pid":73411,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"d1568ffb-1291-4c5f-a0d8-9698293ccf30","request_digest":"sha256:fc7f2be9f7d97eeb49fcdedd3bf15d1842853a12388f1883bef5b03bc4edbb46","binding":{"target_id":"sha256:4a2280823a094fb9d7d383a7c5ef356c731f1814fcd348f1b9a76110ee5ebb54","run_id":"command-test","gate":"UR","expected_revision_id":"0fb14a77-92fc-45d2-b74f-c9db096d0a61","presentation_id":"26b29da2-4ffa-4177-abae-406e3e7f650e"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"31eec876-ec60-47d3-8485-5ad60673ef7d","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+PASS SCN-012 real child final-checkpoint gate_eligibility, no command effect
+FRESHNESS_EVIDENCE {"kind":"gate_eligibility","child_pid":73434,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"1ef407b4-715c-4b9b-b3dd-ce498da361d5","request_digest":"sha256:85238ba6a22a881dee45e83220536a15f0f74159d130a618aad7fb4184717ba3","binding":{"target_id":"sha256:6092c6e9bf02e4177fb85306d749bc367f5d6763fcd285613763e0431e8e65e9","run_id":"command-test","gate":"UR","expected_revision_id":"009390ef-e287-43ed-8d86-ec189b7badd7","presentation_id":"4c9b081c-2f9e-47ea-9c03-ff0c8222f5fd"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"009390ef-e287-43ed-8d86-ec189b7badd7","approval_status":"missing","lifecycle":"completed","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+npm notice run create-agdf@0.14.5 test:control-command-package
+npm notice run node scripts/control-command-package-test.js
+PASS package containment accepts POSIX/Windows dependencies and rejects sibling, parent and foreign-drive paths
+PASS SCN-024/028 CLI modularization against the current source and documentation in isolated snapshot
+PASS SCN-029/032 isolated package-build regression
+PASS SCN-029/032 isolated copilot-profile regression
+PASS SCN-029/032 isolated release-version-coherence regression
+PASS SCN-029/032 isolated package-contents regression
+PASS SCN-029/032 isolated local-validator regression
+PASS SCN-029/032 isolated plugin-mcp-runtime regression
+PASS SCN-029/032 isolated runtime-integrity-layout regression
+PASS SCN-029/032 isolated runtime-integrity-negative regression
+PASS SCN-005/006/027 package exports and 44 pure runtime dependency modules
+PASS SCN-006 external import has only package-owned reads and no target/process/write/print/exit effects
+SCN-001 PACKED_API_RESULT {"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"a5b0645c-576a-4ca3-9ba2-987731fa0af6","request_digest":"sha256:e7414f5efd6be0e89ae4df812470216f8c630dd64dd0aa3eeeda98e36b888a17","binding":{"target_id":"sha256:ceb83a967daf93af1b779d52e549d5156542d2b64e3bd2ec0f6c3e8af1a399b8","run_id":"external-consumer","gate":"UR","expected_revision_id":"ff908619-1784-4244-9f7f-98060444f8c9","presentation_id":"1446b361-7f6a-4567-8787-05be8f82abd7"},"effect":{"previous_revision_id":"ff908619-1784-4244-9f7f-98060444f8c9","resulting_revision_id":"528aef16-ba02-4621-ade7-815bace50394","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:3fd52ea723817a0a153dae51ec06fbbc80d0d12ab9bf5b736abbbdaac997293e","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"528aef16-ba02-4621-ade7-815bace50394","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}
+PASS SCN-001/028/029 packed external CLI/API approve/replay/Git/locale parity
+PASS SCN-029 missing packed locale resource fails without canonical mutation
+SCN-032 RUNTIME_IDENTITY {"profile":"generated/plugins/agdf","version":"0.14.5","digest":"74944f85c26d66d255e3dbf359c51f02cd5b64e810fa812615308f29db01b87c","result":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"f6ef2e3d-a5f5-4ee7-b5fa-168d72575c78","request_digest":"sha256:5e0c22cc5560477b529f692dcd47412a60166d23d2afe4a50d520148ed5587d8","binding":{"target_id":"sha256:b64881f211f6bdec755c2ad8454e35184b62384e0e08b7f2f3978965aec3bc22","run_id":"generated-shared","gate":"UR","expected_revision_id":"c9c85383-05e4-4c71-957c-a7c85c9dfee0","presentation_id":"f983017b-afa3-477b-ab14-731e6bc9100f"},"effect":{"previous_revision_id":"c9c85383-05e4-4c71-957c-a7c85c9dfee0","resulting_revision_id":"33b81a5b-fab5-43cd-9db6-33f17dd28a90","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:102f5d6e938df0c84a15c93741b2f27710ff91de60947715a293647cff0453f6","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"33b81a5b-fab5-43cd-9db6-33f17dd28a90","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}
+PASS SCN-032 generated generated/plugins/agdf module/resource closure and missing resource fail closed
+SCN-032 RUNTIME_IDENTITY {"profile":"generated/plugins/copilot/agdf","version":"0.14.5","digest":"d095231733dbd338538ab9dcf2b9e5afeb200f6813fa63e07df116e2557d979d","result":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"f102f28c-5dd0-44bc-a404-dccbbd41f40a","request_digest":"sha256:0c97db88ae701f4c3b66fdedf6116f88381ba661b2a586ad30473be5b5612c6a","binding":{"target_id":"sha256:efa422b45783523e38fb306b4c499cb7ffe73af1d8fd88737db3c5be9bdd1b4a","run_id":"generated-copilot","gate":"UR","expected_revision_id":"d14a50b9-f90b-4f96-8f47-bbec91b716cf","presentation_id":"f3b24911-ccca-437e-9d0f-8f6e5ecdd29a"},"effect":{"previous_revision_id":"d14a50b9-f90b-4f96-8f47-bbec91b716cf","resulting_revision_id":"5bece05f-e8d9-475f-917f-2fd4cb3d44d2","revision":3,"gate":"UR","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:76beded4b17f0ebc20a5768e7f8df735b858f86c2d2238c0e22076e670370c81","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"5bece05f-e8d9-475f-917f-2fd4cb3d44d2","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}
+PASS SCN-032 generated generated/plugins/copilot/agdf module/resource closure and missing resource fail closed
+SCN-026 WORKFLOW_METRICS [{"lane":"legacy","boundary":"recorded_UR_to_inspected_approval","success_calls":3,"presentation_prepared":1,"presentations_visibly_shown":"unavailable","manual_corrections":0,"simulated_replies":1,"observed_human_decisions":"unavailable","retry_calls":1,"retry_outcome":"rejected","stale_calls":1,"stale_outcome":"rejected"},{"lane":"command","boundary":"recorded_UR_to_inspected_approval","success_calls":3,"presentation_prepared":1,"presentations_visibly_shown":"unavailable","manual_corrections":0,"simulated_replies":1,"observed_human_decisions":"unavailable","retry_calls":1,"retry_outcome":"already_applied","stale_calls":1,"stale_outcome":"rejected"}]
+SCN-030/031 QUALIFICATION {"source":"passed","packed_external":"passed","generated_validator":"passed","native_platform":"darwin/x64","native_linux":"unavailable","native_windows":"unavailable","new_installed_plugin":"not_installed","visible_host":"not_observed","independent_human_proof":"unavailable"}
+PACKAGE_IDENTITY {"version":"0.14.5","tarball_sha256":"86139e5d70042e3b30feddfb7285d37e9c17a434b3f1c42b6c1f06dd3068ea04","command_schema_version":"1","receipt_schema_version":"1","approval_seal_legacy_version":"1","receipt_approval_seal_version":"2","files":722,"node":"v22.22.3","platform":"darwin","arch":"x64"}
+Control command package tests passed (722 real packed files).
+npm notice run create-agdf@0.14.5 test:cli-gates
+npm notice run node scripts/cli-gate-scenarios-test.js
+[cli-gates] START new-ur
+[cli-gates] PASS new-ur (5.0s)
+[cli-gates] START duplicate-prd
+[cli-gates] PASS duplicate-prd (5.7s)
+[cli-gates] START bound-ur
+[cli-gates] PASS bound-ur (5.7s)
+npm notice run create-agdf@0.14.5 test:control-state
+npm notice run node ../core/test/control-state-test.js
+artefact recording/correction tests passed (210 assertions)
+control-state tests passed
+backlog status vocabulary tests passed
+npm notice run create-agdf@0.14.5 test:run-step-transaction
+npm notice run node ../core/test/run-step-transaction-test.js
+Run-step transaction boundaries passed.
+npm notice run create-agdf@0.14.5 test:run-recovery
+npm notice run node scripts/run-recovery-test.js
+run recovery tests passed
+npm notice run create-agdf@0.14.5 test:run-lock
+npm notice run node ../core/test/run-lock-test.js
+Run lock owner recovery passed.
+npm notice run create-agdf@0.14.5 test:prd-readiness
+npm notice run node ../core/test/prd-readiness-test.js
+PRD readiness tests passed
+npm notice run create-agdf@0.14.5 test:run-revision
+npm notice run node ../core/test/run-revision-test.js
+run-revise tests passed
+npm notice run create-agdf@0.14.5 test:intake-continuation
+npm notice run node scripts/intake-continuation-test.js
+intake continuation packaged-runtime E2E passed (new/resume, binding, rejection, read-only, recovery, route); runtime sha256:90628ade81f47b45dc20cce5819d7aaa5258851c75cc3c2b6f688e20f5e25aa5
+npm notice run create-agdf@0.14.5 test:artifact-language
+npm notice run node scripts/artifact-language-test.js
+artifact language tests passed (config source, English defaults, dispatcher recovery)
+npm notice run create-agdf@0.14.5 test:parent-reconciliation
+npm notice run node ../core/test/parent-reconciliation-test.js
+AGDF parent reconciliation tests passed
+npm notice run create-agdf@0.14.5 test:interaction-presentation
+npm notice run node ../core/test/interaction-presentation-test.js
+interaction presentation tests passed
+gate rationale and why tests passed
+scope classification card tests passed
+task target orientation tests passed
+npm notice run create-agdf@0.14.5 test:operational-localization
+npm notice run node scripts/operational-localization-test.js
+operational localization tests passed
+npm notice run create-agdf@0.14.5 test:verified-change
+npm notice run node scripts/verified-change-test.js
+Verified Change tests passed
+npm notice run create-agdf@0.14.5 test:runtime-integrity-layout
+npm notice run node scripts/runtime-integrity-layout-test.js
+Runtime integrity layout tests passed
+npm notice run create-agdf@0.14.5 test:runtime-integrity-negative
+npm notice run node scripts/runtime-integrity-negative-test.js
+Runtime integrity negative tests passed
+npm notice run create-agdf@0.14.5 test:agent-skills-conformance
+npm notice run node scripts/agent-skills-conformance-test.js
+Agent Skills conformance tests passed (source, policy, metadata, resources, symlinks and 4 generated surfaces)
+npm notice run create-agdf@0.14.5 test:skill-evals
+npm notice run node scripts/skill-evals-test.js
+AGDF skill eval tests passed
+npm notice run create-agdf@0.14.5 eval:skills
+npm notice run node ../../evals/scripts/run-skill-evals.js
+AGDF skill evals: pass (94/94 cases; 11 skills; deterministic replay, not live host execution)
+npm notice run create-agdf@0.14.5 test:proportionality
+npm notice run node scripts/proportionality-benchmark-test.js
+AGDF proportionality benchmark tests passed
+npm notice run create-agdf@0.14.5 test:delivery-path-search
+npm notice run node scripts/delivery-path-search-test.js
+Delivery Path Search focused tests passed.
+npm notice run create-agdf@0.14.5 test:delivery-path-search-unit
+npm notice run node ../core/test/delivery-path-search-unit-test.js
+Delivery Path Search unit tests passed.
+npm notice run create-agdf@0.14.5 test:delivery-path-search-generator
+npm notice run node scripts/delivery-path-search-generator-test.js
+Delivery Path Search generator tests passed.
+npm notice run create-agdf@0.14.5 test:opencode-hardening
+npm notice run node scripts/opencode-hardening-test.js
+OpenCode hardening tests passed.
+[smoke 0.0s] CLI metadata and release guards
+[smoke 0.4s] codex global
+[smoke 4.8s] host installer scenarios
+[smoke 7.1s] claude install
+[smoke 12.1s] claude update
+[smoke 17.4s] Claude installer scenarios
+[smoke 23.3s] OpenCode global installation and validator
+[smoke 33.0s] OpenCode installation and status scenarios
+[smoke 43.3s] opencode global preservation
+[smoke 58.8s] opencode global collision
+[smoke 59.9s] opencode validator package collision
+[smoke 78.3s] repository bootstrap scenarios
+[smoke 79.2s] opencode agent migration
+[smoke 79.6s] opencode existing config
+[smoke 80.0s] configuration and locale scenarios
+[smoke 80.4s] init
+[smoke 81.9s] gate check status card
+[smoke 83.4s] language explicit
+[smoke 83.9s] language config update
+[smoke 84.8s] language locale
+[smoke 85.3s] localized status cards
+[smoke 87.4s] status card tp transition
+[smoke 89.5s] gate check implicit consent
+[smoke 91.0s] late gate transition scenarios
+[smoke 112.3s] QA and UAT gate scenarios
+[smoke 113.8s] doctor qa status mismatch
+[smoke 115.2s] doctor missing
+[smoke 116.2s] gate check ur triage
+[smoke 117.6s] gate-check presentation scenarios
+[smoke 119.7s] Mode and slice decision scenarios
+[smoke 121.7s] gate check or handoff
+[smoke 123.8s] gate check mode slice incomplete
+[smoke 125.3s] delivery map chain
+[smoke 127.4s] delivery map and backlog scenarios
+[smoke 128.8s] invalid compact backlog
+[smoke 129.8s] completed only backlog
+[smoke 130.8s] gate check missing ur artifact
+[smoke 132.2s] missing artefact and package compatibility scenarios
+[smoke 138.2s] generated host surface scenarios
+create-agdf smoke test passed
+AGDF routing render test passed for plugin-only Copilot skills

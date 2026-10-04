@@ -400,3 +400,16 @@ Conditional dispatcher inputs, typed inspect output and distinct localized targe
 ### Inspect outcome invariants (2026-10-02)
 
 Success is non-terminal; unresolved and error results stop. Outcome-dependent output validation grows the existing generated runtime to 179 files / 1484993 bytes. No files are added and the payload ceiling matches the inventory. The inspect definition is 4986 bytes with a 5000-byte ceiling.
+
+## UR definition separation (2026-10-04)
+
+The `ur-definition` skill owns requirement drafting and clarification through its focused
+contract. Gate evaluation retains readiness, the dispatcher routes, and existing canonical
+revision/presentation/approval writers retain persistence and human authorization.
+The measured Copilot closure is 189 files / 1558022 bytes, +4 files / +20944 bytes from the
+reviewed 185 / 1537078 baseline. The four new payload entries are recorded with exact digests
+in `ur-definition-separation-20261004-01/evidence/PROJECTION_AND_BUDGET.json`.
+No unused headroom or instruction-limit increase is added. Skill inventory checks require the
+complete canonical catalog rather than ten records. The locked structural fingerprint changes
+only for that reviewed condition; budget and terminal-dispatch negative checks remain enforced.
+CLI binding placeholder labels are compacted without changing flag or validation semantics.

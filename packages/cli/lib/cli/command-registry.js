@@ -112,7 +112,7 @@ export function validateCommandOptions(options) {
     throw new Error("target-check requires --json");
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
-  if ((options.intakeMode || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
+  if ((options.intakeMode || options.urAction || options.prdAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
   if ((options.operationId !== undefined || options.assurance !== undefined) && options.target !== "run-approve") {
     throw new Error("--operation and --assurance are supported only by run-approve");
   }
@@ -304,6 +304,8 @@ Options:
   --skill <skill-id>
                  Select one canonical skill for skill-dispatch
   --intake-mode <new|resume>  Explicit new scope or bound intake recovery; requires --intake and --run
+  --ur-action revise  Explicit unapproved UR revision; requires revision-bound resume intake
+  --prd-action revise Explicit unapproved PRD revision; requires revision-bound resume intake
   --continue-delivery  Bound internal continuation; excludes intake and read-only status
   --operation <uuid>     Explicit idempotent run-approve command identity
   --assurance <lane>     Only cooperative_local is supported; no independent human proof

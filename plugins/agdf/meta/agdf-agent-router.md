@@ -80,6 +80,10 @@ Do not infer approval from "ok", "go ahead", "do it", "approved", "continue", "l
 Those phrases may express intent to proceed, but they do not unlock a gate unless the exact gate formula is present.
 Do not infer active scope from branch names, uncommitted workspace deltas, chat history or generated summaries when durable artefacts point elsewhere.
 If multiple active scopes are plausible, list the evidenced lines and route to `gate-check` or workstate clarification instead of choosing silently.
+Before UR approval, delegate the bound requirement draft and material clarification to
+`ur-definition`. After approved UR and completed analysis/routing, delegate bound PRD drafting
+and clarification to `prd-definition`. Gate-check keeps control, readiness and presentation ownership.
+
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
 Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`.
 That same review records the shared UI/UX impact classification. Run `ux-intent-definition` before
@@ -98,12 +102,14 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | Skill | Use For | Boundary |
 |---|---|---|
 | `delivery-path-search` | high-impact planning decisions with several plausible next delivery steps before implementation | read-only advisory search; never grants gate permission or replaces gate-check |
-| `brownfield-analysis` | after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems | clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission |
-| `ux-intent-definition` | after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness | non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth |
+| `brownfield-analysis` | permitted Brownfield Review or preparation before non-trivial existing-system changes | clarifies reuse, owners, risks and Mode/Slice; never bypasses control or grants implementation |
+| `ux-intent-definition` | approved UR with routed medium/high UX impact or ambiguous low-impact semantics before PRD | analytical PRD input only; no intent, gate, design or parallel product authority |
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
-| `gate-check` | any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
+| `ur-definition` | drafting or revising an unapproved UR after bound dispatch | owns requirement drafting and clarification; never approves or changes approved intent |
+| `prd-definition` | drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch | owns product drafting and clarification; never approves or changes approved intent |
+| `gate-check` | requested build/file/code changes, Structured Delivery or gate artifacts; approval/next-step questions within explicit AGDF or active delivery | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
 | `qa-gate` | sole final Quality Readiness decision | only instance for `pass | revise | block` |
 | `release-or` | auditable closeout for every relevant run | not a QA substitute |
 | `task-plan-review` | evidence dimension: verify whether the approved Task Plan was fulfilled | supports Quality Readiness; no final QA decision |

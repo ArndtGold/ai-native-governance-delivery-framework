@@ -3,6 +3,7 @@ import { execFileSync, spawnSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { evaluateUrReadiness } from "../../core/lib/control-evaluation/ur-readiness.js";
 import { join, resolve } from "node:path";
 
 // Exercise the shipped plugin runtime, not source create-agdf as a substitute for missing commands.
@@ -69,14 +70,54 @@ try {
   assert.equal(run("run-create", "--run", "new-run").code, 1);
   assert.equal(dispatch("--intake", "--intake-mode", "new", "--run", "new-run").diagnostics[0].code, "AGDF_RUN_COLLISION");
   const resume = () => dispatch("--intake", "--intake-mode", "resume", "--run", "new-run");
-  assert.equal(resume().continuation.phase, "ur_missing");
-  assert.equal(dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", revision("new-run")).continuation.phase, "ur_missing");
+  assert.equal(resume().continuation.phase, "ur_definition");
+  assert.equal(dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", revision("new-run")).continuation.phase, "ur_definition");
   assert.equal(dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", "00000000-0000-4000-8000-000000000000").continuation.reason, "stale_assignment");
+  const urDispatch = (...args) => call("skill-dispatch", "--json", "--skill", "ur-definition", "--surface", "codex", "--language", "de",
+    "--working-directory", root, "--target-source", "explicit_target", "--primary-target", root, ...args).value;
+  env.AGDF_RUN_ID = "foreign-a";
+  assert.equal(urDispatch().continuation.phase, "resolve_delivery_run", "direct unbound UR never adopts environment run");
+  delete env.AGDF_RUN_ID;
+  assert.equal(urDispatch("--run", "new-run").continuation.skill_id, "ur-definition");
+  before = snapshot();
+  for (const args of [["--ur-action", "revise"], ["--intake", "--intake-mode", "resume", "--run", "new-run", "--ur-action", "revise"],
+    ["--intake", "--intake-mode", "new", "--run", "new-run", "--revision", revision("new-run"), "--ur-action", "revise"]]) {
+    assert.equal(dispatch(...args).outcome, "invalid_input");
+    assert.deepEqual(snapshot(), before);
+  }
   const artefacts = join(root, ".agdf/control/artefacts/new-run");
   mkdirSync(artefacts, { recursive: true });
   const ur = join(artefacts, "UR.md");
   writeFileSync(ur, "# UR: Bound intake\n\nA new scope. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein neuer Umfang wird gebunden.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
   assert.equal(run("run-step", "--run", "new-run", "--revision", revision("new-run"), "--step", "ur", "--title", "Bound intake").value.outcome, "recorded");
+  const legacyUr = readFileSync(ur, "utf8");
+  const fakeState = { artefacts: new Map([["UR", { path: ".agdf/control/artefacts/new-run/UR.md" }]]) };
+  const template = readFileSync(join(plugin, "control/templates/artefacts/UR.md"), "utf8");
+  writeFileSync(ur, template.replace("Requirements clarification: open", "Requirements clarification: complete"));
+  assert.equal(evaluateUrReadiness(root, fakeState).ready, false, "complete marker cannot approve untouched template prompts");
+  writeFileSync(ur, "Requirements clarification: complete\n" + ["Problem", "Goal", "Affected Users", "Scope", "Non-Goals", "Acceptance Signals", "Existing Source Of Truth", "Risks And Unknowns", "Next Step"].map(heading => `## ${heading}\nConcrete requirement fact for ${heading}.`).join("\n"));
+  assert.equal(evaluateUrReadiness(root, fakeState).ready, true);
+  writeFileSync(ur, readFileSync(ur, "utf8") + "\nRequirements clarification: open\n");
+  assert.equal(evaluateUrReadiness(root, fakeState).ready, false, "duplicate conflicting clarification markers fail closed");
+  writeFileSync(ur, legacyUr);
+  assert.equal(evaluateUrReadiness(root, fakeState).legacy, true);
+
+  const initialRevision = revision("new-run");
+  const revise = (rev = revision("new-run")) => dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", rev, "--ur-action", "revise");
+  assert.equal(revise().continuation.draft_registered, true);
+  writeFileSync(ur, legacyUr + "\nRequirements clarification: open\n");
+  assert.equal(run("run-update", "--run", "new-run", "--revision", initialRevision).value.outcome, "updated");
+  const openRoute = resume();
+  assert.equal(openRoute.continuation.phase, "ur_definition");
+  assert.equal(openRoute.control.blocking_reason, "AGDF_UR_REQUIREMENTS_INCOMPLETE");
+  assert.equal(run("run-present", "--run", "new-run", "--gate", "UR", "--revision", revision("new-run"), "--language", "de").code, 2);
+  assert.equal(revise(initialRevision).continuation.reason, "stale_assignment");
+  const beforeStaleWrite = snapshot();
+  assert.equal(run("run-update", "--run", "new-run", "--revision", initialRevision).value.outcome, "rejected", "canonical writer rejects a stale snapshot revision");
+  assert.deepEqual(snapshot(), beforeStaleWrite, "stale write changes neither this run nor foreign control");
+  const openRevision = revision("new-run");
+  writeFileSync(ur, legacyUr);
+  assert.equal(run("run-update", "--run", "new-run", "--revision", openRevision).value.outcome, "updated");
   const routeFirst = resume();
   assert.equal(routeFirst.outcome, "intake_continuation");
   assert.equal(routeFirst.continuation.phase, "presentation_required", "Brownfield routing waits until the UR is approved");
@@ -84,6 +125,12 @@ try {
   const approve = (id, response = "Approval: UR", rev = revision("new-run")) => run("run-approve", "--run", "new-run", "--gate", "UR", "--revision", rev, "--response", response,
     ...(id ? ["--presentation", id] : [])).value;
   assert.equal(approve().reason, "presentation_required");
+  const stalePresentation = present();
+  const draftRevision = revision("new-run");
+  assert.equal(revise().continuation.phase, "ur_definition");
+  writeFileSync(ur, legacyUr.replace("Bound intake", "Revised bound intake"));
+  assert.equal(run("run-update", "--run", "new-run", "--revision", draftRevision).value.outcome, "updated");
+  assert.notEqual(approve(stalePresentation.presentation_id, "Approval: UR", draftRevision).outcome, "approved");
   const p = present();
   assert.equal(p.outcome, "prepared", JSON.stringify(p));
   assert.equal(p.schema_version, "1", "CLI envelope uses the canonical string version");
@@ -150,6 +197,10 @@ try {
   const results = await Promise.all([simultaneous(), simultaneous()]);
   assert.equal(results.filter(r => r.outcome === "approved").length, 1, "concurrent replies approve once");
   assert.equal(results.filter(r => r.outcome === "rejected").length, 1);
+  before = snapshot();
+  assert.equal(urDispatch("--run", "new-run").terminal, true, "approved UR has no writer continuation");
+  assert.equal(revise().terminal, true, "revision of approved UR does not start later work");
+  assert.deepEqual(snapshot(), before, "direct and revise routes preserve an approved UR");
   assert.equal(approve(fresh.presentation_id, "Approval: UR", previous).outcome, "rejected");
   const brownfield = dispatch("--run", "new-run", "--continue-delivery");
   assert.equal(brownfield.outcome, "skill_continuation");
@@ -173,8 +224,8 @@ try {
   const continuation = dispatch("--run", "new-run", "--continue-delivery");
   assert.equal(continuation.outcome, "skill_continuation");
   assert.equal(continuation.terminal, false, "a missing next-gate draft must not expose a bare approval card");
-  assert.equal(continuation.continuation.phase, "required_gate_artifact");
-  assert.equal(continuation.continuation.gate, "PRD");
+  assert.equal(continuation.continuation.phase, "prd_definition");
+  assert.equal(continuation.continuation.skill_id, "prd-definition");
   assert.equal(continuation.continuation.artifact_path, ".agdf/control/artefacts/new-run/PRD.md");
   assert.equal(continuation.control.next_operation.type, "prepare_gate_artifact");
   assert.equal(continuation.control.next_operation.gate, "PRD");

@@ -34,7 +34,7 @@ try {
   const host = fixtureHost(join(fixture, 'host with spaces'));
   const first = host.install();
   assert.equal(first.verificationStatus, 'healthy');
-  assert.ok(first.evidence.includes('discovered_plugin_skills:10'));
+  assert.ok(first.evidence.includes(`discovered_plugin_skills:${pluginDefinition.skillSet.length}`));
   const canonical = dirname(dirname(first.pluginRoot));
   const firstSource = json(host.settingsPath).extraKnownMarketplaces.agdf.source;
   assert.equal(firstSource.source, 'git');

@@ -1,6 +1,6 @@
 ---
 name: gate-check
-description: "Use this skill for this scope: any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context. Boundary: does not create later artefacts or skip Mode/Slice Decision after Brownfield Review. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: requested build/file/code changes, Structured Delivery or gate artifacts; approval/next-step questions within explicit AGDF or active delivery. Boundary: does not create later artefacts or skip Mode/Slice Decision after Brownfield Review. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # gate-check
@@ -48,6 +48,9 @@ After `run-approve` returns `outcome: approved`, redispatch the same target/run 
 Use `continuation.skill_id` per interaction policy; stop at decisions/blockers.
 
 ## Executable Dispatch
+
+UR content is delegated through `phase: ur_definition` to `ur-definition`; never draft it here.
+PRD content is delegated through `phase: prd_definition` to `prd-definition`; never draft it here.
 
 Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
 If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only

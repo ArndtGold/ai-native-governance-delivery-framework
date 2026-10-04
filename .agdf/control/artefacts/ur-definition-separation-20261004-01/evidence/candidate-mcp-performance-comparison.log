@@ -1,0 +1,16 @@
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[623.183,618.817,600.686,601.69,598.112,601.746,656.177,786.638,635.605,680.221,624.695,584.12,590.698,646.452,1710.652,2014.718,860.867,993.937,2586.603,3070.797],"cold_p95_ms":2586.603,"warm_dispatch_ms":[665.583,636.909,447.308,630.792,2232.568,1623.92,866.197,634.164,805.804,510.407,513.028,504.016,455.488,461.156,452.134,446.505,510.635,485.714,490.636,435.034],"warm_p95_ms":1623.92}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 2586.603315
+    at file:///private/tmp/agdf-ur-candidate-20261004/packages/mcp-server/test/performance.test.js:49:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

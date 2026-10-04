@@ -7,6 +7,7 @@ import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets }
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from "./run-state.js";
 import { isPlaceholderValue } from "./shared.js";
 import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
+import { evaluateUrReadiness } from "./ur-readiness.js";
 import { evaluatePrdReadiness } from "./prd-readiness.js";
 import { evaluateSdTraceability, evaluateTpTraceability } from "./traceability-readiness.js";
 
@@ -378,6 +379,14 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   }
 
   const approvalArtefactReady = isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
+  const urReadiness = currentGate === "UR" && approvalArtefactReady ? evaluateUrReadiness(targetDir, runState) : null;
+  if (status === "open" && urReadiness && !urReadiness.ready) {
+    status = "blocked";
+    blockingReason = "AGDF_UR_REQUIREMENTS_INCOMPLETE";
+    allowed = ["complete the UR requirement clarification and record a new run revision"];
+    forbidden = [...forbidden, "present or approve UR before requirement clarification is complete"];
+    nextAllowedAction = "complete the UR requirement clarification, then record the revision with run-update";
+  }
   const prdReadiness = currentGate === "PRD" && approvalArtefactReady
     ? evaluatePrdReadiness(targetDir, runState) : null;
   if (status === "open" && currentGate === "PRD" && prdReadiness && !prdReadiness.ready) {
@@ -568,6 +577,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     current_gate: currentGate,
     blocking_reason: blockingReason,
     missing_approval: missingApproval,
+    ...(urReadiness ? { ur_readiness: urReadiness } : {}),
     ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
     ...(traceabilityReadiness ? { traceability_readiness: traceabilityReadiness } : {}),
     next_gate_after_approval: postApproval.next_gate_after_approval,

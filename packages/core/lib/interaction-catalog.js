@@ -59,7 +59,7 @@ export const DISPATCH_RECOVERY_CODES = freeze([
   "target_evaluation_failed", "target_presentation_failed", "control_evaluation_failed",
   "control_presentation_failed", "runtime_contracts_unavailable", "runtime_evidence_invalid",
   "internal_failure", "output_too_large", "intake_run_collision", "intake_scaffold_required",
-  "run_assignment_inventory_invalid",
+  "run_assignment_inventory_invalid", "prd_authoring_inputs_invalid",
 ]);
 export const DISPATCH_RECOVERY = freeze(Object.fromEntries(DISPATCH_RECOVERY_CODES.map(code => [code, code])));
 

@@ -1,0 +1,65 @@
+{
+  "evidence_plane": "deterministic source renderer; visible Markdown, no native-host UI claim",
+  "cases": [
+    {
+      "input": {
+        "run_id": "ur-render-fixture",
+        "presentation_language": "en",
+        "status": "blocked",
+        "current_gate": "UR",
+        "allowed_now": [
+          "complete the UR requirement clarification and record a new run revision"
+        ],
+        "forbidden_now": [
+          "present or approve UR before requirement clarification is complete"
+        ],
+        "blocking_condition": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+        "missing_approval": "none",
+        "next_gate_after_approval": "none",
+        "allowed_after_approval": "none",
+        "next_step": "complete the UR requirement clarification, then record the revision with run-update",
+        "quality_outlook": "No additional quality follow-up identified from the current control state."
+      },
+      "result": {
+        "schema_version": "1",
+        "semantic_block": "run_status_card",
+        "run_id": "ur-render-fixture",
+        "revision_id": "unversioned",
+        "current_gate": "UR",
+        "presentation_language": "en",
+        "markdown": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Ur Render Fixture · `ur-render-fixture` |\n| Status | blocked |\n| Current gate | UR (`UR`) |\n| Allowed now | complete the UR requirement clarification and record a new run revision |\n| Forbidden now | present or approve UR before requirement clarification is complete |\n| Blocked by | UR requirements need clarification (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| I am continuing | complete the UR requirement clarification, then record the revision with run-update |\n| Missing approval | none |",
+        "authorizes": false
+      }
+    },
+    {
+      "input": {
+        "run_id": "ur-render-fixture",
+        "presentation_language": "de",
+        "status": "blocked",
+        "current_gate": "UR",
+        "allowed_now": [
+          "complete the UR requirement clarification and record a new run revision"
+        ],
+        "forbidden_now": [
+          "present or approve UR before requirement clarification is complete"
+        ],
+        "blocking_condition": "AGDF_UR_REQUIREMENTS_INCOMPLETE",
+        "missing_approval": "none",
+        "next_gate_after_approval": "none",
+        "allowed_after_approval": "none",
+        "next_step": "complete the UR requirement clarification, then record the revision with run-update",
+        "quality_outlook": "No additional quality follow-up identified from the current control state."
+      },
+      "result": {
+        "schema_version": "1",
+        "semantic_block": "run_status_card",
+        "run_id": "ur-render-fixture",
+        "revision_id": "unversioned",
+        "current_gate": "UR",
+        "presentation_language": "de",
+        "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Ur Render Fixture · `ur-render-fixture` |\n| Status | blockiert |\n| Aktuelles Gate | UR (`UR`) |\n| Jetzt erlaubt | die UR-Anforderungen klären und eine neue Run-Revision festhalten |\n| Aktuell verboten | UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind |\n| Blockiert durch | UR-Anforderungen müssen geklärt werden (AGDF_UR_REQUIREMENTS_INCOMPLETE) |\n| Ich arbeite weiter | die UR-Anforderungen klären, dann die Revision mit run-update festhalten |\n| Fehlende Freigabe | keine |",
+        "authorizes": false
+      }
+    }
+  ]
+}

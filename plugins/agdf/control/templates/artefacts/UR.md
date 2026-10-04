@@ -3,6 +3,7 @@
 Status: draft
 Gate: UR
 Gate approval: open
+Requirements clarification: open
 Date:
 Owner:
 
@@ -13,6 +14,10 @@ What user, business or operational problem should be solved?
 ## 2. Goal
 
 What outcome should become possible?
+
+## Affected Users
+
+Which people or roles experience the problem and benefit from the outcome?
 
 ## 3. Scope
 

@@ -1,0 +1,19 @@
+npm notice run @agdf/mcp-server@0.14.5 test:continuation
+npm notice run node ./test/continuation.test.js
+node:internal/modules/esm/resolve:205
+  const resolvedOption = FSLegacyMainResolve(pkgPath, packageConfig.main, baseStringified);
+                         ^
+
+Error: Cannot find package '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/eventsource/index.js' imported from /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/index.mjs
+    at legacyMainResolve (node:internal/modules/esm/resolve:205:26)
+    at packageResolve (node:internal/modules/esm/resolve:778:12)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v22.22.3

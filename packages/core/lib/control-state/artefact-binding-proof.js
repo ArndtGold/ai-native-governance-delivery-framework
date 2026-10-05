@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync, statSync } from "../control-read/fs.js";
 import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
 import { readApprovalOperations } from "./approval-operations.js";
 import { artefactFileDigest, APPROVAL_GATES } from "./run-seal.js";

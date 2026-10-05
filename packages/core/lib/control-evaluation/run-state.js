@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "../control-read/fs.js";
 import { join } from "node:path";
 import process from "node:process";
 import { parseControlState } from "../control-state/run-state-parser.js";

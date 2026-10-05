@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, memoizeControlRead } from "../control-read/fs.js";
 import { join } from "node:path";
 import { parseRunState, RUN_ID_PATTERN } from "./run-state-parser.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
@@ -18,6 +18,10 @@ export function runPath(root, id) {
 }
 
 export function discoverRuns(root) {
+  return memoizeControlRead(`discoverRuns:${root}`, () => discoverCapturedRuns(root));
+}
+
+function discoverCapturedRuns(root) {
   const dir = join(root, ".agdf", "control", "runs");
   if (!existsSync(dir)) return [];
   const rootStats = lstatSync(dir);

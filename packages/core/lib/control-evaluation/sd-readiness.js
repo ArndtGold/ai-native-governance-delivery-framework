@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
 
 export const SD_DECISIONS_CONTRACT = "Design Decisions contract: sd-decisions-v1";

@@ -1,0 +1,22 @@
+import type { Envelope, Detail, Resource } from './types';
+import { ReadState, label } from './feedback';
+export function RunDetail({ result, onOpen }: { result: Envelope<Detail>; onOpen: (resource: Resource) => void }) {
+  const data = result.data, e = data?.evaluation, p = data?.persisted;
+  return <>
+    {result.code && <ReadState code={result.code} state={result.state}/>}
+    <div className="context-line"><code>{data?.run_id}</code><span>{label(data?.lifecycle)}</span></div>
+    {data?.objective && <p className="objective">{data.objective}</p>}
+    {e && <div className="detail-columns"><section className="panel"><div className="eyebrow">Bestehende Core-Auswertung</div><h2>Aktueller Kontrollstatus</h2><dl className="status-fields">
+      <dt>Gate</dt><dd>{e.current_gate}</dd><dt>Auswertung</dt><dd>{label(e.status)}</dd><dt>Blocker</dt><dd>{label(e.blocking_reason)}</dd><dt>Fehlende Freigabe</dt><dd>{label(e.missing_approval)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd></dl>
+      <h3>Nächste erlaubte Aktion · Information</h3><p>{e.next_action_de ?? 'Keine deutsche Zuordnung verfügbar. Originalangabe der Core-Auswertung:'}</p>{!e.next_action_de && <p className="source-text">{e.next_allowed_action}</p>}
+      <p className="muted">Git-basierte Nachweise sind in dieser Leseschnittstelle nicht verfügbar. Entscheidungen erfolgen im bestehenden AGDF-Ablauf.</p>
+    </section><section className="panel"><div className="eyebrow">Gespeicherte Angaben · Quelle</div><h2>Run-Dokument</h2><dl className="status-fields"><dt>Gate-Angabe</dt><dd>{p?.current_gate || 'Nicht verfügbar'}</dd><dt>Entscheidungsangabe</dt><dd>{label(p?.decision)}</dd><dt>Run-Revision</dt><dd><code>{data?.revision_id}</code></dd></dl>
+      <p className="source-text">{p?.next_allowed_action}</p>
+      {p && (p.current_gate !== e.current_gate || p.next_allowed_action !== e.next_allowed_action) && <ReadState state="partial" code="persisted_mismatch"/>}
+      <h3>Gespeicherte Freigaben</h3><ul className="approval-list">{e.approvals.map(row => <li key={row.gate}><strong>{row.gate}</strong><span>{label(row.status)}</span><small>{row.evidence}</small></li>)}</ul>
+    </section></div>}
+    {!!e?.missing_evidence.length && <section className="panel"><h2>Fehlende Nachweise</h2><pre>{JSON.stringify(e.missing_evidence, null, 2)}</pre></section>}
+    <section className="panel"><div className="eyebrow">Registrierte Quellen</div><h2>Dokumente</h2><div className="resources">{data?.resources.map(r => <button key={r.resource_id} data-focus-id={r.resource_id} onClick={() => onOpen(r)}><strong>{r.type}</strong><small>{r.registered_reference}</small><span aria-hidden="true">↗</span></button>)}</div>{!data?.resources.length && <p>Keine registrierten Ressourcen verfügbar.</p>}</section>
+    {!!(e?.diagnostics.length || data?.diagnostics?.length) && <section className="panel"><h2>Diagnosen · Originalangaben</h2>{(e?.diagnostics ?? data?.diagnostics ?? []).map((d, i) => <details key={i}><summary>{d.code}</summary><p>{d.message}</p><code>{d.path}</code><p>{d.next_step}</p></details>)}</section>}
+  </>;
+}

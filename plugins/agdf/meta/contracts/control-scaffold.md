@@ -68,7 +68,7 @@ block `doctor` and gate presentation.
 
 When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
 
-- `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules remain English.
+- `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts. `chat_language` is the direct-command presentation default; dispatcher calls supply `presentation_language` under their current-request language contract. This presentation override never changes `artifact_language`. Runtime rules remain English. Authoring continuations supply the resolved languages and any required localized approval-summary heading before drafting.
 - `.agdf/control/runs/<run_id>/RUN_STATE.md` is the canonical current-run dashboard; legacy `AGDF_RUN.md` is migration input or an explicit non-authoritative projection.
 - `MASTER_BACKLOG.md` is the living pointer for active delivery work.
 - `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync, statSync } from "../control-read/fs.js";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from "./contained-file.js";
 import { APPROVAL_GATES, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths } from "./run-seal.js";

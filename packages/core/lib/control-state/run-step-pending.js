@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "../control-read/fs.js";
 import { join } from "node:path";
 import { RUN_ID_PATTERN } from "./run-state-parser.js";
 

@@ -20,6 +20,20 @@ Run State, gate evaluation and exact approval remain authoritative.
 
 ## Reviewed Recording Input (version 1)
 
+### Language and approval summary preparation
+
+Use the supplied `artifact_language` from `.agdf/control/config.json` for the artefact and
+the resolved `presentation_language` for user-facing text. The configured chat language is
+the direct-command default; dispatcher presentation input follows its current-request contract.
+Neither the request language nor English runtime/template text changes the artefact language.
+When `approval_summary_required` is true, before recording include exactly one
+`## <approval_summary_heading>` section with the supplied heading verbatim and a complete
+summary in the resolved presentation language. Apply the existing interaction contract's
+summary completeness and size limits; use no ellipses or hidden decision-relevant omissions.
+For PRD include user goal, scope, every canonical criterion ID exactly once, and decision context
+when approval decisions exist. Corrections use the existing permitted recording/revision path
+and require a fresh presentation. The summary grants no approval and is not another authority.
+
 Prepare files under `.agdf/control/artefacts/<run_id>/` before recording. The single shared Core
 relationship registry selects PRD-derived_from-UR, SD-derived_from-PRD, TP-derived_from-SD or
 QA_REPORT-tests-TP. UR-approved_by remains exclusively approval-owned. QA recording copies an

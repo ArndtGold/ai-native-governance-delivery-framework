@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync } from "../control-read/fs.js";
 import { dirname, join } from 'node:path';
 import { aggregate } from "../control-state/aggregate.js";
 import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { realpathSync, statSync } from "node:fs";
+import { realpathSync, statSync } from "../control-read/fs.js";
 import { isAbsolute } from "node:path";
 import { APPROVAL_GATES, REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 

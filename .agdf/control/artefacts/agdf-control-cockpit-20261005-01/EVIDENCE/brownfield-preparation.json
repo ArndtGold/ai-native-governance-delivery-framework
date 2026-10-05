@@ -1,0 +1,232 @@
+{
+  "scenario_id": "SCN-029",
+  "observed_at": "2026-10-05T17:50:56.287Z",
+  "roots": [
+    "packages/core/lib/control-inspect/service.js",
+    "packages/core/lib/control-state/run-state-reader.js"
+  ],
+  "reachable_modules": [
+    "packages/core/lib/control-inspect/service.js",
+    "packages/core/lib/interaction-catalog.js",
+    "packages/core/lib/control-evaluation/gate-check.js",
+    "packages/core/lib/interaction-presentation.js",
+    "packages/core/lib/control-state/run-identity.js",
+    "packages/core/lib/task-target-resolution.js",
+    "packages/core/lib/repository-context-reader.js",
+    "packages/core/lib/resources/context.js",
+    "packages/core/lib/interaction-catalog-validation.js",
+    "packages/core/lib/resources/binding.js",
+    "packages/core/lib/control-evaluation/doctor.js",
+    "packages/core/lib/control-state/aggregate.js",
+    "packages/core/lib/control-state/legacy-projection-reader.js",
+    "packages/core/lib/control-state/run-state-parser.js",
+    "packages/core/lib/control-state/approval-operations.js",
+    "packages/core/lib/control-state/approval-command-contract.js",
+    "packages/core/lib/control-state/run-source-revisions.js",
+    "packages/core/lib/control-state/contained-file.js",
+    "packages/core/lib/control-state/artefact-bindings.js",
+    "packages/core/lib/control-evaluation/delivery-relationships.js",
+    "packages/core/lib/control-state/run-state-reader.js",
+    "packages/core/lib/control-state/run-step-pending.js",
+    "packages/core/lib/control-state/run-state-resolver.js",
+    "packages/core/lib/control-state/run-seal.js",
+    "packages/core/lib/control-state/run-revision-history.js",
+    "packages/core/lib/control-state/artefact-binding-proof.js",
+    "packages/core/lib/control-evaluation/run-state.js",
+    "packages/core/lib/control-evaluation/shared.js",
+    "packages/core/lib/control-evaluation/verified-change.js",
+    "packages/core/lib/control-evaluation/required-files.js",
+    "packages/core/lib/control-evaluation/delivery-map.js",
+    "packages/core/lib/control-evaluation/gate-policy.js",
+    "packages/core/lib/control-evaluation/parent-reconciliation.js",
+    "packages/core/lib/control-state/run-presentation-render.js",
+    "packages/core/lib/control-evaluation/ur-readiness.js",
+    "packages/core/lib/control-evaluation/prd-readiness.js",
+    "packages/core/lib/control-evaluation/traceability-readiness.js",
+    "packages/core/lib/control-evaluation/sd-readiness.js",
+    "packages/core/lib/resources/contracts.js",
+    "packages/core/lib/skill-dispatch/contract.js",
+    "packages/core/lib/control-inspect/contract.js",
+    "packages/core/lib/control-inspect/selection.js"
+  ],
+  "filesystem_imports": [
+    {
+      "file": "packages/core/lib/task-target-resolution.js",
+      "operations": [
+        "existsSync",
+        "realpathSync",
+        "statSync"
+      ],
+      "source_digest": "dd8d135102f66bca6d32f4b46de25edd1cd68b4ea2dd6a980e8786ae603bb733"
+    },
+    {
+      "file": "packages/core/lib/repository-context-reader.js",
+      "operations": [
+        "existsSync",
+        "lstatSync",
+        "readFileSync",
+        "realpathSync",
+        "statSync"
+      ],
+      "source_digest": "83f5d3d092cb079421ddd4ac0b2aaaed610abdc17722bbfa2a1b2db389932dc8"
+    },
+    {
+      "file": "packages/core/lib/resources/context.js",
+      "operations": [
+        "existsSync",
+        "readFileSync"
+      ],
+      "source_digest": "4cbe191b2a63ec1c3a06ff69ffde5866312d4ed88a0eef6e69d1b02e58076a8a"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/doctor.js",
+      "operations": [
+        "existsSync"
+      ],
+      "source_digest": "0c18cfe1c119897368bad1086203082a8a804e1262f31141a3a5e02c5b06ffcb"
+    },
+    {
+      "file": "packages/core/lib/control-state/legacy-projection-reader.js",
+      "operations": [
+        "existsSync",
+        "readFileSync"
+      ],
+      "source_digest": "57d46180cae22be63d0b4bbb30c47820b672cd3986b9a77b7d8bb761a477fe66"
+    },
+    {
+      "file": "packages/core/lib/control-state/approval-command-contract.js",
+      "operations": [
+        "realpathSync",
+        "statSync"
+      ],
+      "source_digest": "f6e56a51f8e1c2d1068af19b865a2949820162224ebccbce4af1a7b434d15b1d"
+    },
+    {
+      "file": "packages/core/lib/control-state/contained-file.js",
+      "operations": [
+        "lstatSync",
+        "realpathSync",
+        "statSync"
+      ],
+      "source_digest": "cb9ff14cb376372d3901bf020ffcf94651b907c781c148850740ad95e1ad7a20"
+    },
+    {
+      "file": "packages/core/lib/control-state/run-state-reader.js",
+      "operations": [
+        "existsSync",
+        "lstatSync",
+        "readFileSync",
+        "readdirSync"
+      ],
+      "source_digest": "616e734cf7fc522dc787ff0e15cc4ba893e88643effa489b6b9eb407b3560302"
+    },
+    {
+      "file": "packages/core/lib/control-state/run-step-pending.js",
+      "operations": [
+        "existsSync",
+        "readdirSync"
+      ],
+      "source_digest": "f87a023f7725bc3cccb019e7d6086f9ede0f1544359e949b5e15cb070ef98399"
+    },
+    {
+      "file": "packages/core/lib/control-state/run-revision-history.js",
+      "operations": [
+        "readFileSync",
+        "statSync"
+      ],
+      "source_digest": "d5e011d18008eed757ac6ad22a7120343a3d30ca445192c2b9f3ba4f5e2e1cec"
+    },
+    {
+      "file": "packages/core/lib/control-state/artefact-binding-proof.js",
+      "operations": [
+        "readFileSync",
+        "statSync"
+      ],
+      "source_digest": "55fcebb4ad06ec3bcceb03e118207bfcc5496654b50661b288e03f9fbdf64317"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/run-state.js",
+      "operations": [
+        "existsSync",
+        "readFileSync"
+      ],
+      "source_digest": "b35de7d01da524af0e41614f57d9e52674c473af44bebf7fe993b90ee817b669"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/shared.js",
+      "operations": [
+        "existsSync",
+        "readFileSync"
+      ],
+      "source_digest": "297cc02484ebc861ed1ba24da763c71cfa4288cdc6e9b3f0ed6a8f5abf15b9b6"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/verified-change.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "523089888af02013bc504aef0276421bff3d2d321be06297bb7a6cdd26a600c0"
+    },
+    {
+      "file": "packages/core/lib/control-state/run-seal.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "dd7f9cd545546920994d00ef0b9221b9a6c1a2af6e212e2582461ebe6f1a0a3e"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/delivery-map.js",
+      "operations": [
+        "existsSync"
+      ],
+      "source_digest": "7363274b3fe0a66e4c81436280e9ec4dfb5bdcb0e6f0c5402e825239234d1b32"
+    },
+    {
+      "file": "packages/core/lib/control-state/run-presentation-render.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "2002b298a1d18d3a4096ece300f8478c15cb5367ae4988b735f5e3105bec7d2a"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/ur-readiness.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "3af05d8b5869f98a99c724d7169244b7dc0999f73e6b6437eb65c85a36d1a430"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/prd-readiness.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "1718db7ff67e4b06a8a7b9975e431db919b67d02ff4026be02ea4a89f97de90d"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/traceability-readiness.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "240cea1f3cafcafc776a1168c7974cf0898572a6f341a784a96f4dc4f9aafd44"
+    },
+    {
+      "file": "packages/core/lib/control-evaluation/sd-readiness.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "03dbbd72ced38bf534b9e99b6fd8e58e515c640f71f39d39dc173525505c364c"
+    },
+    {
+      "file": "packages/core/lib/resources/contracts.js",
+      "operations": [
+        "readFileSync"
+      ],
+      "source_digest": "3415f51f3568591b5b4a1eaf667630e3e95c21dfbd2734994bcc975f1591b859"
+    }
+  ],
+  "baseline_commit": "8e4081573834fa0ae0242a2761e9ee044a10c8dc",
+  "baseline_status": " M .agdf/control/MASTER_BACKLOG.md\n M packages/cli/scripts/artifact-language-test.js\n M packages/cli/scripts/prd-definition-test.js\n M packages/cli/scripts/sd-definition-test.js\n M packages/core/lib/control-evaluation/gate-check.js\n M packages/core/lib/control-evaluation/ur-readiness.js\n M packages/core/lib/control-state/run-presentation-render.js\n M packages/core/lib/resources/context.js\n M packages/core/lib/skill-dispatch/delivery-intake.js\n M packages/core/lib/skill-dispatch/prd-definition.js\n M packages/core/lib/skill-dispatch/sd-definition.js\n M packages/core/lib/skill-dispatch/service.js\n M packages/mcp-server/test/continuation.test.js\n M plugins/agdf/meta/contracts/control-scaffold.md\n M plugins/agdf/meta/contracts/gate-artifact-preparation.md\n M plugins/agdf/meta/contracts/prd-definition.md\n M plugins/agdf/meta/contracts/sd-definition.md\n M plugins/agdf/meta/contracts/ur-definition.md\n M plugins/agdf/meta/copilot-payload-baseline.json\n?? .agdf/control/artefacts/agdf-control-cockpit-20261005-01/\n?? .agdf/control/runs/agdf-control-cockpit-20261005-01/\n",
+  "expected_result": "All control reads require scoped provider seams; mutator imports remain live and are unreachable from new GET-only service",
+  "result": "audit_complete",
+  "limitations": "Static imports include writer functions not executed by evaluator; provider enforcement and parity must be proven by implementation tests"
+}

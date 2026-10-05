@@ -5,7 +5,7 @@ import { readSourceRevisions } from "./run-source-revisions.js";
 import { validSourceRevisionHistories } from "./run-revision-history.js";
 import { canonicalJson } from "./approval-command-contract.js";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, memoizeControlRead } from "../control-read/fs.js";
 import { basename, dirname } from "node:path";
 import { normalizeLineEndings, parseArtefactPathCell, scalarFields, sectionTableRows } from "./run-state-parser.js";
 import { containedRegularFile, isSafeControlRelativePath } from "./contained-file.js";
@@ -56,6 +56,10 @@ export function runRootFromStatePath(path) {
 }
 
 export function artefactFileDigest(root, rawPath) {
+  return memoizeControlRead(`artefactDigest:${root}:${rawPath}`, () => capturedArtefactDigest(root, rawPath));
+}
+
+function capturedArtefactDigest(root, rawPath) {
   const path = String(rawPath ?? "").trim();
   const result = containedRegularFile(root, path);
   if (result.status !== "valid") return result.status === "missing" ? "missing" : "unresolved";

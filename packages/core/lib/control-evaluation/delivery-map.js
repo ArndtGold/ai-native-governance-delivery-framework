@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync } from "../control-read/fs.js";
 import { join } from 'node:path';
 import { aggregate } from "../control-state/aggregate.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";

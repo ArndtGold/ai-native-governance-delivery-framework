@@ -1,0 +1,36 @@
+{
+  "SCN-003": {
+    "scenario_id": "SCN-003",
+    "criterion_id": "AC-001",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-010",
+    "tested_source_or_fixture": "real repository browser",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Real overview identifies target, lifecycle and evaluation independently; invalid entries remain visible and unavailable fields stay explicit",
+    "actual_result": "target, lifecycle, evaluated gate and unavailable entries are visible; partial inventory is explicit",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "playwright-results.json",
+      "browser-overview.png"
+    ]
+  },
+  "SCN-007": {
+    "scenario_id": "SCN-007",
+    "criterion_id": "AC-003",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-010",
+    "tested_source_or_fixture": "actual repository browser",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Pointer and keyboard complete all three views; destination heading receives focus and return restores the originating control without changing run identity",
+    "actual_result": "complete pointer and keyboard journeys both pass; destination and return focus assertions pass",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "playwright-results.json",
+      "browser-document.png"
+    ]
+  }
+}

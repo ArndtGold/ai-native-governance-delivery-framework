@@ -1,0 +1,19 @@
+{
+  "SCN-004": {
+    "scenario_id": "SCN-004",
+    "criterion_id": "AC-002",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-003",
+    "tested_source_or_fixture": "fixture and actual approved run Core parity",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Captured and existing live Core evaluations agree on identical fixtures, approval digests/target identity and revisions; Git evidence is unavailable in the no-child lane and never eligible by invention",
+    "actual_result": "same status, gate, blocker, approvals, artefact rows and original target; UR/PRD/SD/TP proof integrity and source digests match; Git evidence explicitly unavailable",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "provider.log",
+      "real-approved-run-parity.json"
+    ]
+  }
+}

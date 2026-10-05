@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync } from "../control-read/fs.js";
 import { basename } from "node:path";
 import { TextDecoder } from "node:util";
 import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
-import { interactionLocales, resolveConfiguredArtifactLanguage } from "../resources/context.js";
+import { interactionLocales, resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { localePack, resolvePresentationLocale } from "../interaction-presentation.js";
 
 // Read-only approval rendering. gate-check (and with it the MCP dispatcher) imports this module;
@@ -154,6 +154,26 @@ function validateLocalizedSummaryBlock(gate, block, sourceMarkdown, sourceLangua
   }
 }
 
+function requiredLocalizedSummary(gate, markdown, languages) {
+  if (!languages.approval_summary_required) return null;
+  const blocks = localizedSummaryBlocks(markdown).filter(block => block.locale === languages.presentation_language);
+  if (blocks.length !== 1) throw new Error(blocks.length ? "approval_summary_locale_duplicate" : "approval_summary_locale_missing");
+  const block = blocks[0];
+  validateLocalizedSummaryBlock(gate, block, substantiveMarkdown(markdown), languages.artifact_language);
+  return block;
+}
+
+// Reuse the presentation validator before authoring is considered complete.
+export function evaluateApprovalSummaryReadiness(gate, markdown, languages) {
+  try {
+    requiredLocalizedSummary(gate, markdown, languages);
+    return Object.freeze({ ready: true, required_heading: languages.approval_summary_heading, reason: null });
+  } catch (error) {
+    if (!String(error.message).startsWith("approval_summary_")) throw error;
+    return Object.freeze({ ready: false, required_heading: languages.approval_summary_heading, reason: error.message });
+  }
+}
+
 function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
   const lines = markdown.replace(/\r\n?/gu, "\n").split("\n");
   for (let index = 0; index < lines.length; index += 1) {
@@ -198,10 +218,9 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
     : "";
   const items = [];
   if (sourceLanguage !== presentationLanguage) {
-    const blocks = localizedSummaryBlocks(markdown).filter((block) => block.locale === locale);
-    if (blocks.length !== 1) throw new Error(blocks.length ? "approval_summary_locale_duplicate" : "approval_summary_locale_missing");
-    const block = blocks[0];
-    validateLocalizedSummaryBlock(gate, block, source, sourceLanguage);
+    const block = requiredLocalizedSummary(gate, markdown, {
+      approval_summary_required: true, presentation_language: locale, artifact_language: sourceLanguage,
+    });
     const summary = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${[sourceLanguageNote, block.body].filter(Boolean).join("\n")}`;
     return { markdown: summary, digest: hash(summary) };
   }
@@ -269,7 +288,8 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
     try { contentText = new TextDecoder("utf-8", { fatal: true }).decode(content); }
     catch { throw new Error("approval_artefact_encoding_invalid"); }
     let summary;
-    const sourceLanguage = resolveConfiguredArtifactLanguage(root);
+    const languages = resolveArtifactPresentationLanguages(root, p.presentation_language);
+    const sourceLanguage = languages.artifact_language;
     try {
       summary = artifactSummary(gate, contentText, { runId, revisionId, language: p.presentation_language, sourceLanguage });
     } catch (error) {
@@ -278,7 +298,7 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
         const pack = localePack(interactionLocales, locale);
         const languageName = pack.statusCard[locale.split("-")[0] === "de" ? "languageGerman" : "languageEnglish"];
         const artifactLabel = german ? "Artefakt" : "Artefact";
-        const requiredHeading = `AGDF Approval Summary (${locale}; source=${sourceLanguage})`;
+        const requiredHeading = languages.approval_summary_heading ?? `AGDF Approval Summary (${locale}; source=${sourceLanguage})`;
         error.recovery = [
           `## ${pack.statusCard.summaryRecovery}`,
           `Run: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\``,

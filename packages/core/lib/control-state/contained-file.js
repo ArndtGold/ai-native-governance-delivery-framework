@@ -1,4 +1,4 @@
-import { lstatSync, realpathSync, statSync } from "node:fs";
+import { lstatSync, realpathSync, statSync } from "../control-read/fs.js";
 import { isAbsolute, join, posix, relative, resolve, sep, win32 } from "node:path";
 
 // A control artefact path is stored independently of the current host. Check Windows forms even

@@ -1,5 +1,7 @@
-import { readFileSync } from "node:fs";
+import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
+import { resolveArtifactPresentationLanguages } from "../resources/context.js";
+import { evaluateApprovalSummaryReadiness } from "../control-state/run-presentation-render.js";
 
 const sections = ["Problem", "Goal", "Affected Users", "Scope", "Non-Goals", "Acceptance Signals", "Existing Source Of Truth", "Risks And Unknowns", "Next Step"];
 const templatePrompts = new Set([
@@ -10,7 +12,7 @@ const templatePrompts = new Set([
   "Which questions must Brownfield Review, PRD, SD or later implementation-preparation Brownfield Analysis clarify?",
 ]);
 // Marker absence preserves legacy compatibility; completeness does not prove semantic approval.
-export function evaluateUrReadiness(targetDir, runState) {
+export function evaluateUrReadiness(targetDir, runState, { presentationLanguage } = {}) {
   const path = resolvedArtefactFile(targetDir, runState.artefacts.get("UR")?.path);
   if (!path) return null;
   const content = readFileSync(path, "utf8");
@@ -26,5 +28,8 @@ export function evaluateUrReadiness(targetDir, runState) {
     const body = matches[0]?.body ?? "";
     if (matches.length !== 1 || !body || templatePrompts.has(body) || /<[^>]+>|^(?:tbd|todo|to confirm)[ \t]*$/imu.test(body)) open.push(section);
   }
-  return { ready: open.length === 0, legacy: false, open_items: open };
+  const summary = evaluateApprovalSummaryReadiness("UR", content,
+    resolveArtifactPresentationLanguages(targetDir, presentationLanguage));
+  if (!summary.ready) open.push(summary.required_heading);
+  return { ready: open.length === 0, legacy: false, open_items: open, approval_summary: summary };
 }

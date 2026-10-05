@@ -1,0 +1,55 @@
+{
+  "SCN-008": {
+    "scenario_id": "SCN-008",
+    "criterion_id": "AC-004",
+    "design_decision_id": "SDD-003",
+    "task_id": "T-004",
+    "tested_source_or_fixture": "registered resource fixture",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Only registered same-run/snapshot resources and explicitly registered related control references resolve; captured evaluator-only proofs do not become browser resources",
+    "actual_result": "registered JSON/text source bytes are preserved; only registered same-run links resolve; unknown/evaluator-only selectors are denied",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log"
+    ]
+  },
+  "SCN-010": {
+    "scenario_id": "SCN-010",
+    "criterion_id": "AC-004",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-004",
+    "tested_source_or_fixture": "missing/binary/UTF-8/preview fixtures",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Missing, binary, invalid UTF-8 and over-2-MiB documents have distinct truthful results; none becomes an empty or silently truncated preview",
+    "actual_result": "distinct missing/unsupported results; exact 2 MiB preview accepted and plus one rejected; missing/invalid UTF-8 visibly explained",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log",
+      "playwright-results.json",
+      "browser-missing.png",
+      "browser-unsupported.png"
+    ]
+  },
+  "SCN-023": {
+    "scenario_id": "SCN-023",
+    "criterion_id": "AC-009",
+    "design_decision_id": "SDD-003",
+    "task_id": "T-004",
+    "tested_source_or_fixture": "opaque resources + HTTP/raw path + symlink fixtures",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Unregistered or foreign-run/snapshot IDs, encoded/double-encoded traversal, absolute paths and file/ancestor symlink swaps expose no outside bytes and never substitute another target",
+    "actual_result": "unknown/stale resource IDs, escaped/double escaped/raw dot paths, arbitrary repo paths and symlink/ancestor replacements denied; no outside bytes exposed",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "snapshot.log",
+      "projection.log",
+      "ui-tests.log"
+    ]
+  }
+}

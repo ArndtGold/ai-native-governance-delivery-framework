@@ -28,6 +28,8 @@
 | Responsibility | Canonical owner | Derived consumer |
 |---|---|---|
 | Control state, validators, dispatch/inspect and pure evaluation | packages/core/lib/ | Embedded Core in npm/profile outputs; private source workspace only |
+| Immutable control read capture and cockpit DTO/resource projection | packages/core/lib/control-read/; packages/core/lib/control-inspect/cockpit.js | Private local read service; existing Core evaluators retain rule authority |
+| Local read-only cockpit service, browser interface and reproduction | packages/control-ui/; packages/control-ui/README.md | Private source package only; no public CLI/plugin UI payload or gate authority |
 | Immutable resource context and allowed contract reader | packages/core/lib/resources/; plugins/agdf/meta/ | Generated package resources with explicit binding descriptor |
 | Git, process/runtime probes, locale and host composition | packages/cli/lib/ | create-agdf and focused offline runtime |
 | MCP SDK, worker and stdio adapter | packages/mcp-server/ | @agdf/mcp-server |

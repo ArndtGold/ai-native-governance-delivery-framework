@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { readSkillRuntimeContracts } from "../../cli/lib/cli/contract-command.js";
 import { createPrdDefinitionTestRun } from "../../cli/scripts/fixtures/prd-definition.js";
@@ -12,6 +12,13 @@ import { withStdioClient } from "./helpers.js";
 const definition = JSON.parse(readFileSync(new URL("../../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));
 const fixture = createOwnedRuntimeFixture();
 try {
+  // This protocol test needs only its existing later-gate seed plus the synthetic
+  // authoring runs below. Unrelated live project runs must not govern its intake inventory.
+  const copiedRuns = join(fixture.governanceTarget, ".agdf/control/runs");
+  for (const entry of readdirSync(copiedRuns)) {
+    if (entry !== "agdf-mcp-dispatch-server") rmSync(join(copiedRuns, entry), { recursive: true, force: true });
+  }
+  rmSync(join(fixture.governanceTarget, ".agdf/control/AGDF_RUN.md"), { force: true });
   const urRun = "ur-definition-mcp-test";
   const prdRun = createPrdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "prd-definition-mcp-test");
   const sdRun = createSdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "sd-definition-mcp-test");
@@ -28,6 +35,12 @@ try {
       assert.equal(result.outcome, "skill_continuation", `${skill.slug}: ${JSON.stringify(result.diagnostics)}`);
       assert.equal(result.authorizes, false);
       assert.equal(result.terminal, false);
+      if (["ur-definition", "prd-definition", "sd-definition"].includes(skill.slug)) {
+        assert.equal(result.continuation.artifact_language, "en");
+        assert.equal(result.continuation.presentation_language, "de");
+        assert.equal(result.continuation.approval_summary_required, true);
+        assert.equal(result.continuation.approval_summary_heading, "AGDF Approval Summary (de; source=en)");
+      }
       if (skill.slug === "ur-definition") {
         assert.equal(result.continuation.phase, "ur_definition");
         assert.equal(result.continuation.artifact_path, `.agdf/control/artefacts/${urRun}/UR.md`);
@@ -62,7 +75,7 @@ try {
       target_source: "explicit_target", primary_target: fixture.governanceTarget, run_id: prdRun.runId,
       intake: true, intake_mode: "resume", expected_revision_id: prdRun.revision(), prd_action: "revise" };
     const prdRevision = (await client.callTool({ name: "agdf_dispatch", arguments: prdArgs })).structuredContent;
-    assert.equal(prdRevision.continuation.phase, "prd_definition");
+    assert.equal(prdRevision.continuation?.phase, "prd_definition", JSON.stringify(prdRevision));
     const invalidPrd = await client.callTool({ name: "agdf_dispatch", arguments: { ...prdArgs, ur_action: "revise" } });
     assert.ok(invalidPrd.isError || invalidPrd.structuredContent?.outcome === "invalid_input");
     const sdArgs = { ...prdArgs, run_id: sdRun.runId, expected_revision_id: sdRun.revision(), sd_action: "revise" };

@@ -385,7 +385,11 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   }
 
   const approvalArtefactReady = isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
-  const urReadiness = currentGate === "UR" && approvalArtefactReady ? evaluateUrReadiness(targetDir, runState) : null;
+  const presentationLocale = selection.presentationLanguage
+    ? resolvePresentationLocale(interactionLocales, selection.presentationLanguage)
+    : resolveConfiguredChatLanguage(targetDir);
+  const urReadiness = currentGate === "UR" && approvalArtefactReady
+    ? evaluateUrReadiness(targetDir, runState, { presentationLanguage: presentationLocale }) : null;
   if (status === "open" && urReadiness && !urReadiness.ready) {
     status = "blocked";
     blockingReason = "AGDF_UR_REQUIREMENTS_INCOMPLETE";
@@ -436,9 +440,6 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   }
 
   const postApproval = postApprovalTransition(missingApproval, runState);
-  const presentationLocale = selection.presentationLanguage
-    ? resolvePresentationLocale(interactionLocales, selection.presentationLanguage)
-    : resolveConfiguredChatLanguage(targetDir);
   const renderable = (value) => isOperationalValueRenderable(value, { registry: interactionLocales, requestedLocale: presentationLocale });
   const runQualityOutlook = deriveQualityOutlook(runState, deliveryMap.findings);
   const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval })

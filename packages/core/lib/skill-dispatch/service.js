@@ -7,6 +7,7 @@ import { sdDefinitionPhase } from "./sd-definition.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
+import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
@@ -538,7 +539,7 @@ export function createSkillDispatchService(dependencies = {}) {
           artifact_path: artifact.artifact_path,
           source_artifacts: artifact.source_artifacts,
           instruction: "Follow the gate-artifact-preparation runtime contract for this exact gate and the supplied canonical artefact/source paths. Persist the required artefact in the selected run, then redispatch gate-check for the same target/run; do not ask for approval until the fresh dispatch supplies a valid presentation.",
-          presentation_language: input.presentation_language,
+          ...resolveArtifactPresentationLanguages(target.governance_target, input.presentation_language),
           ...(dependencies.readSkillRuntimeContracts ? {
             runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("gate-check")),
           } : {}),

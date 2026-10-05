@@ -35,7 +35,6 @@ const required = [
   "generated/.opencode/AGDF.md",
   "generated/.opencode/agdf-agent-router.md",
   "generated/plugins/agdf/.codex-plugin/plugin.json",
-  "generated/plugins/agdf/plugin.json",
   "generated/plugins/agdf/.claude-plugin/plugin.json",
   "generated/plugins/copilot/agdf/plugin.json",
   "generated/plugins/copilot/agdf/com.github.copilot/hooks/hooks.json",
@@ -68,6 +67,7 @@ for (const path of required) {
   assert.equal(files.filter((candidate) => candidate === path).length, 1, `package must contain ${path} exactly once`);
 }
 for (const excluded of [
+  "generated/plugins/agdf/plugin.json",
   "generated/plugins/agdf/host-templates/shared/hooks/hooks.json",
   "generated/plugins/agdf/hooks/copilot-hooks.json",
   "generated/plugins/agdf/copilot-skills/agdf-gate-check/SKILL.md",

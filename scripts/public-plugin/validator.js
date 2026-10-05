@@ -104,16 +104,17 @@ export function validatePortableProfile(root, { profile, validateSchema } = {}) 
   if (!["source", "public", "runtime"].includes(profile)) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: unknown profile");
   root = realpathSync(resolve(root));
   const files = listCandidateFiles(root); // Reject resource/metadata symlinks before reading them.
-  const portable = JSON.parse(readFileSync(join(root, "plugin.json"), "utf8"));
-  if (validateSchema) validateSchema("plugin", portable);
+  const runtime = profile === "runtime";
+  if (runtime && existsSync(join(root, "plugin.json"))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: Codex runtime must use its native manifest for hook discovery");
+  const portable = runtime ? null : JSON.parse(readFileSync(join(root, "plugin.json"), "utf8"));
+  if (validateSchema && portable) validateSchema("plugin", portable);
   const fallback = JSON.parse(readFileSync(join(root, ".codex-plugin", "plugin.json"), "utf8"));
   const definition = JSON.parse(readFileSync(join(root, "meta", "agdf-plugin.definition.json"), "utf8"));
-  if (portable.name !== definition.id || portable.version !== definition.version || fallback.name !== portable.name || fallback.version !== portable.version) {
+  if (fallback.name !== definition.id || fallback.version !== definition.version || (portable && (portable.name !== definition.id || portable.version !== definition.version))) {
     throw new Error("AGDF_PUBLIC_PLUGIN_VERSION_DRIFT: portable/fallback identity differs from definition");
   }
-  const inline = Object.hasOwn(portable.extensions ?? {}, "com.openai");
-  if (inline === (profile === "runtime")) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: inline/fallback selection differs from profile");
-  const settings = selectOpenAISettings(portable, fallback);
+  if (portable && !Object.hasOwn(portable.extensions ?? {}, "com.openai")) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: inline/fallback selection differs from profile");
+  const settings = runtime ? fallback : selectOpenAISettings(portable, fallback);
   declaredPath(root, settings.skills, "effective skills", { directory: true });
   declaredPath(root, settings.interface?.composerIcon, "effective composerIcon");
   declaredPath(root, settings.interface?.logo, "effective logo");
@@ -138,7 +139,7 @@ export function validatePortableProfile(root, { profile, validateSchema } = {}) 
       if (existsSync(join(root, path))) throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: optional discovery/content ${path}`);
     }
   }
-  if (!isDeepStrictEqual(portable, createPortablePluginManifest(definition, { publicCandidate: profile === "public", runtimeProfile: profile === "runtime" }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable identity/settings differ from canonical projection");
+  if (portable && !isDeepStrictEqual(portable, createPortablePluginManifest(definition, { publicCandidate: profile === "public" }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable identity/settings differ from canonical projection");
   return { portable, settings, files };
 }
 

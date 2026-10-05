@@ -601,7 +601,11 @@ export function syncPackageAssets({
   syncPluginMcp({ pluginRoot: generatedCodexPluginRoot });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
   write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
-  write(join(generatedCodexPluginRoot, "plugin.json"), renderPortablePluginManifest(pluginDefinition, { runtimeProfile: true }));
+  // Codex 0.160.0 selects portable mode when root plugin.json has $schema and then
+  // loses SessionStart hooks, including the compatibility manifest's declaration.
+  // Use its native manifest for this runtime bundle. Source/public and Copilot
+  // distributions still publish their schema-valid portable root manifests.
+  removeGeneratedPath(join(generatedCodexPluginRoot, "plugin.json"), "Codex runtime portable manifest");
   validatePortableProfile(generatedCodexPluginRoot, { profile: "runtime", validateSchema });
   if (copilot) {
     writeCopilotPluginFiles();

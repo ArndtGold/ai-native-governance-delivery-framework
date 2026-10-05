@@ -1,15 +1,12 @@
-{
-  "codex.installed": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+[
+  {
+    "schema_version": 1,
+    "id": "codex.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -26,21 +23,6 @@
       "fixture_version": "1",
       "condition": "installed"
     },
-    "facts": {
-      "payload_present": true,
-      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "original_result": "healthy"
-    },
-    "original": {
-      "result": "healthy",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "demonstrated",
-      "passed": true
-    }
-  },
-  "codex.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -51,6 +33,41 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "original_result": "healthy"
+    },
+    "original": {
+      "result": "healthy",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:05:37.619Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -66,6 +83,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -156,22 +183,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:37.619Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.discovery-missing": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -187,6 +224,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
@@ -272,22 +319,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:37.645Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.discovery-wrong-payload": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -303,6 +360,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
@@ -393,22 +460,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:37.674Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.callable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -424,6 +501,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -449,22 +536,32 @@
       "result": "control_result",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:38.690Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.target-unresolved": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -480,6 +577,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -505,22 +612,32 @@
       "result": "target_unresolved",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:39.180Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.missing-approval": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -536,6 +653,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -561,22 +688,32 @@
       "result": "skill_continuation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:39.905Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.invalid-input": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -592,6 +729,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -617,22 +764,32 @@
       "result": "invalid_input",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:40.318Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.updated": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -649,6 +806,16 @@
       "fixture_version": "1",
       "condition": "updated"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
@@ -658,22 +825,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:40.904Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.update-stale": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -690,6 +867,16 @@
       "fixture_version": "1",
       "condition": "update-stale"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
@@ -699,22 +886,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:41.105Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.recoverable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -730,6 +927,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "failure_observed": true,
@@ -747,22 +954,32 @@
       "result": "plugin_operation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:42.176Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.recovery-partial": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -778,6 +995,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "failure_observed": true,
@@ -807,22 +1034,32 @@
       "result": "plugin_operation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:42.447Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "codex.manual-checks": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "codex.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -839,22 +1076,6 @@
       "fixture_version": "1",
       "condition": "manual-checks"
     },
-    "facts": {
-      "check_executed": false,
-      "check_result_observed": false,
-      "authorized": false,
-      "original_result": "manual"
-    },
-    "original": {
-      "result": "manual",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "failed",
-      "passed": true
-    }
-  },
-  "codex.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -865,6 +1086,42 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:05:42.447Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "codex.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "codex",
       "variant": "simulated",
@@ -881,22 +1138,6 @@
       "fixture_version": "1",
       "condition": "trusted-unexecuted"
     },
-    "facts": {
-      "check_executed": false,
-      "check_result_observed": false,
-      "authorized": true,
-      "original_result": "hook_trusted_session_unverified"
-    },
-    "original": {
-      "result": "hook_trusted_session_unverified",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "failed",
-      "passed": true
-    }
-  },
-  "claude.installed": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -907,6 +1148,42 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": true,
+      "original_result": "hook_trusted_session_unverified"
+    },
+    "original": {
+      "result": "hook_trusted_session_unverified",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:05:42.447Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "5cf1312cfb459ec85a98d9b4d67439069dc2efaac47d557b5ca690363fb3d749",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -923,21 +1200,6 @@
       "fixture_version": "1",
       "condition": "installed"
     },
-    "facts": {
-      "payload_present": true,
-      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "original_result": "healthy"
-    },
-    "original": {
-      "result": "healthy",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "demonstrated",
-      "passed": true
-    }
-  },
-  "claude.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -948,6 +1210,41 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "original_result": "healthy"
+    },
+    "original": {
+      "result": "healthy",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:05:42.792Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -963,6 +1260,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -1053,22 +1360,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:42.792Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.discovery-missing": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1084,6 +1401,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
@@ -1169,22 +1496,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:42.811Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.discovery-wrong-payload": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1200,6 +1537,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
@@ -1290,22 +1637,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:42.830Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.callable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1321,6 +1678,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -1346,22 +1713,32 @@
       "result": "control_result",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:43.755Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.target-unresolved": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1377,6 +1754,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -1402,22 +1789,32 @@
       "result": "target_unresolved",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:44.221Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.missing-approval": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1433,6 +1830,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -1458,22 +1865,32 @@
       "result": "skill_continuation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:44.902Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.invalid-input": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1489,6 +1906,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -1514,22 +1941,32 @@
       "result": "invalid_input",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:45.412Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.updated": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1546,6 +1983,16 @@
       "fixture_version": "1",
       "condition": "updated"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
@@ -1555,22 +2002,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:46.001Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.update-stale": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1587,6 +2044,16 @@
       "fixture_version": "1",
       "condition": "update-stale"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
@@ -1596,22 +2063,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:46.141Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.recoverable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1627,6 +2104,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "failure_observed": true,
@@ -1644,22 +2131,32 @@
       "result": "plugin_operation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:47.179Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.recovery-partial": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1675,6 +2172,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "failure_observed": true,
@@ -1704,22 +2211,32 @@
       "result": "plugin_operation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:47.443Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "claude.manual-checks": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "claude.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1736,22 +2253,6 @@
       "fixture_version": "1",
       "condition": "manual-checks"
     },
-    "facts": {
-      "check_executed": false,
-      "check_result_observed": false,
-      "authorized": false,
-      "original_result": "manual"
-    },
-    "original": {
-      "result": "manual",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "failed",
-      "passed": true
-    }
-  },
-  "claude.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -1762,6 +2263,42 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:05:47.443Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "claude.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "claude",
       "variant": "simulated",
@@ -1778,6 +2315,16 @@
       "fixture_version": "1",
       "condition": "trusted-unexecuted"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "check_executed": false,
       "check_result_observed": false,
@@ -1788,22 +2335,32 @@
       "result": "trust_is_not_execution",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:47.443Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "77edba37eb8469f7255e9634d6f4e9e8a6244fd8e86af07ea3178346894a76ba",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.installed": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -1820,21 +2377,6 @@
       "fixture_version": "1",
       "condition": "installed"
     },
-    "facts": {
-      "payload_present": true,
-      "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "original_result": "healthy"
-    },
-    "original": {
-      "result": "healthy",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "demonstrated",
-      "passed": true
-    }
-  },
-  "copilot.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
@@ -1845,6 +2387,41 @@
       "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "original_result": "healthy"
+    },
+    "original": {
+      "result": "healthy",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:05:49.259Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -1860,6 +2437,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
@@ -1950,22 +2537,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:49.259Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.discovery-missing": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -1981,6 +2578,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837",
@@ -2066,22 +2673,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:49.275Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.discovery-wrong-payload": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2097,6 +2714,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363",
@@ -2187,22 +2814,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:49.292Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.callable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2218,6 +2855,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "invocation": {
@@ -2243,22 +2890,32 @@
       "result": "control_result",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:49.966Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.target-unresolved": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2274,6 +2931,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "invocation": {
@@ -2299,22 +2966,32 @@
       "result": "target_unresolved",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:50.425Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.missing-approval": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2330,6 +3007,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "invocation": {
@@ -2355,22 +3042,32 @@
       "result": "skill_continuation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:51.085Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.invalid-input": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2386,6 +3083,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "invocation": {
@@ -2411,22 +3118,32 @@
       "result": "invalid_input",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:51.472Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.updated": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2443,6 +3160,16 @@
       "fixture_version": "1",
       "condition": "updated"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
     "facts": {
       "previous_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "update_observed": true,
@@ -2452,22 +3179,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:53.685Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.update-stale": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2484,6 +3221,16 @@
       "fixture_version": "1",
       "condition": "update-stale"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
     "facts": {
       "previous_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "update_observed": true,
@@ -2493,22 +3240,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:53.833Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.recoverable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2524,6 +3281,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "failure_observed": true,
@@ -2541,22 +3308,32 @@
       "result": "verification",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:05:59.418Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.recovery-partial": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2572,6 +3349,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "facts": {
       "failure_observed": true,
@@ -2601,22 +3388,32 @@
       "result": "verification",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:01.713Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "copilot.manual-checks": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
-      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
-    },
+  {
+    "schema_version": 1,
+    "id": "copilot.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2633,22 +3430,6 @@
       "fixture_version": "1",
       "condition": "manual-checks"
     },
-    "facts": {
-      "check_executed": false,
-      "check_result_observed": false,
-      "authorized": false,
-      "original_result": "manual"
-    },
-    "original": {
-      "result": "manual",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "failed",
-      "passed": true
-    }
-  },
-  "copilot.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
@@ -2659,6 +3440,42 @@
       "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:06:01.713Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "copilot.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "copilot",
       "variant": "simulated",
@@ -2675,6 +3492,16 @@
       "fixture_version": "1",
       "condition": "trusted-unexecuted"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
+    },
     "facts": {
       "check_executed": false,
       "check_result_observed": false,
@@ -2685,22 +3512,32 @@
       "result": "trust_is_not_execution",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:01.713Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "037ccc56a859f2026241dc5026fa35fc1514acf2d220f70625e682ce4bdcc5bf",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.installed": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.installed",
+    "scenario": "installed",
+    "claim": "installed",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -2717,21 +3554,6 @@
       "fixture_version": "1",
       "condition": "installed"
     },
-    "facts": {
-      "payload_present": true,
-      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "original_result": "installed"
-    },
-    "original": {
-      "result": "installed",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "demonstrated",
-      "passed": true
-    }
-  },
-  "opencode.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -2742,6 +3564,41 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "payload_present": true,
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "original_result": "installed"
+    },
+    "original": {
+      "result": "installed",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:06:03.650Z",
+    "conformance": {
+      "expected": "demonstrated",
+      "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.discovered",
+    "scenario": "discovered",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -2757,6 +3614,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovered"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -2847,22 +3714,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:03.650Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.discovery-missing": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.discovery-missing",
+    "scenario": "discovery-missing",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -2878,6 +3755,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-missing"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
@@ -2963,22 +3850,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:03.671Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.discovery-wrong-payload": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.discovery-wrong-payload",
+    "scenario": "discovery-wrong-payload",
+    "claim": "discovered",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -2994,6 +3891,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "discovery-wrong-payload"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
@@ -3084,22 +3991,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:03.692Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.callable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.callable",
+    "scenario": "callable",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3115,6 +4032,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "callable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -3140,22 +4067,32 @@
       "result": "control_result",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:04.359Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.target-unresolved": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.target-unresolved",
+    "scenario": "target-unresolved",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3171,6 +4108,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "target-unresolved"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -3196,22 +4143,32 @@
       "result": "target_unresolved",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:04.842Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.missing-approval": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.missing-approval",
+    "scenario": "missing-approval",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3227,6 +4184,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "missing-approval"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -3252,22 +4219,32 @@
       "result": "skill_continuation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:05.622Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.invalid-input": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.invalid-input",
+    "scenario": "invalid-input",
+    "claim": "callable",
+    "mechanism": "canonical_dispatch",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3283,6 +4260,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "invalid-input"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "invocation": {
@@ -3308,22 +4295,32 @@
       "result": "invalid_input",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:06.030Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.updated": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.updated",
+    "scenario": "updated",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3340,6 +4337,16 @@
       "fixture_version": "1",
       "condition": "updated"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
@@ -3349,22 +4356,32 @@
       "result": "demonstrated",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:08.029Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.update-stale": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.update-stale",
+    "scenario": "update-stale",
+    "claim": "updated",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3381,6 +4398,16 @@
       "fixture_version": "1",
       "condition": "update-stale"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
@@ -3390,22 +4417,32 @@
       "result": "failed",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:08.180Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.recoverable": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.recoverable",
+    "scenario": "recoverable",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3421,6 +4458,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recoverable"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "failure_observed": true,
@@ -3438,22 +4485,32 @@
       "result": "plugin_operation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:13.007Z",
     "conformance": {
       "expected": "demonstrated",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.recovery-partial": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.recovery-partial",
+    "scenario": "recovery-partial",
+    "claim": "recoverable",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3469,6 +4526,16 @@
       "model": null,
       "fixture_version": "1",
       "condition": "recovery-partial"
+    },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "facts": {
       "failure_observed": true,
@@ -3498,22 +4565,32 @@
       "result": "plugin_operation",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:14.815Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   },
-  "opencode.manual-checks": {
-    "expected": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
-    "observed": {
-      "canonical_version": "0.14.5",
-      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
-      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
-    },
+  {
+    "schema_version": 1,
+    "id": "opencode.manual-checks",
+    "scenario": "manual-checks",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3530,22 +4607,6 @@
       "fixture_version": "1",
       "condition": "manual-checks"
     },
-    "facts": {
-      "check_executed": false,
-      "check_result_observed": false,
-      "authorized": false,
-      "original_result": "manual"
-    },
-    "original": {
-      "result": "manual",
-      "evidence_class": "repository_fixture"
-    },
-    "conformance": {
-      "expected": "failed",
-      "passed": true
-    }
-  },
-  "opencode.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
@@ -3556,6 +4617,42 @@
       "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
+    "facts": {
+      "check_executed": false,
+      "check_result_observed": false,
+      "authorized": false,
+      "original_result": "manual"
+    },
+    "original": {
+      "result": "manual",
+      "evidence_class": "repository_fixture"
+    },
+    "observed_at": "2026-10-05T15:06:14.815Z",
+    "conformance": {
+      "expected": "failed",
+      "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "opencode.trusted-unexecuted",
+    "scenario": "trusted-unexecuted",
+    "claim": "automatic_checks",
+    "mechanism": "host_lifecycle",
+    "lane": "deterministic_adapter",
+    "method": "isolated_production_fixture",
     "environment": {
       "host": "opencode",
       "variant": "simulated",
@@ -3572,6 +4669,16 @@
       "fixture_version": "1",
       "condition": "trusted-unexecuted"
     },
+    "expected": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
+    "observed": {
+      "canonical_version": "0.14.5",
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
+    },
     "facts": {
       "check_executed": false,
       "check_result_observed": false,
@@ -3582,9 +4689,22 @@
       "result": "trust_is_not_execution",
       "evidence_class": "repository_fixture"
     },
+    "observed_at": "2026-10-05T15:06:14.815Z",
     "conformance": {
       "expected": "failed",
       "passed": true
+    },
+    "source_fingerprint": "d1622999a4f583a541529a1cc03de7629f9d134385e41ecfedaabd15cbb87b35",
+    "references": [
+      {
+        "path": "docs/compatibility/evidence/facts.json",
+        "sha256": "3e9ad871632279bf339d5d4c1c4f5d7a9e0dfbdde3c53201e337169871142871"
+      }
+    ],
+    "publication": {
+      "reviewed": true,
+      "evidence": "docs/compatibility/evidence/facts.json",
+      "method": "structured_fixture_facts"
     }
   }
-}
+]

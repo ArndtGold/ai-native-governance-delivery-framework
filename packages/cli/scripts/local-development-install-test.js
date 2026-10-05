@@ -160,8 +160,8 @@ try {
   });
   assert.equal(projected.codexInstallVersion, localVersion);
   assert.equal(json(join(projected.pluginRoot, ".codex-plugin", "plugin.json")).version, localVersion);
-  assert.equal(json(join(projected.pluginRoot, "plugin.json")).version, localVersion, "Codex selects the portable root version before the fallback");
-  assert.equal(json(join(builtPluginRoot, "plugin.json")).version, pluginDefinition.version, "local projection must not change generated package identity");
+  assert.equal(existsSync(join(projected.pluginRoot, "plugin.json")), false, "Codex must discover hooks through the native manifest");
+  assert.equal(json(join(builtPluginRoot, ".codex-plugin", "plugin.json")).version, pluginDefinition.version, "local projection must not change generated package identity");
   assert.equal(json(join(projected.pluginRoot, ".claude-plugin", "plugin.json")).version, pluginDefinition.version);
   assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).source_digest, sourceDigest);
   assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).profile_id, "runtime-plugin");
@@ -183,16 +183,15 @@ try {
   assert.match(installedIntegrity.stdout, /mode=installed/);
 
   const localPortablePath = join(projected.pluginRoot, "plugin.json");
-  const localPortableManifest = readFileSync(localPortablePath, "utf8");
   for (const mutation of [
-    { ...JSON.parse(localPortableManifest), version: pluginDefinition.version },
-    { ...JSON.parse(localPortableManifest), description: "tampered root description" },
+    { $schema: "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json", name: "agdf", version: localVersion },
+    { name: "agdf", version: localVersion, description: "tampered root description" },
   ]) {
     writeFileSync(localPortablePath, `${JSON.stringify(mutation, null, 2)}\n`);
     const integrity = spawnSync(process.execPath, [join(projected.pluginRoot, "scripts", "check-runtime-integrity.mjs")], { encoding: "utf8" });
-    assert.notEqual(integrity.status, 0, "root version drift and non-version tampering must fail integrity");
+    assert.notEqual(integrity.status, 0, "adding a root manifest must fail provenance integrity");
   }
-  writeFileSync(localPortablePath, localPortableManifest);
+  rmSync(localPortablePath);
 
   const localMarkerPath = join(projected.pluginRoot, ".agdf-installation.json");
   const localCodexManifestPath = join(projected.pluginRoot, ".codex-plugin", "plugin.json");
@@ -241,7 +240,7 @@ try {
       if (args.join(" ") === "plugin marketplace list --json") {
         return JSON.stringify({ marketplaces: [{ name: "agdf", marketplaceSource: { sourceType: "local", source: projected.root } }] });
       }
-      if (args.join(" ") === "plugin list") return `agdf@agdf ${json(join(projected.pluginRoot, "plugin.json")).version}\n`;
+      if (args.join(" ") === "plugin list") return `agdf@agdf ${json(join(projected.pluginRoot, ".codex-plugin", "plugin.json")).version}\n`;
       return "";
     },
   });

@@ -7,7 +7,7 @@ import { artefactFileDigest } from "../../../core/lib/control-state/run-seal.js"
 import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
 
 // Synthetic authorization in isolated test runs only; never a human production approval.
-export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env) {
+export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false } = {}) {
   const log = [];
   const call = (command, ...args) => {
     const result = spawnSync(process.execPath, [validator, command, "--dir", root, "--json", ...args], { encoding: "utf8", env });
@@ -27,10 +27,11 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
   writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n");
   assert.equal(run("run-step", "--revision", revision(), "--step", "ur", "--title", "Synthetic saved filter").code, 0);
   const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run("run-approve",
-    "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response);
+    "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response,
+    ...(typedApprovals ? ["--operation", randomUUID()] : []));
   const present = (gate = "PRD", language = "en") => run("run-present", "--revision", revision(), "--gate", gate, "--language", language);
   const ur = present("UR"); assert.equal(ur.value?.outcome, "prepared", ur.text);
-  assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, "approved");
+  assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, typedApprovals ? "accepted" : "approved");
   writeFileSync(file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: no\n");
   assert.equal(run("run-step", "--revision", revision(), "--step", "route", "--route", "structured_delivery", "--reason",
     "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md").value?.outcome, "recorded");

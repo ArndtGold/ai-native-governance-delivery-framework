@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "run_id": "late-source-revision-20261005-01",
+  "consumers": [
+    {
+      "path": "packages/core/lib/control-state/artefact-bindings.js",
+      "starting_digest": "ca7c0ef5b675307c428931f12847b429d88022a4d4b8dfe8ab489932a75a0301",
+      "adoption": "Shared active projection excludes invalidated IDs; latest remains historical supersedes ordering",
+      "evidence": "SCN-004,008,012,018",
+      "candidate_digest": "d8a3d2309ecbc9044336f6097e289b9de26cbd4351577f9d30903e44a6281b9b",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-seal.js",
+      "starting_digest": "75c7f32326d4a7026b897ff228dbe0b6a3a59c3f27a86ce399afd0100f1e504c",
+      "adoption": "Sealed Source Revisions and all subordinate raw histories validated; legacy seals retained",
+      "evidence": "SCN-005,006,007,016,018,022",
+      "candidate_digest": "dd7f9cd545546920994d00ef0b9221b9a6c1a2af6e212e2582461ebe6f1a0a3e",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/artefact-binding-proof.js",
+      "starting_digest": "ac9c2fb6839041981fe5ec041dd64dd3fb6559d5d9c2b7a2e9abbbda71e046c2",
+      "adoption": "Exact current approved pointers plus effective mapping; archived readers distinguish raw presentation and canonical artefact digests",
+      "evidence": "SCN-004,005,008,012",
+      "candidate_digest": "55fcebb4ad06ec3bcceb03e118207bfcc5496654b50661b288e03f9fbdf64317",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-relationship-correction.js",
+      "starting_digest": "bd03e054d14948e525406532b853f5cb9d4972e06113c3949750dfd4262e99ae",
+      "adoption": "Existing active-only selection and exact proof reject historical reconstruction; no parallel correction policy",
+      "evidence": "SCN-008; Core explicit correctRunRelationship refusal",
+      "candidate_digest": "bd03e054d14948e525406532b853f5cb9d4972e06113c3949750dfd4262e99ae",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-artefact-recording.js",
+      "starting_digest": "353a9da14d02f25e8846ce67493ca1ea39138a6cc94b99522606ef479d3a5576",
+      "adoption": "Historical latest orders supersedes; current gate/analysis route and effective exact source proof gate recording",
+      "evidence": "SCN-008,010,012",
+      "candidate_digest": "714760252c55070f0668812d876cfe64c9d55c98ffc1eee20cc7fd8cf80939c4",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-presentation.js",
+      "starting_digest": "05185e9b0be071d16be424a235aa005fb5b8f69989a78c4886f1a192e618f6c1",
+      "adoption": "Existing current canonical gate/linked artefact readiness and current revision; removed pointers cannot use old files",
+      "evidence": "SCN-011,012,029",
+      "candidate_digest": "05185e9b0be071d16be424a235aa005fb5b8f69989a78c4886f1a192e618f6c1",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-recording.js",
+      "starting_digest": "4b81a895eee3f6b512b65adc964bf7c41506546b09e88f6b845535b474187bbd",
+      "adoption": "Existing writer seal, immutable history assertions and pending barrier apply; no new bypass",
+      "evidence": "SCN-007,016,019,020",
+      "candidate_digest": "4b81a895eee3f6b512b65adc964bf7c41506546b09e88f6b845535b474187bbd",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/delivery-map.js",
+      "starting_digest": "7b5bfc8330d912f5310b9e94535311db361cc8f36834fc1de6c77fa2cabbe583",
+      "adoption": "Revised runs require active binding ID and valid current reviewed relation, legacy behavior unchanged",
+      "evidence": "SCN-004,008,023",
+      "candidate_digest": "7363274b3fe0a66e4c81436280e9ec4dfb5bdcb0e6f0c5402e825239234d1b32",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/gate-check.js",
+      "starting_digest": "d9428ed23bbdef6a483ed126dde4df9824885373b7df32226012aeb7106a835e",
+      "adoption": "Uses evaluated current source gate/action and analytical next_operation; historical observations non-authorizing",
+      "evidence": "SCN-009,010,011,023",
+      "candidate_digest": "d0ab858ac6deca4e54448b9c38a6c5e0a696e64af41049b0c0b3b1c6bf953f0a",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-inspect/service.js",
+      "starting_digest": "ecb4ad6de74f508fd5a273da40821e84f977c07814d450bb87d91cebf37d6085",
+      "adoption": "Inspection delegates existing doctor/evaluator; dispatch snapshot adds only subordinate history observation",
+      "evidence": "SCN-023",
+      "candidate_digest": "ecb4ad6de74f508fd5a273da40821e84f977c07814d450bb87d91cebf37d6085",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/approval-command.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "c7bf6e0e69f4e28c873449d7abeb02280675423ded2033b93ad10952f01c903c",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-parser.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "466838bb92f10c7733091970eb998026360e43b74b97a1736b33494d39cad7dd",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-writer.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "c32a25e85361eb569d1cb5fc20d91fa659b05935deb5d061047faceced72493d",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-revision.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "5c00d733412577e09bc552a19c2f38c740ef08283c3604fbfdf2780b48bf56ae",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-revision-history.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "d5e011d18008eed757ac6ad22a7120343a3d30ca445192c2b9f3ba4f5e2e1cec",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-step-transaction.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "c86e0eb4494cada67e01eca6706caa81d81aa7616bf8d91b0b59f32ac79629c2",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/gate-policy.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "9cc1c2782710aa889dba6bd044c0eb28e2c759c1e0221933364f82a02b3a11ad",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/run-state.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "b35de7d01da524af0e41614f57d9e52674c473af44bebf7fe993b90ee817b669",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/run-step-policy.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "aa99426bcb35b8003ec780569750e454d3fca1fbe25315520c3d49ba1a5f21fe",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/prd-readiness.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "1718db7ff67e4b06a8a7b9975e431db919b67d02ff4026be02ea4a89f97de90d",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/sd-readiness.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "03dbbd72ced38bf534b9e99b6fd8e58e515c640f71f39d39dc173525505c364c",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/traceability-readiness.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "240cea1f3cafcafc776a1168c7974cf0898572a6f341a784a96f4dc4f9aafd44",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/prd-definition.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "abd0c070ab07ce4c7900ac981274876397e68129452865f85ccb7b5d631d82f8",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/sd-definition.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "f3970d6f36c9f93f4c42cb8365865d3cd08511802b29c182e1376362267561c7",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/service.js",
+      "adoption": "Current canonical pointers, shared effective proof/validated seal, existing gate policy, or explicitly archived historical resolver; inspected as part of implementation review",
+      "evidence": "Core renewal/integrity/reassessment scenarios and actual CLI/MCP parity; FINAL_SHARED_VERIFICATION.json and CODE_REVIEW.md",
+      "candidate_digest": "db4b024f171814b135082f408b79f0fa8d312f057ea8885ad8afa3dd2d99bd5d",
+      "formal_review": "CODE_REVIEW.md; ARCHITECTURE_REVIEW.md; DERIVATION_REVIEW.md"
+    }
+  ],
+  "review_status": "Final candidate actual consumer review complete; no uncovered current-proof consumer found"
+}

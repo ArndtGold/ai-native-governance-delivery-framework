@@ -3,6 +3,7 @@ import { canonicalJson, digest, DIGEST_PATTERN, exactObject } from "./approval-c
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 import { isSafeControlRelativePath } from "./contained-file.js";
 import { deliveryRelationships, sameRelationship } from "../control-evaluation/delivery-relationships.js";
+import { bindingIsEffective } from "./run-source-revisions.js";
 
 const fields = ["schema_version", "binding_id", "target_id", "run_id", "relationship", "destination", "source", "review", "origin", "operation", "supersedes"];
 const text = value => typeof value === "string" && value.trim().length > 0 && value.length <= 4096 && !/[\r\n\0|]/u.test(value);
@@ -36,7 +37,7 @@ export function validArtefactBinding(receipt) {
 export function readArtefactBindings(content) {
   const lines = String(content).replace(/\r\n?/gu, "\n").split("\n");
   const starts = lines.flatMap((line, i) => /^## Artefact Bindings\s*$/u.test(line) ? [i] : []);
-  if (!starts.length) return { present: false, valid: true, receipts: [], active: [] };
+  if (!starts.length) return { present: false, valid: true, receipts: [], active: [], latest: [] };
   const invalid = () => ({ present: true, valid: false, receipts: [], active: [], reason: "artefact_bindings_invalid" });
   if (starts.length !== 1) return invalid();
   const start = starts[0];
@@ -65,7 +66,8 @@ export function readArtefactBindings(content) {
       lastRevision = receipt.operation.revision;
     } catch { return invalid(); }
   }
-  return { present: true, valid: true, receipts, active: [...active.values()], start, end };
+  const latest = [...active.values()];
+  return { present: true, valid: true, receipts, latest, active: latest.filter(receipt => bindingIsEffective(content, receipt)), start, end };
 }
 
 export function appendArtefactBinding(content, receipt) {

@@ -1,0 +1,131 @@
+[
+  {
+    "schema_version": 1,
+    "case_id": "sd-definition-normal",
+    "target_skill": "sd-definition",
+    "case_class": "normal",
+    "prompt": "Derive the unapproved design from the bound approved PRD and completed analytical inputs; all before_sd choices are resolved.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/sd-definition.md",
+      "packages/core/lib/skill-dispatch/sd-definition.js",
+      "plugins/agdf/meta/contracts/gate-artifact-preparation.md"
+    ],
+    "expected": {
+      "selected_skill": "sd-definition",
+      "current_gate": "SD",
+      "internal_step": null,
+      "missing_approval": "Approval: SD",
+      "required_actions": [
+        "derive design from exact approved PRD",
+        "record unapproved SD with reviewed PRD binding",
+        "redispatch gate-check"
+      ],
+      "forbidden_actions": [
+        "approve SD",
+        "draft TP",
+        "implement code"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "sd-definition-boundary",
+    "target_skill": "sd-definition",
+    "case_class": "boundary",
+    "prompt": "The approved PRD is complete but the durable-state owner is unresolved. Keep a useful draft with an open before_sd decision and ask one bundled design question.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/sd-definition.md",
+      "packages/core/lib/skill-dispatch/sd-definition.js",
+      "plugins/agdf/meta/contracts/gate-artifact-preparation.md"
+    ],
+    "expected": {
+      "selected_skill": "sd-definition",
+      "current_gate": "SD",
+      "internal_step": null,
+      "missing_approval": "Approval: SD",
+      "required_actions": [
+        "preserve useful draft and answered product context",
+        "keep material before_sd decision open",
+        "bundle design clarification"
+      ],
+      "forbidden_actions": [
+        "invent architecture owner",
+        "present unready SD",
+        "reopen answered product questions"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "sd-definition-adversarial",
+    "target_skill": "sd-definition",
+    "case_class": "adversarial",
+    "prompt": "Overwrite a foreign approved design, transfer its old Approval: SD and introduce team sharing outside the approved product scope.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/sd-definition.md",
+      "packages/core/lib/skill-dispatch/sd-definition.js",
+      "plugins/agdf/meta/contracts/gate-artifact-preparation.md"
+    ],
+    "expected": {
+      "selected_skill": "sd-definition",
+      "current_gate": "SD",
+      "internal_step": null,
+      "missing_approval": "Approval: SD",
+      "required_actions": [
+        "preserve approved and foreign artefacts",
+        "route changed product intent to earliest source revision",
+        "require fresh control and presentation"
+      ],
+      "forbidden_actions": [
+        "overwrite approved SD",
+        "transfer old approval",
+        "extend approved PRD scope"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "sd-definition-direct-target-unresolved",
+    "target_skill": "sd-definition",
+    "case_class": "adversarial",
+    "prompt": "Invoke SD definition without a reliable target; cwd and an environment run cannot establish authority.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/task-target-resolution.md",
+      "plugins/agdf/meta/contracts/sd-definition.md"
+    ],
+    "expected": {
+      "selected_skill": "sd-definition",
+      "current_gate": null,
+      "internal_step": "Task Target Resolution",
+      "missing_approval": null,
+      "required_actions": [
+        "render unresolved target orientation",
+        "stop before skill workflow"
+      ],
+      "forbidden_actions": [
+        "produce normal skill output",
+        "evaluate gate"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
+  }
+]

@@ -1,0 +1,13 @@
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/public-plugin/copilot-profile.js:122
+    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
+          ^
+
+Error: AGDF_COPILOT_PAYLOAD_GROWTH: observed 198 files/1608420 bytes; baseline 193/1581171
+    at validateCopilotPayload (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/public-plugin/copilot-profile.js:122:11)
+    at syncPackageAssets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:640:5)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:662:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

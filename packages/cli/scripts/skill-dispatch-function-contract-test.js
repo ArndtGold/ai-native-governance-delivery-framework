@@ -54,7 +54,7 @@ assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
 assert.deepEqual(Object.keys(schema.properties), [
-  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "ur_action", "prd_action", "continue_delivery",
+  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "ur_action", "prd_action", "sd_action", "continue_delivery",
 ]);
 assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
@@ -257,9 +257,9 @@ assert.throws(
 
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
-assert.match(skillDispatchArgumentGrammar(), /--language <tag>/u);
-assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [(--ur-action|--prd-action) revise]] [--continue-delivery]"));
-assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
+assert.match(skillDispatchArgumentGrammar(), /--language <lc>/u);
+assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]"));
+assert.match(skillDispatchArgumentGrammar(), new RegExp(`--target-source ${TASK_TARGET_SOURCES.join("\\|")} --primary-target`, "u"));
 
 const languageProjection = renderSkillDispatchLanguageProjection();
 const projection = renderSkillDispatchSemanticProjection();
@@ -303,3 +303,20 @@ assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /verified_change g
 assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);
 assert.match(definition.outputSchema.properties.presentation.description, /only after its presentation_id exists/u);
 console.log("agdf_inspect function contract pins passed.");
+
+for (const fields of [
+  { sd_action: "revise" }, { sd_action: "revise", intake: true, intake_mode: "resume" },
+  { sd_action: "revise", intake: true, intake_mode: "new", expected_revision_id: expectedRevision },
+  { sd_action: "approve", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { sd_action: "revise", skill_id: "sd-definition", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { sd_action: "revise", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { sd_action: "revise", ur_action: "revise", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { sd_action: "revise", prd_action: "revise", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { sd_action: "revise", continue_delivery: true, intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+]) {
+  const args = { ...deliveryInput, ...fields }; let accepted = true;
+  try { normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments(args, transportContext), registry); } catch { accepted = false; }
+  assert.equal(validateDispatch(args), accepted, JSON.stringify(args));
+  assert.equal(accepted, fields.sd_action === "revise" && fields.intake_mode === "resume" && !!fields.expected_revision_id
+    && !fields.skill_id && !fields.ur_action && !fields.prd_action && !fields.continue_delivery);
+}

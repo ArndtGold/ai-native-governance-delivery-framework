@@ -1,0 +1,39 @@
+{
+  "status": "proposed_not_applied",
+  "run_id": "late-source-revision-20261005-01",
+  "candidate": "CANDIDATE_AFTER_BASELINE.json",
+  "source_fingerprint": "5de0142d1d4283489d588f4f74085d944cd88b1fba75036706189dea201d2bb0",
+  "changes": [
+    {
+      "path": "docs/compatibility/HOST_COMPATIBILITY.md",
+      "before": "aafb900038dc6bda9a60c4da880efb86aa923d870c41c99fe6032a54d0314bb1",
+      "after": "65c6138c762cb20577f46a8ea003cab290586bb8886390185c39106b16cac28e",
+      "bytes": 24577
+    },
+    {
+      "path": "docs/compatibility/evidence/facts.json",
+      "before": "86393896864806d2f55ac14490d53922bdfa2614bfaec717e818c7b3af1b9611",
+      "after": "de3d4373b2fb174fe16e28fa3fba46e5f476cfeafc4e6a754b21e5315b3c795b",
+      "bytes": 115806
+    },
+    {
+      "path": "docs/compatibility/evidence/snapshot.json",
+      "before": "49a7971f47f5099708a927852d97039c2713f09c1b0732d6717fd39c6e664f83",
+      "after": "19db4da5dc8f68343ca40fc9da3c3a6615a3f1f5ddbb273b1b1a35510024c32b",
+      "bytes": 231337
+    },
+    {
+      "path": "evals/host-compatibility/observations/6bccf2214626a269183bd7099be728dfc27914b9fdf233d727abc7058ef6c0e1.json",
+      "before": null,
+      "after": "6bccf2214626a269183bd7099be728dfc27914b9fdf233d727abc7058ef6c0e1",
+      "bytes": 154762
+    }
+  ],
+  "scope": "Regenerate source-bound deterministic adapter evidence with existing compatibility:record; retain historical/native observations as historical or inapplicable. Do not modify verifier, manifest, source, approval artifacts, original run or existing immutable observations.",
+  "observed": {
+    "adapter_scenarios": 56,
+    "failures": 0,
+    "record_exit_code": 0
+  },
+  "required_decision": "TP protects these three derived files; a scoped user exception is needed to apply the concrete generated candidate."
+}

@@ -10,10 +10,10 @@ import {
 } from "../../core/lib/runtime/plugin-provenance.js";
 
 const serverSourceRoot = resolve(fileURLToPath(new URL("../", import.meta.url)));
-const dispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
+const defaultDispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 
-export function createOwnedRuntimeFixture() {
+export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? defaultDispatcherSourceRoot } = {}) {
   const root = mkdtempSync(join(tmpdir(), "agdf-mcp-owned-"));
   const nodeModules = join(root, "node_modules");
   mkdirSync(nodeModules, { recursive: true });

@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "run_id": "sd-definition-separation-20261004-01",
+  "revision_id": "4ea4f5d0-dbc3-4b73-9926-4bf98cf85f35",
+  "date": "2026-10-05",
+  "status": "review_evidence_only_not_approval",
+  "baseline": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 193,
+    "max_bytes": 1581171,
+    "rationale": "Exact observed PRD authoring skill/contract, shared revision and eligible routing payload; approved TP SDD-007, no spare headroom."
+  },
+  "reference_inventory": {
+    "path": "packages/mcp-server/node_modules/create-agdf/generated/plugins/copilot/agdf/.agdf-payload-inventory.json",
+    "version": "0.14.5",
+    "stats": {
+      "files": 193,
+      "bytes": 1581171
+    },
+    "sha256": "1d831c9d51427532dfcae551e1984e262f801d6b021bfd5d1c76895ae470dfbb"
+  },
+  "candidate_inventory": {
+    "path": "packages/cli/generated/plugins/copilot/agdf/.agdf-payload-inventory.json",
+    "version": "0.14.5",
+    "stats": {
+      "files": 198,
+      "bytes": 1608420
+    },
+    "sha256": "982e58691a55ff3a6e95a34906a97e5047edbda2751fff36c4d42b22c0803315"
+  },
+  "delta": {
+    "files": 5,
+    "bytes": 27249,
+    "added_bytes": 18334,
+    "changed_bytes": 8915
+  },
+  "added": [
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/sd-definition.md",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "aba3d232eed5bcf112d7743690aaa7d040094067ce11817f6a2d2ee283714267",
+      "bytes": 4617
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/sd-readiness.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "03dbbd72ced38bf534b9e99b6fd8e58e515c640f71f39d39dc173525505c364c",
+      "bytes": 2561
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/sd-definition.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "96e61ae7e21e832ba18c5a15c42dff0be9427e271fbdcd0c44d0e071d34268ef",
+      "bytes": 2819
+    },
+    {
+      "destination": "skills/agdf-sd-definition/SKILL.md",
+      "component": "skill",
+      "owner": "plugins/agdf/skills/sd-definition/SKILL.md",
+      "rule": "copilot_name_projection",
+      "requirement": "Copilot skill agdf-sd-definition",
+      "source": "plugins/agdf/skills/sd-definition/SKILL.md",
+      "source_digest": "2949009ee3b435e7b4b710ee21362afcbe1cd4e1462e08383f1299a3297af6cf",
+      "digest": "e73cbec905e8d79d3c7a00d58f04f3263b9342bb4cfd4cac01adea153ce6e030",
+      "bytes": 3720
+    },
+    {
+      "destination": "skills/contracts/sd-definition.md",
+      "component": "runtime_contract_module",
+      "owner": "plugins/agdf/meta/contracts/sd-definition.md",
+      "rule": "copilot_name_projection",
+      "requirement": "focused runtime contract",
+      "source": "plugins/agdf/meta/contracts/sd-definition.md",
+      "source_digest": "aba3d232eed5bcf112d7743690aaa7d040094067ce11817f6a2d2ee283714267",
+      "digest": "aba3d232eed5bcf112d7743690aaa7d040094067ce11817f6a2d2ee283714267",
+      "bytes": 4617
+    }
+  ],
+  "changed": [
+    {
+      "destination": "meta/agdf-agent-router.md",
+      "component": "runtime_support",
+      "owner": "plugins/agdf/meta/agdf-agent-router.md",
+      "rule": "copy",
+      "requirement": "local validator and session orientation dependency",
+      "source": "plugins/agdf/meta/agdf-agent-router.md",
+      "source_digest": "8b69b3f319ce07eba1e360021d4848d72f5fe0f515f15d85b91af496724ed628",
+      "digest": "8b69b3f319ce07eba1e360021d4848d72f5fe0f515f15d85b91af496724ed628",
+      "bytes": 12317,
+      "old_bytes": 12262,
+      "delta_bytes": 55
+    },
+    {
+      "destination": "meta/agdf-plugin.definition.json",
+      "component": "runtime_support",
+      "owner": "plugins/agdf/meta/agdf-plugin.definition.json",
+      "rule": "copy",
+      "requirement": "local validator and session orientation dependency",
+      "source": "plugins/agdf/meta/agdf-plugin.definition.json",
+      "source_digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+      "digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+      "bytes": 18450,
+      "old_bytes": 18141,
+      "delta_bytes": 309
+    },
+    {
+      "destination": "meta/agdf-runtime-contract.md",
+      "component": "runtime_support",
+      "owner": "plugins/agdf/meta/agdf-runtime-contract.md",
+      "rule": "copy",
+      "requirement": "local validator and session orientation dependency",
+      "source": "plugins/agdf/meta/agdf-runtime-contract.md",
+      "source_digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+      "digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+      "bytes": 1977,
+      "old_bytes": 1860,
+      "delta_bytes": 117
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "f655916f8bee3980b515fdb73a39ce39626ffa21656a162c86b2629b4f2d100b",
+      "bytes": 148256,
+      "old_bytes": 146818,
+      "delta_bytes": 1438
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+      "bytes": 18450,
+      "old_bytes": 18141,
+      "delta_bytes": 309
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "8d0ea3b816e595cea9df729fcb2a0a3ba398e86ca489946b7b5beaacb479b472",
+      "bytes": 5731,
+      "old_bytes": 5954,
+      "delta_bytes": -223
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/gate-transition.md",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "e1ef34aed3a254a3a9533e1ff67b7ec76b39e6c2da8452a5c97a22bbe7806369",
+      "bytes": 16569,
+      "old_bytes": 16286,
+      "delta_bytes": 283
+    },
+    {
+      "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "1693a5edaac71acf4b4138641c42b1c444a23c046e4402e63d4f717958f90897",
+      "bytes": 46617,
+      "old_bytes": 46521,
+      "delta_bytes": 96
+    },
+    {
+      "destination": "runtime/create-agdf/lib/cli/command-registry.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "4bc2c800c176a930352bcd5ff872d92e2b31aa3fbe8d9956417fdaabaf17eb8f",
+      "bytes": 22989,
+      "old_bytes": 22877,
+      "delta_bytes": 112
+    },
+    {
+      "destination": "runtime/create-agdf/lib/cli/parse-args.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "1d8f2ca766b9005317d2cb362726340d5689c291fa56014a376618e97dd5b4ab",
+      "bytes": 12537,
+      "old_bytes": 12426,
+      "delta_bytes": 111
+    },
+    {
+      "destination": "runtime/create-agdf/lib/cli/validation-handlers.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "37f6c8b18dbb0a63948cbfda6e2ac9bd7755f4f3c6666dbf2326d02c350aff9c",
+      "bytes": 11077,
+      "old_bytes": 10994,
+      "delta_bytes": 83
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/gate-check.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "d9428ed23bbdef6a483ed126dde4df9824885373b7df32226012aeb7106a835e",
+      "bytes": 36778,
+      "old_bytes": 35815,
+      "delta_bytes": 963
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/interaction-catalog.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "a8b073321ccb356f8de9f798c1292c80804cd5ae349235bf2a62a37c3d77c2c0",
+      "bytes": 3628,
+      "old_bytes": 3597,
+      "delta_bytes": 31
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "3484e2b4b8d117ebdc5dd99ae277f9173a7a9644e58b2817e8aa688295000bfb",
+      "bytes": 62495,
+      "old_bytes": 62231,
+      "delta_bytes": 264
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/contract.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "ab2fff952e046b01ac9c04b336de97b4838481015a6923ae367b7fc7a7612267",
+      "bytes": 27898,
+      "old_bytes": 26716,
+      "delta_bytes": 1182
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/prd-definition.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "fed19243cf97572f17336d48f8840174b005f3bd26cb705f60babc56a228c0ca",
+      "bytes": 2764,
+      "old_bytes": 2731,
+      "delta_bytes": 33
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/service.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "804875f83753be3a7471d501cfd6e6e4df94a57ad9fcba5b24056ddcaff00c26",
+      "bytes": 39510,
+      "old_bytes": 37422,
+      "delta_bytes": 2088
+    },
+    {
+      "destination": "runtime/runtime-manifest.json",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "cc291ff6675bdc94dc1357ad480af6ff11c54c3687f34e1b06543673291855b6",
+      "bytes": 236,
+      "old_bytes": 236,
+      "delta_bytes": 0
+    },
+    {
+      "destination": "skills/agdf-gate-check/SKILL.md",
+      "component": "skill",
+      "owner": "plugins/agdf/skills/gate-check/SKILL.md",
+      "rule": "copilot_name_projection",
+      "requirement": "Copilot skill agdf-gate-check",
+      "source": "plugins/agdf/skills/gate-check/SKILL.md",
+      "source_digest": "f279e4082c54ca870dbf429f749376492dd6a6174ab71789eb6f903155ac9198",
+      "digest": "bb77aca3fafc78cedf9c0836485b418563d4b3e754c9dfe0feb2beff4829a724",
+      "bytes": 5485,
+      "old_bytes": 5532,
+      "delta_bytes": -47
+    },
+    {
+      "destination": "skills/agdf-interaction-locales.json",
+      "component": "locale_registry",
+      "owner": "plugins/agdf/meta/agdf-interaction-locales.json",
+      "rule": "copy",
+      "requirement": "localized interaction presentation",
+      "source": "plugins/agdf/meta/agdf-interaction-locales.json",
+      "source_digest": "f655916f8bee3980b515fdb73a39ce39626ffa21656a162c86b2629b4f2d100b",
+      "digest": "f655916f8bee3980b515fdb73a39ce39626ffa21656a162c86b2629b4f2d100b",
+      "bytes": 148256,
+      "old_bytes": 146818,
+      "delta_bytes": 1438
+    },
+    {
+      "destination": "skills/agdf-runtime-contract.md",
+      "component": "runtime_contract",
+      "owner": "plugins/agdf/meta/agdf-runtime-contract.md",
+      "rule": "copilot_name_projection",
+      "requirement": "shared gate and output contract",
+      "source": "plugins/agdf/meta/agdf-runtime-contract.md",
+      "source_digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+      "digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+      "bytes": 1977,
+      "old_bytes": 1860,
+      "delta_bytes": 117
+    },
+    {
+      "destination": "skills/contracts/gate-artifact-preparation.md",
+      "component": "runtime_contract_module",
+      "owner": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+      "rule": "copilot_name_projection",
+      "requirement": "focused runtime contract",
+      "source": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+      "source_digest": "8d0ea3b816e595cea9df729fcb2a0a3ba398e86ca489946b7b5beaacb479b472",
+      "digest": "8d0ea3b816e595cea9df729fcb2a0a3ba398e86ca489946b7b5beaacb479b472",
+      "bytes": 5731,
+      "old_bytes": 5954,
+      "delta_bytes": -223
+    },
+    {
+      "destination": "skills/contracts/gate-transition.md",
+      "component": "runtime_contract_module",
+      "owner": "plugins/agdf/meta/contracts/gate-transition.md",
+      "rule": "copilot_name_projection",
+      "requirement": "focused runtime contract",
+      "source": "plugins/agdf/meta/contracts/gate-transition.md",
+      "source_digest": "e1ef34aed3a254a3a9533e1ff67b7ec76b39e6c2da8452a5c97a22bbe7806369",
+      "digest": "e1ef34aed3a254a3a9533e1ff67b7ec76b39e6c2da8452a5c97a22bbe7806369",
+      "bytes": 16569,
+      "old_bytes": 16286,
+      "delta_bytes": 283
+    },
+    {
+      "destination": "skills/contracts/interaction.md",
+      "component": "runtime_contract_module",
+      "owner": "plugins/agdf/meta/contracts/interaction.md",
+      "rule": "copilot_name_projection",
+      "requirement": "focused runtime contract",
+      "source": "plugins/agdf/meta/contracts/interaction.md",
+      "source_digest": "1693a5edaac71acf4b4138641c42b1c444a23c046e4402e63d4f717958f90897",
+      "digest": "9182793d96f00f58627de7663d818b9c6f15b40e55fcb0e362af28a2bc4f4338",
+      "bytes": 46599,
+      "old_bytes": 46503,
+      "delta_bytes": 96
+    }
+  ],
+  "removed": [],
+  "validation": {
+    "status": "blocked",
+    "message": "AGDF_COPILOT_PAYLOAD_GROWTH: observed 198 files/1608420 bytes; baseline 193/1581171",
+    "interpretation": "Production validator retained unchanged and called with its budget enforcement enabled. It verifies mapped files, file/source digests, exclusions and skill set before the observed growth failure; no full build or QA pass."
+  },
+  "review": {
+    "new_file_bytes": 18334,
+    "changed_file_bytes": 8915,
+    "required_contract_projections": [
+      "skills/contracts/sd-definition.md",
+      "runtime/create-agdf/generated/plugins/agdf/meta/contracts/sd-definition.md"
+    ],
+    "projection_rationale": "Existing host skill reader and version-bound CLI/MCP runtime contract reader use separate derived paths from one canonical source, as for PRD; these are distribution copies, not two authoring owners.",
+    "semantic_duplication_removed": "SD authoring guidance removed from shared gate-artifact-preparation; old procedural contract shrinks by 223 bytes per shipped copy.",
+    "conclusion": "No unnecessary additional file identified. Discovery and localized recovery text already shortened within unchanged limits. Accept exact reviewed growth only after a supported deliberate requirement revision; do not merge unrelated modules just to preserve file count."
+  }
+}

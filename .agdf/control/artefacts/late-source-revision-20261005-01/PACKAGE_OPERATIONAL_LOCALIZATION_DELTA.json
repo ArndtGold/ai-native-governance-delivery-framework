@@ -1,0 +1,36 @@
+{
+  "status": "proposed_not_approved",
+  "run_id": "late-source-revision-20261005-01",
+  "previous_decision": "HUMAN_PREVIEW_FINAL_DECISION.json",
+  "baseline": {
+    "files": 200,
+    "bytes": 1685700
+  },
+  "proposed": {
+    "files": 200,
+    "bytes": 1686414
+  },
+  "reserve_files": 0,
+  "reserve_bytes": 0,
+  "changed_entries": [
+    {
+      "path": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "canonical_source": "plugins/agdf/meta/agdf-interaction-locales.json",
+      "old_bytes": 152937,
+      "new_bytes": 153294,
+      "delta": 357,
+      "source_sha256": "643ffcd73a9428d40e4f9a38c63fcf0c5be4c290e706f64ae18ee9693e2e8110"
+    },
+    {
+      "path": "skills/agdf-interaction-locales.json",
+      "owner": "plugins/agdf/meta/agdf-interaction-locales.json",
+      "canonical_source": "plugins/agdf/meta/agdf-interaction-locales.json",
+      "old_bytes": 152937,
+      "new_bytes": 153294,
+      "delta": 357,
+      "source_sha256": "643ffcd73a9428d40e4f9a38c63fcf0c5be4c290e706f64ae18ee9693e2e8110"
+    }
+  ],
+  "same_size_manifest_change": "Runtime manifest hashes update without byte growth; no new payload files."
+}

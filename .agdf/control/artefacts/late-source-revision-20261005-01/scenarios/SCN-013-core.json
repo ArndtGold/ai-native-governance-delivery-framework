@@ -1,0 +1,98 @@
+{
+  "scenario_id": "SCN-013",
+  "status": "pass",
+  "facts": "All four real canonical source renewal paths; exact upstream approval matrix, preserved history, fresh preparation and synthetic replies.",
+  "run_id": "late-source-test",
+  "module_digest": "sha256:5c00d733412577e09bc552a19c2f38c740ef08283c3604fbfdf2780b48bf56ae",
+  "observations": [
+    {
+      "gate": "UR",
+      "operation_id": "b260f593-1e37-4966-9671-3970faa06042",
+      "previous_revision_id": "5f19cc7c-e9b8-43ec-9507-3284f0045a41",
+      "resulting_revision_id": "abba0e4b-13a7-4216-8eb8-55012db05592",
+      "service": "previewSourceRevision/applySourceRevision/evaluateGateCheck/correctRunRelationship",
+      "before": "sha256:9fa97d8c1dbd8623574771dcf92ad5fa7fe1439aefabf0c387ee60a7a26ec4c9",
+      "after": "sha256:5e4e9330d4cf8a3a5d7e5e5b2e7793cc1a49167984d674fcb79a7a528ceee00e",
+      "outcome": "reopened"
+    },
+    {
+      "service": "actual retained filter behavior test under freshly approved fixture TP",
+      "run_id": "late-source-test",
+      "revision_id": "f3dc034c-5a47-4ee3-8646-b445335c373b",
+      "tp_digest": "5986b2558db9b924c285320d234c77345ee3451767ae292e3cb2d25e45c2f900",
+      "criterion_id": "AC-001",
+      "task_id": "T-001",
+      "outcome": "pass",
+      "fixture_authority": "synthetic_only",
+      "code_digest": "sha256:034472c3429193c5e6104f4656d1ea2115a6f50c3aed9a31bec309d91efe8196",
+      "test_digest": "sha256:db1f30ca9a73990c7bb9da2269c8673cce410a84025e3f2411ecd486149efd4c"
+    },
+    {
+      "gate": "PRD",
+      "operation_id": "34fe35b7-dc14-439d-a868-67be5b5966cc",
+      "previous_revision_id": "5f19cc7c-e9b8-43ec-9507-3284f0045a41",
+      "resulting_revision_id": "f642def2-a6e1-42d2-a789-e89e0bbbae9c",
+      "service": "previewSourceRevision/applySourceRevision/evaluateGateCheck/correctRunRelationship",
+      "before": "sha256:5d9cdf5d90016fa320098c58fa24c81dccdc97603c47d156542a9d17d3706052",
+      "after": "sha256:14fbcb7d30480176dc34a1eab8e34a40adace15f92cc2ddc7135ef2ebe979102",
+      "outcome": "reopened"
+    },
+    {
+      "service": "actual retained filter behavior test under freshly approved fixture TP",
+      "run_id": "late-source-test",
+      "revision_id": "a1bf69a4-0de5-4939-8166-dacec1c7a697",
+      "tp_digest": "5986b2558db9b924c285320d234c77345ee3451767ae292e3cb2d25e45c2f900",
+      "criterion_id": "AC-001",
+      "task_id": "T-001",
+      "outcome": "pass",
+      "fixture_authority": "synthetic_only",
+      "code_digest": "sha256:034472c3429193c5e6104f4656d1ea2115a6f50c3aed9a31bec309d91efe8196",
+      "test_digest": "sha256:db1f30ca9a73990c7bb9da2269c8673cce410a84025e3f2411ecd486149efd4c"
+    },
+    {
+      "gate": "SD",
+      "operation_id": "518eee5a-2fa4-4775-823b-708081733bdb",
+      "previous_revision_id": "5f19cc7c-e9b8-43ec-9507-3284f0045a41",
+      "resulting_revision_id": "a2868f21-6c9d-4507-9034-82c70e97acf1",
+      "service": "previewSourceRevision/applySourceRevision/evaluateGateCheck/correctRunRelationship",
+      "before": "sha256:6b30e85b3acf7703c414b87afb762165f915225908b997a7afc50da65aa1fbc5",
+      "after": "sha256:21e41ffecd9c04f7f57b8c46b93cd6638e9d1f1ce91037748ca37fb86120e98c",
+      "outcome": "reopened"
+    },
+    {
+      "service": "actual retained filter behavior test under freshly approved fixture TP",
+      "run_id": "late-source-test",
+      "revision_id": "4b6e4a67-f96b-4eb1-b0e5-b60ea636ab25",
+      "tp_digest": "5986b2558db9b924c285320d234c77345ee3451767ae292e3cb2d25e45c2f900",
+      "criterion_id": "AC-001",
+      "task_id": "T-001",
+      "outcome": "pass",
+      "fixture_authority": "synthetic_only",
+      "code_digest": "sha256:034472c3429193c5e6104f4656d1ea2115a6f50c3aed9a31bec309d91efe8196",
+      "test_digest": "sha256:db1f30ca9a73990c7bb9da2269c8673cce410a84025e3f2411ecd486149efd4c"
+    },
+    {
+      "gate": "TP",
+      "operation_id": "1640ba2a-ef0c-421f-8f3a-8c6c1665b769",
+      "previous_revision_id": "5f19cc7c-e9b8-43ec-9507-3284f0045a41",
+      "resulting_revision_id": "8b035f8e-b1c5-4a21-9289-a931342dccc4",
+      "service": "previewSourceRevision/applySourceRevision/evaluateGateCheck/correctRunRelationship",
+      "before": "sha256:3bf2d0a0de777d7eecd9719d67ea5068a6f60b786dd688189aa236d03b282309",
+      "after": "sha256:3def93c36a9bc2cd7efca81bd6fa13976f50802fcfdc50836a713f351638936c",
+      "outcome": "reopened"
+    },
+    {
+      "service": "actual retained filter behavior test under freshly approved fixture TP",
+      "run_id": "late-source-test",
+      "revision_id": "9efc20aa-6e28-41d1-8fcc-5af01b428f9e",
+      "tp_digest": "5986b2558db9b924c285320d234c77345ee3451767ae292e3cb2d25e45c2f900",
+      "criterion_id": "AC-001",
+      "task_id": "T-001",
+      "outcome": "pass",
+      "fixture_authority": "synthetic_only",
+      "code_digest": "sha256:034472c3429193c5e6104f4656d1ea2115a6f50c3aed9a31bec309d91efe8196",
+      "test_digest": "sha256:db1f30ca9a73990c7bb9da2269c8673cce410a84025e3f2411ecd486149efd4c"
+    }
+  ],
+  "fixture_authority": "synthetic_only"
+}

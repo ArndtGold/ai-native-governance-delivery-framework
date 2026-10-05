@@ -1,5 +1,7 @@
 import { assertApprovalOperationsChange, readApprovalOperations, validApprovalReceipt } from "./approval-operations.js";
 import { assertArtefactBindingsChange, validArtefactBinding } from "./artefact-bindings.js";
+import { assertSourceRevisionsChange, validSourceRevision, validSourceRevisionEffect } from "./run-source-revisions.js";
+import { validateRevisionHistory, archivedRunMatches } from "./run-revision-history.js";
 import { randomUUID } from "node:crypto";
 import {
   closeSync,
@@ -21,7 +23,7 @@ import { APPROVAL_GATES, approvalSeal, canonicalRunText, runRootFromStatePath, r
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
 import { closeoutArtefacts, internalStepArtefacts, userGateOrder } from "../control-evaluation/run-state.js";
 
-function fsyncDirectory(path) {
+export function fsyncDirectory(path) {
   if (process.platform === "win32") return;
   const descriptor = openSync(path, "r");
   try {
@@ -184,7 +186,7 @@ export function withRunLock(path, work, options) {
   return withOwnedFileLock(path, work, options);
 }
 
-export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, checkpoint } = {}) {
+export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, appendedRevision, checkpoint } = {}) {
   const root = runRootFromStatePath(path);
   if (!allowPendingTransaction && existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
     throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
@@ -206,6 +208,14 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
 
     assertApprovalOperationsChange(currentContent, content, appendedReceipt);
     assertArtefactBindingsChange(currentContent, content, appendedBinding);
+    assertSourceRevisionsChange(currentContent, content, appendedRevision);
+    if (appendedRevision && (!allowApprovalChange || appendedReceipt || appendedBinding || !validateBeforeWrite
+        || !validSourceRevision(appendedRevision) || appendedRevision.run_id !== current.meta.run_id
+        || appendedRevision.previous_revision_id !== expectedRevisionId || appendedRevision.resulting_revision_id !== nextRevisionId
+        || appendedRevision.revision !== Number(current.meta.revision) + 1 || !validateRevisionHistory(root, appendedRevision)
+        || !archivedRunMatches(root, appendedRevision, currentContent) || !validSourceRevisionEffect(currentContent, content, appendedRevision))) {
+      throw Error("AGDF_SOURCE_REVISIONS_INVALID");
+    }
     if (appendedBinding && (!validArtefactBinding(appendedBinding) || allowApprovalChange
         || appendedBinding.run_id !== current.meta.run_id || appendedBinding.operation.previous_revision_id !== expectedRevisionId
         || appendedBinding.operation.resulting_revision_id !== nextRevisionId

@@ -1,0 +1,1556 @@
+{
+  "scenario_id": "SCN-028",
+  "status": "pass",
+  "candidate": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+  "node": "v22.22.3",
+  "platform": "darwin-x64",
+  "cycles": [
+    {
+      "cycle": 1,
+      "operation_id": "3a4f1781-924c-49d0-a022-93b22b245202",
+      "revision_id": "7b123fbc-2786-4fd9-b8fe-d5946c8e1f93",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "6ff901f2-bf60-49c7-8af3-4558d005b148",
+          "operation_id": "3a4f1781-924c-49d0-a022-93b22b245202",
+          "request_digest": "sha256:b0fb5acbb9c57e5507f5f3656c6ac5781f4b0d6b1986b3736c8f31f522ac1626",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "7966b0ed-e67e-4812-b569-384efc2ba01e"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:f94db92be388e6d0f042e1c0780d23035048e9d787d96ef8792ae4802aa19387",
+          "current_run_digest": "sha256:6d430a21444b6c1051cfb565e110b78c288f0d696238932ab7234bb34efdb142",
+          "preview_digest": "sha256:2104feaedcdcd0c2bbbe2fa8e3490f83d715b9226bbf13d39b26d3da004b6b31",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 101.0378389999969,
+        "reads": 55,
+        "bytes_read": 75839,
+        "history_reads": 0
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "3a4f1781-924c-49d0-a022-93b22b245202",
+          "gate": "TP",
+          "revision_id": "7b123fbc-2786-4fd9-b8fe-d5946c8e1f93",
+          "revision": "13",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "7966b0ed-e67e-4812-b569-384efc2ba01e"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 592.1941089999964,
+        "reads": 207,
+        "bytes_read": 423274,
+        "history_reads": 50
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 86.38746199999878,
+        "reads": 40,
+        "bytes_read": 100468,
+        "history_reads": 33
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 188.54907499999536,
+        "reads": 43,
+        "bytes_read": 121395,
+        "history_reads": 33
+      },
+      "history_files": 17,
+      "history_bytes": 35150
+    },
+    {
+      "cycle": 2,
+      "operation_id": "4830483d-ff9d-40ad-82f5-eea750f7d81f",
+      "revision_id": "2451fe74-f1a3-4e1d-9237-4eff24112c31",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "c3b25166-19bf-46b5-b2b7-ed25ef8215ea",
+          "operation_id": "4830483d-ff9d-40ad-82f5-eea750f7d81f",
+          "request_digest": "sha256:9fa36d30452068807d156fe398de5c4b5f3659c49565325efbc8dd2ca89a7daa",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:2e2b0241d8258fde576d19bba4e754ff6450090a6e879c1cca8b80b2d6375bd7"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "d43a0b9e-a588-46f4-838f-8ffadb506726"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:22687a078559310711364ff99ce05c70bfc0bdbc85c3f2f9210a4557a7306a6c",
+          "current_run_digest": "sha256:5c9a996cea95465e9213817757115a185b238b859b2c5de0a5b1ac1132920189",
+          "preview_digest": "sha256:a3a9ebba2f18577861f41caba4d901e1132a89f1bf2c08c7772b8a94816c1916",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 56.22166399999696,
+        "reads": 83,
+        "bytes_read": 133317,
+        "history_reads": 16
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "4830483d-ff9d-40ad-82f5-eea750f7d81f",
+          "gate": "TP",
+          "revision_id": "2451fe74-f1a3-4e1d-9237-4eff24112c31",
+          "revision": "18",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "d43a0b9e-a588-46f4-838f-8ffadb506726"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 847.0960049999994,
+        "reads": 299,
+        "bytes_read": 687871,
+        "history_reads": 130
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 74.76232300000265,
+        "reads": 56,
+        "bytes_read": 155413,
+        "history_reads": 49
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 248.141730000003,
+        "reads": 59,
+        "bytes_read": 182811,
+        "history_reads": 49
+      },
+      "history_files": 34,
+      "history_bytes": 77036
+    },
+    {
+      "cycle": 3,
+      "operation_id": "a20152e0-2f9a-43d8-ae4e-adf180bb734c",
+      "revision_id": "67e0ca4c-0926-4a70-ae49-6ae8505bb46d",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "aa6daa9a-fda1-4ec8-a937-dfb8ccb56f4d",
+          "operation_id": "a20152e0-2f9a-43d8-ae4e-adf180bb734c",
+          "request_digest": "sha256:9b2c0f7530ef2a4476a2e18f87600015b02e6556541713337d5f3d6adee8999a",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:bd475572690fd6e984ae2d830aae41ad29f672d380dda59023a9074dedfa54bd"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "25e4e560-1b0e-44b8-a6e2-d38a104a82a3"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:bd8d3ba08f71330283ce9f42a3f1dc08a8a8a403c4e00672c66f9c9865db6403",
+          "current_run_digest": "sha256:0d2c61a40013f77165f788e13b89c61b72286af2ab871cd3240c8d082948e51c",
+          "preview_digest": "sha256:874d9932827987cd747d0616bbcf4db802a0a8284f55b88d806a6f877546ea4d",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 81.63312699999369,
+        "reads": 99,
+        "bytes_read": 188151,
+        "history_reads": 32
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "a20152e0-2f9a-43d8-ae4e-adf180bb734c",
+          "gate": "TP",
+          "revision_id": "67e0ca4c-0926-4a70-ae49-6ae8505bb46d",
+          "revision": "23",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "25e4e560-1b0e-44b8-a6e2-d38a104a82a3"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 820.2703800000018,
+        "reads": 379,
+        "bytes_read": 974587,
+        "history_reads": 210
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 113.45593400001235,
+        "reads": 72,
+        "bytes_read": 216608,
+        "history_reads": 65
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 111.0590899999952,
+        "reads": 75,
+        "bytes_read": 250477,
+        "history_reads": 65
+      },
+      "history_files": 51,
+      "history_bytes": 125415
+    },
+    {
+      "cycle": 4,
+      "operation_id": "eed5bfb8-7529-48d7-8dc8-b820119855aa",
+      "revision_id": "6ba4f9b2-1060-49f7-b6d9-71617fd8644a",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "24e8c25a-90e5-449a-84f0-38d7a7780dd7",
+          "operation_id": "eed5bfb8-7529-48d7-8dc8-b820119855aa",
+          "request_digest": "sha256:f77401ce78525061c407dae2480e4bc4a01f0cf5e2bb8d36deed3158f5d17c03",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:6c9ecbb18094c5c8ff796d586abd15d3488399346a13c0f64588d1c0d7d9b42c"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "2598354b-6f52-4bc3-b434-1683a8648f76"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:21f66ba689e9ca0fd7402bb4fa8648834ac57e0d787a42f706053d9469e22da5",
+          "current_run_digest": "sha256:f047c2c7700ec9c5991fe208dac45462d666068dfc380d06e7027179b83059d8",
+          "preview_digest": "sha256:adb5fa1c2df3efb255308013a1ba585f965ea96a8acc4e9e20bebe94e2075052",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 98.68251900000905,
+        "reads": 115,
+        "bytes_read": 249478,
+        "history_reads": 48
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "eed5bfb8-7529-48d7-8dc8-b820119855aa",
+          "gate": "TP",
+          "revision_id": "6ba4f9b2-1060-49f7-b6d9-71617fd8644a",
+          "revision": "28",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "2598354b-6f52-4bc3-b434-1683a8648f76"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 855.7982429999975,
+        "reads": 459,
+        "bytes_read": 1293768,
+        "history_reads": 290
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 145.25058799999533,
+        "reads": 88,
+        "bytes_read": 284296,
+        "history_reads": 81
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 196.7266890000028,
+        "reads": 91,
+        "bytes_read": 324636,
+        "history_reads": 81
+      },
+      "history_files": 68,
+      "history_bytes": 180287
+    },
+    {
+      "cycle": 5,
+      "operation_id": "f621f12b-cc95-4ce9-a8ed-9883a630c6f8",
+      "revision_id": "1c9a72ed-f445-4905-97ed-ffe46a98c751",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "0eee832c-09b6-4e8a-9c1d-6a762ecea7de",
+          "operation_id": "f621f12b-cc95-4ce9-a8ed-9883a630c6f8",
+          "request_digest": "sha256:9726f72cf3bbf2b861f55bb0e52049e7898666eaa30036b22be76fdf06799230",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:0f424a85a3e1a86f3ae1feec3a5609142175964c75d8264ade2dfdd81ce0eb64"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "b870d862-7ba8-4fb6-8495-f33ac2e49c0a"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:ee5b80a4986096c247de2f497a17e054a0dafd6c588528863a5ec130cd1a8c1a",
+          "current_run_digest": "sha256:edbc92c3109ad5f65cd2b2e0ff554b32fde7e46352738e69b2650089d4ba8df1",
+          "preview_digest": "sha256:4f9ba762de076e618ae3da6ae8f091b4f6a6a7276f1edff952c5bdaf970ddd4a",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 124.7715590000007,
+        "reads": 131,
+        "bytes_read": 317298,
+        "history_reads": 64
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "f621f12b-cc95-4ce9-a8ed-9883a630c6f8",
+          "gate": "TP",
+          "revision_id": "1c9a72ed-f445-4905-97ed-ffe46a98c751",
+          "revision": "33",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "b870d862-7ba8-4fb6-8495-f33ac2e49c0a"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 995.8982309999992,
+        "reads": 539,
+        "bytes_read": 1645414,
+        "history_reads": 370
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 161.04808200000843,
+        "reads": 104,
+        "bytes_read": 358477,
+        "history_reads": 97
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 241.09397999999055,
+        "reads": 107,
+        "bytes_read": 405288,
+        "history_reads": 97
+      },
+      "history_files": 85,
+      "history_bytes": 241652
+    },
+    {
+      "cycle": 6,
+      "operation_id": "b186c17a-8c6f-41fc-94ca-cb54cae22c93",
+      "revision_id": "7313a006-1ff0-4978-9b66-c2146b73f3b9",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "953aa419-caa8-46c3-b1b2-304a01b27aa2",
+          "operation_id": "b186c17a-8c6f-41fc-94ca-cb54cae22c93",
+          "request_digest": "sha256:ba3910aeabfd47dba65eab6aa131aec0c0c69b47aae37e742af395ea0a7574a6",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:a3ea8067c26c874770282a883f53eae3534038b77f8fefbbc7ba69459f3069ae"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "7056c862-fe66-4daa-b4cd-e0ac359690a8"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:a2667cd8f459063c6d88f064821bb875034a9327b2864cda04a774023ba3e992",
+          "current_run_digest": "sha256:9e47d10ec549fbbfb6a38de180e94b266961386d8b400265c50549822ff1fd41",
+          "preview_digest": "sha256:978eb9e3b7cea5b63afe5f8b6995171dac9559e5af5276a8dba94c9ddd6ad1c8",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 198.71185899998818,
+        "reads": 147,
+        "bytes_read": 391611,
+        "history_reads": 80
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "b186c17a-8c6f-41fc-94ca-cb54cae22c93",
+          "gate": "TP",
+          "revision_id": "7313a006-1ff0-4978-9b66-c2146b73f3b9",
+          "revision": "38",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "7056c862-fe66-4daa-b4cd-e0ac359690a8"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 1257.7072960000078,
+        "reads": 619,
+        "bytes_read": 2029525,
+        "history_reads": 450
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 194.19103000000177,
+        "reads": 120,
+        "bytes_read": 439151,
+        "history_reads": 113
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 368.5731870000018,
+        "reads": 123,
+        "bytes_read": 492433,
+        "history_reads": 113
+      },
+      "history_files": 102,
+      "history_bytes": 309510
+    },
+    {
+      "cycle": 7,
+      "operation_id": "9990626c-b075-492a-a6ab-6a64620b3334",
+      "revision_id": "66e9fe50-bd51-4333-b6ea-0efcf9605e96",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "d9894c99-5403-49cb-a959-4e4b8fb89fb6",
+          "operation_id": "9990626c-b075-492a-a6ab-6a64620b3334",
+          "request_digest": "sha256:96f866a3b7c0f8dc82ce235654bf39878993f931ed513f49a9abb64597d16c8c",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:d7f5bdd529134f43e053204dfec3feeafd454a2797a033310cf8fdbdcc32c084"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "df4c4a16-3734-4e17-958c-e0c752d1bf92"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:5874734dfd42864f67c9936befe572ebbe070aa31cd9de2a078cf936088c85ce",
+          "current_run_digest": "sha256:df5efce9c918627853d5d934251010b63c8baaa5aeabf2d3c8c8363311c40044",
+          "preview_digest": "sha256:cc6a1d8ebc855bdd137b66290080cf49e63dd76c69403e89882f7dc4ac06d51f",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 211.8546270000079,
+        "reads": 163,
+        "bytes_read": 472417,
+        "history_reads": 96
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "9990626c-b075-492a-a6ab-6a64620b3334",
+          "gate": "TP",
+          "revision_id": "66e9fe50-bd51-4333-b6ea-0efcf9605e96",
+          "revision": "43",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "df4c4a16-3734-4e17-958c-e0c752d1bf92"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 2055.506380000006,
+        "reads": 699,
+        "bytes_read": 2446101,
+        "history_reads": 530
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 992.0615300000063,
+        "reads": 136,
+        "bytes_read": 526318,
+        "history_reads": 129
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 702.1362150000059,
+        "reads": 139,
+        "bytes_read": 586071,
+        "history_reads": 129
+      },
+      "history_files": 119,
+      "history_bytes": 383861
+    },
+    {
+      "cycle": 8,
+      "operation_id": "c3501f17-a47c-4e7e-a9a0-71a559cf14d9",
+      "revision_id": "c8d93d6d-5fe3-4b11-86cc-cb7c9b6eeb63",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "289ebbe0-f60b-4db0-b3c2-23ce3cd4bf69",
+          "operation_id": "c3501f17-a47c-4e7e-a9a0-71a559cf14d9",
+          "request_digest": "sha256:02f00370943e5f77ac42600bc09e4dca35384fceb773b515515d1f80f02f489b",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:eb35b17e3c490661e245987d638b180ccc70ace577e9224a0ad2ec8b803b373b"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "42f59d22-e4a1-427e-af98-21a59d88f802"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:39b8dd702bbce342981624b7e289937f564e08d7542ce4d8e1b30d5f75a53ebd",
+          "current_run_digest": "sha256:c65dd24a564be771512db9be2c8fe7c678ce704b6b0904490237e8682085db84",
+          "preview_digest": "sha256:8fb970618592fb694e0ef53e2f47087977588a672838f8c681ab4888f5a61679",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 274.47996799999964,
+        "reads": 179,
+        "bytes_read": 559716,
+        "history_reads": 112
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "c3501f17-a47c-4e7e-a9a0-71a559cf14d9",
+          "gate": "TP",
+          "revision_id": "c8d93d6d-5fe3-4b11-86cc-cb7c9b6eeb63",
+          "revision": "48",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "42f59d22-e4a1-427e-af98-21a59d88f802"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 1529.699391000002,
+        "reads": 779,
+        "bytes_read": 2895142,
+        "history_reads": 610
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 369.37255900001037,
+        "reads": 152,
+        "bytes_read": 619978,
+        "history_reads": 145
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 346.3460320000013,
+        "reads": 155,
+        "bytes_read": 686202,
+        "history_reads": 145
+      },
+      "history_files": 136,
+      "history_bytes": 464705
+    },
+    {
+      "cycle": 9,
+      "operation_id": "3d267658-a537-473c-bf53-28a8608b748b",
+      "revision_id": "0fa3ea06-88ab-4d9e-bae7-409bd8aeb303",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "7892b052-808b-4e4c-9649-803ff6445bff",
+          "operation_id": "3d267658-a537-473c-bf53-28a8608b748b",
+          "request_digest": "sha256:4aa91603019fb647eb7e62d07180587b4228ff92bf80bba9e2618ee499d9a8d4",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:a363d38e3bb8d360e57a1866569d1e235a95645f8f12a199e8e1312e817d3871"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "82dd598b-4b00-436f-bddd-6f640d041c7f"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:fb5dd31da3a54108b2e241e5743e37862be1934bf4b820042e68fff38102be7d",
+          "current_run_digest": "sha256:8503237d0418bca1d932c674eb7979df417fba3a90466be02f93b0a3202cf840",
+          "preview_digest": "sha256:5b18218546af81b4124a40802db7d221fd1d82e2c59af59086b9ce25431ace03",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 269.56609899998875,
+        "reads": 195,
+        "bytes_read": 653508,
+        "history_reads": 128
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "3d267658-a537-473c-bf53-28a8608b748b",
+          "gate": "TP",
+          "revision_id": "0fa3ea06-88ab-4d9e-bae7-409bd8aeb303",
+          "revision": "53",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "82dd598b-4b00-436f-bddd-6f640d041c7f"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 1706.4593410000089,
+        "reads": 859,
+        "bytes_read": 3376648,
+        "history_reads": 690
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 297.6569850000087,
+        "reads": 168,
+        "bytes_read": 720131,
+        "history_reads": 161
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 327.3734730000142,
+        "reads": 171,
+        "bytes_read": 792826,
+        "history_reads": 161
+      },
+      "history_files": 153,
+      "history_bytes": 552042
+    },
+    {
+      "cycle": 10,
+      "operation_id": "af6ee6e9-f7a3-40de-8611-52d0879a9c43",
+      "revision_id": "b6acb4f8-f482-4990-81d7-4c4b9bcab667",
+      "preview": {
+        "value": {
+          "outcome": "preview",
+          "authority": "proposed_only",
+          "authorizes": false,
+          "schema_version": "1",
+          "target_id": "sha256:5cdc97b6b6f5b2f00e9a2d33cdbf2f63169cbd91cd7836745063cb5bc9b84e09",
+          "run_id": "revision-performance",
+          "expected_revision_id": "259b5b05-41e1-440a-9c7d-5538748ab663",
+          "operation_id": "af6ee6e9-f7a3-40de-8611-52d0879a9c43",
+          "request_digest": "sha256:c1c807bc8d4179f749004f8554debb62eacb8d6d2c413314998a8c59cfcf5657",
+          "reason": "Synthetic reviewed source revision test",
+          "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+          "sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/revision-performance/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/revision-performance/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/revision-performance/SD.md",
+              "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/revision-performance/TP.md",
+              "digest": "sha256:bcb2fdd0d15ef021c29060fda32f9f20da0a97684f453a2cdb56a3da8c3eae23"
+            }
+          ],
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "254d708d-c439-44ce-a7b3-57abf2d31a34"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "archive_digest": "sha256:a86fd6520e2b904c0f9502fc7408c016d1e8fe0cb6a9766855c6d04cea4f4ba1",
+          "current_run_digest": "sha256:f4d6be8fd7a2ad51740bb1ff93987b32f7006c5fc17604e8fb032bac4aa8c24c",
+          "preview_digest": "sha256:83c5822d87aa03957d0c9faaec756fdd08240971a8e67105ad5bc8f33d828078",
+          "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+        },
+        "elapsed_ms": 278.57638600000064,
+        "reads": 211,
+        "bytes_read": 753793,
+        "history_reads": 144
+      },
+      "apply": {
+        "value": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "af6ee6e9-f7a3-40de-8611-52d0879a9c43",
+          "gate": "TP",
+          "revision_id": "b6acb4f8-f482-4990-81d7-4c4b9bcab667",
+          "revision": "58",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "254d708d-c439-44ce-a7b3-57abf2d31a34"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "elapsed_ms": 1884.7626429999946,
+        "reads": 939,
+        "bytes_read": 3890619,
+        "history_reads": 770
+      },
+      "inspect": {
+        "value": {
+          "outcome": "historical"
+        },
+        "elapsed_ms": 346.3933010000037,
+        "reads": 184,
+        "bytes_read": 826777,
+        "history_reads": 177
+      },
+      "recover": {
+        "value": {
+          "outcome": "recovered"
+        },
+        "elapsed_ms": 411.97679699998116,
+        "reads": 187,
+        "bytes_read": 905943,
+        "history_reads": 177
+      },
+      "history_files": 170,
+      "history_bytes": 645872
+    }
+  ],
+  "unrelated_observation": {
+    "elapsed_ms": 209.7391709999938,
+    "reads": 11,
+    "history_reads": 0
+  },
+  "competition": {
+    "elapsed_ms": 3414.8005879999837,
+    "results": [
+      {
+        "code": 0,
+        "result": {
+          "outcome": "reopened",
+          "authorizes": false,
+          "run_id": "revision-performance",
+          "operation_id": "2aa27e17-1187-4375-b02b-bdb9458cd061",
+          "gate": "TP",
+          "revision_id": "446eb1ba-5544-4bcb-bda4-cf175dcd6e32",
+          "revision": "63",
+          "impact": {
+            "source_gate": "TP",
+            "retained": [
+              "UR",
+              "PRD",
+              "SD"
+            ],
+            "superseded": [
+              "TP"
+            ],
+            "invalidated_bindings": [
+              "4cb0d2a5-e189-41b9-89ad-f0ad24b8d0e3"
+            ],
+            "analyses": [
+              {
+                "type": "Brownfield Review",
+                "disposition": "retain",
+                "path": ".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md",
+                "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+              }
+            ],
+            "invalidated_steps": [
+              "Brownfield Analysis",
+              "CD+Tests",
+              "CR"
+            ],
+            "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+            "next_gate": "TP",
+            "implementation_authority": false
+          },
+          "next_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        }
+      },
+      {
+        "code": 0,
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "run_id": "revision-performance",
+          "reason": "run_write_locked",
+          "lock_path": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-revision-performance-BOcjTH/.agdf/control/runs/revision-performance/RUN_STATE.md.lock",
+          "authorizes": false
+        }
+      }
+    ]
+  },
+  "diagnostic_only": "No added SLA; existing MCP budgets remain mandatory",
+  "fixture_authority": "synthetic_only"
+}

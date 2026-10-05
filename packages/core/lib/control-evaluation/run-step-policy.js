@@ -1,6 +1,6 @@
 import { parseControlState } from "../control-state/run-state-parser.js";
 import { transitionDecisionForRunState } from "./gate-policy.js";
-import { closeoutArtefacts, internalStepArtefacts, modeSliceDecision, userGateOrder } from "./run-state.js";
+import { closeoutArtefacts, internalStepArtefacts, modeSliceDecision, userGateOrder, sourceRevisionUxRequired } from "./run-state.js";
 import { evaluateVerifiedChange } from "./verified-change.js";
 
 // Evaluates the gate policy for unsaved run-state text, so run-step can store the deterministic
@@ -15,6 +15,7 @@ export function policyForRunContent(targetDir, content, runPath = "") {
       closeoutArtefacts: [...closeoutArtefacts],
     }),
   };
+  runState.source_revision_ux_required = sourceRevisionUxRequired(targetDir, runState);
   const verifiedChange = modeSliceDecision(runState) === "verified_change" ? evaluateVerifiedChange(targetDir, runState, {}) : null;
   const decision = transitionDecisionForRunState(runState, verifiedChange);
   return Object.freeze({

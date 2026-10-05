@@ -45,7 +45,7 @@ export const commandRegistry = Object.freeze([
   command("run-present", { local: [" --run <run_id> --gate <gate> --revision <revision_id>"] }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
-  command("run-revise", { local: [" --run <run_id> --revision <revision_id>"] }),
+  command("run-revise", { local: [" --run <run_id> --revision <revision_id>", " --preview|--apply --run <run_id> --revision <revision_id> --source-gate <UR|PRD|SD|TP> --operation <uuid> --evidence <proposal.json> [--preview-digest <sha256>]"] }),
   command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout|artefact> [step fields]"] }),
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
@@ -112,10 +112,12 @@ export function validateCommandOptions(options) {
     throw new Error("target-check requires --json");
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
-  if ((options.intakeMode || options.urAction || options.prdAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
-  if ((options.operationId !== undefined || options.assurance !== undefined) && options.target !== "run-approve") {
-    throw new Error("--operation and --assurance are supported only by run-approve");
+  if ((options.intakeMode || options.urAction || options.prdAction || options.sdAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
+  if (options.assurance !== undefined && options.target !== "run-approve"
+      || options.operationId !== undefined && options.target !== "run-approve" && !(options.target === "run-revise" && options.revisionMode)) {
+    throw new Error("--operation requires run-approve or an explicit run-revise mode; --assurance requires run-approve");
   }
+  if ((options.revisionMode || options.sourceGate !== undefined || options.previewDigest !== undefined) && options.target !== "run-revise") throw new Error("Source revision fields require run-revise");
   if (options.presentationId && options.target !== "run-approve") throw new Error("--presentation is supported only by run-approve");
   if (options.target === "run-present" && (!options.runId || !options.gate || !options.revisionId)) throw new Error("run-present requires --run, --gate and --revision");
   if (options.intake && options.target !== "skill-dispatch") throw new Error("--intake is supported only by skill-dispatch");
@@ -155,7 +157,9 @@ export function validateCommandOptions(options) {
   if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present", "skill-dispatch"].includes(options.target)) {
     throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch");
   }
-  if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step") {
+  if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step"
+      && !(options.target === "run-revise" && ["preview", "apply"].includes(options.revisionMode)
+        && !options.runStep && Object.keys(options.stepFields).every(key => key === "evidence"))) {
     throw new Error("--step and step fields are supported only by run-step");
   }
   if (options.target === "run-step" && (!options.runId || !options.revisionId || !options.runStep)) {
@@ -169,6 +173,17 @@ export function validateCommandOptions(options) {
   }
   if (options.target === "run-revise" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
     throw new Error("run-revise requires --run and --revision and rejects --gate and --response");
+  }
+  if (options.target === "run-revise") {
+    const mode = options.revisionMode;
+    if (!mode && (options.sourceGate !== undefined || options.previewDigest !== undefined)) throw new Error("Late revision requires an explicit mode");
+    if (mode && !["preview", "apply", "inspect", "recover"].includes(mode)) throw new Error("Unsupported source revision mode");
+    if (mode && !options.operationId) throw new Error("Source revision requires --operation");
+    if (["preview", "apply"].includes(mode) && (!["UR", "PRD", "SD", "TP"].includes(options.sourceGate) || !options.stepFields?.evidence)) throw new Error("Source revision preview/apply requires --source-gate and --evidence");
+    if (mode === "apply" && !/^sha256:[a-f0-9]{64}$/u.test(options.previewDigest ?? "")) throw new Error("Source revision apply requires its --preview-digest");
+    if (mode !== "apply" && options.previewDigest !== undefined) throw new Error("--preview-digest requires --apply");
+    if (["inspect", "recover"].includes(mode) && (options.sourceGate !== undefined || Object.keys(options.stepFields ?? {}).length)) throw new Error("Source revision inspect/recover accepts only run, revision and operation identity");
+    if (mode && !options.dirExplicit) throw new Error("Source revision requires an explicit --dir target");
   }
   if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
     throw new Error("run-approve requires --run, --gate, --revision and --response");
@@ -306,8 +321,15 @@ Options:
   --intake-mode <new|resume>  Explicit new scope or bound intake recovery; requires --intake and --run
   --ur-action revise  Explicit unapproved UR revision; requires revision-bound resume intake
   --prd-action revise Explicit unapproved PRD revision; requires revision-bound resume intake
+  --sd-action revise Explicit unapproved SD revision; requires revision-bound resume intake
   --continue-delivery  Bound internal continuation; excludes intake and read-only status
-  --operation <uuid>     Explicit idempotent run-approve command identity
+  --preview|--apply|--inspect|--recover
+                 Explicit run-revise mode; no mode keeps the early PRD revision path
+  --source-gate <UR|PRD|SD|TP>
+                 Earliest changed approved source in a reviewed late proposal
+  --preview-digest <sha256>
+                 Exact read-only late revision preview required by --apply
+  --operation <uuid>     Explicit idempotent approval or source revision command identity
   --assurance <lane>     Only cooperative_local is supported; no independent human proof
   --presentation <uuid>  Previously prepared run-present binding required for run-approve
   --intake       Declare the governed delivery intake (delivery.start) for a gate-check skill-dispatch

@@ -3,6 +3,8 @@ import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from 
 import { readApprovalOperations } from "./approval-operations.js";
 import { artefactFileDigest, APPROVAL_GATES } from "./run-seal.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
+import { readArtefactBindings } from "./artefact-bindings.js";
+import { readSourceRevisions } from "./run-source-revisions.js";
 
 export function readContainedJson(root, path) {
   const file = containedRegularFile(root, path);
@@ -11,13 +13,22 @@ export function readContainedJson(root, path) {
   catch { throw new Error("AGDF_ARTEFACT_BINDING_PROOF_INVALID"); }
 }
 
-export function exactApprovedArtefacts(root, control) {
+export function exactApprovedArtefacts(root, control, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false,
+  rawFileDigest = path => {
+    const file = containedRegularFile(root, path);
+    return file.status === "valid" && !hasSymlinkComponent(root, path) && statSync(file.path).size <= 131072 ? digest(readFileSync(file.path)) : "missing";
+  } } = {}) {
   const operations = readApprovalOperations(control.content);
   if (!operations.valid) return false;
+  const revisions = readSourceRevisions(control.content), bindings = readArtefactBindings(control.content);
+  if (!revisions.valid || !bindings.valid) return false;
   const target = resolveControlCommandTarget(root).target_id;
   for (const gate of APPROVAL_GATES.filter(gate => gate !== "UAT" && control.approvals.get(gate)?.status === "approved")) {
-    const row = control.artefacts.get(gate), actual = artefactFileDigest(root, row?.path);
+    const row = control.artefacts.get(gate), actual = fileDigest(row?.path);
     if (!actual.startsWith("sha256:")) return false;
+    if (revisions.present && ["PRD", "SD", "TP", "QA"].includes(gate)
+        && !bindings.active.some(binding => binding.destination.type === (gate === "QA" ? "QA_REPORT" : gate) && binding.destination.path === row?.path
+          && binding.destination.digest === actual && validateBindingProof(root, binding, { fileDigest, readJson, historical }))) return false;
     const evidence = control.approvals.get(gate).evidence ?? "";
     const presentation = evidence.match(/presentation ([0-9a-f-]{36}) (sha256:[0-9a-f]{64})(?:\s|$)/u);
     if (!presentation) return false;
@@ -25,14 +36,15 @@ export function exactApprovedArtefacts(root, control) {
     if (receipt.length > 1) return false;
     if (receipt.length === 1) {
       if (receipt[0].binding.target_id !== target || receipt[0].binding.run_id !== control.meta.run_id
-          || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest === null) return false;
+          || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest !== presentation[2]) return false;
       // The row identifies the exact prepared record, not a historical superseded approval.
     }
     try {
-      const envelope = readContainedJson(root, `.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.json`);
+      const envelope = readJson(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.json`);
       const record = envelope.record;
       if (!record || record.schema_version !== 1 || record.presentation_id !== presentation[1] || record.run_id !== control.meta.run_id
-          || record.gate !== gate || record.artefact_digest !== actual || envelope.digest !== presentation[2]
+          || record.gate !== gate || record.artefact_digest !== rawFileDigest(row.path) || envelope.digest !== presentation[2]
+          || receipt.length === 1 && record.revision_id !== receipt[0].binding.expected_revision_id
           || digest(JSON.stringify(record)) !== envelope.digest) return false;
     } catch { return false; }
   }
@@ -40,12 +52,12 @@ export function exactApprovedArtefacts(root, control) {
 }
 
 // Local reviewed attestation: explicit exact mapping, never prose or inferred gate order.
-export function validateBindingProof(root, receipt) {
+export function validateBindingProof(root, receipt, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false } = {}) {
   if (receipt.target_id !== resolveControlCommandTarget(root).target_id
-      || [receipt.destination, receipt.source, receipt.review].some(file => hasSymlinkComponent(root, file.path)
-        || artefactFileDigest(root, file.path) !== file.digest)) return false;
+      || [receipt.destination, receipt.source, receipt.review].some(file => !historical && hasSymlinkComponent(root, file.path)
+        || fileDigest(file.path) !== file.digest)) return false;
   try {
-    const proof = readContainedJson(root, receipt.review.path);
+    const proof = readJson(receipt.review.path);
     return exactObject(proof, ["schema_version", "target_id", "run_id", "relationship", "destination", "source", "reviewer", "reviewed"])
       && proof.schema_version === "1" && proof.reviewed === true && proof.target_id === receipt.target_id && proof.run_id === receipt.run_id
       && proof.reviewer === receipt.review.reviewer

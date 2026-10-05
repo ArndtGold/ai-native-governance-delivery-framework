@@ -122,6 +122,7 @@ const expectedModules = [
   "meta/contracts/closeout.md",
   "meta/contracts/ur-definition.md",
   "meta/contracts/prd-definition.md",
+  "meta/contracts/sd-definition.md",
 ];
 assert.deepEqual(getRuntimeContractModulePaths(definition), expectedModules);
 for (const modulePath of expectedModules) assert.equal(statSync(join(pluginRoot, modulePath)).isFile(), true);

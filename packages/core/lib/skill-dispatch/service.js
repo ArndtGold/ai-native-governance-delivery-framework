@@ -3,6 +3,7 @@ import { hasSymlinkComponent } from "../control-state/contained-file.js";
 import { artefactFileDigest } from "../control-state/run-seal.js";
 import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
 import { prdDefinitionPhase } from "./prd-definition.js";
+import { sdDefinitionPhase } from "./sd-definition.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
@@ -14,12 +15,12 @@ import { deliveryRunAssignmentContinuation, readDeliveryRunInventory } from "./d
 import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
 
 // Read contained exact input facts only. Eligibility and control authority stay separate.
-function readPrdDefinitionSources(targetDir, control) {
-  if (control.current_gate !== "PRD") return null;
+function readDefinitionSources(targetDir, control, gate, sourceTypes) {
+  if (control.current_gate !== gate) return null;
   const state = control.status_card?.runState;
-  if (!state || hasSymlinkComponent(targetDir, `.agdf/control/artefacts/${control.status_card.run_id}/PRD.md`)) return null;
+  if (!state || hasSymlinkComponent(targetDir, `.agdf/control/artefacts/${control.status_card.run_id}/${gate}.md`)) return null;
   const sources = [];
-  for (const type of ["UR", "Brownfield Review"]) {
+  for (const type of sourceTypes) {
     const path = String(state.artefacts.get(type)?.path ?? "").replace(/^`|`$/gu, "");
     const file = resolvedArtefactFile(targetDir, path);
     if (!file) return null;
@@ -194,6 +195,7 @@ function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
     run_id: report.status_card?.run_id ?? null,
     revision_id: report.approval_presentation?.revision_id ?? extractField(report.status_card?.runState?.content ?? "", "revision_id") ?? null,
     doctor_status: report.doctor_status,
+    ...(report.source_revisions ? { source_revisions: report.source_revisions } : {}),
     ...(report.relationship_correction ? { relationship_correction: report.relationship_correction } : {}),
     ...(includeCandidateRuns ? { candidate_runs: candidateRunsSnapshot(report) } : {}),
   });
@@ -288,7 +290,7 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       };
-      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (["ur-definition", "prd-definition"].includes(skill.skill_id) && !input.run_id)) {
+      if ((input.intake && (!input.run_id || input.expected_revision_id)) || (["ur-definition", "prd-definition", "sd-definition"].includes(skill.skill_id) && !input.run_id)) {
         let candidates;
         try {
           validateControlReadBoundary?.(target.governance_target);
@@ -316,7 +318,7 @@ export function createSkillDispatchService(dependencies = {}) {
         validateControlReadBoundary?.(target.governance_target);
         return evaluateGate(target.governance_target, {
           ...(input.run_id ? { runId: input.run_id } : {}),
-          ...((input.intake || ["ur-definition", "prd-definition"].includes(skill.skill_id)) ? { ignoreRunIdEnv: true } : {}),
+          ...((input.intake || ["ur-definition", "prd-definition", "sd-definition"].includes(skill.skill_id)) ? { ignoreRunIdEnv: true } : {}),
           presentationLanguage: input.presentation_language,
         });
       });
@@ -344,7 +346,7 @@ export function createSkillDispatchService(dependencies = {}) {
           : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
         return bindHostAction(result);
       }
-      const urPhase = input.prd_action ? null : urDefinitionPhase(target.governance_target, control, input);
+      const urPhase = input.prd_action || input.sd_action ? null : urDefinitionPhase(target.governance_target, control, input);
       if (urPhase) {
         const urSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("ur-definition");
         if (!urSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
@@ -362,7 +364,7 @@ export function createSkillDispatchService(dependencies = {}) {
       // control failures retain their existing diagnosis instead of entering authoring checks.
       const prdEligible = prdDefinitionPhase(target.governance_target, control, input, []);
       const prdSources = prdEligible ? runDispatchStage(DISPATCH_RECOVERY.prd_authoring_inputs_invalid,
-        () => readPrdDefinitionSources(target.governance_target, control)) : null;
+        () => readDefinitionSources(target.governance_target, control, "PRD", ["UR", "Brownfield Review"])) : null;
       if (prdEligible && !prdSources) {
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
@@ -387,7 +389,34 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
-      if ((input.ur_action && !urPhase) || (input.prd_action && !prdPhase)) {
+      const sdEligible = sdDefinitionPhase(target.governance_target, control, input, []);
+      const sdSources = sdEligible ? runDispatchStage(DISPATCH_RECOVERY.sd_authoring_inputs_invalid,
+        () => readDefinitionSources(target.governance_target, control, "SD", ["PRD", "Brownfield Review"])) : null;
+      if (sdEligible && !sdSources) {
+        const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.diagnostics = [{ code: "sd_authoring_inputs_invalid" }];
+        result.recovery = { action: renderRecovery({ code: DISPATCH_RECOVERY.sd_authoring_inputs_invalid },
+          { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      const sdPhase = sdDefinitionPhase(target.governance_target, control, input, sdSources);
+      if (sdPhase) {
+        const sdSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("sd-definition");
+        if (!sdSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill: sdSkill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({ ...sdPhase,
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
+            () => dependencies.readSkillRuntimeContracts("sd-definition")) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      if ((input.ur_action && !urPhase) || (input.prd_action && !prdPhase) || (input.sd_action && !sdPhase)) {
         // A declined revision route cannot turn into post-UR or later artefact preparation.
         if (!control.status_presentation) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
@@ -398,7 +427,7 @@ export function createSkillDispatchService(dependencies = {}) {
         return bindHostAction(result);
       }
       // Direct UR invocation must not fall through to the generic judgement writer route.
-      if (["ur-definition", "prd-definition"].includes(skill.skill_id)) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
+      if (["ur-definition", "prd-definition", "sd-definition"].includes(skill.skill_id)) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get("gate-check");
       if (intake?.phase === "run_missing") {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
@@ -479,6 +508,19 @@ export function createSkillDispatchService(dependencies = {}) {
         });
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
+      if (input.continue_delivery && control.status === "open" && control.next_operation?.type === "reassess_source_analysis") {
+        const owner = control.next_operation.skill_id;
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target; result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({ phase: "source_analysis_reassessment", skill_id: owner,
+          governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
+          presentation_language: input.presentation_language,
+          instruction: "Use the existing analytical owner under the current approved UR. Persist the renewed analysis in this bound Run before dependent source authoring, then redispatch gate-check for the same target/run. Do not change approved product intent or infer implementation authority.",
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
       if (input.continue_delivery && control.next_operation?.type === "prepare_gate_artifact") {

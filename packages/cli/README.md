@@ -347,6 +347,54 @@ runtime. This differs from detected CLI system locale input and from `config --l
 persists the project preference after a governance target is available. A target-unresolved result
 cannot read project configuration safely because no project has been selected yet.
 
+### Late source revision
+
+At a valid active structured `CD+Tests` boundary, with exact approved UR/PRD/SD/TP and
+completed required preparation, source revision reopens the earliest changed source.
+It preserves exact unchanged upstream approvals and revokes affected current approvals,
+relationships, analytical inputs and implementation/review fulfillment. It retains code/tests.
+Awaiting CR, QA/UAT/OR, closed, damaged and pending states cannot use this path.
+
+Write a reviewed proposal under `.agdf/control/artefacts/<run_id>/`. Its exact JSON keys are
+`schema_version: "1"`, `target_id`, `run_id`, `expected_revision_id`, `operation_id`,
+`source_gate`, `reason`, `intended_change`, `sources`, and `impact_assessment`. `target_id`
+is the canonical local command target digest. `sources` contains the exact current
+`{type,path,digest}` entries in UR/PRD/SD/TP order. `impact_assessment` contains:
+
+- `reviewer`, `earliest_source` (matching `source_gate`) and `implementation_evidence`;
+- `upstream`: exact unchanged earlier source entries plus a concrete `rationale` for each;
+- `analyses`: every linked Brownfield Review/UX input, each with `type`, exact `path`/`digest`,
+  `disposition: "retain" | "reassess"` and `reason`; UR revision requires reassessment;
+- `unresolved: []`; unresolved or contradictory impact must be clarified before preview.
+
+```bash
+agdf run-revise --preview --dir /absolute/repository --run <run_id> \
+  --revision <revision_id> --source-gate TP --operation <uuid> \
+  --evidence .agdf/control/artefacts/<run_id>/proposal.json --json
+agdf run-revise --apply --dir /absolute/repository --run <run_id> \
+  --revision <revision_id> --source-gate TP --operation <same_uuid> \
+  --evidence .agdf/control/artefacts/<run_id>/proposal.json --preview-digest <returned_digest>
+agdf run-revise --inspect --dir /absolute/repository --run <run_id> \
+  --revision <observed_revision_id> --operation <same_uuid>
+agdf run-revise --recover --dir /absolute/repository --run <run_id> \
+  --revision <old_or_committed_revision_id> --operation <same_uuid>
+```
+
+Preview is nonmutating; cancellation needs no command. Apply rechecks its exact facts under
+Run then Backlog locks, stages/syncs immutable raw-byte history and commits the sealed Run
+before updating Backlog. `Source Revisions` is append-only Run evidence; archive manifests
+and snapshots remain subordinate historical proof. Historical resolution uses original-path
+archived bytes, including old mappings and presentations, after canonical drafts are replaced.
+Invalidated receipts remain inspectable but cannot satisfy current readiness.
+
+Sources are unlinked rather than edited by reopening. Their existing owners record new drafts,
+reviewed bindings, presentations and fresh deliberate approvals. Renewed TP requires fresh
+preparation and current-plan implementation/test/review evidence. Existing MCP dispatch/inspect
+observe this current state and history references; late apply/recover remain local CLI commands.
+No MCP write tool or argument is added. A matching operation replay is nonmutating and reports
+original versus current revision; changed same-ID requests are refused. Unknown/pending state
+blocks ordinary work until explicit recovery can prove rollback or one committed effect.
+
 Canonical run lifecycle:
 
 ```bash
@@ -363,7 +411,9 @@ agdf run-render-legacy --run <run_id>
 `run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
 Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
 and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
-`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows. `run-revise` is the one bounded exception: at SD, before any later artefact is linked or approved, it supersedes the PRD approval after a material product clarification and requires a new `Approval: PRD`.
+`run-update` records it as a new revision and refuses changed approval rows. With no mode,
+`run-revise` keeps its early PRD-to-SD boundary behavior before downstream artifacts are linked.
+The explicit late modes below cover source revision during approved-TP implementation.
 Run writers also reject duplicate `Artefacts` rows; replace the existing row for a type, or remove
 an extra row and retry `run-update` to record the correction.
 `run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
@@ -420,7 +470,7 @@ agdf run-approve --dir /absolute/path/to/repository --run <run_id> --gate UR \
 
 Omitting `--assurance` defaults to the same visible cooperative lane. Without `--operation`, the
 existing CLI result/rejection semantics remain, with additive assurance and no receipt backfill.
-Both `--operation` and `--assurance` are restricted to `run-approve`.
+`--assurance` is restricted to `run-approve`; `--operation` also identifies explicit source revisions.
 
 The Run contains the append-only `Approval Operations` receipt and approval in one atomically
 replaced, sealed revision. The service holds the owned Run lock across validation and commit.

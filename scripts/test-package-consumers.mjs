@@ -36,7 +36,7 @@ try {
   const visit = root => readdirSync(root, { withFileTypes: true }).flatMap(item => item.isDirectory() ? visit(join(root, item.name)) : [join(root, item.name)]);
   for (const source of visit(join(coreRoot, 'lib'))) {
     const relative = source.slice(join(coreRoot, 'lib').length + 1);
-    if (relative !== 'resources/binding.js') assert.deepEqual(readFileSync(join(fixture.dispatcherRoot, 'runtime/core/lib', relative)), readFileSync(source), relative);
+    if (relative.replaceAll('\\', '/') !== 'resources/binding.js') assert.deepEqual(readFileSync(join(fixture.dispatcherRoot, 'runtime/core/lib', relative)), readFileSync(source), relative);
   }
   const environment = { ...process.env, HOME: join(fixture.root, 'home'), CLAUDE_CONFIG_DIR: join(fixture.root, 'claude'), CODEX_HOME: join(fixture.root, 'codex'), AGDF_DATA_DIR: join(fixture.root, 'data'), npm_config_offline: 'true' };
   function node(args, expected = 0, env = environment) {

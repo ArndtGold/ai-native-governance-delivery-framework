@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-05",
+  "run_id": "late-source-revision-20261005-01",
+  "revision_id": "041e9e14-5d27-47ae-8c20-ad951d94c66c",
+  "kind": "read_only_brownfield_snapshot_not_implementation_baseline",
+  "head": "9df2e7af3c4890a05d59361285b2a4effd7bd97c",
+  "branch": "refactor/sd-definition-separation",
+  "status": " M .agdf/control/MASTER_BACKLOG.md\n M docs/architecture/02-dispatcher.md\n M docs/compatibility/HOST_COMPATIBILITY.md\n M docs/compatibility/evidence/facts.json\n M docs/compatibility/evidence/snapshot.json\n M packages/cli/lib/cli/command-registry.js\n M packages/cli/lib/cli/parse-args.js\n M packages/cli/lib/cli/validation-handlers.js\n M packages/cli/package.json\n M packages/cli/scripts/prd-definition-test.js\n M packages/cli/scripts/skill-dispatch-function-contract-test.js\n M packages/core/lib/control-evaluation/gate-check.js\n M packages/core/lib/interaction-catalog.js\n M packages/core/lib/interaction-presentation.js\n M packages/core/lib/skill-dispatch/contract.js\n M packages/core/lib/skill-dispatch/prd-definition.js\n M packages/core/lib/skill-dispatch/service.js\n M packages/core/test/interaction-presentation-test.js\n M packages/mcp-server/test/continuation.test.js\n M plugins/agdf/control/templates/artefacts/SD.md\n M plugins/agdf/meta/agdf-agent-router.md\n M plugins/agdf/meta/agdf-interaction-locales.json\n M plugins/agdf/meta/agdf-plugin.definition.json\n M plugins/agdf/meta/agdf-runtime-contract.md\n M plugins/agdf/meta/contracts/gate-artifact-preparation.md\n M plugins/agdf/meta/contracts/gate-transition.md\n M plugins/agdf/meta/contracts/interaction.md\n M plugins/agdf/skills/gate-check/SKILL.md\n M scripts/verification-test.mjs\n M scripts/verify-commit.mjs\n?? .agdf/control/artefacts/late-source-revision-20261005-01/\n?? .agdf/control/artefacts/sd-definition-separation-20261004-01/\n?? .agdf/control/runs/late-source-revision-20261005-01/\n?? .agdf/control/runs/sd-definition-separation-20261004-01/\n?? evals/host-compatibility/observations/cd854dc16d3488c9a13a7aee83ef22685475a0d51a7bf73dca7e533a1fa667e6.json\n?? packages/cli/scripts/fixtures/sd-definition.js\n?? packages/cli/scripts/sd-definition-test.js\n?? packages/core/lib/control-evaluation/sd-readiness.js\n?? packages/core/lib/skill-dispatch/sd-definition.js\n?? packages/core/test/sd-readiness-test.js\n?? plugins/agdf/meta/contracts/sd-definition.md\n?? plugins/agdf/skills/sd-definition/\n",
+  "approved_ur": {
+    "path": ".agdf/control/artefacts/late-source-revision-20261005-01/UR.md",
+    "sha256": "230c7815c41afa0617a06a1f3eb807f4a8916ac25689042f533d2618f8dcf7ae"
+  },
+  "protected_existing_files": {
+    ".agdf/control/artefacts/sd-definition-separation-20261004-01/UR.md": "3f807d76c7c9333cf4ae6b6197ce26b21b5f229bac98524d8ff91562fdb999d6",
+    ".agdf/control/artefacts/sd-definition-separation-20261004-01/PRD.md": "e9da69b12e6423560215540854df2ca87825bd05ff1312b8379dc959154cc9b0",
+    ".agdf/control/artefacts/sd-definition-separation-20261004-01/SD.md": "28d93c6ff03cd1eb70968846d77bdf95ca85e52242ffa74ec168c6584c683c8f",
+    ".agdf/control/artefacts/sd-definition-separation-20261004-01/TP.md": "b469a70a37aabcca3e50205b6c05bf649e2b5a92c32779816ad96f98ab870ee7",
+    "docs/compatibility/HOST_COMPATIBILITY.md": "aafb900038dc6bda9a60c4da880efb86aa923d870c41c99fe6032a54d0314bb1",
+    "docs/compatibility/evidence/facts.json": "86393896864806d2f55ac14490d53922bdfa2614bfaec717e818c7b3af1b9611",
+    "docs/compatibility/evidence/snapshot.json": "49a7971f47f5099708a927852d97039c2713f09c1b0732d6717fd39c6e664f83",
+    "scripts/verification-test.mjs": "0bb99da185c640b46528937088bc602c38b076518590d8185b587476ec824bc2",
+    "scripts/verify-commit.mjs": "27d2652eb1cabc7d0697471d56bf4b92431e87dcaaee538003efb181fa540ee6",
+    "evals/host-compatibility/observations/cd854dc16d3488c9a13a7aee83ef22685475a0d51a7bf73dca7e533a1fa667e6.json": "cd854dc16d3488c9a13a7aee83ef22685475a0d51a7bf73dca7e533a1fa667e6"
+  },
+  "protected_design_run": {
+    "path": ".agdf/control/runs/sd-definition-separation-20261004-01/RUN_STATE.md",
+    "sha256": "6281777cc4e99905551ed140252ef3f16d118144a95ef9632d8041d4cd4b5525"
+  },
+  "limits": {
+    "path": "plugins/agdf/meta/copilot-payload-baseline.json",
+    "sha256": "752edce90e0b3a22bd662709ae411f2e3a54b7214389e6a81ff222e1cff26a55"
+  },
+  "evidence_limits": "Source inspection and actual prior installed rejection only; no new capability tests or installed-host claim."
+}

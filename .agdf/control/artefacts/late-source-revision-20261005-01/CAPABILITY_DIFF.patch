@@ -1,0 +1,2445 @@
+--- before/docs/architecture/02-dispatcher.md
++++ candidate/docs/architecture/02-dispatcher.md
+@@ -369,7 +369,31 @@
+ die Korrektur bestätigt dieselbe Revision über den bestehenden Persistenzpfad. Scheitert diese
+ Bestätigung, meldet sie `correction_commit_unconfirmed` samt bereits veröffentlichter Revision,
+ und der Anwendungseinstieg stoppt mit `evaluator_error`. Es gibt keinen stillen zweiten Schreibversuch.
++
++## Späte Quellenrevision
++
++Die begrenzte Revision nach freigegebenem TP gehört dem bestehenden Core-Lifecycle-Owner
++`run-revision.js`. Ein gültiger aktiver strukturierter Run an `CD+Tests` kann über den lokalen
++CLI-Auftrag `run-revise --preview` und ausdrücklich gebundenes `--apply` zu UR, PRD, SD oder
++TP zurückkehren. Nur exakte unveränderte vorgelagerte Freigaben bleiben wirksam. Alte Quellen,
++Präsentationen und Zuordnungsbelege werden vor dem Run-Commit als genaue Bytes archiviert.
++Die versiegelte Run-Sektion `Source Revisions` hält die unveränderlichen Revisionsbelege;
++die Archive sind historische Nachweise und kein weiterer Workflow oder Akzeptanzkatalog.
++
++Dispatcher und bestehende MCP-Inspektion sehen dieselben aktuellen Freigaben, fehlenden
++Voraussetzungen und Historienreferenzen. Historische Zuordnungen können keine fehlende aktuelle
++Beziehung reparieren. Analysebedarf geht vor abhängigen Entwürfen an bestehende Brownfield-
++oder UX-Verantwortliche. Ein erneuter TP benötigt neue Vorbereitung und aktuelle Test-/Review-
++Nachweise. Es entstehen weder neue User-Gates noch MCP-Schreibargumente. Die genaue CLI-
++Vorschlagsstruktur und die explizite Inspektion/Recovery beschreibt
++[die CLI-Dokumentation](../../packages/cli/README.md#late-source-revision).
+ 
++Der bestehende Run/Backlog-Transaktionspfad besitzt dafür eine streng gebundene Version 2.
++Archivierung erfolgt vor dem atomaren Run-Commit. Unterbrechungen bleiben geschlossen, bis
++explizite Recovery den alten Zustand oder genau einen Commit nachweist; normale Inspektion
++repariert nichts. Ein identischer Vorgang kann sein historisches Ergebnis ohne neuen Commit
++zurückgeben und unterscheidet dieses von der inzwischen aktuellen Revision.
++
+ ## Ergebnisbehandlung
+ 
+ Der Werkzeugvertrag besitzt genau sechs Ergebnistypen:
+--- before/packages/cli/README.md
++++ candidate/packages/cli/README.md
+@@ -346,6 +346,54 @@
+ runtime. This differs from detected CLI system locale input and from `config --language`, which
+ persists the project preference after a governance target is available. A target-unresolved result
+ cannot read project configuration safely because no project has been selected yet.
++
++### Late source revision
++
++At a valid active structured `CD+Tests` boundary, with exact approved UR/PRD/SD/TP and
++completed required preparation, source revision reopens the earliest changed source.
++It preserves exact unchanged upstream approvals and revokes affected current approvals,
++relationships, analytical inputs and implementation/review fulfillment. It retains code/tests.
++Awaiting CR, QA/UAT/OR, closed, damaged and pending states cannot use this path.
++
++Write a reviewed proposal under `.agdf/control/artefacts/<run_id>/`. Its exact JSON keys are
++`schema_version: "1"`, `target_id`, `run_id`, `expected_revision_id`, `operation_id`,
++`source_gate`, `reason`, `intended_change`, `sources`, and `impact_assessment`. `target_id`
++is the canonical local command target digest. `sources` contains the exact current
++`{type,path,digest}` entries in UR/PRD/SD/TP order. `impact_assessment` contains:
++
++- `reviewer`, `earliest_source` (matching `source_gate`) and `implementation_evidence`;
++- `upstream`: exact unchanged earlier source entries plus a concrete `rationale` for each;
++- `analyses`: every linked Brownfield Review/UX input, each with `type`, exact `path`/`digest`,
++  `disposition: "retain" | "reassess"` and `reason`; UR revision requires reassessment;
++- `unresolved: []`; unresolved or contradictory impact must be clarified before preview.
++
++```bash
++agdf run-revise --preview --dir /absolute/repository --run <run_id> \
++  --revision <revision_id> --source-gate TP --operation <uuid> \
++  --evidence .agdf/control/artefacts/<run_id>/proposal.json --json
++agdf run-revise --apply --dir /absolute/repository --run <run_id> \
++  --revision <revision_id> --source-gate TP --operation <same_uuid> \
++  --evidence .agdf/control/artefacts/<run_id>/proposal.json --preview-digest <returned_digest>
++agdf run-revise --inspect --dir /absolute/repository --run <run_id> \
++  --revision <observed_revision_id> --operation <same_uuid>
++agdf run-revise --recover --dir /absolute/repository --run <run_id> \
++  --revision <old_or_committed_revision_id> --operation <same_uuid>
++```
++
++Preview is nonmutating; cancellation needs no command. Apply rechecks its exact facts under
++Run then Backlog locks, stages/syncs immutable raw-byte history and commits the sealed Run
++before updating Backlog. `Source Revisions` is append-only Run evidence; archive manifests
++and snapshots remain subordinate historical proof. Historical resolution uses original-path
++archived bytes, including old mappings and presentations, after canonical drafts are replaced.
++Invalidated receipts remain inspectable but cannot satisfy current readiness.
++
++Sources are unlinked rather than edited by reopening. Their existing owners record new drafts,
++reviewed bindings, presentations and fresh deliberate approvals. Renewed TP requires fresh
++preparation and current-plan implementation/test/review evidence. Existing MCP dispatch/inspect
++observe this current state and history references; late apply/recover remain local CLI commands.
++No MCP write tool or argument is added. A matching operation replay is nonmutating and reports
++original versus current revision; changed same-ID requests are refused. Unknown/pending state
++blocks ordinary work until explicit recovery can prove rollback or one committed effect.
+ 
+ Canonical run lifecycle:
+ 
+@@ -363,7 +411,9 @@
+ `run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
+ Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
+ and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
+-`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows. `run-revise` is the one bounded exception: at SD, before any later artefact is linked or approved, it supersedes the PRD approval after a material product clarification and requires a new `Approval: PRD`.
++`run-update` records it as a new revision and refuses changed approval rows. With no mode,
++`run-revise` keeps its early PRD-to-SD boundary behavior before downstream artifacts are linked.
++The explicit late modes below cover source revision during approved-TP implementation.
+ Run writers also reject duplicate `Artefacts` rows; replace the existing row for a type, or remove
+ an extra row and retry `run-update` to record the correction.
+ `run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
+@@ -420,7 +470,7 @@
+ 
+ Omitting `--assurance` defaults to the same visible cooperative lane. Without `--operation`, the
+ existing CLI result/rejection semantics remain, with additive assurance and no receipt backfill.
+-Both `--operation` and `--assurance` are restricted to `run-approve`.
++`--assurance` is restricted to `run-approve`; `--operation` also identifies explicit source revisions.
+ 
+ The Run contains the append-only `Approval Operations` receipt and approval in one atomically
+ replaced, sealed revision. The service holds the owned Run lock across validation and commit.
+--- before/packages/cli/lib/cli/command-registry.js
++++ candidate/packages/cli/lib/cli/command-registry.js
+@@ -45,7 +45,7 @@
+   command("run-present", { local: [" --run <run_id> --gate <gate> --revision <revision_id>"] }),
+   command("run-create", { local: [" --run <run_id>"] }),
+   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
+-  command("run-revise", { local: [" --run <run_id> --revision <revision_id>"] }),
++  command("run-revise", { local: [" --run <run_id> --revision <revision_id>", " --preview|--apply --run <run_id> --revision <revision_id> --source-gate <UR|PRD|SD|TP> --operation <uuid> --evidence <proposal.json> [--preview-digest <sha256>]"] }),
+   command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout|artefact> [step fields]"] }),
+   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
+   command("run-migrate", { local: [" [--run <run_id>]"] }),
+@@ -113,9 +113,11 @@
+   }
+   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
+   if ((options.intakeMode || options.urAction || options.prdAction || options.sdAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
+-  if ((options.operationId !== undefined || options.assurance !== undefined) && options.target !== "run-approve") {
+-    throw new Error("--operation and --assurance are supported only by run-approve");
++  if (options.assurance !== undefined && options.target !== "run-approve"
++      || options.operationId !== undefined && options.target !== "run-approve" && !(options.target === "run-revise" && options.revisionMode)) {
++    throw new Error("--operation requires run-approve or an explicit run-revise mode; --assurance requires run-approve");
+   }
++  if ((options.revisionMode || options.sourceGate !== undefined || options.previewDigest !== undefined) && options.target !== "run-revise") throw new Error("Source revision fields require run-revise");
+   if (options.presentationId && options.target !== "run-approve") throw new Error("--presentation is supported only by run-approve");
+   if (options.target === "run-present" && (!options.runId || !options.gate || !options.revisionId)) throw new Error("run-present requires --run, --gate and --revision");
+   if (options.intake && options.target !== "skill-dispatch") throw new Error("--intake is supported only by skill-dispatch");
+@@ -155,7 +157,9 @@
+   if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present", "skill-dispatch"].includes(options.target)) {
+     throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch");
+   }
+-  if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step") {
++  if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step"
++      && !(options.target === "run-revise" && ["preview", "apply"].includes(options.revisionMode)
++        && !options.runStep && Object.keys(options.stepFields).every(key => key === "evidence"))) {
+     throw new Error("--step and step fields are supported only by run-step");
+   }
+   if (options.target === "run-step" && (!options.runId || !options.revisionId || !options.runStep)) {
+@@ -170,6 +174,17 @@
+   if (options.target === "run-revise" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
+     throw new Error("run-revise requires --run and --revision and rejects --gate and --response");
+   }
++  if (options.target === "run-revise") {
++    const mode = options.revisionMode;
++    if (!mode && (options.sourceGate !== undefined || options.previewDigest !== undefined)) throw new Error("Late revision requires an explicit mode");
++    if (mode && !["preview", "apply", "inspect", "recover"].includes(mode)) throw new Error("Unsupported source revision mode");
++    if (mode && !options.operationId) throw new Error("Source revision requires --operation");
++    if (["preview", "apply"].includes(mode) && (!["UR", "PRD", "SD", "TP"].includes(options.sourceGate) || !options.stepFields?.evidence)) throw new Error("Source revision preview/apply requires --source-gate and --evidence");
++    if (mode === "apply" && !/^sha256:[a-f0-9]{64}$/u.test(options.previewDigest ?? "")) throw new Error("Source revision apply requires its --preview-digest");
++    if (mode !== "apply" && options.previewDigest !== undefined) throw new Error("--preview-digest requires --apply");
++    if (["inspect", "recover"].includes(mode) && (options.sourceGate !== undefined || Object.keys(options.stepFields ?? {}).length)) throw new Error("Source revision inspect/recover accepts only run, revision and operation identity");
++    if (mode && !options.dirExplicit) throw new Error("Source revision requires an explicit --dir target");
++  }
+   if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
+     throw new Error("run-approve requires --run, --gate, --revision and --response");
+   }
+@@ -308,7 +323,13 @@
+   --prd-action revise Explicit unapproved PRD revision; requires revision-bound resume intake
+   --sd-action revise Explicit unapproved SD revision; requires revision-bound resume intake
+   --continue-delivery  Bound internal continuation; excludes intake and read-only status
+-  --operation <uuid>     Explicit idempotent run-approve command identity
++  --preview|--apply|--inspect|--recover
++                 Explicit run-revise mode; no mode keeps the early PRD revision path
++  --source-gate <UR|PRD|SD|TP>
++                 Earliest changed approved source in a reviewed late proposal
++  --preview-digest <sha256>
++                 Exact read-only late revision preview required by --apply
++  --operation <uuid>     Explicit idempotent approval or source revision command identity
+   --assurance <lane>     Only cooperative_local is supported; no independent human proof
+   --presentation <uuid>  Previously prepared run-present binding required for run-approve
+   --intake       Declare the governed delivery intake (delivery.start) for a gate-check skill-dispatch
+--- before/packages/cli/lib/cli/parse-args.js
++++ candidate/packages/cli/lib/cli/parse-args.js
+@@ -54,6 +54,7 @@
+   let continueDelivery = false;
+   let presentationId;
+   let operationId, assurance;
++  let revisionMode, sourceGate, previewDigest;
+   let fixture;
+   let persist = false;
+   let model;
+@@ -91,10 +92,12 @@
+   let targetChanged = false;
+   const targetCandidates = [];
+   const evidenceSources = [];
++  const flagCounts = new Map();
+ 
+   for (let i = 0; i < args.length; i += 1) {
+     const arg = args[i];
+     if (!arg) continue;
++    if (arg.startsWith("--")) flagCounts.set(arg, (flagCounts.get(arg) ?? 0) + 1);
+     if (arg === "--help" || arg === "-h") return { kind: "help" };
+     if (arg === "--force") { force = true; continue; }
+     if (arg === "--json") { json = true; continue; }
+@@ -187,9 +190,27 @@
+       continue;
+     }
+ 
++    if (["--preview", "--apply", "--inspect", "--recover"].includes(arg)) {
++      if (revisionMode) throw new CliUsageError("run-revise modes are mutually exclusive and may not repeat");
++      revisionMode = arg.slice(2); continue;
++    }
++    if (arg === "--source-gate" || arg === "--preview-digest") {
++      const value = requiredValue(args, i, arg);
++      if (arg === "--source-gate") {
++        if (sourceGate !== undefined) throw new CliUsageError("--source-gate may not repeat");
++        sourceGate = value;
++      } else {
++        if (previewDigest !== undefined) throw new CliUsageError("--preview-digest may not repeat");
++        previewDigest = value;
++      }
++      i += 1; continue;
++    }
+     if (arg === "--operation" || arg === "--assurance") {
+       const value = requiredValue(args, i, arg);
+-      if (arg === "--operation") operationId = value;
++      if (arg === "--operation") {
++        if (operationId !== undefined) throw new CliUsageError("--operation may not repeat");
++        operationId = value;
++      }
+       else assurance = value;
+       i += 1;
+       continue;
+@@ -303,6 +324,9 @@
+   if (!target || !resolveCommand(target)) {
+     throw new CliUsageError(`Please choose one target: ${supportedCommandNames().join(", ")}.`, { showUsage: true });
+   }
++  if (revisionMode && ["--dir", "--run", "--revision", "--operation", "--source-gate", "--evidence", "--preview-digest"].some(flag => flagCounts.get(flag) > 1)) {
++    throw new CliUsageError("Source revision identity and evidence flags may not repeat");
++  }
+ 
+   return {
+     kind: "command",
+@@ -333,6 +357,9 @@
+       presentationId,
+       ...(operationId !== undefined ? { operationId } : {}),
+       ...(assurance !== undefined ? { assurance } : {}),
++      ...(revisionMode !== undefined ? { revisionMode } : {}),
++      ...(sourceGate !== undefined ? { sourceGate } : {}),
++      ...(previewDigest !== undefined ? { previewDigest } : {}),
+       fixture: fixture ? resolve(cwd, fixture) : null,
+       persist,
+       model,
+--- before/packages/cli/lib/cli/validation-handlers.js
++++ candidate/packages/cli/lib/cli/validation-handlers.js
+@@ -16,13 +16,13 @@
+ import { evaluateDoctor, printDoctorReport } from "#agdf-core/control-evaluation/doctor.js";
+ import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
+ import { resolveTaskTarget } from "#agdf-core/task-target-resolution.js";
+-import { renderSkillDispatchRecovery, renderTaskTargetOrientation } from "#agdf-core/interaction-presentation.js";
++import { renderSkillDispatchRecovery, renderTaskTargetOrientation, renderSourceRevision } from "#agdf-core/interaction-presentation.js";
+ import { interactionLocales, pluginDefinition } from "./runtime-context.js";
+ import { serializeSkillDispatchResult } from "#agdf-core/skill-dispatch/contract.js";
+ import { createCoreServices } from "#agdf-core";
+ import { resources } from "../runtime/control-context.js";
+ import { approveRunGate, recordRunRevision } from "#agdf-core/control-state/run-recording.js";
+-import { reopenPrdRevision } from "#agdf-core/control-state/run-revision.js";
++import { reopenPrdRevision, previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "#agdf-core/control-state/run-revision.js";
+ import { readRuntimeContract, readSkillRuntimeContracts } from "./contract-command.js";
+ import { recordRunStep } from "#agdf-core/control-state/run-steps.js";
+ import { policyForRunContent } from "#agdf-core/control-evaluation/run-step-policy.js";
+@@ -146,9 +146,12 @@
+       return result.outcome === "rejected" ? 2 : 0;
+     }],
+     ["run-revise", (options) => {
+-      const result = reopenPrdRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });
+-      io.log(JSON.stringify(result, null, 2));
+-      return result.outcome === "rejected" ? 2 : 0;
++      const operation = { preview: previewSourceRevision, apply: applySourceRevision, inspect: inspectSourceRevision, recover: recoverSourceRevision }[options.revisionMode] ?? reopenPrdRevision;
++      const result = operation(options.dir, { runId: options.runId, revisionId: options.revisionId,
++        operationId: options.operationId, sourceGate: options.sourceGate, evidence: options.stepFields?.evidence, previewDigest: options.previewDigest });
++      io.log(options.revisionMode && !options.json ? renderSourceRevision(result, interactionLocales, options.language.chat_language,
++        { ...options, target: options.dir }).markdown : JSON.stringify(result, null, 2));
++      return ["rejected", "recovery_required"].includes(result.outcome) ? 2 : 0;
+     }],
+     ["run-step", (options) => {
+       const result = recordRunStep(options.dir, {
+--- before/packages/cli/package.json
++++ candidate/packages/cli/package.json
+@@ -112,7 +112,7 @@
+     "test:proportionality": "node scripts/proportionality-benchmark-test.js",
+     "test:release-bootstrap": "node scripts/release-bootstrap-smoke-test.js",
+     "test:routing": "npm run sync-package-assets && node scripts/test-routing.js",
+-    "smoke-test": "npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:prd-definition && npm run test:sd-readiness && npm run test:sd-definition && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js",
++    "smoke-test": "npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:late-source-revision && npm run test:intake-continuation && npm run test:prd-definition && npm run test:sd-readiness && npm run test:sd-definition && npm run test:artifact-language && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node scripts/smoke-test.js && node scripts/test-routing.js",
+     "prepack": "node ../../scripts/source-pack-guard.mjs",
+     "test:copilot-installer": "node scripts/copilot-installer-test.js",
+     "test:install-control-migration": "node ../core/test/install-control-migration-test.js",
+@@ -121,7 +121,9 @@
+     "test:portable-plugin": "node scripts/portable-plugin-test.js",
+     "test:prd-definition": "node scripts/prd-definition-test.js",
+     "test:sd-definition": "node scripts/sd-definition-test.js",
+-    "test:sd-readiness": "node ../core/test/sd-readiness-test.js"
++    "test:sd-readiness": "node ../core/test/sd-readiness-test.js",
++    "test:late-source-revision": "node ../core/test/run-source-revisions-test.js && node scripts/late-source-revision-test.js && npm run test:late-source-revision-performance",
++    "test:late-source-revision-performance": "node scripts/late-source-revision-performance-test.js"
+   },
+   "keywords": [
+     "agdf",
+--- before/packages/cli/scripts/fixtures/late-source-revision.js
++++ candidate/packages/cli/scripts/fixtures/late-source-revision.js
+@@ -0,0 +1,77 @@
++import assert from "node:assert/strict";
++import { randomUUID } from "node:crypto";
++import { readFileSync, writeFileSync } from "node:fs";
++import { join } from "node:path";
++import { createSdDefinitionTestRun, syntheticSd } from "./sd-definition.js";
++import { artefactFileDigest } from "../../../core/lib/control-state/run-seal.js";
++import { parseControlState, parseRunState } from "../../../core/lib/control-state/run-state-parser.js";
++import { upsertTableRow } from "../../../core/lib/control-state/run-state-edits.js";
++import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
++import { SOURCE_GATES } from "../../../core/lib/control-state/run-source-revisions.js";
++import { relationshipForGate } from "../../../core/lib/control-evaluation/delivery-relationships.js";
++
++export const syntheticTp = () => `# TP: Synthetic saved filter
++Traceability contract: criteria-chain-v1
++
++## Task List
++| task_id | task |
++|---|---|
++| T-001 | Save and restore the user-owned filter using the existing store. |
++
++## Verification Traceability
++| criterion_id | design_decision_id | task_id | scenario_id | expected_result | evidence |
++|---|---|---|---|---|---|
++| AC-001 | SDD-001 | T-001 | SCN-001 | Restored values match saved values | Synthetic fixture observed result |
++`;
++
++// Every positive approval is a new synthetic reply through canonical services/commands.
++// No production Run, approval or source is copied or revised by this fixture.
++export function createLateSourceRevisionTestRun(root, validator, runId = "late-source-test", env = process.env, { tpEncoding = "lf" } = {}) {
++  const f = createSdDefinitionTestRun(root, validator, runId, env, { typedApprovals: true });
++  const state = () => parseRunState(readFileSync(f.state, "utf8"), runId);
++  const control = () => parseControlState(state().content, { userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"], internalSteps: ["Brownfield Review", "UX Intent Definition", "Brownfield Analysis", "CD+Tests", "CR"] });
++  const recordSource = gate => {
++    const relation = relationshipForGate(gate), proof = f.prefix + `review-${randomUUID()}.json`, evidence = f.prefix + `record-${randomUUID()}.json`;
++    const command = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
++      expected_revision_id: f.revision(), destination: { type: gate, path: f.prefix + `${gate}.md`, digest: artefactFileDigest(root, f.prefix + `${gate}.md`), status: "draft" },
++      source: { type: relation.to, path: f.prefix + `${relation.to}.md`, digest: artefactFileDigest(root, f.prefix + `${relation.to}.md`) },
++      relationship: { from: relation.from, relationship: relation.relationship, to: relation.to },
++      review: { reviewer: "synthetic source revision reviewer", path: proof, digest: "" }, update_draft: false };
++    const { schema_version, target_id, run_id, destination, source, relationship } = command;
++    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
++    command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, evidence), JSON.stringify(command));
++    const result = f.run("run-step", "--revision", f.revision(), "--step", "artefact", "--gate", gate, "--evidence", evidence);
++    assert.equal(result.value?.outcome, "recorded", result.text); return result.value;
++  };
++  const approveSource = gate => {
++    const prepared = f.present(gate); assert.equal(prepared.value?.outcome, "prepared", prepared.text);
++    const approval = f.approve(gate, prepared.value.presentation_id); assert.equal(approval.value?.outcome, "accepted", approval.text);
++    return { prepared: prepared.value, approval: approval.value };
++  };
++  const prepareImplementation = () => {
++    writeFileSync(f.file("BROWNFIELD_ANALYSIS.md"), "# Brownfield Analysis\nSynthetic current approved-TP preparation; existing filter store and tests reused.\n");
++    writeFileSync(f.state, upsertTableRow(state().content, "Artefacts", 0, "Brownfield Analysis", ["Brownfield Analysis", f.prefix + "BROWNFIELD_ANALYSIS.md", "done", "Synthetic fixture preparation"]));
++    const updated = f.run("run-update", "--revision", f.revision()); assert.equal(updated.value?.outcome, "updated", updated.text);
++    const recorded = f.run("run-step", "--revision", f.revision(), "--step", "evidence", "--evidence", "Synthetic current preparation observed", "--source", f.prefix + "BROWNFIELD_ANALYSIS.md");
++    assert.equal(recorded.value?.outcome, "recorded", recorded.text);
++  };
++  writeFileSync(f.file("SD.md"), syntheticSd()); recordSource("SD"); approveSource("SD");
++  writeFileSync(f.file("TP.md"), tpEncoding === "crlf_bom" ? "\ufeff" + syntheticTp().replace(/\n/gu, "\r\n") : syntheticTp());
++  recordSource("TP"); approveSource("TP"); prepareImplementation();
++  const proposal = (sourceGate, analyses = "retain", operationId = randomUUID()) => {
++    const c = control();
++    const sources = SOURCE_GATES.map(type => ({ type, path: c.artefacts.get(type).path, digest: artefactFileDigest(root, c.artefacts.get(type).path) }));
++    const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
++      expected_revision_id: f.revision(), operation_id: operationId, source_gate: sourceGate,
++      reason: "Synthetic reviewed source revision test", intended_change: "Revise the selected source while preserving reviewed upstream intent",
++      sources, impact_assessment: { reviewer: "synthetic impact owner", earliest_source: sourceGate,
++        upstream: sources.slice(0, SOURCE_GATES.indexOf(sourceGate)).map(row => ({ ...row, rationale: "Exact source remains applicable to this fixture change" })),
++        analyses: ["Brownfield Review", "UX Intent Definition"].filter(type => c.artefacts.get(type)?.path).map(type => ({ type,
++          disposition: sourceGate === "UR" ? "reassess" : analyses, path: c.artefacts.get(type).path, digest: artefactFileDigest(root, c.artefacts.get(type).path),
++          reason: "Synthetic reviewed applicability assessment under unchanged or renewed UR" })),
++        implementation_evidence: "Retain code/tests; reassess fulfillment and run fresh preparation/checks for renewed TP", unresolved: [] } };
++    const evidence = f.prefix + `proposal-${operationId}.json`; writeFileSync(join(root, evidence), JSON.stringify(value));
++    return { input: { runId, revisionId: f.revision(), operationId, sourceGate, evidence }, value };
++  };
++  return { ...f, readState: state, control, recordSource, approveSource, prepareImplementation, proposal };
++}
+--- before/packages/cli/scripts/fixtures/prd-definition.js
++++ candidate/packages/cli/scripts/fixtures/prd-definition.js
+@@ -7,7 +7,7 @@
+ import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
+ 
+ // Synthetic authorization in isolated test runs only; never a human production approval.
+-export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env) {
++export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false } = {}) {
+   const log = [];
+   const call = (command, ...args) => {
+     const result = spawnSync(process.execPath, [validator, command, "--dir", root, "--json", ...args], { encoding: "utf8", env });
+@@ -27,10 +27,11 @@
+   writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n");
+   assert.equal(run("run-step", "--revision", revision(), "--step", "ur", "--title", "Synthetic saved filter").code, 0);
+   const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run("run-approve",
+-    "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response);
++    "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response,
++    ...(typedApprovals ? ["--operation", randomUUID()] : []));
+   const present = (gate = "PRD", language = "en") => run("run-present", "--revision", revision(), "--gate", gate, "--language", language);
+   const ur = present("UR"); assert.equal(ur.value?.outcome, "prepared", ur.text);
+-  assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, "approved");
++  assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, typedApprovals ? "accepted" : "approved");
+   writeFileSync(file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: no\n");
+   assert.equal(run("run-step", "--revision", revision(), "--step", "route", "--route", "structured_delivery", "--reason",
+     "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md").value?.outcome, "recorded");
+--- before/packages/cli/scripts/fixtures/sd-definition.js
++++ candidate/packages/cli/scripts/fixtures/sd-definition.js
+@@ -7,13 +7,12 @@
+ import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
+ 
+ // Explicit synthetic authorizations in isolated fixtures, never live human approvals.
+-export function createSdDefinitionTestRun(root, validator, runId = "sd-authoring-test", env = process.env) {
+-  const f = createPrdDefinitionTestRun(root, validator, runId, env);
++export function createSdDefinitionTestRun(root, validator, runId = "sd-authoring-test", env = process.env, options) {
++  const f = createPrdDefinitionTestRun(root, validator, runId, env, options);
+   writeFileSync(f.file("PRD.md"), syntheticPrd());
+   assert.equal(f.record().value?.outcome, "recorded");
+   const presentation = f.present(); assert.equal(presentation.value?.outcome, "prepared");
+-  assert.equal(f.run("run-approve", "--revision", f.revision(), "--gate", "PRD", "--presentation",
+-    presentation.value.presentation_id, "--response", "Approval: PRD").value?.outcome, "approved");
++  assert.equal(f.approve("PRD", presentation.value.presentation_id).value?.outcome, options?.typedApprovals ? "accepted" : "approved");
+   const recordSd = (update = false, mutate = () => {}) => {
+     const proof = f.prefix + `sd-mapping-${randomUUID()}.json`, input = f.prefix + `sd-recording-${randomUUID()}.json`;
+     const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
+--- before/packages/cli/scripts/late-source-revision-performance-test.js
++++ candidate/packages/cli/scripts/late-source-revision-performance-test.js
+@@ -0,0 +1,62 @@
++import assert from "node:assert/strict";
++import fs from "node:fs";
++import { syncBuiltinESMExports } from "node:module";
++import { spawn, execFileSync } from "node:child_process";
++import { join, resolve } from "node:path";
++import { tmpdir } from "node:os";
++import { pathToFileURL } from "node:url";
++import { createLateSourceRevisionTestRun } from "./fixtures/late-source-revision.js";
++
++const candidate = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? resolve(import.meta.dirname, "../../../dist/npm/create-agdf");
++const root = fs.mkdtempSync(join(tmpdir(), "agdf-revision-performance-")), env = { ...process.env, AGDF_DATA_DIR: join(root, "data") };
++delete env.AGDF_RUN_ID;
++const cli = join(candidate, "bin/create-agdf.js"), validator = join(candidate, "bin/agdf-validator.js");
++execFileSync("git", ["init", "-q", root]); execFileSync(process.execPath, [cli, "init", "--dir", root, "--language", "en"], { env });
++const f = createLateSourceRevisionTestRun(root, validator, "revision-performance", env);
++const moduleUrl = pathToFileURL(join(candidate, "runtime/core/lib/control-state/run-revision.js")).href;
++const { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } = await import(moduleUrl);
++const { evaluateGateCheck } = await import(pathToFileURL(join(candidate, "runtime/core/lib/control-evaluation/gate-check.js")).href);
++const originalRead = fs.readFileSync, cycles = []; let reads = [];
++fs.readFileSync = (path, ...args) => {
++  const value = originalRead(path, ...args);
++  reads.push({ path: String(path), bytes: Buffer.byteLength(value) }); return value;
++};
++syncBuiltinESMExports();
++const measure = work => { reads = []; const start = performance.now(), value = work(); return { value, elapsed_ms: performance.now() - start,
++  reads: reads.length, bytes_read: reads.reduce((n,row) => n + row.bytes, 0), history_reads: reads.filter(row => row.path.includes("/revisions/")).length }; };
++const historyInventory = dir => {
++  const rows = []; for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
++    const path = join(dir, entry.name); if (entry.isDirectory()) rows.push(...historyInventory(path)); else rows.push({ path, bytes: fs.statSync(path).size });
++  } return rows;
++};
++const worker = input => new Promise((resolveWorker, reject) => {
++  const program = `import {applySourceRevision} from ${JSON.stringify(moduleUrl)};console.log(JSON.stringify(applySourceRevision(process.argv[1],JSON.parse(process.argv[2]))));`;
++  const child = spawn(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify(input)], { env }); let stdout = "";
++  child.stdout.on("data", data => stdout += data); child.on("error", reject); child.on("exit", code => resolveWorker({ code, result: JSON.parse(stdout) }));
++});
++try {
++  for (let cycle = 1; cycle <= 10; cycle++) {
++    const p = f.proposal("TP"), preview = measure(() => previewSourceRevision(root, p.input)); assert.equal(preview.value.outcome, "preview");
++    const input = { ...p.input, previewDigest: preview.value.preview_digest }, apply = measure(() => applySourceRevision(root, input));
++    assert.equal(apply.value.outcome, "reopened", JSON.stringify(apply.value));
++    const inspect = measure(() => inspectSourceRevision(root, input)); assert.equal(inspect.value.outcome, "historical");
++    assert.ok(inspect.value.history.manifest.files.every(row => !row.path.includes("/revisions/")));
++    const recover = measure(() => recoverSourceRevision(root, { ...input, revisionId: f.revision() })); assert.equal(recover.value.outcome, "recovered");
++    const files = historyInventory(join(root, `.agdf/control/runs/${f.runId}/revisions`));
++    cycles.push({ cycle, operation_id: input.operationId, revision_id: f.revision(), preview, apply, inspect: { ...inspect, value: { outcome: inspect.value.outcome } },
++      recover: { ...recover, value: { outcome: recover.value.outcome } }, history_files: files.length, history_bytes: files.reduce((n,row) => n + row.bytes, 0) });
++    fs.writeFileSync(f.file("TP.md"), fs.readFileSync(f.file("TP.md"), "utf8") + `\nSynthetic renewal ${cycle}.\n`);
++    f.recordSource("TP"); f.approveSource("TP"); f.prepareImplementation();
++  }
++  const unrelated = "unrelated-performance"; assert.equal(f.call("run-create", "--run", unrelated).code, 0);
++  const observation = measure(() => evaluateGateCheck(root, { runId: unrelated }));
++  assert.equal(observation.history_reads, 0, "An unrelated selected run must not read another run's archived bytes");
++  const p = f.proposal("TP"), preview = previewSourceRevision(root, p.input), input = { ...p.input, previewDigest: preview.preview_digest };
++  assert.equal(preview.outcome, "preview"); const start = performance.now(), competition = await Promise.all([worker(input), worker(input)]);
++  assert.equal(competition.filter(row => row.result.outcome === "reopened").length, 1, JSON.stringify(competition));
++  const evidence = { scenario_id: "SCN-028", status: "pass", candidate, node: process.version, platform: process.platform + "-" + process.arch,
++    cycles, unrelated_observation: { elapsed_ms: observation.elapsed_ms, reads: observation.reads, history_reads: observation.history_reads },
++    competition: { elapsed_ms: performance.now() - start, results: competition }, diagnostic_only: "No added SLA; existing MCP budgets remain mandatory", fixture_authority: "synthetic_only" };
++  if (process.env.AGDF_TEST_EVIDENCE_DIR) fs.writeFileSync(join(process.env.AGDF_TEST_EVIDENCE_DIR, "SCN-028-revision-performance.json"), JSON.stringify(evidence, null, 2) + "\n");
++  console.log(JSON.stringify({ scenario_id: evidence.scenario_id, cycles: cycles.map(({cycle,preview,apply,history_files,history_bytes}) => ({cycle,preview_ms:preview.elapsed_ms,apply_ms:apply.elapsed_ms,history_files,history_bytes})), unrelated_history_reads: observation.history_reads, competition: evidence.competition }));
++} finally { fs.readFileSync = originalRead; syncBuiltinESMExports(); fs.rmSync(root, { recursive: true, force: true }); }
+--- before/packages/cli/scripts/late-source-revision-test.js
++++ candidate/packages/cli/scripts/late-source-revision-test.js
+@@ -0,0 +1,103 @@
++import assert from "node:assert/strict";
++import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
++import { execFileSync, spawnSync } from "node:child_process";
++import { join, resolve } from "node:path";
++import { tmpdir } from "node:os";
++import { pathToFileURL } from "node:url";
++import { createLateSourceRevisionTestRun } from "./fixtures/late-source-revision.js";
++import { byteDigest } from "../../core/lib/control-state/run-revision-history.js";
++import { renderSourceRevision, validateLocaleRegistry } from "../../core/lib/interaction-presentation.js";
++
++const candidate = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? resolve(import.meta.dirname, "../../../dist/npm/create-agdf");
++const validator = join(candidate, "bin/agdf-validator.js"), cli = join(candidate, "bin/create-agdf.js");
++const temporary = mkdtempSync(join(tmpdir(), "agdf-late-cli-")), root = join(temporary, "project");
++const locales = JSON.parse(readFileSync(join(candidate, "generated/plugins/agdf/meta/agdf-interaction-locales.json")));
++assert.equal(validateLocaleRegistry(locales).valid, true);
++mkdirSync(root); execFileSync("git", ["init", "-q", root]);
++const env = { ...process.env, AGDF_DATA_DIR: join(temporary, "data") }; delete env.AGDF_RUN_ID;
++execFileSync(process.execPath, [cli, "init", "--dir", root, "--language", "en"], { env });
++const f = createLateSourceRevisionTestRun(root, validator, "late-cli-test", env), seed = join(temporary, "canonical-seed");
++cpSync(join(root, ".agdf"), seed, { recursive: true });
++const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
++const tree = () => {
++  const files = {}; const scan = dir => readdirSync(dir, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name)).forEach(entry => {
++    const path = join(dir, entry.name); if (entry.isDirectory()) scan(path); else files[path.slice(root.length)] = byteDigest(readFileSync(path));
++  }); scan(join(root, ".agdf")); return files;
++};
++const rawAt = (revision, ...args) => spawnSync(process.execPath, [validator, "run-revise", "--dir", root, "--run", f.runId, "--revision", revision, ...args], { env, encoding: "utf8" });
++const raw = (...args) => rawAt(f.revision(), ...args);
++const flags = input => ["--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", input.evidence];
++const observations = [];
++try {
++  for (const gate of ["UR", "PRD", "SD", "TP"]) {
++    reset(); const p = f.proposal(gate), before = tree();
++    const preview = raw("--preview", ...flags(p.input), "--json"); assert.equal(preview.status, 0, preview.stderr);
++    const value = JSON.parse(preview.stdout); assert.equal(value.outcome, "preview"); assert.deepEqual(tree(), before);
++    for (const language of [...Object.keys(locales.locales), "fr-CA"]) {
++      const rendered = raw("--preview", ...flags(p.input), "--language", language); assert.equal(rendered.status, 0, rendered.stderr);
++      const pack = locales.locales[language] ?? locales.locales.en;
++      assert.ok(rendered.stdout.includes(pack.sourceRevision.preview)); assert.ok(rendered.stdout.includes(p.input.operationId));
++      assert.ok(rendered.stdout.includes(pack.sourceRevision.authority)); assert.ok(rendered.stdout.includes(pack.sourceRevision.reviewNext));
++      observations.push({ gate, language, outcome: "preview", rendered: rendered.stdout });
++    }
++    const applied = raw("--apply", ...flags(p.input), "--preview-digest", value.preview_digest, "--json");
++    assert.equal(applied.status, 0, applied.stderr); assert.equal(JSON.parse(applied.stdout).outcome, "reopened");
++    const current = f.revision(), after = tree();
++    for (const language of Object.keys(locales.locales)) {
++      const inspected = raw("--inspect", "--operation", p.input.operationId, "--language", language);
++      assert.equal(inspected.status, 0, inspected.stderr); assert.ok(inspected.stdout.includes(locales.locales[language].sourceRevision.historical));
++      assert.ok(inspected.stdout.includes(current)); assert.deepEqual(tree(), after);
++      observations.push({ gate, language, outcome: "historical", rendered: inspected.stdout });
++      const refused = raw("--preview", ...flags(p.input), "--language", language); assert.equal(refused.status, 2);
++      assert.ok(refused.stdout.includes(locales.locales[language].sourceRevision.rejected));
++    }
++    const report = f.run("gate-check").value; assert.equal(report.current_gate, gate); assert.equal(report.source_revisions.status, "verified");
++    assert.equal(report.source_revisions.entries[0].operation_id, p.input.operationId);
++  }
++  reset(); const p = f.proposal("TP"), before = tree();
++  for (const args of [["--preview", "--apply", ...flags(p.input)], ["--preview", ...flags(p.input), "--preview"],
++    ["--source-gate", "TP"], ["--apply", ...flags(p.input)], ["--preview", "--operation", p.input.operationId],
++    ["--inspect", ...flags(p.input)], ["--recover", "--operation", p.input.operationId, "--preview-digest", "sha256:bad"],
++    ["--preview", ...flags(p.input), "--step", "evidence"], ["--preview", ...flags(p.input), "--response", "Approval: TP"],
++    ["--preview", ...flags(p.input), "--evidence", p.input.evidence], ["--preview", ...flags(p.input), "--run", "other"]]) {
++    const result = raw(...args, "--json"); assert.notEqual(result.status, 0, args.join(" ")); assert.deepEqual(tree(), before);
++  }
++  assert.equal(JSON.parse(raw("--json").stdout).reason, "prd_revision_boundary_invalid", "no mode remains the early owner");
++  for (const language of [...Object.keys(locales.locales), "fr-CA"]) {
++    reset(); const p = f.proposal("TP"), preview = JSON.parse(raw("--preview", ...flags(p.input), "--json").stdout);
++    const pack = (locales.locales[language] ?? locales.locales.en).sourceRevision;
++    for (const [outcome, result] of [
++      ["reopened", rawAt(p.input.revisionId, "--apply", ...flags(p.input), "--preview-digest", preview.preview_digest, "--language", language)],
++      ["replayed", rawAt(p.input.revisionId, "--apply", ...flags(p.input), "--preview-digest", preview.preview_digest, "--language", language)],
++      ["recovered", raw("--recover", "--operation", p.input.operationId, "--language", language)],
++    ]) {
++      assert.equal(result.status, 0, result.stdout + result.stderr); assert.ok(result.stdout.includes(pack[outcome]));
++      assert.ok(result.stdout.includes(pack.authority)); observations.push({ language, outcome, rendered: result.stdout, actual_cli: true });
++    }
++    reset(); const interrupted = f.proposal("TP"), v = JSON.parse(raw("--preview", ...flags(interrupted.input), "--json").stdout);
++    const program = `import {applySourceRevision} from ${JSON.stringify(pathToFileURL(join(candidate, "runtime/core/lib/control-state/run-revision.js")).href)};
++      applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(stage){if(stage==='archive_file')process.exit(71)}});`;
++    const worker = spawnSync(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify({ ...interrupted.input, previewDigest: v.preview_digest })], { env });
++    assert.equal(worker.status, 71);
++    const before = tree(), required = raw("--inspect", "--operation", interrupted.input.operationId, "--language", language);
++    assert.equal(required.status, 2, required.stdout + required.stderr); assert.ok(required.stdout.includes(pack.recovery_required)); assert.deepEqual(tree(), before);
++    const recovered = raw("--recover", "--operation", interrupted.input.operationId, "--language", language);
++    assert.equal(recovered.status, 0, recovered.stdout + recovered.stderr); assert.ok(recovered.stdout.includes(pack.recovered));
++    observations.push({ language, outcome: "recovery_required", rendered: required.stdout, actual_cli: true }, { language, outcome: "recovered", rendered: recovered.stdout, actual_cli: true });
++  }
++  for (const language of Object.keys(locales.locales)) {
++    for (const outcome of ["preview", "reopened", "historical", "replayed", "recovered", "rejected", "recovery_required", "unknown"]) {
++      const rendered = renderSourceRevision({ outcome, run_id: f.runId, operation_id: p.input.operationId, revision_id: f.revision(), authorizes: false }, locales, language, { target: root });
++      const pack = locales.locales[language].sourceRevision;
++      assert.ok(rendered.markdown.includes(pack[outcome] ?? pack.rejected)); assert.ok(rendered.markdown.includes(pack.authority));
++      assert.ok(rendered.markdown.includes(pack.next)); assert.equal(rendered.authorizes, false);
++      observations.push({ language, outcome, rendered: rendered.markdown });
++    }
++  }
++  if (process.env.AGDF_TEST_EVIDENCE_DIR) {
++    mkdirSync(process.env.AGDF_TEST_EVIDENCE_DIR, { recursive: true });
++    for (const scenario_id of ["SCN-002", "SCN-022", "SCN-029"]) writeFileSync(join(process.env.AGDF_TEST_EVIDENCE_DIR, `${scenario_id}-cli.json`), JSON.stringify({ scenario_id, status: "pass", candidate,
++      observations, fixture_authority: "synthetic_only", note: "Early positive and version-1 fault behavior also covered by unchanged existing suites." }, null, 2) + "\n");
++  }
++  console.log(JSON.stringify({ suite: "late-source-revision-cli", candidate, cases: observations.length, fixture_authority: "synthetic_only" }));
++} finally { rmSync(temporary, { recursive: true, force: true }); }
+--- before/packages/cli/scripts/skill-dispatch-binding-test.js
++++ candidate/packages/cli/scripts/skill-dispatch-binding-test.js
+@@ -78,8 +78,8 @@
+   const binding = createDispatchBinding({ ...options, surface });
+   assert.equal(binding.schema_version, "2");
+   assert.equal(binding.arguments, skillDispatchArgumentGrammar());
+-  assert.match(binding.arguments, /--language <tag>/u);
+-  assert.match(binding.arguments, new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
++  assert.match(binding.arguments, /--language <lc>/u);
++  assert.match(binding.arguments, new RegExp(`--target-source ${TASK_TARGET_SOURCES.join("\\|")} --primary-target`, "u"));
+   assert.doesNotMatch(binding.arguments, /<source>/u);
+   assert.equal(binding.authorizes, false);
+   assert.equal(binding.environment.ELECTRON_RUN_AS_NODE, undefined);
+--- before/packages/cli/scripts/skill-dispatch-function-contract-test.js
++++ candidate/packages/cli/scripts/skill-dispatch-function-contract-test.js
+@@ -257,9 +257,9 @@
+ 
+ assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
+ assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
+-assert.match(skillDispatchArgumentGrammar(), /--language <tag>/u);
+-assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]"));
+-assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
++assert.match(skillDispatchArgumentGrammar(), /--language <lc>/u);
++assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]"));
++assert.match(skillDispatchArgumentGrammar(), new RegExp(`--target-source ${TASK_TARGET_SOURCES.join("\\|")} --primary-target`, "u"));
+ 
+ const languageProjection = renderSkillDispatchLanguageProjection();
+ const projection = renderSkillDispatchSemanticProjection();
+--- before/packages/core/lib/control-evaluation/delivery-map.js
++++ candidate/packages/core/lib/control-evaluation/delivery-map.js
+@@ -8,6 +8,9 @@
+ import { deliveryRelationships, relationshipRequired, sameRelationship } from "./delivery-relationships.js";
+ import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
+ import { evaluateReconciliationState } from "./parent-reconciliation.js";
++import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
++import { readArtefactBindings } from "../control-state/artefact-bindings.js";
++import { validateBindingProof } from "../control-state/artefact-binding-proof.js";
+ 
+ function severityFromImpact(value) {
+   if (value === "block") return "block";
+@@ -27,8 +30,13 @@
+       satisfied: isGateSatisfied(runState, expected.requiredBy), currentGate: transitionDecisionForRunState(runState).current_gate,
+       artefact: runState.artefacts.get(expected.requiredBy), resolveFile: dependencies.resolveFile });
+     const evidence = row?.evidence ?? "";
++    const revisions = readSourceRevisions(runState.content ?? "");
++    const binding = readArtefactBindings(runState.content ?? "").active.find(item => sameRelationship(item.relationship, expected)
++      && evidence.startsWith(`binding ${item.binding_id};`));
++    const currentProof = !revisions.present || expected.requiredBy === "UR" || Boolean(binding && dependencies.targetDir
++      && validateBindingProof(dependencies.targetDir, binding));
+     const status = relevant.length > 1 || relevant.some(row => !sameRelationship(row, expected)) ? "conflict"
+-      : !row ? "missing" : filled(evidence) ? "pass" : required ? "missing_evidence" : "template";
++      : !row ? "missing" : filled(evidence) && currentProof ? "pass" : required ? "missing_evidence" : "template";
+ 
+     if (required && status !== "pass") {
+       findings.push({
+@@ -203,6 +211,7 @@
+   const doctorReport = evaluateDoctor(targetDir, selection);
+   const runState = readRunState(targetDir, selection);
+   const map = analyzeDeliveryMap(runState, {
++    targetDir,
+     loadRun: (runId) => readRunState(targetDir, { runId }),
+     resolveFile: (path) => resolvedArtefactFile(targetDir, path),
+   });
+@@ -218,6 +227,7 @@
+   const qualityOutlook = deriveQualityOutlook(runState, map.findings);
+   const nextAllowedAction = isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action;
+   const postApproval = postApprovalTransition(gateDecision.missing_approval);
++  const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
+ 
+   return {
+     schema_version: "1",
+@@ -225,6 +235,7 @@
+     checked_at: new Date().toISOString(),
+     target_dir: targetDir,
+     current_gate: currentGate,
++    ...(sourceRevisions ? { source_revisions: sourceRevisions } : {}),
+     next_allowed_action: nextAllowedAction,
+     next_gate_after_approval: postApproval.next_gate_after_approval,
+     allowed_after_approval: postApproval.allowed_after_approval,
+--- before/packages/core/lib/control-evaluation/doctor.js
++++ candidate/packages/core/lib/control-evaluation/doctor.js
+@@ -292,6 +292,7 @@
+       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
+     }
+     reconciliation = analyzeDeliveryMap(runState, {
++      targetDir,
+       loadRun: (runId) => readRunState(targetDir, { runId }),
+       resolveFile: (path) => resolvedArtefactFile(targetDir, path),
+     });
+--- before/packages/core/lib/control-evaluation/gate-check.js
++++ candidate/packages/core/lib/control-evaluation/gate-check.js
+@@ -11,6 +11,7 @@
+ import { evaluatePrdReadiness } from "./prd-readiness.js";
+ import { evaluateSdReadiness } from "./sd-readiness.js";
+ import { evaluateSdTraceability, evaluateTpTraceability } from "./traceability-readiness.js";
++import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
+ 
+ const nextSkillByGate = {
+   UR: "gate-check",
+@@ -185,6 +186,7 @@
+   blockingDetails = [],
+   continuePostTpWork = false,
+   nextActionRequiresUserAction = false,
++  nextSkill,
+   qualityOutlook = deriveQualityOutlook(runState, findings),
+   interactionKind: requestedInteractionKind,
+   approvalArtefactReady = true,
+@@ -236,7 +238,7 @@
+     traceability_gaps: traceabilityGaps,
+     blocking_details: blockingDetails,
+     evidence: runState.evidence_refs,
+-    next_skill: nextSkillByGate[currentGate] ?? "gate-check",
++    next_skill: nextSkill ?? nextSkillByGate[currentGate] ?? "gate-check",
+     next_step: nextStep,
+     quality_outlook: qualityOutlook,
+     interaction_kind: interactionKind,
+@@ -312,6 +314,7 @@
+     : null;
+   const transitionDecision = transitionDecisionForRunState(runState, verifiedChange);
+   const deliveryMap = analyzeDeliveryMap(runState, {
++    targetDir,
+     loadRun: (runId) => readRunState(targetDir, { runId }),
+     resolveFile: (path) => resolvedArtefactFile(targetDir, path),
+   });
+@@ -327,7 +330,7 @@
+   let missingApproval = transitionDecision.missing_approval;
+   let allowed = transitionDecision.allowed;
+   let forbidden = transitionDecision.forbidden;
+-  let nextAllowedAction = modeSliceDecision(runState) === "verified_change"
++  let nextAllowedAction = modeSliceDecision(runState) === "verified_change" || readSourceRevisions(runState.content ?? "").present
+     ? transitionDecision.next_allowed_action
+     : isPlaceholderValue(runState.next_allowed_action)
+     ? transitionDecision.next_allowed_action
+@@ -460,6 +463,7 @@
+       : localePack(interactionLocales, "en").operationalValues.unknownRunAction,
+     continuePostTpWork,
+     nextActionRequiresUserAction: !statusCardNextStepRenderable || statusCardNextStep === hostEvidenceProvisioningChoice,
++    nextSkill: transitionDecision.next_operation?.skill_id,
+     qualityOutlook: renderable(runQualityOutlook) ? runQualityOutlook : deriveQualityOutlook({}, deliveryMap.findings),
+     runState,
+     chatLanguage: presentationLocale,
+@@ -572,7 +576,8 @@
+     }
+   }
+ 
+-  const nextOperation = requiredGateArtifactPreparation({
++  const nextOperation = status === "open" && transitionDecision.next_operation
++    ? transitionDecision.next_operation : requiredGateArtifactPreparation({
+     status,
+     currentGate,
+     missingApproval,
+@@ -582,6 +587,7 @@
+     deliveryMap,
+     runId: statusCard.run_id,
+   });
++  const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
+ 
+   return {
+     schema_version: "1",
+@@ -589,6 +595,7 @@
+     current_gate: currentGate,
+     blocking_reason: blockingReason,
+     missing_approval: missingApproval,
++    ...(sourceRevisions ? { source_revisions: sourceRevisions } : {}),
+     ...(urReadiness ? { ur_readiness: urReadiness } : {}),
+     ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
+     ...(sdReadiness ? { sd_readiness: sdReadiness } : {}),
+--- before/packages/core/lib/control-evaluation/gate-policy.js
++++ candidate/packages/core/lib/control-evaluation/gate-policy.js
+@@ -1,5 +1,6 @@
+ import { extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
+ import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
++import { readSourceRevisions } from "../control-state/run-source-revisions.js";
+ 
+ function durableArtefactBlock(gate, nextGate) {
+   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
+@@ -51,7 +52,29 @@
+ 
+   if (gateApprovalStatus(runState, "PRD") === "approved" && !isGateSatisfied(runState, "PRD")) return durableArtefactBlock("PRD", "SD");
+ 
+-  if (!isGateSatisfied(runState, "PRD")) {
++  const revision = readSourceRevisions(runState.content ?? "").receipts.at(-1);
++  const reassessment = type => revision?.analyses.some(row => row.type === type && row.disposition === "reassess");
++  const renewedBrownfield = reassessment("Brownfield Review") && (!isInternalStepSatisfied(runState, "Brownfield Review")
++    || !["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState)));
++  if (renewedBrownfield && revision.source_gate !== "UR" && isInternalStepSatisfied(runState, "Brownfield Review")
++      && !["undecided", "structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))) {
++    return { status: "blocked", current_gate: "Mode/Slice Decision", blocking_reason: "mode_slice_decision_blocked", missing_approval: "none",
++      allowed: ["resolve the analytical route under the retained approved UR"], forbidden: ["implement code", "skip renewed source approvals"],
++      next_allowed_action: "Resolve the Brownfield Review blocker before choosing a delivery path." };
++  }
++  if ((reassessment("UX Intent Definition") || runState.source_revision_ux_required) && runState.artefacts.get("UX Intent Definition")?.status !== "done"
++      && isInternalStepSatisfied(runState, "Brownfield Review") && ["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))) {
++    return {
++      status: "open", current_gate: revision.source_gate === "UR" ? "PRD" : revision.source_gate,
++      blocking_reason: "none", missing_approval: "none",
++      allowed: ["reassess UX intent under the current approved UR and reviewed analytical context", "record the renewed analysis before dependent authoring"],
++      forbidden: ["draft or approve a dependent source before analytical reassessment", "implement code", "claim QA or release readiness"],
++      next_allowed_action: "Reassess UX intent under the current approved UR before dependent source authoring.",
++      next_operation: { type: "reassess_source_analysis", skill_id: "ux-intent-definition", analysis: "UX Intent Definition" },
++    };
++  }
++
++  if (!isGateSatisfied(runState, "PRD") || renewedBrownfield) {
+     if (!isInternalStepSatisfied(runState, "Brownfield Review")) {
+       return {
+         status: "open",
+--- before/packages/core/lib/control-evaluation/run-state.js
++++ candidate/packages/core/lib/control-evaluation/run-state.js
+@@ -8,10 +8,11 @@
+ import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./shared.js";
+ import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
+ import { containedRegularFile } from "../control-state/contained-file.js";
++import { readSourceRevisions } from "../control-state/run-source-revisions.js";
+ 
+ export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
+ export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
+-export const internalStepArtefacts = new Set(["Brownfield Review", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
++export const internalStepArtefacts = new Set(["Brownfield Review", "UX Intent Definition", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
+ export const closeoutArtefacts = new Set(["OR"]);
+ 
+ export function resolvedArtefactFile(targetDir, rawPath) {
+@@ -99,6 +100,7 @@
+     path: runPath,
+     content,
+     ...parsed,
++    source_revision_ux_required: sourceRevisionUxRequired(targetDir, { ...parsed, content }),
+     identity_findings: validateRunIdentity({
+       runId: extractField(content, "run_id").replace(/^`|`$/g, ""),
+       revisionId: extractField(content, "revision_id").replace(/^`|`$/g, ""),
+@@ -106,6 +108,14 @@
+   };
+ }
+ 
++export function sourceRevisionUxRequired(targetDir, state) {
++  if (!readSourceRevisions(state.content ?? "").present) return false;
++  const review = state.artefacts.get("Brownfield Review");
++  if (review?.status !== "done") return false;
++  const file = resolvedArtefactFile(targetDir, review.path);
++  return Boolean(file && extractField(readFileSync(file, "utf8"), "ux_intent_definition_required") === "yes");
++}
++
+ export function gateApprovalStatus(runState, gate) {
+   if (!userGateOrder.includes(gate)) return "not_applicable";
+   return runState.approvals.get(gate)?.status ?? "";
+--- before/packages/core/lib/control-evaluation/run-step-policy.js
++++ candidate/packages/core/lib/control-evaluation/run-step-policy.js
+@@ -1,6 +1,6 @@
+ import { parseControlState } from "../control-state/run-state-parser.js";
+ import { transitionDecisionForRunState } from "./gate-policy.js";
+-import { closeoutArtefacts, internalStepArtefacts, modeSliceDecision, userGateOrder } from "./run-state.js";
++import { closeoutArtefacts, internalStepArtefacts, modeSliceDecision, userGateOrder, sourceRevisionUxRequired } from "./run-state.js";
+ import { evaluateVerifiedChange } from "./verified-change.js";
+ 
+ // Evaluates the gate policy for unsaved run-state text, so run-step can store the deterministic
+@@ -15,6 +15,7 @@
+       closeoutArtefacts: [...closeoutArtefacts],
+     }),
+   };
++  runState.source_revision_ux_required = sourceRevisionUxRequired(targetDir, runState);
+   const verifiedChange = modeSliceDecision(runState) === "verified_change" ? evaluateVerifiedChange(targetDir, runState, {}) : null;
+   const decision = transitionDecisionForRunState(runState, verifiedChange);
+   return Object.freeze({
+--- before/packages/core/lib/control-state/artefact-binding-proof.js
++++ candidate/packages/core/lib/control-state/artefact-binding-proof.js
+@@ -3,6 +3,8 @@
+ import { readApprovalOperations } from "./approval-operations.js";
+ import { artefactFileDigest, APPROVAL_GATES } from "./run-seal.js";
+ import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
++import { readArtefactBindings } from "./artefact-bindings.js";
++import { readSourceRevisions } from "./run-source-revisions.js";
+ 
+ export function readContainedJson(root, path) {
+   const file = containedRegularFile(root, path);
+@@ -11,13 +13,22 @@
+   catch { throw new Error("AGDF_ARTEFACT_BINDING_PROOF_INVALID"); }
+ }
+ 
+-export function exactApprovedArtefacts(root, control) {
++export function exactApprovedArtefacts(root, control, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false,
++  rawFileDigest = path => {
++    const file = containedRegularFile(root, path);
++    return file.status === "valid" && !hasSymlinkComponent(root, path) && statSync(file.path).size <= 131072 ? digest(readFileSync(file.path)) : "missing";
++  } } = {}) {
+   const operations = readApprovalOperations(control.content);
+   if (!operations.valid) return false;
++  const revisions = readSourceRevisions(control.content), bindings = readArtefactBindings(control.content);
++  if (!revisions.valid || !bindings.valid) return false;
+   const target = resolveControlCommandTarget(root).target_id;
+   for (const gate of APPROVAL_GATES.filter(gate => gate !== "UAT" && control.approvals.get(gate)?.status === "approved")) {
+-    const row = control.artefacts.get(gate), actual = artefactFileDigest(root, row?.path);
++    const row = control.artefacts.get(gate), actual = fileDigest(row?.path);
+     if (!actual.startsWith("sha256:")) return false;
++    if (revisions.present && ["PRD", "SD", "TP", "QA"].includes(gate)
++        && !bindings.active.some(binding => binding.destination.type === (gate === "QA" ? "QA_REPORT" : gate) && binding.destination.path === row?.path
++          && binding.destination.digest === actual && validateBindingProof(root, binding, { fileDigest, readJson, historical }))) return false;
+     const evidence = control.approvals.get(gate).evidence ?? "";
+     const presentation = evidence.match(/presentation ([0-9a-f-]{36}) (sha256:[0-9a-f]{64})(?:\s|$)/u);
+     if (!presentation) return false;
+@@ -25,14 +36,15 @@
+     if (receipt.length > 1) return false;
+     if (receipt.length === 1) {
+       if (receipt[0].binding.target_id !== target || receipt[0].binding.run_id !== control.meta.run_id
+-          || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest === null) return false;
++          || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest !== presentation[2]) return false;
+       // The row identifies the exact prepared record, not a historical superseded approval.
+     }
+     try {
+-      const envelope = readContainedJson(root, `.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.json`);
++      const envelope = readJson(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.json`);
+       const record = envelope.record;
+       if (!record || record.schema_version !== 1 || record.presentation_id !== presentation[1] || record.run_id !== control.meta.run_id
+-          || record.gate !== gate || record.artefact_digest !== actual || envelope.digest !== presentation[2]
++          || record.gate !== gate || record.artefact_digest !== rawFileDigest(row.path) || envelope.digest !== presentation[2]
++          || receipt.length === 1 && record.revision_id !== receipt[0].binding.expected_revision_id
+           || digest(JSON.stringify(record)) !== envelope.digest) return false;
+     } catch { return false; }
+   }
+@@ -40,12 +52,12 @@
+ }
+ 
+ // Local reviewed attestation: explicit exact mapping, never prose or inferred gate order.
+-export function validateBindingProof(root, receipt) {
++export function validateBindingProof(root, receipt, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false } = {}) {
+   if (receipt.target_id !== resolveControlCommandTarget(root).target_id
+-      || [receipt.destination, receipt.source, receipt.review].some(file => hasSymlinkComponent(root, file.path)
+-        || artefactFileDigest(root, file.path) !== file.digest)) return false;
++      || [receipt.destination, receipt.source, receipt.review].some(file => !historical && hasSymlinkComponent(root, file.path)
++        || fileDigest(file.path) !== file.digest)) return false;
+   try {
+-    const proof = readContainedJson(root, receipt.review.path);
++    const proof = readJson(receipt.review.path);
+     return exactObject(proof, ["schema_version", "target_id", "run_id", "relationship", "destination", "source", "reviewer", "reviewed"])
+       && proof.schema_version === "1" && proof.reviewed === true && proof.target_id === receipt.target_id && proof.run_id === receipt.run_id
+       && proof.reviewer === receipt.review.reviewer
+--- before/packages/core/lib/control-state/artefact-bindings.js
++++ candidate/packages/core/lib/control-state/artefact-bindings.js
+@@ -3,6 +3,7 @@
+ import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
+ import { isSafeControlRelativePath } from "./contained-file.js";
+ import { deliveryRelationships, sameRelationship } from "../control-evaluation/delivery-relationships.js";
++import { bindingIsEffective } from "./run-source-revisions.js";
+ 
+ const fields = ["schema_version", "binding_id", "target_id", "run_id", "relationship", "destination", "source", "review", "origin", "operation", "supersedes"];
+ const text = value => typeof value === "string" && value.trim().length > 0 && value.length <= 4096 && !/[\r\n\0|]/u.test(value);
+@@ -36,7 +37,7 @@
+ export function readArtefactBindings(content) {
+   const lines = String(content).replace(/\r\n?/gu, "\n").split("\n");
+   const starts = lines.flatMap((line, i) => /^## Artefact Bindings\s*$/u.test(line) ? [i] : []);
+-  if (!starts.length) return { present: false, valid: true, receipts: [], active: [] };
++  if (!starts.length) return { present: false, valid: true, receipts: [], active: [], latest: [] };
+   const invalid = () => ({ present: true, valid: false, receipts: [], active: [], reason: "artefact_bindings_invalid" });
+   if (starts.length !== 1) return invalid();
+   const start = starts[0];
+@@ -65,7 +66,8 @@
+       lastRevision = receipt.operation.revision;
+     } catch { return invalid(); }
+   }
+-  return { present: true, valid: true, receipts, active: [...active.values()], start, end };
++  const latest = [...active.values()];
++  return { present: true, valid: true, receipts, latest, active: latest.filter(receipt => bindingIsEffective(content, receipt)), start, end };
+ }
+ 
+ export function appendArtefactBinding(content, receipt) {
+--- before/packages/core/lib/control-state/run-artefact-recording.js
++++ candidate/packages/core/lib/control-state/run-artefact-recording.js
+@@ -7,11 +7,13 @@
+ import { relationshipForGate, sameRelationship } from "../control-evaluation/delivery-relationships.js";
+ import { readFileSync } from "node:fs";
+ import { containedRegularFile } from "./contained-file.js";
++import { readSourceRevisions } from "./run-source-revisions.js";
+ 
+ // Called by run-step with Run and Backlog locks already held. No approval or QA decision owner.
+ export function prepareArtefactRecording(root, run, input, control, before) {
+   const fail = reason => { throw new Error(reason); };
+   const expected = relationshipForGate(input.gate);
++  if (readSourceRevisions(run.content).present && before.missing_approval !== `Approval: ${input.gate}`) fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
+   if (!expected || input.gate === "UR" || before.current_gate !== input.gate || before.status !== "open"
+       || control.approvals.get(input.gate)?.status === "approved") fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
+   const command = readContainedJson(root, input.evidence);
+@@ -27,7 +29,7 @@
+     relationship: command.relationship, destination: command.destination, source: command.source, review: command.review,
+     origin: "reviewed_mapping", operation: { id: randomUUID(), previous_revision_id: input.revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1 }, supersedes: null,
+   };
+-  const prior = bindings.active.filter(item => artefactBindingKey(item) === artefactBindingKey(candidate));
++  const prior = bindings.latest.filter(item => artefactBindingKey(item) === artefactBindingKey(candidate));
+   if (prior.length > 1) fail("AGDF_ARTEFACT_BINDINGS_INVALID");
+   candidate.supersedes = prior[0]?.binding_id ?? null;
+   const source = control.artefacts.get(expected.to);
+--- before/packages/core/lib/control-state/run-revision-history.js
++++ candidate/packages/core/lib/control-state/run-revision-history.js
+@@ -0,0 +1,123 @@
++import { createHash } from "node:crypto";
++import { readFileSync, statSync } from "node:fs";
++import { canonicalJson, digest, DIGEST_PATTERN, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
++import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from "./contained-file.js";
++import { APPROVAL_GATES, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths } from "./run-seal.js";
++import { parseControlState, parseRunState } from "./run-state-parser.js";
++import { readArtefactBindings } from "./artefact-bindings.js";
++import { exactApprovedArtefacts, validateBindingProof } from "./artefact-binding-proof.js";
++import { internalStepArtefacts } from "../control-evaluation/run-state.js";
++import { readSourceRevisions, revisionHistoryPrefix, SOURCE_GATES, sourceRevisionImpact } from "./run-source-revisions.js";
++
++export const byteDigest = bytes => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
++// Existing control JSON limit, applied before allocation to historical closure inputs too.
++export function readHistoryBytes(root, path) {
++  const file = containedRegularFile(root, path);
++  if (file.status !== "valid" || hasSymlinkComponent(root, path) || statSync(file.path).size > 131072) throw Error("AGDF_REVISION_HISTORY_INVALID");
++  return readFileSync(file.path);
++}
++
++export function collectRevisionHistory(root, runId, operationId, paths) {
++  const prefix = revisionHistoryPrefix(runId, operationId);
++  const files = [...new Set(paths)].sort().map((path, i) => {
++    if (!isSafeControlRelativePath(path) || !path.startsWith(".agdf/control/")) throw Error("AGDF_REVISION_HISTORY_INVALID");
++    const bytes = readHistoryBytes(root, path);
++    return { path, snapshot: `${prefix}files/${i}.bin`, bytes, digest: byteDigest(bytes),
++      canonical_digest: byteDigest(Buffer.from(canonicalRunText(bytes.toString("utf8")), "utf8")) };
++  });
++  const manifest = { schema_version: "1", run_id: runId, operation_id: operationId,
++    files: files.map(({ path, snapshot, bytes, digest, canonical_digest }) => ({ path, snapshot, length: bytes.length, digest, canonical_digest })) };
++  const text = canonicalJson(manifest) + "\n";
++  if (Buffer.byteLength(text) > 131072) throw Error("AGDF_REVISION_HISTORY_INVALID");
++  return { manifest, text, digest: byteDigest(Buffer.from(text)), files };
++}
++
++export function validateRevisionHistory(root, receipt) {
++  try {
++    const bytes = readHistoryBytes(root, receipt.archive.path);
++    if (byteDigest(bytes) !== receipt.archive.digest) return false;
++    const manifest = JSON.parse(bytes.toString("utf8")), prefix = revisionHistoryPrefix(receipt.run_id, receipt.operation_id);
++    if (!exactObject(manifest, ["schema_version", "run_id", "operation_id", "files"]) || manifest.schema_version !== "1"
++        || manifest.run_id !== receipt.run_id || manifest.operation_id !== receipt.operation_id
++        || !Array.isArray(manifest.files) || !manifest.files.length) return false;
++    if (receipt.target_id !== resolveControlCommandTarget(root).target_id) return false;
++    const names = new Set(), snapshots = new Set(), archived = new Map(), digests = new Map();
++    for (const row of manifest.files) {
++      if (!exactObject(row, ["path", "snapshot", "length", "digest", "canonical_digest"])
++          || !isSafeControlRelativePath(row.path) || !row.path.startsWith(".agdf/control/")
++          || !new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}files/[0-9]+\\.bin$`, "u").test(row.snapshot)
++          || !Number.isSafeInteger(row.length) || row.length < 0 || row.length > 131072
++          || !DIGEST_PATTERN.test(row.digest) || !DIGEST_PATTERN.test(row.canonical_digest)
++          || names.has(row.path) || snapshots.has(row.snapshot)) return false;
++      const actual = readHistoryBytes(root, row.snapshot);
++      if (actual.length !== row.length || byteDigest(actual) !== row.digest
++          || byteDigest(Buffer.from(canonicalRunText(actual.toString("utf8")))) !== row.canonical_digest) return false;
++      names.add(row.path); snapshots.add(row.snapshot);
++      archived.set(row.path, actual); digests.set(row.path, row.canonical_digest);
++    }
++    const original = archived.get(`.agdf/control/runs/${receipt.run_id}/RUN_STATE.md`)?.toString("utf8");
++    if (!original || !["UR", "PRD", "SD", "TP"].every(type => names.has(`.agdf/control/artefacts/${receipt.run_id}/${type}.md`))) return false;
++    const parsed = parseRunState(original, receipt.run_id);
++    if (!parsed.valid || parsed.meta.revision_id !== receipt.previous_revision_id
++        || Number(parsed.meta.revision) + 1 !== receipt.revision) return false;
++    // Resolve original paths through the archived closure. Live canonical drafts may have
++    // changed since this receipt; they cannot repair or invalidate its historical proofs.
++    for (const path of listedArtefactPaths(original)) {
++      if (!digests.has(path)) {
++        if (!pendingArtefactPaths(original).includes(path)) return false;
++        digests.set(path, "missing");
++      }
++    }
++    const seals = computeRunSeals(root, original, { artefactDigests: digests });
++    if (seals.content_seal !== parsed.meta.content_seal || seals.approval_seal !== parsed.meta.approval_seal) return false;
++    const readers = { historical: true, fileDigest: path => digests.get(path) ?? "missing",
++      rawFileDigest: path => archived.has(path) ? byteDigest(archived.get(path)) : "missing", readJson: path => JSON.parse(archived.get(path).toString("utf8")) };
++    const control = { ...parseControlState(original, { userGates: APPROVAL_GATES, internalSteps: [...internalStepArtefacts] }), content: original, meta: parsed.meta };
++    const bindings = readArtefactBindings(original);
++    // The receipt pins an actually archived reviewed request and its computed preview,
++    // not just unrelated valid old approvals beside caller-supplied request hashes.
++    const proposals = [...archived.values()].flatMap(bytes => {
++      try { const row = JSON.parse(bytes.toString("utf8")); return digest(canonicalJson(row)) === receipt.request_digest ? [row] : []; } catch { return []; }
++    });
++    const proposal = proposals[0];
++    const sources = SOURCE_GATES.map(type => ({ type, path: control.artefacts.get(type)?.path, digest: digests.get(control.artefacts.get(type)?.path) }));
++    if (proposals.length !== 1 || !exactObject(proposal, ["schema_version", "target_id", "run_id", "expected_revision_id", "operation_id", "source_gate", "reason", "intended_change", "sources", "impact_assessment"])
++        || proposal.schema_version !== "1" || proposal.target_id !== receipt.target_id || proposal.run_id !== receipt.run_id
++        || proposal.expected_revision_id !== receipt.previous_revision_id || proposal.operation_id !== receipt.operation_id
++        || proposal.source_gate !== receipt.source_gate || proposal.reason !== receipt.reason || canonicalJson(proposal.sources) !== canonicalJson(sources)
++        || canonicalJson(proposal.impact_assessment?.upstream) !== canonicalJson(receipt.retained_sources)
++        || canonicalJson(proposal.impact_assessment?.analyses) !== canonicalJson(receipt.analyses)) return false;
++    const preview = { schema_version: "1", target_id: receipt.target_id, run_id: receipt.run_id, expected_revision_id: receipt.previous_revision_id,
++      operation_id: receipt.operation_id, request_digest: receipt.request_digest, reason: proposal.reason, intended_change: proposal.intended_change,
++      sources, impact: sourceRevisionImpact(proposal, bindings.active), archive_digest: receipt.archive.digest,
++      current_run_digest: byteDigest(archived.get(`.agdf/control/runs/${receipt.run_id}/RUN_STATE.md`)) };
++    if (digest(canonicalJson(preview)) !== receipt.preview_digest) return false;
++    return SOURCE_TYPES.every(type => control.approvals.get(type)?.status === "approved")
++      && exactApprovedArtefacts(root, control, readers) && bindings.valid
++      && ["PRD", "SD", "TP"].every(type => bindings.active.some(row => row.destination.type === type && validateBindingProof(root, row, readers)))
++      && receipt.invalidated_bindings.length === bindings.active.filter(row => SOURCE_TYPES.slice(SOURCE_TYPES.indexOf(receipt.source_gate)).includes(row.destination.type)).length
++      && receipt.invalidated_bindings.every(id => bindings.active.some(row => row.binding_id === id && SOURCE_TYPES.slice(SOURCE_TYPES.indexOf(receipt.source_gate)).includes(row.destination.type)))
++      && receipt.retained_sources.every(row => digests.get(row.path) === row.digest)
++      && receipt.analyses.every(row => control.artefacts.get(row.type)?.path === row.path && digests.get(row.path) === row.digest);
++  } catch { return false; }
++}
++
++const SOURCE_TYPES = SOURCE_GATES;
++
++export function validSourceRevisionHistories(root, content) {
++  const history = readSourceRevisions(content);
++  return history.valid && history.receipts.every(receipt => validateRevisionHistory(root, receipt));
++}
++
++export function inspectRevisionHistory(root, receipt) {
++  if (!validateRevisionHistory(root, receipt)) throw Error("AGDF_REVISION_HISTORY_INVALID");
++  return { authority: "historical_evidence_only", receipt,
++    manifest: JSON.parse(readHistoryBytes(root, receipt.archive.path).toString("utf8")) };
++}
++
++export function archivedRunMatches(root, receipt, content) {
++  try {
++    const manifest = JSON.parse(readHistoryBytes(root, receipt.archive.path).toString("utf8"));
++    return manifest.files.find(row => row.path === `.agdf/control/runs/${receipt.run_id}/RUN_STATE.md`)?.digest === byteDigest(Buffer.from(content));
++  } catch { return false; }
++}
+--- before/packages/core/lib/control-state/run-revision.js
++++ candidate/packages/core/lib/control-state/run-revision.js
+@@ -1,9 +1,240 @@
+-import { parseControlState } from "./run-state-parser.js";
+-import { appendTableRow, firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
+-import { APPROVAL_GATES, canonicalRunText, runSealState } from "./run-seal.js";
++import { parseControlState, parseRunState } from "./run-state-parser.js";
++import { appendTableRow, firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, replaceSectionScalar, removeTableRows, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
++import { APPROVAL_GATES, artefactFileDigest, listedArtefactPaths, pendingArtefactPaths, canonicalRunText, runSealState } from "./run-seal.js";
+ import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
+-import { writeRun } from "./run-state-writer.js";
++import { writeRun, withOwnedFileLock } from "./run-state-writer.js";
++import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
++import { randomUUID } from "node:crypto";
++import { existsSync, readFileSync } from "node:fs";
++import { join } from "node:path";
++import { runPath } from "./run-state-reader.js";
++import { readArtefactBindings } from "./artefact-bindings.js";
++import { exactApprovedArtefacts, readContainedJson, validateBindingProof } from "./artefact-binding-proof.js";
++import { SOURCE_GATES, appendSourceRevision, readSourceRevisions, revisionHistoryPrefix, sourceRevisionImpact } from "./run-source-revisions.js";
++import { collectRevisionHistory, byteDigest, inspectRevisionHistory, readHistoryBytes } from "./run-revision-history.js";
++import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingSourceRevisionJournal } from "./run-step-transaction.js";
++import { pendingRunStepIds, pendingRunStepPath } from "./run-step-pending.js";
++import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
++import { internalStepArtefacts } from "../control-evaluation/run-state.js";
++import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
+ 
++const revisionError = (reason, recovery = "Inspect the exact current run, correct the facts and prepare a fresh reviewed preview.") => Object.assign(Error(reason), { revision_reason: reason, recovery });
++const nonempty = value => typeof value === "string" && value.trim().length > 0 && value.length <= 4096;
++function validateRevisionIdentity({ runId, operationId, revisionId }) {
++  if (!RUN_ID_PATTERN.test(runId ?? "") || ![operationId, revisionId].every(value => typeof value === "string" && REVISION_ID_PATTERN.test(value)))
++    throw revisionError("revision_input_invalid");
++}
++function withRevisionLocks(root, input, work) {
++  validateRevisionIdentity(input);
++  const paths = [`.agdf/control/runs/${input.runId}/RUN_STATE.md`, ".agdf/control/MASTER_BACKLOG.md"];
++  const check = () => {
++    if (paths.some(path => hasSymlinkComponent(root, path) || containedRegularFile(root, path).status !== "valid"))
++      throw revisionError("revision_path_invalid");
++  };
++  check();
++  return withOwnedFileLock(runPath(root, input.runId), () => withOwnedFileLock(join(root, paths[1]), () => { check(); return work(); }));
++}
++const commandResult = (runId, work) => {
++  try { return work(); } catch (error) {
++    if (error.revision_reason) return { ...rejected(runId, error.revision_reason, { recovery: error.recovery }), authorizes: false,
++      ...(error.revision_reason === "run_step_recovery_required" ? { outcome: "recovery_required" } : {}) };
++    const result = guardedWrite(runId, () => { throw error; });
++    return { ...result.rejection, authorizes: false,
++      ...(result.rejection.reason === "run_step_recovery_required" ? { outcome: "recovery_required" } : {}) };
++  }
++};
++
++function prepareLateRevision(root, input) {
++  const { runId, revisionId, operationId, sourceGate, evidence } = input;
++  validateRevisionIdentity(input);
++  if (!REVISION_ID_PATTERN.test(operationId ?? "") || !SOURCE_GATES.includes(sourceGate)) throw revisionError("revision_input_invalid");
++  if (pendingRunStepIds(root).length) throw revisionError("run_step_recovery_required");
++  const run = readRun(root, runId);
++  if (run.rejection) throw revisionError(run.rejection.reason);
++  if (run.meta.revision_id !== revisionId) throw revisionError("stale_revision");
++  if (runSealState(root, run.content).status !== "valid") throw revisionError("seal_invalid");
++  const state = { ...parseControlState(run.content, { userGates: APPROVAL_GATES,
++    internalSteps: [...internalStepArtefacts], closeoutArtefacts: ["OR"] }), content: run.content, meta: run.meta };
++  const current = transitionDecisionForRunState(state);
++  if (run.meta.lifecycle !== "active" || !["structured_delivery", "structured_slice"].includes(state.mode_slice_decision.decision)
++      || current.current_gate !== "CD+Tests" || current.status !== "open"
++      || ["QA", "UAT"].some(gate => state.approvals.get(gate)?.status === "approved")
++      || state.artefacts.get("OR")?.status === "done") throw revisionError("late_revision_boundary_invalid", "Use the supported active structured CD+Tests boundary; QA, review and closed runs are outside this revision path.");
++  if (!exactApprovedArtefacts(root, state)) throw revisionError("approved_source_proof_invalid");
++  const bindings = readArtefactBindings(run.content);
++  if (!bindings.valid || !["PRD", "SD", "TP"].every(type => bindings.active.some(row => row.destination.type === type && validateBindingProof(root, row)))) throw revisionError("current_source_binding_invalid");
++  const sources = SOURCE_GATES.map(type => ({ type, path: state.artefacts.get(type)?.path, digest: artefactFileDigest(root, state.artefacts.get(type)?.path) }));
++  if (sources.some(row => row.path !== `.agdf/control/artefacts/${runId}/${row.type}.md` || state.approvals.get(row.type)?.status !== "approved")) throw revisionError("approved_source_invalid");
++  const proposal = readContainedJson(root, evidence), requestDigest = digest(canonicalJson(proposal));
++  if (!exactObject(proposal, ["schema_version", "target_id", "run_id", "expected_revision_id", "operation_id", "source_gate", "reason", "intended_change", "sources", "impact_assessment"])
++      || proposal.schema_version !== "1" || proposal.target_id !== resolveControlCommandTarget(root).target_id
++      || proposal.run_id !== runId || proposal.expected_revision_id !== revisionId || proposal.operation_id !== operationId
++      || proposal.source_gate !== sourceGate || !nonempty(proposal.reason) || !nonempty(proposal.intended_change)
++      || canonicalJson(proposal.sources) !== canonicalJson(sources)) throw revisionError("revision_proposal_invalid");
++  const assessment = proposal.impact_assessment, index = SOURCE_GATES.indexOf(sourceGate);
++  if (!exactObject(assessment, ["reviewer", "earliest_source", "upstream", "analyses", "implementation_evidence", "unresolved"])
++      || !nonempty(assessment.reviewer) || assessment.earliest_source !== sourceGate || !nonempty(assessment.implementation_evidence)
++      || !Array.isArray(assessment.unresolved) || assessment.unresolved.length
++      || !Array.isArray(assessment.upstream) || assessment.upstream.length !== index
++      || !assessment.upstream.every((row, i) => exactObject(row, ["type", "path", "digest", "rationale"])
++        && nonempty(row.rationale) && canonicalJson({ type: row.type, path: row.path, digest: row.digest }) === canonicalJson(sources[i]))) throw revisionError("source_impact_unresolved", "Resolve the earliest changed source and unchanged upstream rationale with its owner; then regenerate the proposal.");
++  const analyticalTypes = ["Brownfield Review", "UX Intent Definition"].filter(type => state.artefacts.get(type)?.path);
++  if (!Array.isArray(assessment.analyses) || assessment.analyses.length !== analyticalTypes.length
++      || !assessment.analyses.every((row, i) => exactObject(row, ["type", "disposition", "path", "digest", "reason"])
++        && row.type === analyticalTypes[i] && row.path === state.artefacts.get(row.type).path
++        && row.digest === artefactFileDigest(root, row.path) && nonempty(row.reason)
++        && ["retain", "reassess"].includes(row.disposition) && (sourceGate !== "UR" || row.disposition === "reassess"))) throw revisionError("analysis_applicability_unresolved");
++  const affected = SOURCE_GATES.slice(index);
++  const pendingPaths = pendingArtefactPaths(run.content);
++  const paths = [...listedArtefactPaths(run.content).filter(path => !pendingPaths.includes(path) || existsSync(join(root, path))),
++    `.agdf/control/runs/${runId}/RUN_STATE.md`, evidence];
++  for (const binding of bindings.active) paths.push(binding.review.path, binding.destination.path, binding.source.path);
++  // Closure includes the exact presentation envelopes and current reviewed mapping proofs.
++  for (const gate of SOURCE_GATES) {
++    const id = state.approvals.get(gate).evidence.match(/presentation ([0-9a-f-]{36}) /u)?.[1];
++    if (!id) throw revisionError("approved_source_proof_invalid");
++    paths.push(`.agdf/control/runs/${runId}/presentations/${id}.json`);
++  }
++  const history = collectRevisionHistory(root, runId, operationId, paths);
++  const impact = sourceRevisionImpact(proposal, bindings.active);
++  const preview = { schema_version: "1", target_id: proposal.target_id, run_id: runId, expected_revision_id: revisionId,
++    operation_id: operationId, request_digest: requestDigest, reason: proposal.reason, intended_change: proposal.intended_change,
++    sources, impact, archive_digest: history.digest, current_run_digest: byteDigest(Buffer.from(run.content)) };
++  return { run, state, proposal, requestDigest, preview, previewDigest: digest(canonicalJson(preview)), history, affected };
++}
++
++export function previewSourceRevision(root, input) {
++  return commandResult(input.runId, () => { const work = prepareLateRevision(root, input);
++    return { outcome: "preview", authority: "proposed_only", authorizes: false, ...work.preview, preview_digest: work.previewDigest,
++      next_action: "Review the bound impact; explicitly apply it or cancel without mutation." }; });
++}
++
++function revisedRun(work, receipt) {
++  let next = work.run.content;
++  for (const gate of work.affected) {
++    for (const section of ["Approvals", "Gate Checklist"]) next = replaceGateRow(next, section, gate, cells => [gate, "missing", "", ...cells.slice(3)]);
++    next = upsertTableRow(next, "Artefacts", 0, gate, [gate, "", "missing", "Previous content is historical; fresh recording and approval required"]);
++    next = removeTableRows(next, "Artefact Chain", 0, gate) ?? next;
++  }
++  for (const id of receipt.invalidated_bindings) next = removeTableRows(next, "Artefacts", 0, `Binding proof ${id}`) ?? next;
++  const invalidAnalyses = [...new Set([...receipt.analyses.filter(row => row.disposition === "reassess").map(row => row.type),
++    ...(receipt.source_gate === "UR" ? ["Brownfield Review"] : [])])];
++  for (const type of [...invalidAnalyses, "Brownfield Analysis", "CD+Tests", "CR", "Code Review", "TP Review", "Clean Review", "Clean Implementation Review", "QA"]) {
++    if (work.state.artefacts.has(type) || ["Brownfield Analysis", "CD+Tests", "CR"].includes(type))
++      next = upsertTableRow(next, "Artefacts", 0, type, [type, "", "missing", "Renewed evidence required after source revision"]);
++  }
++  if (invalidAnalyses.includes("Brownfield Review")) {
++    const heading = firstSection(next.split("\n"), "Mode/Slice Decision") ? "Mode/Slice Decision" : "Mode / Slice Decision";
++    next = replaceSectionScalar(next, heading, "decision", "undecided");
++    if (!next) throw revisionError("run_layout_unsupported");
++    next = replaceSectionScalar(next, heading, "scope_reason", "Source revision requires a fresh analytical route");
++    if (!next) throw revisionError("run_layout_unsupported");
++    next = replaceSectionScalar(next, heading, "evidence", receipt.archive.path);
++  }
++  if (!next) throw revisionError("run_layout_unsupported");
++  next = appendSourceRevision(next, receipt);
++  const after = transitionDecisionForRunState({ ...parseControlState(next, { userGates: APPROVAL_GATES, internalSteps: [...internalStepArtefacts] }), content: next });
++  // Later-source reassessment can be the required internal next step before its gate.
++  next = replaceFirstScalar(next, "current_gate", after.current_gate) ?? next;
++  next = replaceFirstScalar(next, "next_allowed_action", after.next_allowed_action) ?? next;
++  for (const [question, answer] of [["What is known?", `Source revision reopened ${receipt.source_gate}; previous evidence is historical.`],
++    ["What is approved?", work.preview.impact.retained.map(gate => `Approval: ${gate}`).join(", ") || "Nothing yet."],
++    ["What is missing?", after.missing_approval], ["What is the next allowed action?", after.next_allowed_action],
++    ["What is explicitly forbidden right now?", after.forbidden.join("; ")]]) next = upsertTableRow(next, "Current Control State", 0, question, [question, answer]) ?? next;
++  return { next, after };
++}
++
++export function inspectSourceRevision(root, { runId, operationId, revisionId }) {
++  return commandResult(runId, () => {
++    validateRevisionIdentity({ runId, operationId, revisionId });
++    const pending = pendingRunStepPath(root, runId), content = readHistoryBytes(root, `.agdf/control/runs/${runId}/RUN_STATE.md`).toString("utf8");
++    const parsed = parseRunState(content, runId);
++    if (!parsed.valid || !REVISION_ID_PATTERN.test(operationId ?? "")) throw revisionError("revision_input_invalid");
++    if (existsSync(pending)) {
++      const journal = readPendingSourceRevisionJournal(root, runId);
++      if (journal.schema_version !== 2 || journal.operation_id !== operationId
++          || journal.target_id !== resolveControlCommandTarget(root).target_id) throw revisionError("revision_recovery_binding_invalid");
++      return { outcome: "recovery_required", run_id: runId, operation_id: operationId, revision_id: parsed.meta.revision_id, authorizes: false,
++        next_action: "Inspect the exact pending operation and use explicit recovery; do not blindly repeat apply." };
++    }
++    if (runSealState(root, content).status !== "valid") throw revisionError("seal_invalid");
++    const row = readSourceRevisions(content).receipts.find(item => item.operation_id === operationId);
++    return { outcome: row ? "historical" : "not_found", run_id: runId, revision_id: parsed.meta.revision_id,
++      stale_observation: revisionId !== parsed.meta.revision_id, authorizes: false,
++      ...(row ? { history: inspectRevisionHistory(root, row) } : {}) };
++  });
++}
++
++export function applySourceRevision(root, input, { afterWrite } = {}) {
++  return commandResult(input.runId, () => withRevisionLocks(root, input, () => {
++    const { runId, revisionId, operationId } = input;
++    if (pendingRunStepIds(root).length) throw revisionError("run_step_recovery_required");
++    const run = readRun(root, runId); if (run.rejection) throw revisionError(run.rejection.reason);
++    const prior = readSourceRevisions(run.content).receipts.find(row => row.operation_id === operationId);
++    if (prior) {
++      if (runSealState(root, run.content).status !== "valid") throw revisionError("seal_invalid");
++      const proposal = readContainedJson(root, input.evidence);
++      if (prior.request_digest !== digest(canonicalJson(proposal)) || prior.preview_digest !== input.previewDigest
++          || prior.previous_revision_id !== revisionId || prior.source_gate !== input.sourceGate
++          || prior.target_id !== resolveControlCommandTarget(root).target_id) throw revisionError("revision_operation_conflict");
++      return { outcome: "replayed", authorizes: false, run_id: runId, operation_id: operationId,
++        resulting_revision_id: prior.resulting_revision_id, current_revision_id: run.meta.revision_id, historical_effect: true };
++    }
++    const work = prepareLateRevision(root, input);
++    if (input.previewDigest !== work.previewDigest) throw revisionError("revision_preview_stale");
++    const receipt = { schema_version: "1", operation_id: operationId, target_id: work.proposal.target_id, run_id: runId,
++      source_gate: input.sourceGate, request_digest: work.requestDigest, preview_digest: work.previewDigest,
++      previous_revision_id: revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1,
++      invalidated_bindings: work.preview.impact.invalidated_bindings, analyses: work.proposal.impact_assessment.analyses,
++      retained_sources: work.proposal.impact_assessment.upstream,
++      archive: { path: `${revisionHistoryPrefix(runId, operationId)}manifest.json`, digest: work.history.digest }, reason: work.proposal.reason };
++    const { next, after } = revisedRun(work, receipt);
++    const backlogPath = join(root, ".agdf/control/MASTER_BACKLOG.md");
++    if (hasSymlinkComponent(root, ".agdf/control/MASTER_BACKLOG.md") || containedRegularFile(root, ".agdf/control/MASTER_BACKLOG.md").status !== "valid") throw revisionError("backlog_path_invalid");
++    const oldBacklog = readFileSync(backlogPath, "utf8");
++    const lines = oldBacklog.split("\n"), section = firstSection(lines, "Active Backlog");
++    const priorRow = section && tableLineIndexes(lines, section).slice(2).map(i => tableCells(lines[i])).find(cells => cells[1] === runId);
++    const nextBacklog = upsertTableRow(oldBacklog, "Active Backlog", 1, runId, [priorRow?.[0] || "P1", runId, priorRow?.[2] || runId, `Awaiting ${after.current_gate}`,
++      SOURCE_GATES.filter(type => work.preview.impact.retained.includes(type)).map(type => `[${type}](artefacts/${runId}/${type}.md)`).join(" · "),
++      `[Revision history](${receipt.archive.path.slice(".agdf/control/".length)})`, after.next_allowed_action]);
++    if (!nextBacklog) throw revisionError("backlog_layout_unsupported");
++    const written = commitRunStepLocked(root, { runId, runPath: run.path, content: next, revisionId, expectedContent: run.content,
++      backlog: { old: oldBacklog, next: nextBacklog }, or: null, history: work.history, afterWrite,
++      nextRevisionId: receipt.resulting_revision_id, writeOptions: { allowApprovalChange: true, appendedRevision: receipt,
++        validateBeforeWrite: () => { const checked = prepareLateRevisionIgnoringPending(root, input); if (checked.previewDigest !== work.previewDigest) throw Error("AGDF_STALE_RUN_REVISION"); } } });
++    return { outcome: "reopened", authorizes: false, run_id: runId, operation_id: operationId, gate: after.current_gate,
++      revision_id: written.meta.revision_id, revision: written.meta.revision, impact: work.preview.impact, next_action: after.next_allowed_action };
++  }));
++}
++
++function prepareLateRevisionIgnoringPending(root, input) {
++  // The exact pending operation is owned by the caller under both locks. Revalidation reads
++  // the unchanged pre-commit state without allowing ordinary readRun to bypass a pending write.
++  const pending = readPendingSourceRevisionJournal(root, input.runId);
++  if (pending.schema_version !== 2 || pending.operation_id !== input.operationId) throw Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
++  const proposal = readContainedJson(root, input.evidence);
++  const text = readHistoryBytes(root, `.agdf/control/runs/${input.runId}/RUN_STATE.md`).toString("utf8");
++  if (parseRunState(text).meta.revision_id !== input.revisionId || runSealState(root, text).status !== "valid") throw Error("AGDF_STALE_RUN_REVISION");
++  const paths = readContainedJson(root, pending.archive.path).files;
++  if (paths.some(row => byteDigest(readHistoryBytes(root, row.path)) !== row.digest)) throw Error("AGDF_STALE_RUN_REVISION");
++  return { previewDigest: digest(canonicalJson(proposal)) === pending.request_digest ? pending.preview_digest : null };
++}
++
++export function recoverSourceRevision(root, input) {
++  return commandResult(input.runId, () => withRevisionLocks(root, input, () => {
++    const path = pendingRunStepPath(root, input.runId);
++    if (!existsSync(path)) {
++      const inspected = inspectSourceRevision(root, input);
++      return inspected.outcome === "historical" ? { ...inspected, outcome: "recovered", status: "already_completed" } : inspected;
++    }
++    const pending = readPendingSourceRevisionJournal(root, input.runId);
++    if (pending.schema_version !== 2 || pending.operation_id !== input.operationId
++        || pending.target_id !== resolveControlCommandTarget(root).target_id
++        || ![pending.old_revision_id, pending.next_revision_id].includes(input.revisionId)) throw revisionError("revision_recovery_binding_invalid");
++    return { outcome: "recovered", authorizes: false, run_id: input.runId, ...recoverPendingRunStepLocked(root, input.runId, { sourceRevision: true }) };
++  }));
++}
++
+ function replaceGateRow(text, heading, gate, update) {
+   const lines = text.split("\n");
+   const section = firstSection(lines, heading);
+--- before/packages/core/lib/control-state/run-seal.js
++++ candidate/packages/core/lib/control-state/run-seal.js
+@@ -1,6 +1,9 @@
+ import { APPROVAL_GATES } from "./run-identity.js";
+ import { approvalOperationsRecord, readApprovalOperations } from "./approval-operations.js";
+ import { readArtefactBindings } from "./artefact-bindings.js";
++import { readSourceRevisions } from "./run-source-revisions.js";
++import { validSourceRevisionHistories } from "./run-revision-history.js";
++import { canonicalJson } from "./approval-command-contract.js";
+ import { createHash } from "node:crypto";
+ import { readFileSync } from "node:fs";
+ import { basename, dirname } from "node:path";
+@@ -101,6 +104,8 @@
+ 
+ export function approvalSeal(content) {
+   const operations = approvalOperationsRecord(content);
++  const revisions = readSourceRevisions(content);
++  if (revisions.present) return sha256(["agdf-approval-seal/3", approvalRecord(content), operations ?? "", canonicalJson(revisions.receipts)].join("\n"));
+   return sha256(operations === null
+     ? ["agdf-approval-seal/1", approvalRecord(content)].join("\n")
+     : ["agdf-approval-seal/2", approvalRecord(content), operations].join("\n"));
+@@ -144,6 +149,7 @@
+   }
+   if (!readApprovalOperations(text).valid) return Object.freeze({ status: "invalid", recorded });
+   if (!readArtefactBindings(text).valid) return Object.freeze({ status: "invalid", recorded });
++  if (!validSourceRevisionHistories(root, text)) return Object.freeze({ status: "invalid", recorded });
+   const actual = computeRunSeals(root, text);
+   const status = actual.approval_seal !== recorded.approval_seal
+     ? "approvals_changed"
+--- before/packages/core/lib/control-state/run-source-revisions.js
++++ candidate/packages/core/lib/control-state/run-source-revisions.js
+@@ -0,0 +1,131 @@
++import { TextDecoder } from "node:util";
++import { canonicalJson, digest, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";
++import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
++import { isSafeControlRelativePath } from "./contained-file.js";
++import { parseControlState } from "./run-state-parser.js";
++import { APPROVAL_GATES } from "./run-identity.js";
++
++export const SOURCE_GATES = Object.freeze(["UR", "PRD", "SD", "TP"]);
++const uuid = value => typeof value === "string" && REVISION_ID_PATTERN.test(value);
++const hashes = value => typeof value === "string" && DIGEST_PATTERN.test(value);
++const fields = ["schema_version", "operation_id", "target_id", "run_id", "source_gate", "request_digest", "preview_digest", "previous_revision_id", "resulting_revision_id", "revision", "invalidated_bindings", "analyses", "retained_sources", "archive", "reason"];
++export const sourceRevisionDigest = value => digest(`agdf-source-revision/1\0${canonicalJson(value)}`);
++export const revisionHistoryPrefix = (runId, operationId) => `.agdf/control/runs/${runId}/revisions/${operationId}/`;
++
++export function sourceRevisionImpact(proposal, activeBindings) {
++  const index = SOURCE_GATES.indexOf(proposal.source_gate), affected = SOURCE_GATES.slice(index);
++  return { source_gate: proposal.source_gate, retained: SOURCE_GATES.slice(0, index), superseded: affected,
++    invalidated_bindings: activeBindings.filter(row => affected.includes(row.destination.type)).map(row => row.binding_id),
++    analyses: proposal.impact_assessment.analyses, invalidated_steps: ["Brownfield Analysis", "CD+Tests", "CR"],
++    retained_work: "Code and test files are retained; fulfillment and evidence require the renewed TP.",
++    next_gate: proposal.source_gate !== "UR" && proposal.impact_assessment.analyses.some(row => row.type === "Brownfield Review" && row.disposition === "reassess") ? "Brownfield Review" : proposal.source_gate,
++    implementation_authority: false };
++}
++
++export function validSourceRevision(row) {
++  if (!exactObject(row, fields) || row.schema_version !== "1" || !uuid(row.operation_id)
++      || !RUN_ID_PATTERN.test(row.run_id ?? "") || !SOURCE_GATES.includes(row.source_gate)
++      || ![row.target_id, row.request_digest, row.preview_digest].every(hashes)
++      || ![row.previous_revision_id, row.resulting_revision_id].every(uuid)
++      || row.previous_revision_id === row.resulting_revision_id
++      || !Number.isSafeInteger(row.revision) || row.revision < 2
++      || typeof row.reason !== "string" || !row.reason.trim() || row.reason.length > 4096
++      || !Array.isArray(row.invalidated_bindings) || !row.invalidated_bindings.every(uuid)
++      || new Set(row.invalidated_bindings).size !== row.invalidated_bindings.length
++      || !Array.isArray(row.analyses) || !row.analyses.every(item => exactObject(item, ["type", "disposition", "path", "digest", "reason"])
++        && ["Brownfield Review", "UX Intent Definition"].includes(item.type)
++        && ["retain", "reassess"].includes(item.disposition) && hashes(item.digest)
++        && isSafeControlRelativePath(item.path) && item.path.startsWith(`.agdf/control/artefacts/${row.run_id}/`)
++        && typeof item.reason === "string" && item.reason.trim() && item.reason.length <= 4096)
++      || new Set(row.analyses.map(item => item.type)).size !== row.analyses.length
++      || !Array.isArray(row.retained_sources) || row.retained_sources.length !== SOURCE_GATES.indexOf(row.source_gate)
++      || !row.retained_sources.every((item, i) => exactObject(item, ["type", "path", "digest", "rationale"])
++        && item.type === SOURCE_GATES[i] && item.path === `.agdf/control/artefacts/${row.run_id}/${item.type}.md`
++        && hashes(item.digest) && typeof item.rationale === "string" && item.rationale.trim() && item.rationale.length <= 4096)
++      || !exactObject(row.archive, ["path", "digest"]) || !hashes(row.archive.digest)
++      || row.archive.path !== `${revisionHistoryPrefix(row.run_id, row.operation_id)}manifest.json`) return false;
++  return row.source_gate !== "UR" || row.analyses.every(item => item.disposition === "reassess");
++}
++
++// This history is authority only as part of the sealed Run, never a second workflow store.
++export function readSourceRevisions(content) {
++  const lines = String(content).replace(/\r\n?/gu, "\n").split("\n");
++  const starts = lines.flatMap((line, i) => /^## Source Revisions\s*$/u.test(line) ? [i] : []);
++  if (!starts.length) return { present: false, valid: true, receipts: [] };
++  const invalid = () => ({ present: true, valid: false, receipts: [] });
++  if (starts.length !== 1) return invalid();
++  const start = starts[0]; let end = start + 1;
++  while (end < lines.length && !/^#{1,2} /u.test(lines[end])) end++;
++  const body = lines.slice(start + 1, end).map(line => line.trim()).filter(Boolean);
++  if (body[0] !== "- schema_version: 1" || body[1] !== "| operation_id | receipt_digest | receipt |"
++      || !/^\|[-:|\s]+\|$/u.test(body[2] ?? "")) return invalid();
++  const receipts = [], ids = new Set(), effects = new Set(); let revision = 1;
++  for (const line of body.slice(3)) {
++    const cells = line.match(/^\| ([^|]+) \| ([^|]+) \| ([A-Za-z0-9_-]+) \|$/u);
++    if (!cells || cells[3].length > 131072) return invalid();
++    try {
++      const bytes = Buffer.from(cells[3], "base64url");
++      const json = new TextDecoder("utf-8", { fatal: true }).decode(bytes), row = JSON.parse(json);
++      if (bytes.toString("base64url") !== cells[3] || canonicalJson(row) !== json || !validSourceRevision(row)
++          || row.operation_id !== cells[1] || sourceRevisionDigest(row) !== cells[2] || ids.has(row.operation_id)
++          || effects.has(row.resulting_revision_id) || row.revision <= revision) return invalid();
++      receipts.push(row); ids.add(row.operation_id); effects.add(row.resulting_revision_id); revision = row.revision;
++    } catch { return invalid(); }
++  }
++  return receipts.length ? { present: true, valid: true, receipts, start, end } : invalid();
++}
++
++export function appendSourceRevision(content, receipt) {
++  const history = readSourceRevisions(content);
++  if (!history.valid || !validSourceRevision(receipt)) throw Error("AGDF_SOURCE_REVISIONS_INVALID");
++  const block = ["## Source Revisions", "", "- schema_version: 1", "", "| operation_id | receipt_digest | receipt |", "|---|---|---|",
++    ...[...history.receipts, receipt].map(row => `| ${row.operation_id} | ${sourceRevisionDigest(row)} | ${Buffer.from(canonicalJson(row)).toString("base64url")} |`), ""];
++  const lines = String(content).split("\n");
++  const next = history.present ? [...lines.slice(0, history.start), ...block, ...lines.slice(history.end)].join("\n")
++    : `${String(content).trimEnd()}\n\n${block.join("\n")}`;
++  if (!readSourceRevisions(next).valid) throw Error("AGDF_SOURCE_REVISIONS_INVALID");
++  return next;
++}
++
++export function assertSourceRevisionsChange(before, after, appended) {
++  const old = readSourceRevisions(before), next = readSourceRevisions(after);
++  if (!old.valid || !next.valid || next.present !== (old.present || Boolean(appended))
++      || canonicalJson(next.receipts) !== canonicalJson(appended ? [...old.receipts, appended] : old.receipts)) {
++    throw Error("AGDF_SOURCE_REVISIONS_CHANGED");
++  }
++}
++
++export function bindingIsEffective(content, receipt) {
++  const history = readSourceRevisions(content);
++  return history.valid && !history.receipts.some(row => row.invalidated_bindings.includes(receipt.binding_id));
++}
++
++export function sourceRevisionObservation(content, unavailable = false) {
++  const history = readSourceRevisions(content);
++  if (!history.present) return null;
++  return { status: unavailable || !history.valid ? "unavailable" : "verified",
++    archive_authority: "historical_evidence_only", entries: history.receipts.map(row => ({
++      operation_id: row.operation_id, source_gate: row.source_gate, previous_revision_id: row.previous_revision_id,
++      resulting_revision_id: row.resulting_revision_id, archive: row.archive, superseded_sources: SOURCE_GATES.slice(SOURCE_GATES.indexOf(row.source_gate)),
++    })) };
++}
++
++export function validSourceRevisionEffect(before, after, receipt) {
++  const steps = ["Brownfield Review", "UX Intent Definition", "Brownfield Analysis", "CD+Tests", "CR", "Code Review", "TP Review", "Clean Review", "Clean Implementation Review"];
++  const state = text => parseControlState(text, { userGates: APPROVAL_GATES, internalSteps: steps });
++  const old = state(before), next = state(after), index = SOURCE_GATES.indexOf(receipt.source_gate);
++  return SOURCE_GATES.every((gate, i) => i < index
++    ? canonicalJson(next.approvals.get(gate)) === canonicalJson(old.approvals.get(gate))
++      && next.artefacts.get(gate)?.path === old.artefacts.get(gate)?.path && next.artefacts.get(gate)?.status === "approved"
++    : next.approvals.get(gate)?.status === "missing" && !next.approvals.get(gate)?.evidence
++      && next.artefacts.get(gate)?.status === "missing" && !next.artefacts.get(gate)?.path
++      && !next.artefact_chain.some(row => row.from === gate))
++    && ["QA", "UAT"].every(gate => canonicalJson(next.approvals.get(gate)) === canonicalJson(old.approvals.get(gate)))
++    && steps.filter(type => ["Brownfield Analysis", "CD+Tests", "CR"].includes(type) || old.artefacts.has(type) && !["Brownfield Review", "UX Intent Definition"].includes(type))
++      .every(type => next.artefacts.get(type)?.status === "missing" && !next.artefacts.get(type)?.path)
++    && receipt.analyses.every(row => row.disposition === "retain"
++      ? canonicalJson(old.artefacts.get(row.type)) === canonicalJson(next.artefacts.get(row.type))
++      : next.artefacts.get(row.type)?.status === "missing" && !next.artefacts.get(row.type)?.path)
++    && (receipt.source_gate !== "UR" && !receipt.analyses.some(row => row.type === "Brownfield Review" && row.disposition === "reassess")
++      || next.artefacts.get("Brownfield Review")?.status === "missing" && next.mode_slice_decision.decision === "undecided");
++}
+--- before/packages/core/lib/control-state/run-state-edits.js
++++ candidate/packages/core/lib/control-state/run-state-edits.js
+@@ -7,6 +7,9 @@
+ // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
+ // addressed section or table row and keep every other byte of the run state.
+ const WRITE_REJECTIONS = new Map([
++  ["AGDF_SOURCE_REVISIONS_INVALID", "source_revisions_invalid"],
++  ["AGDF_SOURCE_REVISIONS_CHANGED", "source_revisions_changed"],
++  ["AGDF_REVISION_HISTORY_INVALID", "revision_history_invalid"],
+   ["AGDF_CORRECTION_COMMIT_UNCONFIRMED", "correction_commit_unconfirmed"],
+   ["AGDF_ARTEFACT_RECORDING_GATE_INVALID", "artefact_recording_gate_invalid"],
+   ["AGDF_ARTEFACT_RECORDING_INPUT_INVALID", "artefact_recording_input_invalid"],
+--- before/packages/core/lib/control-state/run-state-parser.js
++++ candidate/packages/core/lib/control-state/run-state-parser.js
+@@ -1,5 +1,7 @@
+ import { readApprovalOperations } from "./approval-operations.js";
+ import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
++import { readSourceRevisions } from "./run-source-revisions.js";
++import { readArtefactBindings } from "./artefact-bindings.js";
+ 
+ export { RUN_ID_PATTERN } from "./run-identity.js";
+ export const LIFECYCLES = new Set([
+@@ -62,6 +64,17 @@
+       || (receipt.effect.revision === Number(values.get("revision")) && receipt.effect.resulting_revision_id !== values.get("revision_id")))) {
+     findings.push({ code: "AGDF_APPROVAL_OPERATIONS_INVALID" });
+   }
++  const revisions = readSourceRevisions(content);
++  const bindings = readArtefactBindings(content);
++  if (!revisions.valid || revisions.receipts.some(row => row.run_id !== id || row.revision > Number(values.get("revision"))
++      || operations.receipts.some(item => item.operation_id === row.operation_id
++        || item.effect.resulting_revision_id === row.resulting_revision_id || item.effect.revision === row.revision)
++      || bindings.receipts.some(item => item.operation.id === row.operation_id
++        || item.operation.resulting_revision_id === row.resulting_revision_id || item.operation.revision === row.revision)
++      || row.invalidated_bindings.some(bindingId => !bindings.receipts.some(item => item.binding_id === bindingId && item.operation.revision < row.revision))
++      || row.revision === Number(values.get("revision")) && row.resulting_revision_id !== values.get("revision_id"))) {
++    findings.push({ code: "AGDF_SOURCE_REVISIONS_INVALID" });
++  }
+   return {
+     content,
+     meta: Object.fromEntries(values),
+--- before/packages/core/lib/control-state/run-state-writer.js
++++ candidate/packages/core/lib/control-state/run-state-writer.js
+@@ -1,5 +1,7 @@
+ import { assertApprovalOperationsChange, readApprovalOperations, validApprovalReceipt } from "./approval-operations.js";
+ import { assertArtefactBindingsChange, validArtefactBinding } from "./artefact-bindings.js";
++import { assertSourceRevisionsChange, validSourceRevision, validSourceRevisionEffect } from "./run-source-revisions.js";
++import { validateRevisionHistory, archivedRunMatches } from "./run-revision-history.js";
+ import { randomUUID } from "node:crypto";
+ import {
+   closeSync,
+@@ -21,7 +23,7 @@
+ import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
+ import { closeoutArtefacts, internalStepArtefacts, userGateOrder } from "../control-evaluation/run-state.js";
+ 
+-function fsyncDirectory(path) {
++export function fsyncDirectory(path) {
+   if (process.platform === "win32") return;
+   const descriptor = openSync(path, "r");
+   try {
+@@ -184,7 +186,7 @@
+   return withOwnedFileLock(path, work, options);
+ }
+ 
+-export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, checkpoint } = {}) {
++export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, appendedRevision, checkpoint } = {}) {
+   const root = runRootFromStatePath(path);
+   if (!allowPendingTransaction && existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
+     throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
+@@ -206,6 +208,14 @@
+ 
+     assertApprovalOperationsChange(currentContent, content, appendedReceipt);
+     assertArtefactBindingsChange(currentContent, content, appendedBinding);
++    assertSourceRevisionsChange(currentContent, content, appendedRevision);
++    if (appendedRevision && (!allowApprovalChange || appendedReceipt || appendedBinding || !validateBeforeWrite
++        || !validSourceRevision(appendedRevision) || appendedRevision.run_id !== current.meta.run_id
++        || appendedRevision.previous_revision_id !== expectedRevisionId || appendedRevision.resulting_revision_id !== nextRevisionId
++        || appendedRevision.revision !== Number(current.meta.revision) + 1 || !validateRevisionHistory(root, appendedRevision)
++        || !archivedRunMatches(root, appendedRevision, currentContent) || !validSourceRevisionEffect(currentContent, content, appendedRevision))) {
++      throw Error("AGDF_SOURCE_REVISIONS_INVALID");
++    }
+     if (appendedBinding && (!validArtefactBinding(appendedBinding) || allowApprovalChange
+         || appendedBinding.run_id !== current.meta.run_id || appendedBinding.operation.previous_revision_id !== expectedRevisionId
+         || appendedBinding.operation.resulting_revision_id !== nextRevisionId
+--- before/packages/core/lib/control-state/run-step-transaction.js
++++ candidate/packages/core/lib/control-state/run-step-transaction.js
+@@ -1,10 +1,17 @@
+ import { createHash, randomUUID } from "node:crypto";
+-import { existsSync, lstatSync, readFileSync, unlinkSync } from "node:fs";
++import { existsSync, lstatSync, readFileSync, unlinkSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+ import { dirname, join } from "node:path";
+ import { parseRunState } from "./run-state-parser.js";
+ import { artefactFileDigest, listedArtefactPaths, runSealState } from "./run-seal.js";
+ import { atomicWrite, withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
+ import { pendingRunStepPath } from "./run-step-pending.js";
++import { readSourceRevisions, revisionHistoryPrefix } from "./run-source-revisions.js";
++import { REVISION_ID_PATTERN } from "./run-identity.js";
++import { DIGEST_PATTERN, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
++import { byteDigest, readHistoryBytes, validateRevisionHistory } from "./run-revision-history.js";
++import { hasSymlinkComponent, isSafeControlRelativePath } from "./contained-file.js";
++import { renameSyncWithRetry } from "../fs-swap.js";
++import { fsyncDirectory } from "./run-state-writer.js";
+ 
+ const digest = (value) => createHash("sha256").update(value, "utf8").digest("hex");
+ 
+@@ -25,21 +32,94 @@
+ function journalState(root, runId) {
+   const path = pendingRunStepPath(root, runId);
+   let journal;
+-  try { journal = JSON.parse(readFileSync(path, "utf8")); } catch { throw recoveryError(runId); }
+-  if (journal?.schema_version !== 1 || journal.run_id !== runId
++  try {
++    if (hasSymlinkComponent(root, `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`)) throw recoveryError(runId);
++    journal = JSON.parse(checkedFile(path));
++  } catch { throw recoveryError(runId); }
++  if (![1, 2].includes(journal?.schema_version) || journal.run_id !== runId
+       || typeof journal.old_run_digest !== "string" || typeof journal.old_revision_id !== "string"
+       || typeof journal.next_revision_id !== "string" || typeof journal.operation_id !== "string"
+       || (journal.backlog !== null && (typeof journal.backlog?.old !== "string" || typeof journal.backlog?.next !== "string"))
+       || (journal.or !== null && (journal.or?.old !== null && typeof journal.or?.old !== "string"
+         || typeof journal.or?.next !== "string"))) throw recoveryError(runId);
++  if (journal.schema_version === 2 && (!exactObject(journal, ["schema_version", "run_id", "operation_id", "old_revision_id", "next_revision_id", "old_run_digest", "backlog", "or", "kind", "target_id", "request_digest", "preview_digest", "archive"])
++      || journal.kind !== "source_revision" || journal.or !== null
++      || ![journal.operation_id, journal.old_revision_id, journal.next_revision_id].every(value => REVISION_ID_PATTERN.test(value))
++      || !/^[a-f0-9]{64}$/u.test(journal.old_run_digest)
++      || journal.target_id !== resolveControlCommandTarget(root).target_id
++      || ![journal.request_digest, journal.preview_digest].every(value => DIGEST_PATTERN.test(value))
++      || !exactObject(journal.archive, ["path", "digest", "files", "sources"])
++      || journal.archive.path !== `${revisionHistoryPrefix(runId, journal.operation_id)}manifest.json`
++      || !DIGEST_PATTERN.test(journal.archive.digest)
++      || !Array.isArray(journal.archive.files) || !journal.archive.files.length
++      || journal.archive.files.some((name, i) => name !== `${i}.bin`)
++      || !Array.isArray(journal.archive.sources) || journal.archive.sources.length !== journal.archive.files.length
++      || journal.archive.sources.some(row => !exactObject(row, ["path", "digest"]) || !isSafeControlRelativePath(row.path)
++        || !row.path.startsWith(".agdf/control/") || !DIGEST_PATTERN.test(row.digest))
++      || new Set(journal.archive.sources.map(row => row.path)).size !== journal.archive.sources.length)) throw recoveryError(runId);
+   return { path, journal };
+ }
+ 
++// A journal embeds both Backlog versions; it is not an artefact JSON input. Keep its
++// own strict transaction schema and contained-path checks for revision observations.
++export function readPendingSourceRevisionJournal(root, runId) {
++  const { journal } = journalState(root, runId);
++  if (journal.schema_version !== 2) throw recoveryError(runId);
++  return journal;
++}
++
++function archiveDirectories(root, journal) {
++  const final = revisionHistoryPrefix(journal.run_id, journal.operation_id).slice(0, -1);
++  const stage = `${final}.pending`;
++  if (hasSymlinkComponent(root, final) || hasSymlinkComponent(root, stage)) throw recoveryError(journal.run_id);
++  return { final: join(root, final), stage: join(root, stage) };
++}
++
++function discardOwnedArchive(root, journal) {
++  const dirs = archiveDirectories(root, journal);
++  for (const dir of [dirs.stage, dirs.final]) {
++    if (!existsSync(dir)) continue;
++    if (!lstatSync(dir).isDirectory() || lstatSync(dir).isSymbolicLink()) throw recoveryError(journal.run_id);
++    const marker = checkedFile(join(dir, "OWNER.json"));
++    if (marker !== JSON.stringify({ operation_id: journal.operation_id, manifest_digest: journal.archive.digest }) + "\n") throw recoveryError(journal.run_id);
++    // Only the exact owned paths in the journal may be removed, never foreign additions.
++    const allowed = new Set(["OWNER.json", "manifest.json", "files"]);
++    if (readdirSync(dir).some(name => !allowed.has(name))) throw recoveryError(journal.run_id);
++    if (existsSync(join(dir, "manifest.json")) && byteDigest(Buffer.from(checkedFile(join(dir, "manifest.json")))) !== journal.archive.digest) throw recoveryError(journal.run_id);
++    const filesDir = join(dir, "files");
++    if (existsSync(filesDir) && (!lstatSync(filesDir).isDirectory() || lstatSync(filesDir).isSymbolicLink()
++        || readdirSync(filesDir).some(name => !journal.archive.files.includes(name) || !lstatSync(join(filesDir, name)).isFile() || lstatSync(join(filesDir, name)).isSymbolicLink()
++          || byteDigest(readFileSync(join(filesDir, name))) !== journal.archive.sources[journal.archive.files.indexOf(name)].digest))) throw recoveryError(journal.run_id);
++    rmSync(dir, { recursive: true }); fsyncDirectory(dirname(dir));
++  }
++}
++
++function publishArchive(root, journal, history, afterWrite) {
++  const dirs = archiveDirectories(root, journal);
++  if (existsSync(dirs.final) || existsSync(dirs.stage)) throw recoveryError(journal.run_id);
++  mkdirSync(dirname(dirs.final), { recursive: true });
++  mkdirSync(dirs.stage);
++  // Marker is the first owned file. An interruption before it exists remains unknown, not deleted.
++  atomicWrite(join(dirs.stage, "OWNER.json"), JSON.stringify({ operation_id: journal.operation_id, manifest_digest: journal.archive.digest }) + "\n");
++  mkdirSync(join(dirs.stage, "files")); afterWrite("archive_intent");
++  for (const file of history.files) {
++    if (byteDigest(readHistoryBytes(root, file.path)) !== file.digest) throw Error("AGDF_STALE_RUN_REVISION");
++    atomicWrite(join(dirs.stage, "files", file.snapshot.split("/").at(-1)), file.bytes,
++      { checkpoint: stage => afterWrite(`archive_${stage}`) });
++    afterWrite("archive_file");
++  }
++  atomicWrite(join(dirs.stage, "manifest.json"), history.text);
++  fsyncDirectory(join(dirs.stage, "files")); fsyncDirectory(dirs.stage);
++  afterWrite("archive_synced"); renameSyncWithRetry(dirs.stage, dirs.final);
++  fsyncDirectory(dirname(dirs.final)); afterWrite("archive_published");
++}
++
+ // Called only while the selected Run lock and then the shared Backlog lock are held.
+-export function recoverPendingRunStepLocked(root, runId) {
++export function recoverPendingRunStepLocked(root, runId, { sourceRevision = false } = {}) {
+   const path = pendingRunStepPath(root, runId);
+   if (!existsSync(path)) return { status: "none" };
+   const { journal } = journalState(root, runId);
++  if (journal.schema_version === 2 && !sourceRevision) throw recoveryError(runId);
+   const runPath = join(dirname(path), "RUN_STATE.md");
+   const backlogPath = join(root, ".agdf", "control", "MASTER_BACKLOG.md");
+   const orPath = join(root, ".agdf", "control", "artefacts", runId, "OR.md");
+@@ -51,7 +131,12 @@
+   if (digest(runText) === journal.old_run_digest) {
+     const current = parseRunState(runText, runId);
+     if (!current.valid || current.meta.revision_id !== journal.old_revision_id
++        || journal.schema_version === 2 && runSealState(root, runText).status !== "valid"
+         || (journal.backlog && backlogText !== journal.backlog.old)) throw recoveryError(runId);
++    if (journal.schema_version === 2) {
++      if (journal.archive.sources.some(row => byteDigest(readHistoryBytes(root, row.path)) !== row.digest)) throw recoveryError(runId);
++      discardOwnedArchive(root, journal);
++    }
+     if (journal.or) {
+       if (orText !== journal.or.next && orText !== journal.or.old) throw recoveryError(runId);
+       if (orText === journal.or.next) {
+@@ -60,6 +145,7 @@
+       }
+     }
+     unlinkSync(path);
++    if (journal.schema_version === 2) fsyncDirectory(dirname(path));
+     return { status: "rolled_back", operation_id: journal.operation_id };
+   }
+ 
+@@ -67,11 +153,19 @@
+   if (!committed.valid || committed.meta.revision_id !== journal.next_revision_id
+       || runSealState(root, runText).status !== "valid"
+       || (journal.or && orText !== journal.or.next)) throw recoveryError(runId);
++  if (journal.schema_version === 2) {
++    const receipt = readSourceRevisions(runText).receipts.find(row => row.operation_id === journal.operation_id);
++    if (!receipt || receipt.archive.digest !== journal.archive.digest || receipt.target_id !== journal.target_id
++        || receipt.previous_revision_id !== journal.old_revision_id || receipt.resulting_revision_id !== journal.next_revision_id
++        || receipt.request_digest !== journal.request_digest || receipt.preview_digest !== journal.preview_digest
++        || !validateRevisionHistory(root, receipt)) throw recoveryError(runId);
++  }
+   if (journal.backlog) {
+     if (backlogText !== journal.backlog.old && backlogText !== journal.backlog.next) throw recoveryError(runId);
+     if (backlogText === journal.backlog.old) atomicWrite(backlogPath, journal.backlog.next);
+   }
+   unlinkSync(path);
++  if (journal.schema_version === 2) fsyncDirectory(dirname(path));
+   return { status: "completed", operation_id: journal.operation_id, revision_id: journal.next_revision_id };
+ }
+ 
+@@ -84,7 +178,7 @@
+ 
+ // Called only with both locks held. The Run revision is the commit point; the journal lets a
+ // retry restore OR before it or finish Backlog after it without inventing another authority.
+-export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, backlog, or, afterWrite = () => {}, nextRevisionId = randomUUID(), writeOptions = {} }) {
++export function commitRunStepLocked(root, { runId, runPath, content, revisionId, expectedContent, backlog, or, afterWrite = () => {}, nextRevisionId = randomUUID(), writeOptions = {}, history }) {
+   const path = pendingRunStepPath(root, runId);
+   if (existsSync(path)) throw recoveryError(runId);
+   const backlogPath = join(root, ".agdf", "control", "MASTER_BACKLOG.md");
+@@ -98,25 +192,38 @@
+     [artefact, artefactFileDigest(root, artefact)]);
+   const oldOr = or ? checkedFile(orPath) : null;
+   const journal = {
+-    schema_version: 1,
++    schema_version: history ? 2 : 1,
+     run_id: runId,
+-    operation_id: randomUUID(),
++    operation_id: history ? writeOptions.appendedRevision.operation_id : randomUUID(),
+     old_revision_id: revisionId,
+     next_revision_id: nextRevisionId,
+     old_run_digest: digest(expectedContent),
+     backlog: backlog ? { old: backlog.old, next: backlog.next } : null,
+     or: or ? { old: oldOr, next: or } : null,
+   };
+-  atomicWrite(path, `${JSON.stringify(journal)}\n`);
++  if (history) {
++    journal.kind = "source_revision";
++    journal.target_id = writeOptions.appendedRevision.target_id;
++    journal.request_digest = writeOptions.appendedRevision.request_digest;
++    journal.preview_digest = writeOptions.appendedRevision.preview_digest;
++    journal.archive = { ...writeOptions.appendedRevision.archive,
++      files: history.files.map(file => file.snapshot.split("/").at(-1)), sources: history.files.map(({ path, digest }) => ({ path, digest })) };
++    // A pre-existing directory is not owned by this transaction, even with the same UUID.
++    const dirs = archiveDirectories(root, journal);
++    if (existsSync(dirs.final) || existsSync(dirs.stage)) throw Error("AGDF_REVISION_HISTORY_INVALID");
++  }
+   let committed = false;
+   try {
++    atomicWrite(path, `${JSON.stringify(journal)}\n`, history ? { checkpoint: stage => afterWrite(`intent_${stage}`) } : {});
+     afterWrite("intent");
++    if (history) publishArchive(root, journal, history, afterWrite);
+     if (or) {
+       atomicWrite(orPath, or);
+       afterWrite("or");
+     }
+     const state = writeRunLocked(runPath, content, revisionId, {
+       ...writeOptions,
++      ...(history ? { checkpoint: stage => afterWrite(`run_${stage}`) } : {}),
+       expectedContent, nextRevisionId, allowPendingTransaction: true, allowContentChange: true,
+       validateBeforeWrite: () => {
+         writeOptions.validateBeforeWrite?.();
+@@ -132,16 +239,18 @@
+     afterWrite("run");
+     if (backlog) {
+       if (checkedFile(backlogPath) !== backlog.old) throw recoveryError(runId);
+-      atomicWrite(backlogPath, backlog.next);
++      atomicWrite(backlogPath, backlog.next, history ? { checkpoint: stage => afterWrite(`backlog_${stage}`) } : {});
+       afterWrite("backlog");
+     }
+-    const recovered = recoverPendingRunStepLocked(root, runId);
++    const recovered = recoverPendingRunStepLocked(root, runId, { sourceRevision: Boolean(history) });
+     if (recovered.status !== "completed") throw recoveryError(runId);
++    if (history) afterWrite("retired");
+     return state;
+   } catch (error) {
+     // Atomic rename can commit before a durability checkpoint throws. Re-read the commit point;
+     // retain its journal for existing recovery rather than claiming a pre-commit rollback.
+     if (!committed) {
++      if (!existsSync(path)) throw error;
+       try {
+         const current = checkedFile(runPath);
+         committed = current !== null && parseRunState(current, runId).meta?.revision_id === nextRevisionId
+@@ -150,7 +259,7 @@
+     }
+     if (!committed) {
+       try {
+-        const recovered = recoverPendingRunStepLocked(root, runId);
++        const recovered = recoverPendingRunStepLocked(root, runId, { sourceRevision: Boolean(history) });
+         if (recovered.status === "rolled_back") throw error;
+       } catch (recoveryFailure) {
+         if (recoveryFailure === error) throw error;
+--- before/packages/core/lib/interaction-presentation.js
++++ candidate/packages/core/lib/interaction-presentation.js
+@@ -96,7 +96,8 @@
+         continue;
+       }
+       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
+-      const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
++      const budget = key.startsWith("sourceRevision.") ? budgets.description
++        : key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
+         : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+           ? budgets.description
+           : budgets.label;
+@@ -1218,5 +1219,28 @@
+     lines.push("", copy.findingsDescription, "",
+       ...report.findings.map((finding) => `- \`${safe(finding.code)}\`${finding.run_id ? ` · \`${safe(finding.run_id)}\`` : ""}`));
+   }
++  return { markdown: lines.join("\n"), authorizes: false };
++}
++
++// Lifecycle observations never act as a gate approval or an implementation grant.
++export function renderSourceRevision(result, registry, language, input = {}) {
++  const copy = localePack(registry, language).sourceRevision;
++  if (!copy) throw Error("source_revision_copy_missing");
++  const outcomes = ["preview", "reopened", "historical", "replayed", "recovered", "recovery_required", "rejected", "not_found"];
++  const outcome = outcomes.includes(result?.outcome) ? result.outcome : "rejected";
++  const safe = value => String(value ?? copy.none).replace(/[\r\n`|]/gu, " ");
++  const row = result?.history?.receipt;
++  const identity = { target: result?.target_id ?? row?.target_id ?? input.target,
++    run: result?.run_id ?? input.runId, operation: result?.operation_id ?? input.operationId,
++    revision: result?.current_revision_id ?? result?.revision_id ?? result?.expected_revision_id ?? input.revisionId };
++  const lines = [`${copy.title}: ${copy[outcome]}`, "", ...Object.entries(identity).map(([key, value]) => `${copy[key]}: ${safe(value)}`)];
++  if (result?.resulting_revision_id || row) lines.push(`${copy.original}: ${safe(result?.resulting_revision_id ?? row.resulting_revision_id)}`);
++  if (result?.impact) lines.push(`${copy.source}: ${safe(result.impact.source_gate)}`,
++    `${copy.retained}: ${safe(result.impact.retained.join(", ") || copy.none)}`,
++    `${copy.superseded}: ${safe(result.impact.superseded.join(", "))}`);
++  if (result?.reason) lines.push(`${copy.reason}: ${safe(result.reason)}`);
++  const next = outcome === "preview" ? copy.reviewNext : outcome === "recovery_required" ? copy.recoverNext
++    : ["rejected", "not_found"].includes(outcome) ? copy.refuseNext : copy.readNext;
++  lines.push("", copy.authority, "", `${copy.next}: ${next}`);
+   return { markdown: lines.join("\n"), authorizes: false };
+ }
+--- before/packages/core/lib/skill-dispatch/contract.js
++++ candidate/packages/core/lib/skill-dispatch/contract.js
+@@ -132,7 +132,7 @@
+ export function skillDispatchArgumentGrammar() {
+   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
+     .map((choice) => choice.const).join("|");
+-  return `--skill <id> --language <tag> --working-directory <abs> [--target-source <${targetSources}> --primary-target <abs>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]`;
++  return `--skill <id> --language <lc> --working-directory <abs> [--target-source ${targetSources} --primary-target <abs>] [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]`;
+ }
+ 
+ export function skillDispatchCommandGrammar() {
+--- before/packages/core/lib/skill-dispatch/prd-definition.js
++++ candidate/packages/core/lib/skill-dispatch/prd-definition.js
+@@ -3,6 +3,7 @@
+ // Pure routing over already evaluated control and contained source facts; never a writer or gate.
+ export function prdDefinitionPhase(targetDir, control, input, sources) {
+   const state = control?.status_card?.runState;
++  if (control?.next_operation?.type === "reassess_source_analysis") return null;
+   if (input.ur_action !== undefined || input.sd_action !== undefined || !input.run_id || control?.status_card?.run_id !== input.run_id || !state || !sources
+       || control.current_gate !== "PRD" || !["open", "blocked"].includes(control.status)
+       || !["none", "Approval: PRD"].includes(control.missing_approval)
+--- before/packages/core/lib/skill-dispatch/sd-definition.js
++++ candidate/packages/core/lib/skill-dispatch/sd-definition.js
+@@ -3,6 +3,7 @@
+ // Pure assignment over evaluated state and checked source facts; no writer or approval.
+ export function sdDefinitionPhase(targetDir, control, input, sources) {
+   const state = control?.status_card?.runState;
++  if (control?.next_operation?.type === "reassess_source_analysis") return null;
+   if (input.ur_action !== undefined || input.prd_action !== undefined || !input.run_id
+       || control?.status_card?.run_id !== input.run_id || !state || !sources
+       || control.current_gate !== "SD" || !["open", "blocked"].includes(control.status)
+--- before/packages/core/lib/skill-dispatch/service.js
++++ candidate/packages/core/lib/skill-dispatch/service.js
+@@ -195,6 +195,7 @@
+     run_id: report.status_card?.run_id ?? null,
+     revision_id: report.approval_presentation?.revision_id ?? extractField(report.status_card?.runState?.content ?? "", "revision_id") ?? null,
+     doctor_status: report.doctor_status,
++    ...(report.source_revisions ? { source_revisions: report.source_revisions } : {}),
+     ...(report.relationship_correction ? { relationship_correction: report.relationship_correction } : {}),
+     ...(includeCandidateRuns ? { candidate_runs: candidateRunsSnapshot(report) } : {}),
+   });
+@@ -507,6 +508,19 @@
+         });
+         timing.total_ms = round(milliseconds(started, now()));
+         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
++        return bindHostAction(result);
++      }
++      if (input.continue_delivery && control.status === "open" && control.next_operation?.type === "reassess_source_analysis") {
++        const owner = control.next_operation.skill_id;
++        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
++        result.target = target; result.control = controlSnapshot(control);
++        result.continuation = Object.freeze({ phase: "source_analysis_reassessment", skill_id: owner,
++          governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
++          presentation_language: input.presentation_language,
++          instruction: "Use the existing analytical owner under the current approved UR. Persist the renewed analysis in this bound Run before dependent source authoring, then redispatch gate-check for the same target/run. Do not change approved product intent or infer implementation authority.",
++          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
++        });
++        timing.total_ms = round(milliseconds(started, now()));
+         return bindHostAction(result);
+       }
+       if (input.continue_delivery && control.next_operation?.type === "prepare_gate_artifact") {
+--- before/packages/core/test/run-source-revisions-test.js
++++ candidate/packages/core/test/run-source-revisions-test.js
+@@ -0,0 +1,261 @@
++import assert from "node:assert/strict";
++import { randomUUID } from "node:crypto";
++import { execFileSync, spawn } from "node:child_process";
++import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
++import { tmpdir } from "node:os";
++import { join, resolve } from "node:path";
++import { createLateSourceRevisionTestRun } from "../../cli/scripts/fixtures/late-source-revision.js";
++import { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "../lib/control-state/run-revision.js";
++import { readSourceRevisions, revisionHistoryPrefix } from "../lib/control-state/run-source-revisions.js";
++import { readApprovalOperations } from "../lib/control-state/approval-operations.js";
++import { readArtefactBindings } from "../lib/control-state/artefact-bindings.js";
++import { validateRevisionHistory, byteDigest } from "../lib/control-state/run-revision-history.js";
++import { runSealState, sealRunState } from "../lib/control-state/run-seal.js";
++import { validateBindingProof, exactApprovedArtefacts } from "../lib/control-state/artefact-binding-proof.js";
++import { evaluateGateCheck } from "../lib/control-evaluation/gate-check.js";
++import { recordRunRevision } from "../lib/control-state/run-recording.js";
++import { writeRun } from "../lib/control-state/run-state-writer.js";
++import { upsertTableRow } from "../lib/control-state/run-state-edits.js";
++import { createCoreServices } from "../lib/index.js";
++import { correctRunRelationship } from "../lib/control-state/run-relationship-correction.js";
++
++const temporary = mkdtempSync(join(tmpdir(), "agdf-source-revisions-")), root = join(temporary, "project");
++const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
++mkdirSync(root); execFileSync("git", ["init", "-q", root]);
++execFileSync(process.execPath, [cli, "init", "--dir", root, "--language", "en"]);
++const f = createLateSourceRevisionTestRun(root, cli, "late-source-test", process.env, { tpEncoding: "crlf_bom" }), seed = join(temporary, "canonical-seed");
++writeFileSync(join(root, "retained-filter.mjs"), `export function filterStore() {
++  const saved = new Map(), key = (user, name) => JSON.stringify([user, name]);
++  return { save(user, name, value) { saved.set(key(user, name), structuredClone(value)); },
++    restore(user, name) { return structuredClone(saved.get(key(user, name))); } };
++}\n`);
++writeFileSync(join(root, "retained-filter-test.mjs"), `import assert from 'node:assert/strict';
++import {readFileSync} from 'node:fs'; import {createHash} from 'node:crypto';
++import {filterStore} from './retained-filter.mjs';
++const tp=readFileSync(process.argv[2]); const digest=createHash('sha256').update(tp).digest('hex');
++assert.equal(digest,process.argv[3]); assert.match(tp.toString(),/AC-001/);assert.match(tp.toString(),/T-001/);
++const store=filterStore(), original={status:['open'],minimum:10};store.save('owner','named',original);
++original.status.push('changed');assert.deepEqual(store.restore('owner','named'),{status:['open'],minimum:10});
++assert.equal(store.restore('different-owner','named'),undefined);
++console.log(JSON.stringify({tp_digest:digest,criterion_id:'AC-001',task_id:'T-001',outcome:'pass',fixture_authority:'synthetic_only'}));\n`);
++const code = readFileSync(join(root, "retained-filter.mjs")), retainedTest = readFileSync(join(root, "retained-filter-test.mjs"));
++cpSync(join(root, ".agdf"), seed, { recursive: true });
++const originalRevision = f.revision(), evidence = [], observations = [], gates = ["UR", "PRD", "SD", "TP"];
++const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
++const tree = () => {
++  const result = {};
++  const scan = dir => readdirSync(dir, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name)).forEach(entry => {
++    const path = join(dir, entry.name); if (entry.isDirectory()) scan(path); else if (entry.isFile()) result[path.slice(root.length)] = byteDigest(readFileSync(path));
++    else result[path.slice(root.length)] = "nonregular";
++  }); scan(join(root, ".agdf")); return result;
++};
++const passed = (ids, facts) => ids.forEach(scenario_id => evidence.push({ scenario_id, status: "pass", facts, run_id: f.runId,
++  module_digest: byteDigest(readFileSync(new URL("../lib/control-state/run-revision.js", import.meta.url))), observations: [...observations], fixture_authority: "synthetic_only" }));
++const prepare = (gate = "TP", analyses = "retain") => {
++  const p = f.proposal(gate, analyses), v = previewSourceRevision(root, p.input);
++  assert.equal(v.outcome, "preview", JSON.stringify({ result: v, gates: gates.map(gate => ({ gate, exact: exactApprovedArtefacts(root, { ...f.control(), content: f.readState().content, meta: f.readState().meta, approvals: new Map([[gate, f.control().approvals.get(gate)]]) }),
++    effects: readApprovalOperations(f.readState().content).receipts.filter(row => row.binding.gate === gate).map(row => row.effect) })),
++    bindings: readArtefactBindings(f.readState().content).active.map(row => ({ type: row.destination.type, valid: validateBindingProof(root, row) })) }));
++  return { ...p, preview: v, input: { ...p.input, previewDigest: v.preview_digest } };
++};
++const renew = gate => {
++  if (gate === "UR") {
++    writeFileSync(f.file("UR.md"), readFileSync(f.file("UR.md"), "utf8") + "\nSynthetic renewed requirement explanation.\n");
++    assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "ur", "--title", "Renewed synthetic UR").value.outcome, "recorded");
++    f.approveSource("UR"); assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "Brownfield Review");
++    writeFileSync(f.file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\nFresh synthetic routing under renewed UR.\n- ux_intent_definition_required: no\n");
++    assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "route", "--route", "structured_delivery", "--reason", "Fresh synthetic review", "--evidence", f.prefix + "BROWNFIELD_REVIEW.md").value.outcome, "recorded");
++  }
++  for (const type of gates.slice(Math.max(1, gates.indexOf(gate)))) {
++    writeFileSync(f.file(`${type}.md`), readFileSync(f.file(`${type}.md`), "utf8") + `\nRenewed synthetic ${type} source explanation.\n`);
++    f.recordSource(type); f.approveSource(type);
++  }
++  assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "Brownfield Analysis");
++  assert.equal(f.control().artefacts.get("CD+Tests")?.status, "missing");
++  const expected = byteDigest(readFileSync(f.file("TP.md"))).slice("sha256:".length);
++  const freshCheck = JSON.parse(execFileSync(process.execPath, [join(root, "retained-filter-test.mjs"), f.file("TP.md"), expected]).toString());
++  observations.push({ service: "actual retained filter behavior test under freshly approved fixture TP", run_id: f.runId,
++    revision_id: f.revision(), ...freshCheck, code_digest: byteDigest(code), test_digest: byteDigest(retainedTest) });
++  assert.deepEqual(readFileSync(join(root, "retained-filter-test.mjs")), retainedTest);
++  f.prepareImplementation(); assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "CD+Tests");
++};
++const worker = (input, stage) => new Promise((resolvePromise, reject) => {
++  const program = `import {applySourceRevision} from ${JSON.stringify(new URL("../lib/control-state/run-revision.js", import.meta.url).href)};
++    const result=applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(point){if(point===process.argv[3])process.exit(71)}});console.log(JSON.stringify(result));`;
++  const child = spawn(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify(input), stage ?? ""]);
++  let stdout = "", stderr = ""; child.stdout.on("data", data => stdout += data); child.stderr.on("data", data => stderr += data);
++  child.on("error", reject); child.on("exit", code => resolvePromise({ code, value: stdout ? JSON.parse(stdout) : null, stderr }));
++});
++
++try {
++  for (const gate of gates) {
++    reset(); const p = prepare(gate), before = tree(), old = f.readState().content;
++    assert.deepEqual(previewSourceRevision(root, p.input), p.preview); assert.deepEqual(tree(), before);
++    const oldApproval = readApprovalOperations(old).receipts, oldBindings = readArtefactBindings(old).receipts;
++    const result = applySourceRevision(root, p.input); assert.equal(result.outcome, "reopened", JSON.stringify(result)); assert.equal(result.gate, gate);
++    const current = f.readState().content, history = readSourceRevisions(current);
++    assert.equal(history.valid, true); assert.equal(validateRevisionHistory(root, history.receipts[0]), true);
++    assert.equal(runSealState(root, current).status, "valid");
++    assert.deepEqual(readApprovalOperations(current).receipts, oldApproval); assert.deepEqual(readArtefactBindings(current).receipts, oldBindings);
++    for (const type of gates) {
++      const upstream = gates.indexOf(type) < gates.indexOf(gate), c = f.control();
++      assert.equal(c.approvals.get(type).status, upstream ? "approved" : "missing");
++      assert.equal(Boolean(c.artefacts.get(type).path), upstream); assert.equal(existsSync(f.file(`${type}.md`)), true);
++    }
++    const report = evaluateGateCheck(root, { runId: f.runId }); assert.equal(report.current_gate, gate);
++    assert.equal(report.approval_presentation, null); assert.equal(report.missing_approval, `Approval: ${gate}`);
++    assert.ok(!readArtefactBindings(current).active.some(row => history.receipts[0].invalidated_bindings.includes(row.binding_id)));
++    assert.notEqual(correctRunRelationship(root, { runId: f.runId, revisionId: f.revision() }, { evaluateGateCheck }).outcome, "corrected", "Historical incoming proof cannot reconstruct a reopened source relation");
++    observations.push({ gate, operation_id: p.input.operationId, previous_revision_id: p.input.revisionId, resulting_revision_id: result.revision_id,
++      service: "previewSourceRevision/applySourceRevision/evaluateGateCheck/correctRunRelationship", before: byteDigest(Buffer.from(JSON.stringify(before))), after: byteDigest(Buffer.from(JSON.stringify(tree()))), outcome: result.outcome });
++    const oldId = oldApproval.at(-1).binding.presentation_id;
++    assert.equal(f.approve("TP", oldId).value.outcome, "rejected");
++    const replayBefore = tree(); assert.equal(applySourceRevision(root, p.input).outcome, "replayed"); assert.deepEqual(tree(), replayBefore);
++    assert.equal(applySourceRevision(root, { ...p.input, previewDigest: byteDigest(Buffer.from("wrong")) }).outcome, "rejected");
++    renew(gate); assert.equal(validateRevisionHistory(root, history.receipts[0]), true, "historical proofs survive canonical replacement");
++    assert.deepEqual(readFileSync(join(root, "retained-filter.mjs")), code);
++    const replay = applySourceRevision(root, p.input); assert.equal(replay.outcome, "replayed");
++    assert.notEqual(replay.resulting_revision_id, replay.current_revision_id);
++    assert.equal(inspectSourceRevision(root, p.input).history.authority, "historical_evidence_only");
++    assert.equal(readArtefactBindings(f.readState().content).active.length, 3);
++  }
++  passed(["SCN-001", "SCN-003", "SCN-004", "SCN-005", "SCN-007", "SCN-008", "SCN-011", "SCN-012", "SCN-013", "SCN-014"], "All four real canonical source renewal paths; exact upstream approval matrix, preserved history, fresh preparation and synthetic replies.");
++
++  reset(); writeFileSync(f.state, "\ufeff" + f.readState().content.replace(/\n/gu, "\r\n"));
++  const raw = readFileSync(f.state), tpRaw = readFileSync(f.file("TP.md"));
++  const input = f.proposal("TP"); input.input.revisionId = originalRevision; input.value.expected_revision_id = originalRevision;
++  writeFileSync(join(root, input.input.evidence), JSON.stringify(input.value));
++  const preview = previewSourceRevision(root, input.input); assert.equal(preview.outcome, "preview", JSON.stringify(preview));
++  assert.equal(applySourceRevision(root, { ...input.input, previewDigest: preview.preview_digest }).outcome, "reopened");
++  const inspected = inspectSourceRevision(root, input.input), rows = inspected.history.manifest.files;
++  assert.deepEqual(readFileSync(join(root, rows.find(row => row.path.endsWith("/RUN_STATE.md")).snapshot)), raw);
++  assert.deepEqual(readFileSync(join(root, rows.find(row => row.path === f.prefix + "TP.md").snapshot)), tpRaw);
++  renew("TP"); assert.equal(validateRevisionHistory(root, inspected.history.receipt), true);
++  const second = prepare("SD"); assert.equal(applySourceRevision(root, second.input).outcome, "reopened"); renew("SD");
++  const histories = readSourceRevisions(f.readState().content).receipts; assert.equal(histories.length, 2);
++  assert.ok(histories.every(row => validateRevisionHistory(root, row)));
++  assert.ok(inspectSourceRevision(root, second.input).history.manifest.files.every(row => !row.path.includes("/revisions/")));
++  passed(["SCN-018"], "Two renewed revisions; raw CRLF/BOM bytes preserved; no recursively copied archive trees.");
++
++  reset(); const reassessment = prepare("SD", "reassess"); assert.equal(applySourceRevision(root, reassessment.input).gate, "Brownfield Review");
++  assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, "Brownfield Review");
++  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "artefact", "--gate", "SD", "--evidence", reassessment.input.evidence).value.outcome, "rejected");
++  writeFileSync(f.file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\nFresh synthetic reassessment\n- ux_intent_definition_required: yes\n");
++  assert.equal(f.run("run-step", "--revision", f.revision(), "--step", "route", "--route", "structured_delivery", "--reason", "Reassessment under retained UR", "--evidence", f.prefix + "BROWNFIELD_REVIEW.md").value.outcome, "recorded");
++  const ux = evaluateGateCheck(root, { runId: f.runId }); assert.equal(ux.next_operation.type, "reassess_source_analysis"); assert.equal(ux.approval_presentation, null);
++  const services = createCoreServices();
++  const dispatch = services.dispatch({ skillId: "gate-check", runId: f.runId, continueDelivery: true, surface: "codex",
++    presentationLanguage: "en", workingDirectory: root, primaryTarget: root, targetSource: "explicit_target",
++    expectedVersion: services.resources.pluginDefinition.version, interactionLocales: services.resources.interactionLocales });
++  assert.equal(dispatch.continuation?.skill_id, "ux-intent-definition", JSON.stringify(dispatch));
++  writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "# UX Intent Definition\nFresh synthetic approved-UR analytical input.\n");
++  writeFileSync(f.state, upsertTableRow(f.readState().content, "Artefacts", 0, "UX Intent Definition", ["UX Intent Definition", f.prefix + "UX_INTENT_DEFINITION.md", "done", "Fresh analytical result"]));
++  assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: f.revision() }).outcome, "updated");
++  assert.equal(evaluateGateCheck(root, { runId: f.runId }).missing_approval, "Approval: SD");
++  passed(["SCN-009", "SCN-010"], "Fresh Review/Mode after UR; later analytical reassessment blocks source authoring and routes existing UX owner before renewal.");
++
++  const proposalChanges = {
++    foreign_target: p => p.target_id = byteDigest(Buffer.from("foreign")), foreign_run: p => p.run_id = "foreign",
++    foreign_revision: p => p.expected_revision_id = randomUUID(), source_contradiction: p => p.impact_assessment.earliest_source = "UR",
++    unresolved: p => p.impact_assessment.unresolved.push("Unknown context"), upstream: p => p.impact_assessment.upstream[0].rationale = "",
++    analysis: p => p.impact_assessment.analyses[0].digest = byteDigest(Buffer.from("wrong")), schema: p => p.extra = true,
++  };
++  for (const change of Object.values(proposalChanges)) {
++    reset(); const p = f.proposal("TP"); change(p.value); writeFileSync(join(root, p.input.evidence), JSON.stringify(p.value));
++    const before = tree(); assert.equal(previewSourceRevision(root, p.input).outcome, "rejected"); assert.deepEqual(tree(), before);
++  }
++  for (const mutate of [p => p.input.revisionId = randomUUID(), p => p.input.sourceGate = "QA", p => p.input.evidence = "../proposal.json"]) {
++    reset(); const p = prepare(); mutate(p); const before = tree(); assert.equal(applySourceRevision(root, p.input).outcome, "rejected"); assert.deepEqual(tree(), before);
++  }
++  passed(["SCN-015"], "Wrong identity, source, proposal, unresolved assessment and unsafe path rejected without writes.");
++
++  for (const type of ["awaiting_cr", "qa", "uat", "or", "closed", "historical", "quick", "verified", "unapproved", "unsealed"]) {
++    reset(); let text = f.readState().content;
++    if (["awaiting_cr", "qa", "uat", "or"].includes(type)) text = upsertTableRow(text, "Artefacts", 0, "CD+Tests", ["CD+Tests", "", "done", "Boundary test"]);
++    if (["qa", "uat", "or"].includes(type)) text = upsertTableRow(text, "Artefacts", 0, "CR", ["CR", "", "done", "Negative boundary fixture"]);
++    // Deliberately altered negative states, never represented as canonical successful approvals.
++    if (["uat", "or"].includes(type)) text = upsertTableRow(text, "Approvals", 0, "QA", ["QA", "approved", "Negative boundary fixture"]);
++    if (type === "or") { text = upsertTableRow(text, "Approvals", 0, "UAT", ["UAT", "approved", "Negative boundary fixture"]); text = upsertTableRow(text, "Artefacts", 0, "OR", ["OR", "", "done", "Negative boundary fixture"]); }
++    if (type === "closed") text = text.replace("- lifecycle: active", "- lifecycle: completed");
++    if (type === "historical") text = text.replace("- lifecycle: active", "- lifecycle: superseded");
++    if (type === "quick" || type === "verified") text = text.replace("- decision: structured_delivery", `- decision: ${type === "quick" ? "quick_task" : "verified_change"}`);
++    if (type === "unapproved") text = text.replace(/\| TP \| approved \|[^\n]+/u, "| TP | missing | |");
++    if (type === "unsealed") text = text.replace(/^- (?:content_seal|approval_seal):.*\n/gmu, "");
++    writeFileSync(f.state, type === "unsealed" ? text : sealRunState(root, text));
++    const p = f.proposal("TP"), before = tree(); assert.equal(previewSourceRevision(root, p.input).outcome, "rejected", type); assert.deepEqual(tree(), before);
++  }
++  passed(["SCN-017"], "Unsupported lifecycles, modes and post-implementation states refuse late revisions.");
++
++  for (const phase of ["intent", "archive_intent", "archive_temp_written", "archive_after_file_sync", "archive_file", "archive_synced", "archive_published", "run_before_rename"]) {
++    reset(); const p = prepare(), before = tree();
++    assert.throws(() => applySourceRevision(root, p.input, { afterWrite(point) { if (point === phase) throw Error("injected_fault"); } }), /injected_fault/u, phase);
++    assert.deepEqual(tree(), before, phase);
++  }
++  passed(["SCN-019"], "Faults at real intent/archive writes, file sync, publication and pre-Run rename restore exact old effective state.");
++  for (const phase of ["run_after_rename", "run_after_directory_sync", "run", "backlog_after_rename", "backlog", "retired"]) {
++    reset(); const p = prepare(), result = applySourceRevision(root, p.input, { afterWrite(point) { if (point === phase) throw Error("injected_fault"); } });
++    assert.equal(result.outcome, "recovery_required", phase); const revision = f.revision(), before = tree();
++    const inspect = inspectSourceRevision(root, p.input); assert.ok(["recovery_required", "historical"].includes(inspect.outcome)); assert.deepEqual(tree(), before);
++    assert.equal(recoverSourceRevision(root, { ...p.input, revisionId: revision }).outcome, "recovered"); assert.equal(f.revision(), revision);
++    assert.equal(runSealState(root, f.readState().content).status, "valid"); assert.equal(applySourceRevision(root, p.input).outcome, "replayed");
++  }
++  passed(["SCN-020"], "Post-rename/sync, Backlog and retirement errors reconcile one committed revision through explicit recovery.");
++
++  reset(); const interrupted = prepare(); assert.equal((await worker(interrupted.input, "archive_file")).code, 71);
++  const unknownBefore = tree(); assert.equal(evaluateGateCheck(root, { runId: f.runId }).status, "blocked");
++  assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: originalRevision }).reason, "run_step_recovery_required");
++  assert.equal(inspectSourceRevision(root, interrupted.input).outcome, "recovery_required"); assert.deepEqual(tree(), unknownBefore);
++  const staging = join(root, revisionHistoryPrefix(f.runId, interrupted.input.operationId).slice(0, -1) + ".pending");
++  const durableTree = () => Object.fromEntries(Object.entries(tree()).filter(([path]) => !path.endsWith(".lock") && !path.endsWith(".reclaim")));
++  const foreign = join(staging, "foreign.txt"); writeFileSync(foreign, "Do not delete unknown content"); const unknownTree = durableTree();
++  assert.equal(recoverSourceRevision(root, interrupted.input).outcome, "recovery_required"); assert.deepEqual(durableTree(), unknownTree); unlinkSync(foreign);
++  const firstSnapshot = join(staging, "files/0.bin"), snapshotBytes = readFileSync(firstSnapshot); writeFileSync(firstSnapshot, "Unknown changed staged bytes");
++  const damagedTree = durableTree(); assert.equal(recoverSourceRevision(root, interrupted.input).outcome, "recovery_required"); assert.deepEqual(durableTree(), damagedTree); writeFileSync(firstSnapshot, snapshotBytes);
++  assert.equal(recoverSourceRevision(root, interrupted.input).status, "rolled_back"); assert.equal(f.revision(), originalRevision);
++  reset(); const race = prepare(), competitor = prepare(); const results = await Promise.all([worker(race.input), worker(competitor.input)]);
++  assert.equal(results.filter(r => r.value?.outcome === "reopened").length, 1, JSON.stringify(results));
++  assert.equal(readSourceRevisions(f.readState().content).receipts.length, 1); assert.deepEqual(readFileSync(join(root, "retained-filter.mjs")), code);
++  assert.deepEqual(readFileSync(join(root, "retained-filter-test.mjs")), retainedTest);
++  passed(["SCN-016", "SCN-021"], "Abrupt real process interruption leaves fail-closed pending state; explicit recovery rolls back. Competing real processes commit at most once; replay preserves current-vs-original identity.");
++
++  reset(); const collision = prepare(), dir = join(root, revisionHistoryPrefix(f.runId, collision.input.operationId));
++  mkdirSync(dir, { recursive: true }); writeFileSync(join(dir, "foreign"), "Foreign content retained");
++  const collisionBefore = tree(); assert.equal(applySourceRevision(root, collision.input).outcome, "rejected"); assert.deepEqual(tree(), collisionBefore);
++  reset(); const unsafe = prepare(), file = f.file("TP.md"), bytes = readFileSync(file); unlinkSync(file);
++  try { symlinkSync(join(temporary, "outside.md"), file); writeFileSync(join(temporary, "outside.md"), bytes); assert.equal(applySourceRevision(root, unsafe.input).outcome, "rejected"); }
++  catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
++  reset(); const corruption = prepare(); assert.equal(applySourceRevision(root, corruption.input).outcome, "reopened");
++  const receipt = readSourceRevisions(f.readState().content).receipts[0], manifest = inspectSourceRevision(root, corruption.input).history.manifest;
++  assert.equal(validateRevisionHistory(root, { ...receipt, target_id: byteDigest(Buffer.from("foreign target")) }), false);
++  assert.equal(validateRevisionHistory(root, { ...receipt, request_digest: byteDigest(Buffer.from("unrelated request")) }), false);
++  assert.equal(validateRevisionHistory(root, { ...receipt, preview_digest: byteDigest(Buffer.from("unrelated preview")) }), false);
++  assert.equal(validateRevisionHistory(root, { ...receipt, archive: { ...receipt.archive, path: "../manifest.json" } }), false);
++  writeFileSync(join(root, manifest.files[0].snapshot), "corrupted archive");
++  assert.equal(runSealState(root, f.readState().content).status, "invalid"); assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: f.revision() }).outcome, "rejected");
++  assert.equal(validateRevisionHistory(root, receipt), false);
++  passed(["SCN-006"], "Unsafe source path, owned-name collision and corrupt archived bytes cannot change or restore effective authority.");
++
++  for (const alter of [() => unlinkSync(f.file("BROWNFIELD_ANALYSIS.md")), () => { const id = readArtefactBindings(f.readState().content).active[0]; unlinkSync(join(root, id.review.path)); }]) {
++    reset(); const p = prepare(); alter(); const unchanged = tree(); assert.equal(applySourceRevision(root, p.input).outcome, "rejected"); assert.deepEqual(tree(), unchanged);
++  }
++  reset(); const stale = prepare(); writeFileSync(join(root, stale.input.evidence), JSON.stringify({ ...stale.value, reason: "Changed after preview" }));
++  const staleBefore = tree(); assert.equal(applySourceRevision(root, stale.input).reason, "revision_preview_stale"); assert.deepEqual(tree(), staleBefore);
++  reset(); const large = prepare(), backlog = join(root, ".agdf/control/MASTER_BACKLOG.md"); writeFileSync(backlog, readFileSync(backlog, "utf8") + "\n" + "Large synthetic backlog context. ".repeat(3000) + "\n");
++  assert.equal(applySourceRevision(root, large.input).outcome, "reopened", "Journal legitimately exceeds the small artefact JSON limit");
++  reset(); const unsafeBacklog = prepare(), saved = readFileSync(backlog), outsideBacklog = join(temporary, "foreign-backlog.md");
++  writeFileSync(outsideBacklog, saved); unlinkSync(backlog);
++  try {
++    symlinkSync(outsideBacklog, backlog); const unchanged = tree(); assert.equal(applySourceRevision(root, unsafeBacklog.input).reason, "revision_path_invalid");
++    assert.deepEqual(tree(), unchanged); assert.deepEqual(readFileSync(outsideBacklog), saved);
++  } catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
++
++  reset(); const sealed = prepare(); assert.equal(applySourceRevision(root, sealed.input).outcome, "reopened");
++  const before = f.readState().content;
++  assert.throws(() => writeRun(f.state, before.replace(/\n## Source Revisions[\s\S]*$/u, ""), f.revision(), { allowContentChange: true }), /AGDF_RUN_APPROVALS_UNRECORDED|AGDF_SOURCE_REVISIONS_CHANGED/u);
++  assert.equal(f.readState().content, before);
++  if (process.env.AGDF_TEST_EVIDENCE_DIR) {
++    mkdirSync(process.env.AGDF_TEST_EVIDENCE_DIR, { recursive: true });
++    for (const row of evidence) writeFileSync(join(process.env.AGDF_TEST_EVIDENCE_DIR, `${row.scenario_id}-core.json`), JSON.stringify(row, null, 2) + "\n");
++  }
++  console.log(JSON.stringify({ suite: "source-revisions", scenarios: evidence.map(row => row.scenario_id), fixture_authority: "synthetic_only" }));
++} finally { rmSync(temporary, { recursive: true, force: true }); }
+--- before/packages/mcp-server/package.json
++++ candidate/packages/mcp-server/package.json
+@@ -23,8 +23,9 @@
+     "test:provenance": "node ./test/provenance.test.js",
+     "test:performance": "node ./test/performance.test.js",
+     "test:package": "node ./test/package.test.js",
+-    "test": "npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest",
+-    "test:sdk-digest": "node ./test/sdk-digest.test.js"
++    "test": "npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest",
++    "test:sdk-digest": "node ./test/sdk-digest.test.js",
++    "test:late-source-revision": "node ./test/late-source-revision.test.js"
+   },
+   "dependencies": {
+     "@modelcontextprotocol/server": "2.0.0",
+--- before/packages/mcp-server/test/late-source-revision.test.js
++++ candidate/packages/mcp-server/test/late-source-revision.test.js
+@@ -0,0 +1,63 @@
++import assert from "node:assert/strict";
++import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
++import { execFileSync } from "node:child_process";
++import { join, resolve } from "node:path";
++import { pathToFileURL } from "node:url";
++import { createOwnedRuntimeFixture } from "./owned-runtime.js";
++import { withStdioClient } from "./helpers.js";
++import { createLateSourceRevisionTestRun } from "../../cli/scripts/fixtures/late-source-revision.js";
++import { byteDigest } from "../../core/lib/control-state/run-revision-history.js";
++
++const candidate = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? resolve(import.meta.dirname, "../../../dist/npm/create-agdf");
++const fixture = createOwnedRuntimeFixture({ dispatcherSourceRoot: candidate }), root = fixture.governanceTarget;
++const validator = join(fixture.dispatcherRoot, "bin/agdf-validator.js");
++const f = createLateSourceRevisionTestRun(root, validator, "late-source-mcp-test"), seed = join(fixture.root, "canonical-seed");
++cpSync(join(root, ".agdf"), seed, { recursive: true });
++const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
++const tree = () => {
++  const files = {}; const scan = dir => readdirSync(dir, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name)).forEach(entry => {
++    const path = join(dir, entry.name); if (entry.isDirectory()) scan(path); else files[path.slice(root.length)] = byteDigest(readFileSync(path));
++  }); scan(join(root, ".agdf")); return files;
++};
++const args = input => ["--revision", input.revisionId, "--source-gate", input.sourceGate, "--operation", input.operationId, "--evidence", input.evidence];
++const observations = [];
++try {
++  await withStdioClient(fixture, async client => {
++    const { tools } = await client.listTools(); assert.deepEqual(tools.map(tool => tool.name), ["agdf_dispatch", "agdf_inspect"]);
++    for (const tool of tools) for (const name of ["source_gate", "preview_digest", "revision_mode", "operation_id"])
++      assert.equal(Object.hasOwn(tool.inputSchema.properties, name), false);
++    const target = { presentation_language: "de", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: f.runId };
++    for (const gate of ["UR", "PRD", "SD", "TP"]) {
++      reset(); const p = f.proposal(gate);
++      const preview = f.run("run-revise", "--preview", ...args(p.input)).value; assert.equal(preview.outcome, "preview");
++      const applied = f.run("run-revise", "--apply", ...args(p.input), "--preview-digest", preview.preview_digest).value;
++      assert.equal(applied.outcome, "reopened", JSON.stringify(applied)); const before = tree();
++      const dispatch = (await client.callTool({ name: "agdf_dispatch", arguments: { ...target, skill_id: "gate-check" } })).structuredContent;
++      const inspected = (await client.callTool({ name: "agdf_inspect", arguments: { ...target, operation: "gate-check" } })).structuredContent;
++      const cli = f.run("gate-check").value;
++      assert.equal(dispatch.control.current_gate, gate, JSON.stringify(dispatch)); assert.equal(inspected.report.current_gate, gate);
++      assert.equal(dispatch.control.missing_approval, cli.missing_approval); assert.equal(inspected.report.missing_approval, cli.missing_approval);
++      assert.deepEqual(dispatch.control.source_revisions, cli.source_revisions); assert.deepEqual(inspected.report.source_revisions, cli.source_revisions);
++      assert.equal(dispatch.authorizes, false); assert.equal(inspected.authorizes, false); assert.deepEqual(tree(), before);
++      const continued = (await client.callTool({ name: "agdf_dispatch", arguments: { ...target, skill_id: "gate-check", continue_delivery: true } })).structuredContent;
++      assert.notEqual(continued.continuation?.phase, "implementation"); assert.deepEqual(tree(), before);
++      observations.push({ gate, dispatch: dispatch.control, inspect: { current_gate: inspected.report.current_gate, missing_approval: inspected.report.missing_approval, source_revisions: inspected.report.source_revisions }, authorizes: false });
++    }
++    reset(); const p = f.proposal("TP"), preview = f.run("run-revise", "--preview", ...args(p.input)).value;
++    const program = `import {applySourceRevision} from ${JSON.stringify(pathToFileURL(join(fixture.dispatcherRoot, "runtime/core/lib/control-state/run-revision.js")).href)};
++      applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(stage){if(stage==='archive_file')process.exit(71)}});`;
++    try { execFileSync(process.execPath, ["--input-type=module", "-e", program, root, JSON.stringify({ ...p.input, previewDigest: preview.preview_digest })], { stdio: "pipe" }); assert.fail("worker should interrupt after an actual archive write"); }
++    catch (error) { assert.equal(error.status, 71); }
++    const before = tree();
++    const pending = (await client.callTool({ name: "agdf_inspect", arguments: { ...target, operation: "gate-check" } })).structuredContent;
++    assert.equal(pending.report.status, "blocked"); assert.ok(pending.report.doctor_report.findings.some(row => row.code === "AGDF_RUN_STEP_RECOVERY_REQUIRED"));
++    assert.deepEqual(tree(), before); assert.equal(f.run("run-revise", "--recover", "--revision", p.input.revisionId, "--operation", p.input.operationId).value.outcome, "recovered");
++    observations.push({ state: "pending", report: pending.report.status, observation: "read_only; explicit CLI recovery" });
++  });
++  if (process.env.AGDF_TEST_EVIDENCE_DIR) {
++    mkdirSync(process.env.AGDF_TEST_EVIDENCE_DIR, { recursive: true });
++    writeFileSync(join(process.env.AGDF_TEST_EVIDENCE_DIR, "SCN-023-mcp.json"), JSON.stringify({ scenario_id: "SCN-023", status: "pass", candidate,
++      observations, fixture_authority: "synthetic_only", protocol: "actual stdio MCP server; no native host activation claim" }, null, 2) + "\n");
++  }
++  console.log("Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).");
++} finally { fixture.dispose(); }
+--- before/packages/mcp-server/test/owned-runtime.js
++++ candidate/packages/mcp-server/test/owned-runtime.js
+@@ -10,10 +10,10 @@
+ } from "../../core/lib/runtime/plugin-provenance.js";
+ 
+ const serverSourceRoot = resolve(fileURLToPath(new URL("../", import.meta.url)));
+-const dispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
++const defaultDispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
+ const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
+ 
+-export function createOwnedRuntimeFixture() {
++export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? defaultDispatcherSourceRoot } = {}) {
+   const root = mkdtempSync(join(tmpdir(), "agdf-mcp-owned-"));
+   const nodeModules = join(root, "node_modules");
+   mkdirSync(nodeModules, { recursive: true });
+--- before/plugins/agdf/meta/agdf-interaction-locales.json
++++ candidate/plugins/agdf/meta/agdf-interaction-locales.json
+@@ -717,7 +717,12 @@
+         "completeSdReadinessItems": "complete the listed SD readiness items together and record a new run revision",
+         "forbidSdBeforeReady": "present or approve SD before required design decisions are ready",
+         "nextSdReadinessItems": "complete the open SD readiness items together, then record the revision with the shared artefact writer",
+-        "blockedSdDecisionsOpen": "required design decisions are unresolved or malformed"
++        "blockedSdDecisionsOpen": "required design decisions are unresolved or malformed",
++        "sourceRevisionUxNext": "Reassess UX intent under the current approved UR before dependent source authoring.",
++        "sourceRevisionUxAssess": "reassess UX intent under the current approved UR and reviewed analytical context",
++        "sourceRevisionUxRecord": "record the renewed analysis before dependent authoring",
++        "sourceRevisionUxForbidden": "draft or approve a dependent source before analytical reassessment",
++        "sourceRevisionAuthoringNext": "reassess source analyses before renewing approvals"
+       },
+       "scopeClassification": {
+         "title": "AGDF scope classification",
+@@ -1113,6 +1118,33 @@
+         "absentDescription": "This project has no .agdf/control directory.",
+         "incompleteDescription": "The inventory is incomplete; the total number of active runs is unknown.",
+         "findingsDescription": "Inspection findings:"
++      },
++      "sourceRevision": {
++        "title": "Source revision",
++        "preview": "Proposed only",
++        "reopened": "Revision applied",
++        "historical": "Historical evidence only",
++        "replayed": "Historical operation replay",
++        "recovered": "Recovery verified",
++        "recovery_required": "Recovery required",
++        "rejected": "Revision refused",
++        "not_found": "Operation not found",
++        "target": "Target",
++        "run": "Run",
++        "operation": "Operation",
++        "revision": "Current revision",
++        "original": "Original resulting revision",
++        "source": "Changed source",
++        "retained": "Retained approvals",
++        "superseded": "Superseded approvals",
++        "reason": "Reason",
++        "next": "Next action",
++        "none": "None",
++        "authority": "This result grants no implementation or gate approval.",
++        "reviewNext": "Review this proposal; apply its exact preview explicitly or cancel.",
++        "readNext": "Inspect the current bound run before taking its next permitted action.",
++        "refuseNext": "Inspect current facts and prepare a fresh reviewed proposal.",
++        "recoverNext": "Inspect the bound pending operation; recover it explicitly."
+       }
+     },
+     "de": {
+@@ -1819,7 +1851,12 @@
+         "completeSdReadinessItems": "die aufgeführten SD-Bereitschaftspunkte gemeinsam klären und eine neue Run-Revision erfassen",
+         "forbidSdBeforeReady": "SD präsentieren oder freigeben, bevor die erforderlichen Designentscheidungen geklärt sind",
+         "nextSdReadinessItems": "die offenen SD-Bereitschaftspunkte gemeinsam klären und die Revision mit der gemeinsamen Artefaktregistrierung erfassen",
+-        "blockedSdDecisionsOpen": "erforderliche Designentscheidungen sind offen oder fehlerhaft"
++        "blockedSdDecisionsOpen": "erforderliche Designentscheidungen sind offen oder fehlerhaft",
++        "sourceRevisionUxNext": "UX-Intent unter der aktuell freigegebenen UR vor abhängigen Quellen erneut prüfen.",
++        "sourceRevisionUxAssess": "UX-Intent unter der freigegebenen UR und dem geprüften Analysekontext erneut bewerten",
++        "sourceRevisionUxRecord": "Die erneute Analyse vor abhängigen Entwürfen erfassen",
++        "sourceRevisionUxForbidden": "Abhängige Quellen vor der erneuten Analyse entwerfen oder freigeben",
++        "sourceRevisionAuthoringNext": "Quellenanalysen vor erneuten Freigaben prüfen"
+       },
+       "scopeClassification": {
+         "title": "AGDF-Scope-Klassifizierung",
+@@ -2215,6 +2252,33 @@
+         "absentDescription": "Dieses Projekt hat keinen Ordner .agdf/control.",
+         "incompleteDescription": "Die Inventur ist unvollständig; die Gesamtzahl aktiver Runs ist unbekannt.",
+         "findingsDescription": "Prüfbefunde:"
++      },
++      "sourceRevision": {
++        "title": "Quellenrevision",
++        "preview": "Nur vorgeschlagen",
++        "reopened": "Revision angewendet",
++        "historical": "Nur historische Nachweise",
++        "replayed": "Historischer Vorgang wiederholt",
++        "recovered": "Wiederherstellung geprüft",
++        "recovery_required": "Wiederherstellung erforderlich",
++        "rejected": "Revision abgelehnt",
++        "not_found": "Vorgang nicht gefunden",
++        "target": "Ziel",
++        "run": "Run",
++        "operation": "Vorgang",
++        "revision": "Aktuelle Revision",
++        "original": "Ursprüngliche Ergebnisrevision",
++        "source": "Geänderte Quelle",
++        "retained": "Beibehaltene Freigaben",
++        "superseded": "Aufgehobene Freigaben",
++        "reason": "Grund",
++        "next": "Nächste Aktion",
++        "none": "Keine",
++        "authority": "Dieses Ergebnis erteilt keine Umsetzungs- oder Gate-Freigabe.",
++        "reviewNext": "Vorschlag prüfen; seine genaue Vorschau ausdrücklich anwenden oder abbrechen.",
++        "readNext": "Den aktuell gebundenen Run vor der nächsten erlaubten Aktion prüfen.",
++        "refuseNext": "Aktuelle Fakten prüfen und einen neuen geprüften Vorschlag vorbereiten.",
++        "recoverNext": "Gebundenen offenen Vorgang prüfen und ausdrücklich wiederherstellen."
+       }
+     }
+   }
+--- before/plugins/agdf/meta/contracts/gate-transition.md
++++ candidate/plugins/agdf/meta/contracts/gate-transition.md
+@@ -69,7 +69,10 @@
+ - `Approval: PRD` permits Solution Design drafting, not implementation.
+ - Before presenting a PRD approval, the PRD `Approval Decisions` table must resolve every `before_prd` product, acceptance, owner and release-scope decision and name its PRD owner. Collect related missing answers in one request. `later_sd` and `later_tp` rows may remain open only with a named owner; they cannot silently carry a product decision past PRD approval. The runtime suppresses `run-present` and `run-approve` when PRD readiness is open.
+ - The `criteria-chain-v1` contract keeps PRD acceptance as the sole product source: every PRD criterion has one stable `criterion_id`; SD maps every criterion exactly once to its design, source-of-truth owner, decision and compatibility/risk treatment; TP maps every criterion and SD decision to task IDs, scenario IDs, expected results and evidence. Existing gate readiness checks suppress the SD or TP presentation when a marked artefact has incomplete or inconsistent mappings. Do not create a parallel acceptance register or copy acceptance prose downstream.
+-- A clarification after approval that does not change approved scope, behavior or acceptance may be attributed as run evidence without changing the approved PRD. A material change uses `run-revise --run <run_id> --revision <revision_id>` at the PRD-to-SD boundary before a downstream artefact is linked. This preserves the old approval as superseded evidence, returns to PRD, and requires a revised sealed PRD, new `run-present` and new deliberate `Approval: PRD`. An old reply or presentation never transfers to the new revision.
++- A clarification after approval that does not change approved scope, behavior or acceptance may be attributed as run evidence without changing the approved PRD. The no-mode `run-revise --run <run_id> --revision <revision_id>` remains the early PRD-to-SD revision path before downstream artefacts are linked. It requires a revised PRD, new `run-present` and a new deliberate `Approval: PRD`.
++- At valid active structured `CD+Tests` after exact approved UR/PRD/SD/TP and preparation, late source revision uses explicit `run-revise --preview`, then `--apply` with the same target/run/revision, reviewed proposal, operation UUID and preview digest. The earliest changed UR/PRD/SD/TP revokes its current approval and all dependent source approvals. Exact upstream approvals may remain; uncertain or contradictory impact requires clarification before application. QA/UAT/OR, awaiting CR, closed, damaged or pending states are outside this path.
++- Late apply archives the exact previous sources, mappings, presentations and Run before its atomic commit. Append-only `Source Revisions` in the sealed Run determine invalidated bindings; archive files are historical evidence only. Old files, approvals, replies and presentations never authorize renewal. Draft and record the affected sources through their current owners, present them afresh and obtain new deliberate approvals.
++- UR revision requires fresh post-UR Review/Mode and required UX. Later source revision retains only reviewed exact applicable analytical inputs; reassessment routes existing owners before dependent source authoring. Every late revision clears preparation, CD+Tests and review fulfillment; retained code/tests require fresh assessment under the renewed TP. Read-only inspection never recovers. Use explicit `--inspect`/`--recover` for the exact pending operation; a replay reports its historical effect separately from current state and grants no approval.
+ - `Approval: SD` permits Task/Test Plan drafting, not implementation.
+ - New SD drafts from sd-definition declare sd-decisions-v1 with same-artifact Design Decisions.
+   Material before_sd decisions must be resolved with named owners before presentation/approval.
+--- before/plugins/agdf/skills/sd-definition/help.md
++++ candidate/plugins/agdf/skills/sd-definition/help.md
+@@ -0,0 +1,17 @@
++## NAME
++
++`sd-definition` - draft and clarify a bound unapproved solution design
++
++## SYNOPSIS
++
++`/sd-definition` [`--help`|`-h`]
++
++## DESCRIPTION
++
++Derives technical ownership, solution decisions and acceptance traceability from the approved
++PRD and applicable analyses after bound dispatch. Keeps material unresolved decisions visible.
++Draft revision uses canonical recording and a fresh presentation before human approval.
++
++## SEE ALSO
++
++See SKILL.md and the focused SD contract for binding, intent, revision and approval boundaries.

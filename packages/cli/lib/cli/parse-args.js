@@ -49,10 +49,12 @@ export function parseArgs(argv, dependencies = {}) {
   let intake = false;
   let urAction;
   let prdAction;
+  let sdAction;
   let intakeMode;
   let continueDelivery = false;
   let presentationId;
   let operationId, assurance;
+  let revisionMode, sourceGate, previewDigest;
   let fixture;
   let persist = false;
   let model;
@@ -90,10 +92,12 @@ export function parseArgs(argv, dependencies = {}) {
   let targetChanged = false;
   const targetCandidates = [];
   const evidenceSources = [];
+  const flagCounts = new Map();
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
     if (!arg) continue;
+    if (arg.startsWith("--")) flagCounts.set(arg, (flagCounts.get(arg) ?? 0) + 1);
     if (arg === "--help" || arg === "-h") return { kind: "help" };
     if (arg === "--force") { force = true; continue; }
     if (arg === "--json") { json = true; continue; }
@@ -186,9 +190,27 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (["--preview", "--apply", "--inspect", "--recover"].includes(arg)) {
+      if (revisionMode) throw new CliUsageError("run-revise modes are mutually exclusive and may not repeat");
+      revisionMode = arg.slice(2); continue;
+    }
+    if (arg === "--source-gate" || arg === "--preview-digest") {
+      const value = requiredValue(args, i, arg);
+      if (arg === "--source-gate") {
+        if (sourceGate !== undefined) throw new CliUsageError("--source-gate may not repeat");
+        sourceGate = value;
+      } else {
+        if (previewDigest !== undefined) throw new CliUsageError("--preview-digest may not repeat");
+        previewDigest = value;
+      }
+      i += 1; continue;
+    }
     if (arg === "--operation" || arg === "--assurance") {
       const value = requiredValue(args, i, arg);
-      if (arg === "--operation") operationId = value;
+      if (arg === "--operation") {
+        if (operationId !== undefined) throw new CliUsageError("--operation may not repeat");
+        operationId = value;
+      }
       else assurance = value;
       i += 1;
       continue;
@@ -200,11 +222,12 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
-    if (arg === "--intake-mode" || arg === "--ur-action" || arg === "--prd-action" || arg === "--presentation") {
+    if (arg === "--intake-mode" || arg === "--ur-action" || arg === "--prd-action" || arg === "--sd-action" || arg === "--presentation") {
       const value = requiredValue(args, i, arg);
       if (arg === "--intake-mode") intakeMode = value;
       else if (arg === "--ur-action") urAction = value;
       else if (arg === "--prd-action") prdAction = value;
+      else if (arg === "--sd-action") sdAction = value;
       else presentationId = value;
       i += 1;
       continue;
@@ -301,6 +324,9 @@ export function parseArgs(argv, dependencies = {}) {
   if (!target || !resolveCommand(target)) {
     throw new CliUsageError(`Please choose one target: ${supportedCommandNames().join(", ")}.`, { showUsage: true });
   }
+  if (revisionMode && ["--dir", "--run", "--revision", "--operation", "--source-gate", "--evidence", "--preview-digest"].some(flag => flagCounts.get(flag) > 1)) {
+    throw new CliUsageError("Source revision identity and evidence flags may not repeat");
+  }
 
   return {
     kind: "command",
@@ -326,10 +352,14 @@ export function parseArgs(argv, dependencies = {}) {
       intakeMode,
     urAction,
     prdAction,
+    sdAction,
       continueDelivery,
       presentationId,
       ...(operationId !== undefined ? { operationId } : {}),
       ...(assurance !== undefined ? { assurance } : {}),
+      ...(revisionMode !== undefined ? { revisionMode } : {}),
+      ...(sourceGate !== undefined ? { sourceGate } : {}),
+      ...(previewDigest !== undefined ? { previewDigest } : {}),
       fixture: fixture ? resolve(cwd, fixture) : null,
       persist,
       model,

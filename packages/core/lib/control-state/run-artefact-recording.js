@@ -7,11 +7,13 @@ import { appendTableRow, upsertTableRow } from "./run-state-edits.js";
 import { relationshipForGate, sameRelationship } from "../control-evaluation/delivery-relationships.js";
 import { readFileSync } from "node:fs";
 import { containedRegularFile } from "./contained-file.js";
+import { readSourceRevisions } from "./run-source-revisions.js";
 
 // Called by run-step with Run and Backlog locks already held. No approval or QA decision owner.
 export function prepareArtefactRecording(root, run, input, control, before) {
   const fail = reason => { throw new Error(reason); };
   const expected = relationshipForGate(input.gate);
+  if (readSourceRevisions(run.content).present && before.missing_approval !== `Approval: ${input.gate}`) fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
   if (!expected || input.gate === "UR" || before.current_gate !== input.gate || before.status !== "open"
       || control.approvals.get(input.gate)?.status === "approved") fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
   const command = readContainedJson(root, input.evidence);
@@ -27,7 +29,7 @@ export function prepareArtefactRecording(root, run, input, control, before) {
     relationship: command.relationship, destination: command.destination, source: command.source, review: command.review,
     origin: "reviewed_mapping", operation: { id: randomUUID(), previous_revision_id: input.revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1 }, supersedes: null,
   };
-  const prior = bindings.active.filter(item => artefactBindingKey(item) === artefactBindingKey(candidate));
+  const prior = bindings.latest.filter(item => artefactBindingKey(item) === artefactBindingKey(candidate));
   if (prior.length > 1) fail("AGDF_ARTEFACT_BINDINGS_INVALID");
   candidate.supersedes = prior[0]?.binding_id ?? null;
   const source = control.artefacts.get(expected.to);

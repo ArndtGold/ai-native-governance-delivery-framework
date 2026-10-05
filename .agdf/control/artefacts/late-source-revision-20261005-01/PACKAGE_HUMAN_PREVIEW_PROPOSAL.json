@@ -1,0 +1,61 @@
+{
+  "status": "proposed_not_approved",
+  "run_id": "late-source-revision-20261005-01",
+  "previous_decision": "PACKAGE_BASELINE_DECISION.json",
+  "baseline": {
+    "max_files": 200,
+    "max_bytes": 1682900
+  },
+  "proposed": {
+    "files": 200,
+    "bytes": 1685700
+  },
+  "reserve": 0,
+  "additional_bytes": 2800,
+  "inventory_digest": "27841ff567d898d0fb36efeb0e203fc3b8fb3042bd69c001062d981df80e8dc6",
+  "changed_entries": [
+    {
+      "path": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "old_bytes": 151901,
+      "new_bytes": 152937,
+      "delta": 1036,
+      "digest": "d669aa42fdb1eb4997bdcaa8c46f5f6a700f1692ae4ae62c6dc2bbc4f144b431"
+    },
+    {
+      "path": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "old_bytes": 64392,
+      "new_bytes": 65120,
+      "delta": 728,
+      "digest": "913ca561e030f237b4a2de487767ffe46331e5e31fd38de72d0f6d4d2edd5d8f"
+    },
+    {
+      "path": "runtime/runtime-manifest.json",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "old_bytes": 236,
+      "new_bytes": 236,
+      "delta": 0,
+      "digest": "24c00400b3f3dac3179d5a40c9764c7f5e8169a77c3ad5570e9d7632fe969a5f"
+    },
+    {
+      "path": "skills/agdf-interaction-locales.json",
+      "owner": "plugins/agdf/meta/agdf-interaction-locales.json",
+      "old_bytes": 151901,
+      "new_bytes": 152937,
+      "delta": 1036,
+      "digest": "d669aa42fdb1eb4997bdcaa8c46f5f6a700f1692ae4ae62c6dc2bbc4f144b431"
+    }
+  ],
+  "cause": "AC-001 human CLI preview lacked full change, exact apply digest, source bindings, analytical dispositions, invalidated evidence and retained-work obligation. Meaningful real CLI regression reproduces the omission; UI fix is within approved TP, numeric allowance needs a separate exact decision.",
+  "candidate": "CANDIDATE_HUMAN_PREVIEW.json",
+  "candidate_digest": "sha256:640219d88e96df81a474ca6f25e48ef9c086ac7aad4491012dbe6b02172b8031",
+  "proposed_baseline_file_digest": "d0193941d69ca59540732fd3f22e572cc343c785f4cbdeaa7b08041704c28429",
+  "proposed_baseline_file": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 200,
+    "max_bytes": 1685700,
+    "rationale": "Exact measured SD authoring and controlled late source revision with complete human impact preview; proposed candidate 640219d88e96df81a474ca6f25e48ef9c086ac7aad4491012dbe6b02172b8031, no spare headroom."
+  }
+}

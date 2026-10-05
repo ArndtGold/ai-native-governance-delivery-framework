@@ -25,14 +25,15 @@ const definition = read(source, "meta/agdf-plugin.definition.json");
 const first = buildPublicPluginCandidate({ repoRoot, outputRoot: publicRoot, validateSchema });
 for (const [root, profile] of [[source, "source"], [publicRoot, "public"], [runtime, "runtime"]]) {
   const result = validatePortableProfile(root, { profile, validateSchema });
-  assert.deepEqual(result.portable, createPortablePluginManifest(definition, { publicCandidate: profile === "public", runtimeProfile: profile === "runtime" }));
+  assert.deepEqual(result.portable, profile === "runtime" ? null : createPortablePluginManifest(definition, { publicCandidate: profile === "public" }));
   assert.equal(result.settings.skills, "./skills/");
   if (profile !== "source") assert.equal(result.files.some((path) => path.startsWith("host-templates/")), false);
 }
 const local = read(runtime, ".codex-plugin/plugin.json");
 assert.equal(local.hooks, "./hooks/hooks.json");
 assert.equal(local.mcpServers, "./mcp.json");
-assert.equal(Object.hasOwn(read(runtime, "plugin.json").extensions ?? {}, "com.openai"), false);
+assert.equal(existsSync(join(runtime, "plugin.json")), false, "Codex must select the native manifest to discover SessionStart");
+assert.equal(read(runtime, "hooks/hooks.json").hooks.SessionStart.length, 1);
 const inline = read(publicRoot, "plugin.json");
 const contradictory = { skills: "./absent/", hooks: "./unexpected.json", mcpServers: "./unexpected-mcp.json", interface: { displayName: "WRONG" } };
 assert.strictEqual(selectOpenAISettings(inline, contradictory), inline.extensions["com.openai"]);
@@ -61,6 +62,7 @@ for (const key of ["hooks", "mcpServers", "app"]) {
   negative(`legacy-${key}`, publicRoot, "public", (r) => write(r, ".codex-plugin/plugin.json", { ...read(r, ".codex-plugin/plugin.json"), [key]: {} }), /AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID/);
 }
 negative("runtime-inline", runtime, "runtime", (r) => write(r, "plugin.json", inline), /AGDF_PORTABLE_PROFILE_INVALID/);
+negative("runtime-portable-shadow", runtime, "runtime", (r) => write(r, "plugin.json", createPortablePluginManifest(definition, { runtimeProfile: true })), /AGDF_PORTABLE_PROFILE_INVALID/);
 negative("runtime-hook-missing", runtime, "runtime", (r) => rmSync(join(r, "hooks/hooks.json")), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
 negative("runtime-mcp-missing", runtime, "runtime", (r) => rmSync(join(r, "mcp.json")), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
 negative("runtime-mcp-type", runtime, "runtime", (r) => { const c = read(r, "mcp.json"); delete c.mcpServers.agdf.type; write(r, "mcp.json", c); }, /AGDF_PORTABLE_SCHEMA_INVALID/);

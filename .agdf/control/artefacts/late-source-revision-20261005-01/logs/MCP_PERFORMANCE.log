@@ -1,0 +1,17 @@
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[1476.884,1076.099,1190.588,1711.754,1346.878,1760.113,1878.929,1062.036,1093.988,1063.057,1143.534,1264.259,1232.911,1291.364,1171.609,1089.824,1010.672,1062.331,1021.191,1002.244],"cold_p95_ms":1760.113,"warm_dispatch_ms":[1091.869,726.007,834.858,1511.998,1785.988,1211.139,1371.62,1960.802,1357.093,1455.246,1996.062,959.702,874.844,1145.086,804.984,1644.111,1085.573,862.999,1136.916,1180.437],"warm_p95_ms":1960.802}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 1760.11314
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/performance.test.js:49:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

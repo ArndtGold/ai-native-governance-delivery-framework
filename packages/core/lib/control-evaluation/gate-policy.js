@@ -1,5 +1,6 @@
 import { extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
+import { readSourceRevisions } from "../control-state/run-source-revisions.js";
 
 function durableArtefactBlock(gate, nextGate) {
   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
@@ -51,7 +52,29 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
 
   if (gateApprovalStatus(runState, "PRD") === "approved" && !isGateSatisfied(runState, "PRD")) return durableArtefactBlock("PRD", "SD");
 
-  if (!isGateSatisfied(runState, "PRD")) {
+  const revision = readSourceRevisions(runState.content ?? "").receipts.at(-1);
+  const reassessment = type => revision?.analyses.some(row => row.type === type && row.disposition === "reassess");
+  const renewedBrownfield = reassessment("Brownfield Review") && (!isInternalStepSatisfied(runState, "Brownfield Review")
+    || !["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState)));
+  if (renewedBrownfield && revision.source_gate !== "UR" && isInternalStepSatisfied(runState, "Brownfield Review")
+      && !["undecided", "structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))) {
+    return { status: "blocked", current_gate: "Mode/Slice Decision", blocking_reason: "mode_slice_decision_blocked", missing_approval: "none",
+      allowed: ["resolve the analytical route under the retained approved UR"], forbidden: ["implement code", "skip renewed source approvals"],
+      next_allowed_action: "Resolve the Brownfield Review blocker before choosing a delivery path." };
+  }
+  if ((reassessment("UX Intent Definition") || runState.source_revision_ux_required) && runState.artefacts.get("UX Intent Definition")?.status !== "done"
+      && isInternalStepSatisfied(runState, "Brownfield Review") && ["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))) {
+    return {
+      status: "open", current_gate: revision.source_gate === "UR" ? "PRD" : revision.source_gate,
+      blocking_reason: "none", missing_approval: "none",
+      allowed: ["reassess UX intent under the current approved UR and reviewed analytical context", "record the renewed analysis before dependent authoring"],
+      forbidden: ["draft or approve a dependent source before analytical reassessment", "implement code", "claim QA or release readiness"],
+      next_allowed_action: "Reassess UX intent under the current approved UR before dependent source authoring.",
+      next_operation: { type: "reassess_source_analysis", skill_id: "ux-intent-definition", analysis: "UX Intent Definition" },
+    };
+  }
+
+  if (!isGateSatisfied(runState, "PRD") || renewedBrownfield) {
     if (!isInternalStepSatisfied(runState, "Brownfield Review")) {
       return {
         status: "open",

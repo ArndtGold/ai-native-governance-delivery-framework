@@ -89,7 +89,6 @@ export const RELEASE_VERSION_SURFACES = Object.freeze([
   textVersion("plugins/agdf/submission/openai/release-notes.md", /^# AGDF (\S+) —/m, (version) => `# AGDF ${version} —`, writable),
   textVersion("plugins/agdf/submission/openai/availability.md", /^- release: `([^`]+)`$/m, (version) => `- release: \`${version}\``, writable),
   jsonVersion("packages/cli/generated/plugins/agdf/meta/agdf-plugin.definition.json"),
-  jsonVersion("packages/cli/generated/plugins/agdf/plugin.json"),
   jsonVersion("packages/cli/generated/plugins/agdf/.codex-plugin/plugin.json"),
   jsonVersion("packages/cli/generated/plugins/agdf/.claude-plugin/plugin.json"),
   jsonVersion("packages/cli/generated/plugins/agdf/runtime/runtime-manifest.json"),

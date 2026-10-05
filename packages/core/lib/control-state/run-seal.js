@@ -1,6 +1,9 @@
 import { APPROVAL_GATES } from "./run-identity.js";
 import { approvalOperationsRecord, readApprovalOperations } from "./approval-operations.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
+import { readSourceRevisions } from "./run-source-revisions.js";
+import { validSourceRevisionHistories } from "./run-revision-history.js";
+import { canonicalJson } from "./approval-command-contract.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
@@ -101,6 +104,8 @@ export function approvalRecord(content) {
 
 export function approvalSeal(content) {
   const operations = approvalOperationsRecord(content);
+  const revisions = readSourceRevisions(content);
+  if (revisions.present) return sha256(["agdf-approval-seal/3", approvalRecord(content), operations ?? "", canonicalJson(revisions.receipts)].join("\n"));
   return sha256(operations === null
     ? ["agdf-approval-seal/1", approvalRecord(content)].join("\n")
     : ["agdf-approval-seal/2", approvalRecord(content), operations].join("\n"));
@@ -144,6 +149,7 @@ export function runSealState(root, content) {
   }
   if (!readApprovalOperations(text).valid) return Object.freeze({ status: "invalid", recorded });
   if (!readArtefactBindings(text).valid) return Object.freeze({ status: "invalid", recorded });
+  if (!validSourceRevisionHistories(root, text)) return Object.freeze({ status: "invalid", recorded });
   const actual = computeRunSeals(root, text);
   const status = actual.approval_seal !== recorded.approval_seal
     ? "approvals_changed"

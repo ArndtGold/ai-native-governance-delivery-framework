@@ -8,10 +8,11 @@ import { buildRunCandidates } from "../interaction-presentation.js";
 import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./shared.js";
 import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
 import { containedRegularFile } from "../control-state/contained-file.js";
+import { readSourceRevisions } from "../control-state/run-source-revisions.js";
 
 export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
-export const internalStepArtefacts = new Set(["Brownfield Review", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
+export const internalStepArtefacts = new Set(["Brownfield Review", "UX Intent Definition", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
 export const closeoutArtefacts = new Set(["OR"]);
 
 export function resolvedArtefactFile(targetDir, rawPath) {
@@ -99,11 +100,20 @@ export function readRunState(targetDir, selection = {}) {
     path: runPath,
     content,
     ...parsed,
+    source_revision_ux_required: sourceRevisionUxRequired(targetDir, { ...parsed, content }),
     identity_findings: validateRunIdentity({
       runId: extractField(content, "run_id").replace(/^`|`$/g, ""),
       revisionId: extractField(content, "revision_id").replace(/^`|`$/g, ""),
     }),
   };
+}
+
+export function sourceRevisionUxRequired(targetDir, state) {
+  if (!readSourceRevisions(state.content ?? "").present) return false;
+  const review = state.artefacts.get("Brownfield Review");
+  if (review?.status !== "done") return false;
+  const file = resolvedArtefactFile(targetDir, review.path);
+  return Boolean(file && extractField(readFileSync(file, "utf8"), "ux_intent_definition_required") === "yes");
 }
 
 export function gateApprovalStatus(runState, gate) {

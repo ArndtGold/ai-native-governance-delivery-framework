@@ -292,6 +292,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
     reconciliation = analyzeDeliveryMap(runState, {
+      targetDir,
       loadRun: (runId) => readRunState(targetDir, { runId }),
       resolveFile: (path) => resolvedArtefactFile(targetDir, path),
     });

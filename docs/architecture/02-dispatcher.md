@@ -143,9 +143,31 @@ Die vorhandene typisierte `run-step --step artefact --gate PRD`-Operation regist
 PRD `derived_from` UR. Eine zulässige Entwurfsänderung nutzt `update_draft: true` mit
 neuen Mapping-/Eingabebelegen, behält alte Nachweise und benötigt eine neue Präsentation
 mit neuer bewusster Antwort. `gate-check` prüft weiterhin Bereitschaft und Freigabe;
-SD-/TP-Erstellung und alle nachfolgenden Kontrollschritte behalten ihre bisherigen Eigentümer.
+SD-Inhalt gehört nun sd-definition; TP und spätere Kontrollschritte behalten ihre Eigentümer.
 Quell-, Paket- und Protokolltests sowie kooperative Fachbeobachtung belegen unterschiedliche
 Ebenen; sie behaupten keine frische native Installation oder unabhängige Begutachtung.
+
+`sd-definition` erhält nach freigegebenem PRD die fachliche Design-Erstellung über
+`phase: sd_definition`. Die Übergabe enthält das bestätigte Ziel, Run, aktuelle Revision,
+den kanonischen SD-Pfad sowie exakte freigegebene und erforderliche analytische Quellen.
+Der Skill erstellt und klärt den Inhalt; `gate-check` prüft Voraussetzungen und Freigabereife.
+Die vorhandene Registrierung erfasst `SD derived_from PRD`; eine neue bewusste
+`Approval: SD` erlaubt anschließend den bestehenden Aufgaben- und Testplan.
+
+Neue SD-Entwürfe deklarieren `Design Decisions contract: sd-decisions-v1` und führen genau
+eine `Design Decisions`-Tabelle im selben Artefakt. Wesentliche `before_sd`-Entscheidungen
+brauchen bestätigte Auflösung und benannten Verantwortlichen. Offene oder fehlerhafte Einträge
+sperren Präsentation und Freigabe (`AGDF_SD_DECISIONS_OPEN`). `later_tp` darf nur konkrete
+Ausführungs-/Test-/Nachweisdetails verschieben; Produktkonflikte gehören zur bestehenden
+UR-/PRD-Revision. Altbestände ohne Deklaration und Tabelle behalten ihre bisherigen Prüfungen.
+Deklarierte Vollständigkeit beweist keine ungenannten Designfragen; die fachliche Ableitung
+bleibt Gegenstand des Reviews.
+
+`sd_action: revise` (CLI `--sd-action revise`) verlangt einen tatsächlichen Änderungsauftrag
+und revisionsgebundenes `gate-check`-Resume-Intake. Die Aktion ist exklusiv gegenüber
+UR-/PRD-Aktionen und `continue_delivery`. Normale Fortsetzung eines fertigen Entwurfs
+präsentiert dessen aktuelle Fassung. Der gemeinsame Writer erhält Beleggeschichte und
+freigegebene Quellen; eine geänderte Fassung braucht eine neue Freigabepräsentation.
 
 Die Ausgabefelder haben unterschiedliche Aufgaben:
 
@@ -347,6 +369,30 @@ die veröffentlichte Revision maßgeblich: Die Erfassung nutzt das bestehende Jo
 die Korrektur bestätigt dieselbe Revision über den bestehenden Persistenzpfad. Scheitert diese
 Bestätigung, meldet sie `correction_commit_unconfirmed` samt bereits veröffentlichter Revision,
 und der Anwendungseinstieg stoppt mit `evaluator_error`. Es gibt keinen stillen zweiten Schreibversuch.
+
+## Späte Quellenrevision
+
+Die begrenzte Revision nach freigegebenem TP gehört dem bestehenden Core-Lifecycle-Owner
+`run-revision.js`. Ein gültiger aktiver strukturierter Run an `CD+Tests` kann über den lokalen
+CLI-Auftrag `run-revise --preview` und ausdrücklich gebundenes `--apply` zu UR, PRD, SD oder
+TP zurückkehren. Nur exakte unveränderte vorgelagerte Freigaben bleiben wirksam. Alte Quellen,
+Präsentationen und Zuordnungsbelege werden vor dem Run-Commit als genaue Bytes archiviert.
+Die versiegelte Run-Sektion `Source Revisions` hält die unveränderlichen Revisionsbelege;
+die Archive sind historische Nachweise und kein weiterer Workflow oder Akzeptanzkatalog.
+
+Dispatcher und bestehende MCP-Inspektion sehen dieselben aktuellen Freigaben, fehlenden
+Voraussetzungen und Historienreferenzen. Historische Zuordnungen können keine fehlende aktuelle
+Beziehung reparieren. Analysebedarf geht vor abhängigen Entwürfen an bestehende Brownfield-
+oder UX-Verantwortliche. Ein erneuter TP benötigt neue Vorbereitung und aktuelle Test-/Review-
+Nachweise. Es entstehen weder neue User-Gates noch MCP-Schreibargumente. Die genaue CLI-
+Vorschlagsstruktur und die explizite Inspektion/Recovery beschreibt
+[die CLI-Dokumentation](../../packages/cli/README.md#late-source-revision).
+
+Der bestehende Run/Backlog-Transaktionspfad besitzt dafür eine streng gebundene Version 2.
+Archivierung erfolgt vor dem atomaren Run-Commit. Unterbrechungen bleiben geschlossen, bis
+explizite Recovery den alten Zustand oder genau einen Commit nachweist; normale Inspektion
+repariert nichts. Ein identischer Vorgang kann sein historisches Ergebnis ohne neuen Commit
+zurückgeben und unterscheidet dieses von der inzwischen aktuellen Revision.
 
 ## Ergebnisbehandlung
 

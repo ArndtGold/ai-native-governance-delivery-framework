@@ -18,6 +18,7 @@ import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
 import { validateDistributionProfiles } from "#agdf-core/runtime/plugin-provenance.js";
 import { classifyHistoricalDistributionProfile } from "#agdf-core/runtime/distribution-profile-history.js";
+import { renderPortablePluginManifest } from "../../../scripts/public-plugin/manifest.js";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(dirname(packageRoot));
@@ -95,6 +96,20 @@ try {
   assert.equal(localMarketplaceRoot({ platform: "linux", home: "/home/test", env: {} }), posix.join("/home/test", ".local", "share", "agdf", "marketplaces", "agdf"));
 
   const dataRoot = join(fixtureRoot, "data");
+  // Upgrade an intact installation produced before the native hook-discovery repair.
+  const portableBuilt = join(fixtureRoot, "previous-portable-runtime");
+  cpSync(builtPluginRoot, portableBuilt, { recursive: true });
+  writeFileSync(join(portableBuilt, "plugin.json"), renderPortablePluginManifest(pluginDefinition, { runtimeProfile: true }));
+  const portableData = join(fixtureRoot, "previous-portable-data");
+  const previous = prepareLocalMarketplace({ dataRoot: portableData, builtPluginRoot: portableBuilt });
+  previous.commit();
+  const nativeUpgrade = prepareLocalMarketplace({ dataRoot: portableData, builtPluginRoot });
+  assert.equal(nativeUpgrade.changed, true);
+  assert.equal(existsSync(join(nativeUpgrade.pluginRoot, "plugin.json")), false, "upgrade must remove the manifest that suppresses native hooks");
+  nativeUpgrade.rollback();
+  assert.equal(existsSync(join(previous.pluginRoot, "plugin.json")), true, "rollback restores the previous intact installation");
+  prepareLocalMarketplace({ dataRoot: portableData, builtPluginRoot }).commit();
+  assert.equal(existsSync(join(previous.pluginRoot, "plugin.json")), false);
   const first = prepareLocalMarketplace({ dataRoot, builtPluginRoot });
   assert.equal(first.changed, true);
   assert.equal(json(join(first.root, ".agdf-owned.json")).version, pluginDefinition.version);
@@ -213,7 +228,6 @@ try {
     );
     for (const manifestPath of [
       join(historicalPluginRoot, "runtime", "runtime-manifest.json"),
-      join(historicalPluginRoot, "plugin.json"),
       join(historicalPluginRoot, ".codex-plugin", "plugin.json"),
       join(historicalPluginRoot, ".claude-plugin", "plugin.json"),
     ]) {
@@ -290,7 +304,6 @@ try {
     );
     for (const manifestPath of [
       join(currentShapeInitial.pluginRoot, "runtime", "runtime-manifest.json"),
-      join(currentShapeInitial.pluginRoot, "plugin.json"),
       join(currentShapeInitial.pluginRoot, ".codex-plugin", "plugin.json"),
       join(currentShapeInitial.pluginRoot, ".claude-plugin", "plugin.json"),
     ]) {
@@ -500,7 +513,6 @@ try {
   const legacyRuntimePath = join(legacyPlugin, "runtime", "runtime-manifest.json");
   writeFileSync(legacyRuntimePath, `${JSON.stringify({ ...json(legacyRuntimePath), version: legacyVersion }, null, 2)}\n`);
   for (const manifestPath of [
-    join(legacyPlugin, "plugin.json"),
     join(legacyPlugin, ".codex-plugin", "plugin.json"),
     join(legacyPlugin, ".claude-plugin", "plugin.json"),
   ]) {

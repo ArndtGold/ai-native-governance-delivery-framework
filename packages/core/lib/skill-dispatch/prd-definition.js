@@ -3,7 +3,8 @@ import { extractField } from "../control-evaluation/verified-change.js";
 // Pure routing over already evaluated control and contained source facts; never a writer or gate.
 export function prdDefinitionPhase(targetDir, control, input, sources) {
   const state = control?.status_card?.runState;
-  if (input.ur_action !== undefined || !input.run_id || control?.status_card?.run_id !== input.run_id || !state || !sources
+  if (control?.next_operation?.type === "reassess_source_analysis") return null;
+  if (input.ur_action !== undefined || input.sd_action !== undefined || !input.run_id || control?.status_card?.run_id !== input.run_id || !state || !sources
       || control.current_gate !== "PRD" || !["open", "blocked"].includes(control.status)
       || !["none", "Approval: PRD"].includes(control.missing_approval)
       || !["none", "AGDF_PRD_DECISIONS_OPEN"].includes(control.blocking_reason)

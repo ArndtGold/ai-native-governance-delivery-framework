@@ -1,0 +1,18 @@
+{
+  "parent_snapshot": "e785c5ecb9c57fcab5f5a78ec8600c0734395e11",
+  "snapshot_commit": "d3683dfb21435a68c987b10d851fc9c72a606ca8",
+  "branch": "codex/qualify-late-source-revision-20261005",
+  "changed_path": "scripts/test-package-consumers.mjs",
+  "old_sha256": "9c0a44f2aa567aab545df2b68d962e9c33e1a96ad5e4c05a53baa3863c20f38b",
+  "new_sha256": "880c7eddba4e2915c98454237088caffdf0b3ea3eab10fce38cbb89aa5b526ed",
+  "diff": "diff --git a/scripts/test-package-consumers.mjs b/scripts/test-package-consumers.mjs\nindex 978b218..7d8a439 100644\n--- a/scripts/test-package-consumers.mjs\n+++ b/scripts/test-package-consumers.mjs\n@@ -36,7 +36,7 @@ try {\n   const visit = root => readdirSync(root, { withFileTypes: true }).flatMap(item => item.isDirectory() ? visit(join(root, item.name)) : [join(root, item.name)]);\n   for (const source of visit(join(coreRoot, 'lib'))) {\n     const relative = source.slice(join(coreRoot, 'lib').length + 1);\n-    if (relative !== 'resources/binding.js') assert.deepEqual(readFileSync(join(fixture.dispatcherRoot, 'runtime/core/lib', relative)), readFileSync(source), relative);\n+    if (relative.replaceAll('\\\\', '/') !== 'resources/binding.js') assert.deepEqual(readFileSync(join(fixture.dispatcherRoot, 'runtime/core/lib', relative)), readFileSync(source), relative);\n   }\n   const environment = { ...process.env, HOME: join(fixture.root, 'home'), CLAUDE_CONFIG_DIR: join(fixture.root, 'claude'), CODEX_HOME: join(fixture.root, 'codex'), AGDF_DATA_DIR: join(fixture.root, 'data'), npm_config_offline: 'true' };\n   function node(args, expected = 0, env = environment) {\n",
+  "ci_failure_run": 37307012984,
+  "ci_failure_job": 111753028255,
+  "scope": "One existing exception path comparison; all other byte checks retained; no payload or protected compatibility edits.",
+  "publication_status": "pending explicit approval; not pushed",
+  "candidate_digest": "sha256:16268eddabada1e7d2cbc35688cbc3d064bfd009693703d1aea77cbfc215d2b9",
+  "local_archive_consumer_exit_code": 0,
+  "local_archive_consumer_log": "logs/CI_PORTABILITY_ARCHIVE_CONSUMERS_AFTER_PACK.log",
+  "local_compatibility_exit_code": 0,
+  "local_compatibility_log": "logs/CI_PORTABILITY_COMPATIBILITY.log"
+}

@@ -1,5 +1,7 @@
 import { readApprovalOperations } from "./approval-operations.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
+import { readSourceRevisions } from "./run-source-revisions.js";
+import { readArtefactBindings } from "./artefact-bindings.js";
 
 export { RUN_ID_PATTERN } from "./run-identity.js";
 export const LIFECYCLES = new Set([
@@ -61,6 +63,17 @@ export function parseRunState(content, expected) {
       || receipt.effect.revision > Number(values.get("revision"))
       || (receipt.effect.revision === Number(values.get("revision")) && receipt.effect.resulting_revision_id !== values.get("revision_id")))) {
     findings.push({ code: "AGDF_APPROVAL_OPERATIONS_INVALID" });
+  }
+  const revisions = readSourceRevisions(content);
+  const bindings = readArtefactBindings(content);
+  if (!revisions.valid || revisions.receipts.some(row => row.run_id !== id || row.revision > Number(values.get("revision"))
+      || operations.receipts.some(item => item.operation_id === row.operation_id
+        || item.effect.resulting_revision_id === row.resulting_revision_id || item.effect.revision === row.revision)
+      || bindings.receipts.some(item => item.operation.id === row.operation_id
+        || item.operation.resulting_revision_id === row.resulting_revision_id || item.operation.revision === row.revision)
+      || row.invalidated_bindings.some(bindingId => !bindings.receipts.some(item => item.binding_id === bindingId && item.operation.revision < row.revision))
+      || row.revision === Number(values.get("revision")) && row.resulting_revision_id !== values.get("revision_id"))) {
+    findings.push({ code: "AGDF_SOURCE_REVISIONS_INVALID" });
   }
   return {
     content,

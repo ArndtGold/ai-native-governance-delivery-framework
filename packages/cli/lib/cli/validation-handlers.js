@@ -16,13 +16,13 @@ import { evaluateDeliveryMap, printDeliveryMapReport } from "#agdf-core/control-
 import { evaluateDoctor, printDoctorReport } from "#agdf-core/control-evaluation/doctor.js";
 import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { resolveTaskTarget } from "#agdf-core/task-target-resolution.js";
-import { renderSkillDispatchRecovery, renderTaskTargetOrientation } from "#agdf-core/interaction-presentation.js";
+import { renderSkillDispatchRecovery, renderTaskTargetOrientation, renderSourceRevision } from "#agdf-core/interaction-presentation.js";
 import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "#agdf-core/skill-dispatch/contract.js";
 import { createCoreServices } from "#agdf-core";
 import { resources } from "../runtime/control-context.js";
 import { approveRunGate, recordRunRevision } from "#agdf-core/control-state/run-recording.js";
-import { reopenPrdRevision } from "#agdf-core/control-state/run-revision.js";
+import { reopenPrdRevision, previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "#agdf-core/control-state/run-revision.js";
 import { readRuntimeContract, readSkillRuntimeContracts } from "./contract-command.js";
 import { recordRunStep } from "#agdf-core/control-state/run-steps.js";
 import { policyForRunContent } from "#agdf-core/control-evaluation/run-step-policy.js";
@@ -95,6 +95,7 @@ export function createValidationHandlers(io = console) {
         intakeMode: options.intakeMode,
         ...(options.urAction !== undefined ? { urAction: options.urAction } : {}),
         ...(options.prdAction !== undefined ? { prdAction: options.prdAction } : {}),
+        ...(options.sdAction !== undefined ? { sdAction: options.sdAction } : {}),
         ...(options.revisionId ? { expectedRevisionId: options.revisionId } : {}),
         continueDelivery: options.continueDelivery,
         expectedVersion: pluginDefinition.version,
@@ -145,9 +146,12 @@ export function createValidationHandlers(io = console) {
       return result.outcome === "rejected" ? 2 : 0;
     }],
     ["run-revise", (options) => {
-      const result = reopenPrdRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });
-      io.log(JSON.stringify(result, null, 2));
-      return result.outcome === "rejected" ? 2 : 0;
+      const operation = { preview: previewSourceRevision, apply: applySourceRevision, inspect: inspectSourceRevision, recover: recoverSourceRevision }[options.revisionMode] ?? reopenPrdRevision;
+      const result = operation(options.dir, { runId: options.runId, revisionId: options.revisionId,
+        operationId: options.operationId, sourceGate: options.sourceGate, evidence: options.stepFields?.evidence, previewDigest: options.previewDigest });
+      io.log(options.revisionMode && !options.json ? renderSourceRevision(result, interactionLocales, options.language.chat_language,
+        { ...options, target: options.dir }).markdown : JSON.stringify(result, null, 2));
+      return ["rejected", "recovery_required"].includes(result.outcome) ? 2 : 0;
     }],
     ["run-step", (options) => {
       const result = recordRunStep(options.dir, {

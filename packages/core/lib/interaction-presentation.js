@@ -96,7 +96,8 @@ export function validateLocaleRegistry(registry) {
         continue;
       }
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
-      const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
+      const budget = key.startsWith("sourceRevision.") ? budgets.description
+        : key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
         : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
@@ -416,6 +417,7 @@ function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
     const reasonKeys = {
       AGDF_UR_REQUIREMENTS_INCOMPLETE: "blockedUrRequirements",
       AGDF_PRD_DECISIONS_OPEN: "blockedPrdDecisionsOpen",
+      AGDF_SD_DECISIONS_OPEN: "blockedSdDecisionsOpen",
       AGDF_SD_TRACEABILITY_INCOMPLETE: "blockedSdTraceability",
       AGDF_TP_TRACEABILITY_INCOMPLETE: "blockedTpTraceability",
       AGDF_CONTROL_FILE_MISSING: "blockedControlMissing",
@@ -526,6 +528,7 @@ export function renderOperationalStatusCard(statusCard, {
         ? [labels.agentWorking, nextStep]
         : [labels.noReply, nextStep];
   const prdReadinessItems = Array.isArray(statusCard.prd_readiness_items) ? statusCard.prd_readiness_items : [];
+  const sdReadinessItems = Array.isArray(statusCard.sd_readiness_items) ? statusCard.sd_readiness_items : [];
   const traceabilityGaps = Array.isArray(statusCard.traceability_gaps) ? statusCard.traceability_gaps : [];
   const blockingDetails = hasBlocker && Array.isArray(statusCard.blocking_details)
     ? statusCard.blocking_details.map((item) => {
@@ -554,6 +557,7 @@ export function renderOperationalStatusCard(statusCard, {
     ...(hasBlocker ? [[labels.blocked, blockingCondition]] : []),
     ...blockingDetails,
     ...(prdReadinessItems.length ? [[labels.prdReadinessItems, prdReadinessItems.join("\n")]] : []),
+    ...(sdReadinessItems.length ? [[labels.sdReadinessItems, sdReadinessItems.join("\n")]] : []),
     ...(traceabilityGaps.length ? [[labels.traceabilityGaps, traceabilityGaps.join("\n")]] : []),
     actorRow,
     ...((statusCard.evidence ?? []).some(row => row.evidence === "Relationship correction")
@@ -1215,5 +1219,36 @@ export function renderActiveRunInventory(report, registry, language) {
     lines.push("", copy.findingsDescription, "",
       ...report.findings.map((finding) => `- \`${safe(finding.code)}\`${finding.run_id ? ` · \`${safe(finding.run_id)}\`` : ""}`));
   }
+  return { markdown: lines.join("\n"), authorizes: false };
+}
+
+// Lifecycle observations never act as a gate approval or an implementation grant.
+export function renderSourceRevision(result, registry, language, input = {}) {
+  const copy = localePack(registry, language).sourceRevision;
+  if (!copy) throw Error("source_revision_copy_missing");
+  const outcomes = ["preview", "reopened", "historical", "replayed", "recovered", "recovery_required", "rejected", "not_found"];
+  const outcome = outcomes.includes(result?.outcome) ? result.outcome : "rejected";
+  const safe = value => String(value ?? copy.none).replace(/[\r\n`|]/gu, " ");
+  const row = result?.history?.receipt;
+  const identity = { target: result?.target_id ?? row?.target_id ?? input.target,
+    run: result?.run_id ?? input.runId, operation: result?.operation_id ?? input.operationId,
+    revision: result?.current_revision_id ?? result?.revision_id ?? result?.expected_revision_id ?? input.revisionId };
+  const lines = [`${copy.title}: ${copy[outcome]}`, "", ...Object.entries(identity).map(([key, value]) => `${copy[key]}: ${safe(value)}`)];
+  if (result?.resulting_revision_id || row) lines.push(`${copy.original}: ${safe(result?.resulting_revision_id ?? row.resulting_revision_id)}`);
+  if (result?.impact) lines.push(`${copy.source}: ${safe(result.impact.source_gate)}`,
+    `${copy.retained}: ${safe(result.impact.retained.join(", ") || copy.none)}`,
+    `${copy.superseded}: ${safe(result.impact.superseded.join(", "))}`);
+  if (outcome === "preview" && result.sources && result.impact) {
+    lines.push(`${copy.intent}: ${safe(result.intended_change)}`, `${copy.binding}: ${safe(result.preview_digest)}`,
+      "", copy.sources, ...result.sources.map(source => `- ${safe(source.type)}: ${safe(source.path)} · ${safe(source.digest)}`),
+      "", `${copy.artefacts}: ${safe(result.impact.superseded.join(", "))}`,
+      `${copy.evidence}: ${safe(result.impact.invalidated_steps.join(", "))}`,
+      `${copy.work}: ${copy.retainedWork}`, "", copy.analyses,
+      ...result.impact.analyses.map(analysis => `- ${safe(analysis.type)}: ${copy[analysis.disposition]} · ${safe(analysis.reason)} · ${safe(analysis.path)} · ${safe(analysis.digest)}`));
+  }
+  if (result?.reason) lines.push(`${copy.reason}: ${safe(result.reason)}`);
+  const next = outcome === "preview" ? copy.reviewNext : outcome === "recovery_required" ? copy.recoverNext
+    : ["rejected", "not_found"].includes(outcome) ? copy.refuseNext : copy.readNext;
+  lines.push("", copy.authority, "", `${copy.next}: ${next}`);
   return { markdown: lines.join("\n"), authorizes: false };
 }

@@ -1,0 +1,14 @@
+# Implementation inspection before full candidate readiness
+
+Status: preliminary; no CR, QA or gate approval.
+Scope: the complete capability delta against T-000 starting bytes, with the original SD-authoring and CI dependencies kept distinct. Author and reviewer are the same assistant; this is cooperative source/protocol evidence, not independent or native host evidence.
+
+The Run remains the only control authority. Source Revisions add a typed immutable sealed receipt; archives carry original raw bytes and proofs through an original-path resolver. The request and computed preview are reconstructed from the archive. Latest historical bindings order supersedes; the active projection excludes invalidated incoming relationships. Source renewal requires actual current recording, presentation and new approval. UR changes reset Review/Mode, while later analytical reassessment reuses existing owners. Preparation, test and review fulfillment is reset, and retained work requires fresh checks under the renewed TP.
+
+The existing transaction owner retains version-1 behavior. The source_revision variant validates local identity, exact journal shape, source bytes and ownership before archive publication. Atomic Run rename is its commit point. Explicit recovery proves either unchanged old state or the exact committed effect; foreign or damaged staging is retained and blocked. Status/inspect never recover implicitly. Contained paths are checked before locks and again before the write. CLI operations share Core logic; MCP tool/write schemas remain unchanged.
+
+Resolved implementation findings: large Backlog journals were incorrectly subjected to the small artefact JSON limit; archived request/preview hashes lacked reconstruction; pre-lock containment needed a guard; raw presentation hashes had to stay distinct from canonical source hashes. Focused real-process and renewal tests exercise the fixes. The inherited SD help file was completed and invocation notation shortened without changing input validation, approval formulas or limits. Assertions for that notation retain exact alternatives and field order.
+
+Open evidence: the normal all-surface build and dependent archive/consumer/smoke stages cannot pass while the unchanged numeric payload baseline refuses the measured candidate. Serial existing MCP budgets require the final qualified result. Linux/Windows/Node24 and native installed-model behavior remain unobserved. Formal Code Review, Clean/Architecture Review and TP Review must follow verified CD+Tests; this document cannot mark CR done or grant QA readiness.
+
+Next step: finish the isolated qualification and exact measured package proposal, obtain the separately required maintainer decision, then run normal build/guards and complete T-008/T-009 through existing owners.

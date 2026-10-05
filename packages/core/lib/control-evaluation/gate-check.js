@@ -9,7 +9,9 @@ import { isPlaceholderValue } from "./shared.js";
 import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
 import { evaluateUrReadiness } from "./ur-readiness.js";
 import { evaluatePrdReadiness } from "./prd-readiness.js";
+import { evaluateSdReadiness } from "./sd-readiness.js";
 import { evaluateSdTraceability, evaluateTpTraceability } from "./traceability-readiness.js";
+import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
 
 const nextSkillByGate = {
   UR: "gate-check",
@@ -50,7 +52,7 @@ function requiredGateArtifactPreparation({ status, currentGate, missingApproval,
   return Object.freeze({
     type: "prepare_gate_artifact",
     gate: currentGate,
-    skill_id: "gate-check",
+    skill_id: currentGate === "SD" ? "sd-definition" : "gate-check",
     artifact_path: `.agdf/control/artefacts/${runId}/${plan.file}`,
     source_artifacts: Object.freeze(plan.sources.map((source) => `.agdf/control/artefacts/${runId}/${source}`)),
   });
@@ -179,10 +181,12 @@ export function buildStatusCard({
   chatLanguage = "en",
   findings = [],
   prdReadinessItems = [],
+  sdReadinessItems = [],
   traceabilityGaps = [],
   blockingDetails = [],
   continuePostTpWork = false,
   nextActionRequiresUserAction = false,
+  nextSkill,
   qualityOutlook = deriveQualityOutlook(runState, findings),
   interactionKind: requestedInteractionKind,
   approvalArtefactReady = true,
@@ -230,10 +234,11 @@ export function buildStatusCard({
       ? "yes"
       : postApproval.user_action_required || (isUserGateApproval ? "yes" : "no"),
     prd_readiness_items: prdReadinessItems,
+    sd_readiness_items: sdReadinessItems,
     traceability_gaps: traceabilityGaps,
     blocking_details: blockingDetails,
     evidence: runState.evidence_refs,
-    next_skill: nextSkillByGate[currentGate] ?? "gate-check",
+    next_skill: nextSkill ?? nextSkillByGate[currentGate] ?? "gate-check",
     next_step: nextStep,
     quality_outlook: qualityOutlook,
     interaction_kind: interactionKind,
@@ -309,6 +314,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     : null;
   const transitionDecision = transitionDecisionForRunState(runState, verifiedChange);
   const deliveryMap = analyzeDeliveryMap(runState, {
+    targetDir,
     loadRun: (runId) => readRunState(targetDir, { runId }),
     resolveFile: (path) => resolvedArtefactFile(targetDir, path),
   });
@@ -324,7 +330,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   let missingApproval = transitionDecision.missing_approval;
   let allowed = transitionDecision.allowed;
   let forbidden = transitionDecision.forbidden;
-  let nextAllowedAction = modeSliceDecision(runState) === "verified_change"
+  let nextAllowedAction = modeSliceDecision(runState) === "verified_change" || readSourceRevisions(runState.content ?? "").present
     ? transitionDecision.next_allowed_action
     : isPlaceholderValue(runState.next_allowed_action)
     ? transitionDecision.next_allowed_action
@@ -397,12 +403,20 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     // Fixed text keeps the card localizable; detailed gaps travel separately in prd_readiness.open_decisions.
     nextAllowedAction = "complete the open PRD readiness items together, then record the revision with run-update";
   }
+  const sdReadiness = currentGate === "SD" && approvalArtefactReady ? evaluateSdReadiness(targetDir, runState) : null;
   const traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
     ? evaluateSdTraceability(targetDir, runState)
     : status === "open" && approvalArtefactReady && currentGate === "TP"
       ? evaluateTpTraceability(targetDir, runState)
       : null;
-  if (traceabilityReadiness && !traceabilityReadiness.ready) {
+  if (status === "open" && sdReadiness && !sdReadiness.ready) {
+    status = "blocked";
+    blockingReason = "AGDF_SD_DECISIONS_OPEN";
+    allowed = ["complete the listed SD readiness items together and record a new run revision"];
+    forbidden = [...forbidden, "present or approve SD before required design decisions are ready"];
+    nextAllowedAction = "complete the open SD readiness items together, then record the revision with the shared artefact writer";
+  }
+  if (status === "open" && traceabilityReadiness && !traceabilityReadiness.ready) {
     status = "blocked";
     blockingReason = currentGate === "SD" ? "AGDF_SD_TRACEABILITY_INCOMPLETE" : "AGDF_TP_TRACEABILITY_INCOMPLETE";
     allowed = [currentGate === "SD"
@@ -449,11 +463,13 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
       : localePack(interactionLocales, "en").operationalValues.unknownRunAction,
     continuePostTpWork,
     nextActionRequiresUserAction: !statusCardNextStepRenderable || statusCardNextStep === hostEvidenceProvisioningChoice,
+    nextSkill: transitionDecision.next_operation?.skill_id,
     qualityOutlook: renderable(runQualityOutlook) ? runQualityOutlook : deriveQualityOutlook({}, deliveryMap.findings),
     runState,
     chatLanguage: presentationLocale,
     findings: deliveryMap.findings,
     prdReadinessItems: prdReadiness?.open_decisions ?? [],
+    sdReadinessItems: sdReadiness?.open_decisions ?? [],
     traceabilityGaps: traceabilityReadiness?.open_items ?? [],
     blockingDetails: deliveryMap.findings
       .filter((finding) => finding.severity === "block" || finding.severity === "revise")
@@ -560,7 +576,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     }
   }
 
-  const nextOperation = requiredGateArtifactPreparation({
+  const nextOperation = status === "open" && transitionDecision.next_operation
+    ? transitionDecision.next_operation : requiredGateArtifactPreparation({
     status,
     currentGate,
     missingApproval,
@@ -570,6 +587,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     deliveryMap,
     runId: statusCard.run_id,
   });
+  const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
 
   return {
     schema_version: "1",
@@ -577,8 +595,10 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     current_gate: currentGate,
     blocking_reason: blockingReason,
     missing_approval: missingApproval,
+    ...(sourceRevisions ? { source_revisions: sourceRevisions } : {}),
     ...(urReadiness ? { ur_readiness: urReadiness } : {}),
     ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
+    ...(sdReadiness ? { sd_readiness: sdReadiness } : {}),
     ...(traceabilityReadiness ? { traceability_readiness: traceabilityReadiness } : {}),
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
@@ -662,6 +682,7 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
 function printReadinessDetails(report, labels, io) {
   const groups = [
     [labels.prdReadinessItems, report?.prd_readiness?.open_decisions ?? []],
+    [labels.sdReadinessItems, report?.sd_readiness?.open_decisions ?? []],
     [labels.traceabilityGaps, report?.traceability_readiness?.open_items ?? []],
   ];
   for (const [label, items] of groups) {

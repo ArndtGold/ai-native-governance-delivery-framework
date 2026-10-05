@@ -1,0 +1,119 @@
+[verify-ci] dependencies
+
+added 9 packages in 6s
+
+3 packages are looking for funding
+  run `npm fund` for details
+[verify-ci] maintenance
+npm notice run test:maintenance-contracts
+npm notice run npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs
+npm notice run test:verification
+npm notice run node --test scripts/verification-test.mjs
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, darwin.
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 1 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 7.667328
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 2 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 3.082131
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 3 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 498.307263
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 4 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 15938.174911
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17291.406924
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 17.075445
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 107.874685
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 1.700194
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.655483
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 26.796982
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.339529
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1905.081028
+[verify-ci] shell
+warning: Empty last update token.
+Shell syntax passed (5 tracked scripts).
+[verify-ci] prepare
+npm notice run build
+npm notice run node scripts/sync-package-assets.js && node scripts/assemble-npm.mjs
+file:///private/tmp/agdf-late-candidate-47r2a1fi/scripts/public-plugin/copilot-profile.js:122
+    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
+          ^
+
+Error: AGDF_COPILOT_PAYLOAD_GROWTH: observed 200 files/1682900 bytes; baseline 193/1581171
+    at validateCopilotPayload (file:///private/tmp/agdf-late-candidate-47r2a1fi/scripts/public-plugin/copilot-profile.js:122:11)
+    at syncPackageAssets (file:///private/tmp/agdf-late-candidate-47r2a1fi/scripts/sync-package-assets.js:640:5)
+    at file:///private/tmp/agdf-late-candidate-47r2a1fi/scripts/sync-package-assets.js:662:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3
+Verification failed at prepare: npm run build (1)

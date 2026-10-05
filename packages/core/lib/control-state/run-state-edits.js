@@ -7,6 +7,9 @@ import { existsSync } from "node:fs";
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
 const WRITE_REJECTIONS = new Map([
+  ["AGDF_SOURCE_REVISIONS_INVALID", "source_revisions_invalid"],
+  ["AGDF_SOURCE_REVISIONS_CHANGED", "source_revisions_changed"],
+  ["AGDF_REVISION_HISTORY_INVALID", "revision_history_invalid"],
   ["AGDF_CORRECTION_COMMIT_UNCONFIRMED", "correction_commit_unconfirmed"],
   ["AGDF_ARTEFACT_RECORDING_GATE_INVALID", "artefact_recording_gate_invalid"],
   ["AGDF_ARTEFACT_RECORDING_INPUT_INVALID", "artefact_recording_input_invalid"],

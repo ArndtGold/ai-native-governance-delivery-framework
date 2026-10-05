@@ -422,7 +422,8 @@
         "breadcrumbFulfilled": "✓",
         "breadcrumbCurrent": "●",
         "breadcrumbOpen": "○",
-        "breadcrumbSeparator": " · "
+        "breadcrumbSeparator": " · ",
+        "sdReadinessItems": "SD readiness items"
       },
       "controlSetup": {
         "title": "AGDF control setup",
@@ -712,7 +713,18 @@
         "blockedUrRequirements": "UR requirements need clarification",
         "completeUrRequirements": "complete the UR requirement clarification and record a new run revision",
         "nextUrRequirements": "complete the UR requirement clarification, then record the revision with run-update",
-        "forbidUnreadyUr": "present or approve UR before requirement clarification is complete"
+        "forbidUnreadyUr": "present or approve UR before requirement clarification is complete",
+        "completeSdReadinessItems": "complete the listed SD readiness items together and record a new run revision",
+        "forbidSdBeforeReady": "present or approve SD before required design decisions are ready",
+        "nextSdReadinessItems": "complete the open SD readiness items together, then record the revision with the shared artefact writer",
+        "blockedSdDecisionsOpen": "required design decisions are unresolved or malformed",
+        "sourceRevisionUxNext": "Reassess UX intent under the current approved UR before dependent source authoring.",
+        "sourceRevisionUxAssess": "reassess UX intent under the current approved UR and reviewed analytical context",
+        "sourceRevisionUxRecord": "record the renewed analysis before dependent authoring",
+        "sourceRevisionUxForbidden": "draft or approve a dependent source before analytical reassessment",
+        "sourceRevisionAuthoringNext": "reassess source analyses before renewing approvals",
+        "sourceRevisionResolveRoute": "resolve the analytical route under the retained approved UR",
+        "sourceRevisionSkipApprovals": "skip renewed source approvals"
       },
       "scopeClassification": {
         "title": "AGDF scope classification",
@@ -881,7 +893,8 @@
           "intake_run_collision": "The run id already exists. Bind an explicit continuation or choose an unused id for the new scope.",
           "intake_scaffold_required": "Inspect and restore the canonical control scaffold before creating the run.",
           "run_assignment_inventory_invalid": "Run inventory is incomplete or invalid. Resolve the listed control findings and retry intake; this failure does not establish a new scope.",
-          "prd_authoring_inputs_invalid": "PRD authoring blocked: check approved UR, Brownfield source, required ready UX input and contained PRD path. Repair inputs with their owner, then retry."
+          "prd_authoring_inputs_invalid": "PRD authoring blocked: check approved UR, Brownfield source, required ready UX input and contained PRD path. Repair inputs with their owner, then retry.",
+          "sd_authoring_inputs_invalid": "SD authoring blocked: check approved PRD, Brownfield/ready analysis and contained SD path. Repair inputs with their owner, then retry."
         }
       },
       "artefacts": {
@@ -1107,6 +1120,43 @@
         "absentDescription": "This project has no .agdf/control directory.",
         "incompleteDescription": "The inventory is incomplete; the total number of active runs is unknown.",
         "findingsDescription": "Inspection findings:"
+      },
+      "sourceRevision": {
+        "title": "Source revision",
+        "preview": "Proposed only",
+        "reopened": "Revision applied",
+        "historical": "Historical evidence only",
+        "replayed": "Historical operation replay",
+        "recovered": "Recovery verified",
+        "recovery_required": "Recovery required",
+        "rejected": "Revision refused",
+        "not_found": "Operation not found",
+        "target": "Target",
+        "run": "Run",
+        "operation": "Operation",
+        "revision": "Current revision",
+        "original": "Original resulting revision",
+        "source": "Changed source",
+        "retained": "Retained approvals",
+        "superseded": "Superseded approvals",
+        "reason": "Reason",
+        "next": "Next action",
+        "none": "None",
+        "authority": "This result grants no implementation or gate approval.",
+        "reviewNext": "Review this proposal; apply its exact preview explicitly or cancel.",
+        "readNext": "Inspect the current bound run before taking its next permitted action.",
+        "refuseNext": "Inspect current facts and prepare a fresh reviewed proposal.",
+        "recoverNext": "Inspect the bound pending operation; recover it explicitly.",
+        "intent": "Intended change",
+        "binding": "Preview digest for explicit apply",
+        "sources": "Bound source contents",
+        "artefacts": "Artifacts requiring fresh recording and approval",
+        "evidence": "Steps requiring renewed evidence",
+        "work": "Retained work",
+        "retainedWork": "Code and tests remain; check fulfillment against the renewed TP.",
+        "analyses": "Analytical applicability",
+        "retain": "Retain",
+        "reassess": "Reassess"
       }
     },
     "de": {
@@ -1518,7 +1568,8 @@
         "breadcrumbFulfilled": "✓",
         "breadcrumbCurrent": "●",
         "breadcrumbOpen": "○",
-        "breadcrumbSeparator": " · "
+        "breadcrumbSeparator": " · ",
+        "sdReadinessItems": "SD-Bereitschaftspunkte"
       },
       "controlSetup": {
         "title": "AGDF-Kontrollstatus einrichten",
@@ -1808,7 +1859,18 @@
         "blockedUrRequirements": "UR-Anforderungen müssen geklärt werden",
         "completeUrRequirements": "die UR-Anforderungen klären und eine neue Run-Revision festhalten",
         "nextUrRequirements": "die UR-Anforderungen klären, dann die Revision mit run-update festhalten",
-        "forbidUnreadyUr": "UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind"
+        "forbidUnreadyUr": "UR präsentieren oder freigeben, bevor die Anforderungen geklärt sind",
+        "completeSdReadinessItems": "die aufgeführten SD-Bereitschaftspunkte gemeinsam klären und eine neue Run-Revision erfassen",
+        "forbidSdBeforeReady": "SD präsentieren oder freigeben, bevor die erforderlichen Designentscheidungen geklärt sind",
+        "nextSdReadinessItems": "die offenen SD-Bereitschaftspunkte gemeinsam klären und die Revision mit der gemeinsamen Artefaktregistrierung erfassen",
+        "blockedSdDecisionsOpen": "erforderliche Designentscheidungen sind offen oder fehlerhaft",
+        "sourceRevisionUxNext": "UX-Intent unter der aktuell freigegebenen UR vor abhängigen Quellen erneut prüfen.",
+        "sourceRevisionUxAssess": "UX-Intent unter der freigegebenen UR und dem geprüften Analysekontext erneut bewerten",
+        "sourceRevisionUxRecord": "Die erneute Analyse vor abhängigen Entwürfen erfassen",
+        "sourceRevisionUxForbidden": "Abhängige Quellen vor der erneuten Analyse entwerfen oder freigeben",
+        "sourceRevisionAuthoringNext": "Quellenanalysen vor erneuten Freigaben prüfen",
+        "sourceRevisionResolveRoute": "Die Analyseroute unter der weiterhin freigegebenen UR klären",
+        "sourceRevisionSkipApprovals": "erneute Quellenfreigaben überspringen"
       },
       "scopeClassification": {
         "title": "AGDF-Scope-Klassifizierung",
@@ -1977,7 +2039,8 @@
           "intake_run_collision": "Die Run-ID ist bereits belegt. Den bestehenden Auftrag ausdrücklich zuordnen oder für den neuen Umfang eine unbenutzte ID wählen.",
           "intake_scaffold_required": "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen.",
           "run_assignment_inventory_invalid": "Das Run-Inventar ist unvollständig oder ungültig. Die genannten Kontrollbefunde beheben und Intake erneut prüfen; der Fehler begründet keinen neuen Umfang.",
-          "prd_authoring_inputs_invalid": "PRD-Erstellung gesperrt: freigegebene UR, Brownfield-Quelle, bereite UX-Eingabe und PRD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen."
+          "prd_authoring_inputs_invalid": "PRD-Erstellung gesperrt: freigegebene UR, Brownfield-Quelle, bereite UX-Eingabe und PRD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen.",
+          "sd_authoring_inputs_invalid": "SD-Erstellung gesperrt: freigegebenes PRD, Brownfield/bereite Analyse und SD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen."
         }
       },
       "artefacts": {
@@ -2203,6 +2266,43 @@
         "absentDescription": "Dieses Projekt hat keinen Ordner .agdf/control.",
         "incompleteDescription": "Die Inventur ist unvollständig; die Gesamtzahl aktiver Runs ist unbekannt.",
         "findingsDescription": "Prüfbefunde:"
+      },
+      "sourceRevision": {
+        "title": "Quellenrevision",
+        "preview": "Nur vorgeschlagen",
+        "reopened": "Revision angewendet",
+        "historical": "Nur historische Nachweise",
+        "replayed": "Historischer Vorgang wiederholt",
+        "recovered": "Wiederherstellung geprüft",
+        "recovery_required": "Wiederherstellung erforderlich",
+        "rejected": "Revision abgelehnt",
+        "not_found": "Vorgang nicht gefunden",
+        "target": "Ziel",
+        "run": "Run",
+        "operation": "Vorgang",
+        "revision": "Aktuelle Revision",
+        "original": "Ursprüngliche Ergebnisrevision",
+        "source": "Geänderte Quelle",
+        "retained": "Beibehaltene Freigaben",
+        "superseded": "Aufgehobene Freigaben",
+        "reason": "Grund",
+        "next": "Nächste Aktion",
+        "none": "Keine",
+        "authority": "Dieses Ergebnis erteilt keine Umsetzungs- oder Gate-Freigabe.",
+        "reviewNext": "Vorschlag prüfen; seine genaue Vorschau ausdrücklich anwenden oder abbrechen.",
+        "readNext": "Den aktuell gebundenen Run vor der nächsten erlaubten Aktion prüfen.",
+        "refuseNext": "Aktuelle Fakten prüfen und einen neuen geprüften Vorschlag vorbereiten.",
+        "recoverNext": "Gebundenen offenen Vorgang prüfen und ausdrücklich wiederherstellen.",
+        "intent": "Beabsichtigte Änderung",
+        "binding": "Vorschaudigest für ausdrückliches Anwenden",
+        "sources": "Gebundene Quellinhalte",
+        "artefacts": "Artefakte mit neuer Erfassung und Freigabe",
+        "evidence": "Schritte mit erneut erforderlichen Nachweisen",
+        "work": "Erhaltene Arbeit",
+        "retainedWork": "Code und Tests bleiben; Erfüllung gegen den neuen TP prüfen.",
+        "analyses": "Anwendbarkeit der Analysen",
+        "retain": "Beibehalten",
+        "reassess": "Neu prüfen"
       }
     }
   }

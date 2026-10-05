@@ -2,13 +2,13 @@
   "codex.installed": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -28,7 +28,7 @@
     },
     "facts": {
       "payload_present": true,
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "original_result": "healthy"
     },
     "original": {
@@ -43,13 +43,13 @@
   "codex.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -68,7 +68,7 @@
       "condition": "discovered"
     },
     "facts": {
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -78,6 +78,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -87,62 +88,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         }
       ]
     },
@@ -158,13 +164,13 @@
   "codex.discovery-missing": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -183,7 +189,7 @@
       "condition": "discovery-missing"
     },
     "facts": {
-      "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646",
+      "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -193,6 +199,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -202,57 +209,62 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         }
       ]
     },
@@ -268,13 +280,13 @@
   "codex.discovery-wrong-payload": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -293,7 +305,7 @@
       "condition": "discovery-wrong-payload"
     },
     "facts": {
-      "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c",
+      "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -303,6 +315,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -312,62 +325,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         }
       ]
     },
@@ -383,13 +401,13 @@
   "codex.callable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -439,13 +457,13 @@
   "codex.target-unresolved": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -495,13 +513,13 @@
   "codex.missing-approval": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -551,13 +569,13 @@
   "codex.invalid-input": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -607,13 +625,13 @@
   "codex.updated": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -632,9 +650,9 @@
       "condition": "updated"
     },
     "facts": {
-      "previous_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
-      "payload_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703"
+      "payload_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a"
     },
     "original": {
       "result": "demonstrated",
@@ -648,13 +666,13 @@
   "codex.update-stale": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -673,9 +691,9 @@
       "condition": "update-stale"
     },
     "facts": {
-      "previous_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
     },
     "original": {
       "result": "failed",
@@ -689,13 +707,13 @@
   "codex.recoverable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -716,8 +734,8 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": true,
-      "previous_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "recovered_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
+      "previous_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "recovered_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
       "foreign_preserved": true,
       "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
       "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
@@ -737,13 +755,13 @@
   "codex.recovery-partial": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -764,8 +782,8 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": false,
-      "previous_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "recovered_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
+      "previous_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "recovered_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
       "foreign_preserved": true,
       "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
       "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
@@ -797,13 +815,13 @@
   "codex.manual-checks": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -839,13 +857,13 @@
   "codex.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "codex",
@@ -881,13 +899,13 @@
   "claude.installed": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -907,7 +925,7 @@
     },
     "facts": {
       "payload_present": true,
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "original_result": "healthy"
     },
     "original": {
@@ -922,13 +940,13 @@
   "claude.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -947,7 +965,7 @@
       "condition": "discovered"
     },
     "facts": {
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -957,6 +975,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -966,62 +985,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         }
       ]
     },
@@ -1037,13 +1061,13 @@
   "claude.discovery-missing": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1062,7 +1086,7 @@
       "condition": "discovery-missing"
     },
     "facts": {
-      "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646",
+      "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -1072,6 +1096,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -1081,57 +1106,62 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         }
       ]
     },
@@ -1147,13 +1177,13 @@
   "claude.discovery-wrong-payload": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1172,7 +1202,7 @@
       "condition": "discovery-wrong-payload"
     },
     "facts": {
-      "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c",
+      "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -1182,6 +1212,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -1191,62 +1222,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         }
       ]
     },
@@ -1262,13 +1298,13 @@
   "claude.callable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1318,13 +1354,13 @@
   "claude.target-unresolved": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1374,13 +1410,13 @@
   "claude.missing-approval": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1430,13 +1466,13 @@
   "claude.invalid-input": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1486,13 +1522,13 @@
   "claude.updated": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1511,9 +1547,9 @@
       "condition": "updated"
     },
     "facts": {
-      "previous_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
-      "payload_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703"
+      "payload_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a"
     },
     "original": {
       "result": "demonstrated",
@@ -1527,13 +1563,13 @@
   "claude.update-stale": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1552,9 +1588,9 @@
       "condition": "update-stale"
     },
     "facts": {
-      "previous_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
     },
     "original": {
       "result": "failed",
@@ -1568,13 +1604,13 @@
   "claude.recoverable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1595,8 +1631,8 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": true,
-      "previous_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "recovered_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
+      "previous_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "recovered_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
       "foreign_preserved": true,
       "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
       "permission_after": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
@@ -1616,13 +1652,13 @@
   "claude.recovery-partial": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1643,8 +1679,8 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": false,
-      "previous_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "recovered_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
+      "previous_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "recovered_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
       "foreign_preserved": true,
       "permission_before": "7a678e988f58b1d8fbfc85f427e54971ca2d3f3af286482bb618437ad7ba67e1",
       "permission_after": "5cde84ef32def8b818be4137a6f686d14912745a249102fe0ae15d6ff1554e37",
@@ -1676,13 +1712,13 @@
   "claude.manual-checks": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1718,13 +1754,13 @@
   "claude.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "claude",
@@ -1760,13 +1796,13 @@
   "copilot.installed": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -1786,7 +1822,7 @@
     },
     "facts": {
       "payload_present": true,
-      "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
+      "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "original_result": "healthy"
     },
     "original": {
@@ -1801,13 +1837,13 @@
   "copilot.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -1826,7 +1862,7 @@
       "condition": "discovered"
     },
     "facts": {
-      "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
+      "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -1836,6 +1872,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -1845,62 +1882,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+          "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
         }
       ]
     },
@@ -1916,13 +1958,13 @@
   "copilot.discovery-missing": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -1941,7 +1983,7 @@
       "condition": "discovery-missing"
     },
     "facts": {
-      "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f",
+      "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -1951,6 +1993,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -1960,57 +2003,62 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "cccc4fa2446be080b8ca408b25e9c6c10b8fe5177b1c813ea3189ad56440cd4f"
+          "payload_digest": "6b2433dcda929f9ae45aafced203e03bb74e9088d597aed53535e45db833c837"
         }
       ]
     },
@@ -2026,13 +2074,13 @@
   "copilot.discovery-wrong-payload": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2051,7 +2099,7 @@
       "condition": "discovery-wrong-payload"
     },
     "facts": {
-      "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b",
+      "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -2061,6 +2109,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -2070,62 +2119,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "5657ba3628e1ac3ac4fd34544ac10c3bd35a7088a33d63e42de218c1252ba36b"
+          "payload_digest": "b9f5cfa2272c836878d56488fbe0faaa9a3427ea4452de263d3fc803c355d363"
         }
       ]
     },
@@ -2141,13 +2195,13 @@
   "copilot.callable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2197,13 +2251,13 @@
   "copilot.target-unresolved": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2253,13 +2307,13 @@
   "copilot.missing-approval": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2309,13 +2363,13 @@
   "copilot.invalid-input": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2365,13 +2419,13 @@
   "copilot.updated": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2390,9 +2444,9 @@
       "condition": "updated"
     },
     "facts": {
-      "previous_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
+      "previous_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "update_observed": true,
-      "payload_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74"
+      "payload_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7"
     },
     "original": {
       "result": "demonstrated",
@@ -2406,13 +2460,13 @@
   "copilot.update-stale": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2431,9 +2485,9 @@
       "condition": "update-stale"
     },
     "facts": {
-      "previous_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
+      "previous_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
       "update_observed": true,
-      "payload_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12"
+      "payload_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1"
     },
     "original": {
       "result": "failed",
@@ -2447,13 +2501,13 @@
   "copilot.recoverable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "a114e41838334be4ff3e076bb04c13ca7dd0a8ff6123e600b846d48cdd7c10ff",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2474,11 +2528,11 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": true,
-      "previous_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
-      "recovered_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
+      "previous_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "recovered_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
       "foreign_preserved": true,
-      "permission_before": "8385b9b45b2d990224f5820cf23f2c0e9e6d03609ccce6234c82c3b30f3a78a3",
-      "permission_after": "8385b9b45b2d990224f5820cf23f2c0e9e6d03609ccce6234c82c3b30f3a78a3",
+      "permission_before": "8ae38b574a124ee58d70c7c889aec93ab75565b4e7ba68d1d5dd59003344ef00",
+      "permission_after": "8ae38b574a124ee58d70c7c889aec93ab75565b4e7ba68d1d5dd59003344ef00",
       "permission_preserved": true,
       "unresolved": [],
       "original_result": "verification"
@@ -2495,13 +2549,13 @@
   "copilot.recovery-partial": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "a114e41838334be4ff3e076bb04c13ca7dd0a8ff6123e600b846d48cdd7c10ff",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "a114e41838334be4ff3e076bb04c13ca7dd0a8ff6123e600b846d48cdd7c10ff",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2522,11 +2576,11 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": false,
-      "previous_digest": "5f0149916bb62d60b9eb0d84f0f57757b53d39f1fd06242f0e8d56ac9ea58a74",
-      "recovered_digest": "a114e41838334be4ff3e076bb04c13ca7dd0a8ff6123e600b846d48cdd7c10ff",
+      "previous_digest": "20251a1bc38735b5143d5b6d03454a35788deb3762685396f4e5698dd9124cc7",
+      "recovered_digest": "d68754d20033d38fc82b402ab072800bbb218851f778283bb528d3d44bf3a5bf",
       "foreign_preserved": true,
-      "permission_before": "8385b9b45b2d990224f5820cf23f2c0e9e6d03609ccce6234c82c3b30f3a78a3",
-      "permission_after": "8385b9b45b2d990224f5820cf23f2c0e9e6d03609ccce6234c82c3b30f3a78a3",
+      "permission_before": "8ae38b574a124ee58d70c7c889aec93ab75565b4e7ba68d1d5dd59003344ef00",
+      "permission_after": "8ae38b574a124ee58d70c7c889aec93ab75565b4e7ba68d1d5dd59003344ef00",
       "permission_preserved": true,
       "unresolved": [
         "injected_recovery_failure"
@@ -2555,13 +2609,13 @@
   "copilot.manual-checks": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2597,13 +2651,13 @@
   "copilot.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "2b143fe12ac6f079811c6646ce171ce1516b78bb61257b1c2eaf5c7e49014e12",
-      "runtime_digest": "3428dc30adef0f6a58734ef703691029e6796ed032692a31e91b61ec1b5fd721"
+      "source_digest": "6085731afee26e44c41e833bbf4334f39dc198dc51648d6f4d0156e8c9ae20c1",
+      "runtime_digest": "c4c1db3ef284f53442ae3c55bea17c5a9be727072797e81b92d4ee2b8a5ceef3"
     },
     "environment": {
       "host": "copilot",
@@ -2639,13 +2693,13 @@
   "opencode.installed": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -2665,7 +2719,7 @@
     },
     "facts": {
       "payload_present": true,
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "original_result": "installed"
     },
     "original": {
@@ -2680,13 +2734,13 @@
   "opencode.discovered": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -2705,7 +2759,7 @@
       "condition": "discovered"
     },
     "facts": {
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -2715,6 +2769,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -2724,62 +2779,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+          "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
         }
       ]
     },
@@ -2795,13 +2855,13 @@
   "opencode.discovery-missing": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -2820,7 +2880,7 @@
       "condition": "discovery-missing"
     },
     "facts": {
-      "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646",
+      "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -2830,6 +2890,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -2839,57 +2900,62 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "edb01a65a6173b86309fa44cf39fbe56a8cdf0704415a3835305d194bb9cb646"
+          "payload_digest": "dcc31fc300315a857b5f6dc49b2a20fe14fb251913b88822ef84b98daa1babc9"
         }
       ]
     },
@@ -2905,13 +2971,13 @@
   "opencode.discovery-wrong-payload": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -2930,7 +2996,7 @@
       "condition": "discovery-wrong-payload"
     },
     "facts": {
-      "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c",
+      "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2",
       "expected_skills": [
         "delivery-path-search",
         "brownfield-analysis",
@@ -2940,6 +3006,7 @@
         "delivery-closeout",
         "ur-definition",
         "prd-definition",
+        "sd-definition",
         "gate-check",
         "qa-gate",
         "release-or",
@@ -2949,62 +3016,67 @@
         {
           "name": "delivery-path-search",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "brownfield-analysis",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "ux-intent-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "clean-implementation-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "code-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "delivery-closeout",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "ur-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "prd-definition",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
+        },
+        {
+          "name": "sd-definition",
+          "enabled": true,
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "gate-check",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "qa-gate",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "release-or",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         },
         {
           "name": "task-plan-review",
           "enabled": true,
-          "payload_digest": "6cf815cce608def9810f240b3f5f9c8896c5e9b29e960c9f88ce589ddd3d053c"
+          "payload_digest": "ad74b4e1a583c22872cc30da2a7041aa905ae089a20483aef78b06bd26960df2"
         }
       ]
     },
@@ -3020,13 +3092,13 @@
   "opencode.callable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3076,13 +3148,13 @@
   "opencode.target-unresolved": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3132,13 +3204,13 @@
   "opencode.missing-approval": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3188,13 +3260,13 @@
   "opencode.invalid-input": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3244,13 +3316,13 @@
   "opencode.updated": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3269,9 +3341,9 @@
       "condition": "updated"
     },
     "facts": {
-      "previous_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
-      "payload_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703"
+      "payload_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a"
     },
     "original": {
       "result": "demonstrated",
@@ -3285,13 +3357,13 @@
   "opencode.update-stale": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3310,9 +3382,9 @@
       "condition": "update-stale"
     },
     "facts": {
-      "previous_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
+      "previous_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
       "update_observed": true,
-      "payload_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af"
+      "payload_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5"
     },
     "original": {
       "result": "failed",
@@ -3326,13 +3398,13 @@
   "opencode.recoverable": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3353,8 +3425,8 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": true,
-      "previous_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "recovered_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
+      "previous_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "recovered_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
       "foreign_preserved": true,
       "permission_before": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
       "permission_after": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
@@ -3374,13 +3446,13 @@
   "opencode.recovery-partial": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3401,8 +3473,8 @@
     "facts": {
       "failure_observed": true,
       "recovery_observed": false,
-      "previous_digest": "63b0084243cea56865bc0297804883409903e41e3f26a142207e43fd6484d703",
-      "recovered_digest": "d8766d61e6ce8bc26495fb8243a6aa19d6adc8ada37854f348793aeb0a9566db",
+      "previous_digest": "cb46300228c5b9ce6ab74aade39a5d0db3919f3281a1d2bd9ace5b3d810c407a",
+      "recovered_digest": "29151d058458fd91c76b2f2a3f4df930abbdb0f68f004e810fa86c4c9c73db3d",
       "foreign_preserved": true,
       "permission_before": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
       "permission_after": "6f4d6b488bef0e53a10f206d17dacf5f7e2d232bb12b75b6069158ccfbdfaa68",
@@ -3434,13 +3506,13 @@
   "opencode.manual-checks": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",
@@ -3476,13 +3548,13 @@
   "opencode.trusted-unexecuted": {
     "expected": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "observed": {
       "canonical_version": "0.14.5",
-      "source_digest": "1fc95f9bd3ec1637df55a57a22344ebd0ca16292758544a4138894672ae5a2af",
-      "runtime_digest": "decb25570adf4f6f02ab705d50e144f13b15dcd402e2a88c9d88f99969feb2e8"
+      "source_digest": "4bb920034fa738242baa1e6ee5228cc876f74594849cb93df91b4d7b22fc45d5",
+      "runtime_digest": "671e4edcc391fd96300526b923d5cda3ce0105d22c28e2b9c4906390673cd052"
     },
     "environment": {
       "host": "opencode",

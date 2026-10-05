@@ -8,6 +8,9 @@ import { gateApprovalStatus, readRunState, resolvedArtefactFile } from "./run-st
 import { deliveryRelationships, relationshipRequired, sameRelationship } from "./delivery-relationships.js";
 import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
 import { evaluateReconciliationState } from "./parent-reconciliation.js";
+import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
+import { readArtefactBindings } from "../control-state/artefact-bindings.js";
+import { validateBindingProof } from "../control-state/artefact-binding-proof.js";
 
 function severityFromImpact(value) {
   if (value === "block") return "block";
@@ -27,8 +30,13 @@ export function analyzeDeliveryMap(runState, dependencies = {}) {
       satisfied: isGateSatisfied(runState, expected.requiredBy), currentGate: transitionDecisionForRunState(runState).current_gate,
       artefact: runState.artefacts.get(expected.requiredBy), resolveFile: dependencies.resolveFile });
     const evidence = row?.evidence ?? "";
+    const revisions = readSourceRevisions(runState.content ?? "");
+    const binding = readArtefactBindings(runState.content ?? "").active.find(item => sameRelationship(item.relationship, expected)
+      && evidence.startsWith(`binding ${item.binding_id};`));
+    const currentProof = !revisions.present || expected.requiredBy === "UR" || Boolean(binding && dependencies.targetDir
+      && validateBindingProof(dependencies.targetDir, binding));
     const status = relevant.length > 1 || relevant.some(row => !sameRelationship(row, expected)) ? "conflict"
-      : !row ? "missing" : filled(evidence) ? "pass" : required ? "missing_evidence" : "template";
+      : !row ? "missing" : filled(evidence) && currentProof ? "pass" : required ? "missing_evidence" : "template";
 
     if (required && status !== "pass") {
       findings.push({
@@ -203,6 +211,7 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
   const doctorReport = evaluateDoctor(targetDir, selection);
   const runState = readRunState(targetDir, selection);
   const map = analyzeDeliveryMap(runState, {
+    targetDir,
     loadRun: (runId) => readRunState(targetDir, { runId }),
     resolveFile: (path) => resolvedArtefactFile(targetDir, path),
   });
@@ -218,6 +227,7 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
   const qualityOutlook = deriveQualityOutlook(runState, map.findings);
   const nextAllowedAction = isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action;
   const postApproval = postApprovalTransition(gateDecision.missing_approval);
+  const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
 
   return {
     schema_version: "1",
@@ -225,6 +235,7 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
     checked_at: new Date().toISOString(),
     target_dir: targetDir,
     current_gate: currentGate,
+    ...(sourceRevisions ? { source_revisions: sourceRevisions } : {}),
     next_allowed_action: nextAllowedAction,
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,

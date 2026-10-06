@@ -14,6 +14,8 @@ Beziehungskorrektur nachgeführt. Die Paketmetadaten von
 belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets
 oder einer geladenen Host-Installation. Quelle, Paket und frische Sitzung benötigen eigene Nachweise.
 Historische Host-Beobachtungen stehen in Abschnitt 7; diese Dokumentationsänderung aktualisiert sie nicht.
+Die separate lokale Cockpit-Integration wurde am 6. Oktober 2026 ergänzt. Ihre Ansichten,
+Quellbindungen und noch offenen Host-Nachweise beschreibt die [Cockpit-Referenz](06-agdf-cockpit.md).
 
 Die normativen Regeln stehen in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
 Die technische Ausgestaltung des MCP-Lebenszyklus steht im
@@ -53,6 +55,12 @@ AGDF hat zwei Verbindungen zum Host:
 1. **Anweisungsweg:** Plugin und Skills erklären dem Agenten Aktivierung, Arbeitsweise und Grenzen.
 2. **Werkzeugweg:** Der lokale MCP-Server stellt zwei Werkzeuge bereit: `agdf_dispatch` für den Skill-Dispatcher und `agdf_inspect` für lesende Kontrollabfragen.
 
+Daneben stellt die private lokale Verbindung `agdf-cockpit-local` eine lesende MCP-App mit
+`agdf_cockpit` und `agdf_cockpit_read` bereit. Sie zeigt den Kontrollstand und registrierte Quellen
+über dieselben Core-Eigentümer, besitzt aber keine eigene Gate-Policy oder Freigabeoperation.
+Die Diagramme zum Dispatch-/Inspect-Weg ersetzen nicht die gesonderte
+[Cockpit-Beschreibung](06-agdf-cockpit.md#1-einordnung-und-zuständigkeiten).
+
 Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`.
 Ein Run beschreibt genau einen abgegrenzten Arbeitsumfang. Sein kanonischer Zustand liegt unter
 `runs/<run_id>/RUN_STATE.md`, zugehörige Artefakte unter `artefacts/<run_id>/`.
@@ -79,6 +87,7 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Dispatch-Routing | Prüft Eingaben, bindet das Ziel, liest den Kontrollzustand und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Verändert keinen Run-Zustand. | [`skill-dispatch/service.js`](../../packages/core/lib/skill-dispatch/service.js), [Use-Case-Katalog](02-dispatcher.md) |
 | Fortsetzungsorchestrierung | Umschließt das Routing am gemeinsamen Core-Einstieg. Koordiniert bei beauftragter gebundener Fortsetzung höchstens eine belegte Beziehungskorrektur und ruft danach das Routing mit frischer Auswertung erneut auf. | [`delivery-continuation/service.js`](../../packages/core/lib/delivery-continuation/service.js), [`index.js`](../../packages/core/lib/index.js) |
 | MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`packages/mcp-server/`](../../packages/mcp-server/), [`mcp-dispatch-runtime.js`](../../packages/cli/lib/mcp-dispatch-runtime.js) |
+| Lokales Cockpit | Private React-Leseansichten über HTTP oder eine separate MCP-App; Run-Bindung, registrierte Quellen und begrenzte Kontextübergabe. Keine Gate-/Freigabeschreiboperation. | [Cockpit-Referenz](06-agdf-cockpit.md), [`control-ui/`](../../packages/control-ui/), [`cockpit-contract.js`](../../packages/core/lib/control-inspect/cockpit-contract.js) |
 | MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../packages/cli/lib/mcp-lifecycle/profile.js) |
 | MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../packages/cli/lib/mcp-lifecycle/service.js) |
 | MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../packages/cli/lib/mcp-lifecycle/adapters/) |

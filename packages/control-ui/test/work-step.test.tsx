@@ -11,11 +11,11 @@ it('joins the current action, recorded prerequisites and original evidence in on
  expect(q.getByText('Umsetzung und Prüfung abschließen.')).toBeTruthy();expect(q.getByText('Die Kontrollauswertung weist diesen Schritt als offen aus.')).toBeTruthy();
  expect(q.getByText('Native Anzeige prüfen')).toBeTruthy();expect(q.getByText('Aktueller Build noch nicht im Host bestätigt.')).toBeTruthy();expect(q.getByText(/Neue Karte öffnen und prüfen/)).toBeTruthy();
  fireEvent.click(q.getByRole('button',{name:'Umsetzungs- und Prüfnachweise öffnen'}));expect(open).toHaveBeenCalledWith(source);
- expect(q.queryByText('Vor der Weiterarbeit zu klären:')).toBeNull();
+ expect(q.queryByText('Vor der Weiterarbeit klären.')).toBeNull();
 });
 it('recorded approvals never turn a Core blocker or missing approval into an open beginning',()=>{
  render(<WorkStep data={{...data,evaluation:{...data.evaluation!,blocking_reason:'source_changed',missing_approval:'Approval: QA'}}}/>);
- expect(screen.getByText('Vor der Weiterarbeit zu klären:')).toBeTruthy();expect(screen.getByText('source_changed')).toBeTruthy();expect(screen.getByText('Approval: QA')).toBeTruthy();
+ expect(screen.getByText('Vor der Weiterarbeit klären.')).toBeTruthy();expect(screen.getByText('source_changed')).toBeTruthy();expect(screen.getByText('Approval: QA')).toBeTruthy();
  expect(screen.queryByText('Die Kontrollauswertung weist diesen Schritt als offen aus.')).toBeNull();expect(screen.getByText(/Gespeicherte Freigaben · TP/)).toBeTruthy();
 });
 it.each([{current:false,status:'open',doctor:'pass'},{current:true,status:'blocked',doctor:'pass'},{current:true,status:'open',doctor:'error'}])('keeps incomplete or unavailable control qualification explicit: %j',({current,status,doctor})=>{
@@ -31,4 +31,32 @@ it('unknown evidence remains visible and does not invent a document or an output
 it('a missing evaluation keeps the explicit read-navigation action available',()=>{
  render(<WorkStep data={{...data,evaluation:undefined}}><button>Run ansehen</button></WorkStep>);
  expect(screen.getByRole('button',{name:'Run ansehen'})).toBeTruthy();expect(screen.queryByRole('region')).toBeNull();
+});
+
+it('summary keeps qualifications and originals folded while evidence sources stay directly accessible',()=>{
+ const runState={...source,resource_id:'opaque-run',type:'Run State'};
+ const open=vi.fn();render(<WorkStep data={{...data,resources:[runState,source]}} condensed onOpen={open}/>);
+ expect(screen.getByRole('heading',{name:'Umsetzung und Prüfung'})).toBeTruthy();
+ expect(screen.getByText('Beginn offen')).toBeTruthy();expect(screen.queryByText('Voraussetzungen erfüllt')).toBeNull();
+ const basis=screen.getByText('Kontrollgrundlage · 1 Freigabe').closest('details');
+ const evidence=screen.getByText('1 offenen Nachweis ansehen').closest('details');
+ expect(basis?.open).toBe(false);expect(evidence?.open).toBe(false);
+ const links=Array.from(document.querySelectorAll('.work-step-sources button'));
+ expect(links.map(e=>e.textContent)).toEqual(['Umsetzungs- und Prüfnachweise öffnen','Stand des Vorhabens öffnen']);
+ fireEvent.click(links[0]);expect(open).toHaveBeenCalledWith(source);
+ fireEvent.click(links[1]);expect(open).toHaveBeenLastCalledWith(runState);
+ fireEvent.click(screen.getByText('1 offenen Nachweis ansehen'));expect(document.querySelector('.work-step-evidence')).toBeTruthy();
+ expect(screen.getByText('Native Anzeige prüfen')).toBeTruthy();
+});
+it('no missing evidence is a plain observation and grants neither readiness nor an invented source',()=>{
+ render(<WorkStep data={{...data,resources:[],evaluation:{...data.evaluation!,status:'unknown',missing_evidence:[]}}} condensed onOpen={vi.fn()}/>);
+ expect(screen.getByText('Keine offenen Nachweise ausgewiesen.')).toBeTruthy();
+ expect(screen.getByText('Beginn unklar')).toBeTruthy();expect(screen.queryByText('Beginn offen')).toBeNull();
+ expect(document.querySelector('.work-step-evidence')).toBeNull();expect(screen.queryByRole('button')).toBeNull();
+});
+it('stale control keeps prior blocker, approval and evidence without presenting them as current',()=>{
+ render(<WorkStep data={{...data,evaluation:{...data.evaluation!,blocking_reason:'source_changed',missing_approval:'Approval: QA'}}} current={false} condensed/>);
+ expect(screen.getByText('Beginn unklar')).toBeTruthy();expect(screen.queryByText('Beginn blockiert')).toBeNull();
+ expect(screen.getByText(/Zuletzt gespeicherter Blocker/)).toBeTruthy();expect(screen.getByText(/Zuletzt ausstehende Freigabe/)).toBeTruthy();
+ expect(screen.getByText('Native Anzeige prüfen')).toBeTruthy();
 });

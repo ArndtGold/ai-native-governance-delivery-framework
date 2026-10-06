@@ -8,6 +8,8 @@ der folgende Baum beschreibt die bestehende Struktur.
 
 **Stand: 3. Oktober 2026, Repository-Quelle.** Eine Quellzuordnung belegt keine Veröffentlichung
 oder Aktualisierung einer bestehenden Host-Installation.
+Die private lokale Cockpit-Grenze ist zum 6. Oktober 2026 ergänzt; sie ist kein weiteres
+öffentliches npm-Produkt.
 
 Der Repository-Baum trennt installierbare Plugin-Inhalte, ausführbare Software und
 Build-/Release-Komposition:
@@ -31,6 +33,11 @@ repository/
 │   │   ├── lib/
 │   │   ├── scripts/
 │   │   └── distribution/agdf/
+│   ├── control-ui/
+│   │   ├── src/
+│   │   ├── server/
+│   │   ├── scripts/
+│   │   └── test/
 │   └── mcp-server/
 │       ├── bin/
 │       ├── src/
@@ -51,6 +58,7 @@ repository/
 | Core | `packages/core/lib/` | Kontrollzustand, Gate-/Freigabe-/Revisionsvalidierung, Seals, Locks, Transaktionen, Recovery, Dispatch und Inspektionslogik |
 | CLI | `packages/cli/` | Befehle, Installation, Setup, Lifecycle, Hostkomposition, Git-/Runtime-/Terminalprovider |
 | MCP | `packages/mcp-server/` | SDK, Worker und stdio; Werkzeuge delegieren an gemeinsame Core-Services |
+| Private Cockpit-UI | `packages/control-ui/` | Geteilte React-Ansichten, lokaler HTTP-Zugang und MCP-UI-Build; Lese-/Sitzungssemantik bleibt im Core |
 | Build/Release | `scripts/` | Ressourcen-/Profilprojektion, npm-Assembly, Release- und Historyprüfung |
 | Evaluation | `evals/lib/`, `evals/scripts/` | Replay, Recorder und Benchmarks; keine Core-Laufzeitabhängigkeit |
 
@@ -58,6 +66,12 @@ repository/
 `create-agdf`, `@agdf/cli` und `@agdf/mcp-server`. Alle verwenden die gemeinsame
 Version und Node.js >=22. `packages/cli/distribution/agdf/` ist der dünne
 `@agdf/cli`-Wrapper; er importiert `create-agdf/cli`.
+
+Das [Cockpit](06-agdf-cockpit.md) verwendet Pages-eigene Designquellen und getrennte lokale
+Build-Ausgaben. React-Abhängigkeiten und UI-Assets bleiben außerhalb der öffentlichen
+CLI-/Plugin-/MCP-Payloads. `scripts/prepare-cockpit-local.mjs` komponiert das separate,
+projektbezogene Codex-Profil unter `dist/local/codex-cockpit/`; die reguläre Host-Installation
+wird dadurch nicht um eine öffentlich ausgelieferte Cockpit-App erweitert.
 
 ## Ressourcen und Provider
 

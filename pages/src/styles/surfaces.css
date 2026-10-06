@@ -1,21 +1,25 @@
-/* Shared Pages surface and action recipes. Hosts choose the theme, not brand values. */
+/* Shared Pages surface recipes. Hosts choose the theme, not brand values. */
 :root {
+  --agdf-canvas-bg: var(--agdf-color-dark-100);
   --agdf-surface-bg: #fff;
-  --agdf-surface-border: var(--agdf-color-dark-200);
+  --agdf-surface-border: var(--agdf-color-dark-300);
   --agdf-surface-shadow: 0 1px 0 rgb(255 255 255 / .8) inset, 0 12px 32px -24px rgb(2 6 23 / .22);
-  --agdf-control-bg: var(--agdf-color-agdf-50);
-  --agdf-control-border: color-mix(in srgb, var(--agdf-color-agdf-700) 35%, transparent);
-  --agdf-control-shadow: 0 1px 0 rgb(255 255 255 / .8) inset, 0 16px 40px -30px rgb(15 118 110 / .25);
+  --agdf-control-bg: var(--agdf-surface-bg);
+  --agdf-control-border: var(--agdf-surface-border);
+  --agdf-control-accent: var(--agdf-color-agdf-700);
+  --agdf-control-shadow: var(--agdf-surface-shadow);
   --agdf-link-color: var(--agdf-color-agdf-700);
   --agdf-link-hover: var(--agdf-color-agdf-800);
 }
 :root.dark, :root[data-theme='dark'] {
-  --agdf-surface-bg: color-mix(in srgb, var(--agdf-color-dark-900) 65%, transparent);
-  --agdf-surface-border: color-mix(in srgb, var(--agdf-color-dark-700) 80%, transparent);
+  --agdf-canvas-bg: var(--agdf-color-dark-950);
+  --agdf-surface-bg: var(--agdf-color-dark-900);
+  --agdf-surface-border: var(--agdf-color-dark-600);
   --agdf-surface-shadow: 0 1px 0 rgb(148 163 184 / .06) inset, 0 18px 48px -28px rgb(2 6 23 / .88);
-  --agdf-control-bg: color-mix(in srgb, var(--agdf-color-agdf-950) 35%, transparent);
-  --agdf-control-border: color-mix(in srgb, var(--agdf-color-agdf-500) 50%, transparent);
-  --agdf-control-shadow: 0 1px 0 rgb(153 246 228 / .12) inset, 0 24px 64px -38px rgb(20 184 166 / .30);
+  --agdf-control-bg: var(--agdf-surface-bg);
+  --agdf-control-border: var(--agdf-surface-border);
+  --agdf-control-accent: var(--agdf-color-agdf-400);
+  --agdf-control-shadow: var(--agdf-surface-shadow);
   --agdf-link-color: var(--agdf-color-agdf-300);
   --agdf-link-hover: var(--agdf-color-agdf-100);
 }
@@ -26,7 +30,9 @@
   box-shadow: var(--agdf-surface-shadow);
 }
 .surface.controlled-card, .agdf-surface.agdf-controlled-surface {
+  /* Accent marks the work area, not an approval or success state. */
   border-color: var(--agdf-control-border);
+  border-inline-start: 3px solid var(--agdf-control-accent);
   background: var(--agdf-control-bg);
   box-shadow: var(--agdf-control-shadow);
 }

@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "expected_revision_id": "7fc8a8a9-6d92-4064-8bf9-5cf02fc34e85",
+  "operation_id": "d42626e2-69b1-4cd7-9a9b-753b72d01651",
+  "source_gate": "SD",
+  "reason": "The user explicitly requests one running server per connection with bounded independent read sessions per Cockpit view. The approved SD currently requires every render to expire the preceding session.",
+  "intended_change": "Revise only the concrete session/concurrency design and subsequent TP: up to four independent ephemeral view sessions under one connection, scoped close/expiry/capture/packet ownership, bounded per-view workers/captures, no implicit eviction, and one connection-wide context-publication owner retained until acknowledged host invalidation. Preserve UR/PRD acceptance, canonical control, explicit Run binding, existing browser/default MCP behavior and local Codex-only delivery.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+      "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+      "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md",
+      "digest": "sha256:be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md",
+      "digest": "sha256:e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex scoped source-impact assessment; cooperative, no independent approval",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+        "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+        "rationale": "The approved embedded local reading/checked-question journey, temporary view state, canonical ownership and non-goals are unchanged. Session capacity and lifecycle implementation are design choices, not new delivery authority."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+        "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+        "rationale": "PRD section Constraints And Existing Sources delegates concrete source capacity, session lifetime and integration structure to SD. Existing AC-001 through AC-010 remain the sole acceptance source; source freshness, race/teardown behavior and explicit deliberate handoff remain applicable per view."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7d253cc02529f9d07d44d3dab3c390a18fc7b679ad0ffd1407816495f73b5f95",
+        "reason": "The existing structured_delivery review already identifies Core/read-worker lifetime, cross-surface context handoff, local runtime ownership and source/host proof as high-impact design responsibilities. No new owner, persistence, host or authority is introduced. Fresh post-TP Brownfield Analysis must requalify current affected paths and the bounded concurrency design."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:09783d6bf308353e687aafd92819060150427c00a57833a7a249eca54713696a",
+        "reason": "The existing ready analysis already requires temporary view-owned state, closing an app to end its session, explicit checked handoff and truthful uncertain outcomes. Independent read instances preserve those working modes; capacity/context-owner contention is explicit blocked/failed feedback, with no new chat composer or delivery activation."
+      }
+    ],
+    "implementation_evidence": "Retain current code, tests and dated browser/protocol evidence as historical work only. No code changes before renewed SD/TP approval and required preparation. Replace single-session replacement scenarios with multi-view isolation/capacity/expiry/close/concurrency/source/packet tests; add publication ownership and uncertain invalidation scenarios, aggregate resource checks and actual native two-view evidence.",
+    "unresolved": []
+  }
+}

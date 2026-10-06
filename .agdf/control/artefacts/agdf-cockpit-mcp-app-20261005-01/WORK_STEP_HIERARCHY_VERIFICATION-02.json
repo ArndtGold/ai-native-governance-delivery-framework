@@ -1,0 +1,182 @@
+{
+  "schema_version": "1",
+  "recorded_at": "2026-10-06T16:50:48.267388+00:00",
+  "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision_id": "44f45a19-8d71-4876-8a5e-001e89a4eb8b",
+  "gate": "CD+Tests",
+  "status": "in_progress",
+  "protected_sources_unchanged": true,
+  "protected_hashes": {
+    ".codex/config.toml": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md": "be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md": "e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+  },
+  "source_hashes": {
+    "packages/control-ui/src/WorkStep.tsx": "55eefb6ea343a948333ef6338c42d90deb6e2b2e888427b764a192fed11108a7",
+    "packages/control-ui/src/style.css": "6ee259b50038ba5caf4843fb6437667ef13641eadd53df538d87c776061bfaf3",
+    "packages/control-ui/test/work-step.test.tsx": "855b466f6bc19672f21531fc2be2b6321800ee9364b564876a1afbdfc2efb41e",
+    "packages/control-ui/test/compact.test.tsx": "03da3d5cc16732c69f8d823793d8016d4793c00e2fab57ba3ac250a81f754b19",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "1335f909294d91388c12334579ded101ae2f6e982b38c103973c9bd32903ede8",
+    "packages/control-ui/README.md": "f373031116a10596e6be6037e1fcae4d429f0b5a235cf0d90e71ea5421c2233e"
+  },
+  "checks": {
+    "typecheck": "pass",
+    "browser_build": "pass",
+    "mcp_build": "pass",
+    "ui_tests": 71,
+    "service_tests": 5,
+    "browser_journeys": 10,
+    "responsive_theme_observations": 32,
+    "additional_work_hierarchy_observations": 8,
+    "built_pages_action_theme_observations": 4,
+    "surface_observations": 10,
+    "generated_tokens": "pass",
+    "git_diff_check": "pass"
+  },
+  "protocol": {
+    "status": "pass",
+    "evidence_class": "actual_stdio_protocol_not_host_ui",
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-011",
+          "SCN-013",
+          "SCN-020",
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      },
+      {
+        "protocol": "2026-07-28",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-011",
+          "SCN-013",
+          "SCN-020",
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      }
+    ],
+    "server_digest": "caafa641b93c195a5db75a8c65957c9809cada119bcb735ccfbd55ad90ee0cfb",
+    "ui_digest": "sha256:67b1644701f069c8f2bca048fea6246340aa648766e5b6f37314f0fff36367b9"
+  },
+  "work_hierarchy_observations": [
+    {
+      "theme": "light",
+      "viewport": 320,
+      "width": 276,
+      "height": 567,
+      "columns": 1,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "viewport": 560,
+      "width": 516,
+      "height": 504.25,
+      "columns": 1,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "viewport": 800,
+      "width": 756,
+      "height": 357.5,
+      "columns": 2,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "viewport": 1280,
+      "width": 1236,
+      "height": 357.5,
+      "columns": 2,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "viewport": 320,
+      "width": 276,
+      "height": 567,
+      "columns": 1,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "viewport": 560,
+      "width": 516,
+      "height": 504.25,
+      "columns": 1,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "viewport": 800,
+      "width": 756,
+      "height": 357.5,
+      "columns": 2,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "viewport": 1280,
+      "width": 1236,
+      "height": 357.5,
+      "columns": 2,
+      "overflow": false
+    }
+  ],
+  "browser_evidence": {
+    "actual_repository_run": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "dark_fixture": "HTML-only data-theme override; production CSS/JS/fonts unchanged",
+    "native_host_visual_identity": "unconfirmed"
+  },
+  "evidence_files": [
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-types.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-build.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-mcp-build.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-ui.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-browser.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-protocol.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-preparation.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-cockpit-hierarchy-browser-first-attempt.log",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-agdf-cockpit-work-hierarchy-observations.json",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-agdf-cockpit-brand-observations.json",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-agdf-cockpit-components-observations.json",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-agdf-cockpit-pages-alignment-observations.json",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-hierarchy-02-agdf-cockpit-browser-report.json",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_HIERARCHY_REAL-02-light.png",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_HIERARCHY_REAL-02-dark.png"
+  ],
+  "authority": "Evidence only; no approval, QA/UAT decision, independent CR or completed lifecycle."
+}

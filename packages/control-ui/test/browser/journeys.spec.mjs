@@ -107,7 +107,7 @@ test('SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fi
   try {
     await openSession(page, service); await page.screenshot({ path: '/private/tmp/agdf-cockpit-overview.png', fullPage: true });
     await page.getByRole('searchbox').fill('agdf-control-cockpit-20261005-01'); await page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true }).click();
-    await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('heading', { name: 'So geht dein Vorhaben weiter' })).toBeVisible();
+    await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('region', { name: 'So geht dein Vorhaben weiter' })).toBeVisible();
     await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('button',{name:'Details',exact:true}).click();
     await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: true });
@@ -187,7 +187,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await page.setViewportSize({width:800,height:400});await openSession(page,service,'/card.html');
     await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
     await expect(page.locator('.work-step')).toBeVisible();
-    await page.locator('.work-step-evidence summary').click();
+    await page.locator('.work-step-approvals summary').click();
     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
     await page.screenshot({path:'/private/tmp/agdf-cockpit-sticky-card.png'});
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
@@ -230,7 +230,10 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
-    await expect(page.locator('.work-step-evidence')).not.toHaveAttribute('open');
+    await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
+    await expect(page.locator('.work-step-prerequisites')).toContainText('Beginn blockiert');
+    await expect(page.locator('.work-step-proof')).toContainText('Nachweis');
     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
     const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});
     expect(order).toBe(true);
@@ -244,7 +247,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await expect(page.locator('footer')).toContainText('Veraltet');
     await page.screenshot({path:'/private/tmp/agdf-cockpit-summary-stale.png'});
     await page.getByRole('button',{name:'Daten aktualisieren',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'So geht dein Vorhaben weiter'})).toBeVisible();
+    await expect(page.getByRole('region',{name:'So geht dein Vorhaben weiter'})).toBeVisible();
     await expect(page.locator('.reading-feedback .notice')).toHaveCount(0);
     await expect(page.locator('footer')).toContainText('Verfügbar');
     expect(hashes(f.root)).toEqual(afterChange);
@@ -257,7 +260,7 @@ test('Pages surface recipes survive neutral host colors in light and dark across
   const recipe=fs.readFileSync(join(root,'pages/src/styles/design-tokens.css'),'utf8')+'\n'+fs.readFileSync(join(root,'pages/src/styles/surfaces.css'),'utf8');
   await reference.route(service.origin+'/__pages-reference',r=>r.fulfill({contentType:'text/html',body:`<!doctype html><html><style>${recipe}</style><article class="surface">Source surface</article><article class="surface controlled-card">Controlled source surface</article><a class="text-link">Source link</a></html>`}));
   await reference.goto(service.origin+'/__pages-reference');
-  const styles=locator=>locator.evaluate(e=>{const s=getComputedStyle(e);return{bg:s.backgroundColor,border:s.borderTopColor,radius:s.borderRadius,shadow:s.boxShadow,color:s.color,weight:s.fontWeight};});
+  const styles=locator=>locator.evaluate(e=>{const s=getComputedStyle(e);return{bg:s.backgroundColor,border:s.borderTopColor,radius:s.borderRadius,shadow:s.boxShadow,color:s.color,weight:s.fontWeight,accent:s.borderInlineStartColor,accentWidth:s.borderInlineStartWidth};});
   const contrast=(foreground,background,canvas)=>{
     const rgba=color=>{const v=color.match(/[\d.]+/g).map(Number);return color.startsWith('color(')?[...v.slice(0,3).map(n=>n*255),v[3]??1]:[...v.slice(0,3),v[3]??1];};
     const blend=(a,b)=>a.slice(0,3).map((v,i)=>v*a[3]+b[i]*(1-a[3]));
@@ -278,16 +281,26 @@ test('Pages surface recipes survive neutral host colors in light and dark across
         const actual=await styles(page.locator(selector)),expected=await styles(reference.locator(controlled?'.controlled-card':'.surface').first());
         for(const key of ['bg','border','radius','shadow'])expect(actual[key],`${view}/${theme}/${key}`).toBe(expected[key]);
         const canvas=await page.locator('.mcp-entry').evaluate(e=>getComputedStyle(e).backgroundColor);
-        expect(canvas).toBe(theme==='dark'?'rgb(2, 6, 23)':'rgb(248, 250, 252)');expect(contrast(actual.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
-        if(controlled)expect(actual.border).not.toBe((await styles(reference.locator('.surface').first())).border);
+        expect(canvas).toBe(theme==='dark'?'rgb(2, 6, 23)':'rgb(241, 245, 249)');expect(contrast(actual.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
+        const separation=contrast(actual.bg,canvas,canvas);
+        expect(separation,`${view}/${theme}/surface separation`).toBeGreaterThanOrEqual(theme==='dark'?1.12:1.09);
+        // Both normal and controlled cards are neutral. Brand accent conveys focus, not approval.
+        expect(actual.bg).toBe(theme==='dark'?'rgb(15, 23, 42)':'rgb(255, 255, 255)');
+        expect(actual.border).toBe(theme==='dark'?'rgb(71, 85, 105)':'rgb(203, 213, 225)');
+        if(controlled){
+          expect(actual.accentWidth).toBe('3px');expect(actual.accentWidth).toBe(expected.accentWidth);
+          expect(actual.accent).toBe(theme==='dark'?'rgb(45, 212, 191)':'rgb(15, 118, 110)');expect(actual.accent).toBe(expected.accent);
+        }
         if(view==='run'){
-          const link=await styles(page.locator('.work-step .text-link').first()),referenceLink=await styles(reference.locator('.text-link'));
+          await expect.poll(async()=>(await styles(page.locator('.work-step-sources .text-link').first())).color).toBe((await styles(reference.locator('.text-link'))).color);
+          const link=await styles(page.locator('.work-step-sources .text-link').first()),referenceLink=await styles(reference.locator('.text-link'));
           expect(link.weight).toBe('600');expect(link.color).toBe(referenceLink.color);expect(contrast(link.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
-          await page.locator('.work-step .text-link').first().hover();await reference.locator('.text-link').hover();
-          const hover=await styles(page.locator('.work-step .text-link').first());expect(hover.color).toBe((await styles(reference.locator('.text-link'))).color);expect(hover.bg).toBe('rgba(0, 0, 0, 0)');
+          await page.locator('.work-step-sources .text-link').first().hover();await reference.locator('.text-link').hover();
+          await expect.poll(async()=>(await styles(page.locator('.work-step-sources .text-link').first())).color).toBe((await styles(reference.locator('.text-link'))).color);
+          const hover=await styles(page.locator('.work-step-sources .text-link').first());expect(hover.color).toBe((await styles(reference.locator('.text-link'))).color);expect(hover.bg).toBe('rgba(0, 0, 0, 0)');
           expect(contrast(hover.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);await page.mouse.move(0,0);
         }
-        observations.push({view,theme,...actual,canvas});await page.screenshot({path:`/private/tmp/agdf-cockpit-brand-${view}-${theme}.png`});
+        observations.push({view,theme,...actual,canvas,surfaceContrast:separation,textContrast:contrast(actual.color,actual.bg,canvas)});await page.screenshot({path:`/private/tmp/agdf-cockpit-brand-${view}-${theme}.png`});
       }
     };
     await inspect('card','.compact-cockpit');await inspect('card-step','.work-step',true);
@@ -299,4 +312,114 @@ test('Pages surface recipes survive neutral host colors in light and dark across
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();await inspect('list','main > div[aria-busy] > .panel');
     fs.writeFileSync('/private/tmp/agdf-cockpit-brand-observations.json',JSON.stringify(observations,null,2));
   }finally{await reference.close();await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
+});
+
+test('built Pages action and type hierarchy matches Cockpit in both themes',async({page,context})=>{
+  const f=fixture(),before=hashes(f.root),service=await startControlServer({dir:f.root});
+  const root=resolve(import.meta.dirname,'../../../..'),reference=await context.newPage();
+  const assets=join(root,'pages/dist/_astro');
+  const css=fs.readdirSync(assets).filter(n=>/^index\..*\.css$/.test(n)).map(n=>fs.readFileSync(join(assets,n),'utf8')).join('\n');
+  expect(css.length).toBeGreaterThan(1000);
+  const observations=[];
+  const styles=l=>l.evaluate(e=>{const s=getComputedStyle(e);return{font:s.fontFamily,size:s.fontSize,line:s.lineHeight,weight:s.fontWeight,bg:s.backgroundColor,color:s.color,border:s.borderTopColor,radius:s.borderRadius,padding:s.padding};});
+  try{
+    await reference.route(service.origin+'/__pages-components',r=>r.fulfill({contentType:'text/html',body:`<!doctype html><html class="dark"><style>${css}</style><button class="btn-primary text-sm">Primary</button><button class="btn-ghost">Secondary</button><article class="surface p-6"><h4 class="text-xl font-bold">Work step</h4><p class="text-sm">Description</p></article></html>`}));
+    await reference.route('**/*.woff2',r=>{const file=fs.readdirSync(assets).find(n=>r.request().url().endsWith(n));return file?r.fulfill({contentType:'font/woff2',body:fs.readFileSync(join(assets,file))}):r.abort();});
+    await reference.goto(service.origin+'/__pages-components');
+    await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
+    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await expect(page.locator('.work-step')).toBeVisible();
+    const compare=async(view,actual,expected,keys)=>{
+      for(const theme of ['light','dark']){
+        await page.mouse.move(0,0);await reference.mouse.move(0,0);
+        await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+        await reference.evaluate(t=>{document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.dataset.theme=t;},theme);
+        const primary=view==='card';
+        await expect(expected).toHaveCSS('color',primary?'rgb(255, 255, 255)':theme==='dark'?'rgb(241, 245, 249)':'rgb(15, 23, 42)');
+        await expect(expected).toHaveCSS('background-color',primary?'rgb(15, 118, 110)':'rgba(0, 0, 0, 0)');
+        const b=await styles(expected);
+        await expect.poll(async()=>{const v=await styles(actual);return Object.fromEntries(keys.map(k=>[k,v[k]]));}).toEqual(Object.fromEntries(keys.map(k=>[k,b[k]])));
+        const a=await styles(actual);
+        for(const key of keys)expect(a[key],`${view}/${theme}/${key}`).toBe(b[key]);
+        await actual.hover();await expected.hover();
+        await expect(expected).toHaveCSS('color',primary?'rgb(255, 255, 255)':theme==='dark'?'rgb(153, 246, 228)':'rgb(15, 118, 110)');
+        await expect(expected).toHaveCSS('background-color',primary?'rgb(17, 94, 89)':'rgba(0, 0, 0, 0)');
+        const hoverReference=await styles(expected);
+        await expect.poll(async()=>{const v=await styles(actual);return {bg:v.bg,color:v.color,border:v.border};}).toEqual({bg:hoverReference.bg,color:hoverReference.color,border:hoverReference.border});
+        const ah=await styles(actual),bh=await styles(expected);
+        for(const key of ['bg','color','border'])expect(ah[key],`${view}/${theme}/hover/${key}`).toBe(bh[key]);
+        await page.mouse.move(0,0);await reference.mouse.move(0,0);
+        // Shared recipes animate color only; normalize the capture after hover checks.
+        await page.emulateMedia({reducedMotion:'reduce'});await reference.emulateMedia({reducedMotion:'reduce'});
+        observations.push({view,theme,actual:a,reference:b,hover:ah});
+        await page.screenshot({path:`/private/tmp/agdf-cockpit-components-${view}-${theme}.png`});
+      }
+    };
+    const keys=['font','size','line','weight','bg','color','border','radius','padding'];
+    // Disable transitions before assertions; color transitions are separately retained in CSS.
+    await page.emulateMedia({reducedMotion:'reduce'});await reference.emulateMedia({reducedMotion:'reduce'});
+    await compare('card',page.getByRole('button',{name:'Run ansehen',exact:true}),reference.getByRole('button',{name:'Primary',exact:true}),keys);
+    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
+    await compare('run',page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true}),reference.getByRole('button',{name:'Secondary',exact:true}),keys);
+    await page.getByRole('button',{name:'Zusammenfassung',exact:true}).hover();
+    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveCSS('border-top-color','rgba(0, 0, 0, 0)');
+    await expect(page.locator('.work-step')).toHaveCSS('padding','24px');
+    await expect(page.locator('.work-step h2')).toHaveCSS('line-height','28px');
+    expect((await styles(page.locator('.work-step h2'))).line).toBe((await styles(reference.locator('h4'))).line);
+    expect((await page.locator('.cockpit-brand-header').boundingBox()).height).toBe(72);
+    await page.getByRole('button',{name:'Details',exact:true}).click();
+    await expect(page.locator('.resources strong').first()).toHaveCSS('font-weight','600');
+    await expect(page.locator('.resources small').first()).toHaveCSS('font-weight','400');
+    await expect(page.locator('.resources button > span:not([aria-hidden])').first()).toHaveCSS('font-weight','400');
+    await expect(page.locator('.resources button > span:not([aria-hidden])').first()).toHaveCSS('line-height','20px');
+    await page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true}).hover();
+    await expect(page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true})).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+    fs.writeFileSync('/private/tmp/agdf-cockpit-components-observations.json',JSON.stringify(observations,null,2));
+  }finally{await reference.close();await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
+});
+
+
+test('work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation',async({page})=>{
+  const f=fixture(),before=hashes(f.root),service=await startControlServer({dir:f.root});
+  const observations=[];
+  try{
+    // Compare the rendered work unit with the existing production read DTO, not new UI rules.
+    const headers={'x-agdf-session':service.secret};
+    const snapshot=await(await page.request.get(service.origin+'/api/snapshot',{headers})).json();
+    const detail=await(await page.request.get(service.origin+'/api/runs/fixture-a?snapshot='+snapshot.snapshot_id,{headers})).json();
+    const e=detail.data.evaluation;
+    await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
+    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
+    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
+    await expect(page.locator('.work-step-prerequisites')).toContainText('Beginn blockiert');
+    await expect(page.locator('.work-step-prerequisites')).toContainText(e.missing_approval);
+    const count=e.missing_evidence.length;
+    if(count){
+      await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+      const toggle=page.locator('.work-step-evidence summary');
+      await expect(toggle).toHaveText(`${count} ${count===1?'offenen Nachweis':'offene Nachweise'} ansehen`);
+      await toggle.focus();await page.keyboard.press('Space');await expect(page.locator('.work-step-evidence')).toHaveAttribute('open','');
+      await expect(page.locator('.work-step-evidence ul > li')).toHaveCount(count);
+      await page.keyboard.press('Space');await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+    }else await expect(page.locator('.work-step-empty')).toHaveText('Keine offenen Nachweise ausgewiesen.');
+    for(const theme of ['light','dark']){
+      await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+      for(const width of [320,560,800,1280]){
+        await page.setViewportSize({width,height:900});
+        const geometry=await page.locator('.work-step').evaluate(el=>({width:el.clientWidth,height:el.getBoundingClientRect().height,columns:getComputedStyle(el.querySelector('.work-step-support')).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth}));
+        expect(geometry.overflow).toBe(false);expect(geometry.columns).toBe(width>=800?2:1);
+        observations.push({theme,viewport:width,...geometry});
+        await page.screenshot({path:`/private/tmp/agdf-cockpit-work-hierarchy-${theme}-${width}.png`});
+      }
+    }
+    const source=page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true});
+    await expect(source).toBeVisible();await source.focus();await page.keyboard.press('Enter');
+    await expect(page.getByRole('button',{name:'Dokument schließen',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+    await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
+    fs.writeFileSync('/private/tmp/agdf-cockpit-work-hierarchy-observations.json',JSON.stringify(observations,null,2));
+  }finally{await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });

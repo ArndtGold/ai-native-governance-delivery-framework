@@ -134,7 +134,7 @@ describe('compact MCP entry using the shared reading state',()=>{
     const inventoryHints = screen.getByText('Inventarhinweise').closest('details');
     expect(inventoryHints?.hasAttribute('open')).toBe(false);
     expect(screen.getByText('Host context still unverified')).toBeTruthy();
-    expect(screen.getByText('In Arbeit')).toBeTruthy();
+    expect(screen.getByText('Gespeicherter Stand: In Arbeit')).toBeTruthy();
     expect(screen.getByText('TP',{exact:true})).toBeTruthy();
     expect(screen.queryByText('QA',{exact:true})).toBeNull();
     fireEvent.click(screen.getByRole('button',{name:'Run ansehen'}));expect(expand).toHaveBeenCalledTimes(1);
@@ -255,8 +255,8 @@ it('keeps a stale Run identified and qualifies the previous step with one read w
   await screen.findByText('Die Kontrollauswertung weist diesen Schritt als offen aus.');
   fireEvent.click(screen.getByRole('button',{name:'Zusammenfassung'}));
   expect(screen.getByText('Ziel und Run-ID · Originalangaben').closest('details')?.open).toBe(false);
-  expect(screen.getByText('Originalangaben zu den offenen Nachweisen').closest('details')?.open).toBe(false);
-  expect(screen.getByText('1 offener Nachweis. Prüfe die Originalangaben und die registrierten Quellen.')).toBeTruthy();
+  expect(screen.getByText('1 offenen Nachweis ansehen').closest('details')?.open).toBe(false);
+  expect(screen.getByText('Beginn offen')).toBeTruthy();
   await act(async()=>document.dispatchEvent(new Event('visibilitychange')));
   await screen.findByRole('heading',{name:'Zuletzt beobachteter Arbeitsschritt'});
   expect(screen.queryByText('Die Kontrollauswertung weist diesen Schritt als offen aus.')).toBeNull();

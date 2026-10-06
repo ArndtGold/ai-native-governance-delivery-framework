@@ -273,3 +273,25 @@ and evidence descriptions are disclosed without invented translation or classifi
 registered evidence selectors remain visible.
 
 Pages owns shared surface, controlled-surface and semibold link recipes in `pages/src/styles/surfaces.css`, consumed by its landing page and the Cockpit. The MCP host selects light/dark mode; its neutral color variables no longer replace AGDF brand roles. Cards, Run panels, documents and context use the shared surface class; the current work step uses the controlled variant. Expanded Run entry defaults to Summary; deliberate Details survives document navigation, and another Run starts in Summary. Browser checks compare computed recipes with isolated Pages reference classes under both themes and neutral host overrides, including text contrast.
+
+Pages also owns the primary/secondary action recipes in `pages/src/styles/actions.css`.
+Secondary actions stay transparent, including hover; primary actions alone use the filled
+brand color. Document tiles use semibold titles and normal-weight descriptions and metadata.
+Heading line heights come from the shared type scale. Expanded work-step padding is 24 pixels;
+compact work steps and narrow panels retain 16-pixel padding. The standard expanded header is
+72 pixels high and may grow to fit wrapped content. Compact controls use the shared spacing
+scale. The browser component regression compares normal and hover styles with the actual
+built Pages stylesheet in both themes, supplementing the surface/contrast and responsive tests.
+
+Shared surfaces are neutral white / opaque dark-900, with dark-300 / dark-600 borders.
+The shared canvas role is dark-100 / dark-950. Controlled work areas retain the same
+neutral fill and use a three-pixel turquoise leading edge; this accent conveys work focus,
+not approval or success. Browser checks assert surface separation and text/link contrast
+across both themes, in addition to matching the Pages recipes.
+
+The work-step phase is the main heading. Its exact Core action remains readable; qualification
+and evidence form a supporting row that stacks when the work unit is narrower than 560 pixels.
+Beginning is labelled open/blocked/unclear using the existing Core qualification conditions,
+never from approvals or an empty missing-evidence list. Control basis and recorded approvals
+are folded; Summary/compact evidence uses one counted disclosure. Registered current-step
+sources lead, with Run State kept distinct. Unknown and stale observations retain their originals.

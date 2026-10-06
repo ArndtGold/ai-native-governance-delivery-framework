@@ -1,0 +1,80 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test
+
+
+Running 9 tests using 1 worker
+
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/journeys.spec.mjs:21:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (7.6s)
+(node:18489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/journeys.spec.mjs:77:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (2.9s)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (32.7s)
+(node:18594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 test/browser/journeys.spec.mjs:138:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (2.2s)
+(node:18600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 test/browser/journeys.spec.mjs:158:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (7.5s)
+(node:18662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 test/browser/journeys.spec.mjs:174:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (2.6s)
+(node:18664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 test/browser/journeys.spec.mjs:224:1 › summary leads with the work step and stale reads never claim a missing Run or current control (6.6s)
+(node:18696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 test/browser/journeys.spec.mjs:254:1 › Pages surface recipes survive neutral host colors in light and dark across all views (1.6s)
+(node:18699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  9 test/browser/journeys.spec.mjs:314:1 › built Pages action and type hierarchy matches Cockpit in both themes (3.3s)
+
+
+  1) test/browser/journeys.spec.mjs:254:1 › Pages surface recipes survive neutral host colors in light and dark across all views 
+
+    Error: card/light/border
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(0, 0, 0)"
+    Received: "rgb(15, 23, 42)"
+
+      277 |         await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);await reference.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+      278 |         const actual=await styles(page.locator(selector)),expected=await styles(reference.locator(controlled?'.controlled-card':'.surface').first());
+    > 279 |         for(const key of ['bg','border','radius','shadow'])expect(actual[key],`${view}/${theme}/${key}`).toBe(expected[key]);
+          |                                                                                                          ^
+      280 |         const canvas=await page.locator('.mcp-entry').evaluate(e=>getComputedStyle(e).backgroundColor);
+      281 |         expect(canvas).toBe(theme==='dark'?'rgb(2, 6, 23)':'rgb(241, 245, 249)');expect(contrast(actual.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
+      282 |         const separation=contrast(actual.bg,canvas,canvas);
+        at inspect (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:279:106)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:303:5
+
+    Error Context: test-results/journeys-Pages-surface-rec-a53b9-t-and-dark-across-all-views/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:254:1 › Pages surface recipes survive neutral host colors in light and dark across all views 
+  8 passed (1.2m)

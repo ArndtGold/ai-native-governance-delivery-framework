@@ -1,10 +1,11 @@
 @import '../../../pages/src/styles/design-tokens.css';
 @import '../../../pages/src/styles/fonts.css';
 @import '../../../pages/src/styles/surfaces.css';
+@import '../../../pages/src/styles/actions.css';
 
 /* Pages owns brand values; this adapter maps them to light/dark reading surfaces. */
 :root {
-  --cockpit-canvas: var(--agdf-color-dark-50);
+  --cockpit-canvas: var(--agdf-canvas-bg);
   --cockpit-bg: #fff;
   --cockpit-soft: var(--agdf-color-dark-100);
   --cockpit-line: var(--agdf-color-dark-200);
@@ -22,7 +23,7 @@
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --cockpit-canvas: var(--agdf-color-dark-950);
+  --cockpit-canvas: var(--agdf-canvas-bg);
   --cockpit-bg: var(--agdf-color-dark-900);
   --cockpit-soft: var(--agdf-color-dark-800);
   --cockpit-line: var(--agdf-color-dark-700);
@@ -36,11 +37,7 @@
   --cockpit-risk-line: var(--agdf-color-risk-700);
 }
 button, input, select, textarea { color: inherit; }
-button { border-color: var(--cockpit-line); border-radius: var(--agdf-radius-lg); background: var(--cockpit-bg); font-weight: var(--agdf-weight-semibold); }
-button:hover { border-color: var(--cockpit-accent-line); background: var(--cockpit-accent-bg); }
 button:disabled { cursor: not-allowed; }
-button.primary { background: var(--agdf-color-agdf-700); border-color: var(--agdf-color-agdf-700); color: #fff; }
-button.primary:hover { background: var(--agdf-color-agdf-800); border-color: var(--agdf-color-agdf-800); }
 :focus-visible { outline: var(--agdf-focus-width) solid var(--agdf-focus-color); outline-offset: var(--agdf-focus-offset); }
 header, .metrics div { background: var(--cockpit-bg); border-color: var(--cockpit-line); }
 .metrics div { border-radius: var(--agdf-radius-xl); }
@@ -53,7 +50,7 @@ header, .metrics div { background: var(--cockpit-bg); border-color: var(--cockpi
 .run-link, summary, .eyebrow, .reading-feedback, .breadcrumbs button { color: var(--cockpit-accent); }
 .notice { color: var(--cockpit-risk); background: var(--cockpit-risk-bg); border-color: var(--cockpit-risk-line); border-radius: var(--agdf-radius-lg); }
 .provenance, td, details, .approval-list li, .data-observation, .context-references > li { border-color: var(--cockpit-line); }
-th, .search input, .resources button, .document pre, .panel pre, .document code { background: var(--cockpit-soft); color: var(--cockpit-text); border-color: var(--cockpit-line); }
+th, .search input, .document pre, .panel pre, .document code { background: var(--cockpit-soft); color: var(--cockpit-text); border-color: var(--cockpit-line); }
 header, small, .muted, .source-text, .status-fields dt, .provenance span, .metrics span, .page-title p, .search, .status,
 .run-objective, .resources button > span, .document-close, .breadcrumbs li + li::before, .breadcrumbs [aria-current], .refresh-control, .context-unavailable, footer { color: var(--cockpit-muted); }
 .status.warning, .stale-label { color: var(--cockpit-risk); }
@@ -62,7 +59,7 @@ header, small, .muted, .source-text, .status-fields dt, .provenance span, .metri
 .view-switch { background: var(--cockpit-soft); border-color: var(--cockpit-line); }
 .view-switch button { color: var(--cockpit-muted); }
 .view-switch button[aria-pressed='true'] { color: var(--cockpit-text); }
-.view-switch button:hover { background: transparent; }
+.view-switch button:hover { border-color: transparent; background: transparent; }
 .refresh-control--stale { border-color: var(--cockpit-risk-line); background: var(--cockpit-risk-bg); color: var(--cockpit-risk); }
 .cockpit-icon { width: 18px; height: 18px; flex: none; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }

@@ -1,6 +1,10 @@
 import { createRoot } from 'react-dom/client';
-import { App } from './App';
+import { BrowserEntry } from './BrowserEntry';
 import { consumeSession } from './api';
 import './style.css';
+import './theme.css';
+import './mcp/style.css';
+import './browser.css';
 const secret = consumeSession();
-createRoot(document.getElementById('root')!).render(<App secret={secret}/>);
+const root = document.getElementById('root')!;
+createRoot(root).render(<BrowserEntry secret={secret} initialCompact={root.dataset.cockpitView === 'compact'}/>);

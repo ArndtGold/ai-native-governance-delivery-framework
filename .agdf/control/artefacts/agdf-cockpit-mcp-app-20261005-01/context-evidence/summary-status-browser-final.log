@@ -1,0 +1,71 @@
+
+Running 7 tests using 1 worker
+
+(node:5555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/status-captured.spec.mjs:23:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (10.0s)
+(node:5623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/status-captured.spec.mjs:79:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (4.3s)
+(node:5555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 test/browser/status-captured.spec.mjs:105:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (14.9s)
+(node:5697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 test/browser/status-captured.spec.mjs:136:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (4.8s)
+(node:5709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 test/browser/status-captured.spec.mjs:155:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (9.7s)
+(node:5735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 test/browser/status-captured.spec.mjs:170:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (3.7s)
+(node:5737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 test/browser/status-captured.spec.mjs:218:1 › summary leads with the work step and stale reads never claim a missing Run or current control (8.4s)
+
+
+  1) test/browser/status-captured.spec.mjs:105:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Runs im Repository' })
+    Expected: visible
+    Timeout: 12000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Runs im Repository' }) with timeout 12000ms
+      - waiting for getByRole('heading', { name: 'Runs im Repository' })
+
+
+      17 |   await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
+      18 |   await page.goto(service.origin + pathname);
+    > 19 |   await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Runs im Repository' })).toBeVisible({ timeout: 12_000 });
+         |                                                                                                                        ^
+      20 |   if (pathname === '/card.html') await expect(page.getByRole('combobox', {name:'Run auswählen',exact:true})).toBeEnabled({ timeout: 12_000 });
+      21 |   expect(new URL(page.url()).hash).toBe('');
+      22 | }
+        at openSession (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/status-captured.spec.mjs:19:120)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/status-captured.spec.mjs:109:491
+
+    Error Context: test-results/status-captured-SCN-003-00-45b4c-idelity-and-unchanged-bytes/error-context.md
+
+  1 failed
+    test/browser/status-captured.spec.mjs:105:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+  6 passed (1.0m)

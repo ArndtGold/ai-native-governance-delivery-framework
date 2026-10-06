@@ -250,6 +250,8 @@
 
 ### CG-MCP-DISPATCH-ADAPTER
 
+- cockpit_checkpoint_20261006: The private Codex cockpit reuses canonical Core reads and explicit Run/snapshot bindings. Server, embedded view and ephemeral read session have separate lifetimes; normal navigation/gate refresh needs no server restart. Current render retains one session per server and retires the preceding session; multi-view support is not implemented. User retained the proposal of independent bounded sessions per view in .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md. Source/protocol/browser evidence and fresh native UI qualification remain separate; current native checkpoint and full graph/packet/handoff scope stay open. Evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CODE_REVIEW_FIX_EVIDENCE-01.md; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OR.md.
+
 - portable_package_boundary_20261001: Source reorganization preserves MCP tool inventory, control authority, installer-completed Codex absolute roots and Claude lifecycle. Local runtime continues using mcp/codex.mcp.json and mcp/claude.mcp.json; no portable mcp.json is emitted. Definition/schema/build owners are linked from docs/architecture/05-paketstruktur.md; protocol/fixture observations do not grant native-host acceptance.
 
 - situation: AGDF needs one standard model-facing dispatch interface across MCP-capable coding-agent hosts without moving request activation, target selection, gate evaluation, presentation, skill judgement or approval into a new protocol adapter.

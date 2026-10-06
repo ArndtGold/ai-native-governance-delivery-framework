@@ -1,0 +1,38 @@
+
+> agdf-web@0.14.5 test:landing
+> npm run build && node ./scripts/landing-page-test.mjs
+
+
+> agdf-web@0.14.5 prebuild
+> node scripts/design-tokens.mjs
+
+
+> agdf-web@0.14.5 build
+> astro build
+
+15:17:27 [content] Syncing content
+15:17:27 [content] Synced content
+15:17:27 [types] Generated 55ms
+15:17:27 [build] output: "static"
+15:17:27 [build] mode: "static"
+15:17:27 [build] directory: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/pages/dist/
+15:17:27 [build] Collecting build info...
+15:17:27 [build] ✓ Completed in 147ms.
+15:17:27 [build] Building static entrypoints...
+15:17:30 [vite] ✓ built in 2.83s
+15:17:30 [build] ✓ Completed in 2.92s.
+
+ generating static routes 
+15:17:30 ▶ src/pages/[document].astro
+15:17:30   ├─ /privacy/index.html (+38ms) 
+15:17:30   ├─ /terms/index.html (+6ms) 
+15:17:30   └─ /support/index.html (+2ms) 
+15:17:30 ▶ src/pages/index.astro
+15:17:30   └─ /index.html (+7ms) 
+15:17:30 ✓ Completed in 68ms.
+
+15:17:30 [build] 4 page(s) built in 3.21s
+15:17:30 [build] Complete!
+Landing-page visible word count: 1711 (editorial target 1500–1800; hard maximum 2200)
+Landing-page local image payload: 1210792 bytes across 2 unique assets
+Landing-page structure, copy, boundary, metadata, No-JS and payload tests passed

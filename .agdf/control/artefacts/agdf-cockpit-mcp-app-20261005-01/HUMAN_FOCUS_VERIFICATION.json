@@ -1,0 +1,154 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "observed_at": "2026-10-06T08:58:29.846Z",
+  "ui_tests": {
+    "pass": 34,
+    "skipped": 0
+  },
+  "core_tests": {
+    "pass": 12,
+    "skipped": 0
+  },
+  "service_tests": {
+    "pass": 5,
+    "skipped": 0
+  },
+  "browser_journeys": {
+    "pass": 3,
+    "skipped": 0
+  },
+  "typecheck": "pass",
+  "browser_build": "pass",
+  "mcp_build": "pass",
+  "payload_budget": "pass",
+  "package_contents": {
+    "pass": 760
+  },
+  "diff_check": "pass",
+  "protocol": {
+    "status": "pass",
+    "evidence_class": "actual_stdio_protocol_not_host_ui",
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      },
+      {
+        "protocol": "2026-07-28",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      }
+    ],
+    "server_digest": "401e8059121fa60c2c2480b2a4c8c03b686efd3567512995ad26d4fa97fe18a5",
+    "ui_digest": "sha256:c5243f7454a323f4f26c4754ef399199d27dd7fdf124e180948bd0192de5d5a4"
+  },
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "401e8059121fa60c2c2480b2a4c8c03b686efd3567512995ad26d4fa97fe18a5",
+    "dispatcher_digest": "1a4122462a0261f46e77bc761deb47fc0738d91413ea5ad051c47eddbbe39b02",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 991242,
+      "digest": "sha256:c5243f7454a323f4f26c4754ef399199d27dd7fdf124e180948bd0192de5d5a4"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "project_config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "responsive_browser_geometry": [
+    {
+      "rowLayout": "grid",
+      "scroll": 320,
+      "table": 230,
+      "view": "overview",
+      "width": 320
+    },
+    {
+      "rowLayout": "table-row",
+      "scroll": 800,
+      "table": 678,
+      "view": "overview",
+      "width": 800
+    },
+    {
+      "scroll": 320,
+      "stand": "Stand des Vorhabens",
+      "title": "Embedded AGDF Cockpit for Codex",
+      "view": "detail",
+      "width": 320
+    },
+    {
+      "scroll": 800,
+      "stand": "Stand des Vorhabens",
+      "title": "Embedded AGDF Cockpit for Codex",
+      "view": "detail",
+      "width": 800
+    },
+    {
+      "scroll": 320,
+      "sourceTitle": "UR: Embedded AGDF Cockpit for Codex",
+      "title": "Anforderungen",
+      "view": "document",
+      "width": 320
+    },
+    {
+      "scroll": 800,
+      "sourceTitle": "UR: Embedded AGDF Cockpit for Codex",
+      "title": "Anforderungen",
+      "view": "document",
+      "width": 800
+    }
+  ],
+  "observed_browser_actions": {
+    "primary_title": "Embedded AGDF Cockpit for Codex",
+    "opened_run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "main_detail": "Stand des Vorhabens",
+    "document_heading": "Anforderungen",
+    "original_source_heading": "UR: Embedded AGDF Cockpit for Codex",
+    "registered_sources_only": true
+  },
+  "native_current_resource": {
+    "status": "unconfirmed",
+    "current_call": "Transport closed",
+    "run_id": "agdf-cockpit-mcp-app-20261005-01"
+  },
+  "preview": "Production React App and real authenticated local read service in a temporary browser harness; not native host proof"
+}

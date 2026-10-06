@@ -1,0 +1,33 @@
+
+Running 1 test using 1 worker
+
+(node:10364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/journeys.spec.mjs:254:1 › Pages surface recipes survive neutral host colors in light and dark across all views (3.7s)
+
+
+  1) test/browser/journeys.spec.mjs:254:1 › Pages surface recipes survive neutral host colors in light and dark across all views 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(15, 118, 110)"
+    Received: "rgb(17, 94, 89)"
+
+      282 |         if(view==='run'){
+      283 |           const link=await styles(page.locator('.work-step .text-link').first()),referenceLink=await styles(reference.locator('.text-link'));
+    > 284 |           expect(link.weight).toBe('600');expect(link.color).toBe(referenceLink.color);expect(contrast(link.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
+          |                                                              ^
+      285 |         }
+      286 |         observations.push({view,theme,...actual,canvas});await page.screenshot({path:`/private/tmp/agdf-cockpit-brand-${view}-${theme}.png`});
+      287 |       }
+        at inspect (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:284:62)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:292:5
+
+    Error Context: test-results/journeys-Pages-surface-rec-a53b9-t-and-dark-across-all-views/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:254:1 › Pages surface recipes survive neutral host colors in light and dark across all views 

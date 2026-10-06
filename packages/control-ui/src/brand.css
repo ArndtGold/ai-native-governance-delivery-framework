@@ -1,0 +1,42 @@
+.cockpit-brand-header {
+  display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: var(--agdf-space-3);
+  position: sticky; top: 0; z-index: 10; isolation: isolate; height: auto; min-height: 96px; padding: var(--agdf-space-5);
+  color: var(--cockpit-text); background: var(--cockpit-bg); border-bottom: 1px solid var(--cockpit-line);
+}
+.cockpit-brand-header::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+  pointer-events: none; opacity: .24;
+  background-image:
+    linear-gradient(90deg, var(--cockpit-bg) 12%, transparent 100%),
+    linear-gradient(0deg, var(--cockpit-bg), transparent 70%),
+    url('../../../pages/public/assets/race-control-track-visual.jpg?inline');
+  background-size: cover; background-position: center, center, 58% 35%;
+}
+.cockpit-brand-mark { display: block; width: 36px; height: 36px; object-fit: contain; }
+.cockpit-brand-copy { min-width: 0; }
+.cockpit-brand-header h1, .cockpit-brand-title {
+  display: block; margin: 0; font-size: var(--agdf-text-lg); line-height: var(--agdf-leading-snug); letter-spacing: var(--agdf-tracking-tight);
+}
+.cockpit-brand-project { margin: 3px 0 0; font-size: var(--agdf-text-xs); line-height: var(--agdf-leading-normal); color: var(--cockpit-muted); overflow-wrap: anywhere; }
+.cockpit-brand-actions { display: flex; align-items: center; gap: var(--agdf-space-2); }
+.cockpit-brand-actions .read-only { white-space: nowrap; }
+.cockpit-brand-actions :is(.refresh-control, .compact-reload),
+.cockpit-brand-actions :is(.refresh-control, .compact-reload):hover { background: transparent; }
+.cockpit-brand-header--card {
+  margin: calc(-1 * var(--agdf-space-4)) calc(-1 * var(--agdf-space-4)) 0;
+  min-height: 76px; padding: var(--agdf-space-4); border-bottom: 0;
+  border-radius: var(--agdf-radius-2xl) var(--agdf-radius-2xl) 0 0;
+}
+.cockpit-brand-header--card .cockpit-brand-actions { gap: 6px; }
+.cockpit-brand-header--document { min-height: 72px; padding: var(--agdf-space-3) var(--agdf-space-5); grid-template-columns: 30px minmax(0, 1fr) auto; }
+.cockpit-brand-header--document::before { opacity: .12; }
+.cockpit-brand-header--document .cockpit-brand-mark { width: 30px; height: 30px; }
+.cockpit-brand-header--document .cockpit-brand-title { font-size: var(--agdf-text-base); }
+@media (max-width: 380px) {
+  .cockpit-brand-header { grid-template-columns: 30px minmax(0, 1fr) auto; gap: var(--agdf-space-2); padding: var(--agdf-space-4); }
+  .cockpit-brand-mark { width: 30px; height: 30px; }
+  .cockpit-brand-header--document { padding: var(--agdf-space-3) var(--agdf-space-4); }
+}
+@container (max-width: 440px) {
+  .cockpit-brand-header--card .cockpit-brand-actions { flex-direction: column; gap: 2px; }
+}

@@ -1,15 +1,23 @@
 import { McpServer, fromJsonSchema } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
+import { loadCockpitResource } from './cockpit-resource.js';
 
 export const SERVER_NAME = "agdf-mcp";
 
 function toolResult(runtime, result, serialize = runtime.serialize) {
-  const text = serialize(result);
-  return {
+  const { _meta, ...publicResult } = result;
+  const text = serialize(_meta ? publicResult : result);
+  const response = {
     content: [{ type: "text", text }],
     structuredContent: JSON.parse(text),
+    ...(_meta ? { _meta } : {}),
   };
+  if (runtime.mode === 'cockpit' && Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) {
+    const failure = runtime.failure('resource_limit');
+    return { content: [{ type: 'text', text: runtime.serialize(failure) }], structuredContent: failure };
+  }
+  return response;
 }
 
 export function buildAgdfServer({ runtime, executor } = {}) {
@@ -21,16 +29,16 @@ export function buildAgdfServer({ runtime, executor } = {}) {
   }
   const tools = runtime.tools ?? [{ name: runtime.definition.name, definition: runtime.definition, parse: runtime.parse, execute: runtime.execute }];
   const dispatchExecutor = executor ?? {
-    execute: async (argumentsValue, { toolName } = {}) => {
+    execute: async (argumentsValue, { toolName, signal } = {}) => {
       const tool = tools.find((entry) => entry.name === (toolName ?? runtime.definition.name));
       if (!tool) throw new DispatchExecutionError("dispatch_worker_failed");
-      return tool.execute(tool.parse(argumentsValue));
+      return tool.execute(tool.parse(argumentsValue), signal);
     },
-    close: async () => {},
+    close: async () => runtime.close?.(),
   };
   const server = new McpServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
-    { capabilities: { tools: {} } },
+    { capabilities: { tools: {}, ...(runtime.mode === 'cockpit' ? { resources: {} } : {}) } },
   );
   for (const { name, definition, serialize } of tools) {
     server.registerTool(
@@ -39,7 +47,8 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         description: definition.description,
         annotations: definition.annotations,
         inputSchema: fromJsonSchema(definition.inputSchema),
-        outputSchema: fromJsonSchema(definition.outputSchema),
+        ...(definition.outputSchema ? { outputSchema: fromJsonSchema(definition.outputSchema) } : {}),
+        ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
         try {
@@ -51,6 +60,11 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         }
       },
     );
+  }
+  if (runtime.mode === 'cockpit') {
+    const resource = loadCockpitResource(runtime.ui);
+    server.registerResource('AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
+      async () => ({ contents: [resource] }));
   }
   return Object.assign(server, {
     closeAgdfRuntime: () => dispatchExecutor.close(),

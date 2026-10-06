@@ -2,10 +2,24 @@ import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, re
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cliRoot, coreRoot, mcpRoot, repoRoot, projectCore, coreImports } from './core-projection.mjs';
+import { createHash } from 'node:crypto';
+import { COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS } from '../packages/core/lib/control-inspect/cockpit-contract.js';
 const OWNER = 'agdf:npm-assembly';
-export function assembleNpm({ beforePublish, surface } = {}) {
+export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
   if (surface && !['codex', 'claude', 'copilot', 'opencode'].includes(surface)) throw new Error('AGDF_ASSEMBLY_SURFACE_INVALID');
-  const dist = surface ? join(repoRoot, 'dist', 'local', surface) : join(repoRoot, 'dist');
+  if (typeof cockpit !== 'boolean' || cockpit && surface !== 'codex') throw new Error('AGDF_ASSEMBLY_COCKPIT_INVALID');
+  let ui;
+  if (cockpit) {
+    const uiRoot = join(repoRoot, 'packages', 'control-ui', 'dist-mcp');
+    for (const path of [uiRoot, join(uiRoot, 'manifest.json'), join(uiRoot, 'cockpit.html')]) if (lstatSync(path).isSymbolicLink()) throw new Error('AGDF_ASSEMBLY_UI_INVALID');
+    const bytes = readFileSync(join(uiRoot, 'cockpit.html'));
+    const manifest = JSON.parse(readFileSync(join(uiRoot, 'manifest.json'), 'utf8'));
+    if (bytes.length > COCKPIT_LIMITS.html || manifest.bytes !== bytes.length || manifest.uri !== COCKPIT_UI_URI
+      || manifest.mime_type !== COCKPIT_MIME || manifest.schema_version !== '1'
+      || manifest.digest !== 'sha256:' + createHash('sha256').update(bytes).digest('hex')) throw new Error('AGDF_ASSEMBLY_UI_INVALID');
+    ui = uiRoot;
+  }
+  const dist = surface ? join(repoRoot, 'dist', 'local', cockpit ? 'codex-cockpit' : surface) : join(repoRoot, 'dist');
   const output = join(dist, 'npm');
   for (const root of relative(repoRoot, output).split(sep).map((_, index, parts) => join(repoRoot, ...parts.slice(0, index + 1)))) if (existsSync(root) && (lstatSync(root).isSymbolicLink() || !lstatSync(root).isDirectory())) throw new Error('AGDF_ASSEMBLY_PATH_INVALID');
   if (existsSync(output) && JSON.parse(readFileSync(join(output, 'assembly.json'), 'utf8')).owner !== OWNER) throw new Error('AGDF_ASSEMBLY_FOREIGN_OUTPUT');
@@ -32,6 +46,11 @@ export function assembleNpm({ beforePublish, surface } = {}) {
         if (!existsSync(join(source, entry))) throw new Error(`AGDF_ASSEMBLY_SOURCE_MISSING: ${name}/${entry}`);
         cpSync(join(source, entry), join(target, entry), { recursive: true });
       }
+      if (cockpit && name === 'agdf-mcp-server') {
+        const directory = join(target, 'ui'); mkdirSync(directory);
+        for (const file of ['manifest.json', 'cockpit.html']) cpSync(join(ui, file), join(directory, file));
+        manifest.files = [...manifest.files, 'ui'];
+      }
       cpSync(join(repoRoot, 'LICENSE'), join(target, 'LICENSE'));
       delete manifest.devDependencies;
       manifest.scripts = {};
@@ -39,7 +58,7 @@ export function assembleNpm({ beforePublish, surface } = {}) {
       writeFileSync(join(target, 'package.json'), JSON.stringify(manifest, null, 2) + '\n');
       results.push({ name: manifest.name, version: manifest.version, source, output: join(output, name) });
     }
-    writeFileSync(join(stage, 'assembly.json'), JSON.stringify({ owner: OWNER, version: definition.version, packages: results }, null, 2) + '\n');
+    writeFileSync(join(stage, 'assembly.json'), JSON.stringify({ owner: OWNER, version: definition.version, ...(cockpit ? { profile: 'codex-cockpit' } : {}), packages: results }, null, 2) + '\n');
     beforePublish?.({ stage, output });
     if (existsSync(output)) { renameSync(output, backup); moved = true; }
     renameSync(stage, output); published = true;

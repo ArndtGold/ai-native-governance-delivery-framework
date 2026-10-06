@@ -1,0 +1,165 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision_id": "6040aeb9-a5d6-4227-9cb3-586409624f6e",
+  "observed_at": "2026-10-06T11:31:57.384Z",
+  "scope": "Three cooperative code-review findings; no formal full-TP CR/QA qualification",
+  "fixes": [
+    {
+      "finding_id": "CR-001",
+      "gap_type": "implementation_gap",
+      "routing_target": "CD+Tests",
+      "gap_status": "resolved",
+      "evidence": "Canonical full asset synchronization and Copilot profile regressions pass under unchanged budget.",
+      "required_next_step": "none for this finding"
+    },
+    {
+      "finding_id": "CR-002",
+      "gap_type": "implementation_gap",
+      "routing_target": "CD+Tests",
+      "gap_status": "resolved",
+      "evidence": "Expired response is non-retryable; compact/expanded initial/retained views explain reopening and disable reads; fresh host bootstrap restores same explicit Run.",
+      "required_next_step": "none for this finding"
+    },
+    {
+      "finding_id": "CR-003",
+      "gap_type": "implementation_gap",
+      "routing_target": "CD+Tests",
+      "gap_status": "resolved",
+      "evidence": "Requested route is retained across thrown and envelope read failures, tested for snapshot/run in compact/expanded views.",
+      "required_next_step": "none for this finding"
+    }
+  ],
+  "tests": {
+    "ui": {
+      "pass": 48,
+      "fail": 0,
+      "skip": 0
+    },
+    "session": {
+      "pass": 7,
+      "fail": 0
+    },
+    "http": {
+      "pass": 5,
+      "fail": 0,
+      "initial_sandbox_listener": "EPERM; unchanged suite passed with authorized loopback access"
+    },
+    "typecheck": "pass",
+    "browser_build": "pass",
+    "mcp_build": "pass",
+    "canonical_full_asset_sync": "pass",
+    "copilot_profile": "pass",
+    "default_mcp_protocol": "pass",
+    "plugin_mcp_runtime": "pass",
+    "runtime_integrity_layout": "pass",
+    "control_inspect": "pass",
+    "diff_check": "pass"
+  },
+  "copilot": {
+    "observed": {
+      "files": 203,
+      "bytes": 1711580
+    },
+    "baseline": {
+      "max_files": 203,
+      "max_bytes": 1716129
+    },
+    "baseline_changed": false,
+    "remaining_bytes": 4549
+  },
+  "protocol": {
+    "status": "pass",
+    "evidence_class": "actual_stdio_protocol_not_host_ui",
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      },
+      {
+        "protocol": "2026-07-28",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      }
+    ],
+    "server_digest": "c593b914c276f7dbe1eb089312d8fa0ab0c45636ace3e88590bfb7a0a586825b",
+    "ui_digest": "sha256:47270f91722834ddad9bfabd66d54a2b7777f471d9419761415e1a4e96e5c800"
+  },
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "c593b914c276f7dbe1eb089312d8fa0ab0c45636ace3e88590bfb7a0a586825b",
+    "dispatcher_digest": "ccca216f710ac4497adcb5173d1f33a1ceb1ee5e42e1f476b36006658c6899bb",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 995531,
+      "digest": "sha256:47270f91722834ddad9bfabd66d54a2b7777f471d9419761415e1a4e96e5c800"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "project_config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "source_sha256": {
+    "packages/cli/lib/mcp-dispatch-runtime.js": "4c59606c3faeb97ec29542361d0d1774dfea3b164707b8cc84ea4702951cb0b3",
+    "packages/cli/scripts/copilot-profile-test.js": "075da31bb44a485c37120e8a7280fe3cfef2ccc2988d39a80b7f48a0a5db53e7",
+    "packages/cli/scripts/cockpit-mcp-test.js": "b3e02d29416d930f0d9437b0604c51a722b29fd5ec9d0490245085323f740412",
+    "packages/core/lib/index.js": "2840243d392b37926c58887ecca0c4ec896b03e675eb06952c9de487062224f4",
+    "packages/core/lib/control-inspect/cockpit-session.js": "5363be4066f87321be6ec25f9d45272ae572c63950016cc7e0f565879a10e25d",
+    "packages/core/test/cockpit-session-test.js": "bb670f28a5e966e39d34ba676b858b00c482045be1873fae00dd55dbf9c2fb07",
+    "packages/mcp-server/src/main.js": "964f396303ad101d68c0c9602f4ddc53e76ad513928af94012c404cde6333f0b",
+    "scripts/core-projection.mjs": "8a99c8076ccfa04810c6b96bcff180e4740b7bfc7640e54e1369890aef0ac7ae",
+    "packages/control-ui/src/App.tsx": "3c8cc7379f10a1be48393ba9c843e2f81e5b42d57e0b9f9fda44f291d901c73a",
+    "packages/control-ui/src/state.ts": "e7dc0f76390227b0798273c228c65e57ea6a8011d4e31c9ad985fef66d56e543",
+    "packages/control-ui/src/feedback.tsx": "44030e67befc2aa2194c071f00f13f998055cc557e490db7aa6b315b0a2ebb49",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "4e2904a29493aad683988e898e31dc8410eeb6d580dd0190991734f8bf53ab2b",
+    "packages/control-ui/src/Overview.tsx": "4207eee5cead300a29e98521230cc01770d7844cb81e3fe42ea2f82875aa51f7",
+    "packages/control-ui/test/initial-run.test.tsx": "22b931667837ab6c588c892fabd67e2357bd133e8b1ee6bf9af832b123599d75"
+  },
+  "native_host": {
+    "current_resource_verified": false,
+    "latest_exact_run_open": "Transport closed after owned local runtime replacement",
+    "no_automatic_context_or_message": true
+  },
+  "remaining": [
+    "Fresh native T-006 direct-opening/document/return qualification",
+    "Remaining approved Context Graph/packet/handoff implementation and scenarios",
+    "Full T-011 mapped compatibility and formal CR/QA/UAT/OR"
+  ],
+  "authorizes": false
+}

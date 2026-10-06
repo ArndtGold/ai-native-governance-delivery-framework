@@ -7,7 +7,7 @@ if (!Number.isInteger(major) || major < 22) {
   process.exitCode = 1;
 } else {
   const args = process.argv.slice(2);
-  const valid = args.length === 2
+  const valid = (args.length === 2 || args.length === 4 && args[1] === 'codex' && args[2] === '--cockpit-dir')
     && args[0] === "--surface"
     && ["codex", "claude", "copilot", "opencode"].includes(args[1]);
   if (!valid) {
@@ -15,6 +15,10 @@ if (!Number.isInteger(major) || major < 22) {
     process.exitCode = 1;
   } else {
     const { runMcpServer } = await import("../src/main.js");
-    await runMcpServer({ surface: args[1] });
+    try { await runMcpServer({ surface: args[1], cockpitDir: args.length === 4 ? args[3] : undefined }); }
+    catch (error) {
+      process.stderr.write(['AGDF_COCKPIT_TARGET_INVALID', 'AGDF_COCKPIT_UI_INVALID'].includes(error.message) ? `${error.message}\n` : 'AGDF_MCP_STARTUP_FAILED\n');
+      process.exitCode = 1;
+    }
   }
 }

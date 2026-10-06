@@ -1,0 +1,91 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": 53,
+  "source_revision_id": "ee138c20-13e5-416b-9d49-e702f02da41f",
+  "observed_at": "2026-10-06T14:33:40.428590+00:00",
+  "source_sha256": {
+    "packages/control-ui/src/App.tsx": "a89cd4830cbb5b32dbd6cdef8f18ddbc0b6de124676c1c2fccaf4f336dc10793",
+    "packages/control-ui/src/feedback.tsx": "aa7f52612b34e2f4949df17226fbfdac27a521913df83f038f1711b27a89f301",
+    "packages/control-ui/src/RunDetail.tsx": "31e261000a2bcfb9eedc00bc4ca73c1421be4498b3cc6c13c1cd5d1f7f1641af",
+    "packages/control-ui/src/WorkStep.tsx": "232f4eae9af208bae2a8aff70c30315109b74f96f47176d7ce5944cce11f58c6",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "f916ca0568c8bbca37d62ba2811b98f6d326b1d8d5824126b1621f1c457cfd0a",
+    "packages/control-ui/src/style.css": "1156588427d8d4b6f93ca3685457f89681989bda481e0dcefebff09fae419e72",
+    "packages/control-ui/test/compact.test.tsx": "315d3e6cfd6e8ea541868bd64e4bfb3c1eff73ae56b18c6c85b46df86ac55161",
+    "packages/control-ui/test/initial-run.test.tsx": "52933d9c80513f9dbea5af1498e57536d6719c9e2346bb46392d3c1c8c9d34d7",
+    "packages/control-ui/test/reading.test.tsx": "e76b0b80170209ae3fc3e56edf13b321cab7d3bba89a54f062266d81928d45cb",
+    "packages/control-ui/test/presentation.test.tsx": "e5f5a9f431ba5175523e4b400960e56f79937b9218a95fa4f3760666b09f48e1",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "a98a43493702f68772c8b767290013bb3b5271660efa7503ad21105b49686ec6",
+    "packages/control-ui/README.md": "201e444aacb5162772bd9ff26d0f26c4c47939652765342638b821231b9699be"
+  },
+  "approved_sources_unchanged": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec",
+    "TP": "e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+  },
+  "checks": {
+    "UI": 68,
+    "browser_journeys": 7,
+    "layout_matrix": 32,
+    "typecheck": "pass",
+    "browser_build": "pass",
+    "MCP_build": "pass",
+    "actual_stdio_protocols": [
+      "2025-11-25",
+      "2026-07-28"
+    ],
+    "diff_whitespace": "pass"
+  },
+  "browser_assets": {
+    "canonical_default_files": {
+      "index.html": "ac6d998b5865b650d9d887364ea758fe8ee16b8bf558a614d0a62c4ed668ecc1",
+      "card.html": "3c93b316e2c4eae430fd61b8156213ca85b49437a9bf3f3a65b73afeebde4dc1",
+      "assets/jetbrains-mono-latin-wght-normal-B9CIFXIH.woff2": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e",
+      "assets/main-Bj1dHe_O.css": "6463cc86a4d228a8231b797e7290d59be27ca661bca5c27bb4d35149642f5a9c",
+      "assets/main-CMZKyO6o.js": "66f849afbc0dfc3a8f1db1ec55107fc49820e71c8d60835e40cb83c67045168c",
+      "assets/inter-latin-wght-normal-Dx4kXJAl.woff2": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+    },
+    "byte_equal_preview_capture": true,
+    "final_tests": "regenerated normal default production build",
+    "earlier_attempts": "default asset boundary rejected synchronized conflict copies; clean snapshot six passed with repository inventory timeout; focused repository retry passed; final normal production run seven passed"
+  },
+  "prepared": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "af3c117c344d0a07a4c37f6618843722c0f2b012af01dadd001a0306a7552939",
+    "dispatcher_digest": "9c3e542d97dea9b4d2cb235fbdd1cdbac73d0bb7e8c589acf46c2bc19e2ab590",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1016579,
+      "digest": "sha256:00dfcdf2e10940d4298804fcb116168b8cc8aa1e4f48360edb08a84784bb3e75"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "project_config_sha256": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "actual_browser": {
+    "origin": "http://127.0.0.1:53801",
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "summary_work_step_first": true,
+    "original_records_collapsed": true,
+    "registered_sources_visible": true,
+    "no_question_sent": true
+  },
+  "native_current_UI_verified": false,
+  "authorizes": false,
+  "remaining": [
+    "Current native UI identity/visual qualification",
+    "Remaining host recovery/rollback and answer-quality evidence",
+    "Full task/structural/diff reviews and canonical QA/UAT/regular closeout"
+  ]
+}

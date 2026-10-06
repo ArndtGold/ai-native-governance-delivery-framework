@@ -5,14 +5,21 @@ const text = (v: unknown) => typeof v === 'string';
 const nullableText = (v: unknown) => v === null || text(v);
 const resources = (v: unknown) => Array.isArray(v) && v.every(r => object(r) && text(r.resource_id) && text(r.run_id) && text(r.type) && text(r.registered_reference) && nullableText(r.path) && text(r.status));
 const diagnostics = (v: unknown) => Array.isArray(v) && v.every(d => object(d) && text(d.code) && ['message', 'path', 'next_step', 'severity'].every(k => d[k] === undefined || text(d[k])));
+export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 64 && v.every(r => object(r)
+  && ['resource_id', 'run_id', 'origin', 'path'].every(k => text(r[k]))
+  && ['node_id', 'graph_digest', 'content_digest', 'content', 'code'].every(k => nullableText(r[k]))
+  && ['available', 'unresolved', 'missing', 'blocked', 'unsupported'].includes(String(r.state))
+  && (r.state !== 'available' || text(r.node_id) && text(r.content_digest) && text(r.graph_digest) && text(r.content)));
 export function validateData(path: string, value: Envelope<unknown>) {
   if (value.data === null) return;
   const data = value.data;
   let valid = false;
   if (object(data)) {
-    if (path.startsWith('/api/snapshot')) valid = Array.isArray(data.runs) && data.runs.every(r => object(r) && text(r.run_id) && text(r.title) && typeof r.valid === 'boolean' && ['lifecycle', 'revision_id', 'objective', 'status', 'current_gate', 'code'].every(k => nullableText(r[k]))) && typeof data.file_count === 'number' && typeof data.byte_count === 'number';
+    if (path.startsWith('/api/snapshot')) valid = Array.isArray(data.runs) && data.runs.every(r => object(r) && text(r.run_id) && text(r.title) && typeof r.valid === 'boolean' && ['lifecycle', 'revision_id', 'objective', 'status', 'current_gate', 'code'].every(k => nullableText(r[k]))
+      && (r.attention === undefined || object(r.attention) && text(r.attention.blocking_reason) && text(r.attention.missing_approval) && Number.isSafeInteger(r.attention.missing_evidence_count) && (r.attention.missing_evidence_count as number) >= 0)) && typeof data.file_count === 'number' && typeof data.byte_count === 'number';
+    else if (path.startsWith('/api/context/')) valid = text(data.run_id) && graphReferences(data.references);
     else if (path.startsWith('/api/runs/')) {
-      valid = text(data.run_id) && resources(data.resources) && (data.diagnostics === undefined || diagnostics(data.diagnostics));
+      valid = text(data.run_id) && (data.title === undefined || text(data.title)) && resources(data.resources) && (data.diagnostics === undefined || diagnostics(data.diagnostics));
       if (data.evaluation !== undefined) {
         const e = data.evaluation, p = data.persisted;
         valid = valid && object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
@@ -37,7 +44,8 @@ export function validateEnvelope(value: unknown, expected?: { target: string; sn
   if (expected && (value.target.target_id !== expected.target
     || value.data !== null && value.snapshot_id !== expected.snapshot)) throw Error('dto_invalid');
 }
-export function createApi(secret: string) {
+export type ReadTransport = <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string }) => Promise<Envelope<T>>;
+export function createApi(secret: string): ReadTransport {
   return async function read<T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string }): Promise<Envelope<T>> {
     const response = await fetch(path, { headers: { 'x-agdf-session': secret }, signal, cache: 'no-store', credentials: 'omit', redirect: 'error' });
     const value: unknown = await response.json(); validateEnvelope(value, expected); validateData(path, value);

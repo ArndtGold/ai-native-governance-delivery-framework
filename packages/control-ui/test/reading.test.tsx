@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { PassiveMarkdown } from '../src/DocumentView';
 import { validateEnvelope, validateData, consumeSession } from '../src/api';
 import { ReadState, label } from '../src/feedback';
@@ -38,7 +38,7 @@ describe('read state and passive documents', () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(Error('offline')).mockResolvedValueOnce(new Response(JSON.stringify(snapshot)));
     render(<App secret={'a'.repeat(64)}/>);
     await screen.findByText('Die Daten konnten nicht gelesen werden. Quelle oder lokalen Dienst prüfen und wiederholen.');
-    fireEvent.click(screen.getByRole('button', { name: 'Wiederholen' })); await screen.findByRole('button', { name: 'fixture-a' });
+    fireEvent.click(screen.getByRole('button', { name: 'Wiederholen' })); await screen.findByRole('button', { name: 'Original title' });
     expect(fetch).toHaveBeenCalledTimes(2); expect(screen.getByText('Nur Lesen', { exact: false })).toBeTruthy();
   });
   it('SCN-002/005: missing control preserves target provenance and explicit failure', async () => {
@@ -53,12 +53,13 @@ describe('read state and passive documents', () => {
   });
   it('SCN-014: returning to visibility checks freshness without replacing displayed content', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(snapshot))).mockResolvedValueOnce(new Response(JSON.stringify({ ...snapshot, state: 'stale', code: 'source_changed', data: null })));
-    render(<App secret={'a'.repeat(64)}/>); await screen.findByRole('button', { name: 'fixture-a' });
+    render(<App secret={'a'.repeat(64)}/>); await screen.findByRole('button', { name: 'Original title' });
+    await act(async () => {});
     const descriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     try {
       Object.defineProperty(document, 'hidden', { configurable: true, value: true }); fireEvent(document, new Event('visibilitychange')); expect(fetch).toHaveBeenCalledTimes(1);
       Object.defineProperty(document, 'hidden', { configurable: true, value: false }); fireEvent(document, new Event('visibilitychange'));
-      await screen.findByText('Vorheriger Datenstand · Diese Ansicht ist keine aktuelle Auswertung.'); expect(screen.getByRole('button', { name: 'fixture-a' })).toBeTruthy(); expect(fetch).toHaveBeenCalledTimes(2);
+      await screen.findByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.'); expect(screen.getByRole('button', { name: 'Original title' })).toBeTruthy(); expect(fetch).toHaveBeenCalledTimes(2);
     } finally { if (descriptor) Object.defineProperty(document, 'hidden', descriptor); else Reflect.deleteProperty(document, 'hidden'); }
   });
 });

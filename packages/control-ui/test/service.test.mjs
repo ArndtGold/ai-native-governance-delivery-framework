@@ -12,7 +12,7 @@ function request(service, path, { headers = {}, method = 'GET' } = {}) {
   return new Promise((resolve, reject) => {
     const origin = new URL(service.origin);
     const req = http.request({ hostname: origin.hostname, port: origin.port, path, method, headers: { 'x-agdf-session': service.secret, ...headers } }, res => {
-      const chunks = []; res.on('data', b => chunks.push(b)); res.on('end', () => { const bytes = Buffer.concat(chunks).toString(); resolve({ status: res.statusCode, headers: res.headers, text: bytes, body: res.headers['content-type'].includes('json') ? JSON.parse(bytes) : null }); });
+      const chunks = []; res.on('data', b => chunks.push(b)); res.on('end', () => { const bytes = Buffer.concat(chunks), text = bytes.toString(); resolve({ status: res.statusCode, headers: res.headers, bytes, text, body: res.headers['content-type'].includes('json') ? JSON.parse(text) : null }); });
     }); req.on('error', reject); req.end();
   });
 }
@@ -20,16 +20,35 @@ test('SCN-020/022/032: loopback authenticated read journey, origin/method/select
   const f = fixture(), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
   try {
     const index = await request(service, '/'); assert.equal(index.status, 200); assert.match(index.headers['content-security-policy'], /frame-ancestors 'none'/); assert.equal(index.headers['referrer-policy'], 'no-referrer'); assert.equal(index.headers['cache-control'], 'no-store'); assert.doesNotMatch(index.text, new RegExp(service.secret));
+    const card = await request(service, '/card.html'); assert.equal(card.status, 200);
+    assert.match(card.text, /data-cockpit-view="compact"/); assert.match(card.text, /<script[^>]+type="module"/);
+    assert.doesNotMatch(card.text, new RegExp(service.secret));
+    assert.match(index.headers['content-security-policy'], /font-src 'self';/);
+    assert.match(index.headers['content-security-policy'], /img-src data:;/);
+    const cssPath = index.text.match(/href="([^"]+\.css)"/)[1];
+    const css = await request(service, cssPath);
+    const fonts = [...css.text.matchAll(/url\(([^)]+\.woff2)\)/g)].map(m => new URL(m[1].replace(/["']/g,''), service.origin + cssPath).pathname);
+    assert.equal(fonts.length, 2, 'browser build must serve both local font faces');
+    for (const path of fonts) {
+      const font = await request(service, path);
+      assert.equal(font.status, 200); assert.equal(font.headers['content-type'], 'font/woff2');
+      assert.equal(font.bytes.subarray(0,4).toString(), 'wOF2');
+    }
+    assert.equal((await request(service, '/assets/unregistered.woff2')).status, 404);
     const s = (await request(service, '/api/snapshot')).body; assert.ok(s.snapshot_id);
     const d = (await request(service, '/api/runs/fixture-a?snapshot=' + s.snapshot_id)).body;
     const resource = d.data.resources.find(r => r.type === 'UR'); const doc = (await request(service, `/api/documents/${resource.resource_id}?snapshot=${s.snapshot_id}`)).body; assert.match(doc.data.content, /Fixture document/);
     assert.equal((await request(service, '/api/freshness?snapshot=' + s.snapshot_id)).body.data.unchanged, true);
+    const context = (await request(service, '/api/context/fixture-a?snapshot=' + s.snapshot_id)).body;
+    assert.equal(context.state, 'empty'); assert.equal(context.data.run_id, 'fixture-a');
+    assert.deepEqual(context.data.references, []);
     for (const [path, options] of [
       ['/api/snapshot', { headers: { 'x-agdf-session': '' } }], ['/api/snapshot', { headers: { 'x-agdf-session': 'é'.repeat(64) } }],
       ['/api/snapshot', { headers: { Origin: 'https://foreign.invalid' } }], ['/api/snapshot', { headers: { Origin: 'null' } }],
       ['/api/snapshot', { headers: { Host: 'foreign.invalid' } }], ['/api/snapshot', { headers: { 'Sec-Fetch-Site': 'cross-site' } }],
       ['/api/snapshot', { method: 'OPTIONS' }], ['/api/snapshot', { method: 'POST' }], ['/api/approve', {}],
       ['/api/snapshot?dir=/private', {}], ['/api/snapshot?approval=TP', {}], ['/api/runs/../snapshot', {}],
+      ['/api/prepare_context', {}], ['/api/context/fixture-a?snapshot=' + s.snapshot_id + '&content=forged', {}],
       ['/api/runs/%2e%2e', {}], ['/api/runs/%252e%252e', {}], ['/api/documents/unknown?snapshot=' + s.snapshot_id, {}],
       ['/.agdf/control/config.json', {}], ['/src/main.tsx', {}], ['/unknown', {}],
     ]) {

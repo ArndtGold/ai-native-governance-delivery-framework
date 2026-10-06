@@ -5,12 +5,40 @@ import { join } from 'node:path';
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { READ_LIMITS } from '../lib/control-read/snapshot.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
+import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
+import { sealRunState } from '../lib/control-state/run-seal.js';
+import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+test('cockpit title identifies the bound UR instead of a generic current artefact heading', () => {
+  const f = fixture(); try {
+    const path = '.agdf/control/artefacts/fixture-a/CURRENT.md';
+    fs.writeFileSync(join(f.root, f.documentPath), '# UR: Fixture document\n');
+    fs.writeFileSync(join(f.root, path), '# Implementation Checkpoint\n');
+    f.register('UR', f.documentPath);
+    f.register('Brownfield Review', path);
+    const content = upsertTableRow(fs.readFileSync(f.runPath, 'utf8'), 'Approvals', 0, 'UR', ['UR', 'not_applicable', 'Synthetic projection fixture only']);
+    fs.writeFileSync(f.runPath, sealRunState(f.root, content));
+    assert.equal(evaluateGateCheck(f.root, {runId:'fixture-a',ignoreRunIdEnv:true}).status_card.humanPresentation.runTitle, 'Implementation Checkpoint');
+    const before = treeBytes(f.root), reader = createCockpitReader(f.root), snapshot = reader.snapshot();
+    const run = snapshot.data.runs.find(r => r.run_id === 'fixture-a');
+    assert.equal(run.title, 'Fixture document'); // Presentation omits the document-kind prefix.
+    assert.equal(reader.run('fixture-a', snapshot.snapshot_id).data.title, run.title);
+    assert.deepEqual(treeBytes(f.root), before);
+    fs.rmSync(join(f.root, f.documentPath));
+    const next = reader.snapshot();
+    assert.notEqual(next.data.runs.find(r => r.run_id === 'fixture-a').title, 'Implementation Checkpoint');
+  } finally { f.close(); }
+});
 test('SCN-001/002/008/020: active/completed/invalid inventory, registered resources and full byte invariance', () => {
   const f = fixture(); try {
     fs.mkdirSync(join(f.root, '.agdf/control/runs/broken')); fs.writeFileSync(join(f.root, '.agdf/control/runs/broken/RUN_STATE.md'), 'invalid');
     const before = treeBytes(f.root), reader = createCockpitReader(f.root), snapshot = reader.snapshot();
     assert.equal(snapshot.state, 'partial'); assert.equal(snapshot.data.runs.length, 3); assert.equal(snapshot.data.runs.find(r => r.run_id === 'fixture-completed').lifecycle, 'completed'); assert.equal(snapshot.data.runs.find(r => r.run_id === 'broken').valid, false);
     const detail = reader.run('fixture-a', snapshot.snapshot_id); assert.equal(detail.state, 'available'); const resource = detail.data.resources.find(r => r.type === 'UR');
+    assert.deepEqual(snapshot.data.runs.find(r => r.run_id === 'fixture-a').attention, {
+      blocking_reason: detail.data.evaluation.blocking_reason, missing_approval: detail.data.evaluation.missing_approval,
+      missing_evidence_count: detail.data.evaluation.missing_evidence.length,
+    });
+    assert.equal(snapshot.data.runs.find(r => r.run_id === 'broken').attention, undefined);
     assert.match(reader.document(resource.resource_id, snapshot.snapshot_id).data.content, /日本語/); assert.throws(() => reader.document('unknown', snapshot.snapshot_id), /resource_denied/);
     reader.freshness(snapshot.snapshot_id); assert.deepEqual(treeBytes(f.root), before);
     assert.equal(reader.run('broken', snapshot.snapshot_id).code, 'invalid_run');

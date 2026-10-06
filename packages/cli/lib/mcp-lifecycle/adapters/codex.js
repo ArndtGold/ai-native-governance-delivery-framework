@@ -29,11 +29,11 @@ function sectionRange(content) {
     if (trimmed.startsWith("[")) {
       const normalized = trimmed.replace(/[\s"']/gu, "");
       if (normalized === "[mcp_servers]") return true;
-      return (normalized.startsWith("[mcp_servers.agdf") || normalized.startsWith("[[mcp_servers.agdf"))
+      return /^\[\[?mcp_servers\.agdf(?:\.|\])/u.test(normalized)
         && trimmed !== "[mcp_servers.agdf]";
     }
     const assignment = trimmed.match(/^([^=]+)=/u)?.[1]?.replace(/[\s"']/gu, "");
-    return assignment === "mcp_servers" || assignment?.startsWith("mcp_servers.agdf") === true;
+    return assignment === "mcp_servers" || /^mcp_servers\.agdf(?:\.|$)/u.test(assignment ?? '');
   });
   if (headers.length > 1 || unsupported) throw new Error("AGDF_MCP_CODEX_CONFIG_INVALID");
   const [header] = headers;

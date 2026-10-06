@@ -1,0 +1,49 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "status": "local_setup_verified_host_load_unqualified",
+  "preparation": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "d24b084e223998e3ace427d02ec1d8be7691b7ee1c57bd130a378af099c06d2f",
+    "dispatcher_digest": "869727f0703b980c812c26ae987f98998f0dad25881a3f06664820e452d47b1c",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 613427,
+      "digest": "sha256:f27559b7b057552331572d46e679adfc61da2e808ecce3b3043d2ca2043ec163"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "registration": {
+    "schema_version": "1",
+    "name": "agdf-cockpit-local",
+    "project_config": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+    "config_created": true,
+    "directory_created": true,
+    "config_digest": "sha256:9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+    "host_ui_loaded": false,
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml"
+  },
+  "reconnection": {
+    "schema_version": "1",
+    "named_processes_stopped": 1,
+    "config_restored": true,
+    "server_digest": "d24b084e223998e3ace427d02ec1d8be7691b7ee1c57bd130a378af099c06d2f",
+    "dispatcher_digest": "869727f0703b980c812c26ae987f98998f0dad25881a3f06664820e452d47b1c",
+    "host_ui_verified": false
+  },
+  "config_readback": "pass: enabled, exact command/args/cwd",
+  "scope": "Only named project connection and owned dist/local/codex-cockpit runtime; global config, installed governance runtime and existing browser retained.",
+  "rollback": "Stop only the matching named runtime, remove only the created matching project table/file, then use the existing owned retirement transaction. Never delete an edited or unrelated configuration. Partial stop/remove/reassemble/restore exercised once; full native host cleanup not qualified.",
+  "authorizes": false
+}

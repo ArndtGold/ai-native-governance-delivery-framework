@@ -7,10 +7,10 @@ import { ReadWorkerPool } from './pool.mjs';
 import { READ_LIMITS } from '../../core/lib/control-read/snapshot.js';
 import { resolveControlCommandTarget } from '../../core/lib/control-state/approval-command-contract.js';
 
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.woff2': 'font/woff2' };
 export const SECURITY_HEADERS = Object.freeze({
   'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff',
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'none'; font-src 'none'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src data:; font-src 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'",
 });
 function assets(root) {
   const result = new Map(), directories = new Map();
@@ -90,6 +90,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     if (url.pathname === '/api/snapshot') operation = 'snapshot';
     else if (url.pathname === '/api/freshness') operation = 'freshness';
     else if (/^\/api\/runs\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }
+    else if (/^\/api\/context\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
     else return send(403, error('resource_denied'));
     const params = [...url.searchParams.keys()];

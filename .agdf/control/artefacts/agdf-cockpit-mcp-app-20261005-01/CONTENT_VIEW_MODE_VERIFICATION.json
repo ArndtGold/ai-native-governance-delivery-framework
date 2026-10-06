@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "observed_at": "2026-10-06T09:32:33.684Z",
+  "ui_tests": {
+    "pass": 35,
+    "skipped": 0
+  },
+  "browser_journeys": {
+    "pass": 3,
+    "skipped": 0
+  },
+  "typecheck": "pass",
+  "browser_build": "pass",
+  "mcp_build": "pass",
+  "diff_check": "pass",
+  "container_threshold_px": 720,
+  "responsive_geometry": [
+    {
+      "expanded": true,
+      "run": "agdf-cockpit-mcp-app-20261005-01",
+      "scroll": 320,
+      "summaryPressed": "true",
+      "switchVisible": false,
+      "width": 320,
+      "workspace": 304
+    },
+    {
+      "expanded": true,
+      "run": "agdf-cockpit-mcp-app-20261005-01",
+      "scroll": 800,
+      "summaryPressed": "true",
+      "switchVisible": true,
+      "width": 800,
+      "workspace": 768
+    },
+    {
+      "expanded": true,
+      "run": "agdf-cockpit-mcp-app-20261005-01",
+      "scroll": 751,
+      "summaryPressed": "true",
+      "switchVisible": false,
+      "width": 751,
+      "workspace": 719
+    },
+    {
+      "expanded": true,
+      "run": "agdf-cockpit-mcp-app-20261005-01",
+      "scroll": 752,
+      "summaryPressed": "true",
+      "switchVisible": true,
+      "width": 752,
+      "workspace": 720
+    }
+  ],
+  "actual_browser": {
+    "entry_expands_exact_run": "agdf-cockpit-mcp-app-20261005-01",
+    "summary_preserves_expanded_surface": true,
+    "summary_preserves_goal_status_open_items_core_action": true,
+    "document_hidden_on_summary_restored_on_details": true,
+    "original_source_path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+    "viewport_override_reset": true
+  },
+  "regression_tests": {
+    "browser_summary_details_no_reread": true,
+    "document_same_dom_node_and_no_reread": true,
+    "host_summary_details_no_requestDisplayMode": true,
+    "host_does_not_need_inline_capability_for_content_switch": true,
+    "host_explicit_inline_event_still_returns_card": true,
+    "no_message_or_model_context": true
+  },
+  "protocol": {
+    "status": "pass",
+    "evidence_class": "actual_stdio_protocol_not_host_ui",
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      },
+      {
+        "protocol": "2026-07-28",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      }
+    ],
+    "server_digest": "0d084a8a83501eb5b2763c90bcaf7c034fb3f7c61758ee645a92655703d7357b",
+    "ui_digest": "sha256:3c6125ffb6bf8d911e8201dd9af6c1fe79c217dde6222bff16e1e90d318267d1"
+  },
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "0d084a8a83501eb5b2763c90bcaf7c034fb3f7c61758ee645a92655703d7357b",
+    "dispatcher_digest": "1a4122462a0261f46e77bc761deb47fc0738d91413ea5ad051c47eddbbe39b02",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 994429,
+      "digest": "sha256:3c6125ffb6bf8d911e8201dd9af6c1fe79c217dde6222bff16e1e90d318267d1"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "project_config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "native_current_resource": "Transport closed; current native resource not qualified"
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "expected_revision_id": "4f600635-8e63-48fd-9a15-22379f65ddda",
+  "operation_id": "8af83d43-0552-4490-8870-368a64853335",
+  "source_gate": "SD",
+  "reason": "The user requested direct opening of a named Run and adaptive use of the MCP card surface. Approved SD currently mandates an empty render object.",
+  "intended_change": "Permit optional strict run_id on agdf_cockpit as an ephemeral initial focus; route it through the existing captured project/run reader with explicit unknown or unavailable states, retain empty-object overview, no inferred run/authority/context. Renew TP mapping and tests before implementation.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+      "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+      "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md",
+      "digest": "sha256:e074c33a11168f4d76c0af885c5186690c0934951fb24b9dbec9c30424d49957"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md",
+      "digest": "sha256:b4f00e615ae98d0f5c4fdd2e7454c6c82dd2d14a0cc0b6a0d43b113d7cbc3955"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex implementing agent; cooperative source impact review",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+        "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+        "rationale": "Existing approved embedded run selection, source inspection, adaptive presentation and no-write authority remain unchanged. Optional explicit initial focus is a technical entry contract for the same selection, without automatic relevance inference or expanded capability."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+        "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+        "rationale": "Existing approved embedded run selection, source inspection, adaptive presentation and no-write authority remain unchanged. Optional explicit initial focus is a technical entry contract for the same selection, without automatic relevance inference or expanded capability."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7d253cc02529f9d07d44d3dab3c390a18fc7b679ad0ffd1407816495f73b5f95",
+        "disposition": "retain",
+        "reason": "Same bound project, explicit run selection, compact and expanded working modes, status/evidence intent and human decision authority; no new trust boundary, product acceptance or graph relevance inference."
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:09783d6bf308353e687aafd92819060150427c00a57833a7a249eca54713696a",
+        "disposition": "retain",
+        "reason": "Same bound project, explicit run selection, compact and expanded working modes, status/evidence intent and human decision authority; no new trust boundary, product acceptance or graph relevance inference."
+      }
+    ],
+    "implementation_evidence": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ADAPTIVE_LAYOUT_EVIDENCE.md records completed UI density work and 20 UI/5 service tests; code/tests retained but full fulfillment must be revalidated against renewed TP. Optional render parameter is not implemented.",
+    "unresolved": []
+  }
+}

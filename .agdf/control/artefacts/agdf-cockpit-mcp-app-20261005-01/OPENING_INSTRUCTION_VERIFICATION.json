@@ -1,0 +1,48 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-06T08:16:02.808Z",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "evidence_class": "actual_stdio_descriptor_not_native_host_discovery",
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "cb81b9820ff7b21761d7aa453d7caefb30d4f99302234377270946af9c609521",
+    "dispatcher_digest": "dab36bbe91b4d3da2ce6d15d74e9d8f1a429156a1ba75b2521831c29393b0a1b",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 983715,
+      "digest": "sha256:08e8923bac3ceb79d3bbd15c9f36aee6052956181dfab2ab6082dab7a82f4454"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "core_session_tests": {
+    "pass": 7,
+    "skipped": 0
+  },
+  "observations": [
+    {
+      "protocol": "2025-11-25",
+      "description": "Open the local read-only AGDF cockpit. When the user opens the cockpit for a Run explicitly identified in the request or already unambiguously established with the user in this conversation, you must pass its run_id, even if the latest request only says to open the cockpit. Omit run_id only when the user explicitly requests the overall overview or no unambiguous conversation Run exists. If several Runs could be intended, ask which to view. Never infer a Run from directory, recency or inventory. The optional schema preserves overview access; it does not make passing an established conversation Run optional. Selection and context never approve or authorize delivery.",
+      "canonical_description_matches": true,
+      "overview_compatible": true,
+      "status": "pass"
+    },
+    {
+      "protocol": "2026-07-28",
+      "description": "Open the local read-only AGDF cockpit. When the user opens the cockpit for a Run explicitly identified in the request or already unambiguously established with the user in this conversation, you must pass its run_id, even if the latest request only says to open the cockpit. Omit run_id only when the user explicitly requests the overall overview or no unambiguous conversation Run exists. If several Runs could be intended, ask which to view. Never infer a Run from directory, recency or inventory. The optional schema preserves overview access; it does not make passing an established conversation Run optional. Selection and context never approve or authorize delivery.",
+      "canonical_description_matches": true,
+      "overview_compatible": true,
+      "status": "pass"
+    }
+  ]
+}

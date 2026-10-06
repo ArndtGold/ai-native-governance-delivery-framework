@@ -1,0 +1,636 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": "50",
+  "source_revision_id": "41c9e3c2-1505-46b5-9788-719468adcc24",
+  "observed_at": "2026-10-06T14:01:18.824941+00:00",
+  "source_sha256": {
+    "packages/control-ui/src/App.tsx": "6785059c8bb698494a46852c22c093887ebaf057ef4eef4c3ae38376d8fdc887",
+    "packages/control-ui/src/BrandHeader.tsx": "f408d572bb994f0b7f9d0b4d0239e04f6b414db5da079feecc651265729cc764",
+    "packages/control-ui/src/brand.css": "04ef27263da2a22f9d2908255e618914a6c78f495f04d2aae89d17710348abda",
+    "packages/control-ui/src/style.css": "f4b2b70e2b869f2fc86590a28431029f76c1a7385d0d0821713c0d6c88ecebf1",
+    "packages/control-ui/src/theme.css": "31e5a405d1fda24578f37f1c3ee03ccd74cdccef52494177687d01b605f44d0b",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "764e299933bdd5d6d3eb45988ea6bc22acb2bae8c1ec58d382e93c79df714fdd",
+    "packages/control-ui/test/compact.test.tsx": "56a59bf355212be0f29023c85c94aba21c0aed87efcf3178e8a18536664e6684",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "41cec1a0fc4b840b8abf9cd31e3e5678f1cc6c1a71361a90dc57b9082f2077b8",
+    "packages/control-ui/README.md": "d0868e819770b8c6c93b0361011edc2fb04a6fa1a500c1a5844dccf96062efa6"
+  },
+  "approved_sources_unchanged": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec",
+    "TP": "e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+  },
+  "checks": {
+    "UI": 66,
+    "browser_journeys": 6,
+    "layout_matrix": 32,
+    "typecheck": "pass",
+    "browser_build": "pass",
+    "MCP_build": "pass",
+    "actual_stdio_protocols": [
+      "2025-11-25",
+      "2026-07-28"
+    ],
+    "project_config_test": "pass",
+    "diff_whitespace": "pass"
+  },
+  "observations": [
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    }
+  ],
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "ab5633c7a3043015ca7a399c979ba577d0dc1fc3432d3ec60c76680a885d3f95",
+    "dispatcher_digest": "9c3e542d97dea9b4d2cb235fbdd1cdbac73d0bb7e8c589acf46c2bc19e2ab590",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1015692,
+      "digest": "sha256:f3c3473a4f52688232ce360b265f14b671bd820a1bd1f12acdee622fd6d26864"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "native_opening": {
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "response": "Transport closed",
+    "host_UI_identity_verified": false
+  },
+  "authorizes": false,
+  "real_browser": {
+    "origin": "http://127.0.0.1:53362",
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "selected_mode": "summary",
+    "header_after_scroll": {
+      "top": 0,
+      "height": 96,
+      "position": "sticky"
+    },
+    "asset_snapshot": "temporary byte-identical current six-file production build",
+    "native_ui_evidence": false
+  },
+  "preview_assets_sha256": {
+    "index.html": "049a6efe70aadca8419ba95de422e12c31a7da42ddbadeca6f8f97b0bcdd83a0",
+    "card.html": "8d4b65d5971739a18d73ca002e344031b90b894669dd60d6199d44242ed6a9b2",
+    "assets/jetbrains-mono-latin-wght-normal-B9CIFXIH.woff2": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e",
+    "assets/main-CV6lPujA.js": "059216e6f00239cbbdb24348b21b7e1113b53ee58cf1a4f31b1701e175022792",
+    "assets/main-CjqYi74X.css": "9945ebea7e4f8e826c994c3b3c7ed3ac52ac4981b880ba8c1eab4535f2b66342",
+    "assets/inter-latin-wght-normal-Dx4kXJAl.woff2": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+  }
+}

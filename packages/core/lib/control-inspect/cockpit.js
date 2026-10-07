@@ -19,6 +19,18 @@ function boundedCode(error) {
 }
 const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)(?=\n## |$)/)?.[1]?.trim() ?? null;
 
+// Read-only projection of the evaluated decision, never a second gate evaluator.
+// Doctor warnings are already considered by evaluateGateCheck; they are not a UI veto.
+export function projectCockpitAssessment(report, lifecycle) {
+  const state = lifecycle === 'completed' ? 'completed'
+    : lifecycle !== 'active' ? 'unconfirmed'
+    : report.status === 'blocked' || (report.blocking_reason && report.blocking_reason !== 'none')
+      || (report.missing_approval && report.missing_approval !== 'none') ? 'blocked'
+    : report.status === 'open' && report.blocking_reason === 'none' && report.missing_approval === 'none' ? 'open'
+    : 'unconfirmed';
+  return { state, authorizes: false };
+}
+
 export function createCockpitReader(root, options = {}) {
   let view = null, runs = [], details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
@@ -27,7 +39,7 @@ export function createCockpitReader(root, options = {}) {
   const meta = () => ({ schema_version: '1', target, snapshot_id: view?.snapshot_id ?? null,
     observed_as_of: view?.observed_as_of ?? null, source_digest: view?.digest ?? null });
   const envelope = (data, state = 'available', code = null, retryable = false) => ({ ...meta(), state, code, retryable, data });
-  function evaluation(state, report) {
+  function evaluation(state, report, lifecycle) {
     const pack = localePack(interactionLocales, 'de');
     const en = localePack(interactionLocales, 'en');
     const label = value => {
@@ -41,6 +53,7 @@ export function createCockpitReader(root, options = {}) {
       status: report.status, current_gate: report.current_gate, blocking_reason: report.blocking_reason,
       missing_approval: report.missing_approval, next_allowed_action: report.next_allowed_action,
       next_action_de: label(report.next_allowed_action), allowed: report.allowed, forbidden: report.forbidden,
+      control_assessment: projectCockpitAssessment(report, lifecycle),
       doctor_status: report.doctor_status, quality_outlook: report.quality_outlook,
       diagnostics: [...(report.doctor_report?.findings ?? []), ...(report.delivery_map?.findings ?? [])],
       approvals: [...state.approvals].map(([gate, row]) => ({ gate, ...row })),
@@ -74,7 +87,7 @@ export function createCockpitReader(root, options = {}) {
         urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
         runContent: run.content, runId: run.run_id,
       }),
-      evaluation: evaluation(state, report), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
+      evaluation: evaluation(state, report, run.meta.lifecycle), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources };
   }

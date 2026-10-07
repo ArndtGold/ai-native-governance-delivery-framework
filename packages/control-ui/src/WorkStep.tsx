@@ -3,51 +3,59 @@ import type { Detail, Resource } from './types';
 import { label } from './feedback';
 import { documentName, phaseName } from './presentation';
 
-// Presentation of existing Core facts only; no gate rules or inferred evidence relationships.
-export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, children }: {
-  data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource) => void; children?: ReactNode;
+// Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
+export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
+  data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; children?: ReactNode;
 }) {
   const id = useId(), e = data.evaluation;
   if (!e) return <>{children}</>;
-  const blocked = e.blocking_reason !== 'none' || e.missing_approval !== 'none';
-  const knownOpen = current && !blocked && e.status === 'open' && e.doctor_status === 'pass' && data.lifecycle === 'active';
+  const matches = !data.persisted || data.persisted.current_gate === e.current_gate && data.persisted.next_allowed_action === e.next_allowed_action;
+  const assessment = current && matches ? e.control_assessment?.state ?? 'unconfirmed' : 'unconfirmed';
   const approvals = e.approvals.filter(a => a.status === 'approved');
-  // The current step's registered source leads; Run State remains a separate source.
-  const evidenceSources = data.resources.filter(r => r.type === e.current_gate || r.type === 'Run State')
-    .sort((a, b) => Number(b.type === e.current_gate) - Number(a.type === e.current_gate));
+  const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
+  const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
+  const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
+  const title = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
+    : assessment === 'completed' ? 'Vorhaben abgeschlossen' : 'Aktuelle Voraussetzungen nicht bestätigt';
+  const explanation = assessment === 'open' ? 'Laut aktueller Kontrollauswertung. Die Weiterarbeit bleibt auf den freigegebenen Umfang begrenzt.'
+    : assessment === 'blocked' ? e.missing_approval !== 'none' ? 'Die Kontrollauswertung weist eine ausstehende Freigabe aus.' : 'Die Kontrollauswertung weist einen Blocker aus.'
+    : assessment === 'completed' ? 'Dieser Run ist als abgeschlossen gespeichert. Daraus folgt keine Freigabe für neue Arbeit.'
+    : 'Aus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.';
   const count = e.missing_evidence.length;
-  const beginning = !current ? 'Beginn unklar' : blocked ? 'Beginn blockiert' : knownOpen ? 'Beginn offen' : 'Beginn unklar';
-  return <section className={`work-step agdf-surface agdf-controlled-surface${compact ? ' work-step--compact' : ' panel'}`} aria-label={current ? 'So geht dein Vorhaben weiter' : 'Zuletzt beobachteter Arbeitsschritt'}>
-    <div className="work-step-heading"><span className="work-step-eyebrow">{current ? 'Nächster Arbeitsschritt' : 'Vorheriger Datenstand'}</span><h2>{current ? phaseName(e.current_gate) : 'Zuletzt beobachteter Arbeitsschritt'}</h2></div>
-    <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>
+  return <section className={`work-step agdf-surface agdf-controlled-surface${compact ? ' work-step--compact' : ' panel'}${condensed ? ' work-step--condensed' : ''}`} aria-label={current ? 'So geht dein Vorhaben weiter' : 'Zuletzt beobachteter Arbeitsschritt'}>
+    <div className="work-step-heading"><span className="work-step-eyebrow">Gespeicherter Arbeitsstand</span><h2>{phaseName(data.persisted?.current_gate ?? e.current_gate)}</h2></div>
+    <p className="work-step-saved">{data.persisted ? <>Zuletzt als „{label(data.persisted.decision)}“ gespeichert.</> : 'Gespeicherte Entscheidung nicht verfügbar.'}</p>
+    <div className="work-step-prerequisites" data-assessment={assessment}>
+      <h3>{title}</h3><p>{explanation}</p>
+      {assessment === 'open' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}
+      {assessment === 'blocked' && <p className="work-step-action">{e.next_action_de ?? e.next_allowed_action}</p>}
+      {onOpen && primarySource && <button className="primary work-step-primary" data-focus-id={`step:${primarySource.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(primarySource, `step:${primarySource.resource_id}`)}>{documentName(primarySource.type)} öffnen</button>}
+      {onOpen && !primarySource && <p className="muted">Keine registrierte Nachweisquelle für diesen Schritt verfügbar.</p>}
+      {children}
+    </div>
     <div className="work-step-support">
-      <div className="work-step-prerequisites">
-        <h3>Voraussetzungen</h3>
-        <p className={`work-step-beginning${current && blocked ? ' work-step-blocked' : ''}`}><strong>{beginning}</strong><span>{!current ? 'Quelldaten erneut prüfen.' : knownOpen ? 'Laut Kontrollauswertung.' : blocked ? 'Vor der Weiterarbeit klären.' : 'Kontrollstand nicht vollständig bestätigt.'}</span></p>
-        {e.blocking_reason !== 'none' && <p className="work-step-blocked">{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}: <strong>{e.blocking_reason}</strong></p>}
-        {e.missing_approval !== 'none' && <p className="work-step-blocked">{current ? 'Freigabe ausstehend' : 'Zuletzt ausstehende Freigabe'}: <strong>{e.missing_approval}</strong></p>}
-        <details className="work-step-approvals"><summary>Kontrollgrundlage · {approvals.length} {approvals.length === 1 ? 'Freigabe' : 'Freigaben'}</summary>
-          <div className="work-step-status"><span>{data.persisted ? 'Gespeicherter Stand: ' : 'Auswertung: '}{label(data.persisted?.decision ?? e.status)}</span><code>{e.current_gate}</code></div>
-          <p className="muted">{!current ? 'Kontrollstand nicht vollständig bestätigt · Voraussetzungen erneut prüfen.' : knownOpen ? 'Die Kontrollauswertung weist diesen Schritt als offen aus.' : `Beginn nicht bestätigt · Kontrollauswertung: ${label(e.status)}, Kontrollprüfung: ${label(e.doctor_status)}.`}</p>
-          <p className="muted">Freigaben allein bestätigen nicht, dass alle Voraussetzungen erfüllt sind.</p>
-          <p className="muted">Gespeicherte Freigaben{approvals.length ? ` · ${approvals.map(a => a.gate).join(' · ')}` : ' · keine'}</p>
-          <ul>{approvals.map(a => <li key={a.gate}><strong>{a.gate}</strong><span>{a.evidence || 'Kein Quellenhinweis verfügbar.'}</span>{onOpen && data.resources.filter(r => r.type === a.gate).map(r => <button className="text-link" key={r.resource_id} onClick={() => onOpen(r)}>{documentName(r.type)} ansehen</button>)}</li>)}</ul>
+      <details className="work-step-evidence" aria-labelledby={id}><summary id={id}>Nachweise und offene Punkte · {count}</summary>
+        <p className="muted">{count ? `${count} ${count === 1 ? 'offener Nachweis ist' : 'offene Nachweise sind'} gespeichert. Ihre Bedeutung steht in der jeweiligen Quelle; die Kontrollaussage oben bleibt maßgeblich.` : 'Keine offenen Nachweise ausgewiesen.'}</p>
+        <ul>{e.missing_evidence.map((item, i) => {
+          const row = item && typeof item === 'object' ? item as Record<string, unknown> : {};
+          const summary = typeof row.missing_evidence === 'string' ? row.missing_evidence : typeof item === 'string' ? item : 'Nachweis ohne lesbare Kurzbeschreibung';
+          return <li key={i}><strong>{summary}</strong>
+            {typeof row.required_next_step === 'string' && <p><span className="work-step-label">Laut Quelle als Nächstes:</span> {row.required_next_step}</p>}
+            <details className="work-step-original"><summary>Originalangaben zu diesem Nachweis</summary><pre>{typeof item === 'string' ? item : JSON.stringify(item, null, 2)}</pre></details>
+          </li>;
+        })}</ul>
+        <div className="work-step-sources">{onOpen && [stepSource, runSource].filter((r, i, all): r is Resource => !!r && all.findIndex(x => x?.resource_id === r.resource_id) === i).filter(r => r.resource_id !== primarySource?.resource_id).map(r => <button className="text-link" key={r.resource_id} disabled={sourceDisabled} data-focus-id={`proof:${r.resource_id}`} onClick={() => onOpen(r, `proof:${r.resource_id}`)}>{documentName(r.type)} öffnen</button>)}</div>
+        <details className="work-step-original"><summary>Kontrollauswertung · Originalangaben</summary>
+          <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
         </details>
-      </div>
-      <div className="work-step-proof" aria-labelledby={id}>
-        <h3 id={id}>Nachweise</h3>
-        {count ? <details className="work-step-evidence" open={compact || condensed ? undefined : true}><summary>{count} {count === 1 ? 'offenen Nachweis' : 'offene Nachweise'} ansehen</summary>
-          <p className="muted">Originalangaben: Ob ein Punkt den Beginn blockiert oder noch erarbeitet werden muss, ist den jeweiligen Quellen zu entnehmen.</p><ul>{e.missing_evidence.map((item, i) => {
-            const row = item && typeof item === 'object' ? item as Record<string, unknown> : {};
-            return <li key={i}>{typeof row.missing_evidence === 'string' ? <strong>{row.missing_evidence}</strong> : typeof item === 'string' ? <strong>{item}</strong> : <><strong>Nachweis ohne lesbare Kurzbeschreibung</strong><pre>{JSON.stringify(item, null, 2)}</pre></>}
-              {typeof row.impact === 'string' && <p>{row.impact}</p>}
-              {typeof row.required_next_step === 'string' && <p><span className="work-step-label">Laut Quelle als Nächstes:</span> {row.required_next_step}</p>}
-            </li>;
-          })}</ul>
-        </details> : <p className="work-step-empty">Keine offenen Nachweise ausgewiesen.</p>}
-        {onOpen && <div className="work-step-sources">{evidenceSources.map(r => <button className="text-link" key={r.resource_id} data-focus-id={r.resource_id} onClick={() => onOpen(r)}>{documentName(r.type)} öffnen</button>)}{!evidenceSources.length && <p className="muted">Keine registrierte Nachweisquelle für diesen Schritt verfügbar.</p>}</div>}
-        {children}
-      </div>
+      </details>
+      <details className="work-step-approvals"><summary>Gespeicherte Freigaben · {approvals.length}</summary>
+        <p className="muted">{approvals.length ? 'Diese Freigaben sind gespeichert. Sie ersetzen keine aktuelle Kontrollauswertung.' : 'Keine Freigaben gespeichert.'}</p>
+        <ul>{approvals.map(a => <li key={a.gate}><strong>{documentName(a.gate)} · freigegeben</strong>
+          {onOpen && sources.filter(r => r.type === a.gate).map(r => <button className="text-link" key={r.resource_id} data-focus-id={`approval:${r.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(r, `approval:${r.resource_id}`)}>{documentName(r.type)} ansehen</button>)}
+          <details className="work-step-original"><summary>Gespeicherter Freigabenachweis · {a.gate}</summary><p className="source-text">{a.evidence || 'Kein Quellenhinweis verfügbar.'}</p></details>
+        </li>)}</ul>
+      </details>
     </div>
   </section>;
 }

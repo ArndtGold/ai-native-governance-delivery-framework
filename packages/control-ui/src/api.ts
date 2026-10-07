@@ -24,6 +24,7 @@ export function validateData(path: string, value: Envelope<unknown>) {
         const e = data.evaluation, p = data.persisted;
         valid = valid && object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
           && nullableText(e.next_action_de) && diagnostics(e.diagnostics) && Array.isArray(e.missing_evidence)
+          && (e.control_assessment === undefined || object(e.control_assessment) && ['open', 'blocked', 'unconfirmed', 'completed'].includes(String(e.control_assessment.state)) && e.control_assessment.authorizes === false)
           && Array.isArray(e.approvals) && e.approvals.every(a => object(a) && ['gate', 'status', 'evidence'].every(k => text(a[k])))
           && object(p) && ['current_gate', 'next_allowed_action', 'decision'].every(k => text(p[k]));
       }

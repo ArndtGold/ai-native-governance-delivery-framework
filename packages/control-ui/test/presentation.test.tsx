@@ -33,7 +33,7 @@ it('run detail makes evidence readable, preserves mismatch warnings and keeps or
   const resource={resource_id:'source',run_id:run.run_id,type:'UR',path:'UR.md',registered_reference:'UR.md',status:'registered'};
   const data:Detail={...run,resources:[resource],persisted:{current_gate:'SD',next_allowed_action:'old source action',decision:'in_progress',artefacts:[]},evaluation:{status:'open',current_gate:'TP',blocking_reason:'none',missing_approval:'Approval: TP',next_allowed_action:'Plan the work',next_action_de:'Die Umsetzung planen.',doctor_status:'pass',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[],missing_evidence:[{missing_evidence:'Abstimmung der Unterlagen fehlt.'}]}};
   const open=vi.fn();render(<RunDetail result={{...inventory,data}} onOpen={open}/>);
-  expect(screen.getByRole('heading',{name:'Zuletzt beobachteter Arbeitsschritt'})).toBeTruthy();expect(screen.getByText('Abstimmung der Unterlagen fehlt.')).toBeTruthy();
+  expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();expect(screen.getByText('Abstimmung der Unterlagen fehlt.')).toBeTruthy();
   expect(screen.getByText(/Die gespeicherte Angabe weicht/).closest('details')).toBeNull();
   expect(screen.getByText('Kontrollstatus und Quellen').closest('details')?.hasAttribute('open')).toBe(false);
   fireEvent.click(screen.getByRole('button',{name:/Anforderungen/}));expect(open).toHaveBeenCalledWith(resource);

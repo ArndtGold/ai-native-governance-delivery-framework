@@ -38,6 +38,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const sequence = useRef(0), pending = useRef<AbortController | null>(null), heading = useRef<HTMLHeadingElement>(null);
   const cardVisible = useCardVisibility(heading, compact), wasCardVisible = useRef(true), focusAfterRead = useRef(true);
   const returnFocus = useRef<string | null>(null);
+  const documentOrigin = useRef<string | null>(null);
   const previousCompact = useRef(compact);
   useLayoutEffect(() => { if (previousCompact.current !== compact) heading.current?.focus(); previousCompact.current = compact; }, [compact]);
   const read = useRef(transport ?? createApi(secret)).current;
@@ -90,6 +91,11 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (state.phase !== 'ready' || !focusAfterRead.current) return;
     const origin = returnFocus.current; returnFocus.current = null;
     const control = origin ? [...document.querySelectorAll<HTMLElement>('[data-focus-id]')].find(e => e.dataset.focusId === origin) : null;
+    // Returning to an inspected source must restore a visible focus target, even when
+    // the newly mounted summary starts with closed disclosures.
+    if (control) for (let parent = control.parentElement; parent; parent = parent.parentElement) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+    }
     (control ?? heading.current)?.focus();
   }, [state.phase, state.route]);
   useEffect(() => {
@@ -114,13 +120,16 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     return () => { window.clearInterval(timer); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
   }, [state.inventory, state.stale, state.phase, read, navigate, compact, cardVisible, handoff]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
-  const open = (resource: Resource) => void navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference });
+  const open = (resource: Resource, origin = resource.resource_id) => {
+    documentOrigin.current = origin;
+    void navigate({ view: 'document', runId: resource.run_id, resourceId: resource.resource_id, resourcePath: resource.registered_reference });
+  };
   const showOverview = () => {
     returnFocus.current = state.route.runId ?? null;
     void navigate({ view: 'overview' });
   };
   const showRun = () => {
-    returnFocus.current = state.route.resourceId ?? null;
+    returnFocus.current = documentOrigin.current ?? state.route.resourceId ?? null;
     void navigate({ view: 'detail', runId: state.route.runId });
   };
   const summarizing = state.route.view === 'detail' && (!wideReader || readerMode === 'summary') && !!state.detail?.data?.evaluation;
@@ -132,7 +141,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   if (compact) return <CompactCockpit state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     onReload={() => void navigate(reloadRoute, true)} onOverview={() => void navigate({ view: 'overview' })}
-    onExpand={onExpand}/>;
+    onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>;
   return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
     <div className={`workspace${summarizing ? ' workspace--summary' : ''}`} ref={workspace}><BrandHeader projectPath={state.inventory?.target.display_path} contextTitle={state.route.view !== 'overview' ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
       <button className={`refresh-control${state.stale ? ' refresh-control--stale' : ''}`} aria-label={state.stale ? 'Daten aktualisieren' : 'Neu laden'} title={state.stale ? 'Veralteten Datenstand aktualisieren' : 'Datenstand neu laden'} onClick={() => void navigate(reloadRoute, true)} disabled={expired || !enabled || state.phase === 'loading'}><Icon name="reload"/></button>

@@ -4,11 +4,14 @@ import { label, ReadState, ReadingFeedback } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
 import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
+import { DocumentView } from '../DocumentView';
+import type { Resource } from '../types';
 
-export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onExpand }: {
+export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onExpand, onOpen, onBack }: {
   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean;
   initialRunId?: string;
   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onExpand?: () => void;
+  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void;
 }) {
   const runs = state.inventory?.data?.runs ?? [], active = runs.filter(r => r.lifecycle === 'active');
   const [search, setSearch] = useState('');
@@ -33,7 +36,7 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
     <BrandHeader variant="card" projectPath={target} contextTitle={selected?.title} headingRef={headingRef}>
       <button className="compact-reload" onClick={onReload} disabled={expired || !enabled || busy} aria-label="Neu laden"><Icon name="reload"/></button>
     </BrandHeader>
-    {(!focused || choosing) && <div className="compact-controls" id={pickerId} ref={picker}>
+    {state.route.view !== 'document' && (!focused || choosing) && <div className="compact-controls" id={pickerId} ref={picker}>
     <div className="compact-counts"><span><strong>{active.length}</strong> aktive Runs</span><span>{runs.length} insgesamt</span></div>
     {runs.length > 12 && <label className="compact-search">Runs suchen<input type="search" placeholder="Titel, Run-ID oder Gate" value={search} onChange={event => setSearch(event.target.value)}/></label>}
     <label className="compact-select">Run auswählen
@@ -49,16 +52,20 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
     <ReadingFeedback state={state}/>
     <div className={busy ? 'previous-content' : undefined}>
-      {selected && data ? <div className="compact-run">
+      {state.route.view === 'document' && state.document ? <div className="compact-document">
+        <button className="text-link" onClick={onBack} disabled={!usable}>Zurück zum Arbeitsstand</button>
+        <DocumentView result={state.document} runTitle={selected?.title} onOpen={id => { const resource = data?.resources.find(r => r.resource_id === id); if (resource) onOpen?.(resource); }}/>
+      </div> : selected && data ? <div className="compact-run">
         <div className="compact-run-summary">
-        <h2>{selected.title}</h2><code className="compact-run-id">{data.run_id}</code>
-        {data.objective && data.objective !== selected.title && <p className="compact-goal">{data.objective}</p>}
+        <h2>{selected.title}</h2>
         {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
         {e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action) && <ReadState state="partial" code="persisted_mismatch"/>}
         </div><div className="compact-run-followup">
-        <WorkStep data={data} compact current={usable && state.detail?.state === 'available' && !(e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action))}>
-        <div className="compact-actions"><button className="primary" disabled={!usable || !onExpand} onClick={onExpand}>Run ansehen <Icon name="expand"/></button>{focused ? <button className="text-link" disabled={expired || busy} aria-expanded={choosing} aria-controls={pickerId} onClick={() => setChoosing(value => !value)}>{choosing ? 'Auswahl schließen' : 'Anderen Run wählen'}</button> : <button disabled={expired || busy} onClick={onOverview}>Alle Runs</button>}</div>
+        <WorkStep data={data} compact onOpen={onOpen} sourceDisabled={!usable} current={usable && state.detail?.state === 'available' && !(e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action))}>
+        <div className="compact-actions"><button className="text-link" disabled={!usable || !onExpand} onClick={onExpand}>Run ansehen <Icon name="expand"/></button>{focused ? <button className="text-link" disabled={expired || busy} aria-expanded={choosing} aria-controls={pickerId} onClick={() => setChoosing(value => !value)}>{choosing ? 'Auswahl schließen' : 'Anderen Run wählen'}</button> : <button className="text-link" disabled={expired || busy} onClick={onOverview}>Alle Runs</button>}</div>
         </WorkStep></div>
+        <details className="compact-identity"><summary>Ziel und Run-ID · Originalangaben</summary><code className="compact-run-id">{data.run_id}</code>
+        {data.objective && data.objective !== selected.title && <p className="compact-goal">{data.objective}</p>}</details>
       </div> : <div className="compact-overview">
         <p className="compact-muted">Wähle einen Run für Status, offene Nachweise und den nächsten erlaubten Schritt.</p>
         <button className="primary" disabled={!usable || !onExpand} onClick={onExpand}>Run-Übersicht <span aria-hidden="true">↗</span></button>

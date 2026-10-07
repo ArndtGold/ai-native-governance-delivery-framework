@@ -2,12 +2,30 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
+import { createCockpitReader, projectCockpitAssessment } from '../lib/control-inspect/cockpit.js';
 import { READ_LIMITS } from '../lib/control-read/snapshot.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+test('cockpit assessment projects the evaluated outcome without a second doctor-warning veto', () => {
+  const report = { status: 'open', blocking_reason: 'none', missing_approval: 'none', doctor_status: 'warn' };
+  assert.deepEqual(projectCockpitAssessment(report, 'active'), { state: 'open', authorizes: false });
+  assert.equal(projectCockpitAssessment({ ...report, status: 'blocked' }, 'active').state, 'blocked');
+  assert.equal(projectCockpitAssessment({ ...report, missing_approval: 'Approval: QA' }, 'active').state, 'blocked');
+  assert.equal(projectCockpitAssessment({ ...report, status: 'unknown' }, 'active').state, 'unconfirmed');
+  assert.equal(projectCockpitAssessment(report, 'abandoned').state, 'unconfirmed');
+  assert.deepEqual(projectCockpitAssessment(report, 'completed'), { state: 'completed', authorizes: false });
+});
+test('captured assessment matches canonical gate evaluation and performs no writes', () => {
+  const f = fixture(); try {
+    const before = treeBytes(f.root), report = evaluateGateCheck(f.root, { runId:'fixture-a', ignoreRunIdEnv:true });
+    const reader = createCockpitReader(f.root), s = reader.snapshot(), detail = reader.run('fixture-a', s.snapshot_id).data;
+    assert.deepEqual(detail.evaluation.control_assessment, projectCockpitAssessment(report, detail.lifecycle));
+    assert.equal(detail.evaluation.status, report.status);
+    assert.deepEqual(treeBytes(f.root), before);
+  } finally { f.close(); }
+});
 test('cockpit title identifies the bound UR instead of a generic current artefact heading', () => {
   const f = fixture(); try {
     const path = '.agdf/control/artefacts/fixture-a/CURRENT.md';

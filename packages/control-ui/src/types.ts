@@ -7,6 +7,7 @@ export interface Inventory { runs: Run[]; file_count: number; byte_count: number
 export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
 export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
+    control_assessment?: { state: 'open' | 'blocked' | 'unconfirmed' | 'completed'; authorizes: false };
     diagnostics: Diagnostic[]; approvals: { gate: string; status: string; evidence: string }[]; missing_evidence: unknown[]; git_evidence: string };
   persisted?: { current_gate: string; next_allowed_action: string; decision: string; artefacts: unknown[] } }
 export interface Diagnostic { code: string; message?: string; path?: string; next_step?: string; severity?: string }

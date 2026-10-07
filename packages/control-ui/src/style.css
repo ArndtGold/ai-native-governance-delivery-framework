@@ -70,15 +70,26 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
 .reading-feedback, .retry { font-size: var(--agdf-text-sm); }
 .context-line { display: flex; flex-wrap: wrap; gap: var(--agdf-space-4); align-items: center; font-size: var(--agdf-text-sm); }
 .objective { font-size: var(--agdf-text-base); white-space: pre-wrap; max-width: 78ch; }
-/* The work action leads; qualification and evidence form a quieter supporting row. */
+/* Orientation, current assessment and source access lead; originals stay folded. */
 .work-step { padding: var(--agdf-space-6); min-width: 0; overflow-wrap: anywhere; container-type: inline-size; }
 .work-step--compact { padding: var(--agdf-space-4); }
 .work-step-heading { display: grid; gap: var(--agdf-space-1); }
 .work-step-eyebrow { font-size: var(--agdf-text-xs); line-height: var(--agdf-text-leading-xs); color: var(--cockpit-muted); }
 .work-step h2 { margin: 0; font-size: var(--agdf-text-xl); }
+.work-step-saved { margin: var(--agdf-space-2) 0 var(--agdf-space-4); color: var(--cockpit-muted); font-size: var(--agdf-text-sm); }
+.work-step-prerequisites { margin-bottom: var(--agdf-space-4); }
+.work-step-prerequisites[data-assessment="blocked"] h3 { color: var(--cockpit-risk); }
+.work-step-prerequisites[data-assessment="open"] h3 { color: var(--cockpit-accent); }
+.work-step-primary { margin-top: var(--agdf-space-3); min-height: 44px; font-size: var(--agdf-text-sm); line-height: var(--agdf-text-leading-sm); }
+.work-step .compact-actions { margin-top: var(--agdf-space-2); }
+.work-step-facts { display: grid; gap: var(--agdf-space-1); }
+.work-step-facts dt { color: var(--cockpit-muted); }
+.work-step-facts dd { margin: 0 0 var(--agdf-space-3); }
+.work-step-original summary { font-size: var(--agdf-text-xs); color: var(--cockpit-muted); font-weight: var(--agdf-weight-normal); }
 .work-step-status { display: flex; flex-wrap: wrap; gap: var(--agdf-space-3); margin-top: var(--agdf-space-2); font-size: var(--agdf-text-xs); color: var(--cockpit-muted); }
 .work-step-action { margin: var(--agdf-space-2) 0 var(--agdf-space-4); max-width: 78ch; font-size: var(--agdf-text-sm); line-height: var(--agdf-text-leading-sm); }
-.work-step-support { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--agdf-space-4) var(--agdf-space-6); border-top: 1px solid var(--cockpit-line); padding-top: var(--agdf-space-4); }
+.work-step-support { display: grid; grid-template-columns: minmax(0, 1fr); border-top: 1px solid var(--cockpit-line); padding-top: var(--agdf-space-2); }
+.work-step-support > details { padding-block: var(--agdf-space-1); }
 .work-step-prerequisites, .work-step-proof { min-width: 0; }
 .work-step h3 { margin: 0; font-size: var(--agdf-text-sm); line-height: var(--agdf-text-leading-sm); }
 .work-step-prerequisites > p { margin: var(--agdf-space-2) 0; }
@@ -86,7 +97,7 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
 .work-step-beginning strong { font-weight: var(--agdf-weight-semibold); }
 .work-step-beginning span { font-size: var(--agdf-text-xs); line-height: var(--agdf-text-leading-xs); color: var(--cockpit-muted); }
 .work-step-blocked { color: var(--cockpit-risk); font-size: var(--agdf-text-sm); }
-.work-step-approvals summary { font-size: var(--agdf-text-xs); }
+.work-step-approvals > summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
 .work-step-evidence { border-bottom: 0; }
 .work-step-evidence summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
 .work-step-empty { font-size: var(--agdf-text-sm); color: var(--cockpit-muted); margin: var(--agdf-space-2) 0; }
@@ -103,7 +114,6 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
 .work-step .text-link, .work-step summary, .row-evidence { min-height: 44px; text-align: left; }
 .work-step summary { padding-block: var(--agdf-space-2); }
 .work-step pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--agdf-text-xs); }
-@container (min-width: 560px) { .work-step-support { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .row-step { display: block; margin: var(--agdf-space-2) 0; font-size: var(--agdf-text-sm); }
 .detail-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--agdf-space-5); }
 .status-fields { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: var(--agdf-space-3); font-size: var(--agdf-text-sm); line-height: var(--agdf-leading-relaxed); }

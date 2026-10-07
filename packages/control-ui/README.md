@@ -244,6 +244,14 @@ and any existing browser process. Final native qualification and full QA/UAT/OR 
 
 The embedded inline entry reads the existing inventory immediately. Selecting a run shows its
 Core gate, persisted working state, open evidence and recorded approvals in a compact card.
+The default work unit stays in one column: saved decision, current Core `control_assessment`,
+and one registered-source action precede initially closed evidence and approval disclosures.
+Doctor warnings are handled by Core gate evaluation; React adds no independent warning veto.
+Missing assessment, stale observations and persisted/evaluated mismatches remain unconfirmed.
+Original evidence and approval references remain available behind separate disclosures.
+The source action preserves the selected Run and snapshot and requests expansion; if the host
+stays inline, the registered document is readable in the card with a return to the work state.
+The existing branded header and canonical Pages fonts, colors and spacing remain unchanged.
 The shared React reading controller keeps that explicit selection when changing display mode;
 there is no URL/storage-based run assignment. Missing or stale reads stay visible and require
 refresh before opening a current detail view. Production context handoff remains separately qualified

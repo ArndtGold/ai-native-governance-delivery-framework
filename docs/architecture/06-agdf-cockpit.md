@@ -5,7 +5,7 @@ an, was erlaubt oder blockiert seinen Beginn und wo lassen sich die offenen Nach
 Die kompakte Chat-Karte, die Run-Übersicht, die Run-Ansicht und die Dokumentansicht verwenden
 dieselben lesenden Core-Dienste und dieselbe React-Anwendung.
 
-**Stand: 6. Oktober 2026, Repository-Quelle und lokale Prüfungen.** Das Cockpit ist eine private,
+**Stand: 7. Oktober 2026, Repository-Quelle und lokale Prüfungen.** Das Cockpit ist eine private,
 lokal vorbereitete Entwicklungsintegration. Seine aktuelle native Darstellung in Codex ist noch
 nicht vollständig qualifiziert. Die Implementierung ist kein Nachweis einer veröffentlichten
 Funktion, einer Claude-Integration oder abgeschlossener QA/UAT.
@@ -68,7 +68,7 @@ nicht aus URL oder Browser-Speicher wiederhergestellt.
 
 | Ansicht | Zweck und Verhalten |
 |---|---|
-| Kompakte Karte | Zeigt das ausgewählte Vorhaben, den nächsten Arbeitsschritt, seine Voraussetzungen und den Zugang zu Nachweisen. „Run ansehen“ führt in eine unterstützte größere Ansicht; eine fehlende Host-Fähigkeit bleibt sichtbar. |
+| Kompakte Karte | Führt einspaltig mit gespeichertem Arbeitsstand, aktueller Kontrollaussage und einer Quellenaktion. Nachweise, Freigaben und Ziel/Run-ID sind zunächst geschlossen. „Run ansehen“ bleibt ein nachgeordneter Zugang zur größeren Ansicht. |
 | Run-Übersicht | Führt mit dem kanonischen Titel, Ziel, verständlicher Phase und gemeldeten offenen Punkten. Die Run-ID bleibt zur Zuordnung sichtbar. Suche filtert vorübergehend nach Titel, ID oder Gate. Eingeschränkte Einträge bleiben mit ihren Quellen erkennbar. |
 | Run-Zusammenfassung | Bündelt aktuellen Arbeitsschritt, exakte Core-Aktion, Voraussetzungen und Nachweise. Ziel, ID und Kontrollgrundlage sind aufklappbar. |
 | Run-Details | Zeigt zusätzliche Originalangaben und Quellen. Der Schiebeschalter „Zusammenfassung / Details“ ändert den Lesemodus innerhalb der größeren Ansicht. |
@@ -80,20 +80,31 @@ Arbeitsschritt aus einer UI-Auswahl.
 
 ### Eine zusammenhängende Arbeitseinheit
 
-Die Phase bildet die Hauptüberschrift der Arbeitseinheit. Darunter steht die genaue nächste
-Aktion aus der Core-Auswertung. Voraussetzungen und Nachweise bilden einen gemeinsamen
-unterstützenden Bereich:
+Die Phase und die zuletzt gespeicherte Entscheidung geben zuerst Orientierung. Davon getrennt
+steht die aktuelle Kontrollaussage. Core projiziert dafür die bereits ausgewertete Gate-Entscheidung
+als `control_assessment`; diese Leseprojektion erteilt keine Berechtigung und führt keine neuen
+Gate-Regeln ein. Eine allgemeine Doctor-Warnung ist kein zusätzlicher UI-Blocker: ihre Auswirkungen
+hat der bestehende Gate-Evaluator bereits berücksichtigt.
 
-- **Beginn offen:** aktueller Datenstand, aktiver Run, offene Auswertung, bestandene
-  Kontrollprüfung und kein ausgewiesener Blocker oder ausstehende Freigabe.
-- **Beginn blockiert:** die aktuelle Auswertung nennt einen Blocker oder eine fehlende Freigabe;
-  der konkrete Grund bleibt unmittelbar sichtbar.
-- **Beginn unklar:** der Kontrollstand bestätigt den Beginn nicht vollständig. Bei veralteten
-  Daten werden frühere Blocker und Freigaben ausdrücklich als vorherige Beobachtung bezeichnet.
-- **Kontrollgrundlage:** aufklappbare gespeicherte Entscheidung, Gate, Qualifikation, Freigaben
-  und deren registrierte Quellen. Freigaben allein bestätigen keine vollständigen Voraussetzungen.
-- **Nachweise:** ein gezählter Zugang zu den offenen Originalangaben und direkte Quellenlinks.
-  Die registrierte Quelle des aktuellen Schritts führt; Run State bleibt ein separater Zugang.
+- **Weiterarbeit offen:** die aktuelle Core-Projektion weist den aktiven Run als offen aus.
+  Die genaue nächste Aktion steht darunter; der freigegebene Umfang bleibt maßgeblich.
+- **Vor der Weiterarbeit klären:** Core nennt einen Blocker oder eine ausstehende Freigabe.
+  Der Klärungsbedarf wird zusammengefasst; exakte Gründe sind aufklappbar.
+- **Aktuelle Voraussetzungen nicht bestätigt:** die Projektion fehlt, bestätigt den Stand nicht
+  oder die Beobachtung ist veraltet beziehungsweise widersprüchlich. Gespeicherte Angaben bleiben
+  erhalten und bestätigen keine aktuelle Weiterarbeit.
+- **Vorhaben abgeschlossen:** der gespeicherte Lebenszyklus lautet abgeschlossen. Daraus folgt
+  keine Berechtigung für neue Arbeit.
+- **Nachweise und offene Punkte:** zunächst geschlossener, gezählter Zugang mit lesbarer
+  Quellenbeschreibung und nächstem Schritt vor den separat aufklappbaren Originalangaben.
+- **Gespeicherte Freigaben:** zunächst geschlossen; verständlicher Dokumentname vor dem
+  separat aufklappbaren Freigabenachweis. Freigaben ersetzen keine aktuelle Kontrollauswertung.
+
+Eine Hauptaktion öffnet eine exakt registrierte Quelle des ausgewählten Runs. Bei offener
+Weiterarbeit führt die Quelle des aktuellen Schritts; bei Klärungsbedarf oder unbestätigtem Stand
+führt Run State. Ein fehlender Zugang wird sichtbar gemeldet. Die Quellenaktion fordert eine
+größere Hostansicht an; bleibt der Host inline, zeigt die Karte das Dokument mit Rückkehr zum
+Arbeitsstand. Run, Snapshot und Quellenbindung bleiben erhalten.
 
 „Keine offenen Nachweise ausgewiesen“ ist eine Beobachtung und kein Nachweis der Arbeits- oder
 Abschlussreife. Unbekannte Nachweisformen, Auswirkungen und erforderliche nächste Schritte
@@ -111,8 +122,8 @@ Die native Ansicht nutzt die Hostbreite. In der größeren Run-Ansicht wird der 
 ab 720 Pixeln verfügbarer Arbeitsbereichsbreite angeboten. Unterhalb davon fällt die Ansicht auf
 Zusammenfassung zurück; beim erneuten Verbreitern wird Details nicht automatisch aktiviert.
 Ein Wechsel zur Zusammenfassung fordert keinen Wechsel der Host-Anzeigegröße an. Dokumente
-behalten ihren eigenen Lesemodus. Die Unterstützungsbereiche der Arbeitseinheit stehen ab
-560 Pixeln eigener Komponentenbreite nebeneinander, darunter untereinander. Schmale Listen
+behalten ihren eigenen Lesemodus. Die Arbeitseinheit bleibt auch bei großer Breite einspaltig;
+die Übersichtssuche kann ab 640 Pixeln neben der Run-Auswahl stehen. Schmale Listen
 werden gestapelt; Originaltabellen in Dokumenten können innerhalb ihres Bereichs scrollen.
 
 ## 4. Aktualität und Lebenszyklus

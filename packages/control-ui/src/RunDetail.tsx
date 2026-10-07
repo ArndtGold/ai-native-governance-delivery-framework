@@ -2,7 +2,7 @@ import type { Envelope, Detail, Resource } from './types';
 import { WorkStep } from './WorkStep';
 import { ReadState, label } from './feedback';
 import { documentName, documentPurpose } from './presentation';
-export function RunDetail({ result, onOpen, summaryOnly = false, current = true }: { result: Envelope<Detail>; onOpen: (resource: Resource) => void; summaryOnly?: boolean; current?: boolean }) {
+export function RunDetail({ result, onOpen, summaryOnly = false, current = true }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean }) {
   const data = result.data, e = data?.evaluation, p = data?.persisted;
   return <>
     {result.code && <ReadState code={result.code} state={result.state}/>}

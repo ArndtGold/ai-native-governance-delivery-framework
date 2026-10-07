@@ -5,7 +5,7 @@ import { BrowserEntry } from '../src/BrowserEntry';
 import type { ReadTransport } from '../src/api';
 import type { Detail, Envelope, Inventory } from '../src/types';
 const inventory: Envelope<Inventory> = {schema_version:'1',target:{target_id:'target',display_path:'/work/project'},snapshot_id:'snapshot',observed_as_of:'2026-10-06T08:00:00Z',source_digest:'digest',state:'partial',code:'inventory_partial',retryable:false,data:{file_count:1,byte_count:1,runs:[{run_id:'run-a',valid:true,lifecycle:'active',revision_id:'rev',objective:'Goal',title:'Deliver cockpit',source_path:'run.md',status:'open',current_gate:'CD+Tests',code:null}]}};
-const detail: Envelope<Detail> = {...inventory,data:{run_id:'run-a',revision_id:'rev',lifecycle:'active',resources:[],persisted:{current_gate:'CD+Tests',decision:'in_progress',next_allowed_action:'Implement approved scope',artefacts:[]},evaluation:{status:'open',current_gate:'CD+Tests',blocking_reason:'none',missing_approval:'none',next_allowed_action:'Implement approved scope',next_action_de:'Freigegebenen Umfang umsetzen.',doctor_status:'pass',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[{gate:'TP',status:'approved',evidence:'exact approval'},{gate:'QA',status:'missing',evidence:''}],missing_evidence:[{missing_evidence:'Host context still unverified'}]}}};
+const detail: Envelope<Detail> = {...inventory,state:'available',code:null,data:{run_id:'run-a',revision_id:'rev',lifecycle:'active',resources:[],persisted:{current_gate:'CD+Tests',decision:'in_progress',next_allowed_action:'Implement approved scope',artefacts:[]},evaluation:{status:'open',control_assessment:{state:'open',authorizes:false},current_gate:'CD+Tests',blocking_reason:'none',missing_approval:'none',next_allowed_action:'Implement approved scope',next_action_de:'Freigegebenen Umfang umsetzen.',doctor_status:'pass',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[{gate:'TP',status:'approved',evidence:'exact approval'},{gate:'QA',status:'missing',evidence:''}],missing_evidence:[{missing_evidence:'Host context still unverified'}]}}};
 afterEach(()=>{cleanup();vi.restoreAllMocks();vi.useRealTimers();vi.unstubAllGlobals();});
 const changed = {...inventory,state:'stale' as const,code:'source_changed',data:null};
 function advanced() {
@@ -134,8 +134,8 @@ describe('compact MCP entry using the shared reading state',()=>{
     const inventoryHints = screen.getByText('Inventarhinweise').closest('details');
     expect(inventoryHints?.hasAttribute('open')).toBe(false);
     expect(screen.getByText('Host context still unverified')).toBeTruthy();
-    expect(screen.getByText('Gespeicherter Stand: In Arbeit')).toBeTruthy();
-    expect(screen.getByText('TP',{exact:true})).toBeTruthy();
+    expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
+    expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben',{exact:true})).toBeTruthy();
     expect(screen.queryByText('QA',{exact:true})).toBeNull();
     fireEvent.click(screen.getByRole('button',{name:'Run ansehen'}));expect(expand).toHaveBeenCalledTimes(1);
     view.rerender(<App transport={transport} onExpand={expand}/>);
@@ -164,7 +164,7 @@ describe('compact MCP entry using the shared reading state',()=>{
     await screen.findByText('Freigegebenen Umfang umsetzen.');select.focus();updated=true;
     await tick();await screen.findByText('Qualität prüfen.');
     expect((select as HTMLSelectElement).value).toBe('run-a');expect(document.activeElement).toBe(select);
-    expect(screen.getByText('QA',{exact:true})).toBeTruthy();
+    expect(screen.getByRole('heading',{name:'Qualitätsprüfung'})).toBeTruthy();
     expect(screen.queryByText('Kontrolldaten werden gelesen … Vorheriger Datenstand bleibt sichtbar.')).toBeNull();
     expect(vi.mocked(transport).mock.calls.map(call=>call[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot','/api/freshness?snapshot=snapshot','/api/snapshot','/api/runs/run-a?snapshot=snapshot-2']);
   });
@@ -252,20 +252,20 @@ it('keeps a stale Run identified and qualifies the previous step with one read w
   const goodDetail={...detail,state:'available' as const,code:null};
   const read=vi.fn(async(path:string)=>path.startsWith('/api/freshness')?changed:path.startsWith('/api/runs/')?goodDetail:inventory) as unknown as ReadTransport;
   render(<App initialRunId="run-a" transport={read}/>);
-  await screen.findByText('Die Kontrollauswertung weist diesen Schritt als offen aus.');
+  await screen.findByText('Weiterarbeit offen');
   fireEvent.click(screen.getByRole('button',{name:'Zusammenfassung'}));
   expect(screen.getByText('Ziel und Run-ID · Originalangaben').closest('details')?.open).toBe(false);
-  expect(screen.getByText('1 offenen Nachweis ansehen').closest('details')?.open).toBe(false);
-  expect(screen.getByText('Beginn offen')).toBeTruthy();
+  expect(screen.getByText('Nachweise und offene Punkte · 1').closest('details')?.open).toBe(false);
+  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
   await act(async()=>document.dispatchEvent(new Event('visibilitychange')));
-  await screen.findByRole('heading',{name:'Zuletzt beobachteter Arbeitsschritt'});
-  expect(screen.queryByText('Die Kontrollauswertung weist diesen Schritt als offen aus.')).toBeNull();
+  await screen.findByText('Aktuelle Voraussetzungen nicht bestätigt');
+  expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
   expect(screen.queryByText(/Angefragter Run:/)).toBeNull();
   expect(screen.queryByText('Voraussetzungen · aktueller Kontrollstand')).toBeNull();
   expect(screen.getAllByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveLength(1);
   expect(document.querySelector('footer')?.textContent).toContain('Veraltet');
   fireEvent.click(screen.getByRole('button',{name:'Daten aktualisieren'}));
-  await screen.findByText('Die Kontrollauswertung weist diesen Schritt als offen aus.');
+  await screen.findByText('Weiterarbeit offen');
   expect(document.querySelector('footer')?.textContent).toContain('Verfügbar');
   expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();
 });
@@ -276,4 +276,20 @@ it('exposes an inventory failure directly instead of hiding it in ordinary inven
  await screen.findByText('Das Lesen hat das Zeitlimit erreicht. Quelle und Umfang prüfen, dann wiederholen.');
  expect(screen.queryByText('Inventarhinweise')).toBeNull();
  expect((screen.getByRole('button',{name:'Run-Übersicht'}) as HTMLButtonElement).disabled).toBe(true);
+});
+
+it('opens the exact registered Run State from an unconfirmed card even when the host leaves it inline',async()=>{
+ const source={resource_id:'opaque-state',run_id:'run-a',type:'Run State',path:null,registered_reference:'.agdf/control/runs/run-a/RUN_STATE.md',status:'registered'};
+ const observed={...detail,data:{...detail.data!,resources:[source],evaluation:{...detail.data!.evaluation!,control_assessment:undefined}}};
+ const read=vi.fn(async(path:string)=>path.startsWith('/api/documents/')?{...detail,data:{resource:source,format:'markdown',content:'# Exact Run State\n\nSaved source content.',links:{}}}:path.startsWith('/api/runs/')?observed:inventory) as unknown as ReadTransport;
+ const expand=vi.fn();render(<App compact initialRunId="run-a" transport={read} onExpand={expand}/>);
+ await screen.findByText('Aktuelle Voraussetzungen nicht bestätigt');
+ fireEvent.click(screen.getByRole('button',{name:'Stand des Vorhabens öffnen'}));
+ await screen.findByRole('heading',{name:'Exact Run State'});
+ expect(expand).toHaveBeenCalledTimes(1);
+ expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/documents/opaque-state?snapshot=snapshot');
+ expect(vi.mocked(read).mock.calls.at(-1)?.[2]).toEqual({target:'target',snapshot:'snapshot'});
+ fireEvent.click(screen.getByRole('button',{name:'Zurück zum Arbeitsstand'}));
+ await screen.findByText('Aktuelle Voraussetzungen nicht bestätigt');
+ expect(screen.queryByRole('combobox')).toBeNull();expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();
 });

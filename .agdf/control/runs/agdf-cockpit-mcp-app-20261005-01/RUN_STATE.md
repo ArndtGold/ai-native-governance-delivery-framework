@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-cockpit-mcp-app-20261005-01
 - lifecycle: active
-- revision: 76
-- revision_id: 1d8e9644-f16a-447c-bc88-120aacac0ec1
-- content_seal: sha256:1adbbbc0a9d553e2c9a0630d13ff2423183fb3c86ed5176d631d664f7a1f1e06
+- revision: 80
+- revision_id: bc45fcb0-895b-4150-947b-ca6e1697bd4d
+- content_seal: sha256:2f2f65f7fd6c3dfb23f78d25596fef478df7ddfe42ecdc9e253279b543e700df
 - approval_seal: sha256:1d621a8ebd275062476c21632754faa6446194d626ac8e52d735f35e3fc8498c
-- updated_at: 2026-10-07T05:56:50.916Z
+- updated_at: 2026-10-07T07:20:46.827Z
 - mode: structured_delivery
 - current_gate: CD+Tests
 - decision: in_progress
@@ -164,6 +164,10 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-3675cc09-3d05-4ae5-8229-054c78ce6548.json | SD derived_from PRD; binding 77acf286-70a5-403e-b552-5ca0a6860b21; operation 2d8015af-a427-49d8-81be-f93ad966e387; f18f8647-b8ab-49f9-821a-05366fb0937c -> 976a9bf3-0226-434e-8f72-49d7b075c9ba | reviewed cooperative mapping |
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json | SD derived_from PRD; binding 17df981f-2f72-43b4-8806-c621e4fc69fd; operation 2893cf68-4c1c-471d-ab16-d56094b9ae4a; 976a9bf3-0226-434e-8f72-49d7b075c9ba -> 1e0808e9-c2f2-485a-8923-4255d87bf19d | reviewed cooperative mapping |
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json | TP derived_from SD; binding 23404522-8c48-43c6-8abd-31995aa9da0d; operation 30bc3564-118f-4b05-a7e1-e6423419adc5; d83596aa-b722-45de-a427-cd896b0ae0e5 -> 9f6d0097-aeb4-45b2-a633-9a1d0baa62db | reviewed cooperative mapping |
+| Saved work-state orientation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_ORIENTATION-03.md | Core assessment, single-column closed entry, exact source and origin focus; current isolated protocol/browser checks | Native current-build activation/display still open; no gate approval |
+| Work-state runtime activation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_ACTIVATION-04.md | Explicit scoped local activation; exact tuple/config and both registered-runtime protocol eras verified | Native reconnect/display pending: Transport closed; no approval |
+| Fresh native work-state view | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_WORK_STATE_ACTIVATION-05.md | Exact native module/style, bound Run, source opening and exact focus return verified | Single-view light-theme proof; approval-row spacing and full recovery/reviews remain open |
+| Dated native parallel publication | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_PARALLEL_PUBLICATION-14.md | Two current views, occupied refusal, acknowledged takeover and once-only second-view question; earlier module only | Historical actual-host evidence, not new UI or final recovery/rollback proof |
 
 ## Independent View Reading Checkpoint
 
@@ -408,3 +412,22 @@ INTERIM_OR_STATUS_CORRECTION-01.md records the rejected source-revision preview 
 
 - The actual model-facing invalid-selection signal from the same native app session confirms the previous selection is non-current (generation 15, observed 2026-10-07T05:50:40.547Z). HOST_PRODUCTION_HANDOFF-10.md/.json retain the exact received identity and non-authorizing payload.
 - This is additional owned-release evidence; concurrent takeover, recovery/rollback and regular review/acceptance remain open. CD+Tests stays in_progress.
+
+
+## Current work-state orientation checkpoint
+
+- WORK_STEP_ORIENTATION-03.md/.json supersede the older doctor-pass UI veto and supporting two-column presentation. Core remains the evaluator; all current scoped checks pass. Header and Pages design sources are unchanged.
+- HOST_PARALLEL_PUBLICATION-14.md/.json consolidate the later actual two-current-view publication checkpoint for the previous module. The original captured pending statements and later actual model receipts are separate evidence. No question was repeated.
+- The freshly assembled isolated runtime is qualified for both stdio protocol eras. The registered runtime was not replaced while its named entry remains registered. Current native activation/display, recovery/rollback, task fulfilment/reviews and QA/UAT/OR remain open. CD+Tests stays in_progress; the canonical next allowed action is unchanged.
+
+## Explicit work-state runtime activation
+
+- WORK_STEP_ACTIVATION-04.md/.json supersede the earlier activation-open statement: the named owned project runtime now matches the independently qualified source/UI tuple; configuration is byte-identical and both protocol eras pass.
+- Exact fresh registered-entrypoint resource/actual-Run readback passes with unchanged canonical control bytes. This is stdio evidence, not native UI evidence.
+- Native opening with the established Run ID returned Transport closed. Restart/reopen Codex for a fresh native connection; current module display, recovery/rollback and remaining reviews/QA/UAT/OR stay open. No additional question or approval; CD+Tests and canonical next action are unchanged.
+
+## Fresh native work-state visibility
+
+- HOST_WORK_STATE_ACTIVATION-05.md/.json supersede the Transport closed visibility gap: the native bound opening responds and the actual loaded module/style match the qualified build. No further restart is requested for this observation.
+- Registered-source opening and document close return to the same Run with exact source-button focus. Closed disclosures, Inter, sticky header and single-column work unit are observed. One expanded approval-row spacing finding is retained; full visual/native dark acceptance is not claimed.
+- No packet or question was sent. Single-view proof does not replace current two-view recovery/rollback, task fulfilment/reviews or QA/UAT/OR. CD+Tests and canonical next action remain unchanged.

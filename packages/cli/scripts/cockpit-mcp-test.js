@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { withStdioClient } from '../../mcp-server/test/helpers.js';
 import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { COCKPIT_UI_URI, COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
+import { evaluateGateCheck } from '../../core/lib/control-evaluation/gate-check.js';
+import { projectCockpitAssessment } from '../../core/lib/control-inspect/cockpit.js';
 
 // Tests can qualify an independently prepared owned runtime without replacing a
 // runtime currently registered by the host. Startup still verifies its markers.
@@ -23,6 +25,7 @@ for (const modern of [false, true]) {
       const resources = await client.listResources(); assert.deepEqual(resources.resources.map(r => r.uri), [COCKPIT_UI_URI]);
       const resource = await client.readResource({ uri: COCKPIT_UI_URI });
       assert.equal(resource.contents[0].mimeType, COCKPIT_MIME); assert.match(resource.contents[0].text, /AGDF Cockpit/);
+      assert.match(resource.contents[0].text, /Gespeicherter Arbeitsstand/);
       assert.deepEqual(resource.contents[0]._meta.ui.csp.connectDomains, []);
       const render = await client.callTool({ name: 'agdf_cockpit', arguments: {} });
       assert.equal(render.structuredContent.authorizes, false); assert.equal(render.structuredContent._meta, undefined);
@@ -32,6 +35,8 @@ for (const modern of [false, true]) {
       const snapshot = (await call({ operation: 'snapshot' })).structuredContent;
       assert.equal(snapshot.authorizes, false); assert.ok(snapshot.snapshot_id);
       const detail = (await call({ operation: 'run', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' })).structuredContent;
+      assert.deepEqual(detail.data.evaluation.control_assessment,
+        projectCockpitAssessment(evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true }), detail.data.lifecycle));
       const selected = detail.data.resources.find(r => r.type === 'UR');
       const docargs = { operation: 'document', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a', resource_id: selected.resource_id };
       assert.match((await call(docargs)).structuredContent.data.content, /Fixture document/);

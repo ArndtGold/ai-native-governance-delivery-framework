@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { App } from '../src/App';
 import { validateData, validateEnvelope, type ReadTransport } from '../src/api';
 import type { Detail, Envelope, Inventory, ReadingScope } from '../src/types';
@@ -43,6 +43,47 @@ it('SCN-062/079: fresh backlog labels stored status and next step, and only deli
   fireEvent.click(screen.getByRole('button', { name: run.title }));
   await screen.findByRole('heading', { name: run.title, level: 1 });
   expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/runs/run-a?snapshot=snapshot');
+});
+
+it('SCN-092: selecting during a committed title replacement captures the named Run without old selectors', async () => {
+  const observers: { callback: IntersectionObserverCallback; targets: Element[] }[] = [];
+  class Observer {
+    targets: Element[] = [];
+    constructor(callback: IntersectionObserverCallback) { observers.push({ callback, targets: this.targets }); }
+    observe(target: Element) { this.targets.push(target); }
+    disconnect() {}
+  }
+  vi.stubGlobal('IntersectionObserver', Observer);
+  let completeTitles!: (value: Envelope<Inventory>) => void;
+  const row = { ...backlog.entries[0], row_id: '00000000-0000-0000-0000-000000000001' };
+  const initial = { ...meta, data: { ...backlog, entries: [row] } };
+  // The server committed the replacement, but its response is still in flight.
+  // Aborting that response cannot restore the old server-side snapshot.
+  const read = vi.fn(async (path: string) => {
+    if (path === '/api/snapshot') return initial;
+    if (path.startsWith('/api/backlog-titles')) return new Promise<Envelope<Inventory>>(resolve => { completeTitles = resolve; });
+    if (path.startsWith('/api/runs/')) throw Error('resource_denied');
+    if (path === '/api/snapshot?run_id=run-a') return { ...focused, snapshot_id: 'selected' };
+    throw Error('unexpected_request');
+  }) as unknown as ReadTransport;
+  try {
+    render(<App transport={read}/>);
+    await screen.findByRole('button', { name: run.title });
+    await waitFor(() => {
+      const observer = [...observers].reverse().find(o => o.targets.some(target => target.hasAttribute('data-backlog-row')))!;
+      const target = observer.targets.find(target => target.hasAttribute('data-backlog-row'))!;
+      act(() => observer.callback([{ target, isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
+      expect(completeTitles).toBeTypeOf('function');
+    }, { interval: 150 });
+    fireEvent.click(screen.getByRole('button', { name: run.title }));
+    await screen.findByRole('heading', { name: run.title, level: 1 });
+    expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/snapshot?run_id=run-a');
+    expect(vi.mocked(read).mock.calls.some(call => call[0].startsWith('/api/runs/'))).toBe(false);
+    expect(vi.mocked(read).mock.calls.find(call => call[0].startsWith('/api/backlog-titles'))?.[1].aborted).toBe(true);
+    await act(async () => completeTitles({ ...initial, snapshot_id: 'late-title-snapshot' }));
+    expect(screen.getByRole('heading', { name: run.title, level: 1 })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Aktive Vorhaben' })).toBeNull();
+  } finally { vi.unstubAllGlobals(); }
 });
 
 it('SCN-070: fresh document bundle replaces the parent and return resolves the new source ID', async () => {

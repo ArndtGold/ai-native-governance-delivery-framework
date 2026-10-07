@@ -360,3 +360,9 @@ Focused verification: `cockpit-backlog-title-test.js`, `cockpit-scoped-read-test
 `control-scoped-capture-test.js`, UI `backlog-titles.test.tsx`, HTTP `service.test.mjs`,
 browser `backlog-titles.spec.mjs`/`backlog.spec.mjs` and both stdio protocol eras in
 `cockpit-scoped-mcp-test.js`. These checks do not substitute for fresh native-host qualification.
+
+Browser tests accept `AGDF_COCKPIT_TEST_DIST` pointing to an immutable copy of the browser
+build. Their shared server fixture passes that directory to the unchanged production asset
+loader, retaining its containment and integrity checks. Use a fixed copy when another task
+may rebuild local assets; omit the variable to test the default browser build. A passing
+browser test does not qualify a different registered MCP resource or native connection.

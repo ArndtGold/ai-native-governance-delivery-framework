@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
-import { startControlServer } from '../../server/service.mjs';
+import { startControlServer } from './server-fixture.mjs';
 
 test('SCN-084/085/092/093/094/095/100: real visible UR titles, reversed order, scope replacement and unchanged sources in light/dark', async ({page}) => {
   const f=fixture();
@@ -34,9 +34,9 @@ test('SCN-084/085/092/093/094/095/100: real visible UR titles, reversed order, s
     await page.locator('.undertaking-list li').first().getByText('Gespeicherte Angaben und Quellen', {exact:true}).click();
     for(const theme of ['light','dark']) {
       await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
-      await expect(page.locator('.backlog-overview')).toHaveCSS('background-color',theme==='light'?'rgb(255, 255, 255)':'rgb(15, 23, 42)');
-      await expect(page.getByRole('button',{name:'Geplant 0'})).toHaveCSS('background-color',theme==='light'?'rgb(255, 255, 255)':'rgb(15, 23, 42)');
-      await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toHaveCSS('color',theme==='light'?'rgb(15, 118, 110)':'rgb(153, 246, 228)');
+      await expect(page.locator('.backlog-overview')).toHaveCSS('background-color',theme==='light'?'rgb(252, 252, 252)':'rgb(15, 23, 42)');
+      await expect(page.getByRole('button',{name:'Geplant 0'})).toHaveCSS('background-color',theme==='light'?'rgb(246, 246, 246)':'rgb(15, 23, 42)');
+      await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toHaveCSS('color',theme==='light'?'rgb(60, 62, 64)':'rgb(153, 246, 228)');
       await page.screenshot({path:`/private/tmp/agdf-backlog-ur-titles-${theme}-22.png`,fullPage:false});
     }
     await page.getByRole('searchbox').fill('Verständliches Vorhaben 39');

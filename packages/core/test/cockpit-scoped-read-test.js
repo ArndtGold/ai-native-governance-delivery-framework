@@ -100,12 +100,18 @@ test('SCN-067/072: strict optional named snapshot and independent production wor
   } finally { await service.close(); f.close(); }
 });
 
-test('SCN-079/080/083: canonical Run-only approval leaves stored backlog bytes unchanged; fresh scoped readers cannot infer permission from them', async () => {
+test('SCN-079/080/083: canonical approval without backlog membership leaves stored pointers unchanged; direct reading checks the new Run', async () => {
   const { approvalFixture } = await import('./control-cockpit-fixtures.js');
   const { createHash } = await import('node:crypto');
   const f = await approvalFixture(), service = createCockpitSessionService(f.root);
   try {
+    // Fixture setup precedes capture and approval. The canonical writer updates only an
+    // existing linked row; an unlinked Run is the legitimate Run-only approval case.
     const path = join(f.root,'.agdf/control/MASTER_BACKLOG.md'), digest = () => createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+    const setup = fs.readFileSync(path, 'utf8');
+    const addressedRow = line => line.split('|')[2]?.trim().replaceAll('`', '') === 'fixture-a';
+    assert.equal(setup.split('\n').filter(addressedRow).length, 1);
+    fs.writeFileSync(path, setup.split('\n').filter(line => !addressedRow(line)).join('\n'));
     const previousRevision = f.revision(), previousDigest = digest(), reader = createCockpitReader(f.root), pointer = reader.snapshot();
     const previousCore = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true});
     assert.equal(f.approve().outcome,'approved'); assert.equal(digest(),previousDigest); assert.notEqual(f.revision(),previousRevision);
@@ -117,7 +123,36 @@ test('SCN-079/080/083: canonical Run-only approval leaves stored backlog bytes u
     assert.notEqual(expected.next_allowed_action,previousCore.next_allowed_action);
     const checked = await service.read({operation:'run',session_id:session,snapshot_id:wire.snapshot_id,run_id:'fixture-a'});
     assert.equal(checked.data.run.revision_id,f.revision()); assert.equal(checked.data.run.evaluation.next_allowed_action,expected.next_allowed_action);
-    assert.equal(checked.authorizes,false); assert.equal(stored.data.entries.find(row=>row.key==='fixture-a').stored_status,pointer.data.entries.find(row=>row.key==='fixture-a').stored_status);
+    assert.equal(checked.authorizes,false); assert.equal(stored.data.entries.some(row=>row.key==='fixture-a'),false);
     assert.deepEqual(treeBytes(f.root),before);
+  } finally { await service.close(); f.close(); }
+});
+
+test('SCN-080/082/083: linked canonical approval changes the stored pointer; both scoped readers invalidate the old backlog without repairing it', async () => {
+  const { approvalFixture } = await import('./control-cockpit-fixtures.js');
+  const f = await approvalFixture(), service = createCockpitSessionService(f.root);
+  try {
+    const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
+    const previousBytes = fs.readFileSync(path), previousRevision = f.revision();
+    const reader = createCockpitReader(f.root), pointer = reader.snapshot();
+    const session_id = (await service.render())._meta.agdf_cockpit.session_id;
+    const wireBefore = await service.read({ operation: 'snapshot', session_id });
+    assert.deepEqual(storedFacts(wireBefore.data), storedFacts(pointer.data));
+    assert.equal(f.approve().outcome, 'approved');
+    assert.notDeepEqual(fs.readFileSync(path), previousBytes);
+    assert.notEqual(f.revision(), previousRevision);
+    const before = treeBytes(f.root);
+    assert.throws(() => reader.freshness(pointer.snapshot_id), { code: 'source_changed' });
+    assert.equal((await service.read({ operation: 'freshness', session_id, snapshot_id: wireBefore.snapshot_id })).code, 'source_changed');
+    const stored = reader.snapshot();
+    const wire = await service.read({ operation: 'snapshot', session_id });
+    assert.deepEqual(storedFacts(wire.data), storedFacts(stored.data));
+    assert.notDeepEqual(storedFacts(stored.data), storedFacts(pointer.data));
+    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true, presentationLanguage: 'de' });
+    const checked = await service.read({ operation: 'run', session_id, snapshot_id: wire.snapshot_id, run_id: 'fixture-a' });
+    assert.equal(checked.data.run.revision_id, f.revision());
+    assert.equal(checked.data.run.evaluation.next_allowed_action, expected.next_allowed_action);
+    assert.equal(checked.authorizes, false);
+    assert.deepEqual(treeBytes(f.root), before);
   } finally { await service.close(); f.close(); }
 });

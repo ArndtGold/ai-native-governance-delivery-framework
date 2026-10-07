@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
-import { startControlServer } from '../../server/service.mjs';
+import { startControlServer } from './server-fixture.mjs';
 
 function storedBacklog(planned = true) {
   return '# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Unterlagen schneller zuordnen | In progress | | UR | Quellen prüfen und den nächsten Arbeitsschritt anhand der bestätigten Voraussetzungen vorbereiten. |\n\n## Planned / Parking Lot\n' + (planned ? '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 2 | planned-a | Beratung vorbereiten | Needs UR | | | Umfang klären. |\n' : 'Nicht auswertbare Tabelle.\n') + '\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| fixture-completed | Frühere Umsetzung | Completed | none | Ergebnis dokumentiert. |\n| superseded-a | Abgelöstes Vorhaben | Superseded | none | Durch ein neues Vorhaben ersetzt. |\n';
@@ -27,9 +27,9 @@ test('backlog areas filter stored entries locally, keep search on return, and ma
         await page.setViewportSize({ width, height: 900 });
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
         await expect(page.locator('.backlog-overview')).toHaveCSS('font-family', 'Inter, system-ui, sans-serif');
-        await expect(page.locator('.backlog-overview')).toHaveCSS('background-color', theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(15, 23, 42)');
+        await expect(page.locator('.backlog-overview')).toHaveCSS('background-color', theme === 'light' ? 'rgb(252, 252, 252)' : 'rgb(15, 23, 42)');
         // Wait for the Pages color transition before inspecting or saving the theme.
-        await expect(page.getByRole('button', { name: 'Geplant 1' })).toHaveCSS('background-color', theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(15, 23, 42)');
+        await expect(page.getByRole('button', { name: 'Geplant 1' })).toHaveCSS('background-color', theme === 'light' ? 'rgb(246, 246, 246)' : 'rgb(15, 23, 42)');
         const contrasts = await page.locator('.backlog-switch button').evaluateAll(elements => {
           const luminance = color => color.match(/[\d.]+/g).slice(0,3).map(Number).map(v => { const x=v/255; return x<=.04045 ? x/12.92 : ((x+.055)/1.055)**2.4; }).reduce((sum,v,i) => sum+v*[.2126,.7152,.0722][i],0);
           return elements.map(e => { const s=getComputedStyle(e),fg=luminance(s.color),bg=luminance(s.backgroundColor); return (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05); });

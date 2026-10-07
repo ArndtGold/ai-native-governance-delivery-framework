@@ -5,7 +5,7 @@
 }
 .cockpit-brand-header::before {
   content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
-  pointer-events: none; opacity: .24;
+  pointer-events: none; opacity: var(--cockpit-header-visual-opacity, .24);
   background-image:
     linear-gradient(90deg, var(--cockpit-bg) 12%, transparent 100%),
     linear-gradient(0deg, var(--cockpit-bg), transparent 70%),
@@ -29,7 +29,7 @@
 }
 .cockpit-brand-header--card .cockpit-brand-actions { gap: var(--agdf-space-2); }
 .cockpit-brand-header--document { min-height: 72px; padding: var(--agdf-space-3) var(--agdf-space-5); grid-template-columns: 30px minmax(0, 1fr) auto; }
-.cockpit-brand-header--document::before { opacity: .12; }
+.cockpit-brand-header--document::before { opacity: var(--cockpit-document-visual-opacity, .12); }
 .cockpit-brand-header--document .cockpit-brand-mark { width: 30px; height: 30px; }
 .cockpit-brand-header--document .cockpit-brand-title { font-size: var(--agdf-text-base); }
 @media (max-width: 380px) {

@@ -332,7 +332,61 @@ Kontext-/Nachrichtenmethoden nach. Sie wurde vor der vollständigen Implementier
 Kontext-Eigentümers durchgeführt; deren produktiver Host-Test bleibt offen. Die späteren
 Core-/UI-Prüfungen prüfen Eigentum, Entwertungsreihenfolge und Fehlerfälle separat.
 
-Diese Nachweise ersetzen keine aktuelle native Host-Abnahme. Produktive Host-/Kontextprüfungen,
-vollständige Reviews und die regulären QA-/UAT-/
-Abschlussentscheidungen bleiben getrennte offene Pflichten. `CD+Tests` ist weiterhin in Arbeit.
+Die [erneute Qualifikation](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/RENEWED_QUALIFICATION-26.md)
+erfasst 57 qualifizierte Core-Fälle (50 unveränderte Erstläufe plus sieben korrigierte Fälle,
+kein gemeinsamer 57-Fälle-Neulauf), 113 UI-Fälle, 15 Browserprüfungen mit festen Assets in
+Hell/Dunkel und vier Breiten sowie Writer- und stdio-Regressionen. Der spätere
+[native Zwei-Ansichten-Test](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_SESSION_HANDOFF-27.md)
+belegt auf seinem exakten Server-/UI-Stand unabhängiges Lesen, die belegte Veröffentlichung,
+Nicht-Eigentümer-Rückkehr ohne Kontextlöschung und bestätigte Entwertung mit anschließender
+Übernahme. Im reinen App-Prüffenster blieben 3577 Kontrolldateien bytegleich.
+
+Die beiden separat bewusst ausgelösten Quellenfragen sind anschließend auch tatsächlich
+beim Modell angekommen und beantwortet worden. Die
+[Empfangsbelege](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/MODEL_RECEIPT-28.json)
+unterscheiden UR samt gewähltem Graph-Knoten aus Ansicht A und PRD ohne Graph-Knoten aus B.
+Auch die nachfolgenden Entwertungsvermerke erreichten das Modell. Die Pakete bleiben historische
+Quellenstände; weder Empfang noch Antwort erteilen eine Freigabe.
+
+Der [Abschlussprüfstand](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CLOSING_CHECKPOINT-28.md)
+benennt die noch offene aktuelle Rückbau-/Wiederverbindungsprüfung und den vollständigen
+Abschlussreview. Die später geschlossene native Verbindung hebt die dokumentierten früheren
+Beobachtungen nicht auf, belegt aber keine aktuelle Verfügbarkeit. Die projektbezogene
+Registrierung und der zugehörige Runtime-Pfad dürfen nur gezielt und mit geprüfter Eigentümerschaft
+zurückgenommen werden; parallele Einrichtungsänderungen müssen vor diesem Test geklärt sein.
+
+Der neuere [Prüfstand 29](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CLOSING_CHECKPOINT-29.md)
+weist den tatsächlichen gezielten Rückbau und die bytegleiche Wiederherstellung der eigenen
+Registrierung und aller 1449 Runtime-Dateien nach, auch auf der zuletzt gebauten Version.
+Ein während der Titelladung ausgewähltes Vorhaben erhält jetzt eine frische, ausdrücklich an
+seine Run-ID gebundene Aufnahme: Eine abgebrochene Antwort kann eine bereits ersetzte
+Server-Aufnahme nicht zurückholen. Die Navigation verwendet daher deren alte Selektoren nicht
+weiter. Umfang, Leselimits und Kontrollautorität bleiben bei den vorhandenen Besitzern.
+
+Die [zugehörigen Belege](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/closing-evidence-29/verification.json)
+halten 114 UI-Fälle, sechs HTTP-Dienstprüfungen, TypeScript/Builds und getrennte stdio-Protokollversionen
+fest. Fünfzehn Browserpfade sind durch vierzehn erfolgreiche Läufe plus den korrigierten
+Einzellauf qualifiziert. Bei diesem Einzellauf wurde eine künstliche Ein-Pixel-Verkleinerung
+durch Chromiums vollständige Screenshot-Aufnahme vermieden; alle Quellen-, Navigations-,
+Fokus- und Unverändertheitsprüfungen bleiben erhalten. Der erzwungene echte HTTP-Übergang
+zwischen Titelladung und Run-Auswahl besteht in Hell/Dunkel und vier Breiten.
+
+Code- und Strukturreview bestehen für diesen geprüften Umfang. Der Planreview hält die
+native Wiederverbindung offen: Der neue Modulstand ist lokal eingerichtet und per Protokoll
+geprüft, der bisherige Codex-Kanal meldet weiterhin `Transport closed`. Frühere native
+Zwei-Ansichten- und Modellempfangsbelege bleiben ihrem damaligen Build zugeordnet.
+Die Verbindung muss im Host neu geöffnet und ihre geladene Identität geprüft werden;
+bereits angenommene Quellenfragen werden dabei nicht automatisch erneut gesendet.
+
+Die kooperativen Plan-, Struktur- und Code-Reviews ersetzen keine QA-Entscheidung oder menschliche
+UAT. `CD+Tests` bleibt in Arbeit; QA/UAT/OR und der reguläre Abschluss bleiben getrennte Pflichten.
 Die Dokumentation verleiht dem Run keine neue Freigabe und schließt ihn nicht ab.
+
+
+### Native Wiederverbindung nach dem Rückbau (Checkpoint 30)
+
+Die zuvor offene Wiederverbindung ist am 7. Oktober 2026 tatsächlich in der vergrößerten nativen Codex-App geprüft. Geladenes Modul und Styles stimmen mit dem vorbereiteten finalen Build aus Checkpoint 29 überein. Der explizit angeforderte Run öffnet seine registrierte Run-State-Quelle; die Rückkehr erhält die Ansicht und stellt den Quellenfokus wieder her. Alle 3.630 Dateien des gemessenen Kontrollbestands bleiben unverändert. Das initiale Öffnen und spätere Agenten-Buchhaltung liegen außerhalb dieses Messfensters.
+
+Der tatsächliche Rückbau und die unveränderte Wiederherstellung stammen aus Checkpoint 29. Zwei unabhängige Ansichten, Kontextbesitz und Modellzustellung sind datierte Nachweise aus 27/28; ihre unveränderten angrenzenden Quellbereiche wurden erneut abgeglichen. Es wurden keine angenommenen Quellenfragen wiederholt. Der neue Nachweis bestätigt Wiederverbindung und Dokumentnavigation im finalen Modul, keine neue Kontextpublikation oder Claude-Unterstützung.
+
+Nachweise: `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-30.md`, `native-reconnection-evidence-30/verification.json` und `TASK_PLAN_REVIEW-30.md`. Planerfüllung und Code-/Strukturreviews sind Evidenzdimensionen; QA entscheidet die Qualitätsbereitschaft. Menschliche QA/UAT-Freigaben, OR und Release bleiben eigenständige Schritte.

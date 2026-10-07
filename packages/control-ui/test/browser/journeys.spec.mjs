@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import { startControlServer } from '../../server/service.mjs';
+import { startControlServer } from './server-fixture.mjs';
 import { fixture as canonicalFixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
 import { READ_LIMITS } from '../../../core/lib/control-read/snapshot.js';
@@ -41,7 +41,9 @@ test('document orientation separates approved Run facts from draft originals in 
     await expect(page.locator('.page-title h1')).toHaveCSS('text-decoration-line','underline');
     await expect(page.locator('.document-summary')).toContainText('Das vorhandene React-Cockpit soll als eingebettete MCP-App in Codex nutzbar werden.');
     await expect(page.locator('.document-control')).toContainText('Freigegeben');
-    await expect(page.locator('.document-control')).toContainText('Weiterarbeit offen');
+    // Copied repository controls retain their original target binding; a saved
+    // approval cannot confirm permission in the disposable target.
+    await expect(page.locator('.document-control')).toContainText('Aktuelle Voraussetzungen nicht bestätigt');
     await expect(page.locator('.document-original')).not.toHaveAttribute('open');
     await expect(page.locator('.document-provenance')).not.toHaveAttribute('open');
     await expect(page.locator('.document')).not.toBeVisible();
@@ -60,7 +62,7 @@ test('document orientation separates approved Run facts from draft originals in 
         expect(geometry.paddingLeft).toBe(geometry.paddingRight);
         expect(Math.max(...geometry.edges)-Math.min(...geometry.edges)).toBeLessThanOrEqual(1);
         expect(geometry.width).toBeLessThanOrEqual(850);
-        await expect(page.locator('.document-reading')).toHaveCSS('background-color',theme==='light'?'rgb(255, 255, 255)':'rgb(15, 23, 42)');
+        await expect(page.locator('.document-reading')).toHaveCSS('background-color',theme==='light'?'rgb(252, 252, 252)':'rgb(15, 23, 42)');
         await expect(page.locator('.document-reading .context-panel')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
         await expect(page.locator('.document-reading .context-panel')).toHaveCSS('box-shadow','none');
         await expect(page.locator('.context-toggle')).toHaveCSS('min-height','44px');
@@ -191,11 +193,16 @@ test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, 
   try {
     await openSession(page, service); await page.screenshot({ path: '/private/tmp/agdf-cockpit-overview.png', fullPage: true });
     await page.getByRole('searchbox').fill('agdf-control-cockpit-20261005-01'); await page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true }).click();
-    await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('region', { name: 'So geht dein Vorhaben weiter' })).toBeVisible();
+    await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('region', { name: 'Zuletzt beobachteter Arbeitsschritt' })).toBeVisible();
+    await expect(page.locator('.work-step-prerequisites')).toContainText('Aktuelle Voraussetzungen nicht bestätigt');
     await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('button',{name:'Details',exact:true}).click();
     await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
-    await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: true });
+    // Chromium's full-page capture temporarily sets a one-pixel viewport and
+    // legitimately triggers the narrow summary rule. Preserve this journey's
+    // actual wide reading surface while recording its visible appearance.
+    await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: false });
+    await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
     await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
     await expect(page.getByRole('group', {name:'Ansicht'})).toHaveCount(0);
@@ -230,7 +237,7 @@ test('SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing a
   fs.unlinkSync(join(f.root, f.documentPath));
   const service = await startControlServer({ dir: f.root });
   try {
-    await openSession(page, service); await expect(page.getByText('Gespeichert: In progress', { exact: true }).first()).toBeVisible();
+    await openSession(page, service); await expect(page.getByText('Gespeicherter Stand laut Backlog: In progress', { exact: true }).first()).toBeVisible();
     await page.getByRole('button', { name: 'Broken stored pointer', exact: true }).click(); await expect(page.getByText('Dieser Run ist ungültig. Die Quelldaten außerhalb des Cockpits prüfen.')).toBeVisible();
     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).click();
     await page.locator('.run-link[data-focus-id="fixture-a"]').click();
@@ -256,7 +263,12 @@ test('SCN-009/014/018/024: hostile document, stale reload, retry and removed sel
     await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toBeVisible({ timeout: 12_000 }); await expect(page.locator('article.document')).toContainText('Hostile document');
     await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.locator('article.document')).toContainText('Updated document'); await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveCount(0);
     let fail = true; await page.route('**/api/snapshot*', route => { if (fail) { fail = false; return route.abort(); } return route.continue(); });
-    await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('button', { name: 'Wiederholen' })).toBeVisible(); await page.getByRole('button', { name: 'Wiederholen' }).click(); await expect(page.locator('article.document')).toContainText('Updated document');
+    await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('button', { name: 'Wiederholen' })).toBeVisible(); await page.getByRole('button', { name: 'Wiederholen' }).click();
+    // The previous source remains visible during retry. Wait for the new read to
+    // settle before removing its Run, rather than mutating an in-flight capture.
+    await expect(page.getByRole('button', { name: 'Neu laden', exact: true })).toBeEnabled({ timeout: READ_LIMITS.timeout });
+    await expect(page.getByRole('button', { name: 'Wiederholen' })).toHaveCount(0);
+    await expect(page.locator('article.document')).toContainText('Updated document');
     fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true }); await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('heading', { name: 'Gespeicherte Vorhaben',level:1 })).toBeVisible(); await expect(page.getByText(/Der ausgewählte Run ist nicht mehr vorhanden/)).toBeVisible(); expect(remote).toEqual([]);
   } finally { await service.close(); f.close(); }
 });
@@ -345,7 +357,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
   } finally {await service.close();f.close();}
 });
 
-test('Pages surface recipes survive neutral host colors in light and dark across all views',async({page,context})=>{
+test('neutral light reading planes and Pages dark surfaces survive host colors across all views',async({page,context})=>{
   const f=fixture(),before=hashes(f.root),service=await startControlServer({dir:f.root});
   const root=resolve(import.meta.dirname,'../../../..'),reference=await context.newPage();
   const recipe=fs.readFileSync(join(root,'pages/src/styles/design-tokens.css'),'utf8')+'\n'+fs.readFileSync(join(root,'pages/src/styles/surfaces.css'),'utf8');
@@ -370,17 +382,25 @@ test('Pages surface recipes survive neutral host colors in light and dark across
         await page.mouse.move(0,0);await reference.mouse.move(0,0);
         await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);await reference.evaluate(t=>document.documentElement.dataset.theme=t,theme);
         const actual=await styles(page.locator(selector)),expected=await styles(reference.locator(controlled?'.controlled-card':'.surface').first());
-        for(const key of ['bg','border','radius','shadow'])expect(actual[key],`${view}/${theme}/${key}`).toBe(expected[key]);
+        for(const key of theme==='dark'?['bg','border','radius','shadow']:['radius'])expect(actual[key],`${view}/${theme}/${key}`).toBe(expected[key]);
         const canvas=await page.locator('.mcp-entry').evaluate(e=>getComputedStyle(e).backgroundColor);
-        expect(canvas).toBe(theme==='dark'?'rgb(2, 6, 23)':'rgb(241, 245, 249)');expect(contrast(actual.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
+        expect(canvas).toBe(theme==='dark'?'rgb(2, 6, 23)':'rgb(252, 252, 252)');expect(contrast(actual.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
         const separation=contrast(actual.bg,canvas,canvas);
-        expect(separation,`${view}/${theme}/surface separation`).toBeGreaterThanOrEqual(theme==='dark'?1.12:1.09);
-        // Both normal and controlled cards are neutral. Brand accent conveys focus, not approval.
-        expect(actual.bg).toBe(theme==='dark'?'rgb(15, 23, 42)':'rgb(255, 255, 255)');
-        expect(actual.border).toBe(theme==='dark'?'rgb(71, 85, 105)':'rgb(203, 213, 225)');
+        // Light reading planes use spacing and subtle gray grouping, without raised cards.
+        if(theme==='dark')expect(separation,`${view}/${theme}/surface separation`).toBeGreaterThanOrEqual(1.12);
+        expect(actual.bg).toBe(theme==='dark'?'rgb(15, 23, 42)':controlled?'rgb(246, 246, 246)':'rgb(252, 252, 252)');
+        expect(actual.border).toBe(theme==='dark'?'rgb(71, 85, 105)':controlled?'rgb(246, 246, 246)':'rgb(232, 232, 232)');
+        if(theme==='light'){
+          expect(actual.shadow).toBe('none');expect(actual.color).toBe('rgb(60, 62, 64)');
+          if(view==='list'){
+            await expect(page.locator('.backlog-switch button[aria-pressed="true"]')).toHaveCSS('background-color','rgb(239, 240, 240)');
+            await expect(page.locator('.backlog-switch button[aria-pressed="true"]')).toHaveCSS('box-shadow','none');
+          }
+        }
         if(controlled){
-          expect(actual.accentWidth).toBe('3px');expect(actual.accentWidth).toBe(expected.accentWidth);
-          expect(actual.accent).toBe(theme==='dark'?'rgb(45, 212, 191)':'rgb(15, 118, 110)');expect(actual.accent).toBe(expected.accent);
+          expect(actual.accentWidth).toBe(theme==='dark'?'3px':'1px');
+          expect(actual.accent).toBe(theme==='dark'?'rgb(45, 212, 191)':'rgb(246, 246, 246)');
+          if(theme==='dark'){expect(actual.accentWidth).toBe(expected.accentWidth);expect(actual.accent).toBe(expected.accent);}
         }
         if(view==='document'){
           const referenceLink=await styles(reference.locator('.text-link'));
@@ -414,7 +434,7 @@ test('Pages surface recipes survive neutral host colors in light and dark across
   }finally{await reference.close();await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });
 
-test('built Pages action and type hierarchy matches Cockpit in both themes',async({page,context})=>{
+test('Pages action and type hierarchy retains the Cockpit neutral light palette',async({page,context})=>{
   const f=fixture(),before=hashes(f.root),service=await startControlServer({dir:f.root});
   const root=resolve(import.meta.dirname,'../../../..'),reference=await context.newPage();
   const assets=join(root,'pages/dist/_astro');
@@ -438,9 +458,11 @@ test('built Pages action and type hierarchy matches Cockpit in both themes',asyn
         await expect(expected).toHaveCSS('color',primary?'rgb(255, 255, 255)':theme==='dark'?'rgb(241, 245, 249)':'rgb(15, 23, 42)');
         await expect(expected).toHaveCSS('background-color',primary?'rgb(15, 118, 110)':'rgba(0, 0, 0, 0)');
         const b=await styles(expected);
-        await expect.poll(async()=>{const v=await styles(actual);return Object.fromEntries(keys.map(k=>[k,v[k]]));}).toEqual(Object.fromEntries(keys.map(k=>[k,b[k]])));
+        const matchedKeys=theme==='light'&&!primary?keys.filter(k=>!['color','border'].includes(k)):keys;
+        await expect.poll(async()=>{const v=await styles(actual);return Object.fromEntries(matchedKeys.map(k=>[k,v[k]]));}).toEqual(Object.fromEntries(matchedKeys.map(k=>[k,b[k]])));
         const a=await styles(actual);
-        for(const key of keys)expect(a[key],`${view}/${theme}/${key}`).toBe(b[key]);
+        for(const key of matchedKeys)expect(a[key],`${view}/${theme}/${key}`).toBe(b[key]);
+        if(theme==='light'&&!primary){expect(a.color).toBe('rgb(60, 62, 64)');expect(a.border).toBe('rgb(232, 232, 232)');}
         await actual.hover();await expected.hover();
         await expect(expected).toHaveCSS('color',primary?'rgb(255, 255, 255)':theme==='dark'?'rgb(153, 246, 228)':'rgb(15, 118, 110)');
         await expect(expected).toHaveCSS('background-color',primary?'rgb(17, 94, 89)':'rgba(0, 0, 0, 0)');

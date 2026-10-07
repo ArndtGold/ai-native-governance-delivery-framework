@@ -52,6 +52,9 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const navigate = useCallback(async (requested: Route, reload = false, background = false) => {
     if (hasExpiredSession(live.current)) return;
     void handoff?.invalidate();
+    // A cancelled title response may already have replaced the server capture.
+    // Start a named capture instead of sending selectors from the previous one.
+    const replacingTitles = !!titlePending.current;
     titlePending.current?.abort(); freshnessPending.current?.abort();
     if (reload || live.current.stale) { titleStore.current.cache.clear(); titleStore.current.attempted.clear(); setTitleEpoch(value => value + 1); }
     if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
@@ -61,7 +64,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     dispatch({ type: 'begin', generation, route: requested, background });
     try {
       let scope = live.current.scope;
-      const refresh = reload || live.current.stale || !scope?.snapshot_id;
+      const refresh = reload || replacingTitles || live.current.stale || !scope?.snapshot_id;
       let route = requested;
       const expected = scope?.snapshot_id ? { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true } : undefined;
       if (refresh || requested.view === 'overview') {

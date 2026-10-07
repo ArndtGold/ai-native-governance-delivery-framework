@@ -3,6 +3,12 @@ const states = new Set(['available', 'empty', 'partial', 'invalid', 'missing', '
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const text = (v: unknown) => typeof v === 'string';
 const nullableText = (v: unknown) => v === null || text(v);
+const titleObservation = (v: unknown) => object(v) && ['available', 'unavailable'].includes(String(v.state))
+  && ['code', 'path', 'heading', 'title', 'content_digest'].every(k => nullableText(v[k]))
+  && text(v.observed_as_of) && text(v.backlog_digest)
+  && (v.state !== 'available' || v.code === null && text(v.path) && text(v.heading) && text(v.title)
+    && !!v.title && [...v.heading as string].length <= 512 && new TextEncoder().encode(v.heading as string).length <= 2048
+    && /^[a-f0-9]{64}$/.test(String(v.content_digest)));
 const resources = (v: unknown) => Array.isArray(v) && v.every(r => object(r) && text(r.resource_id) && text(r.run_id) && text(r.type) && text(r.registered_reference) && nullableText(r.path) && text(r.status));
 const diagnostics = (v: unknown) => Array.isArray(v) && v.every(d => object(d) && text(d.code) && ['message', 'path', 'next_step', 'severity', 'section'].every(k => d[k] === undefined || text(d[k])) && (d.key === undefined || nullableText(d.key)));
 export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 64 && v.every(r => object(r)
@@ -32,15 +38,24 @@ export function validateData(path: string, value: Envelope<unknown>) {
   let valid = false;
   if (object(data)) {
     if (path.startsWith('/api/freshness')) valid = data.unchanged === true;
-    else if (data.kind === 'backlog' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/'))) {
+    else if (data.kind === 'backlog' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/') || path.startsWith('/api/backlog-titles'))) {
       valid = Array.isArray(data.entries) && data.entries.every(r => object(r)
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
-        && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean')
+        && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
+        && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
+        && (r.title_observation === undefined || titleObservation(r.title_observation)
+          && object(r.title_observation) && r.title_observation.backlog_digest === data.content_digest))
         && diagnostics(data.diagnostics) && text(data.source_path) && text(data.content_digest) && object(data.counts)
         && Object.values(data.counts).every(v => Number.isSafeInteger(v) && (v as number) >= 0)
         && Number.isSafeInteger(data.file_count) && (data.file_count as number) >= 0
         && Number.isSafeInteger(data.byte_count) && (data.byte_count as number) >= 0
         && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[A-Za-z0-9_-]{1,128}$/.test(data.removed_run_id));
+      if (valid && path.startsWith('/api/backlog-titles') && Array.isArray(data.entries)) {
+        const ids = data.entries.map(r => (r as Record<string, unknown>).row_id);
+        const observed = data.entries.filter(r => (r as Record<string, unknown>).title_observation !== undefined).length;
+        valid = ids.every(id => typeof id === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id))
+          && new Set(ids).size === ids.length && observed >= 1 && observed <= 12;
+      }
     } else if (['run', 'document', 'context'].includes(String(data.kind))) {
       valid = (data.run === null ? data.kind === 'run' && text(data.requested_run_id) && value.state === 'missing'
         : detailData(data.run, data.kind === 'run' && value.state === 'invalid'));

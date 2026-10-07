@@ -4,7 +4,9 @@ export interface Envelope<T> { schema_version: '1'; target: Target; snapshot_id:
 export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
 export interface BacklogEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
-  priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean }
+  priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string; title_observation?: TitleObservation }
+export interface TitleObservation { state: 'available' | 'unavailable'; code: string | null; path: string | null;
+  heading: string | null; title: string | null; content_digest: string | null; observed_as_of: string; backlog_digest: string }
 export interface Inventory { kind: 'backlog'; entries: BacklogEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
   counts: Record<string, number>; file_count: number; byte_count: number; removed_run_id?: string }
 export type ReadingScope = Inventory | { kind: 'run'; run: Detail | null; requested_run_id?: string }

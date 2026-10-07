@@ -2,7 +2,9 @@ import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { appendTableRow, firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, replaceSectionScalar, removeTableRows, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, listedArtefactPaths, pendingArtefactPaths, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
-import { writeRun, withOwnedFileLock } from "./run-state-writer.js";
+import { withOwnedFileLock } from "./run-state-writer.js";
+import { writeRunWithBacklog } from "./run-backlog-writer.js";
+import { backlogStatusForPolicy } from "./run-backlog.js";
 import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
 import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
@@ -193,8 +195,8 @@ export function applySourceRevision(root, input, { afterWrite } = {}) {
     if (hasSymlinkComponent(root, ".agdf/control/MASTER_BACKLOG.md") || containedRegularFile(root, ".agdf/control/MASTER_BACKLOG.md").status !== "valid") throw revisionError("backlog_path_invalid");
     const oldBacklog = readFileSync(backlogPath, "utf8");
     const lines = oldBacklog.split("\n"), section = firstSection(lines, "Active Backlog");
-    const priorRow = section && tableLineIndexes(lines, section).slice(2).map(i => tableCells(lines[i])).find(cells => cells[1] === runId);
-    const nextBacklog = upsertTableRow(oldBacklog, "Active Backlog", 1, runId, [priorRow?.[0] || "P1", runId, priorRow?.[2] || runId, `Awaiting ${after.current_gate}`,
+    const priorRow = section && tableLineIndexes(lines, section).slice(2).map(i => tableCells(lines[i])).find(cells => cells[1]?.replaceAll("`", "").trim() === runId);
+    const nextBacklog = upsertTableRow(oldBacklog, "Active Backlog", 1, priorRow?.[1] ?? runId, [priorRow?.[0] || "P1", priorRow?.[1] ?? runId, priorRow?.[2] || runId, backlogStatusForPolicy(after),
       SOURCE_GATES.filter(type => work.preview.impact.retained.includes(type)).map(type => `[${type}](artefacts/${runId}/${type}.md)`).join(" · "),
       `[Revision history](${receipt.archive.path.slice(".agdf/control/".length)})`, after.next_allowed_action]);
     if (!nextBacklog) throw revisionError("backlog_layout_unsupported");
@@ -285,7 +287,7 @@ export function reopenPrdRevision(root, { runId, revisionId }) {
     ["What is the next allowed action?", after.next_allowed_action],
     ["What is explicitly forbidden right now?", after.forbidden.join("; ") || "none"],
   ]) next = upsertTableRow(next, "Current Control State", 0, question, [question, answer]) ?? next;
-  const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
+  const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, next, revisionId, {
     allowApprovalChange: true, expectedContent: run.content,
     validateBeforeWrite: () => {
       // Recomputes the artefact digests on disk under the write lock.

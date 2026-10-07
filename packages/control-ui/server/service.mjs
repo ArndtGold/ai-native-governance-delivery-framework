@@ -88,20 +88,26 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     if (/[%.]/.test(url.pathname.slice(5))) return send(403, error('resource_denied'));
     let operation, selector;
     if (url.pathname === '/api/snapshot') operation = 'snapshot';
+    else if (url.pathname === '/api/backlog-titles') operation = 'backlog_titles';
     else if (url.pathname === '/api/freshness') operation = 'freshness';
     else if (/^\/api\/runs\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }
     else if (/^\/api\/context\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
     else return send(403, error('resource_denied'));
     const params = [...url.searchParams.keys()];
-    if (operation === 'snapshot' ? params.length > 1 || params.length === 1 && (params[0] !== 'run_id'
+    const rowIds = url.searchParams.get('rows')?.split(',');
+    const titleParams = operation === 'backlog_titles' && params.length === 2 && new Set(params).size === 2
+      && params.includes('snapshot') && params.includes('rows') && /^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')
+      && rowIds?.length >= 1 && rowIds.length <= 12 && new Set(rowIds).size === rowIds.length
+      && rowIds.every(id => /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id));
+    if (operation === 'backlog_titles' ? !titleParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && (params[0] !== 'run_id'
         || !/^[A-Za-z0-9_-]{1,128}$/.test(url.searchParams.get('run_id') ?? '')) : params.length !== 1 || params[0] !== 'snapshot'
       || !/^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')) return send(403, error('resource_denied'));
     const cancellation = new AbortController();
     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
     try {
       const result = await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
-        input: operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
+        input: operation === 'backlog_titles' ? { row_ids: rowIds } : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
       send(200, result);
     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }
   });

@@ -1,7 +1,8 @@
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from '../control-read/fs.js';
-import { markdownSection, parseBacklogSection, tableRows, cleanStatusCell } from '../control-evaluation/shared.js';
+import { markdownSection, parseBacklogSection, tableRows, cleanStatusCell, markdownLink, resolvedBacklogLinkTarget } from '../control-evaluation/shared.js';
+import { isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { READ_LIMITS, fail } from '../control-read/snapshot.js';
 
 const SOURCE = '.agdf/control/MASTER_BACKLOG.md';
@@ -70,4 +71,60 @@ export function projectCockpitBacklog(root) {
     code: diagnostics.length ? 'backlog_partial' : null,
     data: { kind: 'backlog', entries, diagnostics, source_path: SOURCE,
       content_digest: createHash('sha256').update(bytes).digest('hex'), counts } };
+}
+
+export function backlogUrSource(row) {
+  const paths = new Set();
+  for (const match of `${row.source_links} · ${row.current_spec ?? ''}`.matchAll(/\[UR\]\([^)]+\)/gi)) {
+    const link = markdownLink(match[0]);
+    const path = link && resolvedBacklogLinkTarget(link.target);
+    if (!path || /[%#?\0]/.test(link.target) || !isSafeControlRelativePath(path)
+      || !path.startsWith('.agdf/control/artefacts/') || !/\.md$/i.test(path)) return { path: null, code: 'resource_denied' };
+    paths.add(path);
+  }
+  return paths.size === 1 ? { path: [...paths][0], code: null }
+    : { path: null, code: paths.size ? 'ur_link_ambiguous' : 'ur_link_missing' };
+}
+
+// Passive Markdown heading extraction for list presentation only. No evaluator changes.
+export function backlogUrHeading(content) {
+  let fence = null, comment = false, front = false, previous = '';
+  const lines = content.replace(/^\uFEFF/, '').split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    if (i === 0 && line.trim() === '---') { front = true; continue; }
+    if (front) { if (/^(---|\.\.\.)\s*$/.test(line)) front = false; continue; }
+    if (comment) { const end = line.indexOf('-->'); if (end < 0) continue; line = line.slice(end + 3); comment = false; }
+    const block = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (fence) { if (new RegExp(`^ {0,3}${fence[0]}{${fence.length},}\\s*$`).test(line)) fence = null; continue; }
+    if (block) { fence = block[1]; previous = ''; continue; }
+    while (line.includes('<!--')) {
+      const start = line.indexOf('<!--'), end = line.indexOf('-->', start + 4);
+      if (end < 0) { line = line.slice(0, start); comment = true; previous = ''; break; }
+      line = line.slice(0, start) + line.slice(end + 3);
+    }
+    const atx = line.match(/^ {0,3}#(?:[ \t]+(.*)|$)/);
+    if (atx) return (atx[1] ?? '').replace(/[ \t]+#+[ \t]*$/, '').trim();
+    if (previous && /^ {0,3}=+\s*$/.test(line)) return previous;
+    const paragraph = line.trim() && !/^(?:\s{4}|\t)|^ {0,3}(?:[#>|]|[-+*]\s|\d+[.)]\s|[-*_]{3,}\s*$)/.test(line);
+    previous = paragraph ? (previous ? previous + '\n' : '') + line.trim() : '';
+  }
+  return '';
+}
+
+export function projectBacklogUrTitle(root, view, row, backlogDigest) {
+  const source = backlogUrSource(row);
+  const observation = { state: 'unavailable', code: source.code, path: source.path, heading: null, title: null,
+    content_digest: null, observed_as_of: view.observed_as_of, backlog_digest: backlogDigest };
+  if (!source.path) return observation;
+  const read = view.readOptionalFileSync(join(root, source.path), READ_LIMITS.preview);
+  if (read.code) return { ...observation, code: read.code };
+  let content;
+  try { content = decoder.decode(read.bytes); if (content.includes('\0')) throw Error(); }
+  catch { return { ...observation, code: 'document_unsupported' }; }
+  const heading = backlogUrHeading(content), title = heading.replace(/^UR:\s*/i, '').trim();
+  if (!title) return { ...observation, code: 'ur_heading_missing' };
+  if ([...heading].length > 512 || Buffer.byteLength(heading, 'utf8') > 2048) return { ...observation, code: 'resource_limit' };
+  return { ...observation, state: 'available', code: null, heading, title,
+    content_digest: createHash('sha256').update(read.bytes).digest('hex') };
 }

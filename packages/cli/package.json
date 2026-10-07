@@ -41,7 +41,7 @@
     "test:release-version-coherence": "node scripts/release-version-coherence-test.js",
     "test:release-registry-state": "node scripts/release-registry-state-test.js",
     "test:release-workflows": "node scripts/release-workflow-contract-test.js",
-    "test:run-step-transaction": "node ../core/test/run-step-transaction-test.js",
+    "test:run-step-transaction": "node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js",
     "test:run-recovery": "node scripts/run-recovery-test.js",
     "test:control-command": "node scripts/control-command-test.js",
     "test:control-command-process": "node scripts/control-command-process-test.js",

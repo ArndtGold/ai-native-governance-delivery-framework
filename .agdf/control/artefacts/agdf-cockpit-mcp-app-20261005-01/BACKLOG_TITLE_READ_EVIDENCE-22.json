@@ -1,0 +1,159 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-07T14:07:31.499Z",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "starting_revision_id": "ad538c78-2b9a-4cbf-9cf7-84916060c9b6",
+  "approved_sources": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "5b689f0855e9523a7e291b06086cd79b2b5533b6248fc85706349eb4b416a3cc",
+    "TP": "d67074d42aea32553247aafdc50ba91a5ae081ec1ad27fac649b1684c5b64509"
+  },
+  "authorizes": false,
+  "status": "local_checkpoint_pass_native_pending",
+  "initial": {
+    "state": "partial",
+    "code": "backlog_partial",
+    "counts": {
+      "Active Backlog": 54,
+      "Planned / Parking Lot": 2,
+      "Completed / Superseded Pointers": 86
+    },
+    "file_count": 1,
+    "byte_count": 84707,
+    "files": [
+      ".agdf/control/MASTER_BACKLOG.md"
+    ],
+    "directories": [],
+    "backlog_digest": "fc6decfbe9a71f63c0cd7eb7b0eebe9027685f6573ef992b23151420ca82467a"
+  },
+  "targeted": {
+    "state": "partial",
+    "code": "backlog_partial",
+    "file_count": 2,
+    "byte_count": 95038,
+    "files": [
+      ".agdf/control/MASTER_BACKLOG.md",
+      ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md"
+    ],
+    "directories": [],
+    "title": {
+      "state": "available",
+      "code": null,
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+      "heading": "UR: Embedded AGDF Cockpit for Codex",
+      "title": "Embedded AGDF Cockpit for Codex",
+      "content_digest": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+      "observed_as_of": "2026-10-07T14:07:31.605Z",
+      "backlog_digest": "fc6decfbe9a71f63c0cd7eb7b0eebe9027685f6573ef992b23151420ca82467a"
+    },
+    "stored_status": "Awaiting SD",
+    "stored_next_step": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "freshness_unchanged": true
+  },
+  "no_write": {
+    "production_selected_sources_unchanged": true,
+    "fixture_control_tree_unchanged": true,
+    "agent_bookkeeping_after_read_window": true
+  },
+  "sources": {
+    "heading": "explicit linked UR H1 only",
+    "status": "stored masterbacklog status",
+    "next_step": "stored masterbacklog next step"
+  },
+  "tests": {
+    "new_core": 7,
+    "existing_core_regression": 13,
+    "protocol_eras": [
+      "2024-11-05",
+      "2025-03-26"
+    ],
+    "registered_runtime_protocol_pass": true
+  },
+  "coverage": [
+    "SCN-085",
+    "SCN-086",
+    "SCN-087",
+    "SCN-088",
+    "SCN-089",
+    "SCN-090",
+    "SCN-097",
+    "SCN-100"
+  ],
+  "limitations": [
+    "Specific scenario assertions are in the copied tests/logs; passing fixtures do not qualify the native host.",
+    "No RUN_STATE reads or gate evaluation occur in title enrichment."
+  ],
+  "files": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-core-final-22.log",
+      "bytes": 2150,
+      "digest": "f573d432d01533172f5bf4cf3f4afdb49745db169dcdf05b214d8bc9ab141be5"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-core-regression-22.log",
+      "bytes": 3782,
+      "digest": "8379e9e92c07368a3545ad62914ff6bc713e5c9b06733226102366178edd0ee2"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-ui-final-22.log",
+      "bytes": 566,
+      "digest": "afc8629323ef837b4834590e93c36586f324c3ebe3c8297e60e54bfe4fd71df4"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-http-final-22.log",
+      "bytes": 5526,
+      "digest": "488471242c80458c8d85b6e0b97b1e0c1c1c13b4586efe60400ce28479a201a7"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-browser-final-22.log",
+      "bytes": 2186,
+      "digest": "0dfba55354624a11a27e8fcb0b8a1bc64bb24943c47d72d57b19d2c10f214a05"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-protocol-final-22.log",
+      "bytes": 395,
+      "digest": "e785d2fa86549d809a3f4407a8ab7aa39909b6a44e917839340a72ca8ce06870"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-protocol-regression-22.log",
+      "bytes": 839,
+      "digest": "5342f479c802da586b4b0263aa52cc887e09fa38429910594526854c32dcc5c4"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-active-protocol-22.log",
+      "bytes": 395,
+      "digest": "e785d2fa86549d809a3f4407a8ab7aa39909b6a44e917839340a72ca8ce06870"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-preparation-22.json",
+      "bytes": 862,
+      "digest": "0aa38e8901e1631f5651da05de85946d4d3d2c0cdca73afb0ce748ecc823fb08"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/cockpit-ur-titles-activation-22.json",
+      "bytes": 2326,
+      "digest": "8c4eaa8aeb406dab90e7ad9cde228f146f1bceef92b9290d13e9fc0b5ae30c0b"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/agdf-cockpit-browser-report.json",
+      "bytes": 9455,
+      "digest": "16962790fc879e3a7dbd431d6683f53fb60b9086361ee04539ee69063afc69e3"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/agdf-backlog-ur-titles-light-22.png",
+      "bytes": 118414,
+      "digest": "742692746b76ca1b69f3011c2e75908884955f4ac55cdd90330b6b252867b5a4"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/agdf-backlog-ur-titles-dark-22.png",
+      "bytes": 119644,
+      "digest": "1d927c6d689483260fc42e9ab0da74962665a2a7145c08cf7ed3f784afad3c81"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-title-evidence-22/agdf-backlog-ur-titles-repository-22.png",
+      "bytes": 88667,
+      "digest": "63a7a5cab0c1a6b91ff511ffb77723ceda635cc870ca76de84d482c5deee54aa"
+    }
+  ]
+}

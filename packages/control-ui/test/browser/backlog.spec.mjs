@@ -50,7 +50,8 @@ test('backlog areas filter stored entries locally, keep search on return, and ma
     await expect(page.getByRole('searchbox')).toHaveValue('');
     await expect(page.getByText('Ergebnis laut Backlog: Durch ein neues Vorhaben ersetzt.')).toBeVisible();
     await expect(page.locator('.row-source[open]')).toHaveCount(0);
-    expect(requests.filter(p => !p.startsWith('/api/freshness'))).toEqual(['/api/snapshot']);
+    expect(requests.filter(p => !p.startsWith('/api/freshness') && !p.startsWith('/api/backlog-titles'))).toEqual(['/api/snapshot']);
+    expect(requests.filter(p => p.startsWith('/api/backlog-titles')).every(path => new URL('http://local'+path).searchParams.get('rows').split(',').length <= 12)).toBe(true);
     await page.getByRole('searchbox').fill('fixture-completed');
     await page.getByRole('button', { name: 'Frühere Umsetzung' }).click();
     await expect(page.locator('.page-title h1')).not.toHaveText('Gespeicherte Vorhaben');

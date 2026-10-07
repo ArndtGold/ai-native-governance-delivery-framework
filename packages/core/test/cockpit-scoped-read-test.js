@@ -9,6 +9,8 @@ import { createCockpitSessionService } from '../lib/control-inspect/cockpit-sess
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { parseCockpitArguments } from '../lib/control-inspect/cockpit-contract.js';
 
+const storedFacts = data => ({ ...data, entries: data.entries.map(({ row_id, ...facts }) => facts) });
+
 function backlog(f, rows = '| 1 | `fixture-a` | [framework-maintenance] Fixture document | In progress | [UR](artefacts/fixture-a/UR.md) | stored spec | Stored next step |') {
   fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), `# AGDF Master Backlog\n\n## Active Backlog\n\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n${rows}\n\n## Planned / Parking Lot\n\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| old-key | Historical title | Superseded | [OR](artefacts/old/OR.md) | Historical outcome |\n`);
 }
@@ -25,7 +27,7 @@ test('SCN-061/063/080: production overview reads only backlog even with >64 MiB 
     assert.equal(first.data.entries[0].original_key, '`fixture-a`'); assert.equal(first.data.entries[0].stored_status, 'In progress');
     assert.equal(first.data.entries[1].stored_status, 'Superseded'); assert.equal(first.data.entries[0].stored_next_step, 'Stored next step');
     fs.writeFileSync(join(history, '0.bin'), 'unrelated'); assert.equal(reader.freshness(first.snapshot_id).data.unchanged, true);
-    const again = reader.snapshot(); assert.deepEqual(again.data, first.data); assert.notEqual(again.snapshot_id, first.snapshot_id);
+    const again = reader.snapshot(); assert.deepEqual(storedFacts(again.data), storedFacts(first.data)); assert.notEqual(again.data.entries[0].row_id, first.data.entries[0].row_id); assert.notEqual(again.snapshot_id, first.snapshot_id);
     const direct = reader.snapshot('fixture-a'); assert.equal(direct.state, 'available'); assert.equal(direct.data.run.run_id, 'fixture-a');
   } finally { f.close(); }
 });
@@ -108,9 +110,9 @@ test('SCN-079/080/083: canonical Run-only approval leaves stored backlog bytes u
     const previousCore = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true});
     assert.equal(f.approve().outcome,'approved'); assert.equal(digest(),previousDigest); assert.notEqual(f.revision(),previousRevision);
     assert.equal(reader.freshness(pointer.snapshot_id).data.unchanged,true);
-    const before = treeBytes(f.root), stored = reader.snapshot(); assert.deepEqual(stored.data,pointer.data);
+    const before = treeBytes(f.root), stored = reader.snapshot(); assert.deepEqual(storedFacts(stored.data),storedFacts(pointer.data));
     const session = (await service.render())._meta.agdf_cockpit.session_id;
-    const wire = await service.read({operation:'snapshot',session_id:session}); assert.deepEqual(wire.data,stored.data);
+    const wire = await service.read({operation:'snapshot',session_id:session}); assert.deepEqual(storedFacts(wire.data),storedFacts(stored.data));
     const expected = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true,presentationLanguage:'de'});
     assert.notEqual(expected.next_allowed_action,previousCore.next_allowed_action);
     const checked = await service.read({operation:'run',session_id:session,snapshot_id:wire.snapshot_id,run_id:'fixture-a'});

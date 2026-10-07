@@ -10,7 +10,7 @@ import { resolveControlCommandTarget } from '../control-state/approval-command-c
 import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
 import { interactionLocales } from '../resources/context.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
-import { projectCockpitBacklog } from './cockpit-backlog.js';
+import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.js';
 
 const CONTROL = '.agdf/control/';
 const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
@@ -35,6 +35,7 @@ export function projectCockpitAssessment(report, lifecycle) {
 export function createCockpitReader(root, options = {}) {
   let view = null, details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
+  let backlogRows = new Map(), backlogDigest = null;
   const invalidate = () => { packet = null; };
   const target = { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const meta = () => ({ schema_version: '1', target, snapshot_id: view?.snapshot_id ?? null,
@@ -127,6 +128,7 @@ export function createCockpitReader(root, options = {}) {
   function discardScope() {
     invalidate(); inspected = null; graph = null; view = null;
     details = new Map(); documents = new Map();
+    backlogRows = new Map(); backlogDigest = null;
   }
   function selectedRun(runId) {
     const run = discoverRuns(root).find(row => row.run_id === runId);
@@ -151,8 +153,14 @@ export function createCockpitReader(root, options = {}) {
     } catch (error) { discardScope(); return envelope(null, 'error', boundedCode(error), true); }
   }
   const sameRegistration = (a, b) => a.run_id === b.run_id && a.type === b.type && a.registered_reference === b.registered_reference;
-  function backlogScope(removedRunId = null) {
+  function backlogScope(removedRunId = null, titleRows = [], expectedDigest = null) {
     const result = projectCockpitBacklog(root);
+    backlogRows = new Map(); backlogDigest = result.data?.content_digest ?? null;
+    if (expectedDigest && backlogDigest !== expectedDigest) fail('source_changed');
+    if (result.data) result.data.entries.forEach((row, index) => {
+      row.row_id = randomUUID(); backlogRows.set(row.row_id, index);
+      if (titleRows.includes(index)) row.title_observation = projectBacklogUrTitle(root, view, row, backlogDigest);
+    });
     if (result.data) Object.assign(result.data, { file_count: view.file_count, byte_count: view.byte_count,
       ...(removedRunId ? { removed_run_id: removedRunId } : {}) });
     return result;
@@ -185,6 +193,13 @@ export function createCockpitReader(root, options = {}) {
       assertSnapshot(id);
       const wasInspected = details.get(runId)?.state === 'available';
       return replaceScope(() => reopenRun(runId, wasInspected));
+    },
+    backlogTitles(rowIds, id) {
+      if (!Array.isArray(rowIds) || !rowIds.length || rowIds.length > 12 || new Set(rowIds).size !== rowIds.length
+        || rowIds.some(row => !backlogRows.has(row))) fail('resource_denied');
+      assertSnapshot(id);
+      const rows = rowIds.map(row => backlogRows.get(row)), digest = backlogDigest;
+      return replaceScope(() => backlogScope(null, rows, digest));
     },
     document(resourceId, id, runId) {
       // Check selectors before revalidation or replacing the legitimate view.

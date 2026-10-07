@@ -69,7 +69,7 @@ nicht aus URL oder Browser-Speicher wiederhergestellt.
 | Ansicht | Zweck und Verhalten |
 |---|---|
 | Kompakte Karte | Führt einspaltig mit gespeichertem Arbeitsstand, aktueller Kontrollaussage und einer Quellenaktion. Nachweise, Freigaben und Ziel/Run-ID sind zunächst geschlossen. „Run ansehen“ bleibt ein nachgeordneter Zugang zur größeren Ansicht. |
-| Vorhaben-Übersicht | Liest ausschließlich gespeicherte Masterbacklog-Einträge. Die drei Bereichsschalter „Aktiv“, „Geplant“ und „Archiv“ zeigen die Anzahlen der jeweiligen Backlog-Abschnitte; „Archiv“ umfasst abgeschlossene und abgelöste Einträge. „Aktiv“ startet ausgewählt. Die einspaltige Liste führt mit Titel, gespeichertem Stand und nächstem Schritt beziehungsweise Ergebnis. Der Titel öffnet den konkreten Run für dessen aktuelle Core-Prüfung. |
+| Vorhaben-Übersicht | Startet ausschließlich mit gespeicherten Masterbacklog-Einträgen und lädt UR-Überschriften nur für sichtbare Zeilen nach. Die drei Bereichsschalter „Aktiv“, „Geplant“ und „Archiv“ zeigen die Anzahlen der jeweiligen Backlog-Abschnitte; „Archiv“ umfasst abgeschlossene und abgelöste Einträge. „Aktiv“ startet ausgewählt. Die einspaltige Liste führt mit Titel, gespeichertem Stand und nächstem Schritt beziehungsweise Ergebnis. Der Titel öffnet den konkreten Run für dessen aktuelle Core-Prüfung. |
 | Run-Zusammenfassung | Bündelt aktuellen Arbeitsschritt, exakte Core-Aktion, Voraussetzungen und Nachweise. Ziel, ID und Kontrollgrundlage sind aufklappbar. |
 | Run-Details | Zeigt zusätzliche Originalangaben und Quellen. Der Schiebeschalter „Zusammenfassung / Details“ ändert den Lesemodus innerhalb der größeren Ansicht. |
 | Dokument | Führt mit einer vorhandenen deutschen Quellenkurzfassung, dem gespeicherten Dokumentstand und der getrennten aktuellen Core-Kontrollauswertung. Quellenangaben und unveränderter Originaltext starten geschlossen. Hier gibt es keinen Zusammenfassungs-/Details-Schalter. „Dokument schließen“ kehrt zum Run zurück und stellt den Fokus auf den öffnenden Quellenzugang wieder her. |
@@ -79,13 +79,76 @@ Originalangaben bleiben als solche sichtbar. Es erfindet keinen Fortschritt oder
 Arbeitsschritt aus einer UI-Auswahl.
 
 Die Übersicht ordnet Einträge nach ihrem gespeicherten Backlog-Abschnitt, nicht durch eine
-zusätzliche Run-Auswertung oder automatische Statuskorrektur. Die Suche filtert den ausgewählten
-Bereich nach Titel, Schlüssel oder gespeichertem Status; ein Bereichswechsel leert die Suche.
-Bereich und Suchbegriff bleiben bei Rückkehr aus einem geöffneten Vorhaben erhalten, ebenso der
-Tastaturfokus auf dessen Titel, sofern der Eintrag noch vorhanden ist. Es gibt keinen zweiten
-identischen Öffnen-Button pro Zeile. Bekannte vorangestellte Scope-Tags werden im sichtbaren Titel
-ausgeblendet; Originaltitel, Schlüssel, Scope, Priorität, vollständiger nächster Schritt und
-Quellenangaben bleiben unverändert in zunächst geschlossenen Angaben verfügbar.
+zusätzliche Run-Auswertung oder automatische Statuskorrektur. Innerhalb jedes Bereichs steht
+der letzte gespeicherte Tabelleneintrag zuerst; daraus wird kein Erstellungsdatum abgeleitet.
+Die Suche filtert nach Backlog-Titel, Schlüssel, gespeichertem Status und bereits beobachteten
+UR-Titeln. Sie durchsucht keine noch ungelesenen URs. Der Suchumfang wird in der Ansicht erklärt;
+ein Bereichswechsel leert die Suche. Bereich, Suchbegriff und beobachtete Titel bleiben bei der
+Rückkehr aus einem Vorhaben erhalten, solange sich die Backlog-Grundlage nicht geändert hat.
+Der Tastaturfokus kehrt zu dessen Titel zurück, sofern der Eintrag noch vorhanden ist.
+Es gibt keinen zweiten identischen Öffnen-Button pro Zeile.
+
+### Überschriften verlinkter Anforderungen
+
+Die erste Übersicht liest nur `MASTER_BACKLOG.md`. Der separate Lesevorgang `backlog_titles`
+nimmt ausschließlich eine Sitzungs-/Snapshot-Bindung und ein bis zwölf eindeutige, vom Server
+ausgestellte Zeilenkennungen entgegen. Die Oberfläche fordert sichtbare Einträge und höchstens
+einen benachbarten Eintrag an, bündelt Anfragen und führt je Ansicht nur eine gleichzeitig aus.
+Eine unsichtbare Ansicht startet keine neue Titelanfrage. Dabei werden weder alle Runs gesucht
+noch ihre Gates ausgewertet.
+
+Core verwendet den ausdrücklich gespeicherten `[UR](relativer-pfad)`-Verweis. Gleiche Ziele
+werden zusammengeführt; fehlende oder widersprüchliche Verweise führen zum Backlog-Titel zurück.
+Nur enthaltene Markdown-Dateien unter `.agdf/control/artefacts/` werden gelesen. Externe oder
+absolute Ziele, kodierte Umgehungen und symbolische Links werden abgewiesen. Ein OR-Verweis
+oder der Schlüssel genügt nicht, um eine UR abzuleiten. Die erste echte H1 außerhalb von
+Frontmatter, Kommentaren und Codeblöcken wird als passiver Text angezeigt; nur das führende
+`UR:` entfällt im Listentitel. Originalüberschrift und Backlog-Titel bleiben aufklappbar.
+
+Der Status steht ausdrücklich als „Gespeicherter Stand laut Backlog“ in der Liste; auch
+der nächste Schritt beziehungsweise das Ergebnis stammt ausschließlich aus dem Masterbacklog.
+UR-Metadaten ändern diese Angaben nicht. Die Titelherkunft steht in den zunächst geschlossenen
+Quellenangaben. Erst das Öffnen des Vorhabens prüft seinen aktuellen Arbeitsstand und seine
+Voraussetzungen; veraltete Backlog-Angaben werden dadurch nicht automatisch umgeschrieben.
+
+Die regulären Core-Schreibwege (`run-approve`, `control approve`, `run-update`,
+`run-step` einschließlich Nachweiserfassung sowie PRD-Wiederöffnung) führen Status und
+nächsten Schritt des zugeordneten aktiven Backlog-Eintrags aus derselben Run-Policy nach.
+Run- und Backlog-Sperre werden in dieser Reihenfolge gehalten. Bei Änderungen beider Dateien
+ist die versiegelte Run-Revision der Commit-Punkt; das vorhandene Transaktionsjournal hält
+den Backlog-Schritt nachholbar. Die Wiederholung einer Freigabe schließt zunächst eine
+ausstehende Transaktion ab und bestätigt deren ursprünglichen Beleg ohne zweite Freigabe.
+Die vollständige Freigabeprüfung läuft vor dem Journal unter beiden Sperren; unmittelbar
+vor dem Commit werden Run-Ausgangsstand, Quelldigests und Präsentationsbeleg erneut geprüft.
+
+Ein ausdrückliches `run-update` kann einen veralteten Backlog-Zeiger eines gültig versiegelten
+Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert nur
+Status und nächsten Schritt der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
+und andere Vorhaben bleiben erhalten. Kompakte und bestehende ältere Tabellen werden bei
+dieser Zeigerkorrektur unterstützt; nicht unterstützte Layouts, doppelte Identitäten,
+Symlink-Pfade, veraltete Revisionen und ausstehende fremde Transaktionen verhindern den Schreibzugriff.
+Dies ist keine Migration historischer Einträge und verschiebt keine Vorhaben ins Archiv.
+Direkte Dateiänderungen außerhalb der Core-Writer umgehen weiterhin deren Schreibvertrag.
+
+Jede gültige Anfrage verwirft den vorherigen Quelldatenstand und erfasst Backlog plus angefragte
+URs erneut als unveränderliche Beobachtung. Die Backlog-Grundlage muss übereinstimmen; andernfalls
+verlangt die Ansicht ein bewusstes Neuladen. Neue Zeilenkennungen gelten nur für den neuen Snapshot.
+Eine UR darf höchstens 2 MiB umfassen, die Überschrift höchstens 512 Unicode-Zeichen beziehungsweise
+2 KiB UTF-8. Fehlende, gesperrte, ungeeignete oder zu große Einzelquellen behalten ihre Zeile mit
+gekennzeichnetem Backlog-Titel. Fehler der gesamten Erfassung liefern keine gemischte Beobachtung.
+
+Die Ansicht hält höchstens 128 Titelbeobachtungen und 256 KiB serialisierte UTF-8-Metadaten im
+Arbeitsspeicher. Dieser LRU-Speicher enthält keine Dokumentkörper oder wiederverwendbaren
+Ressourcenkennungen. Pfad, vollständiger Quelldigest, Beobachtungszeit und Backlog-Digest bleiben
+sichtbar aufklappbar. Frühere Titel sind ausdrücklich Beobachtungen, keine aktuell erfassten
+Kontextquellen. Bewusstes Neuladen, eine geänderte Backlog-Grundlage, unbestätigte Aktualität oder
+eine neue beziehungsweise geschlossene Sitzung verwerfen sie. Fehlgeschlagene Einzelquellen
+werden bis dahin nicht automatisch wiederholt. Titelanfragen übertragen keinen Chat-Kontext,
+senden keine Frage und verändern keine Kontrolldatei.
+
+Bekannte vorangestellte Scope-Tags werden nur beim Backlog-Rücktitel ausgeblendet; Originaltitel,
+Schlüssel, Scope, Priorität, vollständiger nächster Schritt und Quellenangaben bleiben unverändert
+in zunächst geschlossenen Angaben verfügbar.
 
 Zähler sind keine Aussage über aktuell erlaubte Arbeit. Nicht auswertbare oder fehlende Abschnitte
 zeigen „Nicht verfügbar“ statt Null; Eintragshinweise kennzeichnen betroffene Bereichszähler als

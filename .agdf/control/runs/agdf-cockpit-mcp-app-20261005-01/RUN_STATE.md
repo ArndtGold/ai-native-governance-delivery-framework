@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-cockpit-mcp-app-20261005-01
 - lifecycle: active
-- revision: 101
-- revision_id: dfed986c-1637-48d3-aef2-9c81696a0632
-- content_seal: sha256:4747b3cfca8460af99617fdf74cefb9afceddc90057cf663dacaf92cca5ba056
+- revision: 105
+- revision_id: bb220406-d7a2-4526-aa54-9c900282d00e
+- content_seal: sha256:7f4eb157e4a74d961eae2a5bb7921e3c0144d49304ee654d4b7d5e119d6291af
 - approval_seal: sha256:7014cc55bad4ba721ac35b8f4a79c058355b09675e71114795735dc39909a3b8
-- updated_at: 2026-10-07T13:16:19.559Z
+- updated_at: 2026-10-07T14:55:04.776Z
 - mode: structured_delivery
 - current_gate: CD+Tests
 - decision: in_progress
@@ -23,9 +23,9 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 
 | Question | Answer |
 |---|---|
-| What is known? | Renewed Brownfield Analysis passed for the exact approved linked-title TP; implementation evidence remains open. |
+| What is known? | Evidence recorded: Cockpit continuation: six current HTTP tests and both stdio eras pass; native T006/SCN099 remain open because Transport closed. |
 | What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
-| What is missing? | No approval is pending; renewed implementation/tests and later reviews remain. |
+| What is missing? | No approval is pending. |
 | What is the next allowed action? | Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR. |
 | What is explicitly forbidden right now? | claim QA pass; request UAT approval; release |
 
@@ -63,6 +63,8 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | Binding proof 1ac31b03-c88e-4dde-b0f0-c5fef87635ed | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SCOPED_MAPPING_REVIEW-283746fc-9ee1-49ba-aa8c-3c4c7b2d7ff1.json | done | Subordinate reviewed mapping evidence |
 | Binding proof 433dd3f7-3bf6-4302-a5de-976ec9e68b5e | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_UR_TITLE_MAPPING_REVIEW-19.json | done | Subordinate reviewed mapping evidence |
 | Binding proof e28a3194-b900-4ec3-bcfb-99f2eca2b14d | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_UR_TITLE_MAPPING_REVIEW-20.json | done | Subordinate reviewed mapping evidence |
+| Linked UR title implementation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/LINKED_UR_TITLE_IMPLEMENTATION-22.md | in_progress | Minimal visible-title path; fresh T-006/native checkpoint and current full HTTP asset qualification remain open; not complete CD+Tests |
+| Backlog source clarity | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BACKLOG_SOURCE_CLARITY-23.md | in_progress | Explicit stored status/source origin; local tests pass; native and full HTTP qualification remain open |
 
 ## Mode/Slice Decision
 
@@ -185,6 +187,11 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_UR_TITLE_MAPPING_REVIEW-19.json | SD derived_from PRD; binding 433dd3f7-3bf6-4302-a5de-976ec9e68b5e; operation 72ca239f-1d5f-4c6b-9ca0-6c0d7aeb658a; e98a6e56-cb32-4ff4-bc8a-541d00ae0d24 -> 0a72983c-f23f-445f-af4e-9e7092250320 | reviewed cooperative mapping |
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_UR_TITLE_MAPPING_REVIEW-20.json | TP derived_from SD; binding e28a3194-b900-4ec3-bcfb-99f2eca2b14d; operation 83667862-535b-4a47-a75b-22d4bc20dbe2; 845276ee-a9c9-4d76-926d-037bc8255e20 -> a110b351-6951-41f1-821a-9b54f11d968e | reviewed cooperative mapping |
 | Linked UR title implementation preparation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/IMPLEMENTATION_BASELINE_UR_TITLES-21.json | T-001; approved source hashes, retained work/index, owners, write/observation boundaries | cooperative source inspection |
+| Linked UR title scoped read checkpoint | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BACKLOG_TITLE_READ_EVIDENCE-22.json | SCN-085 through SCN-090/097/100 targeted assertions; full file heading capture, no status derivation, read sets and no-write | Direct Core and both stdio eras; native title proof open |
+| Linked UR title list checkpoint | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BACKLOG_TITLE_UI_EVIDENCE-22.json | Area reversal, visibility/cache/search/navigation, Pages themes and current production list | 113 UI and 4 browser pass; latest HTTP 3 pass/3 asset guard failures; native open |
+| Linked UR title runtime handoff | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_BACKLOG_TITLE_EVIDENCE-22.md | Matching registered tuple and byte-identical project config; exact old owned processes retired | Preparation/actual stdio only; T-006/SCN-099 native acceptance open |
+| Backlog source clarity and seal inspection | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BACKLOG_SOURCE_CLARITY-23.md | Heading-only UR metadata, truthful backlog attribution; valid Run seals and stale stored pointer | 113 UI, 7 Core, 1 light/dark browser, both stdio eras; native pending |
+| Cockpit continuation: six current HTTP tests and both stdio eras pass; native T006/SCN099 remain open because Transport closed | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/RESUME_CHECKPOINT-24.md | Current HTTP qualification and scoped protocol requalification only; no CD+Tests completion or new host question | direct |
 
 ## Independent View Reading Checkpoint
 

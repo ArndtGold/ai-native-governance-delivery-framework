@@ -84,7 +84,9 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck }) {
   }
 }
 
-export function validateRunPresentation(root, { runId, gate, revisionId, presentationId }, { evaluateGateCheck }) {
+// Rechecks the immutable presentation envelope without evaluating a Run hidden by its
+// own pending journal. Full policy/binding validation must precede transaction intent.
+export function validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId }) {
   if (!UUID.test(presentationId ?? "")) return { reason: "presentation_required", recovery };
   try {
     const dir = join(checkedRunDirectory(root, runId), "presentations");
@@ -103,9 +105,19 @@ export function validateRunPresentation(root, { runId, gate, revisionId, present
     if (!record || record.schema_version !== 1 || record.presentation_id !== presentationId
         || record.run_id !== runId || record.gate !== gate || record.revision_id !== revisionId
         || digest !== hash(JSON.stringify(record)) || !Number.isFinite(Date.parse(record.created_at))) throw new Error("presentation_binding_invalid");
-    const fresh = binding(root, { runId, gate, revisionId, language: record.presentation_language }, evaluateGateCheck);
-    if (Object.entries(fresh).some(([key, value]) => key !== "text" && record[key] !== value)) throw new Error("presentation_state_changed");
-    return { presentationId, digest };
+    return { presentationId, digest, record };
+  } catch (error) {
+    return { reason: error.code === "ENOENT" ? "presentation_missing" : error.message, recovery: error.recovery ?? recovery };
+  }
+}
+
+export function validateRunPresentation(root, input, { evaluateGateCheck }) {
+  const envelope = validateRunPresentationRecord(root, input);
+  if (envelope.reason) return envelope;
+  try {
+    const fresh = binding(root, { ...input, language: envelope.record.presentation_language }, evaluateGateCheck);
+    if (Object.entries(fresh).some(([key, value]) => key !== "text" && envelope.record[key] !== value)) throw new Error("presentation_state_changed");
+    return { presentationId: envelope.presentationId, digest: envelope.digest };
   } catch (error) {
     return { reason: error.code === "ENOENT" ? "presentation_missing" : error.message, recovery: error.recovery ?? recovery };
   }

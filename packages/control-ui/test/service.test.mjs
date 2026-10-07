@@ -107,3 +107,20 @@ test('SCN-026: actual serialized response cap accepts exact byte limit and rejec
     const over = await request(service, path(READ_LIMITS.response - overhead + 1)); assert.equal(over.status, 413); assert.equal(over.body.code, 'resource_limit');
   } finally { await service.close(); f.close(); }
 });
+
+test('SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged', async () => {
+  const f = fixture();
+  fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'), '# Master Backlog\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Stored title | In progress | [UR](artefacts/fixture-a/UR.md) | stored | next |\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
+  const before = treeBytes(f.root), service = await startControlServer({dir:f.root});
+  try {
+    const initial = (await request(service,'/api/snapshot')).body;
+    const query = `snapshot=${initial.snapshot_id}&rows=${initial.data.entries[0].row_id}`;
+    for (const suffix of ['&path=artefacts/fixture-a/UR.md','&run_id=fixture-a','&snapshot='+initial.snapshot_id,'&rows='+initial.data.entries[0].row_id]) assert.equal((await request(service,'/api/backlog-titles?'+query+suffix)).status,403);
+    const titles = (await request(service,'/api/backlog-titles?'+query)).body;
+    assert.equal(titles.data.entries[0].title_observation.title,'Fixture document');
+    assert.equal(titles.data.file_count,2); assert.notEqual(titles.snapshot_id,initial.snapshot_id);
+    assert.equal((await request(service,'/api/backlog-titles?'+query)).body.code,'resource_denied');
+    assert.equal((await request(service,'/api/freshness?snapshot='+titles.snapshot_id)).body.data.unchanged,true);
+    assert.deepEqual(treeBytes(f.root),before);
+  } finally { await service.close(); f.close(); }
+});

@@ -329,3 +329,34 @@ and passive exact originals start folded. Programmatic heading focus uses a visi
 interactive keyboard focus retains the Pages recipe. Approval labels and source actions are stacked.
 
 Expanded document views group their heading, read feedback, source orientation, disclosures and context access on one neutral Pages surface. The centered reading surface is bounded to 80ch including padding, with symmetric gutters and a shared inner text edge. The context access remains a keyboard-accessible 44px text action; its content expands within the reading surface. Exact originals have no additional card frame or shadow inside that surface. The branded header is unchanged.
+
+
+## Lazy linked-UR list titles
+
+The overview starts with Master Backlog only. Each area displays its original rows in reverse
+stored order, without inventing creation dates. A separate `backlog_titles` operation takes the
+current session, snapshot and 1–12 unique opaque `row_ids`; HTTP exposes the same read as
+`GET /api/backlog-titles?snapshot=<id>&rows=<comma-separated-ids>`. Paths, Run selectors and extra
+fields are rejected. The worker replaces its capture with the unchanged backlog plus the
+requested explicitly linked UR files, then reissues snapshot and row IDs. Initial overview and
+title enrichment never evaluate all Runs.
+
+The shared Markdown-link parser resolves only explicit `[UR](relative-path)` links in stored
+source/spec cells. Identical targets deduplicate; conflicting or missing links fall back locally.
+Contained `.agdf/control/artefacts/*.md` sources are complete bounded reads (2 MiB each), with
+first real ATX/Setext H1 extraction outside frontmatter/comments/fences. Headings over 512 Unicode
+code points or 2 KiB UTF-8 fall back rather than truncating. Plain React text rendering keeps
+headings passive. No title is written back or prepared as Chat context.
+
+Intersection demand is coalesced for visible rows and at most one neighbour, with one active
+batch per view and no new requests while hidden. Ephemeral metadata uses a 128-record/256-KiB
+UTF-8 LRU; it keeps path/digest/time/backlog provenance, never document bodies or old selectors.
+Navigation retains observations for the same backlog digest and restores search/focus; refresh,
+changed/unavailable freshness and session replacement clear them. Search includes backlog facts
+and already observed UR titles only. Missing/denied/unsupported/oversize individual titles keep
+rows and counts. Whole-capture failures require refresh and cannot restore the discarded capture.
+
+Focused verification: `cockpit-backlog-title-test.js`, `cockpit-scoped-read-test.js`,
+`control-scoped-capture-test.js`, UI `backlog-titles.test.tsx`, HTTP `service.test.mjs`,
+browser `backlog-titles.spec.mjs`/`backlog.spec.mjs` and both stdio protocol eras in
+`cockpit-scoped-mcp-test.js`. These checks do not substitute for fresh native-host qualification.

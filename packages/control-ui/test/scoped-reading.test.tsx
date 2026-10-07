@@ -37,7 +37,7 @@ for (const compact of [true, false]) it(`SCN-071: named resource failure preserv
 it('SCN-062/079: fresh backlog labels stored status and next step, and only deliberate selection checks the Run', async () => {
   const read = vi.fn(async (path: string) => path === '/api/snapshot' ? { ...meta, data: backlog } : { ...focused, snapshot_id: 'selected' }) as unknown as ReadTransport;
   render(<App transport={read}/>);
-  await screen.findByText('Gespeichert: Awaiting TP'); expect(screen.getByText('Nächster Schritt laut Backlog: Stored next step')).toBeTruthy();
+  await screen.findByText('Gespeicherter Stand laut Backlog: Awaiting TP'); expect(screen.getByText('Nächster Schritt laut Backlog: Stored next step')).toBeTruthy();
   expect(screen.queryByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeNull();
   expect(vi.mocked(read).mock.calls.map(c => c[0])).toEqual(['/api/snapshot']);
   fireEvent.click(screen.getByRole('button', { name: run.title }));

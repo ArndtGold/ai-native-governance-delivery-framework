@@ -1,0 +1,67 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-07T14:16:44.110Z",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "checked_revision": 103,
+  "seal": {
+    "status": "valid",
+    "recorded": {
+      "content_seal": "sha256:1f1ee33f8fa13ab4ef447f79849d7d15f17af3ade7e1517840baeea1b6a7da47",
+      "approval_seal": "sha256:7014cc55bad4ba721ac35b8f4a79c058355b09675e71114795735dc39909a3b8"
+    },
+    "actual": {
+      "content_seal": "sha256:1f1ee33f8fa13ab4ef447f79849d7d15f17af3ade7e1517840baeea1b6a7da47",
+      "approval_seal": "sha256:7014cc55bad4ba721ac35b8f4a79c058355b09675e71114795735dc39909a3b8"
+    }
+  },
+  "config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "config_restored": true,
+  "runtime_package_changes": [
+    "ui/cockpit.html",
+    "ui/manifest.json"
+  ],
+  "helper_initial_postcheck": "unexpected_runtime_change_server_digest because package digest includes changed UI; exact file comparison resolves it",
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1044265,
+    "digest": "sha256:e1a3ff7d30d573927fcdd04c0278d74e40636a5455ca7f83d2691b19524cf04e"
+  },
+  "ui_tests": 113,
+  "core_tests": 7,
+  "browser_tests": 1,
+  "protocol_eras": [
+    false,
+    true
+  ],
+  "native_observation": "pending",
+  "full_http": "prior asset-boundary failures remain open",
+  "authorizes": false,
+  "evidence": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-source-evidence-23/cockpit-backlog-source-ui-23.log",
+      "digest": "5da57072133ed46952b11cff36e069d88ea74d778a41200f2b1445781874ea41"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-source-evidence-23/cockpit-backlog-source-core-23.log",
+      "digest": "3a0292a6734a3259844509faca47f6d057f069a2a2b4f917804fdbcb92aa1995"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-source-evidence-23/cockpit-backlog-source-browser-23.log",
+      "digest": "cc1a54fbf0e0fc72a12a29dc2f8da0538883074e4c0c005838569b0f1f41534e"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-source-evidence-23/cockpit-backlog-source-protocol-23.log",
+      "digest": "938460c53a3903c7ef597c2368a2d6ba5ec5f5087d444f60b9267d402a71dad7"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-source-evidence-23/cockpit-backlog-source-package-diff-23.json",
+      "digest": "02e6c2c50718ac71697b6fa0288a23c91a034b5440d0036146609218f3d89da5"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/backlog-source-evidence-23/agdf-backlog-source-23.png",
+      "digest": "a865298043740ff8b371c5d02f97ff08473b504148757552d35415e119fd1f15"
+    }
+  ]
+}

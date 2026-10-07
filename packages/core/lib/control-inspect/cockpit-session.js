@@ -31,7 +31,7 @@ export function createCockpitSessionService(root, {
     if (session.retirement) return session.retirement;
     session.retired = true; ++session.generation;
     losePublication(session);
-    clearTimeout(session.timer); session.documents.clear(); session.snapshot = null;
+    clearTimeout(session.timer); session.documents.clear(); session.rows.clear(); session.snapshot = null;
     session.retirement = Promise.resolve().then(() => session.pool.close()).then(() => {
       if (sessions.get(session.id) === session) sessions.delete(session.id);
     });
@@ -66,7 +66,7 @@ export function createCockpitSessionService(root, {
       if (sessions.size >= COCKPIT_LIMITS.sessions) return failure('resource_limit');
       // No await between capacity check and ownership publication.
       const session = { id: randomUUID(), created: now(), touched: now(), pool: poolFactory(),
-        documents: new Map(), snapshot: null, run_id: null, generation: 0, retired: false, retirement: null, timer: null,
+        documents: new Map(), rows: new Set(), snapshot: null, run_id: null, generation: 0, retired: false, retirement: null, timer: null,
         completion: null };
       sessions.set(session.id, session); schedule(session);
       return { schema_version: '1', authorizes: false, target,
@@ -118,6 +118,7 @@ export function createCockpitSessionService(root, {
         }
         if (input.operation === 'snapshot') { discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; }
         else if (input.snapshot_id && session.snapshot !== input.snapshot_id) return failure('resource_denied');
+        if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return failure('resource_denied');
         if (['document', 'prepare_context'].includes(input.operation)
           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return failure('resource_denied');
         if (input.operation === 'context' && input.run_id !== session.run_id) return failure('resource_denied');
@@ -132,11 +133,12 @@ export function createCockpitSessionService(root, {
           if (publication.packet.context_id !== input.context_id || publication.packet.generation !== input.generation) return failure('resource_denied');
           if (publication.phase !== 'prepared') return failure('context_superseded');
         }
-        const replacement = ['snapshot', 'run', 'document', 'context'].includes(input.operation);
-        if (['run', 'document', 'context'].includes(input.operation)) {
+        const replacement = ['snapshot', 'backlog_titles', 'run', 'document', 'context'].includes(input.operation);
+        if (['backlog_titles', 'run', 'document', 'context'].includes(input.operation)) {
           discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null;
         }
         generation = session.generation;
+        if (replacement) session.rows.clear();
         const result = await session.pool.request({ operation: input.operation, snapshot: input.snapshot_id,
           selector: ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
         if (active(session.id) !== session || generation !== session.generation) return failure('session_expired');
@@ -150,6 +152,7 @@ export function createCockpitSessionService(root, {
         }
         if (!['resource_denied', 'context_superseded', 'busy', 'context_cleanup_uncertain'].includes(result.code)) touch(session);
         if (replacement && result.snapshot_id) session.snapshot = result.snapshot_id;
+        if (replacement && result.data?.kind === 'backlog') for (const row of result.data.entries) session.rows.add(row.row_id);
         if (replacement) session.run_id = result.data?.run?.run_id ?? null;
         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {
           session.documents.set(resource.resource_id, `${result.snapshot_id}:${result.data.run.run_id}`);

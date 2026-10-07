@@ -14,12 +14,16 @@ import { documentName } from './presentation';
 import { Icon } from './mcp/Icon';
 import { ContextPanel } from './ContextPanel';
 import type { HandoffController } from './mcp/handoff';
+import { createBacklogTitleStore, type TitleLoader } from './useBacklogTitles';
 
 export function App({ secret = '', transport, compact = false, onExpand, initialRunId, handoff }: { secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; initialRunId?: string; handoff?: HandoffController }) {
   const enabled = !!transport || !!secret;
   const [state, dispatch] = useReducer(readingReducer, initialState);
   const [readerMode, setReaderMode] = useState<'summary' | 'details'>('summary');
   const [backlogView, setBacklogView] = useState<BacklogView>({ section: 'Active Backlog', filter: '' });
+  const [titleEpoch, setTitleEpoch] = useState(0);
+  const titleStore = useRef(createBacklogTitleStore());
+  const titlePending = useRef<AbortController | null>(null), freshnessPending = useRef<AbortController | null>(null);
   const workspace = useRef<HTMLDivElement>(null);
   const [wideReader, setWideReader] = useState(true);
   useLayoutEffect(() => {
@@ -48,6 +52,8 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const navigate = useCallback(async (requested: Route, reload = false, background = false) => {
     if (hasExpiredSession(live.current)) return;
     void handoff?.invalidate();
+    titlePending.current?.abort(); freshnessPending.current?.abort();
+    if (reload || live.current.stale) { titleStore.current.cache.clear(); titleStore.current.attempted.clear(); setTitleEpoch(value => value + 1); }
     if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
     pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
     const generation = ++sequence.current;
@@ -104,6 +110,31 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
     } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
   }, [read, handoff]);
+  const loadTitles = useCallback<TitleLoader>(async (ids, signal) => {
+    const current = live.current, scope = current.scope;
+    if (current.phase !== 'ready' || current.stale || current.route.view !== 'overview' || scope?.data?.kind !== 'backlog' || !scope.snapshot_id) return null;
+    freshnessPending.current?.abort();
+    const controller = new AbortController(), generation = sequence.current;
+    titlePending.current = controller;
+    const cancel = () => controller.abort(); signal.addEventListener('abort', cancel, { once: true });
+    if (signal.aborted) controller.abort();
+    try {
+      const result = await read<Inventory>(`/api/backlog-titles?snapshot=${scope.snapshot_id}&rows=${ids.join(',')}`, controller.signal,
+        { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true });
+      if (controller.signal.aborted || generation !== sequence.current || live.current.route.view !== 'overview') return null;
+      if (!result.data) throw Error(result.code ?? 'read_failed');
+      if (result.data.kind !== 'backlog' || result.data.content_digest !== scope.data.content_digest) throw Error('source_changed');
+      const fields = ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'priority', 'stored_next_step', 'source_links', 'current_spec', 'selectable'] as const;
+      const originalRows = scope.data.entries;
+      if (result.data.entries.length !== originalRows.length || result.data.entries.some((row, index) => fields.some(field => row[field] !== originalRows[index][field]))) throw Error('dto_invalid');
+      live.current = { ...live.current, inventory: result, scope: result };
+      dispatch({ type: 'titles', generation, inventory: result });
+      return result;
+    } catch (error) {
+      if (!controller.signal.aborted && generation === sequence.current) dispatch({ type: 'stale', snapshot: scope.snapshot_id, code: error instanceof Error ? error.message : 'read_failed' });
+      return null;
+    } finally { signal.removeEventListener('abort', cancel); if (titlePending.current === controller) titlePending.current = null; }
+  }, [read]);
   useEffect(() => { if (enabled) void navigate(initialRoute, true); return () => pending.current?.abort(); }, [navigate, enabled, initialRoute]);
   useLayoutEffect(() => {
     if (state.phase !== 'ready' || !focusAfterRead.current) return;
@@ -127,11 +158,16 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible) return;
     let checking = false; const controller = new AbortController();
     const check = async () => {
-      if (document.hidden || checking) return; checking = true;
+      if (document.hidden || checking || titlePending.current) return; checking = true;
       const generation = sequence.current;
       try {
-        const result = await read('/api/freshness?snapshot=' + snapshot, controller.signal, { target: state.scope!.target.target_id, snapshot });
-        if (controller.signal.aborted || generation !== sequence.current || document.hidden) return;
+        const request = new AbortController(); freshnessPending.current = request;
+        const cancel = () => request.abort(); controller.signal.addEventListener('abort', cancel, { once: true });
+        let result;
+        try { result = await read('/api/freshness?snapshot=' + snapshot, request.signal, { target: state.scope!.target.target_id, snapshot }); }
+        catch (error) { if (request.signal.aborted) return; throw error; }
+        finally { controller.signal.removeEventListener('abort', cancel); if (freshnessPending.current === request) freshnessPending.current = null; }
+        if (request.signal.aborted || controller.signal.aborted || generation !== sequence.current || document.hidden) return;
         if (result.code === 'source_changed' && compact) void navigate(live.current.route, true, true);
         else if (result.code) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: result.code }); }
       } catch { if (!controller.signal.aborted && generation === sequence.current) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: 'read_failed' }); } }
@@ -178,7 +214,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
       {(state.phase === 'error' || state.scope?.retryable && !state.scope.data) && enabled && !expired && <button className="retry" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
       <div className={state.phase === 'loading' ? 'previous-content' : ''} aria-busy={state.phase === 'loading'}>
-        {state.inventory?.data && state.route.view === 'overview' && <Overview result={state.inventory} view={backlogView} onViewChange={setBacklogView} onSelect={id => void navigate({ view: 'detail', runId: id })}/>}
+        {state.inventory?.data && state.route.view === 'overview' && <Overview key={titleEpoch} result={state.inventory} view={backlogView} onViewChange={setBacklogView} loadTitles={loadTitles} titleStore={titleStore.current} resetTitles={state.stale} titlesEnabled={state.phase === 'ready' && !state.stale && cardVisible} onSelect={id => void navigate({ view: 'detail', runId: id })}/>}
         {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
       {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} onScope={value => {

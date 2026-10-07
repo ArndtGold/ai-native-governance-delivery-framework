@@ -1,0 +1,89 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-07T14:54:52.449Z",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "starting_revision_id": "91956697-5c08-4d0e-bf08-f29e52d248e1",
+  "authorizes": false,
+  "approved_sources": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "5b689f0855e9523a7e291b06086cd79b2b5533b6248fc85706349eb4b416a3cc",
+    "TP": "d67074d42aea32553247aafdc50ba91a5ae081ec1ad27fac649b1684c5b64509"
+  },
+  "http": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "build_directory": "packages/control-ui/dist",
+    "guard_unchanged": true,
+    "qualification": "current HTTP lane passed; historical failures retained"
+  },
+  "stdio": {
+    "eras": [
+      false,
+      true
+    ],
+    "named_run": true,
+    "independent_sessions": true,
+    "scoped_title_read": true,
+    "fixture_control_bytes_unchanged": true
+  },
+  "native": {
+    "status": "unavailable",
+    "error": "Transport closed",
+    "requested_run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "tool_catalogue_has_backlog_titles": false,
+    "reachable_panels": [
+      {
+        "id": "1",
+        "observed_as_of": "2026-10-07T12:40:48",
+        "view": "named Run",
+        "state": "stale",
+        "current_tuple_qualified": false
+      },
+      {
+        "id": "2",
+        "observed_as_of": "2026-10-07T13:32:58",
+        "view": "prior all-row overview",
+        "state": "stale",
+        "current_tuple_qualified": false
+      }
+    ],
+    "T006": "open",
+    "SCN099": "open",
+    "new_context_questions_sent": 0
+  },
+  "registered_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "267f1e15369ed401d7a71d5d3ee42c9706364ee87d8a1d91a1cbe52245e1add8",
+    "dispatcher_digest": "d52aae80f833cae4cc1c441762bc0dc099e7259d4622b2cd2177e7b8e083f59c",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1044265,
+      "digest": "sha256:e1a3ff7d30d573927fcdd04c0278d74e40636a5455ca7f83d2691b19524cf04e"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "scope": "Only continuing the selected Cockpit Run; separate writer repair retained outside this implementation claim; no bulk Backlog cleanup, source revision, approval, gate completion, installation or VCS action",
+  "evidence": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/resume-evidence-24/cockpit-http-resume-24.log",
+      "digest": "sha256:333108541d86d81a7120800cdbea18a618bca60d468fd4abf62726066a05a810"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/resume-evidence-24/cockpit-protocol-resume-24.log",
+      "digest": "sha256:938460c53a3903c7ef597c2368a2d6ba5ec5f5087d444f60b9267d402a71dad7"
+    }
+  ]
+}

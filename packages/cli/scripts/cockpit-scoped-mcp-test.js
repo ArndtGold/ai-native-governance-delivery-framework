@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { withStdioClient } from '../../mcp-server/test/helpers.js';
 import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { COCKPIT_UI_URI } from '../../core/lib/control-inspect/cockpit-contract.js';
 const preparation = JSON.parse(readFileSync(process.env.AGDF_COCKPIT_TEST_PREPARATION, 'utf8'));
 for (const modern of [false, true]) {
-  const f = fixture(), before = treeBytes(f.root);
+  const f = fixture();
+  writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), '# Master Backlog\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Stored fixture title | In progress | [UR](artefacts/fixture-a/UR.md) | [UR](artefacts/fixture-a/UR.md) | next |\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
+  const before = treeBytes(f.root);
   try {
     await withStdioClient({ modern, command: preparation.node, args: [preparation.entrypoint, '--surface', 'codex', '--cockpit-dir', f.root] }, async client => {
       const tools = await client.listTools(); assert.deepEqual(tools.tools.map(t => t.name), ['agdf_cockpit', 'agdf_cockpit_read']);
@@ -16,7 +19,16 @@ for (const modern of [false, true]) {
       const b = (await client.callTool({ name: 'agdf_cockpit', arguments: {} }))._meta.agdf_cockpit.session_id;
       const call = async (session_id, args) => (await client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } })).structuredContent;
       const first = await call(a, { operation: 'snapshot', run_id: 'fixture-a' }); assert.equal(first.data.run.run_id, 'fixture-a');
-      const overview = await call(b, { operation: 'snapshot' }); assert.equal(overview.data.kind, 'backlog'); assert.equal(overview.data.file_count, 1);
+      let overview = await call(b, { operation: 'snapshot' }); assert.equal(overview.data.kind, 'backlog'); assert.equal(overview.data.file_count, 1);
+      const titleBranch = tools.tools[1].inputSchema.oneOf.find(row => row.properties.operation.const === 'backlog_titles');
+      assert.equal(titleBranch.properties.row_ids.maxItems, 12); assert.equal(titleBranch.additionalProperties, false);
+      const row = overview.data.entries.find(row => row.source_links.includes('[UR]'));
+      assert.ok(row?.row_id);
+      const titles = await call(b, { operation: 'backlog_titles', snapshot_id: overview.snapshot_id, row_ids: [row.row_id] });
+      assert.equal(titles.data.file_count, 2); assert.equal(titles.data.entries.find(entry => entry.key === row.key).title_observation.state, 'available');
+      assert.equal(titles.authorizes, false);
+      assert.equal((await call(b, { operation: 'backlog_titles', snapshot_id: overview.snapshot_id, row_ids: [row.row_id] })).code, 'resource_denied');
+      overview = titles;
       const old = first.data.run.resources.find(r => r.type === 'UR');
       const doc = await call(a, { operation: 'document', snapshot_id: first.snapshot_id, run_id: 'fixture-a', resource_id: old.resource_id });
       assert.equal(doc.data.kind, 'document'); assert.match(doc.data.document.content, /日本語/); assert.equal(doc.authorizes, false);

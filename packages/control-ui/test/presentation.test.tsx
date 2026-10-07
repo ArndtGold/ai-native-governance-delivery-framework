@@ -12,7 +12,7 @@ const inventory = backlog([stored]);
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
 it('the list leads with the stored title and next step, labels pointer facts, and checks current control only on deliberate selection',()=>{
   const select=vi.fn();render(<Overview result={inventory} onSelect={select}/>);
-  expect(screen.getByText('Gespeichert: Awaiting TP')).toBeTruthy();
+  expect(screen.getByText('Gespeicherter Stand laut Backlog: Awaiting TP')).toBeTruthy();
   expect(screen.getByText('Nächster Schritt laut Backlog: Unterlagen zuordnen und vergleichen.')).toBeTruthy();
   expect(screen.queryByText('Freigabe ausstehend')).toBeNull();expect(screen.queryByText('2 offene Nachweise')).toBeNull();
   expect(screen.queryByRole('button',{name:run.run_id})).toBeNull();

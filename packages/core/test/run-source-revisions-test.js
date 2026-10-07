@@ -41,6 +41,9 @@ console.log(JSON.stringify({tp_digest:digest,criterion_id:'AC-001',task_id:'T-00
 const code = readFileSync(join(root, "retained-filter.mjs")), retainedTest = readFileSync(join(root, "retained-filter-test.mjs"));
 cpSync(join(root, ".agdf"), seed, { recursive: true });
 const originalRevision = f.revision(), evidence = [], observations = [], gates = ["UR", "PRD", "SD", "TP"];
+const structuredBacklogRow = readFileSync(join(root, ".agdf/control/MASTER_BACKLOG.md"), "utf8").split("\n").find(line => line.includes(`| ${f.runId} |`));
+assert.match(structuredBacklogRow, /\| In Progress \|/u, "persisted TP approval updates Backlog beyond Awaiting TP");
+assert.ok(structuredBacklogRow.includes("Implement the approved TP scope"), "Backlog next action follows the approved TP transition");
 const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
 const tree = () => {
   const result = {};

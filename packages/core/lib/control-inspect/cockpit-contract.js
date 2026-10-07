@@ -11,6 +11,7 @@ function operation(name, fields = {}, optional = []) {
 }
 export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
   operation('snapshot', { run_id: run }, ['run_id']),
+  operation('backlog_titles', { snapshot_id: id, row_ids: { type: 'array', minItems: 1, maxItems: 12, uniqueItems: true, items: id } }),
   operation('run', { snapshot_id: id, run_id: run }),
   operation('document', { snapshot_id: id, run_id: run, resource_id: id }),
   operation('freshness', { snapshot_id: id }),
@@ -51,7 +52,7 @@ export function parseCockpitArguments(value, render = false) {
       && (!rule.format || /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(item))
       && (!rule.pattern || new RegExp(rule.pattern).test(item));
     if (rule.type === 'integer') return Number.isSafeInteger(item) && item >= rule.minimum;
-    if (rule.type === 'array') return Array.isArray(item) && item.length <= rule.maxItems
+    if (rule.type === 'array') return Array.isArray(item) && item.length >= (rule.minItems ?? 0) && item.length <= rule.maxItems
       && new Set(item).size === item.length && item.every(entry => valid(entry, rule.items));
     return false;
   };

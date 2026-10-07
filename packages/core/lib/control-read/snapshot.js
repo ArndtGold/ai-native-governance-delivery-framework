@@ -209,12 +209,25 @@ export function captureControlScope(rootInput, project, options = {}) {
       if (cursor === root) break;
     }
   }
-  function observe(path) {
-    if (entries.has(path)) return entries.get(path);
+  function observe(path, optional = false) {
+    if (entries.has(path)) {
+      const entry = entries.get(path);
+      if (entry.kind === 'denied' && !optional) fail('resource_denied');
+      return entry;
+    }
+    // Descendants of an observed denied ancestor were intentionally not traversed.
+    // Replay may return that same denial without introducing a new dependency.
+    if (optional) for (let ancestor = dirname(path); ancestor.startsWith(root); ancestor = dirname(ancestor)) {
+      const denied = entries.get(ancestor);
+      if (denied?.kind === 'denied') return denied;
+      if (ancestor === root) break;
+    }
     if (frozen) fail('source_changed');
     if (entries.size >= limits.files * 2 + 16) fail('resource_limit');
     if (path !== root) {
-      const parent = observe(dirname(path));
+      const parent = observe(dirname(path), optional);
+      // An optional source may report a denied ancestor, but never traverse it.
+      if (parent.kind === 'denied') return parent;
       if (parent.kind === 'directory') verifyAncestors(path);
     }
     let stats;
@@ -225,7 +238,12 @@ export function captureControlScope(rootInput, project, options = {}) {
       entries.set(path, record); options.checkpoint?.('dependency', path);
       return record;
     }
-    if (stats.isSymbolicLink() || !stats.isDirectory() && !stats.isFile()) fail('resource_denied');
+    if (stats.isSymbolicLink() || !stats.isDirectory() && !stats.isFile()) {
+      if (!optional) fail('resource_denied');
+      const entry = { stats, kind: 'denied', signature: signature(stats) };
+      entries.set(path, entry); options.checkpoint?.('dependency', path);
+      return entry;
+    }
     const record = { stats, kind: stats.isDirectory() ? 'directory' : 'file',
       signature: stats.isDirectory() ? identity(stats) : signature(stats) };
     entries.set(path, record); options.checkpoint?.('dependency', path);
@@ -237,6 +255,14 @@ export function captureControlScope(rootInput, project, options = {}) {
     return { path, entry };
   }
   const methods = {
+    readOptionalFileSync(value, maximum = limits.preview) {
+      const path = pathOf(value), entry = observe(path, true);
+      if (entry.kind === 'denied') return { code: 'resource_denied', bytes: null };
+      if (entry.kind === 'absent') return { code: 'document_missing', bytes: null };
+      if (entry.kind !== 'file') return { code: 'document_unsupported', bytes: null };
+      if (entry.stats.size > BigInt(maximum)) return { code: 'resource_limit', bytes: null };
+      return { code: null, bytes: methods.readFileSync(path) };
+    },
     existsSync(value) { return observe(pathOf(value)).kind !== 'absent'; },
     readFileSync(value, encoding) {
       const { path, entry } = get(value);
@@ -287,6 +313,10 @@ export function captureControlScope(rootInput, project, options = {}) {
           if (entry.kind === 'absent' && error.code === entry.code) continue;
           if (['ENOENT', 'ENOTDIR'].includes(error.code)) fail('source_changed');
           throw error;
+        }
+        if (entry.kind === 'denied') {
+          if (signature(now) !== entry.signature || (!now.isSymbolicLink() && (now.isFile() || now.isDirectory()))) fail('source_changed');
+          continue;
         }
         if (entry.kind === 'absent' || now.isSymbolicLink()
           || (entry.kind === 'directory' && !now.isDirectory()) || (entry.kind === 'file' && !now.isFile())) fail('source_changed');

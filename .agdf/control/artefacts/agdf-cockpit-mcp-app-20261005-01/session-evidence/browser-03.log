@@ -1,0 +1,41 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test --grep real repository, pointer
+
+
+Running 1 test using 1 worker
+
+(node:30214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (32.9s)
+
+
+  1) test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator: locator('.resources button').filter({ hasText: /\/UR\.md/ })
+    Expected: focused
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeFocused" locator('.resources button').filter({ hasText: /\/UR\.md/ }) with timeout 5000ms
+      - waiting for locator('.resources button').filter({ hasText: /\/UR\.md/ })
+
+
+      127 |       await activate(page.getByRole('button',{name:'Details',exact:true}));
+      128 |       await activate(document); await expect(page.locator('.page-title h1')).toBeFocused();
+    > 129 |       await activate(page.getByRole('button',{name:'Dokument schließen',exact:true})); await expect(document).toBeFocused();
+          |                                                                                                               ^
+      130 |       await activate(page.getByRole('button', { name: 'Alle Vorhaben', exact: true }));
+      131 |       await expect(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true })).toBeFocused();
+      132 |     }
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:129:111
+
+    Error Context: test-results/journeys-SCN-003-007-028-0-dc6e3-idelity-and-unchanged-bytes/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 

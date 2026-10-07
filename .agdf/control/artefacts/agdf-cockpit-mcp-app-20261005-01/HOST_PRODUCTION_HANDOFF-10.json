@@ -1,0 +1,159 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": "d4bc7a54-aa35-46cb-abb8-f72a15a533d3",
+  "recorded_at": "2026-10-07T05:53:34.714458+00:00",
+  "status": "partial_actual_host_qualification",
+  "authorizes": false,
+  "host": {
+    "name": "chatgpt",
+    "version": "26.930.61225",
+    "display_mode": "fullscreen",
+    "panel_init": "75ac25e0-54d0-49b9-887e-3e42abaf1cfb",
+    "module_sha256": "a235f9db6ec72dbf9e747f964197d896d5ce439f241d6ca1e0ac7a845bae9421",
+    "main_width": 662,
+    "client_width": 662,
+    "scroll_width": 662,
+    "header_height": 72
+  },
+  "approved_source_sha256": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "context_id": "79f17ae8-b65b-4e61-9698-0a6ce2f3ac13",
+  "context_generation": 14,
+  "actual_model_context_receipt": true,
+  "production_question": {
+    "click_count": 1,
+    "separately_authorized": true,
+    "host_accepted": true,
+    "actual_model_receipt": true,
+    "answered": true,
+    "answer_correctness_or_uat_claim": false,
+    "historical_checkpoint_note": "question-checkpoint-11.json recorded pending receipt before the later actual message arrived"
+  },
+  "owned_release": {
+    "visible_transition": "invalidating to idle",
+    "host_and_matched_core_completion": "required by exact loaded controller before idle on the owned path; observed success, not raw bridge tracing",
+    "returned_to_own_run": true,
+    "another_publisher_takeover_observed": false,
+    "actual_model_invalidation_receipt": {
+      "source": "mcp_app",
+      "source_id": "session:1da25d6f-0b9e-4842-b0b2-dd69718d7617",
+      "server": "agdf-cockpit-local",
+      "schema_version": "1",
+      "kind": "agdf_cockpit_invalid_selection",
+      "generation": 15,
+      "invalidation_id": "ccaa2f4f-9821-4bb0-b80f-8a86a6a943bf",
+      "observed_at": "2026-10-07T05:50:40.547Z",
+      "authorizes": false,
+      "current": false,
+      "claim": "actual received host context marks the previous selection non-current; historical chat erasure is not claimed"
+    }
+  },
+  "no_write_windows": [
+    {
+      "scenario": "native refresh/read/checked context",
+      "before_at": "2026-10-07T05:33:22.370Z",
+      "after_at": "2026-10-07T05:37:25.729Z",
+      "entry_count": 3263,
+      "file_bytes": 62697839,
+      "before_digest": "6a177e6ae59b8395ad1f322c01e08d6b0f8f40eda5cdb97a612cf8df417f3c47",
+      "after_digest": "6a177e6ae59b8395ad1f322c01e08d6b0f8f40eda5cdb97a612cf8df417f3c47",
+      "canonical_bytes_unchanged": true,
+      "agent_bookkeeping_inside": false
+    },
+    {
+      "scenario": "one authorized production question",
+      "before_at": "2026-10-07T05:43:00.617Z",
+      "after_at": "2026-10-07T05:44:25.274Z",
+      "entry_count": 3263,
+      "file_bytes": 62697839,
+      "before_digest": "6a177e6ae59b8395ad1f322c01e08d6b0f8f40eda5cdb97a612cf8df417f3c47",
+      "after_digest": "6a177e6ae59b8395ad1f322c01e08d6b0f8f40eda5cdb97a612cf8df417f3c47",
+      "canonical_bytes_unchanged": true,
+      "agent_bookkeeping_inside": false
+    },
+    {
+      "scenario": "owned context release and own return",
+      "before_at": "2026-10-07T05:50:37.285Z",
+      "after_at": "2026-10-07T05:51:05.352Z",
+      "entry_count": 3263,
+      "file_bytes": 62697839,
+      "before_digest": "6a177e6ae59b8395ad1f322c01e08d6b0f8f40eda5cdb97a612cf8df417f3c47",
+      "after_digest": "6a177e6ae59b8395ad1f322c01e08d6b0f8f40eda5cdb97a612cf8df417f3c47",
+      "canonical_bytes_unchanged": true,
+      "agent_bookkeeping_inside": false
+    }
+  ],
+  "proof_files": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-overview-settled-10.txt",
+      "bytes": 148098,
+      "sha256": "0355643d4f9b9b03002303ba682265c00c3af6587fb85d1616dbd1b718acadc8"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-overview-own-run-settled-10.txt",
+      "bytes": 1353,
+      "sha256": "a136d3202ec655659499a16d2a55eec1f3f4461cead1837f9df26045afc31586"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-overview-document-settled-10.txt",
+      "bytes": 4365,
+      "sha256": "ea9f8c9dcba7899ae6142cd7409b43a4b5656884b5305b5880d4cc19113b5e52"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-production-host-info-10.txt",
+      "bytes": 20398,
+      "sha256": "35c56d9f4d7c23a39ba3ae21f96f8cb737f2ac98a028648081450452f73d220c"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-context-accepted-10.txt",
+      "bytes": 15460,
+      "sha256": "4f5a39d26cb84d3e9977c13565590b5de4f37ebe85b54120296d1260356f0d0a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-packet-visible-10.json",
+      "bytes": 14412,
+      "sha256": "3df054d39b2bf009f8278e3bf53097598f01b7e88910a3b0d3fefd249c62568e"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-question-settled-11.txt",
+      "bytes": 20398,
+      "sha256": "51c0e1062589c79c633ce58a10130ae09a43945b9cf09b234831f4f5265316ee"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-question-checkpoint-11.json",
+      "bytes": 594,
+      "sha256": "459138b0fa3e770952fe0b901a7b162a118064bb0aa9f142b489cf9755c8d2b1"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-release-settled-12.txt",
+      "bytes": 4980,
+      "sha256": "1f5cee6eb8db2bd1881b88086c1590214efdd4adb13556038c671fe8337e368b"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-production-return-own-run-settled-12.txt",
+      "bytes": 1353,
+      "sha256": "678d33210cd823da3c6cb0692f72bae9d2a33e050665ddf542a75b2ae954ef14"
+    }
+  ],
+  "remaining": [
+    "second current concurrent reachable native view",
+    "equal and distinct Run independent reading",
+    "competing owner refusal and nonowner cleanup preserving current owner",
+    "other view checked transfer and separately authorized question",
+    "fresh connection host-context currentness",
+    "actual-host rollback/reconnect",
+    "final knowledge reconciliation",
+    "TP review, CR, QA, UAT and OR"
+  ],
+  "knowledge_correction": {
+    "dated_checkpoint_retained": true,
+    "current_implementation_addendum": true,
+    "open_gap_retained": true,
+    "no_complete_acceptance_claim": true
+  }
+}

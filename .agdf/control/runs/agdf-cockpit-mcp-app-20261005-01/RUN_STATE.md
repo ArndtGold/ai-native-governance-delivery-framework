@@ -5,13 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-cockpit-mcp-app-20261005-01
 - lifecycle: active
-- revision: 65
-- revision_id: 9f6d0097-aeb4-45b2-a633-9a1d0baa62db
-- content_seal: sha256:e3603873a048af6893807c945cd8b185e4351aef486d5b8e46faf6de203b8469
-- approval_seal: sha256:1f3713c5c1b53c0c6f4a64a1de3f927a5f71d059d10bc7a04d27cbe5395636e4
-- updated_at: 2026-10-06T17:23:05.478Z
+- revision: 76
+- revision_id: 1d8e9644-f16a-447c-bc88-120aacac0ec1
+- content_seal: sha256:1adbbbc0a9d553e2c9a0630d13ff2423183fb3c86ed5176d631d664f7a1f1e06
+- approval_seal: sha256:1d621a8ebd275062476c21632754faa6446194d626ac8e52d735f35e3fc8498c
+- updated_at: 2026-10-07T05:56:50.916Z
 - mode: structured_delivery
-- current_gate: TP
+- current_gate: CD+Tests
 - decision: in_progress
 - owner: agent
 
@@ -23,11 +23,11 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 
 | Question | Answer |
 |---|---|
-| What is known? | TP artefact and reviewed source binding recorded together. |
-| What is approved? | Approval: UR, Approval: PRD, Approval: SD |
-| What is missing? | Exact Approval: TP. |
-| What is the next allowed action? | Draft or refine the Task/Test Plan; do not implement before TP is approved. |
-| What is explicitly forbidden right now? | implement code; claim QA or release readiness |
+| What is known? | Approved TP implementation is in progress; T-006 native feasibility passed; independent reading, exclusive publication and acknowledged completion are implemented and tested; final current-production host evidence and reviews remain open. |
+| What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
+| What is missing? | No approval is pending. |
+| What is the next allowed action? | Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR. |
+| What is explicitly forbidden right now? | claim QA, UAT or release readiness before required current-source evidence and approvals |
 
 ## Approvals
 
@@ -36,7 +36,7 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | UR | approved | `Approval: UR` · 2026-10-05 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md` sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc |
 | PRD | approved | `Approval: PRD` · 2026-10-05 · revision 6 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md` sha256:8f372986651c47aa · presentation c230ef55-ea75-42f0-b02d-49947a0c0c89 sha256:72000977e7c06e5eb5099ef6d42b7fe0ec4e22229f834f5e36877c982ee16072 |
 | SD | approved | `Approval: SD` · 2026-10-06 · revision 63 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md` sha256:2ad7312e1e7cb5c9 · presentation c58902db-b4a3-49e6-98b5-5d39eb41eafe sha256:b114d5cf4ec5cd86b2f4781ebe7567f57c987b6f22113394418f0f027328d8a4 |
-| TP | missing |  |
+| TP | approved | `Approval: TP` · 2026-10-06 · revision 65 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md` sha256:54fa11acb3bd7547 · presentation 8e3dc2ce-22df-4acd-a15a-8fb6755e5cd9 sha256:f9e547e4835af49749fecfc1c4363b6f13cf9b7eb9eae68e0765ccc38830efcd |
 | QA | missing |  |
 | UAT | missing |  |
 
@@ -50,9 +50,9 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | Verified Change |  | missing |  |
 | PRD | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md | approved | Reviewed source binding recorded atomically |
 | SD | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md | approved | Reviewed source binding recorded atomically |
-| TP | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md | draft | Reviewed source binding recorded atomically |
-| Brownfield Analysis |  | missing | Renewed evidence required after source revision |
-| CD+Tests |  | missing | Renewed evidence required after source revision |
+| TP | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md | approved | Reviewed source binding recorded atomically |
+| Brownfield Analysis | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_BROWNFIELD_ANALYSIS-01.md | done | Renewed approved-TP owner/baseline analysis; cooperative source evidence |
+| CD+Tests | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_IMPLEMENTATION-02.md | in_progress | Renewed independent reading and exclusive publication implemented; tests pass; final native journey and reviews remain open |
 | CR |  | missing | Renewed evidence required after source revision |
 | QA |  | missing | Renewed evidence required after source revision |
 | Binding proof ce2a8b08-d584-4957-9ff6-ad17680e1784 | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json | done | Subordinate reviewed mapping evidence |
@@ -82,6 +82,12 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
+| Current native connection resumed | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-07.md | Named and deliberate overview openings respond; additional read/package checks pass; previously accepted synthetic test reaches the model | Two freshly expanded current cards and final production packet/release/question proof remain open |
+| Current production preparation and reconnection | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-06.md | Current tested named tuple prepared; exact scoped process retirement and byte-identical project config restoration; isolated rollback passed | Fresh native opening returned Transport closed; current production host proof remains open |
+| Current publication implementation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_VERIFICATION-02.json | Independent reading, exclusive publication, immutable controllers, begin/acknowledged-complete protocol and current regression results | Source, deterministic, browser and isolated real stdio; final native production proof remains open |
+| Current native feasibility checkpoint | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-05.md | Current loaded resource, two independent reading views, context and deliberate question acknowledgements; canonical action recording correction | Actual native method/render feasibility; productive packet and answer proof still open |
+| Renewed independent reading implementation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_READ_VERIFICATION-01.json | Four counted sessions, scoped worker/read ownership, immutable ports and current tests/prepared tuple | Direct deterministic, browser and actual stdio; unfinished publication owner |
+| Native two-view reading checkpoint | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-04.md | Actual named and empty opening, two reachable panels, own documents and return, exact loaded module | Actual native reading; current context/message and new probe resource activation open |
 | Shared Pages component hierarchy | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_COMPONENT_ALIGNMENT-04.md | Built-Pages button and typography parity in both themes, header/spacing and final nine-journey suite | automated and actual browser; native connection closed |
 | Shared Pages surfaces, light and dark | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_SURFACE_ALIGNMENT-03.md | Canonical recipes, semibold links, Summary entry, ten theme observations and real browser visuals | automated and browser evidence; native Transport closed |
 | Actual native product checkpoint | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_PRODUCT_JOURNEY-01.md | Real packet/question acknowledgement, return, untouched overview and closed no-write window; startup tuple boundary explicit | direct host/source-byte evidence; not human UAT |
@@ -159,9 +165,14 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json | SD derived_from PRD; binding 17df981f-2f72-43b4-8806-c621e4fc69fd; operation 2893cf68-4c1c-471d-ab16-d56094b9ae4a; 976a9bf3-0226-434e-8f72-49d7b075c9ba -> 1e0808e9-c2f2-485a-8923-4255d87bf19d | reviewed cooperative mapping |
 | Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json | TP derived_from SD; binding 23404522-8c48-43c6-8abd-31995aa9da0d; operation 30bc3564-118f-4b05-a7e1-e6423419adc5; d83596aa-b722-45de-a427-cd896b0ae0e5 -> 9f6d0097-aeb4-45b2-a633-9a1d0baa62db | reviewed cooperative mapping |
 
+## Independent View Reading Checkpoint
+
+- SESSION_READ_IMPLEMENTATION-01.md, SESSION_READ_VERIFICATION-01.json and HOST_FEASIBILITY-04.md bind current implementation and distinguish actual native two-view reading, deterministic/protocol evidence, historical method acknowledgement and the new probe activation gap.
+- CD+Tests is in_progress. T-006 passed before dependent feature work. Exclusive publication ownership and matched host-acknowledged completion are implemented and tested. Current production native qualification and formal reviews remain open. Approved source bytes and human approvals are unchanged.
+
 ## Closeout
 
-- next_allowed_action: Draft or refine the Task/Test Plan; do not implement before TP is approved.
+- next_allowed_action: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.
 - quality_outlook:
 
 ## Artefact Bindings
@@ -184,15 +195,15 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| Current native work-step view and remaining host qualification | Latest prepared Pages-components UI has light/dark browser/protocol proof; current native visual identity and remaining recovery/rollback are unqualified. Earlier work-step opening and packet model arrival retain their dated evidence; answer-quality acceptance remains open | Inspect the newly opened native card and current loaded identity, finish remaining recovery/rollback; do not resend automatically |
-| Remaining TP qualification and reviews | T-007 through T-010 implemented; deterministic and actual-host reading/handoff evidence recorded; CD+Tests remains in_progress | Complete remaining T-012 qualification and full T-011 task/structural/diff reviews |
-| Remaining final host/review qualification | Current Pages-components deterministic/light-dark browser/protocol checks and earlier full compatibility suite pass; newest native UI qualification remains open; see PAGES_COMPONENT_ALIGNMENT-04.md and COMPATIBILITY_EVIDENCE-03.md | Complete current native UI/recovery/rollback qualification and formal reviews before QA |
+| Final productive host-context journey | Current T-006 reading and method acknowledgements passed on build 26.930.61225; full T-008/T-010 implementation is tested and checkpoint-only executable probes removed | Load the current owned production runtime and qualify T-012 packet, deliberate question, concurrent refusal/release, recovery and rollback |
+| Current native publication qualification | Production owner/controller implementation passes deterministic and real stdio checks; earlier native cards retain the minimal checkpoint resource | Qualify the current production resource and observed two-view publication/release flow in Codex |
+| Final TP/review/host acceptance | Current 23 Core, nine graph, 79 UI, five HTTP, ten browser journeys, both cockpit stdio eras and full default MCP suite pass; counts do not qualify all native scenarios | Complete T-012 current-production handoff/recovery/rollback and routed CR/QA/UAT/OR |
 
 ## Risks
 
 | Risk | Impact | Mitigation or owner |
 |---|---|---|
-| Current UI not yet visually qualified in Codex | Earlier native product journey passes and current named-Run opening responds; updated work-step rendering and loaded identity remain unobserved natively | Inspect the newly opened native card and exact resource identity; retain earlier evidence with its own tuple |
+| Final native context ownership proof | Exclusive ownership and acknowledged completion are implemented and tested; live production context/recovery still needs observation | Complete current-production T-012; distinguish native acknowledgement from model receipt and historical chat erasure |
 | Fixed Copilot payload budget | Current regression resolved; future growth remains bounded by the unchanged limit | Preserve baseline and canonical profile validation; see COMPATIBILITY_EVIDENCE-02.md |
 
 ## Source Revisions
@@ -208,9 +219,9 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 
 - context_graph_impact: update_existing_node
 - context_graph_refs: .agdf/control/CONTEXT_GRAPH.md#CG-MCP-DISPATCH-ADAPTER
-- context_graph_reconciliation: resolved
-- context_graph_required_action: none
-- context_graph_gate_effect: none
+- context_graph_reconciliation: open_gap
+- context_graph_required_action: update
+- context_graph_gate_effect: warning
 - context_graph_evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OR.md
 
 ## Knowledge Persistence Decision
@@ -341,3 +352,59 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 ## Interim OR status correction
 
 INTERIM_OR_STATUS_CORRECTION-01.md records the rejected source-revision preview and the correction of an overstated OR done marker to in_progress. The existing report explicitly declares interim status and unfinished regular closeout. Its bytes, path and historical evidence are retained. No approval, completed lifecycle or implementation permission is inferred.
+
+## Independent View Session Preparation
+
+- SESSION_BROWNFIELD_ANALYSIS-01.md and SESSION_IMPLEMENTATION_BASELINE-01.json record renewed approved-TP preparation, clean candidate code baseline, existing owners and minimal implementation path.
+- Source revision d42626e2-69b1-4cd7-9a9b-753b72d01651 and current SD/TP supersede earlier one-session design and follow-up-only prose. New independent sessions and publication-owner completion remain unimplemented; historical UI/protocol/native checks do not prove them.
+- Context Graph reconciliation is reopened for verified new lifecycle knowledge. Existing resolved historical node updates remain evidence, not proof of this new change. No QA/UAT, native two-view qualification, VCS or clean closeout claim.
+
+
+## Current Native Method Checkpoint
+
+- HOST_FEASIBILITY-05.md and session-evidence/native-current-* record current native T-006 reading and method feasibility. One new synthetic question followed the human's explicit one-time permission; no repeated send is authorized. Model answer quality remains unverified.
+- The canonical next_allowed_action is restored to the Core CD+Tests action. Subtask progress stays in this appendix and evidence rather than creating a persisted/Core mismatch.
+- Continue approved T-007/T-008/T-009/T-010 implementation. CD+Tests remains in_progress, and final production host proof, reviews, QA/UAT and regular closeout remain open.
+
+## Current Production Publication Implementation
+
+- SESSION_PUBLICATION_IMPLEMENTATION-02.md and SESSION_PUBLICATION_VERIFICATION-02.json supersede the earlier minimal-reading implementation status; earlier appendices describe historical checkpoints. T-007/T-008/T-009/T-010 are implemented and requalified.
+- 23 Core session/publication, nine graph/source, 79 UI, five HTTP, ten browser journeys, type/builds, both actual cockpit stdio eras and the full default MCP suite pass. Exact current source/projection hashes and failed-attempt labels are retained. These counts are not all-sixty-scenario native proof.
+- Executable synthetic method probes are removed from production; diagnostic UI reports metadata only. The accepted synthetic question is not repeated.
+- Current-production native T-012, task fulfilment/formal CR, QA/UAT/OR and verified Context Graph curation remain open. No VCS action or unrelated diagram edit. Canonical next_allowed_action remains the Core CD+Tests action.
+
+## Current Production Runtime Reconnection
+
+- HOST_RECONNECTION-06.md records the paired current production package/resource preparation, scoped connection retirement, unchanged project config and isolated byte-identical rollback.
+- The bound native opening returned Transport closed. A Codex restart/reopen is requested solely to obtain a fresh connection for current T-012 production qualification. Earlier loaded cards are not current-production proof.
+- No further synthetic question is sent; exact production question permission must follow a concrete source packet preview. CD+Tests remains in_progress, with no new gate approval pending and no formal QA/UAT/release claim.
+
+## Current Native Visibility Check
+
+- HOST_RECONNECTION-07.md supersedes the previous connection-closed condition: named and deliberate overview openings now respond. No additional restart is currently requested.
+- The backend sees only older expanded panels; both newly opened cards must be expanded for the current native journey. No new synthetic or production question was sent.
+- Seven retained read/provider/config cases, current Copilot profile checks and exact locked SDK/self-contained bundle inspection pass. Final current native T-012 and routed reviews remain open; CD+Tests is in_progress.
+
+## Current Native Resource Identity Observation
+
+- HOST_RESOURCE_IDENTITY-08.md records an expired third overview panel and a verified older inline module, with the live resource prefix matching the current prepared build.
+- A new named Run card was opened with the exact run_id; its loaded module is still unobserved because it is inline. Fresh-panel visibility and T-012 remain open.
+- Fixed-URI host caching is a supported hypothesis. Any paired URI version change must follow the source revision route because approved SD binds v1. No approved artefact, product source, session limit or host settings were changed.
+- No additional question was sent; CD+Tests remains in_progress.
+
+## Fresh Native Production UI Identity
+
+- HOST_RESOURCE_IDENTITY-09.md proves the newly expanded named Run card loads the exact current prepared module. A fresh-card resource-cache defect is not established; no URI or approved-source change is needed for this observation.
+- The view expired overnight after the approved eight-hour lifetime. Fresh concurrent views remain necessary for T-012; no extra question was sent and no no-write window has started.
+
+## Current Native Production Handoff Checkpoint
+
+- HOST_PRODUCTION_HANDOFF-10.md and HOST_PRODUCTION_HANDOFF-10.json record exact current module/host identity, canonical packet equality, actual model context and once-authorized question receipt, acknowledged own release, and return to the named Run.
+- Three app-only read/context, question and release windows closed with byte-identical canonical control inventories before this bookkeeping. No synthetic or production question is repeated.
+- The graph's dated implementation statement is explicitly superseded by a bounded current source/test/native addendum; its open_gap and final knowledge reconciliation remain open.
+- The tools expose one usable current view plus older/expired panels. A second current concurrent view, final native takeover/recovery/rollback and TP/CR/QA/UAT/OR remain open. CD+Tests is still in_progress; no approval or next-action change is inferred.
+
+## Actual Host Invalidation Receipt
+
+- The actual model-facing invalid-selection signal from the same native app session confirms the previous selection is non-current (generation 15, observed 2026-10-07T05:50:40.547Z). HOST_PRODUCTION_HANDOFF-10.md/.json retain the exact received identity and non-authorizing payload.
+- This is additional owned-release evidence; concurrent takeover, recovery/rollback and regular review/acceptance remain open. CD+Tests stays in_progress.

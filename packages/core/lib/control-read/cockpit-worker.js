@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { createCockpitReader } from '../control-inspect/cockpit.js';
-const reader = createCockpitReader(workerData.root);
+const reader = createCockpitReader(workerData.root, { limits: workerData.limits });
 parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
     const result = operation === 'snapshot' ? reader.snapshot()

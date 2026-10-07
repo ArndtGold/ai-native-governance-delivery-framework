@@ -1,0 +1,41 @@
+
+> @agdf/mcp-server@0.14.5 test
+> npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+
+
+> @agdf/mcp-server@0.14.5 test:contract
+> node ./test/contract.test.js
+
+AGDF MCP semantic contract tests passed.
+
+> @agdf/mcp-server@0.14.5 test:continuation
+> node ./test/continuation.test.js
+
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+
+> @agdf/mcp-server@0.14.5 test:late-source-revision
+> node ./test/late-source-revision.test.js
+
+Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).
+
+> @agdf/mcp-server@0.14.5 test:protocol
+> node ./test/protocol.test.js && node ./test/skill-names.test.js
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: architecture guide: missing MCP tool inventory
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/protocol.test.js:28:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:27:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/protocol.test.js:12:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

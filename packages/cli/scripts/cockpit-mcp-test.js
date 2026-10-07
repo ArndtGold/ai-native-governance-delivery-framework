@@ -4,7 +4,10 @@ import { withStdioClient } from '../../mcp-server/test/helpers.js';
 import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { COCKPIT_UI_URI, COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js';
 
-const preparation = JSON.parse(readFileSync(new URL('../../../dist/local/codex-cockpit/preparation.json', import.meta.url), 'utf8'));
+// Tests can qualify an independently prepared owned runtime without replacing a
+// runtime currently registered by the host. Startup still verifies its markers.
+const preparation = JSON.parse(readFileSync(process.env.AGDF_COCKPIT_TEST_PREPARATION
+  || new URL('../../../dist/local/codex-cockpit/preparation.json', import.meta.url), 'utf8'));
 const observations = [];
 for (const modern of [false, true]) {
   const f = fixture(), before = treeBytes(f.root);
@@ -42,7 +45,9 @@ for (const modern of [false, true]) {
       assert.equal(prepared.data.byte_count, Buffer.byteLength(JSON.stringify(packet), 'utf8'));
       const validation = { operation: 'validate_context', context_id: packet.context_id, generation: 1 };
       assert.equal((await call(validation)).structuredContent.data.current, true);
-      assert.equal((await call({ operation: 'invalidate_context' })).structuredContent.data.invalidated, true);
+      const release = (await call({ operation: 'invalidate_context' })).structuredContent.data;
+      assert.equal(release.invalidated, true); assert.equal(release.host_publication_required, true);
+      assert.equal((await call({ operation: 'invalidate_context' })).structuredContent.data.invalidation_id, release.invalidation_id);
       assert.equal((await call(validation)).structuredContent.code, 'context_superseded');
       assert.equal((await call({ ...docargs, run_id: 'fixture-completed' })).structuredContent.code, 'resource_denied');
       for (const args of [{ operation: 'snapshot', path: '/tmp' }, { operation: 'approve' }, { operation: 'snapshot', session_id: 'forged' }]) {
@@ -60,16 +65,35 @@ for (const modern of [false, true]) {
       const focusedSnapshot = (await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: focusedSession } })).structuredContent;
       const focusedDetail = (await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'run', session_id: focusedSession, snapshot_id: focusedSnapshot.snapshot_id, run_id: 'fixture-a' } })).structuredContent;
       assert.equal(focusedDetail.data.run_id, 'fixture-a');
+      const callB = args => client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id: focusedSession, ...args } });
+      const sourceB = focusedDetail.data.resources.find(r => r.type === 'UR');
+      await callB({ operation: 'document', snapshot_id: focusedSnapshot.snapshot_id, run_id: 'fixture-a', resource_id: sourceB.resource_id });
+      const prepareB = { operation: 'prepare_context', snapshot_id: focusedSnapshot.snapshot_id, run_id: 'fixture-a', revision_id: focusedDetail.data.revision_id,
+        resource_id: sourceB.resource_id, graph_ids: [], excluded_ids: [], generation: 1 };
+      assert.equal((await callB(prepareB)).structuredContent.code, 'busy');
+      assert.equal((await callB(validation)).structuredContent.code, 'resource_denied');
+      assert.equal((await callB({ operation: 'invalidate_context' })).structuredContent.data.host_publication_required, false);
+      assert.equal((await callB({ operation: 'complete_context_invalidation', invalidation_id: release.invalidation_id })).structuredContent.code, 'resource_denied');
+      for (const args of [{ operation: 'complete_context_invalidation', invalidation_id: 'forged' },
+        { operation: 'complete_context_invalidation', invalidation_id: release.invalidation_id, approval: 'TP' }]) assert.equal((await call(args)).isError, true);
+      assert.equal((await call({ operation: 'complete_context_invalidation', invalidation_id: release.invalidation_id })).structuredContent.data.completed, true);
+      const nextPacket = (await callB(prepareB)).structuredContent.data.packet;
+      assert.equal((await call({ operation: 'complete_context_invalidation', invalidation_id: release.invalidation_id })).structuredContent.data.completed, true);
+      assert.equal((await callB({ operation: 'validate_context', context_id: nextPacket.context_id, generation: 1 })).structuredContent.data.current, true);
+      const nextRelease = (await callB({ operation: 'invalidate_context' })).structuredContent.data;
+      assert.equal((await callB({ operation: 'complete_context_invalidation', invalidation_id: nextRelease.invalidation_id })).structuredContent.data.completed, true);
       const unknown = await client.callTool({ name: 'agdf_cockpit', arguments: { run_id: 'unknown-run' } });
       assert.equal(unknown._meta.agdf_cockpit.initial_run_id, 'unknown-run');
       for (const args of [{ run_id: '' }, { run_id: '../foreign' }, { run_id: 'a'.repeat(129) }, { run_id: 'fixture-a', approval: 'TP' }]) {
         assert.equal((await client.callTool({ name: 'agdf_cockpit', arguments: args })).isError, true);
       }
       const expired = (await call({ operation: 'snapshot' })).structuredContent;
-      assert.equal(expired.code, 'session_expired'); assert.equal(expired.retryable, false);
+      assert.equal(expired.state, 'available');
+      await call({ operation: 'close' });
+      assert.equal((await call({ operation: 'snapshot' })).structuredContent.code, 'session_expired');
       assert.deepEqual(treeBytes(f.root), before);
       observations.push({ protocol: modern ? '2026-07-28' : '2025-11-25', tools: inventory.tools.map(t => t.name), resource: COCKPIT_UI_URI,
-        scenarios: ['SCN-011', 'SCN-013', 'SCN-020', 'SCN-026', 'SCN-036', 'SCN-039', 'SCN-041', 'SCN-042', 'SCN-046'], read_no_write: true, status: 'pass' });
+        scenarios: ['SCN-011', 'SCN-013', 'SCN-020', 'SCN-026', 'SCN-036', 'SCN-039', 'SCN-041', 'SCN-042', 'SCN-046', 'SCN-050', 'SCN-052', 'SCN-053', 'SCN-054'], read_no_write: true, status: 'pass' });
     });
     await withStdioClient({ modern, command: preparation.node, args: [preparation.entrypoint, '--surface', 'codex'] }, async client => {
       assert.deepEqual((await client.listTools()).tools.map(t => t.name), ['agdf_dispatch', 'agdf_inspect']);

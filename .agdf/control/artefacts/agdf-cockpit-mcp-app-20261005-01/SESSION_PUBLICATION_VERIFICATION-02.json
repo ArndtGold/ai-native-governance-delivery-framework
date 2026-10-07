@@ -1,0 +1,490 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "recorded_at": "2026-10-06T19:27:19.528Z",
+  "source_revision": "900e7c49-82ea-420c-afd6-1c426b163b0c",
+  "status": "in_progress",
+  "approved_sources_unchanged": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "implementation": {
+    "T006": "Current native read/render/context-method/message-method checkpoint passed before dependent feature changes; HOST_FEASIBILITY-05.md",
+    "T007": "Retained graph/source checks requalified",
+    "T008": "Exclusive connection publication owner implemented",
+    "T009": "Immutable receiving-view bindings and typed capacity/uncertain feedback implemented",
+    "T010": "Acknowledged host invalidation followed by matched server completion; completion-only retry implemented",
+    "T011": "Deterministic/UI/browser/cockpit stdio and full default MCP regressions pass; final task fulfilment and formal reviews remain open",
+    "T012": "Final current-production native two-view packet/question/recovery/rollback journey remains open"
+  },
+  "checks": {
+    "core": {
+      "passed": 22,
+      "additional_equal_run_graph_selector_case": 1,
+      "evidence": [
+        "publication-core-04.log",
+        "publication-selectors-02.log"
+      ]
+    },
+    "graph": {
+      "passed": 9,
+      "evidence": "publication-graph-03.log"
+    },
+    "ui": {
+      "passed": 79,
+      "http_passed": 5,
+      "evidence": "publication-ui-06.log"
+    },
+    "typecheck": "pass",
+    "build_mcp": "pass",
+    "build_browser": "pass",
+    "browser": {
+      "passed": 10,
+      "evidence": "publication-browser-05.log",
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "canonical_no_write_window": "pass, no agent bookkeeping inside window"
+    },
+    "stdio": {
+      "protocols": [
+        "2025-11-25",
+        "2026-07-28"
+      ],
+      "status": "pass",
+      "evidence": "publication-protocol-03.log",
+      "evidence_class": "isolated_owned_runtime_actual_stdio_not_native_host"
+    },
+    "default_mcp": {
+      "status": "pass",
+      "failure": "Existing architecture inventory wording includes des regulären Servers; strict inventory parser corrected to recognize that explicit qualifier, actual tool equality preserved",
+      "evidence": "publication-default-mcp-05.log"
+    },
+    "preparation_rollback": {
+      "schema_version": "1",
+      "scenario": "T-012 preparation rollback component",
+      "evidence_class": "isolated_owned_runtime_not_actual_host_rollback",
+      "status": "pass",
+      "files_and_symlinks": 1445,
+      "byte_inventory_digest": "fb08c18d8b888cd43bd98bcebfeeae7e5278f010d41fd1c6155cacc22e3eb2f9",
+      "restored_owned_marker": true,
+      "server_digest": "2e2aa010f2ead274c626ac9399408126c680b6b946b8a71260e11f2e601c326e",
+      "dispatcher_digest": "9fc1170e12c37993fb44eda897229293fa47be5f4502f56a01fb99dfc97ec797",
+      "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+      "actual_host_reconnection": "still_open",
+      "authorizes": false
+    },
+    "retained_boundaries": {
+      "status": "pass",
+      "passed": 7,
+      "evidence": "retained-boundaries-07.log",
+      "commands": "node --test packages/core/test/control-read-snapshot-test.js packages/core/test/control-read-provider-test.js packages/cli/scripts/codex-cockpit-config-test.js"
+    },
+    "copilot_profile": {
+      "status": "pass",
+      "evidence": "compatibility-07.log",
+      "command": "npm run test:copilot-profile (packages/cli)"
+    },
+    "current_dependencies_and_bundle": {
+      "status": "pass",
+      "evidence": "dependencies-07.json",
+      "scenarios": [
+        "SCN-029",
+        "SCN-033"
+      ]
+    }
+  },
+  "propagated_core": {
+    "control-inspect/cockpit-session.js": {
+      "sha256": "f8efae6b97f6671e6c9f556feb1a4b82953fc425e3e94b0f5312f8a44d56edf2",
+      "isolated_runtime_equal": true
+    },
+    "control-inspect/cockpit-contract.js": {
+      "sha256": "a888e3dc2c95c36397e1080f4809b6ba60c0f66721b03dcc3af7280edb82d257",
+      "isolated_runtime_equal": true
+    },
+    "control-read/cockpit-pool.js": {
+      "sha256": "070bc95666f79705d8e488d95c2bfc2e3fb5aa40d2bb7f8ca4c0a290a9a35641",
+      "isolated_runtime_equal": true
+    },
+    "control-read/cockpit-worker.js": {
+      "sha256": "835793f361f32ae56f53555bca8d0885c24615b8d7ef4667b9908efb0f4e854c",
+      "isolated_runtime_equal": true
+    }
+  },
+  "prepared_runtime": {
+    "schema_version": "1",
+    "evidence_class": "isolated_owned_runtime_not_native_activation",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "entrypoint": "/private/tmp/agdf-cockpit-production-qual-pGSYzT/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "2e2aa010f2ead274c626ac9399408126c680b6b946b8a71260e11f2e601c326e",
+    "dispatcher_digest": "9fc1170e12c37993fb44eda897229293fa47be5f4502f56a01fb99dfc97ec797",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1023355,
+      "digest": "sha256:2da0c09c9921220c127f782de0e7281f9243f5fe17246cc423175c92e2143e5f"
+    }
+  },
+  "test_cases": {
+    "packages/core/test/cockpit-session-test.js": {
+      "sha256": "36a0a70e0df54d5e7d53743aa0b520c0655d618e079ff0d3a4b80c6311b06768",
+      "scenario_labels": [
+        "SCN-011",
+        "SCN-013",
+        "SCN-020",
+        "SCN-022",
+        "SCN-025",
+        "SCN-003",
+        "SCN-026",
+        "SCN-027",
+        "SCN-036",
+        "SCN-047",
+        "SCN-039",
+        "SCN-041",
+        "SCN-042",
+        "SCN-046",
+        "SCN-049",
+        "SCN-048",
+        "SCN-050",
+        "SCN-051"
+      ],
+      "cases": [
+        "test('SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session', async () => {",
+        "test('SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial', async () => {",
+        "test('SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker', async () => {",
+        "test('SCN-022: fake clock proves idle and absolute session expiry without prolonged waits', async () => {",
+        "test('SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs', () => {",
+        "test('SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview', () => {",
+        "test('SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write', async () => {",
+        "test('SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen', async () => {",
+        "test('SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained', async () => {",
+        "test('SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do', async () => {",
+        "test('SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable', async () => {",
+        "test('SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job', async () => {",
+        "worker.emit('error', Error('controlled worker failure')); await rejected; await Promise.resolve();",
+        "test('SCN-051: production MCP capture accepts exactly 64 MiB, rejects above, browser default remains available', async () => {"
+      ]
+    },
+    "packages/core/test/cockpit-publication-test.js": {
+      "sha256": "1fd9bd370f1cbe8dc29fff9f917e97fc82fbad1849e8ac1bc5d45e6df83e9c6a",
+      "scenario_labels": [
+        "SCN-050",
+        "SCN-052",
+        "SCN-053",
+        "SCN-054",
+        "SCN-048",
+        "SCN-055",
+        "SCN-056",
+        "SCN-049"
+      ],
+      "cases": [
+        "test('SCN-050/052/053/054: deferred reservation excludes another publisher while independent equal-Run sources stay readable', async () => {",
+        "test('SCN-052: a rejected never-returned preparation releases its reservation; successful ownership cannot be replaced without release', async () => {",
+        "test('SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views', async () => {",
+        "test('SCN-053/054: nonowner refresh/close preserve the packet; only the newest single receipt can be retried', async () => {",
+        "for (const loss of ['close', 'idle', 'lifetime', 'worker']) test(`SCN-048/055/056: ${loss} owner loss quarantines publication without disabling other reading slots`, async () => {",
+        "test('SCN-054/055/056: failed begin grants no release; active owner can complete its same pending token after worker loss', async () => {",
+        "test('SCN-049/052: invalidate or shutdown during deferred preparation cannot return a newly usable packet', async () => {"
+      ]
+    },
+    "packages/core/test/cockpit-context-test.js": {
+      "sha256": "8f89718e19e918096a4d826c4f3d77e8cfa6701a9e917ae63aed65ba73cf9a0a",
+      "scenario_labels": [
+        "SCN-007",
+        "SCN-008",
+        "SCN-009",
+        "SCN-010",
+        "SCN-011",
+        "SCN-012",
+        "SCN-013",
+        "SCN-020"
+      ],
+      "cases": [
+        "test('SCN-007/008: exact references preserve passive node bytes, fences and section boundaries without recursive expansion', () => {",
+        "test('SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion and scoped inspected-source packets', () => {",
+        "test('SCN-012: inclusive 64 KiB counts multibyte source plus all provenance, without truncation', () => {",
+        "test('SCN-013/020: changed captures, generation, supersession and invalidation prevent packet reuse', t => {"
+      ]
+    },
+    "packages/core/test/control-cockpit-projection-test.js": {
+      "sha256": "1e1c6a0fd082c530e6d29d881b2797a92813f3b7f4962b97908c250cfa4e93b2",
+      "scenario_labels": [
+        "SCN-001",
+        "SCN-002",
+        "SCN-008",
+        "SCN-020",
+        "SCN-010",
+        "SCN-006",
+        "SCN-015"
+      ],
+      "cases": [
+        "test('cockpit title identifies the bound UR instead of a generic current artefact heading', () => {",
+        "test('SCN-001/002/008/020: active/completed/invalid inventory, registered resources and full byte invariance', () => {",
+        "test('SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary', () => {",
+        "test('SCN-006/015: document mutation invalidates existing related reads and new snapshot selectors', () => {",
+        "test('SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest', () => {"
+      ]
+    },
+    "packages/control-ui/test/handoff.test.tsx": {
+      "sha256": "2ef0cceb6443b0748d688accd1c86ebb55dad5824a939e3162e96781bb2ad34b",
+      "scenario_labels": [
+        "SCN-015",
+        "SCN-018",
+        "SCN-019",
+        "SCN-021",
+        "SCN-023",
+        "SCN-055",
+        "SCN-020",
+        "SCN-053",
+        "SCN-054",
+        "SCN-058",
+        "SCN-052",
+        "SCN-057",
+        "SCN-011",
+        "SCN-013",
+        "SCN-025",
+        "SCN-010"
+      ],
+      "cases": [
+        "it('SCN-015: preparation, validation and acknowledged context precede a separate deliberate question',async()=>{",
+        "it('SCN-018/019: obsolete publication is followed by serialized invalidation; pending invalidation blocks a new handoff',async()=>{",
+        "port.publish=vi.fn(async(value)=>{events.push(value.kind?'invalidate-host':'publish');await(value.kind?invalidating.promise:publishing.promise);});",
+        "it('SCN-018: a source switch during server preparation prevents the old packet from being published',async()=>{",
+        "it('SCN-019/021/023/055: lost host invalidation acknowledgement blocks retries and requires a new connection',async()=>{",
+        "it('SCN-021/023: rejected context never enables question; lost question acknowledgement never resends',async()=>{",
+        "it('SCN-023: an explicit question rejection differs from an unknown delivery outcome and never retries',async()=>{",
+        "it('SCN-020: changed source at question time entitles no question and clears published context',async()=>{",
+        "it('SCN-021: unavailable host methods remain disabled without probing or sending',async()=>{",
+        "it('SCN-053/055: failed begin and nonowner cleanup never publish a host invalidation',async()=>{",
+        "it('SCN-053/054: lost completion retries only the server completion after one acknowledged host invalidation',async()=>{",
+        "it('SCN-053/058: host acknowledgement and matched completion both finish before the next publication',async()=>{",
+        "it('SCN-052/053/058: competing controller refusal and nonowner navigation leave accepted owner context intact',async()=>{",
+        "it('SCN-054/057: actual immutable adapter binds begin and completion to the old session and checks the exact receipt',async()=>{",
+        "it('SCN-011/013/025: actual handoff adapter checks the returned source/selection and disclosure before publication',async()=>{",
+        "it('SCN-023: bridge bounds eight pending requests and a ten-second deadline, without retrying',async()=>{",
+        "it('SCN-010/015/020: UI exposes unavailable exclusion and packet provenance, never sends merely from reading',async()=>{"
+      ]
+    },
+    "packages/control-ui/test/initial-run.test.tsx": {
+      "sha256": "c5a418a07efebfc113065eea5f7cc4da017febf3b6724276e6a65875b5d5d84f",
+      "scenario_labels": [
+        "SCN-039",
+        "SCN-043",
+        "SCN-040",
+        "SCN-042",
+        "SCN-057",
+        "SCN-047"
+      ],
+      "cases": [
+        "const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):inventory) as unknown as ReadTransport;",
+        "it(`initial Run survives a transient ${stage} failure and retry in ${compact ? 'compact' : 'expanded'} view`, async () => {",
+        "it(`expired session requires reopening without retrying in ${compact ? 'compact' : 'expanded'} view (${initialFailure ? 'initial' : 'retained'})`, async () => {",
+        "it('a validated initial Run hides discovery controls; explicit switching focuses search and retains selection without extra reads',async()=>{",
+        "const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):many) as unknown as ReadTransport;",
+        "it('a formerly valid initial Run exposes recovery selection if a reload removes it, without choosing another',async()=>{",
+        "it('SCN-039/043: named opening checks one snapshot then exact run, and resizing or prop changes preserve manual selection',async()=>{",
+        "it('SCN-040: unknown initial ID stays identified on overview and never reads an alternate Run',async()=>{",
+        "it('SCN-040: a listed invalid Run retains its own diagnostic identity; an unavailable read retains requested identity',async()=>{",
+        "it('SCN-042/043: delayed initial read cannot replace a manual choice or issue a late run read after cancellation',async()=>{",
+        "it('SCN-042: scoped bootstrap validates identity and malformed selectors',()=>{",
+        "it('a fresh host render reopens an expired session with the same explicit Run and no automatic message', async () => {",
+        "it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored, host mode preserves the reader and publishes nothing',async()=>{",
+        "it('SCN-042: a delayed server reply from the previous session cannot populate the current transport',async()=>{",
+        "it('SCN-042/057: immutable reading and old cleanup still use their own session after a new bootstrap',async()=>{",
+        "it('SCN-047: capacity feedback preserves the current requested Run and never sends context',async()=>{"
+      ]
+    },
+    "packages/control-ui/test/host-probe.test.tsx": {
+      "sha256": "e54bd9185bb481700de1a777ef64c6536149686efe8dc5662454848a18db5e7f",
+      "scenario_labels": [
+        "SCN-014",
+        "SCN-053"
+      ],
+      "cases": [
+        "it('SCN-014/053: metadata diagnostics expose no bypass around publication ownership',()=>{"
+      ]
+    }
+  },
+  "evidence": {
+    "publication-core-04.log": {
+      "sha256": "a9dfb6619cca87299ae71421b36dd8658fc5dd2b168cc6c4eb7245ec80dcc41a",
+      "bytes": 6290
+    },
+    "publication-selectors-02.log": {
+      "sha256": "1336392278521a45c02f207ac9f9c862187f93994230893e572852e97838ddf1",
+      "bytes": 410
+    },
+    "publication-graph-03.log": {
+      "sha256": "a16fe668191c136e7a4cd6d6da28ab346a262a0c558570acd81baac7a530d71c",
+      "bytes": 2551
+    },
+    "publication-ui-06.log": {
+      "sha256": "92215fc83c0bb929e8e06522f3846771d45f4287e90b32dd4a05fe7b6bbe719b",
+      "bytes": 2074
+    },
+    "publication-typecheck-06.log": {
+      "sha256": "39e33b62bb283bc45cbcaca490bfc6d27544f252623c3f6fdaf0becbc2ccc3f6",
+      "bytes": 51
+    },
+    "publication-build-mcp-03.log": {
+      "sha256": "919611b6b64bd40a98c0d21eda4f616adc22a520a8d75f2a4c105f96d6987d7c",
+      "bytes": 403
+    },
+    "publication-browser-build-03.log": {
+      "sha256": "01f80d869bbc1b01806bb73fc50034c7437ceee17a13d0fdc0e4887ff84a8ea8",
+      "bytes": 797
+    },
+    "publication-browser-05.log": {
+      "sha256": "1564d2813f30d484b93e50029b9e0f6a3b1014f3411b3ced600a6c0a5ca62c63",
+      "bytes": 4890
+    },
+    "publication-protocol-03.log": {
+      "sha256": "6d1ef664acffc30e71075dce918184fd8f4c13011eb9e4b41ba9658e101486f9",
+      "bytes": 839
+    },
+    "publication-preparation-02.log": {
+      "sha256": "372754cf7f8acd247538ecdcd022584f2ba07220d674568489e53cc36714d459",
+      "bytes": 870
+    },
+    "publication-default-mcp-04-failed.log": {
+      "sha256": "91931b1841a49d3304fe0745b88f67081aa18f9118c6230b6106b6b4296d4beb",
+      "bytes": 1697
+    },
+    "publication-selector-01-failed.log": {
+      "sha256": "c02b65d79f351361ffdac2a56a0e7940cbf1262b9b67b6f9f7d1dd697ed0c700",
+      "bytes": 1360
+    },
+    "native-current-corrected-control.txt": {
+      "sha256": "d6c62563cb8af6b4499c236148189c029e39e74fed066515d14aa4bf314278b7",
+      "bytes": 2368,
+      "evidence_class": "earlier_minimal_probe_build_only"
+    },
+    "native-current-corrected-control.jpg": {
+      "sha256": "f395e1e3931a3a9f5c3150cb3e70dd1247c58818488499b11eeb9b1b099e7682",
+      "bytes": 63044,
+      "evidence_class": "earlier_minimal_probe_build_only"
+    },
+    "native-current-b-corrected-control.txt": {
+      "sha256": "ab9f49956dcd6839b00e10728125a8aea83d1ab29df74de082d0862cd7762a57",
+      "bytes": 1534,
+      "evidence_class": "earlier_minimal_probe_build_only"
+    },
+    "native-current-b-corrected-control.jpg": {
+      "sha256": "f34333ab55222d56f55cad7d130c4a91c8f3dea6c6303d00a40a981a735e9d71",
+      "bytes": 74140,
+      "evidence_class": "earlier_minimal_probe_build_only"
+    },
+    "publication-default-mcp-05.log": {
+      "sha256": "f75608852b0fa5d5068736e2f9752b557888410039dd4d6ff28d8ae7c79f188b",
+      "bytes": 2051
+    },
+    "publication-runtime-refresh-03.json": {
+      "sha256": "21b4ccc38cf5ffe3ed0d4e97b6a8be45c7c0ef90c1f52abd889625db9648d63b",
+      "bytes": 2371
+    },
+    "publication-active-preparation-03.log": {
+      "sha256": "9e265ba50457fc6d478d86a7bd489c26eeaeb088e4ace0380796d4e5c9dd279c",
+      "bytes": 1127
+    },
+    "publication-rollback-02.log": {
+      "sha256": "ae507b46ed9545fbda4ecfa5ff3213024b484475dd82ab99baaa0dfbff73f5f8",
+      "bytes": 611
+    },
+    "retained-boundaries-07.log": {
+      "sha256": "19cbe2a2a45f348c91ab033ccc0595c0f61d37ea323c104a3e6ebdb270f7e19d",
+      "bytes": 1647
+    },
+    "compatibility-07.log": {
+      "sha256": "e323626c8c337024bb5d66b8429f2010dff2ccc4bf42fa06b3a8d70abd7c41a9",
+      "bytes": 249
+    },
+    "dependencies-07.json": {
+      "sha256": "901a8ac737970002c8ce285c87053a22cfb63d77377bdcb59a8efe1d1380913b",
+      "bytes": 1268
+    }
+  },
+  "limitations": [
+    "No all-sixty-scenarios completion claimed from test counts",
+    "Synthetic host acceptance proves method feasibility, not production packet/model response",
+    "New production tuple is prepared at the named project runtime; previous connection is closed and fresh native loading remains unobserved",
+    "Final native T012 and CR/QA/UAT/OR remain open",
+    "One bounded service per connection does not claim globally one process across Codex clients",
+    "Pre-existing docs/architecture/diagrams/06-mcp-lifecycle.dot remains untouched"
+  ],
+  "authorizes": false,
+  "active_named_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "2e2aa010f2ead274c626ac9399408126c680b6b946b8a71260e11f2e601c326e",
+    "dispatcher_digest": "9fc1170e12c37993fb44eda897229293fa47be5f4502f56a01fb99dfc97ec797",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1023355,
+      "digest": "sha256:2da0c09c9921220c127f782de0e7281f9243f5fe17246cc423175c92e2143e5f"
+    },
+    "activated": false,
+    "authorizes": false,
+    "evidence_class": "owned_preparation_fresh_native_load_still_open",
+    "config_restored_byte_identical": true,
+    "last_native_open_result": "responded on resumed connection; fresh loaded UI still unverified",
+    "host_reconnection_requested": false
+  },
+  "current_implementation_identity": {
+    "cooperative_inspection": "actual diff inspected during CD+Tests; not formal CR or independent review",
+    "files": {
+      "docs/architecture/06-agdf-cockpit.md": "364cbcf796a1c1520b95f702ff46cf023763521ea9d6d9d88632a3d655b89acb",
+      "packages/cli/scripts/cockpit-mcp-test.js": "887e43133b40312d0cab77555d7af9a647bb174482d1116864ff106948303c99",
+      "packages/control-ui/README.md": "325def5e4a12200569b5f98e1c209f7887612da20468cba817f816f7e07568f9",
+      "packages/control-ui/src/ContextPanel.tsx": "0b9a1be5caeacdb90ecb4052cd9e2c4e87087cf7675b5f834bac3b5eed10558e",
+      "packages/control-ui/src/mcp/EmbeddedEntry.tsx": "367a493d0e7bdbf3b83f6803e97084e2d541f9cb336cc8f8d75d9a899d670271",
+      "packages/control-ui/src/mcp/handoff-port.ts": "a533bc2409ee079a1c7cfe6ed3e77a5ea762b15ff1f014f78bcde71d1b0219e0",
+      "packages/control-ui/src/mcp/handoff.ts": "4836872ff06d43e5ccdd57551b646b3e732acd92b8ddf359909586f644ce2983",
+      "packages/control-ui/src/mcp/transport.ts": "2d0aac0bfc9997de80e30202601c3ffc2ecab9ecb46a3cc55c8252b8129d8f08",
+      "packages/control-ui/test/browser/journeys.spec.mjs": "ff062b0e1718d6c7b388ecb4b2463fce488df2d296e84a9ebdfc33b121a59cce",
+      "packages/control-ui/test/handoff.test.tsx": "2ef0cceb6443b0748d688accd1c86ebb55dad5824a939e3162e96781bb2ad34b",
+      "packages/control-ui/test/initial-run.test.tsx": "c5a418a07efebfc113065eea5f7cc4da017febf3b6724276e6a65875b5d5d84f",
+      "packages/core/lib/control-inspect/cockpit-contract.js": "a888e3dc2c95c36397e1080f4809b6ba60c0f66721b03dcc3af7280edb82d257",
+      "packages/core/lib/control-inspect/cockpit-session.js": "f8efae6b97f6671e6c9f556feb1a4b82953fc425e3e94b0f5312f8a44d56edf2",
+      "packages/core/lib/control-read/cockpit-pool.js": "070bc95666f79705d8e488d95c2bfc2e3fb5aa40d2bb7f8ca4c0a290a9a35641",
+      "packages/core/lib/control-read/cockpit-worker.js": "835793f361f32ae56f53555bca8d0885c24615b8d7ef4667b9908efb0f4e854c",
+      "packages/core/test/cockpit-session-test.js": "36a0a70e0df54d5e7d53743aa0b520c0655d618e079ff0d3a4b80c6311b06768",
+      "packages/mcp-server/test/protocol.test.js": "c9490c2b6092aa8adc9a2d5a5d272f98fb8a87d8193d1702508cadb61081625c",
+      "packages/control-ui/src/mcp/HostProbe.tsx": "db0d1c422fc6f4d1b8220aeb626b409b2ea8c4f14c408272da03f33303416009",
+      "packages/control-ui/test/host-probe.test.tsx": "e54bd9185bb481700de1a777ef64c6536149686efe8dc5662454848a18db5e7f",
+      "packages/core/test/cockpit-publication-test.js": "1fd9bd370f1cbe8dc29fff9f917e97fc82fbad1849e8ac1bc5d45e6df83e9c6a"
+    },
+    "foreign_diagram_not_modified_by_agent": true
+  },
+  "native_resume": {
+    "named_open": {
+      "run_id": "agdf-cockpit-mcp-app-20261005-01",
+      "status": "responded"
+    },
+    "overview_open": {
+      "arguments": {},
+      "status": "responded"
+    },
+    "loaded_current_module": "not_yet_observed",
+    "concurrent_native_production": "not_yet_observed",
+    "reachable_panels": "only older init f0fae629-e3ad-48e5-ba68-a6b5b818af73 and 1d1e5d44-71fa-4b1b-982f-d6aeaa12a5ed",
+    "user_action_requested": "expand the two newest cards, retain both",
+    "production_question": "not_sent",
+    "synthetic_model_receipt": "Untrusted MCP tool output delivered labelled feasibility context and the already accepted question; root confirmed receipt, no second send"
+  }
+}

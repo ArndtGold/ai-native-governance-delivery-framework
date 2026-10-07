@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { startControlServer } from '../../server/service.mjs';
 import { fixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
+import { READ_LIMITS } from '../../../core/lib/control-read/snapshot.js';
 
 function hashes(root) {
   const data = {};
@@ -126,7 +127,10 @@ test('SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fi
       await expect(page.locator('.page-title h1')).toBeFocused();
       await activate(page.getByRole('button',{name:'Details',exact:true}));
       await activate(document); await expect(page.locator('.page-title h1')).toBeFocused();
-      await activate(page.getByRole('button',{name:'Dokument schließen',exact:true})); await expect(document).toBeFocused();
+      await activate(page.getByRole('button',{name:'Dokument schließen',exact:true}));
+      // Returning reads the Run again; check focus after that bounded operation settles.
+      await expect(page.getByRole('button',{name:'Neu laden',exact:true})).toBeEnabled({timeout: READ_LIMITS.timeout});
+      await expect(document).toBeFocused();
       await activate(page.getByRole('button', { name: 'Alle Vorhaben', exact: true }));
       await expect(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true })).toBeFocused();
     }

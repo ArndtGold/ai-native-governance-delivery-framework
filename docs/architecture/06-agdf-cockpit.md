@@ -35,7 +35,7 @@ Codex / MCP-App                         Lokaler Browser
 |---|---|
 | Werkzeugnamen, Eingabeschemas, UI-Resource und Sitzungsgrenzen | [cockpit-contract.js](../../packages/core/lib/control-inspect/cockpit-contract.js) |
 | Lesende Kontrollprojektion und registrierte Dokumente | [cockpit.js](../../packages/core/lib/control-inspect/cockpit.js) |
-| Ephemere Sitzung, erfasster Datenstand und Kontextpaket | [cockpit-session.js](../../packages/core/lib/control-inspect/cockpit-session.js) |
+| Unabhängige Lesesitzungen und exklusiver Kontext-Eigentümer je Verbindung | [cockpit-session.js](../../packages/core/lib/control-inspect/cockpit-session.js) |
 | Exakte Run-eigene ContextGraph-Bezüge und Kontextzusammenstellung | [cockpit-context.js](../../packages/core/lib/control-inspect/cockpit-context.js) |
 | Ansichten, Navigation, Aktualität und Fokus | [packages/control-ui/src/](../../packages/control-ui/src/) |
 | Lokale Hostvorbereitung und Konfigurationsprojektion | [prepare-cockpit-local.mjs](../../scripts/prepare-cockpit-local.mjs) |
@@ -118,10 +118,30 @@ werden gestapelt; Originaltabellen in Dokumenten können innerhalb ihres Bereich
 ## 4. Aktualität und Lebenszyklus
 
 Serverprozess, UI-Ansicht und Cockpit-Lesesitzung haben verschiedene Lebenszyklen. Run-Wechsel,
-Dokumentnavigation und Aktualisierung benötigen keinen Serverneustart. Ein neuer Render-Aufruf
-ersetzt die bisherige ephemere Lesesitzung; die ältere Ansicht darf deren Selektoren nicht weiter
-verwenden. Das ist derzeit eine gemeinsame Sitzung pro Serverlaufzeit, keine unabhängige
-Sitzung je gleichzeitig geöffneter Karte.
+Dokumentnavigation und Aktualisierung benötigen keinen Serverneustart. Je MCP-Verbindung läuft
+ein Server mit höchstens vier unabhängigen Lesesitzungen. Ein neuer Render-Aufruf öffnet eine
+weitere Sitzung, ohne eine sichtbare ältere Ansicht zu ersetzen. Jede besitzt ihren eigenen
+Datenstand, registrierte Quellen, Zeitgrenzen und einen bei Bedarf gestarteten Lese-Worker.
+Sitzungen, deren Worker noch beendet werden, zählen weiter mit. Eine fünfte Ansicht erhält eine
+Kapazitätsmeldung; bestehende Ansichten bleiben erhalten.
+
+Nur eine neuere Initialisierung derselben UI-Ansicht ersetzt deren eigene vorherige Sitzung.
+Transport und Kontextsteuerung bleiben fest an die empfangene Sitzungs-ID gebunden; verspätete
+Antworten oder das Aufräumen der alten Sitzung dürfen keine neuere oder fremde Sitzung schließen.
+Schließen, Ablauf und Lese-Worker-Fehler betreffen die eigene Lesesitzung. Das Beenden einer
+Verbindung sperrt zunächst neue Zugänge und wartet dann auf das Aufräumen ihrer Worker.
+
+| Grenze | MCP-Verbindung | Lokaler Browser |
+|---|---|---|
+| Erfasste Quelldaten | 64 MiB je Ansicht; bei vier Ansichten höchstens 256 MiB | 256 MiB |
+| Worker-Aufträge | Einer aktiv und einer wartend je Ansicht; höchstens acht insgesamt | Einer aktiv und einer wartend |
+| Worker-Speicheroption | 256 MiB alte Generation je Worker | 768 MiB alte Generation |
+| Einzeldatei / Vorschau / Antwort | 32 MiB / 2 MiB / 8 MiB | Unverändert dieselben Grenzen |
+| Lese-Auftrag / Inaktivität / absolute Lebensdauer | 10 Sekunden / 30 Minuten / 8 Stunden | Bestehender Browser-Lebenszyklus |
+
+Die Speicheroption ist keine Obergrenze des gesamten Prozessspeichers. Ein Ersatz-Worker startet
+erst nach dem Ende seines Vorgängers. Abgewiesene fremde Kennungen verlängern keine Sitzung;
+Aktivität in einer Ansicht hält eine andere nicht am Leben.
 
 Die sichtbare kompakte Karte prüft den Datenstand alle fünf Sekunden und bei erneuter Sichtbarkeit.
 Eine erkannte Quellenänderung lädt ihren bisherigen Run im Hintergrund neu, ohne den Fokus zu
@@ -156,6 +176,36 @@ Quellenwechsel, Aktualisierung, Veralten und Sitzungswechsel invalidieren die Ü
 Fragen werden nicht automatisch wiederholt. Eine Host-Bestätigung beweist weder eine Antwort
 noch die Richtigkeit der Quelle oder eine Freigabe. Der lokale Browser bietet diesen Hostweg nicht.
 
+### Exklusive Übergabe bei unabhängigem Lesen
+
+Lesen und Kontextübergabe haben unterschiedliche Zuständigkeiten. Im bestehenden Core-Sitzungsdienst
+hält genau eine Ansicht je Verbindung den temporären Kontext-Eigentümer. Sie reserviert ihn bereits
+vor der asynchronen Paketvorbereitung. Eine andere Ansicht erhält bei einer konkurrierenden
+Übergabe eine Belegt-Meldung und kann weiter lesen. Scheitert die Vorbereitung, bevor ein Paket
+zurückgegeben werden konnte, wird nur diese Reservierung freigegeben.
+
+Ein zurückgegebenes Paket bleibt exklusiv bis zum bestätigten Abschluss der eigenen Entwertung:
+
+1. `invalidate_context` entwertet das eigene Server-Paket und liefert eine temporäre
+   `invalidation_id`; der Kontext-Eigentümer bleibt belegt.
+2. Die Ansicht übergibt den Entwertungsvermerk an den Host und wartet auf dessen Bestätigung.
+3. `complete_context_invalidation` mit derselben Sitzung und genau dieser ID bestätigt den
+   Abschluss im Core. Erst dann kann eine andere Ansicht ein Paket vorbereiten.
+
+Eine Nicht-Eigentümerin erhält beim ersten Schritt `host_publication_required: false` und sendet
+keine Host-Aktualisierung. Ein fehlgeschlagener erster Schritt erlaubt ebenfalls keine solche
+Aktualisierung. Wiederholter Beginn liefert dieselbe noch offene ID; nach abgeschlossenem
+Beginn ohne neue Übergabe entsteht keine erneute Host-Entwertung. Pro lebender Sitzung bleibt
+höchstens ein Abschlussbeleg erhalten. Geht nur die letzte Serverantwort verloren, wird allein
+der Server-Abschluss wiederholt, niemals die bereits bestätigte Host-Aktualisierung.
+
+Unbestätigte Host-Entwertung, Verlust des Eigentümers oder Worker-Verlust ohne bestätigten
+Abschluss sperren weitere Übergaben. Andere Quellen bleiben lesbar, und frei gewordene
+Lesekapazität bleibt nutzbar. Ein noch aktiver Eigentümer kann seinen bereits begonnenen,
+Host-bestätigten Abschluss beenden; nach Eigentümerverlust sind eine neue Verbindung und eine
+tatsächliche Host-Kontextprüfung erforderlich. Zeitablauf erlaubt keine Übernahme. Diese
+kooperative Bestätigung erteilt keine menschliche Freigabe und löscht keine früheren Chat-Inhalte.
+
 ## 6. Vorbereitung, Nachweise und offene Grenzen
 
 Die aktuelle lokale Vorbereitung ist auf Codex ausgerichtet. Das Profil unter
@@ -171,7 +221,13 @@ responsive Hell-/Dunkel-Beobachtungen, Builds und zwei tatsächliche stdio-Proto
 Browserbeobachtungen des realen Repository-Runs sind enthalten; die dunkle Browseransicht
 verwendet eine ausgewiesene HTML-Theme-Fixture mit unveränderten Produktionsassets.
 
-Diese Nachweise ersetzen keine aktuelle native Host-Abnahme. Native Ressourcenidentität und
-Darstellung, weitere Host-/Kontextprüfungen, vollständige Reviews und die regulären QA-/UAT-/
+Die [erneute native Mindestprüfung](../../.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-05.md)
+weist die aktuelle Resource, zwei unabhängige Leseansichten sowie bestätigte synthetische
+Kontext-/Nachrichtenmethoden nach. Sie wurde vor der vollständigen Implementierung des exklusiven
+Kontext-Eigentümers durchgeführt; deren produktiver Host-Test bleibt offen. Die späteren
+Core-/UI-Prüfungen prüfen Eigentum, Entwertungsreihenfolge und Fehlerfälle separat.
+
+Diese Nachweise ersetzen keine aktuelle native Host-Abnahme. Produktive Host-/Kontextprüfungen,
+vollständige Reviews und die regulären QA-/UAT-/
 Abschlussentscheidungen bleiben getrennte offene Pflichten. `CD+Tests` ist weiterhin in Arbeit.
 Die Dokumentation verleiht dem Run keine neue Freigabe und schließt ihn nicht ab.

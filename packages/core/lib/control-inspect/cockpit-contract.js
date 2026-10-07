@@ -1,7 +1,8 @@
 // One wire-schema owner for the bounded cockpit connection. No filesystem selectors.
 export const COCKPIT_UI_URI = 'ui://agdf/cockpit/v1.html';
 export const COCKPIT_MIME = 'text/html;profile=mcp-app';
-export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60_000, lifetime: 8 * 60 * 60_000 });
+export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60_000, lifetime: 8 * 60 * 60_000,
+  sessions: 4, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });
 const id = { type: 'string', format: 'uuid' };
 const run = { type: 'string', pattern: '^[A-Za-z0-9_-]{1,128}$' };
 function operation(name, fields = {}) {
@@ -20,6 +21,7 @@ export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
     generation: { type: 'integer', minimum: 1 } }),
   operation('validate_context', { context_id: id, generation: { type: 'integer', minimum: 1 } }),
   operation('invalidate_context'),
+  operation('complete_context_invalidation', { invalidation_id: id }),
   operation('close'),
 ] });
 const annotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false };

@@ -22,33 +22,37 @@ export class CockpitBridge {
       })]);
     } finally { clearTimeout(timer); this.pending -= 1; }
   }
-  async operation(argumentsValue: Record<string, unknown>, signal?: AbortSignal) {
-    if (!this.app.getHostCapabilities()?.serverTools || !this.session) throw Error('session_invalid');
-    const session = this.session;
+  async operation(argumentsValue: Record<string, unknown>, signal?: AbortSignal, boundSession?: string) {
+    const session = boundSession ?? this.session;
+    if (!this.app.getHostCapabilities()?.serverTools || !session) throw Error('session_invalid');
     const result = await this.request(() => this.app.callServerTool({ name: 'agdf_cockpit_read', arguments: { ...argumentsValue, session_id: session } }, { timeout: 10_000, signal }));
-    if (session !== this.session || signal?.aborted) throw Error('session_invalid');
+    if ((boundSession === undefined && session !== this.session) || signal?.aborted) throw Error('session_invalid');
     if (result.isError || !result.structuredContent) throw Error('read_failed');
     return result.structuredContent;
   }
-  readonly read: ReadTransport = async <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string }): Promise<Envelope<T>> => {
+  readForSession(session: string): ReadTransport { return this.reader(new Map(), session); }
+  readonly read: ReadTransport = this.reader(this.resourceRuns);
+  private reader(resourceRuns: Map<string, string>, session?: string): ReadTransport {
+    return async <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string }): Promise<Envelope<T>> => {
     const url = new URL(path, 'https://local.invalid');
     const snapshot_id = url.searchParams.get('snapshot');
     let argumentsValue: Record<string, unknown>;
-    if (url.pathname === '/api/snapshot') { this.resourceRuns.clear(); argumentsValue = { operation: 'snapshot' }; }
+    if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot' }; }
     else if (url.pathname === '/api/freshness') argumentsValue = { operation: 'freshness', snapshot_id };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };
     else if (url.pathname.startsWith('/api/documents/')) {
-      const resource_id = url.pathname.slice(15), run_id = this.resourceRuns.get(resource_id);
+      const resource_id = url.pathname.slice(15), run_id = resourceRuns.get(resource_id);
       if (!run_id) throw Error('resource_denied');
       argumentsValue = { operation: 'document', snapshot_id, run_id, resource_id };
     } else throw Error('resource_denied');
-    const value = await this.operation(argumentsValue, signal);
+    const value = await this.operation(argumentsValue, signal, session);
     validateEnvelope(value, expected); validateData(path, value);
     if (argumentsValue.operation === 'run' && value.data) {
       const data = value.data as { run_id: string; resources: { resource_id: string }[] };
-      for (const resource of data.resources) this.resourceRuns.set(resource.resource_id, data.run_id);
+      for (const resource of data.resources) resourceRuns.set(resource.resource_id, data.run_id);
     }
     return value as Envelope<T>;
-  };
+    };
+  }
 }

@@ -33,8 +33,7 @@ only when its actual workspace container is at least 720px wide. Document views 
 their breadcrumb returns to the same Run and retains its selected content mode. Both buttons change the content
 inside the same expanded surface: the summary shows the existing Run goal, status, open items and
 Core next action; Details shows the Run's controls, sources and diagnostics.
-Neither button requests a host display mode, remounts the reader or reads sources again. The selected
-content mode survives resizing; compact chat cards retain `Run ansehen` without this switch.
+Neither button requests a host display mode, remounts the reader or reads sources again. Narrowing below 720px returns to Summary; widening does not restore Details automatically; compact chat cards retain `Run ansehen` without this switch.
 The native host owns returning to inline mode. Breadcrumbs identify navigation destinations.
 The quiet top-right `Dokument schlie√üen` icon uses the same document-to-Run route and restores focus
 to the registered source. It remains available at narrow widths and has a 44px target and labelled tooltip.
@@ -83,7 +82,7 @@ verified-change observations are explicitly unavailable in the browser's no-chil
 Persisted run statements, lifecycle, evaluation, QA/UAT and approval records are presented separately.
 The UI cannot write files, create runs, submit approvals, dispatch agents, or execute Git.
 
-One worker accepts one running and one waiting request. Limits are 20,000 files, 256 MiB captured
+The browser worker accepts one running and one waiting request. Browser limits are 20,000 files, 256 MiB captured
 bytes, 32 MiB per captured file, 2 MiB document preview, 8 MiB serialized API response and ten seconds
 per queued/active read request. Symlinks/special files are rejected. A capture retries at most once
 after mutation; exhausted limits are explicit failures, never silent truncation or a successful empty list.
@@ -100,7 +99,7 @@ No installed-host or cross-OS verification is implied by source tests on one mac
 node packages/core/test/control-read-snapshot-test.js
 node packages/core/test/control-read-provider-test.js
 node packages/core/test/control-cockpit-projection-test.js
-node --test packages/core/test/cockpit-context-test.js packages/core/test/cockpit-session-test.js
+node --test packages/core/test/cockpit-context-test.js packages/core/test/cockpit-session-test.js packages/core/test/cockpit-publication-test.js
 npm --prefix packages/control-ui test
 npm --prefix packages/control-ui run test:browser
 ```
@@ -156,7 +155,7 @@ each unavailable reference requires a deliberate exclusion decision. **Kontext √
 the exact inspected document plus selected nodes on the server, revalidating the capture before and
 after composition. All provenance, included/excluded records and original source text count towards
 the 64 KiB UTF-8 packet limit. Nothing is truncated. There are at most 64 explicit references. A new
-preparation replaces the one retained ephemeral packet; arbitrary content, paths or digests cannot
+preparation first acquires exclusive connection ownership, which must be released before another preparation. Each view retains at most one ephemeral packet; arbitrary content, paths or digests cannot
 be supplied by the client. The acknowledged packet is available for inspection in the view.
 
 Only after the host acknowledges that context does **Frage zu diesen Quellen senden** become available.
@@ -168,8 +167,19 @@ the corresponding action disabled while sources remain readable.
 
 Source/Run switches, refresh, observed staleness, visibility changes and teardown disable handoff
 immediately and serialize server/host invalidation behind an already submitted bounded publication.
-New render sessions use the same publication lane and invalidate prior packet state. Unconfirmed
-invalidation blocks a new handoff until an explicit confirmed retry. Shutdown attempts cannot erase
+A new render in another view leaves existing views intact. Each immutable controller uses its own
+session, while the existing Core service coordinates one exclusive publication owner per connection.
+`invalidate_context` clears the owner packet and returns its pending opaque invalidation ID without
+releasing ownership. Nonowners receive `host_publication_required: false` and send no host update.
+A failed begin response also grants no host update. After the host acknowledges the own invalidation,
+`complete_context_invalidation` checks the same session and exact token and releases ownership.
+Repeated begin returns the same pending ID. One bounded receipt per live view permits completion-only
+retry after a lost completion response; never repeat an acknowledged host update. A lost host
+invalidation acknowledgement requires a fresh connection and actual host-context qualification.
+Owner close, expiry or worker loss quarantines publication without disabling other views' reading or
+available read slots. A still-active owner can complete its already pending acknowledged release.
+No timer grants takeover. Metadata diagnostics expose no direct publication/message bypass.
+Shutdown attempts cannot erase
 historical messages or guarantee receipt after process loss. All packets remain timestamped,
 non-authorizing observations; canonical governance independently checks a later requested action.
 No packet or Run selection is restored from URL or browser storage.
@@ -181,7 +191,7 @@ npm --prefix packages/control-ui run typecheck
 npm --prefix packages/control-ui run build:mcp
 node --input-type=module -e "import {syncPackageAssets} from './scripts/sync-package-assets.js'; syncPackageAssets({surface:'codex'});"
 node scripts/prepare-cockpit-local.mjs --dir /absolute/path/to/repository
-node --test packages/core/test/cockpit-session-test.js
+node --test packages/core/test/cockpit-session-test.js packages/core/test/cockpit-publication-test.js
 node --test packages/cli/scripts/codex-cockpit-config-test.js
 node packages/cli/scripts/cockpit-mcp-test.js
 ```
@@ -191,7 +201,7 @@ The opt-in profile is `dist/local/codex-cockpit/`; its reviewable project snippe
 `agdf-cockpit-local`. Install only that entry through the supported trusted-project
 `.codex/config.toml` workflow, preserving any existing configuration. Global config and installed
 governance remain separate. Review/read-back of configuration does not prove an app was rendered.
-The current named runtime must be stopped and its project entry removed before rebuilding it;
+The current named runtime must be stopped and its project entry removed before replacing its runtime;
 preparation refuses replacement while that named entry remains registered.
 
 In a fresh host connection, invoke `agdf_cockpit` with
@@ -205,14 +215,21 @@ established conversation Run. The model-facing tool description is owned by
 `packages/core/lib/control-inspect/cockpit-contract.js`; preparation publishes that same definition.
 The ID is an ephemeral display request: the ordinary inventory and scoped Run read validate it
 before display. Unknown/removed IDs retain their requested identity; no alternative is selected.
-Opening publishes no model context, sends no question and grants no approval. New render sessions
-cancel/remount the reader; display-mode changes preserve its selection. Prepare the updated schema
+Opening publishes no model context, sends no question and grants no approval. Rendering another
+view does not remount existing readers. Only a newer bootstrap in the same receiving view replaces
+its own reader/controller and retires its captured old session; display-mode changes preserve selection. Prepare the updated schema
 and HTML together and discover them in a fresh host connection.
 Inspect the compact card, request a supported
 larger mode and exercise a run, registered document, explicit graph selection and checked packet.
 Use the separate deliberate question action only after context acknowledgement. Record actual host/version,
 advertised capabilities/display result, visible outcomes and exact server/UI digests. The current
-connection retains one ephemeral capture; idle expiry is 30 minutes and lifetime eight hours.
+connection retains at most four active or retiring independent views. Each has its own capture,
+registrations, deadlines and lazy worker. MCP capture is limited to 64 MiB per view (256 MiB aggregate);
+worker old-generation is 256 MiB, with one active plus one queued job per view (eight aggregate).
+The browser keeps its 256 MiB capture and 768 MiB worker old-generation defaults. Worker replacement
+awaits predecessor termination; retiring sessions count until teardown. Fifth-view capacity rejection
+does not evict a visible view. Only accepted own activity renews idle expiry (30 minutes); absolute
+lifetime is eight hours. Foreign selectors and activity in another view do not renew it.
 Expired MCP sessions show a specific reopening instruction and disable further reads through the
 retired session. Reopen the cockpit in the chat with the same explicit Run ID; a fresh render
 remounts the reader with the new session. Transient read failures instead retain the requested

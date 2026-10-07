@@ -1,0 +1,114 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Embedded AGDF Cockpit for Codex
+  - generic: Nur Lesen
+  - button "Neu laden":
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben"
+      - text: ›
+      - button "Embedded AGDF Cockpit for Codex"
+      - text: ›
+      - generic: Umsetzungs- und Prüfnachweise
+  - generic: Dein Repository · Deine Vorhaben
+  - heading "Umsetzungs- und Prüfnachweise" [level=1]
+  - paragraph: Registrierte Quelle und ihre Bedeutung für das Vorhaben.
+  - button "Dokument schließen":
+  - generic "Stand 7.10.2026, 07:33:40 · Datenstand und Herkunft"
+  - paragraph:
+    - text: Quelle zum Vorhaben
+    - strong: Embedded AGDF Cockpit for Codex
+  - paragraph: Hält Umsetzung, Prüfergebnisse und noch offene Nachweise fest.
+  - generic: CD+Tests
+  - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_IMPLEMENTATION-02.md
+  - article:
+    - heading "CD+Tests — independent reading and exclusive publication" [level=1]
+    - paragraph: "Status: in_progress. Run: agdf-cockpit-mcp-app-20261005-01. Current approved SD/TP and upstream sources are byte-identical. SESSION_PUBLICATION_VERIFICATION-02.json binds source hashes, current tests, exact prepared runtime, scenario-labelled cases and bounded logs. HOST_FEASIBILITY-05.md records the required early native checkpoint; it passed before full publication work."
+    - paragraph: The existing Core connection service owns four independent active/retiring views, their own selectors, captured sources, generation, deadlines and private lazy workers. Capacity stays counted until actual retirement. Browser worker/capture limits remain unchanged. The existing Core owner now reserves one exclusive publication before asynchronous preparation. Failed never-returned reservations release; returned packets retain ownership. Nonowners cannot clear the host context. Begin invalidation clears the packet and retains one opaque token; only acknowledged host invalidation followed by matched server completion permits another publisher. One receipt per live view provides idempotent completion without clearing a later publication. Owner loss quarantines publication while independent reading continues. No elapsed timer permits takeover.
+    - paragraph: "Immutable UI ports/controllers capture their own view session. They serialize context acceptance, deliberate question and release. Failed begin makes no host call. Lost completion retries only server completion; lost host-clear acknowledgement requires fresh connection and actual host-context qualification. Diagnostic UI now displays capability metadata only: executable synthetic buttons are removed, avoiding a second context publication path. Current context acknowledgement never claims historical chat erasure or a correct model answer."
+    - paragraph: "Current checks: 23 Core session/publication cases across the combined and additional selector logs; nine retained graph/source checks; 79 UI and five HTTP cases; typecheck and both builds; all ten browser journeys, including light/dark Pages conformity and the closed canonical no-write window; both actual stdio protocol eras with exact packet/source equality, competing owner refusal, foreign/stale tokens and strict completion schema. The full default MCP suite also passes after correcting recognition of the existing explicitly qualified regular-server inventory; no assertion of actual tool identity was weakened. Failed fixture/test attempts remain labelled in retained logs."
+    - paragraph: "Architecture and UI setup documentation now describe the implemented bounds, per-connection owner and release/recovery path. This is cooperative implementation inspection, not formal CR or independent QA/UAT. Active native cards still load the minimal checkpoint build. Next: qualify the current owned production runtime and final two-view native packet/question/recovery/rollback journey, then routed reviews and regular QA/UAT/OR. No accepted synthetic question is repeated. No commit, push, release, public installation or unrelated architecture-diagram change is performed."
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ausblenden" [expanded]
+    - paragraph: Explizit im Vorhaben gepflegte Zusammenhänge. Quellen werden als Text gelesen.
+    - list:
+      - strong: CG-MCP-DISPATCH-ADAPTER
+      - checkbox "In Kontext aufnehmen" [checked]
+      - text: In Kontext aufnehmen
+      - generic "Quelle lesen"
+      - code: .agdf/control/CONTEXT_GRAPH.md#CG-MCP-DISPATCH-ADAPTER
+      - article:
+        - heading "CG-MCP-DISPATCH-ADAPTER" [level=3]
+        - list:
+          - paragraph: "cockpit_checkpoint_20261006: The private Codex cockpit reuses canonical Core reads and explicit Run/snapshot bindings. Server, embedded view and ephemeral read session have separate lifetimes; normal navigation/gate refresh needs no server restart. Current render retains one session per server and retires the preceding session; multi-view support is not implemented. User retained the proposal of independent bounded sessions per view in .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md. Source/protocol/browser evidence and fresh native UI qualification remain separate; current native checkpoint and full graph/packet/handoff scope stay open. Evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CODE_REVIEW_FIX_EVIDENCE-01.md; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OR.md."
+          - paragraph: "portable_package_boundary_20261001: Source reorganization preserves MCP tool inventory, control authority, installer-completed Codex absolute roots and Claude lifecycle. Local runtime continues using mcp/codex.mcp.json and mcp/claude.mcp.json; no portable mcp.json is emitted. Definition/schema/build owners are linked from docs/architecture/05-paketstruktur.md; protocol/fixture observations do not grant native-host acceptance."
+          - paragraph: "situation: AGDF needs one standard model-facing dispatch interface across MCP-capable coding-agent hosts without moving request activation, target selection, gate evaluation, presentation, skill judgement or approval into a new protocol adapter."
+          - paragraph: "refs: packages/core/lib/skill-dispatch/contract.js; packages/core/lib/skill-dispatch/service.js; packages/cli/lib/mcp-dispatch-runtime.js; packages/core/lib/control-read-boundary.js; packages/core/lib/repository-context-reader.js; packages/cli/lib/mcp-lifecycle/adapter-contract.js; packages/cli/lib/mcp-lifecycle/adapters/; packages/cli/lib/mcp-lifecycle/evidence.js; packages/cli/lib/mcp-lifecycle/package.js; packages/cli/lib/mcp-lifecycle/presentation.js; packages/cli/lib/mcp-lifecycle/profile.js; packages/cli/lib/mcp-lifecycle/result.js; packages/cli/lib/mcp-lifecycle/service.js; packages/mcp-server/; plugins/agdf/meta/agdf-mcp-capability.json; plugins/agdf/meta/contracts/request-activation.md; plugins/agdf/meta/contracts/interaction.md; docs/architecture/README.md; docs/architecture/diagrams/; docs/compatibility/HOST_COMPATIBILITY.md; .agdf/control/artefacts/agdf-mcp-dispatch-server/; .agdf/control/artefacts/agdf-cross-host-mcp-integration/PRD.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/TP.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/BROWNFIELD_ANALYSIS.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/CD_TESTS.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/TASK_PLAN_REVIEW.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/CLEAN_IMPLEMENTATION_REVIEW.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/CODE_REVIEW.md; .agdf/control/artefacts/agdf-cross-host-mcp-integration/QA_REPORT.md"
+          - paragraph:
+            - text: "evidence: The original server and four-host lifecycle remain the delivered baseline. Approved PRD, SD and TP Revision 2 have a complete implementation and QA chain; bounded UAT Revision 4 is accepted and the run has a full OR. Missing and malformed public language values fail before governance work; valid unsupported tags resolve through the complete English pack; the registry enforces one canonical complete English fallback and pack parity; trusted detected system locales use a separate adapter. One shared fixture drives service, registry, presentation and separate production MCP"
+            - code: 2025-11-25
+            - text: and
+            - code: 2026-07-28
+            - text: reports. The final serial smoke passes. Five fresh Codex language cases pass directly. OpenCode passes the language matrix after controlled retries while first-attempt discovery, skill-id, mixed-language and later argument-fidelity variance remains retained. Claude Code and Copilot language lanes remain unverified. All temporary registrations and the isolated runtime were removed. A later Codex
+            - code: qa-gate
+            - text: observation altered terminal output and produced a non-transparent candidate set; the completed MCP run routes this to a separate governed correction and does not claim it as accepted host conformance. No record claims four-host release qualification or
+            - code: supported
+            - text: status.
+          - paragraph:
+            - text: "decision: MCP remains a local protocol and process adapter for the canonical"
+            - code: agdf_dispatch
+            - text: definition.
+            - code: packages/core/lib/skill-dispatch/contract.js
+            - text: is the sole semantic function owner, including the host rule for selecting
+            - code: presentation_language
+            - text: . The public boundary requires one strict BCP 47 tag. Missing or invalid input stops before governance evaluation; valid unsupported input resolves to the complete English pack. Trusted detected system locales use a separate CLI adapter.
+            - code: create-agdf
+            - text: owns one lifecycle contract and four native registration adapters; the adapters own host sources, precedence, native scope, reference identity and permission facts without owning dispatch semantics or localization. One exact runtime is shared within a project or user scope and retired after its final reference. The Copilot adapter implements the Copilot CLI file contract; Copilot Desktop, IDE and cloud variants require separate evidence.
+            - code: create-agdf
+            - text: remains Node.js 18 compatible, while the optional server owns its Node.js 20 and SDK v2 closure. OpenCode 1.x uses
+            - code: mcp.agdf
+            - text: ; 2.x uses
+            - code: mcp.servers.agdf
+            - text: .
+          - paragraph:
+            - text: "guided_activation_extension_2026_09_09: The guided installer is a client of the existing MCP lifecycle and does not acquire adapter, runtime, registration, precedence, provenance, reference or rollback ownership. It inspects project and user scope separately, projects each adapter-owned effective source and may invoke"
+            - code: enable
+            - text: only after explicit full selection, explicit interactive scope selection, a bound target and verified plugin result. A higher-priority project source can block user scope without blocking a safe project choice. Plugin-only may inspect MCP but never mutates it, and the other scope remains unchanged. Coupled disable and uninstall reuse MCP
+            - code: disable
+            - text: ", preserve foreign state, revalidate ownership and retain shared runtimes until the final managed reference is removed. Repository status composes exactly one read-only MCP observation only when host and target are explicit. Marketplace installation without a CLI callback remains plugin-only. Evidence:"
+            - code: .agdf/control/artefacts/agdf-guided-mcp-activation/CD_TESTS.md
+            - text: Revision 5.
+          - paragraph:
+            - text: "invariants: exactly one first-release tool; the semantic function definition is the sole name, description, input-schema and output-schema owner; the locale registry is the sole installed-pack inventory and contains a complete immutable"
+            - code: en
+            - text: fallback; renderers select one whole pack and never combine fields; MCP registration, discovery, permission and successful execution are non-authorizing; terminal
+            - code: host_action.text
+            - text: transfer and bounded continuation remain dispatcher contracts; trusted identity cannot be model- or environment-overridden; no CLI shell-out, PATH runtime search,
+            - code: npx
+            - text: ", remote transport, network operation, generic filesystem mutation or undeclared runtime fallback enters the reachable server graph; project scope is the default and unsupported scope fails without widening; the local process inherits host OS permissions and is never described as sandboxed; the two production protocols and every loaded host remain separate evidence lanes."
+          - paragraph:
+            - text: "relationships: follows"
+            - code: CG-REQUEST-ACTIVATION-AUTHORITY
+            - text: ; consumes
+            - code: CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY
+            - text: ; preserves
+            - code: CG-TASK-TARGET-AUTHORITY
+            - text: ; delegates visible terminal and approval interaction to
+            - code: CG-NATIVE-INTERACTION-AUTHORITY
+            - text: ; leaves
+            - code: CG-PUBLIC-PLUGIN-DISTRIBUTION
+            - text: unchanged.
+          - paragraph: "risks: Loaded models can still select a valid language tag or other argument that does not match the current request because conversation text is not available to the server. OpenCode 1.18.3 showed variable fresh-session discovery and argument fidelity before controlled retry. Host configuration, trust or permission behavior can differ from deterministic fixtures. Claude remains blocked by registration/authentication evidence, Copilot Desktop cannot be inferred from the CLI file contract, other clients and operating systems remain unobserved, and the matching server package is unpublished."
+          - paragraph: "exit_criteria: Strict external validation, immutable complete English fallback, registry-derived locale facts, trusted system-locale separation, both protocol matrices, loaded-host observations, cleanup, mandatory QA evidence and bounded UAT acceptance pass. Every qualified host tuple still needs exact direct discovery, bounded dispatch, controlled failure and cleanup evidence. Publication, release and the separately routed Codex terminal-fidelity/run-discovery correction remain later explicit actions."
+      - generic: SHA-256 fb201434f0f6907690c5a12fd640a21d7e3af9c3bc36691b258541ad5fcd92cc
+    - paragraph:
+      - text: "Übergabe:"
+      - strong: CD+Tests
+      - text: · 1 von höchstens 16 Knoten. Ausgelassene und nicht verfügbare Verweise werden im Paket offengelegt.
+    - button "Kontext übergeben"
+    - button "Frage zu diesen Quellen senden"
+    - status: Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.
+    - generic "Übergebenes Paket prüfen"
+  - generic: Lokale Beobachtung · Verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

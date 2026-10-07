@@ -24,7 +24,7 @@ for (const modern of [false, true]) {
       ["MCP README", "../README.md"],
     ]) {
       const document = readFileSync(new URL(path, import.meta.url), "utf8");
-      const declared = document.match(/^(?:MCP-Werkzeuge|MCP tools): ([^\n]+)$/m);
+      const declared = document.match(/^(?:MCP-Werkzeuge(?: des regulären Servers)?|MCP tools): ([^\n]+)$/m);
       assert.ok(declared, `${label}: missing MCP tool inventory`);
       assert.deepEqual([...declared[1].matchAll(/`(agdf_[a-z]+)`/g)].map((match) => match[1]), tools.map((tool) => tool.name), `${label}: MCP tool inventory differs from tools/list`);
     }

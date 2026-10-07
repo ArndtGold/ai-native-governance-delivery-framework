@@ -6,7 +6,7 @@ import { CockpitBridge } from '../src/mcp/transport';
 import { readRenderBootstrap } from '../src/mcp/bootstrap';
 import type { ReadTransport } from '../src/api';
 const target={target_id:'target',display_path:'/fixture'};
-const inventory={schema_version:'1',target,snapshot_id:'snapshot',observed_as_of:'2026-10-06T08:00:00Z',source_digest:'digest',state:'available',code:null,retryable:false,data:{runs:['run-a','run-b'].map(run_id=>({run_id,title:run_id,valid:true,lifecycle:'active',current_gate:'TP',source_path:'run.md'})),file_count:1,byte_count:1}};
+const inventory={schema_version:'1',target,snapshot_id:'snapshot',observed_as_of:'2026-10-06T08:00:00Z',source_digest:'digest',state:'available',code:null,retryable:false,data:{runs:['run-a','run-b'].map(run_id=>({run_id,title:run_id,valid:true,lifecycle:'active',current_gate:'TP',source_path:'run.md',revision_id:'revision',objective:'Fixture goal',status:'open',code:null})),file_count:1,byte_count:1}};
 const detail=(id:string)=>({...inventory,data:{run_id:id,resources:[],persisted:{decision:'open'}}});
 const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):inventory) as unknown as ReadTransport;
 const sessionA='00000000-0000-4000-8000-000000000001',sessionB='00000000-0000-4000-8000-000000000002';
@@ -134,7 +134,7 @@ it('a fresh host render reopens an expired session with the same explicit Run an
     : path.startsWith('/api/runs/') ? detail('run-a') : inventory) as unknown as ReadTransport;
   const app = { getHostVersion:()=>({name:'test-host',version:'fixture'}), connect:vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
     updateModelContext:vi.fn(), sendMessage:vi.fn(), ontoolresult:(_:unknown)=>{}, onhostcontextchanged:()=>{} };
-  const bridge = { app, read, session:'' } as unknown as CockpitBridge;
+  const bridge = { app, read, readForSession:()=>read, operation:vi.fn(async()=>({})), session:'' } as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>app.ontoolresult(bootstrap()));
   await screen.findByText(/Die MCP-Sitzung ist abgelaufen/);
@@ -153,7 +153,7 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
   const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/run-a')?new Promise<ReturnType<typeof detail>>(resolve=>{finish=resolve;}):path.startsWith('/api/runs/')?evaluatedB:inventory) as unknown as ReadTransport;
   let mode='inline';
   const app={getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:mode,availableDisplayModes:['fullscreen']}),requestDisplayMode:vi.fn(async()=>({mode:'fullscreen'})),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult: (_:unknown)=>{},onhostcontextchanged:()=>{}};
-  const bridge={app,read,session:''} as unknown as CockpitBridge;
+  const bridge={app,read,readForSession:()=>read,operation:vi.fn(async()=>({})),session:''} as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>{app.ontoolresult(bootstrap());});
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot']);
@@ -187,4 +187,31 @@ it('SCN-042: a delayed server reply from the previous session cannot populate th
   bridge.session=sessionA;
   const old=bridge.operation({operation:'snapshot'});bridge.session=sessionB;
   finish({structuredContent:{authorizes:false}});await expect(old).rejects.toThrow('session_invalid');
+});
+it('SCN-042/057: immutable reading and old cleanup still use their own session after a new bootstrap',async()=>{
+  const bridge=new CockpitBridge();
+  vi.spyOn(bridge.app,'getHostCapabilities').mockReturnValue({serverTools:{}});
+  const call=vi.spyOn(bridge.app,'callServerTool').mockResolvedValue({structuredContent:inventory} as never);
+  bridge.session=sessionA;
+  const oldRead=bridge.readForSession(sessionA);
+  bridge.session=sessionB;
+  await oldRead('/api/snapshot',new AbortController().signal);
+  expect(call.mock.calls[0][0].arguments?.session_id).toBe(sessionA);
+  await bridge.operation({operation:'close'},undefined,sessionA);
+  expect(call.mock.calls[1][0].arguments?.session_id).toBe(sessionA);
+  expect(bridge.session).toBe(sessionB);
+});
+it('SCN-047: capacity feedback preserves the current requested Run and never sends context',async()=>{
+  const read=transport();
+  const operation=vi.fn(async()=>({}));
+  const app={getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:'inline'}),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult:(_:unknown)=>{},onhostcontextchanged:()=>{}};
+  const bridge={app,read,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
+  render(<EmbeddedEntry bridge={bridge}/>);
+  await act(async()=>app.ontoolresult(bootstrap()));
+  await screen.findByRole('heading',{name:'run-a',level:2});
+  await act(async()=>app.ontoolresult({structuredContent:{...inventory,state:'blocked',code:'resource_limit',data:null}}));
+  expect(screen.getByRole('alert').textContent).toContain('Vier Cockpit-Ansichten');
+  expect(screen.getByRole('heading',{name:'run-a',level:2})).toBeTruthy();
+  expect(bridge.session).toBe(sessionA);expect(operation).not.toHaveBeenCalled();
+  expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
 });

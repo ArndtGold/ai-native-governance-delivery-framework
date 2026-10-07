@@ -1,3 +1,6 @@
+import * as fs from 'node:fs';
+import { join } from 'node:path';
+import { ReadWorkerPool } from '../lib/control-read/cockpit-pool.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createCockpitSessionService } from '../lib/control-inspect/cockpit-session.js';
@@ -24,11 +27,16 @@ test('SCN-011/013/020/022/025: production worker packet operations bind inspecte
     assert.equal(prepared.state, 'available'); assert.deepEqual(prepared.data.packet.artefact, document.data);
     const packet = prepared.data.packet, validate = { operation: 'validate_context', context_id: packet.context_id, generation: packet.generation };
     assert.equal((await call(validate)).data.current, true);
-    assert.equal((await call({ operation: 'invalidate_context' })).data.invalidated, true);
+    const release = await call({ operation: 'invalidate_context' });
+    assert.equal(release.data.invalidated, true); assert.equal(release.data.host_publication_required, true);
     assert.equal((await call(validate)).code, 'context_superseded');
+    assert.equal((await call({ operation: 'prepare_context', ...selectors, generation: 2 })).code, 'busy');
+    assert.equal((await call({ operation: 'complete_context_invalidation', invalidation_id: release.data.invalidation_id })).data.completed, true);
     const newer = await call({ operation: 'prepare_context', ...selectors, generation: 2 });
     await service.render();
-    assert.equal((await call({ ...validate, context_id: newer.data.packet.context_id, generation: 2 })).code, 'session_expired');
+    assert.equal((await call({ ...validate, context_id: newer.data.packet.context_id, generation: 2 })).data.current, true);
+    await call({ operation: 'close' });
+    assert.equal((await call(validate)).code, 'session_expired');
     assert.deepEqual(treeBytes(f.root), before);
   } finally { await service.close(); f.close(); }
 });
@@ -49,17 +57,17 @@ test('SCN-003/026/027: shared production worker reads same immutable source, no 
     assert.deepEqual(treeBytes(f.root), before);
   } finally { await service.close(); f.close(); }
 });
-test('SCN-022/036: render supersedes session, strict selectors and close release its worker', async () => {
+test('SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker', async () => {
   const f = fixture(); let closed = 0;
   const service = createCockpitSessionService(f.root, { poolFactory: () => ({ close: async () => { closed += 1; }, request: async () => ({ data: null }) }) });
   try {
     const first = (await service.render())._meta.agdf_cockpit.session_id;
     const second = (await service.render())._meta.agdf_cockpit.session_id;
-    assert.equal(closed, 1);
-    const expired = await service.read({ operation: 'snapshot', session_id: first });
-    assert.equal(expired.code, 'session_expired'); assert.equal(expired.retryable, false);
+    assert.equal(closed, 0);
+    assert.equal((await service.read({ operation: 'snapshot', session_id: first })).code, undefined);
     assert.equal((await service.read({ operation: 'snapshot', session_id: second, path: '/tmp' })).code, 'resource_denied');
-    await service.read({ operation: 'close', session_id: second }); assert.equal(closed, 2);
+    await service.read({ operation: 'close', session_id: second }); assert.equal(closed, 1);
+    assert.equal((await service.read({ operation: 'snapshot', session_id: first })).code, undefined);
     assert.equal((await service.read({ operation: 'snapshot', session_id: second })).code, 'session_expired');
   } finally { await service.close(); f.close(); }
 });
@@ -120,20 +128,132 @@ test('SCN-039/042/046: render carries requested focus without eager capture; ord
     const unknown = await service.render({ run_id: 'unknown-run' });
     assert.equal(unknown._meta.agdf_cockpit.initial_run_id, 'unknown-run');
     assert.equal(unknown._meta.agdf_cockpit.render_generation, 2);
-    assert.equal((await service.read({ operation: 'snapshot', session_id })).code, 'session_expired');
+    assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'available');
     const empty = await service.render(); assert.equal(empty._meta.agdf_cockpit.initial_run_id, undefined);
     await assert.rejects(service.render({ run_id: 'bad/path' }), /resource_denied/);
     assert.deepEqual(treeBytes(f.root), before);
   } finally { await service.close(); f.close(); }
 });
-test('SCN-022: concurrent renders retain one session and closing during a pending render cannot reopen it', async () => {
+test('SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen', async () => {
   const f = fixture(); let created = 0;
   const service = createCockpitSessionService(f.root, { poolFactory: () => { created += 1; return { close: async () => {}, request: async () => ({ data: null }) }; } });
   try {
-    const first = service.render(), second = service.render();
-    assert.equal((await first).code, 'session_expired');
-    assert.ok((await second)._meta.agdf_cockpit.session_id); assert.equal(created, 1);
-    const pending = service.render(); await service.close();
-    assert.equal((await pending).code, 'session_expired'); assert.equal(created, 1);
+    const results = await Promise.all(Array.from({ length: 6 }, () => service.render()));
+    const ids = results.filter(r => r._meta).map(r => r._meta.agdf_cockpit.session_id);
+    assert.equal(new Set(ids).size, 4); assert.equal(created, 4);
+    assert.deepEqual(results.slice(4).map(r => r.code), ['resource_limit', 'resource_limit']);
+    for (const id of ids) assert.equal((await service.read({ operation: 'snapshot', session_id: id })).code, undefined);
+    await service.close(); assert.equal((await service.render()).code, 'session_expired'); assert.equal(created, 4);
+    for (const id of ids) assert.equal((await service.read({ operation: 'snapshot', session_id: id })).code, 'session_expired');
+  } finally { await service.close(); f.close(); }
+});
+
+test('SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained', async () => {
+  const f = fixture(); let finishRead, failAllocate = false; const closeCallbacks = [];
+  const service = createCockpitSessionService(f.root, { poolFactory: () => {
+    if (failAllocate) throw Error('failed allocation');
+    return { close: () => new Promise(resolve => { closeCallbacks.push(resolve); }),
+      request: () => new Promise(resolve => { finishRead = resolve; }) };
+  } });
+  try {
+    const views = await Promise.all(Array.from({ length: 4 }, () => service.render()));
+    const a = views[0]._meta.agdf_cockpit.session_id;
+    const reading = service.read({ operation: 'snapshot', session_id: a });
+    const closing = service.read({ operation: 'close', session_id: a });
+    await Promise.resolve();
+    assert.equal((await service.render()).code, 'resource_limit');
+    finishRead({ state: 'available', data: {} });
+    assert.equal((await reading).code, 'session_expired');
+    closeCallbacks.shift()(); await closing;
+    failAllocate = true; await assert.rejects(service.render(), /failed allocation/);
+    failAllocate = false; assert.ok((await service.render())._meta);
+    const shutdown = service.close(); await Promise.resolve();
+    for (const finish of closeCallbacks.splice(0)) finish();
+    await shutdown;
+    assert.equal((await service.render()).code, 'session_expired');
+  } finally { f.close(); }
+});
+
+test('SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do', async () => {
+  const f = fixture(); let time = 0;
+  const service = createCockpitSessionService(f.root, { now: () => time, poolFactory: () => {
+    const reader = createCockpitReader(f.root);
+    return { close: async () => {}, request: async input => input.operation === 'snapshot' ? reader.snapshot() : reader.run(input.selector, input.snapshot) };
+  } });
+  try {
+    const a = (await service.render())._meta.agdf_cockpit.session_id;
+    const b = (await service.render())._meta.agdf_cockpit.session_id;
+    const sa = await service.read({ operation: 'snapshot', session_id: a });
+    const sb = await service.read({ operation: 'snapshot', session_id: b });
+    time = COCKPIT_LIMITS.idle - 1;
+    assert.equal((await service.read({ operation: 'run', session_id: a, snapshot_id: sb.snapshot_id, run_id: 'fixture-a' })).code, 'resource_denied');
+    assert.equal((await service.read({ operation: 'run', session_id: b, snapshot_id: sb.snapshot_id, run_id: 'fixture-a' })).state, 'available');
+    time += 1;
+    assert.equal((await service.read({ operation: 'run', session_id: a, snapshot_id: sa.snapshot_id, run_id: 'fixture-a' })).code, 'session_expired');
+    assert.equal((await service.read({ operation: 'run', session_id: b, snapshot_id: sb.snapshot_id, run_id: 'fixture-a' })).state, 'available');
+  } finally { await service.close(); f.close(); }
+});
+
+test('SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable', async () => {
+  const f = fixture(), before = treeBytes(f.root), service = createCockpitSessionService(f.root);
+  try {
+    const ids = (await Promise.all([service.render(), service.render()])).map(r => r._meta.agdf_cockpit.session_id);
+    const snapshots = await Promise.all(ids.map(session_id => service.read({ operation: 'snapshot', session_id })));
+    const details = await Promise.all(ids.map((session_id, i) => service.read({ operation: 'run', session_id, snapshot_id: snapshots[i].snapshot_id, run_id: 'fixture-a' })));
+    const args = i => ({ operation: 'document', session_id: ids[i], snapshot_id: snapshots[i].snapshot_id,
+      run_id: 'fixture-a', resource_id: details[i].data.resources.find(r => r.type === 'UR').resource_id });
+    assert.notEqual(snapshots[0].snapshot_id, snapshots[1].snapshot_id);
+    assert.equal((await service.read({ ...args(0), resource_id: args(1).resource_id })).code, 'resource_denied');
+    const content = (await service.read(args(1))).data.content;
+    await service.read({ operation: 'close', session_id: ids[0] });
+    assert.equal((await service.read(args(0))).code, 'session_expired');
+    assert.equal((await service.read(args(1))).data.content, content);
+    assert.deepEqual(treeBytes(f.root), before);
+  } finally { await service.close(); f.close(); }
+});
+
+test('SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job', async () => {
+  const f = fixture(), pool = new ReadWorkerPool(f.root, { limits: { total: COCKPIT_LIMITS.capture }, maxOldGenerationSizeMb: 256 });
+  let finish;
+  try {
+    const first = await pool.request({ operation: 'snapshot' });
+    const worker = pool.worker;
+    assert.equal(worker.resourceLimits.maxOldGenerationSizeMb, 256);
+    const terminate = worker.terminate.bind(worker);
+    worker.terminate = () => new Promise(resolve => { finish = async () => resolve(await terminate()); });
+    const failed = pool.request({ operation: 'freshness', snapshot: first.snapshot_id });
+    const rejected = assert.rejects(failed, error => error.code === 'read_failed');
+    worker.emit('error', Error('controlled worker failure')); await rejected; await Promise.resolve();
+    const queued = pool.request({ operation: 'snapshot' });
+    await assert.rejects(pool.request({ operation: 'snapshot' }), error => error.code === 'busy');
+    assert.equal(pool.worker, null); assert.ok(worker.threadId > 0);
+    await finish();
+    assert.equal((await queued).state, 'available'); assert.notEqual(pool.worker, worker);
+    assert.equal(worker.threadId, -1);
+  } finally { if (finish && pool.retiring) await finish(); await pool.close(); f.close(); }
+});
+
+test('SCN-051: production MCP capture accepts exactly 64 MiB, rejects above, browser default remains available', async () => {
+  const f = fixture(), service = createCockpitSessionService(f.root);
+  const control = join(f.root, '.agdf/control');
+  const bytes = path => fs.readdirSync(path).reduce((n, name) => {
+    const p = join(path, name), stat = fs.statSync(p); return n + (stat.isDirectory() ? bytes(p) : stat.size);
+  }, 0);
+  try {
+    const remaining = COCKPIT_LIMITS.capture - bytes(control);
+    fs.writeFileSync(join(control, 'capture-boundary-a.txt'), Buffer.alloc(32 * 1024 ** 2, 97));
+    const tail = join(control, 'capture-boundary-b.txt');
+    fs.writeFileSync(tail, Buffer.alloc(remaining - 32 * 1024 ** 2, 98));
+    assert.equal(bytes(control), COCKPIT_LIMITS.capture);
+    const session_id = (await service.render())._meta.agdf_cockpit.session_id;
+    assert.equal((await service.read({ operation: 'snapshot', session_id })).state, 'available');
+    fs.appendFileSync(tail, 'x');
+    assert.equal((await service.read({ operation: 'snapshot', session_id })).code, 'resource_limit');
+    assert.equal(createCockpitReader(f.root).snapshot().state, 'available');
+    const browserPool = new ReadWorkerPool(f.root);
+    try {
+      assert.equal((await browserPool.request({ operation: 'snapshot' })).state, 'available');
+      assert.equal(browserPool.worker.resourceLimits.maxOldGenerationSizeMb, 768);
+    } finally { await browserPool.close(); }
   } finally { await service.close(); f.close(); }
 });

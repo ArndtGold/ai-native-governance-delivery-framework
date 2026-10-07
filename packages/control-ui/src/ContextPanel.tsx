@@ -61,7 +61,7 @@ export function ContextPanel({ read, detail, document, disabled, handoff }: {
         <div className="context-actions"><button disabled={!canPrepare} onClick={prepare}>Kontext übergeben</button><button disabled={disabled || state.phase !== 'accepted' || !handoff.support().question} onClick={() => void handoff.sendQuestion()}>Frage zu diesen Quellen senden</button></div>
         <p role="status">{handoffMessage(state)}</p>
         {state.packet && <details><summary>Übergebenes Paket prüfen</summary><p><code>{state.packet.context_id}</code> · Beobachtet {state.packet.observed_as_of}</p><pre>{JSON.stringify(state.packet, null, 2)}</pre></details>}
-        {state.phase === 'uncertain' && <button disabled={disabled} onClick={() => void handoff.invalidate()}>Kontextentwertung erneut bestätigen</button>}
+        {state.phase === 'uncertain' && state.recovery !== 'fresh_connection' && <button disabled={disabled} onClick={() => void handoff.invalidate()}>{state.recovery === 'retry_completion' ? 'Serverseitigen Abschluss erneut bestätigen' : 'Eigene Kontextentwertung beginnen'}</button>}
       </div> : <p className="muted">Die Kontextübergabe steht in der eingebetteten MCP-App zur Verfügung.</p>}
     </div>}
   </section>;
@@ -70,6 +70,9 @@ function referenceProblem(code: string | null) {
   return ({ graph_file_reference: 'Nur die Graph-Datei ist referenziert; kein Knoten ausgewählt.', reference_unresolved: 'Verweis nicht auflösbar.', graph_missing: 'Graph-Datei fehlt.', node_missing: 'Knoten fehlt.', node_ambiguous: 'Knoten-ID ist mehrfach vorhanden.', graph_unsupported: 'Graph-Text nicht lesbar.', resource_denied: 'Quelle nicht zugänglich.', resource_limit: 'Quelle überschreitet die Lesegrenze.' } as Record<string, string>)[code ?? ''] ?? 'Verweis nicht unterstützt.';
 }
 function handoffMessage(state: HandoffState) {
+  if (state.recovery === 'fresh_connection' || state.code === 'context_cleanup_uncertain') return 'Die Kontextentwertung ist unbestätigt. Weitere Übergaben sind gesperrt; Quellen bleiben lesbar. Eine neue Verbindung und erneute Host-Kontextprüfung sind erforderlich. Frühere Chat-Inhalte werden dadurch nicht gelöscht.';
+  if (state.recovery === 'retry_completion') return 'Der Host hat die eigene Kontextentwertung bestätigt. Nur die serverseitige Abschlussbestätigung fehlt; die Host-Aktualisierung wird nicht wiederholt.';
+  if (state.code === 'busy') return 'Die Kontextübergabe ist belegt. Andere Ansichten können weiter lesen. Versuche die Übergabe nach dem bestätigten Abschluss erneut.';
   if (state.code === 'message_rejected') return 'Der Host hat die Frage abgelehnt. Sie wird nicht automatisch erneut gesendet.';
   if (state.code?.startsWith('context_limit')) return `Das vollständige Kontextpaket überschreitet die Grenze von 64 KiB. Wähle weniger Knoten oder ein kleineres Dokument. Größe/Grenze in Bytes: ${state.code.split(':')[1] ?? 'nicht verfügbar'}.`;
   const messages = { idle: 'Noch kein Kontext übergeben. Die Frage wird separat gesendet.', preparing: 'Quellen werden geprüft und Kontext wird übergeben …', accepted: 'Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.', sending: 'Quellen werden erneut geprüft; Frage wird gesendet …', question: 'Frage vom Host angenommen. Die Antwort ist noch nicht geprüft.', invalidating: 'Vorheriger Kontext wird entwertet …', error: 'Quellenprüfung fehlgeschlagen. Kein neuer Kontext bestätigt.', uncertain: 'Bestätigung fehlt. Zustellung kann unklar sein; keine automatische Wiederholung.' };

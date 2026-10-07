@@ -1,0 +1,40 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Embedded AGDF Cockpit for Codex
+  - generic: Nur Lesen
+  - button "Neu laden":
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben"
+      - text: ›
+      - generic: Embedded AGDF Cockpit for Codex
+  - heading "Embedded AGDF Cockpit for Codex" [level=1]
+  - generic "Stand 6.10.2026, 20:12:25 · Datenstand und Herkunft"
+  - status:
+    - strong: Teilweise verfügbar
+    - paragraph: Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.
+  - region "Zuletzt beobachteter Arbeitsschritt":
+    - generic: Vorheriger Datenstand
+    - heading "Zuletzt beobachteter Arbeitsschritt" [level=2]
+    - paragraph: Den freigegebenen TP-Umfang implementieren, seine Tests ausführen und die CD+Tests-Nachweise vor dem Code Review erfassen.
+    - heading "Voraussetzungen" [level=3]
+    - paragraph:
+      - strong: Beginn unklar
+      - generic: Quelldaten erneut prüfen.
+    - generic "Kontrollgrundlage · 4 Freigaben"
+    - generic "Nachweise":
+      - heading "Nachweise" [level=3]
+      - generic "3 offene Nachweise ansehen"
+      - button "Umsetzungs- und Prüfnachweise öffnen"
+      - button "Stand des Vorhabens öffnen"
+  - generic "Ziel und Run-ID · Originalangaben"
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ansehen"
+  - generic: Lokale Beobachtung · Verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"
+- generic: "{ \"host\": { \"name\": \"chatgpt\", \"version\": \"26.930.61225\" }, \"capabilities\": { \"experimental\": { \"openai/modelContext\": {}, \"openai/find\": {}, \"openai/message\": { \"draft\": {} }, \"openai/skillsDeepLinks\": {}, \"openai/files\": {} }, \"openLinks\": {}, \"serverTools\": {}, \"serverResources\": {}, \"logging\": {}, \"sandbox\": { \"csp\": { \"connectDomains\": [], \"resourceDomains\": [], \"frameDomains\": [], \"baseUriDomains\": [] } }, \"updateModelContext\": { \"text\": {}, \"image\": {}, \"resource\": {}, \"resourceLink\": {}, \"structuredContent\": {} }, \"message\": { \"text\": {}, \"image\": {}, \"resource\": {}, \"resourceLink\": {} } }, \"display\": \"fullscreen\" }"
+- paragraph: Gekennzeichneter synthetischer Fähigkeitstest. Er prüft keine produktive Kontextübergabe und erteilt keine Freigabe.
+- button "Testkontext bewusst übergeben" [disabled]
+- button "Testfrage bewusst senden"
+- status: Testkontext vom Host bestätigt. Keine Frage gesendet.

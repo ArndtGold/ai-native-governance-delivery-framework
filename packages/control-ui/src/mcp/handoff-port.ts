@@ -3,9 +3,9 @@ import type { ContextPacket } from '../types';
 import type { HandoffPort } from './handoff';
 import type { CockpitBridge } from './transport';
 
-export function createHandoffPort(bridge: CockpitBridge): HandoffPort {
+export function createHandoffPort(bridge: CockpitBridge, session = bridge.session): HandoffPort {
   const checked = async (input: Record<string, unknown>) => {
-    const value = await bridge.operation(input); validateEnvelope(value);
+    const value = await bridge.operation(input, undefined, session); validateEnvelope(value);
     if (value.state !== 'available' || !value.data) {
       const size = value.data as { byte_count?: number; limit?: number } | null;
       throw Error(value.code === 'context_limit' ? `context_limit:${size?.byte_count}/${size?.limit}` : value.code ?? 'handoff_failed');
@@ -46,7 +46,16 @@ export function createHandoffPort(bridge: CockpitBridge): HandoffPort {
     },
     async invalidate() {
       const value = await checked({ operation: 'invalidate_context' });
-      if ((value.data as { invalidated?: boolean }).invalidated !== true) throw Error('dto_invalid');
+      const data = value.data as { invalidated?: boolean; host_publication_required?: boolean; invalidation_id?: string };
+      if (data.invalidated !== true || typeof data.host_publication_required !== 'boolean'
+        || (data.host_publication_required ? !isUuid(data.invalidation_id) : data.invalidation_id !== undefined)) throw Error('dto_invalid');
+      return { host_publication_required: data.host_publication_required, invalidation_id: data.invalidation_id };
+    },
+    async completeInvalidation(invalidationId) {
+      if (!isUuid(invalidationId)) throw Error('dto_invalid');
+      const value = await checked({ operation: 'complete_context_invalidation', invalidation_id: invalidationId });
+      const data = value.data as { completed?: boolean; invalidation_id?: string };
+      if (data.completed !== true || data.invalidation_id !== invalidationId) throw Error('dto_invalid');
     },
     async publish(structuredContent) {
       if (!bridge.app.getHostCapabilities()?.updateModelContext) throw Error('context_unavailable');
@@ -59,6 +68,7 @@ export function createHandoffPort(bridge: CockpitBridge): HandoffPort {
     },
   };
 }
+function isUuid(value: unknown): value is string { return typeof value === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value); }
 function packetEnvelope(value: import('../types').Envelope<unknown>, packet: ContextPacket) {
   return { ...value, target: packet.target, snapshot_id: packet.snapshot_id, observed_as_of: packet.observed_as_of,
     source_digest: packet.source_digest, data: packet.artefact };

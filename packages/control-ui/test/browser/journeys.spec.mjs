@@ -12,6 +12,60 @@ function hashes(root) {
   const visit = dir => { for (const name of fs.readdirSync(dir)) { const path = join(dir, name), stats = fs.lstatSync(path); data[path.slice(root.length)] = stats.isDirectory() ? 'directory' : createHash('sha256').update(fs.readFileSync(path)).digest('hex'); if (stats.isDirectory()) visit(path); } };
   visit(join(root, '.agdf/control')); return data;
 }
+test('document orientation separates approved Run facts from draft originals in both Pages themes', async ({page}) => {
+  const root=resolve(import.meta.dirname,'../../../..'),before=hashes(root),service=await startControlServer({dir:root});
+  try {
+    await openSession(page,service);
+    await page.locator('.run-link[data-focus-id="agdf-cockpit-mcp-app-20261005-01"]').click();
+    await page.locator('.work-step-approvals > summary').click();
+    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen · freigegeben'}).first();
+    const gap=await approval.evaluate(el=>({labelBottom:el.querySelector('strong').getBoundingClientRect().bottom,buttonTop:el.querySelector('button').getBoundingClientRect().top}));
+    expect(gap.buttonTop).toBeGreaterThan(gap.labelBottom);
+    const source=page.getByRole('button',{name:'Anforderungen ansehen',exact:true});
+    await source.focus();await page.keyboard.press('Enter');
+    await expect(page.locator('.page-title h1')).toBeFocused();
+    await expect(page.locator('.page-title h1')).toHaveCSS('outline-style','none');
+    await expect(page.locator('.page-title h1')).toHaveCSS('text-decoration-line','underline');
+    await expect(page.locator('.document-summary')).toContainText('Das vorhandene React-Cockpit soll als eingebettete MCP-App in Codex nutzbar werden.');
+    await expect(page.locator('.document-control')).toContainText('Freigegeben');
+    await expect(page.locator('.document-control')).toContainText('Weiterarbeit offen');
+    await expect(page.locator('.document-original')).not.toHaveAttribute('open');
+    await expect(page.locator('.document-provenance')).not.toHaveAttribute('open');
+    await expect(page.locator('.document')).not.toBeVisible();
+    for(const theme of ['light','dark']) {
+      await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+      for(const width of [320,560,800,1280]) {
+        await page.setViewportSize({width,height:900});
+        expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+        await expect(page.locator('.document-summary')).toHaveCSS('font-family','Inter, system-ui, sans-serif');
+        const geometry=await page.locator('.document-reading').evaluate(e=>{
+          const box=e.getBoundingClientRect(),main=e.closest('main').getBoundingClientRect(),s=getComputedStyle(e);
+          const edges=['.page-title','.document-context','.document-provenance','.document-original','.context-toggle'].map(selector=>e.querySelector(selector).getBoundingClientRect().left);
+          return {left:box.left-main.left,right:main.right-box.right,width:box.width,paddingLeft:s.paddingLeft,paddingRight:s.paddingRight,edges};
+        });
+        expect(Math.abs(geometry.left-geometry.right)).toBeLessThanOrEqual(1);
+        expect(geometry.paddingLeft).toBe(geometry.paddingRight);
+        expect(Math.max(...geometry.edges)-Math.min(...geometry.edges)).toBeLessThanOrEqual(1);
+        expect(geometry.width).toBeLessThanOrEqual(850);
+        await expect(page.locator('.document-reading')).toHaveCSS('background-color',theme==='light'?'rgb(255, 255, 255)':'rgb(15, 23, 42)');
+        await expect(page.locator('.document-reading .context-panel')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+        await expect(page.locator('.document-reading .context-panel')).toHaveCSS('box-shadow','none');
+        await expect(page.locator('.context-toggle')).toHaveCSS('min-height','44px');
+        await page.screenshot({path:`/private/tmp/agdf-cockpit-document-orientation-${theme}-${width}.png`,fullPage:true});
+      }
+    }
+    await page.locator('.document-provenance > summary').click();
+    await expect(page.locator('.document-provenance')).toContainText('.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md');
+    await page.locator('.document-original > summary').focus();await page.keyboard.press('Space');
+    await expect(page.locator('article.document')).toBeVisible();
+    await expect(page.locator('article.document')).toContainText('Status: draft');
+    await expect(page.locator('article.document')).toContainText('Gate approval: open');
+    await expect(page.locator('article.document')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+    await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
+    await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Anforderungen ansehen',exact:true})).toBeFocused();
+  }finally{await service.close();expect(hashes(root)).toEqual(before);}
+});
 async function openSession(page, service, pathname = '/') {
   await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
   await page.goto(service.origin + pathname);
@@ -66,6 +120,7 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeFocused();
     if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
+    await page.getByText('Originaldokument lesen',{exact:true}).click();
     await inspect('document','.document p');
     await expect(page.locator('.document')).toHaveCSS('font-size','16px');
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
@@ -113,7 +168,7 @@ test('SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fi
     await page.getByRole('button',{name:'Details',exact:true}).click();
     await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: true });
     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
-    await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
+    await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
     await expect(page.getByRole('group', {name:'Ansicht'})).toHaveCount(0);
     const expectedSource = fs.readFileSync(join(root, '.agdf/control/artefacts/agdf-control-cockpit-20261005-01/UR.md'), 'utf8'); expect(expectedSource).toContain('Local read-only AGDF control cockpit');
     await page.screenshot({ path: '/private/tmp/agdf-cockpit-document.png', fullPage: true });
@@ -165,6 +220,7 @@ test('SCN-009/014/018/024: hostile document, stale reload, retry and removed sel
   try {
     await openSession(page, service); await page.locator('.run-link[data-focus-id="fixture-a"]').click(); await page.getByRole('button',{name:'Details',exact:true}).click();
     await page.locator('.resources button').filter({ hasText: /\/UR\.md/ }).click();
+    await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.locator('article.document')).toContainText('Original 日本語'); expect(await page.evaluate(() => window.pwned)).toBeUndefined(); expect(await page.locator('article.document img,article.document iframe,article.document script,article.document a').count()).toBe(0);
     fs.writeFileSync(join(f.root, f.documentPath), '# Updated document\nNew content');
     await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toBeVisible({ timeout: 12_000 }); await expect(page.locator('article.document')).toContainText('Hostile document');
@@ -312,7 +368,8 @@ test('Pages surface recipes survive neutral host colors in light and dark across
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toHaveCount(0);
     await inspect('run','.work-step',true);if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
-    await expect(page.locator('article.document')).toBeVisible();await inspect('document','article.document');
+    await page.getByText('Originaldokument lesen',{exact:true}).click();
+    await expect(page.locator('article.document')).toBeVisible();await inspect('document','.document-reading');
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();await inspect('list','main > div[aria-busy] > .panel');
     fs.writeFileSync('/private/tmp/agdf-cockpit-brand-observations.json',JSON.stringify(observations,null,2));

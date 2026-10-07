@@ -42,5 +42,7 @@ it('the document keeps exact source content and adds its undertaking and purpose
   const resource={resource_id:'source',run_id:run.run_id,type:'UR',path:'UR.md',registered_reference:'UR.md',status:'registered'};
   render(<DocumentView result={{...inventory,data:{resource,format:'markdown',content:'# Original 日本語\n\nUnveränderter Inhalt.',links:{}}}} runTitle={run.title} onOpen={vi.fn()}/>);
   expect(screen.getByText(run.title)).toBeTruthy();expect(screen.getByText('Beschreibt das Ziel und den vereinbarten Umfang des Vorhabens.')).toBeTruthy();
+  expect(screen.getByRole('heading',{name:'Original 日本語'}).closest('details')?.open).toBe(false);
+  fireEvent.click(screen.getByText('Originaldokument lesen',{exact:true}));
   expect(screen.getByRole('heading',{name:'Original 日本語'})).toBeTruthy();expect(screen.getByText('Unveränderter Inhalt.')).toBeTruthy();
 });

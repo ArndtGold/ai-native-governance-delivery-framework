@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import type { Detail, Resource } from './types';
 import { label } from './feedback';
-import { documentName, phaseName } from './presentation';
+import { documentName, phaseName, observedAssessment } from './presentation';
 
 // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
 export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
@@ -9,8 +9,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
 }) {
   const id = useId(), e = data.evaluation;
   if (!e) return <>{children}</>;
-  const matches = !data.persisted || data.persisted.current_gate === e.current_gate && data.persisted.next_allowed_action === e.next_allowed_action;
-  const assessment = current && matches ? e.control_assessment?.state ?? 'unconfirmed' : 'unconfirmed';
+  const assessment = observedAssessment(data, current);
   const approvals = e.approvals.filter(a => a.status === 'approved');
   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');

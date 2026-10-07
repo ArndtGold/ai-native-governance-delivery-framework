@@ -54,7 +54,7 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
     <div className={busy ? 'previous-content' : undefined}>
       {state.route.view === 'document' && state.document ? <div className="compact-document">
         <button className="text-link" onClick={onBack} disabled={!usable}>Zurück zum Arbeitsstand</button>
-        <DocumentView result={state.document} runTitle={selected?.title} onOpen={id => { const resource = data?.resources.find(r => r.resource_id === id); if (resource) onOpen?.(resource); }}/>
+        <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={selected?.title} onOpen={id => { const resource = data?.resources.find(r => r.resource_id === id); if (resource) onOpen?.(resource); }}/>
       </div> : selected && data ? <div className="compact-run">
         <div className="compact-run-summary">
         <h2>{selected.title}</h2>

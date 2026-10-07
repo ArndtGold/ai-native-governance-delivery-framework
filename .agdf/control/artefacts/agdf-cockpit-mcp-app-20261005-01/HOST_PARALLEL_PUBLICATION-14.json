@@ -1,0 +1,92 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": "1d8e9644-f16a-447c-bc88-120aacac0ec1",
+  "recorded_at": "2026-10-07T06:50:32.373Z",
+  "status": "dated_previous_build_native_parallel_checkpoint",
+  "authorizes": false,
+  "parallel_window": {
+    "source_revision": "1d8e9644-f16a-447c-bc88-120aacac0ec1",
+    "before_at": "2026-10-07T05:59:04.891Z",
+    "after_at": "2026-10-07T06:03:25.456Z",
+    "canonical_digest": "46b62734998939b9fda0007428706417a7c36169670ac94b738edbaab50509d5",
+    "canonical_bytes_unchanged": true,
+    "views": {
+      "a_init": "75ac25e0-54d0-49b9-887e-3e42abaf1cfb",
+      "b_init": "3199fcbb-7eac-4427-b800-b939612a6dd4",
+      "module_sha256": "a235f9db6ec72dbf9e747f964197d896d5ce439f241d6ca1e0ac7a845bae9421"
+    },
+    "observed": [
+      "concurrent equal-Run reading and own documents",
+      "distinct-Run navigation in B with A source retained; chosen historical Run explicitly shows its seal problem",
+      "A accepted production context",
+      "B competing prepare refused as occupied",
+      "B nonowner document close with identical A packet retained",
+      "A owned release reached idle",
+      "B accepted own packet with distinct context/snapshot/resource identities",
+      "A former-owner document close with identical B packet retained"
+    ],
+    "a_context_id": "bc8a227f-2661-47df-a43e-ff6bee563285",
+    "b_context_id": "3c2ce41a-252e-44a6-82ae-b2bb5ecf4b1d",
+    "question_click_count": 0,
+    "b_question": "awaiting separate human authorization",
+    "b_context": "still held; no canonical bookkeeping until acknowledged release",
+    "authorizes": false
+  },
+  "question_window": {
+    "source_revision": "1d8e9644-f16a-447c-bc88-120aacac0ec1",
+    "question": "Bitte erläutere das Vorhaben und offene Nachweise anhand des übergebenen AGDF-Kontexts 3c2ce41a-252e-44a6-82ae-b2bb5ecf4b1d, Run agdf-cockpit-mcp-app-20261005-01, Quelle .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_IMPLEMENTATION-02.md. Zitiere die mitgelieferten Quellen und kennzeichne Unsicherheiten. Der Kontext ist eine Beobachtung vom 2026-10-07T05:57:22.844Z und erteilt keine Freigabe.",
+    "question_click_count": 1,
+    "human_authorization": "leg los, directly following the concrete once-only second-view sources-question request",
+    "host_accepted": true,
+    "button_disabled": true,
+    "actual_model_context_receipt": {
+      "received": true,
+      "source_id": "session:8b7b35ab-5a5a-47f5-9b7d-e5ea377800c3",
+      "context_id": "3c2ce41a-252e-44a6-82ae-b2bb5ecf4b1d",
+      "snapshot_id": "ac85133a-96b7-402c-af3a-8413adb9601c",
+      "generation": 22
+    },
+    "actual_prior_owner_invalidation_receipt": {
+      "source_id": "session:1da25d6f-0b9e-4842-b0b2-dd69718d7617",
+      "kind": "agdf_cockpit_invalid_selection",
+      "generation": 25,
+      "invalidation_id": "ba5f61c6-ebae-4922-adad-fe4ba06d5793",
+      "observed_at": "2026-10-07T06:01:36.565Z",
+      "current": false,
+      "authorizes": false
+    },
+    "actual_model_question_receipt": "pending at checkpoint capture; never resend",
+    "no_write_window": {
+      "before_at": "2026-10-07T06:04:58.392Z",
+      "after_at": "2026-10-07T06:05:49.418Z",
+      "digest": "46b62734998939b9fda0007428706417a7c36169670ac94b738edbaab50509d5",
+      "canonical_bytes_unchanged": true
+    },
+    "b_context": "held until question receipt/answer and acknowledged release; no canonical bookkeeping yet",
+    "authorizes": false
+  },
+  "later_actual_model_question_receipt": {
+    "received": true,
+    "answered": true,
+    "click_count": 1,
+    "resent": false,
+    "answer_correctness_or_uat_claim": false
+  },
+  "later_actual_model_invalidation_receipt": {
+    "source_id": "session:8b7b35ab-5a5a-47f5-9b7d-e5ea377800c3",
+    "kind": "agdf_cockpit_invalid_selection",
+    "generation": 23,
+    "invalidation_id": "1f9a2ca3-f1c6-44c7-ac04-5bac382c6d7b",
+    "observed_at": "2026-10-07T06:14:16.346Z",
+    "current": false,
+    "authorizes": false
+  },
+  "remaining": [
+    "Native current-build activation and display",
+    "Native reconnect/recovery/rollback",
+    "Final TP fulfilment, CR, QA, UAT, OR",
+    "Final closeout knowledge reconciliation"
+  ],
+  "boundary": "Copied original checkpoints retain their then-pending statements; later actual receipts qualify them without rewriting their capture history. These observations belong to module a235f9db6ec72dbf9e747f964197d896d5ce439f241d6ca1e0ac7a845bae9421, not the newer work-step UI."
+}

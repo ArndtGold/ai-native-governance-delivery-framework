@@ -1,0 +1,23 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'partial'
+- 'available'
+
+    at file:///private/tmp/cockpit-orientation-active-readback-04.mjs:23:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:27:5)
+    at async file:///private/tmp/cockpit-orientation-active-readback-04.mjs:14:35 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'partial',
+  expected: 'available',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

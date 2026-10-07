@@ -138,19 +138,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const expired = hasExpiredSession(state), reloadRoute = state.requestedRoute ?? state.route;
   const runTitle = state.inventory?.data?.runs.find(run => run.run_id === state.route.runId)?.title ?? state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Run-Übersicht' : state.route.view === 'detail' || summarizing ? runTitle ?? 'Run verstehen' : documentName(state.document?.data?.resource.type);
-  if (compact) return <CompactCockpit state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
-    onSelect={id => void navigate({ view: 'detail', runId: id })}
-    onReload={() => void navigate(reloadRoute, true)} onOverview={() => void navigate({ view: 'overview' })}
-    onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>;
-  return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
-    <div className={`workspace${summarizing ? ' workspace--summary' : ''}`} ref={workspace}><BrandHeader projectPath={state.inventory?.target.display_path} contextTitle={state.route.view !== 'overview' ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
-      <button className={`refresh-control${state.stale ? ' refresh-control--stale' : ''}`} aria-label={state.stale ? 'Daten aktualisieren' : 'Neu laden'} title={state.stale ? 'Veralteten Datenstand aktualisieren' : 'Datenstand neu laden'} onClick={() => void navigate(reloadRoute, true)} disabled={expired || !enabled || state.phase === 'loading'}><Icon name="reload"/></button>
-    </BrandHeader><main>
-      {state.route.view !== 'overview' && <nav className="breadcrumbs" aria-label="Vorhaben-Pfad"><ol>
-        <li><button onClick={showOverview} disabled={expired || state.phase === 'loading'}>Alle Vorhaben</button></li>
-        <li>{documentVisible ? <button onClick={showRun} disabled={expired || state.phase === 'loading'}>{runTitle}</button> : <span aria-current="page">{runTitle}</span>}</li>
-        {documentVisible && <li><span aria-current="page">{pageTitle}</span></li>}
-      </ol></nav>}
+  const readingContent = <>
       <div className={`page-title${documentVisible ? ' page-title--document' : ''}`}><div>{!summarizing && <div className="eyebrow">Dein Repository · Deine Vorhaben</div>}<h1 ref={heading} tabIndex={-1}>{pageTitle}</h1>{!summarizing && <p>{state.route.view === 'overview' ? 'Welches Vorhaben braucht deine Aufmerksamkeit?' : state.route.view === 'detail' || summarizing ? 'Ziel, offene Punkte und nächster erlaubter Schritt.' : 'Registrierte Quelle und ihre Bedeutung für das Vorhaben.'}</p>}</div>
         {documentVisible && <button type="button" className="document-close" aria-label="Dokument schließen" title="Dokument schließen" onClick={showRun} disabled={expired || state.phase === 'loading'}><Icon name="close"/></button>}
         {state.route.view === 'detail' && state.detail?.data?.evaluation && <div className="view-switch" data-mode={summarizing ? 'summary' : 'details'} role="group" aria-label="Ansicht"><button aria-pressed={summarizing} onClick={() => setReaderMode('summary')}>Zusammenfassung</button><button aria-pressed={!summarizing} onClick={() => setReaderMode('details')}>Details</button></div>}
@@ -164,8 +152,23 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       <div className={state.phase === 'loading' ? 'previous-content' : ''} aria-busy={state.phase === 'loading'}>
         {state.inventory?.data && state.route.view === 'overview' && <Overview result={state.inventory} onSelect={id => void navigate({ view: 'detail', runId: id })}/>}
         {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
-        {state.document && state.route.view === 'document' && <DocumentView result={state.document} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
+        {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
       {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.inventory?.snapshot_id}:${state.route.runId}:${state.route.resourceId ?? 'run'}`} read={read} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready'} handoff={handoff}/>}
+  </>;
+  if (compact) return <CompactCockpit state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
+    onSelect={id => void navigate({ view: 'detail', runId: id })}
+    onReload={() => void navigate(reloadRoute, true)} onOverview={() => void navigate({ view: 'overview' })}
+    onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>;
+  return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
+    <div className={`workspace${documentVisible ? ' workspace--document' : ''}${summarizing ? ' workspace--summary' : ''}`} ref={workspace}><BrandHeader projectPath={state.inventory?.target.display_path} contextTitle={state.route.view !== 'overview' ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
+      <button className={`refresh-control${state.stale ? ' refresh-control--stale' : ''}`} aria-label={state.stale ? 'Daten aktualisieren' : 'Neu laden'} title={state.stale ? 'Veralteten Datenstand aktualisieren' : 'Datenstand neu laden'} onClick={() => void navigate(reloadRoute, true)} disabled={expired || !enabled || state.phase === 'loading'}><Icon name="reload"/></button>
+    </BrandHeader><main>
+      {state.route.view !== 'overview' && <nav className="breadcrumbs" aria-label="Vorhaben-Pfad"><ol>
+        <li><button onClick={showOverview} disabled={expired || state.phase === 'loading'}>Alle Vorhaben</button></li>
+        <li>{documentVisible ? <button onClick={showRun} disabled={expired || state.phase === 'loading'}>{runTitle}</button> : <span aria-current="page">{runTitle}</span>}</li>
+        {documentVisible && <li><span aria-current="page">{pageTitle}</span></li>}
+      </ol></nav>}
+      {documentVisible ? <section className="document-reading agdf-surface" aria-label="Dokument lesen">{readingContent}</section> : readingContent}
       <footer>Lokale Beobachtung · {label(state.stale ? 'stale' : current?.state)} · Das Cockpit verändert keine Kontrolldateien.</footer>
     </main></div></div>;
 }

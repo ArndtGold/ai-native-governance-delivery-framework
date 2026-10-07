@@ -1,0 +1,958 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Embedded AGDF Cockpit for Codex
+  - generic: Nur Lesen
+  - button "Neu laden":
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben"
+      - text: ›
+      - button "Embedded AGDF Cockpit for Codex"
+      - text: ›
+      - generic: Stand des Vorhabens
+  - generic: Dein Repository · Deine Vorhaben
+  - heading "Stand des Vorhabens" [level=1]
+  - paragraph: Registrierte Quelle und ihre Bedeutung für das Vorhaben.
+  - button "Dokument schließen":
+  - generic "Stand 7.10.2026, 07:57:22 · Datenstand und Herkunft"
+  - paragraph:
+    - text: Quelle zum Vorhaben
+    - strong: Embedded AGDF Cockpit for Codex
+  - paragraph: Enthält den gespeicherten Kontrollstand und seine Quellenverweise.
+  - generic: Run State
+  - code: .agdf/control/runs/agdf-cockpit-mcp-app-20261005-01/RUN_STATE.md
+  - article:
+    - heading "AGDF Run State" [level=1]
+    - heading "Run Meta" [level=2]
+    - list:
+      - listitem: "control_state_version: 2"
+      - listitem: "run_id: agdf-cockpit-mcp-app-20261005-01"
+      - listitem: "lifecycle: active"
+      - listitem: "revision: 76"
+      - listitem: "revision_id: 1d8e9644-f16a-447c-bc88-120aacac0ec1"
+      - listitem: "content_seal: sha256:1adbbbc0a9d553e2c9a0630d13ff2423183fb3c86ed5176d631d664f7a1f1e06"
+      - listitem: "approval_seal: sha256:1d621a8ebd275062476c21632754faa6446194d626ac8e52d735f35e3fc8498c"
+      - listitem: "updated_at: 2026-10-07T05:56:50.916Z"
+      - listitem: "mode: structured_delivery"
+      - listitem: "current_gate: CD+Tests"
+      - listitem: "decision: in_progress"
+      - listitem: "owner: agent"
+    - heading "Objective" [level=2]
+    - paragraph: "Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a run, inspect registered artefacts and explicit Context Graph references, and use a checked selection for a contextual question while preserving canonical control authority."
+    - heading "Current Control State" [level=2]
+    - table:
+      - rowgroup:
+        - row "Question Answer":
+          - columnheader "Question"
+          - columnheader "Answer"
+      - rowgroup:
+        - row "What is known? Approved TP implementation is in progress; T-006 native feasibility passed; independent reading, exclusive publication and acknowledged completion are implemented and tested; final current-production host evidence and reviews remain open.":
+          - cell "What is known?"
+          - cell "Approved TP implementation is in progress; T-006 native feasibility passed; independent reading, exclusive publication and acknowledged completion are implemented and tested; final current-production host evidence and reviews remain open."
+        - 'row "What is approved? Approval: UR, Approval: PRD, Approval: SD, Approval: TP"':
+          - cell "What is approved?"
+          - 'cell "Approval: UR, Approval: PRD, Approval: SD, Approval: TP"'
+        - row "What is missing? No approval is pending.":
+          - cell "What is missing?"
+          - cell "No approval is pending."
+        - row "What is the next allowed action? Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.":
+          - cell "What is the next allowed action?"
+          - cell "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR."
+        - row "What is explicitly forbidden right now? claim QA, UAT or release readiness before required current-source evidence and approvals":
+          - cell "What is explicitly forbidden right now?"
+          - cell "claim QA, UAT or release readiness before required current-source evidence and approvals"
+    - heading "Approvals" [level=2]
+    - table:
+      - rowgroup:
+        - row "Gate Status Evidence":
+          - columnheader "Gate"
+          - columnheader "Status"
+          - columnheader "Evidence"
+      - rowgroup:
+        - 'row "UR approved Approval: UR · 2026-10-05 · revision 2 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc"':
+          - cell "UR"
+          - cell "approved"
+          - 'cell "Approval: UR · 2026-10-05 · revision 2 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc"':
+            - code: "Approval: UR"
+            - text: · 2026-10-05 · revision 2 ·
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md
+            - text: sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc
+        - 'row "PRD approved Approval: PRD · 2026-10-05 · revision 6 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md sha256:8f372986651c47aa · presentation c230ef55-ea75-42f0-b02d-49947a0c0c89 sha256:72000977e7c06e5eb5099ef6d42b7fe0ec4e22229f834f5e36877c982ee16072"':
+          - cell "PRD"
+          - cell "approved"
+          - 'cell "Approval: PRD · 2026-10-05 · revision 6 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md sha256:8f372986651c47aa · presentation c230ef55-ea75-42f0-b02d-49947a0c0c89 sha256:72000977e7c06e5eb5099ef6d42b7fe0ec4e22229f834f5e36877c982ee16072"':
+            - code: "Approval: PRD"
+            - text: · 2026-10-05 · revision 6 ·
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md
+            - text: sha256:8f372986651c47aa · presentation c230ef55-ea75-42f0-b02d-49947a0c0c89 sha256:72000977e7c06e5eb5099ef6d42b7fe0ec4e22229f834f5e36877c982ee16072
+        - 'row "SD approved Approval: SD · 2026-10-06 · revision 63 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md sha256:2ad7312e1e7cb5c9 · presentation c58902db-b4a3-49e6-98b5-5d39eb41eafe sha256:b114d5cf4ec5cd86b2f4781ebe7567f57c987b6f22113394418f0f027328d8a4"':
+          - cell "SD"
+          - cell "approved"
+          - 'cell "Approval: SD · 2026-10-06 · revision 63 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md sha256:2ad7312e1e7cb5c9 · presentation c58902db-b4a3-49e6-98b5-5d39eb41eafe sha256:b114d5cf4ec5cd86b2f4781ebe7567f57c987b6f22113394418f0f027328d8a4"':
+            - code: "Approval: SD"
+            - text: · 2026-10-06 · revision 63 ·
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md
+            - text: sha256:2ad7312e1e7cb5c9 · presentation c58902db-b4a3-49e6-98b5-5d39eb41eafe sha256:b114d5cf4ec5cd86b2f4781ebe7567f57c987b6f22113394418f0f027328d8a4
+        - 'row "TP approved Approval: TP · 2026-10-06 · revision 65 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md sha256:54fa11acb3bd7547 · presentation 8e3dc2ce-22df-4acd-a15a-8fb6755e5cd9 sha256:f9e547e4835af49749fecfc1c4363b6f13cf9b7eb9eae68e0765ccc38830efcd"':
+          - cell "TP"
+          - cell "approved"
+          - 'cell "Approval: TP · 2026-10-06 · revision 65 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md sha256:54fa11acb3bd7547 · presentation 8e3dc2ce-22df-4acd-a15a-8fb6755e5cd9 sha256:f9e547e4835af49749fecfc1c4363b6f13cf9b7eb9eae68e0765ccc38830efcd"':
+            - code: "Approval: TP"
+            - text: · 2026-10-06 · revision 65 ·
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md
+            - text: sha256:54fa11acb3bd7547 · presentation 8e3dc2ce-22df-4acd-a15a-8fb6755e5cd9 sha256:f9e547e4835af49749fecfc1c4363b6f13cf9b7eb9eae68e0765ccc38830efcd
+        - row "QA missing":
+          - cell "QA"
+          - cell "missing"
+          - cell
+        - row "UAT missing":
+          - cell "UAT"
+          - cell "missing"
+          - cell
+    - heading "Artefacts" [level=2]
+    - table:
+      - rowgroup:
+        - row "Type Path Status Notes":
+          - columnheader "Type"
+          - columnheader "Path"
+          - columnheader "Status"
+          - columnheader "Notes"
+      - rowgroup:
+        - row "UR .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md approved":
+          - cell "UR"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md":
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md
+          - cell "approved"
+          - cell
+        - row "Brownfield Review .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md done":
+          - cell "Brownfield Review"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md":
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md
+          - cell "done"
+          - cell
+        - row "UX Intent Definition .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md done ready; analytical PRD input only":
+          - cell "UX Intent Definition"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md":
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md
+          - cell "done"
+          - cell "ready; analytical PRD input only"
+        - row "Verified Change missing":
+          - cell "Verified Change"
+          - cell
+          - cell "missing"
+          - cell
+        - row "PRD .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md approved Reviewed source binding recorded atomically":
+          - cell "PRD"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md"
+          - cell "approved"
+          - cell "Reviewed source binding recorded atomically"
+        - row "SD .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md approved Reviewed source binding recorded atomically":
+          - cell "SD"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md"
+          - cell "approved"
+          - cell "Reviewed source binding recorded atomically"
+        - row "TP .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md approved Reviewed source binding recorded atomically":
+          - cell "TP"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md"
+          - cell "approved"
+          - cell "Reviewed source binding recorded atomically"
+        - row "Brownfield Analysis .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_BROWNFIELD_ANALYSIS-01.md done Renewed approved-TP owner/baseline analysis; cooperative source evidence":
+          - cell "Brownfield Analysis"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_BROWNFIELD_ANALYSIS-01.md"
+          - cell "done"
+          - cell "Renewed approved-TP owner/baseline analysis; cooperative source evidence"
+        - row "CD+Tests .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_IMPLEMENTATION-02.md in_progress Renewed independent reading and exclusive publication implemented; tests pass; final native journey and reviews remain open":
+          - cell "CD+Tests"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_IMPLEMENTATION-02.md"
+          - cell "in_progress"
+          - cell "Renewed independent reading and exclusive publication implemented; tests pass; final native journey and reviews remain open"
+        - row "CR missing Renewed evidence required after source revision":
+          - cell "CR"
+          - cell
+          - cell "missing"
+          - cell "Renewed evidence required after source revision"
+        - row "QA missing Renewed evidence required after source revision":
+          - cell "QA"
+          - cell
+          - cell "missing"
+          - cell "Renewed evidence required after source revision"
+        - row "Binding proof ce2a8b08-d584-4957-9ff6-ad17680e1784 .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json done Subordinate reviewed mapping evidence":
+          - cell "Binding proof ce2a8b08-d584-4957-9ff6-ad17680e1784"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json"
+          - cell "done"
+          - cell "Subordinate reviewed mapping evidence"
+        - row "Binding proof a4ba1a55-f85e-460a-b951-5aab59c1e08a .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-02.json done Subordinate reviewed mapping evidence":
+          - cell "Binding proof a4ba1a55-f85e-460a-b951-5aab59c1e08a"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-02.json"
+          - cell "done"
+          - cell "Subordinate reviewed mapping evidence"
+        - row "OR .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OR.md in_progress Historical interim report only; regular OR/QA/UAT closeout remains unfinished; INTERIM_OR_STATUS_CORRECTION-01.md":
+          - cell "OR"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OR.md"
+          - cell "in_progress"
+          - cell "Historical interim report only; regular OR/QA/UAT closeout remains unfinished; INTERIM_OR_STATUS_CORRECTION-01.md"
+        - row "Binding proof 77acf286-70a5-403e-b552-5ca0a6860b21 .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-3675cc09-3d05-4ae5-8229-054c78ce6548.json done Subordinate reviewed mapping evidence":
+          - cell "Binding proof 77acf286-70a5-403e-b552-5ca0a6860b21"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-3675cc09-3d05-4ae5-8229-054c78ce6548.json"
+          - cell "done"
+          - cell "Subordinate reviewed mapping evidence"
+        - row "Binding proof 17df981f-2f72-43b4-8806-c621e4fc69fd .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json done Subordinate reviewed mapping evidence":
+          - cell "Binding proof 17df981f-2f72-43b4-8806-c621e4fc69fd"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json"
+          - cell "done"
+          - cell "Subordinate reviewed mapping evidence"
+        - row "Binding proof 23404522-8c48-43c6-8abd-31995aa9da0d .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json done Subordinate reviewed mapping evidence":
+          - cell "Binding proof 23404522-8c48-43c6-8abd-31995aa9da0d"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json"
+          - cell "done"
+          - cell "Subordinate reviewed mapping evidence"
+    - heading "Mode/Slice Decision" [level=2]
+    - list:
+      - listitem: "decision: structured_delivery"
+      - listitem: "required_next_gate: PRD"
+      - listitem: "scope_reason: external_contract_depth: MCP app resources and model-context exchange add a compatibility-sensitive host contract; structured_slice fails full_depth_impacts_absent."
+      - listitem: "evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md"
+    - heading "Artefact Chain" [level=2]
+    - table:
+      - rowgroup:
+        - row "From Relationship To Evidence":
+          - columnheader "From"
+          - columnheader "Relationship"
+          - columnheader "To"
+          - columnheader "Evidence"
+      - rowgroup:
+        - 'row "UR approved_by Approval: UR Approval: UR · 2026-10-05 · revision 2 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc"':
+          - cell "UR"
+          - cell "approved_by"
+          - 'cell "Approval: UR"'
+          - 'cell "Approval: UR · 2026-10-05 · revision 2 · .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc"':
+            - code: "Approval: UR"
+            - text: · 2026-10-05 · revision 2 ·
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md
+            - text: sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc
+        - row "PRD derived_from UR binding ce2a8b08-d584-4957-9ff6-ad17680e1784; reviewed by Codex implementing agent; cooperative source derivation review, not independent proof; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json":
+          - cell "PRD"
+          - cell "derived_from"
+          - cell "UR"
+          - cell "binding ce2a8b08-d584-4957-9ff6-ad17680e1784; reviewed by Codex implementing agent; cooperative source derivation review, not independent proof; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json"
+        - row "SD derived_from PRD binding 17df981f-2f72-43b4-8806-c621e4fc69fd; reviewed by Codex sd-definition derivation review; cooperative, no independent approval; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json":
+          - cell "SD"
+          - cell "derived_from"
+          - cell "PRD"
+          - cell "binding 17df981f-2f72-43b4-8806-c621e4fc69fd; reviewed by Codex sd-definition derivation review; cooperative, no independent approval; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json"
+        - row "TP derived_from SD binding 23404522-8c48-43c6-8abd-31995aa9da0d; reviewed by Codex gate-check TP derivation review; cooperative, no independent approval; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json":
+          - cell "TP"
+          - cell "derived_from"
+          - cell "SD"
+          - cell "binding 23404522-8c48-43c6-8abd-31995aa9da0d; reviewed by Codex gate-check TP derivation review; cooperative, no independent approval; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json"
+    - heading "Evidence" [level=2]
+    - table:
+      - rowgroup:
+        - row "Evidence Source Covers Strength":
+          - columnheader "Evidence"
+          - columnheader "Source"
+          - columnheader "Covers"
+          - columnheader "Strength"
+      - rowgroup:
+        - row "Current native connection resumed .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-07.md Named and deliberate overview openings respond; additional read/package checks pass; previously accepted synthetic test reaches the model Two freshly expanded current cards and final production packet/release/question proof remain open":
+          - cell "Current native connection resumed"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-07.md"
+          - cell "Named and deliberate overview openings respond; additional read/package checks pass; previously accepted synthetic test reaches the model"
+          - cell "Two freshly expanded current cards and final production packet/release/question proof remain open"
+        - row "Current production preparation and reconnection .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-06.md Current tested named tuple prepared; exact scoped process retirement and byte-identical project config restoration; isolated rollback passed Fresh native opening returned Transport closed; current production host proof remains open":
+          - cell "Current production preparation and reconnection"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-06.md"
+          - cell "Current tested named tuple prepared; exact scoped process retirement and byte-identical project config restoration; isolated rollback passed"
+          - cell "Fresh native opening returned Transport closed; current production host proof remains open"
+        - row "Current publication implementation .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_VERIFICATION-02.json Independent reading, exclusive publication, immutable controllers, begin/acknowledged-complete protocol and current regression results Source, deterministic, browser and isolated real stdio; final native production proof remains open":
+          - cell "Current publication implementation"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_VERIFICATION-02.json"
+          - cell "Independent reading, exclusive publication, immutable controllers, begin/acknowledged-complete protocol and current regression results"
+          - cell "Source, deterministic, browser and isolated real stdio; final native production proof remains open"
+        - row "Current native feasibility checkpoint .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-05.md Current loaded resource, two independent reading views, context and deliberate question acknowledgements; canonical action recording correction Actual native method/render feasibility; productive packet and answer proof still open":
+          - cell "Current native feasibility checkpoint"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-05.md"
+          - cell "Current loaded resource, two independent reading views, context and deliberate question acknowledgements; canonical action recording correction"
+          - cell "Actual native method/render feasibility; productive packet and answer proof still open"
+        - row "Renewed independent reading implementation .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_READ_VERIFICATION-01.json Four counted sessions, scoped worker/read ownership, immutable ports and current tests/prepared tuple Direct deterministic, browser and actual stdio; unfinished publication owner":
+          - cell "Renewed independent reading implementation"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_READ_VERIFICATION-01.json"
+          - cell "Four counted sessions, scoped worker/read ownership, immutable ports and current tests/prepared tuple"
+          - cell "Direct deterministic, browser and actual stdio; unfinished publication owner"
+        - row "Native two-view reading checkpoint .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-04.md Actual named and empty opening, two reachable panels, own documents and return, exact loaded module Actual native reading; current context/message and new probe resource activation open":
+          - cell "Native two-view reading checkpoint"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-04.md"
+          - cell "Actual named and empty opening, two reachable panels, own documents and return, exact loaded module"
+          - cell "Actual native reading; current context/message and new probe resource activation open"
+        - row "Shared Pages component hierarchy .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_COMPONENT_ALIGNMENT-04.md Built-Pages button and typography parity in both themes, header/spacing and final nine-journey suite automated and actual browser; native connection closed":
+          - cell "Shared Pages component hierarchy"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_COMPONENT_ALIGNMENT-04.md"
+          - cell "Built-Pages button and typography parity in both themes, header/spacing and final nine-journey suite"
+          - cell "automated and actual browser; native connection closed"
+        - row "Shared Pages surfaces, light and dark .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_SURFACE_ALIGNMENT-03.md Canonical recipes, semibold links, Summary entry, ten theme observations and real browser visuals automated and browser evidence; native Transport closed":
+          - cell "Shared Pages surfaces, light and dark"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_SURFACE_ALIGNMENT-03.md"
+          - cell "Canonical recipes, semibold links, Summary entry, ten theme observations and real browser visuals"
+          - cell "automated and browser evidence; native Transport closed"
+        - row "Actual native product checkpoint .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_PRODUCT_JOURNEY-01.md Real packet/question acknowledgement, return, untouched overview and closed no-write window; startup tuple boundary explicit direct host/source-byte evidence; not human UAT":
+          - cell "Actual native product checkpoint"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_PRODUCT_JOURNEY-01.md"
+          - cell "Real packet/question acknowledgement, return, untouched overview and closed no-write window; startup tuple boundary explicit"
+          - cell "direct host/source-byte evidence; not human UAT"
+        - row "Complete final compatibility checkpoint .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE-03.md Corrected private import isolation, newly assembled complete default MCP suite and additional compatibility lanes reproducible copied logs and startup tuple; not native reconnect proof":
+          - cell "Complete final compatibility checkpoint"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE-03.md"
+          - cell "Corrected private import isolation, newly assembled complete default MCP suite and additional compatibility lanes"
+          - cell "reproducible copied logs and startup tuple; not native reconnect proof"
+        - row "Current Pages presentation alignment .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_DESIGN_ALIGNMENT-02.md Shared type/spacing owners, host-font regression and 32 viewport/theme combinations; final native refresh open automated tests and actual local browser; not native acceptance":
+          - cell "Current Pages presentation alignment"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PAGES_DESIGN_ALIGNMENT-02.md"
+          - cell "Shared type/spacing owners, host-font regression and 32 viewport/theme combinations; final native refresh open"
+          - cell "automated tests and actual local browser; not native acceptance"
+        - row "Connected current work step .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_EVIDENCE-01.md Shared action, prerequisites and evidence unit; direct source roundtrip; fresh native opening responds automated/browser and opening evidence; not native visual acceptance":
+          - cell "Connected current work step"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_EVIDENCE-01.md"
+          - cell "Shared action, prerequisites and evidence unit; direct source roundtrip; fresh native opening responds"
+          - cell "automated/browser and opening evidence; not native visual acceptance"
+        - row "Sticky header and sliding selector .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/STICKY_HEADER_VIEW_SWITCH_EVIDENCE-01.md Header scroll/focus clearance, wide-only sliding view selector and narrow summary fallback automated/browser and prepared protocol evidence; current native opening Transport closed":
+          - cell "Sticky header and sliding selector"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/STICKY_HEADER_VIEW_SWITCH_EVIDENCE-01.md"
+          - cell "Header scroll/focus clearance, wide-only sliding view selector and narrow summary fallback"
+          - cell "automated/browser and prepared protocol evidence; current native opening Transport closed"
+        - row "Run creation run-create Control initialization direct":
+          - cell "Run creation"
+          - cell "run-create"
+          - cell "Control initialization"
+          - cell "direct"
+        - row "UR draft .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md problem, goal, scope and acceptance signals direct":
+          - cell "UR draft"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md":
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md
+          - cell "problem, goal, scope and acceptance signals"
+          - cell "direct"
+        - row "Brownfield Review .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md Mode/Slice Decision structured_delivery direct":
+          - cell "Brownfield Review"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md":
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md
+          - cell "Mode/Slice Decision structured_delivery":
+            - text: Mode/Slice Decision
+            - code: structured_delivery
+          - cell "direct"
+        - row "UX intent recovery .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md Working modes, state authority, context transfer, blockers and recovery; ready before PRD direct":
+          - cell "UX intent recovery"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md":
+            - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md
+          - cell "Working modes, state authority, context transfer, blockers and recovery; ready before PRD"
+          - cell "direct"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json PRD derived_from UR; binding ce2a8b08-d584-4957-9ff6-ad17680e1784; operation f5067e10-21d4-4338-8f7a-b69d635c4380; fad46820-c267-40ae-affe-56c546b6962c -> 4ea85645-79ab-47a4-84e0-619d5c0278a0 reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json"
+          - cell "PRD derived_from UR; binding ce2a8b08-d584-4957-9ff6-ad17680e1784; operation f5067e10-21d4-4338-8f7a-b69d635c4380; fad46820-c267-40ae-affe-56c546b6962c -> 4ea85645-79ab-47a4-84e0-619d5c0278a0"
+          - cell "reviewed cooperative mapping"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-01.json SD derived_from PRD; binding 31c0990e-da4f-4fb9-baf4-9c3f8495ec14; operation 48dc148e-33b7-48aa-b456-81a013c32ba1; 2b4f67c7-ffee-4041-ba26-b35f82f07ee5 -> 5acedbd3-1a7d-4248-91ec-5b683121b01d reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-01.json"
+          - cell "SD derived_from PRD; binding 31c0990e-da4f-4fb9-baf4-9c3f8495ec14; operation 48dc148e-33b7-48aa-b456-81a013c32ba1; 2b4f67c7-ffee-4041-ba26-b35f82f07ee5 -> 5acedbd3-1a7d-4248-91ec-5b683121b01d"
+          - cell "reviewed cooperative mapping"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-01.json TP derived_from SD; binding b596b406-2c26-4850-a971-1846c8c88a6a; operation 4ad06f80-501e-4b24-bd01-b794a23eafff; aa604652-f69e-4af3-ada3-884875c09514 -> dd3de9fc-a1e3-4899-b493-0ed041f4e39a reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-01.json"
+          - cell "TP derived_from SD; binding b596b406-2c26-4850-a971-1846c8c88a6a; operation 4ad06f80-501e-4b24-bd01-b794a23eafff; aa604652-f69e-4af3-ada3-884875c09514 -> dd3de9fc-a1e3-4899-b493-0ed041f4e39a"
+          - cell "reviewed cooperative mapping"
+        - row "Pre-implementation Brownfield Analysis .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_ANALYSIS.md T-001; baseline, owners, reuse, regression and early host checkpoint cooperative source inspection":
+          - cell "Pre-implementation Brownfield Analysis"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_ANALYSIS.md"
+          - cell "T-001; baseline, owners, reuse, regression and early host checkpoint"
+          - cell "cooperative source inspection"
+        - row "BUILD_DEPENDENCY_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BUILD_DEPENDENCY_EVIDENCE.md Approved TP minimal implementation and bounded qualification direct checks; native host gap explicit":
+          - cell "BUILD_DEPENDENCY_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BUILD_DEPENDENCY_EVIDENCE.md"
+          - cell "Approved TP minimal implementation and bounded qualification"
+          - cell "direct checks; native host gap explicit"
+        - row "MCP_PROTOCOL_EVIDENCE.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/MCP_PROTOCOL_EVIDENCE.json Approved TP minimal implementation and bounded qualification direct checks; native host gap explicit":
+          - cell "MCP_PROTOCOL_EVIDENCE.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/MCP_PROTOCOL_EVIDENCE.json"
+          - cell "Approved TP minimal implementation and bounded qualification"
+          - cell "direct checks; native host gap explicit"
+        - row "CORE_READ_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CORE_READ_EVIDENCE.md Approved TP minimal implementation and bounded qualification direct checks; native host gap explicit":
+          - cell "CORE_READ_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CORE_READ_EVIDENCE.md"
+          - cell "Approved TP minimal implementation and bounded qualification"
+          - cell "direct checks; native host gap explicit"
+        - row "HOST_FEASIBILITY.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY.md Approved TP minimal implementation and bounded qualification direct checks; native host gap explicit":
+          - cell "HOST_FEASIBILITY.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY.md"
+          - cell "Approved TP minimal implementation and bounded qualification"
+          - cell "direct checks; native host gap explicit"
+        - row "SETUP_ROLLBACK_EVIDENCE.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SETUP_ROLLBACK_EVIDENCE.json Approved TP minimal implementation and bounded qualification direct checks; native host gap explicit":
+          - cell "SETUP_ROLLBACK_EVIDENCE.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SETUP_ROLLBACK_EVIDENCE.json"
+          - cell "Approved TP minimal implementation and bounded qualification"
+          - cell "direct checks; native host gap explicit"
+        - row "COMPATIBILITY_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE.md Approved TP minimal implementation and bounded qualification direct checks; native host gap explicit":
+          - cell "COMPATIBILITY_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE.md"
+          - cell "Approved TP minimal implementation and bounded qualification"
+          - cell "direct checks; native host gap explicit"
+        - row "Compact entry fix .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ENTRY_CARD_FIX.md Compact/full shared state; tests; prepared resource; native gap explicit direct tests and browser layout; pre-update native observation":
+          - cell "Compact entry fix"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ENTRY_CARD_FIX.md"
+          - cell "Compact/full shared state; tests; prepared resource; native gap explicit"
+          - cell "direct tests and browser layout; pre-update native observation"
+        - row "Canonical logo reuse .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/LOGO_REUSE_EVIDENCE.md Original Pages SVG reused, inline resource, visual preview and prepared runtime direct build/protocol and browser layout":
+          - cell "Canonical logo reuse"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/LOGO_REUSE_EVIDENCE.md"
+          - cell "Original Pages SVG reused, inline resource, visual preview and prepared runtime"
+          - cell "direct build/protocol and browser layout"
+        - row "Pages design alignment .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DESIGN_ALIGNMENT.md Shared design/font owner; readable run card; actual browser asset delivery; tests and prepared resource direct build/browser/protocol; native refresh gap explicit":
+          - cell "Pages design alignment"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DESIGN_ALIGNMENT.md"
+          - cell "Shared design/font owner; readable run card; actual browser asset delivery; tests and prepared resource"
+          - cell "direct build/browser/protocol; native refresh gap explicit"
+        - row "Decorative card header .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/RACE_HEADER_EVIDENCE.md Canonical inline background; light/dark/320px and prepared runtime direct build/protocol and browser layout; native gap retained":
+          - cell "Decorative card header"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/RACE_HEADER_EVIDENCE.md"
+          - cell "Canonical inline background; light/dark/320px and prepared runtime"
+          - cell "direct build/protocol and browser layout; native gap retained"
+        - row "Visible compact card refresh .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/AUTO_REFRESH_EVIDENCE.md Shared visible read refresh; selection/focus/race/failure tests and synthetic actual browser gate transition direct tests/browser/protocol; native host gap retained":
+          - cell "Visible compact card refresh"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/AUTO_REFRESH_EVIDENCE.md"
+          - cell "Shared visible read refresh; selection/focus/race/failure tests and synthetic actual browser gate transition"
+          - cell "direct tests/browser/protocol; native host gap retained"
+        - row "Interactive browser card .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/INTERACTIVE_BROWSER_EVIDENCE.md Actual React card/detail return journey; default entry preserved; 18 UI tests and five service tests direct local browser/read evidence; native host gap retained":
+          - cell "Interactive browser card"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/INTERACTIVE_BROWSER_EVIDENCE.md"
+          - cell "Actual React card/detail return journey; default entry preserved; 18 UI tests and five service tests"
+          - cell "direct local browser/read evidence; native host gap retained"
+        - row "Shared per-view branding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SHARED_BRANDING_EVIDENCE.md One shared head; canonical assets; actual browser/320px and dark header layout; focus regression retained direct browser/build/test/protocol; native gap explicit":
+          - cell "Shared per-view branding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SHARED_BRANDING_EVIDENCE.md"
+          - cell "One shared head; canonical assets; actual browser/320px and dark header layout; focus regression retained"
+          - cell "direct browser/build/test/protocol; native gap explicit"
+        - row "Adaptive layout and run search .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ADAPTIVE_LAYOUT_EVIDENCE.md 20 UI and 5 service tests; responsive geometry, actual browser reading journey; optional initial Run-ID requires SD revision direct":
+          - cell "Adaptive layout and run search"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ADAPTIVE_LAYOUT_EVIDENCE.md"
+          - cell "20 UI and 5 service tests; responsive geometry, actual browser reading journey; optional initial Run-ID requires SD revision"
+          - cell "direct"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-02.json SD derived_from PRD; binding a4ba1a55-f85e-460a-b951-5aab59c1e08a; operation fad9aef9-05c3-47a3-8a70-89e997da06be; fa4cf780-8f5c-4c99-9787-6d4c629d42e3 -> a0c2d82e-0171-488f-95d2-b7201060dce1 reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-02.json"
+          - cell "SD derived_from PRD; binding a4ba1a55-f85e-460a-b951-5aab59c1e08a; operation fad9aef9-05c3-47a3-8a70-89e997da06be; fa4cf780-8f5c-4c99-9787-6d4c629d42e3 -> a0c2d82e-0171-488f-95d2-b7201060dce1"
+          - cell "reviewed cooperative mapping"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-03.json SD derived_from PRD; binding 18b9af01-6f5b-4784-8541-9218686508d5; operation ccee1d32-8cf4-47f3-964e-f1b8f02f386a; a0c2d82e-0171-488f-95d2-b7201060dce1 -> 66985f84-3088-4c36-b450-6246cc87cf11 reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-03.json"
+          - cell "SD derived_from PRD; binding 18b9af01-6f5b-4784-8541-9218686508d5; operation ccee1d32-8cf4-47f3-964e-f1b8f02f386a; a0c2d82e-0171-488f-95d2-b7201060dce1 -> 66985f84-3088-4c36-b450-6246cc87cf11"
+          - cell "reviewed cooperative mapping"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-02.json TP derived_from SD; binding a5329615-da5d-49be-bc21-074d4611ffdb; operation 8362894f-684e-402d-9cb2-a212189be102; 2c2097c2-f14d-450b-bd06-feb0f76ebac0 -> 78c111e8-5d7f-42a0-8886-345caa31d99b reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-02.json"
+          - cell "TP derived_from SD; binding a5329615-da5d-49be-bc21-074d4611ffdb; operation 8362894f-684e-402d-9cb2-a212189be102; 2c2097c2-f14d-450b-bd06-feb0f76ebac0 -> 78c111e8-5d7f-42a0-8886-345caa31d99b"
+          - cell "reviewed cooperative mapping"
+        - row "Renewed pre-implementation analysis .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_ANALYSIS-02.md T-001; current baseline and sources in IMPLEMENTATION_BASELINE-02.json; minimal initial-focus path cooperative current source review":
+          - cell "Renewed pre-implementation analysis"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_ANALYSIS-02.md"
+          - cell "T-001; current baseline and sources in IMPLEMENTATION_BASELINE-02.json; minimal initial-focus path"
+          - cell "cooperative current source review"
+        - row "CD_TESTS_EVIDENCE-02.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CD_TESTS_EVIDENCE-02.md Renewed TP minimal initial focus and retained layout qualification; native gap explicit direct tests/protocol/browser; actual pre-refresh synthetic host observation":
+          - cell "CD_TESTS_EVIDENCE-02.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CD_TESTS_EVIDENCE-02.md"
+          - cell "Renewed TP minimal initial focus and retained layout qualification; native gap explicit"
+          - cell "direct tests/protocol/browser; actual pre-refresh synthetic host observation"
+        - row "INITIAL_RUN_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/INITIAL_RUN_VERIFICATION.json Renewed TP minimal initial focus and retained layout qualification; native gap explicit direct tests/protocol/browser; actual pre-refresh synthetic host observation":
+          - cell "INITIAL_RUN_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/INITIAL_RUN_VERIFICATION.json"
+          - cell "Renewed TP minimal initial focus and retained layout qualification; native gap explicit"
+          - cell "direct tests/protocol/browser; actual pre-refresh synthetic host observation"
+        - row "MCP_PROTOCOL_EVIDENCE-02.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/MCP_PROTOCOL_EVIDENCE-02.json Renewed TP minimal initial focus and retained layout qualification; native gap explicit direct tests/protocol/browser; actual pre-refresh synthetic host observation":
+          - cell "MCP_PROTOCOL_EVIDENCE-02.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/MCP_PROTOCOL_EVIDENCE-02.json"
+          - cell "Renewed TP minimal initial focus and retained layout qualification; native gap explicit"
+          - cell "direct tests/protocol/browser; actual pre-refresh synthetic host observation"
+        - row "HOST_FEASIBILITY-02.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-02.md Renewed TP minimal initial focus and retained layout qualification; native gap explicit direct tests/protocol/browser; actual pre-refresh synthetic host observation":
+          - cell "HOST_FEASIBILITY-02.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-02.md"
+          - cell "Renewed TP minimal initial focus and retained layout qualification; native gap explicit"
+          - cell "direct tests/protocol/browser; actual pre-refresh synthetic host observation"
+        - row "ADAPTIVE_LAYOUT_OBSERVATIONS-02.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ADAPTIVE_LAYOUT_OBSERVATIONS-02.json Renewed TP minimal initial focus and retained layout qualification; native gap explicit direct tests/protocol/browser; actual pre-refresh synthetic host observation":
+          - cell "ADAPTIVE_LAYOUT_OBSERVATIONS-02.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ADAPTIVE_LAYOUT_OBSERVATIONS-02.json"
+          - cell "Renewed TP minimal initial focus and retained layout qualification; native gap explicit"
+          - cell "direct tests/protocol/browser; actual pre-refresh synthetic host observation"
+        - row "Opening instruction correction .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OPENING_INSTRUCTION_EVIDENCE.md Approved explicit initial Run focus; established conversation ID required in opening invocation Canonical source and fresh actual stdio discovery; native host reload pending":
+          - cell "Opening instruction correction"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OPENING_INSTRUCTION_EVIDENCE.md"
+          - cell "Approved explicit initial Run focus; established conversation ID required in opening invocation"
+          - cell "Canonical source and fresh actual stdio discovery; native host reload pending"
+        - row "Opening instruction descriptor proof .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OPENING_INSTRUCTION_VERIFICATION.json Approved explicit initial Run focus; established conversation ID required in opening invocation Canonical source and fresh actual stdio discovery; native host reload pending":
+          - cell "Opening instruction descriptor proof"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OPENING_INSTRUCTION_VERIFICATION.json"
+          - cell "Approved explicit initial Run focus; established conversation ID required in opening invocation"
+          - cell "Canonical source and fresh actual stdio discovery; native host reload pending"
+        - row "FOCUSED_CARD_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOCUSED_CARD_EVIDENCE.md Focused valid initial Run; deliberate discovery, identity/focus/recovery and adaptive layout UI regression tests, actual browser/read service and stdio; native new-resource gap explicit":
+          - cell "FOCUSED_CARD_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOCUSED_CARD_EVIDENCE.md"
+          - cell "Focused valid initial Run; deliberate discovery, identity/focus/recovery and adaptive layout"
+          - cell "UI regression tests, actual browser/read service and stdio; native new-resource gap explicit"
+        - row "FOCUSED_CARD_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOCUSED_CARD_VERIFICATION.json Focused valid initial Run; deliberate discovery, identity/focus/recovery and adaptive layout UI regression tests, actual browser/read service and stdio; native new-resource gap explicit":
+          - cell "FOCUSED_CARD_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOCUSED_CARD_VERIFICATION.json"
+          - cell "Focused valid initial Run; deliberate discovery, identity/focus/recovery and adaptive layout"
+          - cell "UI regression tests, actual browser/read service and stdio; native new-resource gap explicit"
+        - row "FOCUSED_CARD_BROWSER.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOCUSED_CARD_BROWSER.png Focused valid initial Run; deliberate discovery, identity/focus/recovery and adaptive layout UI regression tests, actual browser/read service and stdio; native new-resource gap explicit":
+          - cell "FOCUSED_CARD_BROWSER.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOCUSED_CARD_BROWSER.png"
+          - cell "Focused valid initial Run; deliberate discovery, identity/focus/recovery and adaptive layout"
+          - cell "UI regression tests, actual browser/read service and stdio; native new-resource gap explicit"
+        - row "HUMAN_FOCUS_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_EVIDENCE.md Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout UI/Core/service/browser/stdio proof; native resource qualification remains open":
+          - cell "HUMAN_FOCUS_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_EVIDENCE.md"
+          - cell "Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout"
+          - cell "UI/Core/service/browser/stdio proof; native resource qualification remains open"
+        - row "HUMAN_FOCUS_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_VERIFICATION.json Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout UI/Core/service/browser/stdio proof; native resource qualification remains open":
+          - cell "HUMAN_FOCUS_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_VERIFICATION.json"
+          - cell "Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout"
+          - cell "UI/Core/service/browser/stdio proof; native resource qualification remains open"
+        - row "HUMAN_FOCUS_LIST.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_LIST.png Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout UI/Core/service/browser/stdio proof; native resource qualification remains open":
+          - cell "HUMAN_FOCUS_LIST.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_LIST.png"
+          - cell "Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout"
+          - cell "UI/Core/service/browser/stdio proof; native resource qualification remains open"
+        - row "HUMAN_FOCUS_DETAIL.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_DETAIL.png Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout UI/Core/service/browser/stdio proof; native resource qualification remains open":
+          - cell "HUMAN_FOCUS_DETAIL.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_DETAIL.png"
+          - cell "Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout"
+          - cell "UI/Core/service/browser/stdio proof; native resource qualification remains open"
+        - row "HUMAN_FOCUS_DOCUMENT.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_DOCUMENT.png Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout UI/Core/service/browser/stdio proof; native resource qualification remains open":
+          - cell "HUMAN_FOCUS_DOCUMENT.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HUMAN_FOCUS_DOCUMENT.png"
+          - cell "Shared goal-first list, detail and document presentation; captured attention, source fidelity and responsive layout"
+          - cell "UI/Core/service/browser/stdio proof; native resource qualification remains open"
+        - row "SUMMARY_NAVIGATION_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SUMMARY_NAVIGATION_EVIDENCE.md Clear panel-icon summary navigation; shared production browser preview; identity/focus and narrow layout UI and actual browser verification; native host display mode unchanged":
+          - cell "SUMMARY_NAVIGATION_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SUMMARY_NAVIGATION_EVIDENCE.md"
+          - cell "Clear panel-icon summary navigation; shared production browser preview; identity/focus and narrow layout"
+          - cell "UI and actual browser verification; native host display mode unchanged"
+        - row "SUMMARY_NAVIGATION_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SUMMARY_NAVIGATION_VERIFICATION.json Clear panel-icon summary navigation; shared production browser preview; identity/focus and narrow layout UI and actual browser verification; native host display mode unchanged":
+          - cell "SUMMARY_NAVIGATION_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SUMMARY_NAVIGATION_VERIFICATION.json"
+          - cell "Clear panel-icon summary navigation; shared production browser preview; identity/focus and narrow layout"
+          - cell "UI and actual browser verification; native host display mode unchanged"
+        - row "SUMMARY_NAVIGATION.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SUMMARY_NAVIGATION.png Clear panel-icon summary navigation; shared production browser preview; identity/focus and narrow layout UI and actual browser verification; native host display mode unchanged":
+          - cell "SUMMARY_NAVIGATION.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SUMMARY_NAVIGATION.png"
+          - cell "Clear panel-icon summary navigation; shared production browser preview; identity/focus and narrow layout"
+          - cell "UI and actual browser verification; native host display mode unchanged"
+        - row "NAVIGATION_HIERARCHY_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_EVIDENCE.md Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus UI/browser/stdio plus mock-host boundary tests; current native qualification remains open":
+          - cell "NAVIGATION_HIERARCHY_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_EVIDENCE.md"
+          - cell "Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus"
+          - cell "UI/browser/stdio plus mock-host boundary tests; current native qualification remains open"
+        - row "NAVIGATION_HIERARCHY_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_VERIFICATION.json Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus UI/browser/stdio plus mock-host boundary tests; current native qualification remains open":
+          - cell "NAVIGATION_HIERARCHY_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_VERIFICATION.json"
+          - cell "Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus"
+          - cell "UI/browser/stdio plus mock-host boundary tests; current native qualification remains open"
+        - row "NAVIGATION_HIERARCHY_WIDE.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_WIDE.png Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus UI/browser/stdio plus mock-host boundary tests; current native qualification remains open":
+          - cell "NAVIGATION_HIERARCHY_WIDE.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_WIDE.png"
+          - cell "Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus"
+          - cell "UI/browser/stdio plus mock-host boundary tests; current native qualification remains open"
+        - row "NAVIGATION_HIERARCHY_NARROW.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_NARROW.png Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus UI/browser/stdio plus mock-host boundary tests; current native qualification remains open":
+          - cell "NAVIGATION_HIERARCHY_NARROW.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/NAVIGATION_HIERARCHY_NARROW.png"
+          - cell "Separated breadcrumb, container-bound view switch and observation refresh; host-confirmed return and focus"
+          - cell "UI/browser/stdio plus mock-host boundary tests; current native qualification remains open"
+        - row "CONTENT_VIEW_MODE_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTENT_VIEW_MODE_EVIDENCE.md Summary and Details preserve expanded display, exact Run and retained document; content selection is independent of host format 35 UI tests, real browser and stdio; current native qualification remains open":
+          - cell "CONTENT_VIEW_MODE_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTENT_VIEW_MODE_EVIDENCE.md"
+          - cell "Summary and Details preserve expanded display, exact Run and retained document; content selection is independent of host format"
+          - cell "35 UI tests, real browser and stdio; current native qualification remains open"
+        - row "CONTENT_VIEW_MODE_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTENT_VIEW_MODE_VERIFICATION.json Summary and Details preserve expanded display, exact Run and retained document; content selection is independent of host format 35 UI tests, real browser and stdio; current native qualification remains open":
+          - cell "CONTENT_VIEW_MODE_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTENT_VIEW_MODE_VERIFICATION.json"
+          - cell "Summary and Details preserve expanded display, exact Run and retained document; content selection is independent of host format"
+          - cell "35 UI tests, real browser and stdio; current native qualification remains open"
+        - row "CONTENT_VIEW_MODE_SUMMARY.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTENT_VIEW_MODE_SUMMARY.png Summary and Details preserve expanded display, exact Run and retained document; content selection is independent of host format 35 UI tests, real browser and stdio; current native qualification remains open":
+          - cell "CONTENT_VIEW_MODE_SUMMARY.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTENT_VIEW_MODE_SUMMARY.png"
+          - cell "Summary and Details preserve expanded display, exact Run and retained document; content selection is independent of host format"
+          - cell "35 UI tests, real browser and stdio; current native qualification remains open"
+        - row "DOCUMENT_VIEW_NAVIGATION_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_VIEW_NAVIGATION_EVIDENCE.md Document source view omits Run content switch; named breadcrumb retains exact Run, selected details and source focus 35 UI tests, real browser and stdio; current native qualification remains open":
+          - cell "DOCUMENT_VIEW_NAVIGATION_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_VIEW_NAVIGATION_EVIDENCE.md"
+          - cell "Document source view omits Run content switch; named breadcrumb retains exact Run, selected details and source focus"
+          - cell "35 UI tests, real browser and stdio; current native qualification remains open"
+        - row "DOCUMENT_VIEW_NAVIGATION_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_VIEW_NAVIGATION_VERIFICATION.json Document source view omits Run content switch; named breadcrumb retains exact Run, selected details and source focus 35 UI tests, real browser and stdio; current native qualification remains open":
+          - cell "DOCUMENT_VIEW_NAVIGATION_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_VIEW_NAVIGATION_VERIFICATION.json"
+          - cell "Document source view omits Run content switch; named breadcrumb retains exact Run, selected details and source focus"
+          - cell "35 UI tests, real browser and stdio; current native qualification remains open"
+        - row "DOCUMENT_VIEW_NAVIGATION.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_VIEW_NAVIGATION.png Document source view omits Run content switch; named breadcrumb retains exact Run, selected details and source focus 35 UI tests, real browser and stdio; current native qualification remains open":
+          - cell "DOCUMENT_VIEW_NAVIGATION.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_VIEW_NAVIGATION.png"
+          - cell "Document source view omits Run content switch; named breadcrumb retains exact Run, selected details and source focus"
+          - cell "35 UI tests, real browser and stdio; current native qualification remains open"
+        - row "DOCUMENT_CLOSE_EVIDENCE.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_CLOSE_EVIDENCE.md Document X reuses containing-Run navigation and source focus; wide/narrow accessible control 35 UI tests, real pointer/keyboard browser and stdio; current native qualification open":
+          - cell "DOCUMENT_CLOSE_EVIDENCE.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_CLOSE_EVIDENCE.md"
+          - cell "Document X reuses containing-Run navigation and source focus; wide/narrow accessible control"
+          - cell "35 UI tests, real pointer/keyboard browser and stdio; current native qualification open"
+        - row "DOCUMENT_CLOSE_VERIFICATION.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_CLOSE_VERIFICATION.json Document X reuses containing-Run navigation and source focus; wide/narrow accessible control 35 UI tests, real pointer/keyboard browser and stdio; current native qualification open":
+          - cell "DOCUMENT_CLOSE_VERIFICATION.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_CLOSE_VERIFICATION.json"
+          - cell "Document X reuses containing-Run navigation and source focus; wide/narrow accessible control"
+          - cell "35 UI tests, real pointer/keyboard browser and stdio; current native qualification open"
+        - row "DOCUMENT_CLOSE.png .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_CLOSE.png Document X reuses containing-Run navigation and source focus; wide/narrow accessible control 35 UI tests, real pointer/keyboard browser and stdio; current native qualification open":
+          - cell "DOCUMENT_CLOSE.png"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_CLOSE.png"
+          - cell "Document X reuses containing-Run navigation and source focus; wide/narrow accessible control"
+          - cell "35 UI tests, real pointer/keyboard browser and stdio; current native qualification open"
+        - row "CODE_REVIEW_FIX_EVIDENCE-01.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CODE_REVIEW_FIX_EVIDENCE-01.md Three scoped code-review corrections with final runtime and unchanged payload budget 48 UI, 7 Core, 5 HTTP, default/cockpit stdio and canonical compatibility checks; native/full TP open":
+          - cell "CODE_REVIEW_FIX_EVIDENCE-01.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CODE_REVIEW_FIX_EVIDENCE-01.md"
+          - cell "Three scoped code-review corrections with final runtime and unchanged payload budget"
+          - cell "48 UI, 7 Core, 5 HTTP, default/cockpit stdio and canonical compatibility checks; native/full TP open"
+        - row "CODE_REVIEW_FIX_VERIFICATION-01.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CODE_REVIEW_FIX_VERIFICATION-01.json Three scoped code-review corrections with final runtime and unchanged payload budget 48 UI, 7 Core, 5 HTTP, default/cockpit stdio and canonical compatibility checks; native/full TP open":
+          - cell "CODE_REVIEW_FIX_VERIFICATION-01.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CODE_REVIEW_FIX_VERIFICATION-01.json"
+          - cell "Three scoped code-review corrections with final runtime and unchanged payload budget"
+          - cell "48 UI, 7 Core, 5 HTTP, default/cockpit stdio and canonical compatibility checks; native/full TP open"
+        - row "COMPATIBILITY_EVIDENCE-02.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE-02.md Three scoped code-review corrections with final runtime and unchanged payload budget 48 UI, 7 Core, 5 HTTP, default/cockpit stdio and canonical compatibility checks; native/full TP open":
+          - cell "COMPATIBILITY_EVIDENCE-02.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE-02.md"
+          - cell "Three scoped code-review corrections with final runtime and unchanged payload budget"
+          - cell "48 UI, 7 Core, 5 HTTP, default/cockpit stdio and canonical compatibility checks; native/full TP open"
+        - row "Remembered session-per-view follow-up .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md Current lifecycle limitation and bounded future proposal Explicit user retention request; not implementation approval":
+          - cell "Remembered session-per-view follow-up"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md"
+          - cell "Current lifecycle limitation and bounded future proposal"
+          - cell "Explicit user retention request; not implementation approval"
+        - row "CORE_CONTEXT_EVIDENCE.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CORE_CONTEXT_EVIDENCE.json Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate Direct fixture/browser/protocol evidence":
+          - cell "CORE_CONTEXT_EVIDENCE.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CORE_CONTEXT_EVIDENCE.json"
+          - cell "Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate"
+          - cell "Direct fixture/browser/protocol evidence"
+        - row "UI_HANDOFF_EVIDENCE.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UI_HANDOFF_EVIDENCE.json Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate Direct fixture/browser/protocol evidence":
+          - cell "UI_HANDOFF_EVIDENCE.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UI_HANDOFF_EVIDENCE.json"
+          - cell "Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate"
+          - cell "Direct fixture/browser/protocol evidence"
+        - row "UI_READING_EVIDENCE.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UI_READING_EVIDENCE.json Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate Direct fixture/browser/protocol evidence":
+          - cell "UI_READING_EVIDENCE.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UI_READING_EVIDENCE.json"
+          - cell "Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate"
+          - cell "Direct fixture/browser/protocol evidence"
+        - row "CONTEXT_IMPLEMENTATION_VERIFICATION-01.json .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTEXT_IMPLEMENTATION_VERIFICATION-01.json Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate Direct fixture/browser/protocol evidence":
+          - cell "CONTEXT_IMPLEMENTATION_VERIFICATION-01.json"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CONTEXT_IMPLEMENTATION_VERIFICATION-01.json"
+          - cell "Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate"
+          - cell "Direct fixture/browser/protocol evidence"
+        - row "CD_TESTS_EVIDENCE-03.md .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CD_TESTS_EVIDENCE-03.md Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate Direct fixture/browser/protocol evidence":
+          - cell "CD_TESTS_EVIDENCE-03.md"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CD_TESTS_EVIDENCE-03.md"
+          - cell "Approved graph/packet/handoff implementation and deterministic current-source checks; final native acceptance separate"
+          - cell "Direct fixture/browser/protocol evidence"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-3675cc09-3d05-4ae5-8229-054c78ce6548.json SD derived_from PRD; binding 77acf286-70a5-403e-b552-5ca0a6860b21; operation 2d8015af-a427-49d8-81be-f93ad966e387; f18f8647-b8ab-49f9-821a-05366fb0937c -> 976a9bf3-0226-434e-8f72-49d7b075c9ba reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-3675cc09-3d05-4ae5-8229-054c78ce6548.json"
+          - cell "SD derived_from PRD; binding 77acf286-70a5-403e-b552-5ca0a6860b21; operation 2d8015af-a427-49d8-81be-f93ad966e387; f18f8647-b8ab-49f9-821a-05366fb0937c -> 976a9bf3-0226-434e-8f72-49d7b075c9ba"
+          - cell "reviewed cooperative mapping"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json SD derived_from PRD; binding 17df981f-2f72-43b4-8806-c621e4fc69fd; operation 2893cf68-4c1c-471d-ab16-d56094b9ae4a; 976a9bf3-0226-434e-8f72-49d7b075c9ba -> 1e0808e9-c2f2-485a-8923-4255d87bf19d reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_SESSION_MAPPING_REVIEW-753688d0-5ddd-4776-a343-7f23b2d21f81.json"
+          - cell "SD derived_from PRD; binding 17df981f-2f72-43b4-8806-c621e4fc69fd; operation 2893cf68-4c1c-471d-ab16-d56094b9ae4a; 976a9bf3-0226-434e-8f72-49d7b075c9ba -> 1e0808e9-c2f2-485a-8923-4255d87bf19d"
+          - cell "reviewed cooperative mapping"
+        - row "Artefact source binding .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json TP derived_from SD; binding 23404522-8c48-43c6-8abd-31995aa9da0d; operation 30bc3564-118f-4b05-a7e1-e6423419adc5; d83596aa-b722-45de-a427-cd896b0ae0e5 -> 9f6d0097-aeb4-45b2-a633-9a1d0baa62db reviewed cooperative mapping":
+          - cell "Artefact source binding"
+          - cell ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_SESSION_MAPPING_REVIEW-8a5d6995-1b4e-43d9-b3f0-2275add87464.json"
+          - cell "TP derived_from SD; binding 23404522-8c48-43c6-8abd-31995aa9da0d; operation 30bc3564-118f-4b05-a7e1-e6423419adc5; d83596aa-b722-45de-a427-cd896b0ae0e5 -> 9f6d0097-aeb4-45b2-a633-9a1d0baa62db"
+          - cell "reviewed cooperative mapping"
+    - heading "Independent View Reading Checkpoint" [level=2]
+    - list:
+      - listitem: SESSION_READ_IMPLEMENTATION-01.md, SESSION_READ_VERIFICATION-01.json and HOST_FEASIBILITY-04.md bind current implementation and distinguish actual native two-view reading, deterministic/protocol evidence, historical method acknowledgement and the new probe activation gap.
+      - listitem: CD+Tests is in_progress. T-006 passed before dependent feature work. Exclusive publication ownership and matched host-acknowledged completion are implemented and tested. Current production native qualification and formal reviews remain open. Approved source bytes and human approvals are unchanged.
+    - heading "Closeout" [level=2]
+    - list:
+      - listitem: "next_allowed_action: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR."
+      - listitem: "quality_outlook:"
+    - heading "Artefact Bindings" [level=2]
+    - list:
+      - listitem: "schema_version: 1"
+    - table:
+      - rowgroup:
+        - row "binding_id receipt_digest receipt":
+          - columnheader "binding_id"
+          - columnheader "receipt_digest"
+          - columnheader "receipt"
+      - rowgroup:
+        - row:
+          - cell "ce2a8b08-d584-4957-9ff6-ad17680e1784"
+          - cell "sha256:8d57b624845f344849d3f845bf2ea2b6cbf06a35bc1056578045ea7ef3970d30"
+          - cell
+        - row:
+          - cell "31c0990e-da4f-4fb9-baf4-9c3f8495ec14"
+          - cell "sha256:546f875db7833971762397f3522ff9e3938b60cb003326ab90c586bf810d53cd"
+          - cell
+        - row:
+          - cell "b596b406-2c26-4850-a971-1846c8c88a6a"
+          - cell "sha256:0567754f5f411aa80f410cbe728f4bf645493274ddc1a2ccc17e18d2bc1641e6"
+          - cell
+        - row:
+          - cell "a4ba1a55-f85e-460a-b951-5aab59c1e08a"
+          - cell "sha256:fd2b5eb4943c0e5e24ef71c67d9579919a5088b64f07d1f8c5af6c707414c666"
+          - cell
+        - row:
+          - cell "18b9af01-6f5b-4784-8541-9218686508d5"
+          - cell "sha256:4c61c5d534817536cfd028481560912a91774f41c828db23d1811b71b94f9d5b"
+          - cell
+        - row:
+          - cell "a5329615-da5d-49be-bc21-074d4611ffdb"
+          - cell "sha256:07466140b5159f2d88e2a7a6c8d6394f414d2912330edb86b62cd9ae65b5465b"
+          - cell
+        - row:
+          - cell "77acf286-70a5-403e-b552-5ca0a6860b21"
+          - cell "sha256:ae42877d8496a564e68219ee83ddf7f91436652fcbccef3e76798dc5b23a22ea"
+          - cell
+        - row:
+          - cell "17df981f-2f72-43b4-8806-c621e4fc69fd"
+          - cell "sha256:dfeb1b572d6d3e9f8bcd5be6815f9cab45b57ff276edec0f7112594356238441"
+          - cell
+        - row:
+          - cell "23404522-8c48-43c6-8abd-31995aa9da0d"
+          - cell "sha256:4cfe3ecfd404ae0dfc120244de912c65987488a459f0d011338ab3057168a998"
+          - cell
+    - heading "Missing Evidence" [level=2]
+    - table:
+      - rowgroup:
+        - row "Missing evidence Impact Required next step":
+          - columnheader "Missing evidence"
+          - columnheader "Impact"
+          - columnheader "Required next step"
+      - rowgroup:
+        - row "Final productive host-context journey Current T-006 reading and method acknowledgements passed on build 26.930.61225; full T-008/T-010 implementation is tested and checkpoint-only executable probes removed Load the current owned production runtime and qualify T-012 packet, deliberate question, concurrent refusal/release, recovery and rollback":
+          - cell "Final productive host-context journey"
+          - cell "Current T-006 reading and method acknowledgements passed on build 26.930.61225; full T-008/T-010 implementation is tested and checkpoint-only executable probes removed"
+          - cell "Load the current owned production runtime and qualify T-012 packet, deliberate question, concurrent refusal/release, recovery and rollback"
+        - row "Current native publication qualification Production owner/controller implementation passes deterministic and real stdio checks; earlier native cards retain the minimal checkpoint resource Qualify the current production resource and observed two-view publication/release flow in Codex":
+          - cell "Current native publication qualification"
+          - cell "Production owner/controller implementation passes deterministic and real stdio checks; earlier native cards retain the minimal checkpoint resource"
+          - cell "Qualify the current production resource and observed two-view publication/release flow in Codex"
+        - row "Final TP/review/host acceptance Current 23 Core, nine graph, 79 UI, five HTTP, ten browser journeys, both cockpit stdio eras and full default MCP suite pass; counts do not qualify all native scenarios Complete T-012 current-production handoff/recovery/rollback and routed CR/QA/UAT/OR":
+          - cell "Final TP/review/host acceptance"
+          - cell "Current 23 Core, nine graph, 79 UI, five HTTP, ten browser journeys, both cockpit stdio eras and full default MCP suite pass; counts do not qualify all native scenarios"
+          - cell "Complete T-012 current-production handoff/recovery/rollback and routed CR/QA/UAT/OR"
+    - heading "Risks" [level=2]
+    - table:
+      - rowgroup:
+        - row "Risk Impact Mitigation or owner":
+          - columnheader "Risk"
+          - columnheader "Impact"
+          - columnheader "Mitigation or owner"
+      - rowgroup:
+        - row "Final native context ownership proof Exclusive ownership and acknowledged completion are implemented and tested; live production context/recovery still needs observation Complete current-production T-012; distinguish native acknowledgement from model receipt and historical chat erasure":
+          - cell "Final native context ownership proof"
+          - cell "Exclusive ownership and acknowledged completion are implemented and tested; live production context/recovery still needs observation"
+          - cell "Complete current-production T-012; distinguish native acknowledgement from model receipt and historical chat erasure"
+        - row "Fixed Copilot payload budget Current regression resolved; future growth remains bounded by the unchanged limit Preserve baseline and canonical profile validation; see COMPATIBILITY_EVIDENCE-02.md":
+          - cell "Fixed Copilot payload budget"
+          - cell "Current regression resolved; future growth remains bounded by the unchanged limit"
+          - cell "Preserve baseline and canonical profile validation; see COMPATIBILITY_EVIDENCE-02.md"
+    - heading "Source Revisions" [level=2]
+    - list:
+      - listitem: "schema_version: 1"
+    - table:
+      - rowgroup:
+        - row "operation_id receipt_digest receipt":
+          - columnheader "operation_id"
+          - columnheader "receipt_digest"
+          - columnheader "receipt"
+      - rowgroup:
+        - row:
+          - cell "8af83d43-0552-4490-8870-368a64853335"
+          - cell "sha256:168ebeb57aa9a0067227337f24669ab4ef3c98718ffb0780615a20a4485b1e60"
+          - cell
+        - row:
+          - cell "d42626e2-69b1-4cd7-9a9b-753b72d01651"
+          - cell "sha256:58b184af96a8e7afc0af77c0f55b90f4ed53717047acb8ea39d09ad55fb625cb"
+          - cell
+    - heading "Context Graph Impact" [level=2]
+    - list:
+      - listitem: "context_graph_impact: update_existing_node"
+      - listitem: "context_graph_refs: .agdf/control/CONTEXT_GRAPH.md#CG-MCP-DISPATCH-ADAPTER"
+      - listitem: "context_graph_reconciliation: open_gap"
+      - listitem: "context_graph_required_action: update"
+      - listitem: "context_graph_gate_effect: warning"
+      - listitem: "context_graph_evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/OR.md"
+    - heading "Knowledge Persistence Decision" [level=2]
+    - list:
+      - listitem: "memory_target: context_graph"
+      - listitem: "memory_reason: Preserve verified lifecycle ownership and explicit future multi-view proposal without claiming implementation"
+      - listitem: "memory_refs: .agdf/control/CONTEXT_GRAPH.md#CG-MCP-DISPATCH-ADAPTER; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/FOLLOW_UP.md"
+    - heading "Continuation Disposition" [level=2]
+    - list:
+      - listitem: User selected regular completion on 2026-10-06.
+      - listitem: "Evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-03.md"
+      - listitem: Current native call responds after user continuation; see .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-04.md.
+      - listitem: "Immediate next step: inspect the current native app after user expansion and qualify T-006 before dependent implementation."
+    - heading "Current Native Reading Evidence" [level=2]
+    - list:
+      - listitem: "Evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_READ_PATH-03.md"
+      - listitem: Current named Run/resource/document/return pass; zero writes in closed app-only reading window.
+      - listitem: Empty-input overview rendered outcome still pending supported side-panel access; T-006 remains partial.
+    - heading "Minimal Host Feasibility Reconciliation" [level=2]
+    - list:
+      - listitem: "T-006 feasibility checkpoint: passed; full product acceptance remains open."
+      - listitem: "Evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY-03.md"
+      - listitem: "Next: implement approved T-007/T-008 graph references and checked context packet, then T-009/T-010 production UI handoff; retain final native evidence obligations."
+    - heading "Context Implementation Checkpoint" [level=2]
+    - list:
+      - listitem: "Source revision: c627d03f-0ac9-4c75-b2a1-f94416806027"
+      - listitem: "Evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CD_TESTS_EVIDENCE-03.md"
+      - listitem: "T-007/T-008: implemented and deterministic source/packet boundary checks pass."
+      - listitem: "T-009/T-010: implemented, typed/build-tested and bridge fixtures pass; final current-host product journey remains open."
+      - listitem: "T-011: deterministic integration/profile checks pass; complete task/structural/diff review still required."
+      - listitem: "T-012: fresh exact-Run opening responds after runtime refresh/restart; actual UI/packet/question, untouched empty-input first frame and remaining recovery/rollback evidence pending."
+      - listitem: This checkpoint grants no QA/UAT approval, successful closeout or VCS action.
+    - heading "Final Native and Compatibility Checkpoint" [level=2]
+    - list:
+      - listitem: This dated 2026-10-06 checkpoint supersedes historical Continuation Disposition, Current Native Reading Evidence, Minimal Host Feasibility Reconciliation, Context Implementation Checkpoint and interim OR prose for current facts.
+      - listitem: Real native production document/explicit graph/checked packet/context acknowledgement, separately clicked question acknowledgement, same-Run document return and untouched empty overview are recorded in HOST_PRODUCT_JOURNEY-01.md and NATIVE_PRODUCT_EVIDENCE-01.json.
+      - listitem: App-only window 2026-10-06T12:40:29.026Z through 2026-10-06T12:47:40.971Z preserved all 3405 canonical control entries; bookkeeping occurred after the closed window.
+      - listitem: Complete current default MCP suite and remaining deterministic compatibility lanes pass; COMPATIBILITY_EVIDENCE-03.md and COMPATIBILITY_VERIFICATION-03.json preserve logs, failed-attempt distinctions and corrected startup tuple.
+      - listitem: Private snapshot import isolation was repaired in the existing dispatcher owner. UI/Core bytes are unchanged; the prior native startup tuple is explicitly retained separately.
+      - listitem: Latest exact-Run native opening reports Transport closed after owned runtime refresh. Fresh corrected loaded identity, remaining rollback/recovery and model-facing evidence are open. Question acceptance is not an observed model answer; no question is automatically repeated.
+      - listitem: CD+Tests remains in_progress. Full T-011 reviews, canonical QA/UAT and regular OR/lifecycle completion remain open. Per-view sessions remain a separate follow-up. No VCS action occurred.
+    - heading "Current Pages Design Checkpoint" [level=2]
+    - list:
+      - listitem: This checkpoint supersedes earlier current-UI statements; PAGES_DESIGN_ALIGNMENT-02.md and PAGES_DESIGN_VERIFICATION-02.json bind the latest styled source and prepared UI.
+      - listitem: All four views share Pages typography/spacing owners; 59 UI tests, five service tests, five browser journeys, Pages regression/build, typecheck, UI builds, config and two actual protocol eras pass.
+      - listitem: The earlier production context arrived in model context with exact Run/source provenance; its revision 46 remains dated. No automatic resend or answer-quality acceptance is inferred.
+      - listitem: Native loading of the latest UI remains open after the single exact-Run call returned Transport closed. Restart/reopen Codex, inspect a newly opened card and remaining host qualification before final reviews/QA/UAT.
+      - listitem: CD+Tests stays in_progress; no approval, formal review pass, VCS action or lifecycle completion is claimed.
+    - heading "Connected Work Step Checkpoint" [level=2]
+    - list:
+      - listitem: WORK_STEP_EVIDENCE-01.md and WORK_STEP_VERIFICATION-01.json supersede older current-presentation claims for this newer UI.
+      - listitem: Shared action/prerequisite/evidence unit, explicit unknown/blocking semantics, registered-source navigation and reduced list orientation are implemented; current deterministic/browser checks pass.
+      - listitem: Exact-Run native opening now responds on the refreshed local connection. Earlier Transport closed statements remain historical; current native UI identity/visual qualification and other final host/review obligations remain open.
+      - listitem: Actual local browser opened the registered CD+Tests source and returned to the same Run/evidence button; no question was sent and no control approval was inferred.
+      - listitem: CD+Tests stays in_progress; no formal review pass, QA/UAT, VCS action or completed lifecycle is claimed.
+    - heading "Sticky Header and View Selector Checkpoint" [level=2]
+    - list:
+      - listitem: STICKY_HEADER_VIEW_SWITCH_EVIDENCE-01.md and its verification JSON supersede older current-UI/opening statements for the newest built resource.
+      - listitem: Shared sticky header, Run context/refresh, sliding labelled buttons, reduced motion, document exclusion and narrow summary fallback are implemented and browser-tested.
+      - listitem: 66 UI tests, six browser journeys, 32 viewport/theme combinations, typecheck/build and current prepared protocol eras pass; approved upstream artefacts remain unchanged.
+      - listitem: Current exact-Run native opening returns Transport closed after owned preparation; latest native UI identity and remaining host/review qualification remain open.
+      - listitem: CD+Tests remains in_progress; no CR/QA/UAT approval, VCS action or lifecycle completion is claimed.
+    - heading "Transparent Refresh Control Checkpoint" [level=2]
+    - list:
+      - listitem: Shared header refresh controls remain transparent on hover; keyboard focus and stale-state text/border remain available.
+      - listitem: Browser/MCP builds and actual local browser computed styles pass; evidence appended to CD_TESTS_EVIDENCE-03.md.
+      - listitem: Current native UI qualification and regular remaining review/QA/UAT obligations remain open; CD+Tests stays in_progress.
+    - heading "Summary Status and Orientation Checkpoint" [level=2]
+    - list:
+      - listitem: SUMMARY_STATUS_EVIDENCE-01.md and SUMMARY_STATUS_VERIFICATION-01.json supersede earlier current-presentation statements for the newest prepared UI.
+      - listitem: Shared freshness feedback, truthful unconfirmed prior control, summary work-step priority, compact original disclosures and directly visible registered sources are implemented.
+      - listitem: 68 UI tests, all seven browser journeys against normal production output, 32 viewport/theme combinations, builds/typecheck and both prepared actual protocol eras pass; approved upstream sources and project configuration remain unchanged.
+      - listitem: Actual local Codex browser Summary is recorded; document-return mode/focus and narrow fallback pass. Current native UI identity/visual qualification, remaining host/review/QA/UAT and regular lifecycle closeout stay open.
+      - listitem: CD+Tests remains in_progress. No question, approval, VCS action or lifecycle completion is inferred.
+    - heading "Shared Pages surfaces and theme checkpoint" [level=2]
+    - list:
+      - listitem: PAGES_SURFACE_ALIGNMENT-03.md and PAGES_SURFACE_VERIFICATION-03.json supersede earlier current UI facts for this prepared resource.
+      - listitem: One Pages-owned surface/link recipe, host-neutral brand values, restored work-step emphasis, semibold source links and Summary entry are implemented; explicit Details survives same-Run refresh/document return.
+      - listitem: 68 UI tests, seven existing browser journeys plus the separately successful new theme journey, 32 viewport/theme combinations, ten canonical surface comparisons, contrast checks, typecheck/builds, Pages regressions and both prepared protocol eras pass. Interrupted/failed test attempts remain distinct in copied evidence.
+      - listitem: Actual repository Run was visually inspected in light and dark in the Codex browser; dark uses the disclosed HTML-only fixture. Current native opening returned Transport closed; newest native UI identity/visual qualification remains open.
+      - listitem: Approved upstream sources and project configuration remain unchanged. CD+Tests stays in_progress; remaining host qualification, full reviews and canonical QA/UAT/closeout remain open. No approval, VCS action or completed lifecycle is claimed.
+    - heading "Shared Pages component hierarchy checkpoint" [level=2]
+    - list:
+      - listitem: PAGES_COMPONENT_ALIGNMENT-04.md and PAGES_COMPONENT_VERIFICATION-04.json supersede older current UI statements for the latest prepared resource.
+      - listitem: Pages-owned primary/secondary action recipes, transparent secondary hover, explicit document title/description/metadata weights, shared heading line heights, 24/16-pixel work-step spacing, 72-pixel sticky header and scaled compact spacing are implemented. Selector hover retains only its sliding selection surface.
+      - listitem: 68 UI tests, the complete final nine-journey browser suite, 32 responsive/theme combinations, ten surface and four actual built-Pages action/theme observations, typecheck/builds, Pages regressions and both prepared stdio protocol eras pass. Initial transition failures and the earlier pass before the final selector correction are recorded separately.
+      - listitem: Actual repository Run visuals and document typography were checked in both browser themes; dark uses the disclosed HTML-only fixture. Current native loading/visual identity stays open after Transport closed. Approved upstream sources and project configuration remain unchanged.
+      - listitem: CD+Tests stays in_progress; remaining host qualification, answer-quality evidence, full reviews and canonical QA/UAT/regular closeout remain open. No approval, VCS action or lifecycle completion is claimed.
+    - heading "Shared Pages surface contrast checkpoint" [level=2]
+    - list:
+      - listitem: PAGES_SURFACE_CONTRAST-05.md and PAGES_SURFACE_CONTRAST_VERIFICATION-05.json supersede earlier current surface-color statements.
+      - listitem: Shared neutral fills, clearer light/dark borders, dark-100/dark-950 canvas and three-pixel turquoise work-focus edge are implemented under Pages ownership. Canonical dark-300 was completed and generated CSS synchronized.
+      - listitem: All nine browser journeys pass with 32 responsive/theme combinations, ten surface observations, four built-Pages component observations, exact color/accent checks and text/link contrast >=4.5:1. Builds, Pages regressions, generated token check and both prepared stdio protocol eras pass. Earlier failed token attempt remains separate; prior UI-test counts are historical.
+      - listitem: Actual repository browser visuals were inspected in light/dark after restarting the owned immutable-asset preview server. Approved sources and configuration remain unchanged. Current native loaded/visual identity remains unqualified.
+      - listitem: CD+Tests remains in_progress; existing review/host/QA/UAT/regular closeout obligations stay open. No approval, VCS action or completed lifecycle is claimed.
+    - heading "Work-step hierarchy checkpoint" [level=2]
+    - list:
+      - listitem: WORK_STEP_HIERARCHY-02.md and WORK_STEP_HIERARCHY_VERIFICATION-02.json supersede current presentation facts for the newest prepared resource.
+      - listitem: Current stage/exact action leads; qualified beginning, collapsed control basis and counted evidence with direct registered sources form one unit. Zero evidence and stale state remain truthful. Shared Pages colors and component recipes are preserved.
+      - listitem: 71 UI tests, five service tests, all ten browser journeys, 32 existing plus eight hierarchy responsive/theme observations, actual built-Pages component/surface checks, typecheck/builds/token/diff checks and both prepared stdio eras pass. Earlier failed attempts are separate.
+      - listitem: Actual Run browser visuals were checked in light/dark (disclosed HTML-only dark fixture); native loaded/visual identity remains unconfirmed. Approved upstream sources/configuration are byte-identical.
+      - listitem: CD+Tests stays in_progress; existing review/host/QA/UAT/regular closeout obligations remain open. No approval, VCS action or lifecycle completion is claimed.
+    - heading "Cockpit architecture documentation checkpoint" [level=2]
+    - list:
+      - listitem: docs/architecture/06-agdf-cockpit.md describes the existing local Cockpit integration, source owners, Run-binding, connected reading UX, Pages design, refresh/session behavior, explicit context handoff and evidence limits. The existing architecture overview, system, MCP and package references link it.
+      - listitem: COCKPIT_ARCHITECTURE_DOCS-01.md and COCKPIT_ARCHITECTURE_DOCS_VERIFICATION-01.json record 180 passing local links, new heading-link checks, passing existing CLI/architecture regression and diff check. Approved source/config bytes are unchanged; runtime/UI were not rebuilt for this documentation-only change.
+      - listitem: CD+Tests remains in_progress; native qualification, existing full reviews and regular QA/UAT/closeout remain open. No approval, VCS action or lifecycle completion is claimed.
+    - heading "Interim OR status correction" [level=2]
+    - paragraph: INTERIM_OR_STATUS_CORRECTION-01.md records the rejected source-revision preview and the correction of an overstated OR done marker to in_progress. The existing report explicitly declares interim status and unfinished regular closeout. Its bytes, path and historical evidence are retained. No approval, completed lifecycle or implementation permission is inferred.
+    - heading "Independent View Session Preparation" [level=2]
+    - list:
+      - listitem: SESSION_BROWNFIELD_ANALYSIS-01.md and SESSION_IMPLEMENTATION_BASELINE-01.json record renewed approved-TP preparation, clean candidate code baseline, existing owners and minimal implementation path.
+      - listitem: Source revision d42626e2-69b1-4cd7-9a9b-753b72d01651 and current SD/TP supersede earlier one-session design and follow-up-only prose. New independent sessions and publication-owner completion remain unimplemented; historical UI/protocol/native checks do not prove them.
+      - listitem: Context Graph reconciliation is reopened for verified new lifecycle knowledge. Existing resolved historical node updates remain evidence, not proof of this new change. No QA/UAT, native two-view qualification, VCS or clean closeout claim.
+    - heading "Current Native Method Checkpoint" [level=2]
+    - list:
+      - listitem: HOST_FEASIBILITY-05.md and session-evidence/native-current-* record current native T-006 reading and method feasibility. One new synthetic question followed the human's explicit one-time permission; no repeated send is authorized. Model answer quality remains unverified.
+      - listitem: The canonical next_allowed_action is restored to the Core CD+Tests action. Subtask progress stays in this appendix and evidence rather than creating a persisted/Core mismatch.
+      - listitem: Continue approved T-007/T-008/T-009/T-010 implementation. CD+Tests remains in_progress, and final production host proof, reviews, QA/UAT and regular closeout remain open.
+    - heading "Current Production Publication Implementation" [level=2]
+    - list:
+      - listitem: SESSION_PUBLICATION_IMPLEMENTATION-02.md and SESSION_PUBLICATION_VERIFICATION-02.json supersede the earlier minimal-reading implementation status; earlier appendices describe historical checkpoints. T-007/T-008/T-009/T-010 are implemented and requalified.
+      - listitem: 23 Core session/publication, nine graph/source, 79 UI, five HTTP, ten browser journeys, type/builds, both actual cockpit stdio eras and the full default MCP suite pass. Exact current source/projection hashes and failed-attempt labels are retained. These counts are not all-sixty-scenario native proof.
+      - listitem: Executable synthetic method probes are removed from production; diagnostic UI reports metadata only. The accepted synthetic question is not repeated.
+      - listitem: Current-production native T-012, task fulfilment/formal CR, QA/UAT/OR and verified Context Graph curation remain open. No VCS action or unrelated diagram edit. Canonical next_allowed_action remains the Core CD+Tests action.
+    - heading "Current Production Runtime Reconnection" [level=2]
+    - list:
+      - listitem: HOST_RECONNECTION-06.md records the paired current production package/resource preparation, scoped connection retirement, unchanged project config and isolated byte-identical rollback.
+      - listitem: The bound native opening returned Transport closed. A Codex restart/reopen is requested solely to obtain a fresh connection for current T-012 production qualification. Earlier loaded cards are not current-production proof.
+      - listitem: No further synthetic question is sent; exact production question permission must follow a concrete source packet preview. CD+Tests remains in_progress, with no new gate approval pending and no formal QA/UAT/release claim.
+    - heading "Current Native Visibility Check" [level=2]
+    - list:
+      - listitem: "HOST_RECONNECTION-07.md supersedes the previous connection-closed condition: named and deliberate overview openings now respond. No additional restart is currently requested."
+      - listitem: The backend sees only older expanded panels; both newly opened cards must be expanded for the current native journey. No new synthetic or production question was sent.
+      - listitem: Seven retained read/provider/config cases, current Copilot profile checks and exact locked SDK/self-contained bundle inspection pass. Final current native T-012 and routed reviews remain open; CD+Tests is in_progress.
+    - heading "Current Native Resource Identity Observation" [level=2]
+    - list:
+      - listitem: HOST_RESOURCE_IDENTITY-08.md records an expired third overview panel and a verified older inline module, with the live resource prefix matching the current prepared build.
+      - listitem: A new named Run card was opened with the exact run_id; its loaded module is still unobserved because it is inline. Fresh-panel visibility and T-012 remain open.
+      - listitem: Fixed-URI host caching is a supported hypothesis. Any paired URI version change must follow the source revision route because approved SD binds v1. No approved artefact, product source, session limit or host settings were changed.
+      - listitem: No additional question was sent; CD+Tests remains in_progress.
+    - heading "Fresh Native Production UI Identity" [level=2]
+    - list:
+      - listitem: HOST_RESOURCE_IDENTITY-09.md proves the newly expanded named Run card loads the exact current prepared module. A fresh-card resource-cache defect is not established; no URI or approved-source change is needed for this observation.
+      - listitem: The view expired overnight after the approved eight-hour lifetime. Fresh concurrent views remain necessary for T-012; no extra question was sent and no no-write window has started.
+    - heading "Current Native Production Handoff Checkpoint" [level=2]
+    - list:
+      - listitem: HOST_PRODUCTION_HANDOFF-10.md and HOST_PRODUCTION_HANDOFF-10.json record exact current module/host identity, canonical packet equality, actual model context and once-authorized question receipt, acknowledged own release, and return to the named Run.
+      - listitem: Three app-only read/context, question and release windows closed with byte-identical canonical control inventories before this bookkeeping. No synthetic or production question is repeated.
+      - listitem: The graph's dated implementation statement is explicitly superseded by a bounded current source/test/native addendum; its open_gap and final knowledge reconciliation remain open.
+      - listitem: The tools expose one usable current view plus older/expired panels. A second current concurrent view, final native takeover/recovery/rollback and TP/CR/QA/UAT/OR remain open. CD+Tests is still in_progress; no approval or next-action change is inferred.
+    - heading "Actual Host Invalidation Receipt" [level=2]
+    - list:
+      - listitem: The actual model-facing invalid-selection signal from the same native app session confirms the previous selection is non-current (generation 15, observed 2026-10-07T05:50:40.547Z). HOST_PRODUCTION_HANDOFF-10.md/.json retain the exact received identity and non-authorizing payload.
+      - listitem: This is additional owned-release evidence; concurrent takeover, recovery/rollback and regular review/acceptance remain open. CD+Tests stays in_progress.
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ausblenden" [expanded]
+    - paragraph: Explizit im Vorhaben gepflegte Zusammenhänge. Quellen werden als Text gelesen.
+    - list:
+      - strong: CG-MCP-DISPATCH-ADAPTER
+      - checkbox "In Kontext aufnehmen"
+      - text: In Kontext aufnehmen
+      - generic "Quelle lesen"
+    - paragraph:
+      - text: "Übergabe:"
+      - strong: Run State
+      - text: · 0 von höchstens 16 Knoten. Ausgelassene und nicht verfügbare Verweise werden im Paket offengelegt.
+    - button "Kontext übergeben"
+    - button "Frage zu diesen Quellen senden" [disabled]
+    - status: Die Kontextübergabe ist belegt. Andere Ansichten können weiter lesen. Versuche die Übergabe nach dem bestätigten Abschluss erneut.
+  - generic: Lokale Beobachtung · Verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

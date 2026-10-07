@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-cockpit-mcp-app-20261005-01
 - lifecycle: active
-- revision: 80
-- revision_id: bc45fcb0-895b-4150-947b-ca6e1697bd4d
-- content_seal: sha256:2f2f65f7fd6c3dfb23f78d25596fef478df7ddfe42ecdc9e253279b543e700df
+- revision: 82
+- revision_id: 213f5689-973f-4924-a70a-cc38412e81fa
+- content_seal: sha256:8d4f918633cd4095142207c13311d027b82d176073fdb7ebc63c86efcb365da1
 - approval_seal: sha256:1d621a8ebd275062476c21632754faa6446194d626ac8e52d735f35e3fc8498c
-- updated_at: 2026-10-07T07:20:46.827Z
+- updated_at: 2026-10-07T07:50:08.520Z
 - mode: structured_delivery
 - current_gate: CD+Tests
 - decision: in_progress
@@ -167,6 +167,8 @@ Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a
 | Saved work-state orientation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_ORIENTATION-03.md | Core assessment, single-column closed entry, exact source and origin focus; current isolated protocol/browser checks | Native current-build activation/display still open; no gate approval |
 | Work-state runtime activation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/WORK_STEP_ACTIVATION-04.md | Explicit scoped local activation; exact tuple/config and both registered-runtime protocol eras verified | Native reconnect/display pending: Transport closed; no approval |
 | Fresh native work-state view | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_WORK_STATE_ACTIVATION-05.md | Exact native module/style, bound Run, source opening and exact focus return verified | Single-view light-theme proof; approval-row spacing and full recovery/reviews remain open |
+| Document orientation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DOCUMENT_ORIENTATION-06.md | Authored summary, bound saved/Core status, folded exact sources, focus/spacing and browser/protocol checks | New native reconnect/display remains open; no approval |
+| Fresh native document orientation | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_DOCUMENT_ORIENTATION-07.md | New native document journey, exact registered source, closed originals, status separation and exact return focus | Single-view light observation; full recovery/reviews remain open; no approval |
 | Dated native parallel publication | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_PARALLEL_PUBLICATION-14.md | Two current views, occupied refusal, acknowledged takeover and once-only second-view question; earlier module only | Historical actual-host evidence, not new UI or final recovery/rollback proof |
 
 ## Independent View Reading Checkpoint
@@ -431,3 +433,16 @@ INTERIM_OR_STATUS_CORRECTION-01.md records the rejected source-revision preview 
 - HOST_WORK_STATE_ACTIVATION-05.md/.json supersede the Transport closed visibility gap: the native bound opening responds and the actual loaded module/style match the qualified build. No further restart is requested for this observation.
 - Registered-source opening and document close return to the same Run with exact source-button focus. Closed disclosures, Inter, sticky header and single-column work unit are observed. One expanded approval-row spacing finding is retained; full visual/native dark acceptance is not claimed.
 - No packet or question was sent. Single-view proof does not replace current two-view recovery/rollback, task fulfilment/reviews or QA/UAT/OR. CD+Tests and canonical next action remain unchanged.
+
+## Document orientation and current native refresh
+
+- DOCUMENT_ORIENTATION-06.md/.json qualify the requested document orientation, exact source/control separation, folded provenance/originals, heading focus and approval-row spacing correction. Approved sources and Pages ownership are unchanged.
+- The final named owned runtime matches the qualified UI/package tuple and registered-entrypoint readback passes. This supersedes the prior current-native visibility statement only for the changed document build: Transport closed requires a fresh Codex connection; earlier native evidence remains historical.
+- No packet, question or approval was sent. CD+Tests and canonical next action are unchanged. Fresh native display/recovery/rollback, final task fulfilment/CR/QA/UAT/OR remain open.
+
+
+## Fresh native document orientation checkpoint
+
+- HOST_DOCUMENT_ORIENTATION-07.md/.json supersede the Transport closed/new native display gap: the fresh named opening responds and the expanded native document shows the updated authored orientation, separate status, folded source/original, Pages heading focus and corrected approval-row spacing.
+- Deliberate original/provenance opening and document close preserve exact source binding and return focus. Native light width 845px is directly observed; earlier browser dark/width checks remain separate. No mounted HTML byte-hash or complete app-only no-write window is newly claimed.
+- No packet, question or approval was sent. CD+Tests and canonical next action remain unchanged; remaining native recovery/rollback, task fulfilment/CR/QA/UAT/OR stay open.

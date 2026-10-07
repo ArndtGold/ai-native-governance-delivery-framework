@@ -24,3 +24,12 @@ WORK_STEP_ACTIVATION-04.md/.json supersede the preceding activation-open stateme
 ## 7 October: fresh native work-state display
 
 HOST_WORK_STATE_ACTIVATION-05.md/.json supersede the preceding Transport closed/current-build visibility gap. The bound opening responds, actual DOM module and stylesheet match the qualified build, and primary registered-source opening/document close/exact return focus pass in the native light-theme view. Closed supporting disclosures, Inter, the sticky header and a single-column work unit are observed. An expanded approval-row spacing finding is retained; this is not full visual acceptance, native dark or two-view recovery/rollback proof. No packet/question was sent. CD+Tests remains in_progress and remaining reviews/QA/UAT/OR are open.
+
+## 7 October: document orientation and source/control separation
+
+DOCUMENT_ORIENTATION-06.md and DOCUMENT_ORIENTATION_VERIFICATION-06.json record authored German source orientation, separately bound saved document/current Core facts, closed provenance/exact originals, accessible heading focus and corrected approval-row spacing. Final UI/service/type/build checks and eleven unique browser cases pass with retained failed attempts and targeted retries. The final owned project runtime matches the independently qualified tuple and fresh registered-entrypoint resource/actual-Run readback. The native opening returned Transport closed after refresh; new native display/recovery/reviews remain open. No packet/question or approval was sent; CD+Tests remains in_progress.
+
+
+## Fresh native document checkpoint (2026-10-07)
+
+HOST_DOCUMENT_ORIENTATION-07.md/.json retain the current named native document/source/return journey and corrected expanded approval spacing. This closes the DOCUMENT_ORIENTATION-06 native visibility gap only. Original source metadata remains unchanged and separate from current saved/Core facts. Single-view native light evidence does not replace remaining recovery/rollback, task fulfilment/CR/QA/UAT/OR. No additional context or question was sent; CD+Tests remains in_progress.

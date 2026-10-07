@@ -1,0 +1,28 @@
+{
+  "source_revision": "1d8e9644-f16a-447c-bc88-120aacac0ec1",
+  "before_at": "2026-10-07T05:59:04.891Z",
+  "after_at": "2026-10-07T06:03:25.456Z",
+  "canonical_digest": "46b62734998939b9fda0007428706417a7c36169670ac94b738edbaab50509d5",
+  "canonical_bytes_unchanged": true,
+  "views": {
+    "a_init": "75ac25e0-54d0-49b9-887e-3e42abaf1cfb",
+    "b_init": "3199fcbb-7eac-4427-b800-b939612a6dd4",
+    "module_sha256": "a235f9db6ec72dbf9e747f964197d896d5ce439f241d6ca1e0ac7a845bae9421"
+  },
+  "observed": [
+    "concurrent equal-Run reading and own documents",
+    "distinct-Run navigation in B with A source retained; chosen historical Run explicitly shows its seal problem",
+    "A accepted production context",
+    "B competing prepare refused as occupied",
+    "B nonowner document close with identical A packet retained",
+    "A owned release reached idle",
+    "B accepted own packet with distinct context/snapshot/resource identities",
+    "A former-owner document close with identical B packet retained"
+  ],
+  "a_context_id": "bc8a227f-2661-47df-a43e-ff6bee563285",
+  "b_context_id": "3c2ce41a-252e-44a6-82ae-b2bb5ecf4b1d",
+  "question_click_count": 0,
+  "b_question": "awaiting separate human authorization",
+  "b_context": "still held; no canonical bookkeeping until acknowledged release",
+  "authorizes": false
+}

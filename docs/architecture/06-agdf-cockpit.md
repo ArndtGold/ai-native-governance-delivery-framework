@@ -72,13 +72,28 @@ nicht aus URL oder Browser-Speicher wiederhergestellt.
 | Run-Übersicht | Führt mit dem kanonischen Titel, Ziel, verständlicher Phase und gemeldeten offenen Punkten. Die Run-ID bleibt zur Zuordnung sichtbar. Suche filtert vorübergehend nach Titel, ID oder Gate. Eingeschränkte Einträge bleiben mit ihren Quellen erkennbar. |
 | Run-Zusammenfassung | Bündelt aktuellen Arbeitsschritt, exakte Core-Aktion, Voraussetzungen und Nachweise. Ziel, ID und Kontrollgrundlage sind aufklappbar. |
 | Run-Details | Zeigt zusätzliche Originalangaben und Quellen. Der Schiebeschalter „Zusammenfassung / Details“ ändert den Lesemodus innerhalb der größeren Ansicht. |
-| Dokument | Zeigt Dokumenttyp, zugehöriges Vorhaben und passive Originalquelle. Hier gibt es keinen Zusammenfassungs-/Details-Schalter. „Dokument schließen“ kehrt zum Run zurück und stellt den Fokus auf den öffnenden Quellenzugang wieder her. |
+| Dokument | Führt mit einer vorhandenen deutschen Quellenkurzfassung, dem gespeicherten Dokumentstand und der getrennten aktuellen Core-Kontrollauswertung. Quellenangaben und unveränderter Originaltext starten geschlossen. Hier gibt es keinen Zusammenfassungs-/Details-Schalter. „Dokument schließen“ kehrt zum Run zurück und stellt den Fokus auf den öffnenden Quellenzugang wieder her. |
 
 Das Cockpit schreibt weder kanonische Titel noch freigegebene Ziele um. Fachlich unklare
 Originalangaben bleiben als solche sichtbar. Es erfindet keinen Fortschritt oder nächsten
 Arbeitsschritt aus einer UI-Auswahl.
 
-### Eine zusammenhängende Arbeitseinheit
+Die Dokumentkurzfassung verwendet ausschließlich den ersten vollständigen Absatz einer
+eindeutig vorhandenen `AGDF Approval Summary (de; source=en)` aus der gelesenen Markdownquelle.
+Codebeispiele und mehrfach vorhandene oder zu große Deklarationen liefern keine Kurzfassung;
+die Oberfläche meldet fehlende Kurzfassungen ausdrücklich. Es gibt keine automatische Übersetzung,
+inhaltliche Synthese oder zweite Zusammenfassungsablage. Das Original bleibt vollständig passiv lesbar.
+
+Der Dokumentstand wird aus der passenden Artefaktzeile des Run-Stands gezeigt, nicht aus einer
+Freigabe desselben Gate-Namens oder den Metadaten im Dokument. Ziel, Snapshot, Run, registrierte
+Ressourcenidentität und Quellenverweis müssen zum gleichzeitig gelesenen Run passen. Fehlt diese
+Bindung, bleibt der Dokumentstand unbestätigt. Veraltete Beobachtungen werden als zuletzt gespeichert
+beschrieben; sie bestätigen keine aktuelle Weiterarbeit. Abweichende `draft`-/`open`-Angaben im
+unveränderten Original ersetzen weder den Run-Stand noch die Core-Kontrollauswertung.
+
+#Die Dokumentansicht bündelt Titel, Lesehinweise, Einordnung, Quellen und Kontextzugang auf einer gemeinsamen neutralen Pages-Lesefläche. Sie ist einschließlich Innenabständen auf 80ch begrenzt und symmetrisch zentriert. Texte und Anschlussaktionen teilen dieselbe Innenkante. Der Kontextzugang bleibt eine mindestens 44px hohe, per Tastatur erreichbare Textaktion; seine Inhalte öffnen innerhalb der Lesefläche. Originale erhalten darin keinen zusätzlichen Kartenrahmen oder Schatten. Der Branding-Kopf bleibt unverändert.
+
+## Eine zusammenhängende Arbeitseinheit
 
 Die Phase und die zuletzt gespeicherte Entscheidung geben zuerst Orientierung. Davon getrennt
 steht die aktuelle Kontrollaussage. Core projiziert dafür die bereits ausgewertete Gate-Entscheidung

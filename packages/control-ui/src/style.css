@@ -37,6 +37,7 @@ main { max-width: 1450px; margin: auto; padding: var(--agdf-space-8) var(--agdf-
 .page-title { display: flex; justify-content: space-between; gap: var(--agdf-space-5); align-items: center; margin-bottom: var(--agdf-space-6); }
 .page-title > div:first-child { min-width: 0; }
 .page-title h1 { overflow-wrap: anywhere; }
+.page-title h1:focus-visible { outline: none; text-decoration: underline; text-decoration-color: var(--agdf-focus-color); text-decoration-thickness: var(--agdf-focus-width); text-underline-offset: var(--agdf-focus-offset); }
 .page-title p { margin: 0; font-size: var(--agdf-text-sm); }
 .eyebrow { font-family: var(--agdf-font-mono); font-size: var(--agdf-text-xs); font-weight: var(--agdf-weight-bold); letter-spacing: var(--agdf-tracking-eyebrow); text-transform: uppercase; }
 .actions { display: flex; gap: var(--agdf-space-2); font-size: var(--agdf-text-sm); }
@@ -98,6 +99,8 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
 .work-step-beginning span { font-size: var(--agdf-text-xs); line-height: var(--agdf-text-leading-xs); color: var(--cockpit-muted); }
 .work-step-blocked { color: var(--cockpit-risk); font-size: var(--agdf-text-sm); }
 .work-step-approvals > summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
+.work-step-approvals li { display: grid; gap: var(--agdf-space-2); }
+.work-step-approvals li > .text-link { justify-self: start; }
 .work-step-evidence { border-bottom: 0; }
 .work-step-evidence summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
 .work-step-empty { font-size: var(--agdf-text-sm); color: var(--cockpit-muted); margin: var(--agdf-space-2) 0; }
@@ -160,6 +163,24 @@ footer { padding: var(--agdf-space-6) 0 var(--agdf-space-2); font-size: var(--ag
 .control-details .detail-columns { margin-top: var(--agdf-space-4); }
 .undertaking-summary h3 { margin-top: var(--agdf-space-5); }
 .document-context { margin-bottom: var(--agdf-space-5); }
+.document-context h2 { margin-bottom: var(--agdf-space-2); }
+.document-summary p { margin-block: var(--agdf-space-2); max-width: 78ch; }
+.document-summary-origin, .document-status-note { font-size: var(--agdf-text-xs); line-height: var(--agdf-leading-relaxed); max-width: 90ch; }
+.document-control { display: grid; gap: var(--agdf-space-3); margin-block: var(--agdf-space-4); }
+.document-control > div { display: grid; gap: var(--agdf-space-1); }
+.document-control dt, .document-source-fields dt { color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+.document-control dd, .document-source-fields dd { margin: 0; overflow-wrap: anywhere; }
+.document-control dd { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
+.document-source-fields { display: grid; gap: var(--agdf-space-2); }
+.document-provenance, .document-original { min-width: 0; }
+.document-reading { width: 100%; max-width: 80ch; margin-inline: auto; padding: var(--agdf-space-6); min-width: 0; overflow-wrap: anywhere; }
+.workspace--document .breadcrumbs, .workspace--document main > footer { max-width: 80ch; margin-inline: auto; }
+.document-reading .document-summary p, .document-reading .document-summary-origin, .document-reading .document-status-note { max-width: none; }
+.document-reading .document, .compact-document .document { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.document-reading .context-panel { padding: 0; margin: var(--agdf-space-4) 0 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.document-reading .context-toggle { padding-inline: 0; min-height: 44px; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: var(--agdf-link-color); font-weight: var(--agdf-weight-semibold); text-align: left; }
+.document-reading .context-toggle:hover { color: var(--agdf-link-hover); text-decoration: underline; }
+@media (max-width: 639px) { .document-reading { padding: var(--agdf-space-4); } }
 .page-title--document { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
 .document-close { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: var(--agdf-space-3); border-color: transparent; background: transparent; }
 .breadcrumbs { margin-bottom: var(--agdf-space-4); font-size: var(--agdf-text-sm); }

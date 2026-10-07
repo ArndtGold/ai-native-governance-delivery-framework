@@ -297,7 +297,7 @@ explicit refresh/navigation. Summary mode leads with the work unit. Original goa
 and evidence descriptions are disclosed without invented translation or classification; direct
 registered evidence selectors remain visible.
 
-Pages owns shared surface, controlled-surface and semibold link recipes in `pages/src/styles/surfaces.css`, consumed by its landing page and the Cockpit. The MCP host selects light/dark mode; its neutral color variables no longer replace AGDF brand roles. Cards, Run panels, documents and context use the shared surface class; the current work step uses the controlled variant. Expanded Run entry defaults to Summary; deliberate Details survives document navigation, and another Run starts in Summary. Browser checks compare computed recipes with isolated Pages reference classes under both themes and neutral host overrides, including text contrast.
+Pages owns shared surface, controlled-surface and semibold link recipes in `pages/src/styles/surfaces.css`, consumed by its landing page and the Cockpit. The MCP host selects light/dark mode; its neutral color variables no longer replace AGDF brand roles. Cards and Run panels use the shared surface class; expanded documents share one reading surface with an integrated context access; the current work step uses the controlled variant. Expanded Run entry defaults to Summary; deliberate Details survives document navigation, and another Run starts in Summary. Browser checks compare computed recipes with isolated Pages reference classes under both themes and neutral host overrides, including text contrast.
 
 Pages also owns the primary/secondary action recipes in `pages/src/styles/actions.css`.
 Secondary actions stay transparent, including hover; primary actions alone use the filled
@@ -314,9 +314,18 @@ neutral fill and use a three-pixel turquoise leading edge; this accent conveys w
 not approval or success. Browser checks assert surface separation and text/link contrast
 across both themes, in addition to matching the Pages recipes.
 
-The work-step phase is the main heading. Its exact Core action remains readable; qualification
-and evidence form a supporting row that stacks when the work unit is narrower than 560 pixels.
-Beginning is labelled open/blocked/unclear using the existing Core qualification conditions,
-never from approvals or an empty missing-evidence list. Control basis and recorded approvals
-are folded; Summary/compact evidence uses one counted disclosure. Registered current-step
+The work unit leads with saved phase/decision and a separate Core-owned assessment. Supporting
+evidence and saved approvals are folded in one column at every width. The UI never grants work
+from approval counts, an empty evidence list or its own doctor-status veto. Registered current-step
 sources lead, with Run State kept distinct. Unknown and stale observations retain their originals.
+
+Document orientation reuses the first complete paragraph of one explicitly authored
+`AGDF Approval Summary (de; source=en)` from the actual source. It rejects fenced/ambiguous or
+oversized declarations and reports a missing summary instead of inventing or translating one.
+The document status comes from the exact registered artefact row in the bound Run observation;
+the existing Core assessment stays separate. Foreign target/snapshot/Run/resource/path bindings
+cannot inherit status. Stale views show dated facts and unconfirmed current work. Source metadata
+and passive exact originals start folded. Programmatic heading focus uses a visible underline;
+interactive keyboard focus retains the Pages recipe. Approval labels and source actions are stacked.
+
+Expanded document views group their heading, read feedback, source orientation, disclosures and context access on one neutral Pages surface. The centered reading surface is bounded to 80ch including padding, with symmetric gutters and a shared inner text edge. The context access remains a keyboard-accessible 44px text action; its content expands within the reading surface. Exact originals have no additional card frame or shadow inside that surface. The branded header is unchanged.

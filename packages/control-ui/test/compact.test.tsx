@@ -96,6 +96,8 @@ describe('compact MCP entry using the shared reading state',()=>{
     expect(screen.getByRole('button',{name:'Zusammenfassung'}).getAttribute('aria-pressed')).toBe('true');
     fireEvent.click(screen.getByRole('button',{name:'Details'}));
     fireEvent.click(screen.getByRole('button',{name:/^Anforderungen Beschreibt/}));
+    await screen.findByText('Originaldokument lesen',{exact:true});
+    fireEvent.click(screen.getByText('Originaldokument lesen',{exact:true}));
     await screen.findByRole('heading',{name:'Original document'});
     expect(vi.mocked(transport).mock.calls.map(call=>call[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot','/api/runs/run-a?snapshot=snapshot','/api/documents/source-a?snapshot=snapshot']);
     expect(screen.queryByRole('group',{name:'Ansicht'})).toBeNull();
@@ -110,6 +112,8 @@ describe('compact MCP entry using the shared reading state',()=>{
     expect(transport).toHaveBeenCalledTimes(5);
     expect(screen.queryByRole('button',{name:'Dokument schließen'})).toBeNull();
     fireEvent.click(screen.getByRole('button',{name:/^Anforderungen Beschreibt/}));
+    await screen.findByText('Originaldokument lesen',{exact:true});
+    fireEvent.click(screen.getByText('Originaldokument lesen',{exact:true}));
     await screen.findByRole('heading',{name:'Original document'});
     const close=screen.getByRole('button',{name:'Dokument schließen'});
     expect(close.getAttribute('title')).toBe('Dokument schließen');
@@ -285,7 +289,9 @@ it('opens the exact registered Run State from an unconfirmed card even when the 
  const expand=vi.fn();render(<App compact initialRunId="run-a" transport={read} onExpand={expand}/>);
  await screen.findByText('Aktuelle Voraussetzungen nicht bestätigt');
  fireEvent.click(screen.getByRole('button',{name:'Stand des Vorhabens öffnen'}));
- await screen.findByRole('heading',{name:'Exact Run State'});
+ await screen.findByText('Originaldokument lesen',{exact:true});
+    fireEvent.click(screen.getByText('Originaldokument lesen',{exact:true}));
+    await screen.findByRole('heading',{name:'Exact Run State'});
  expect(expand).toHaveBeenCalledTimes(1);
  expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/documents/opaque-state?snapshot=snapshot');
  expect(vi.mocked(read).mock.calls.at(-1)?.[2]).toEqual({target:'target',snapshot:'snapshot'});

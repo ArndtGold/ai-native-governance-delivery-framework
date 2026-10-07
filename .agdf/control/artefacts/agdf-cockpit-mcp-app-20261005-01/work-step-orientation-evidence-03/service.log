@@ -1,0 +1,45 @@
+
+> agdf-control-ui@0.0.0 test
+> node --test test/service.test.mjs && vitest run
+
+TAP version 13
+# Subtest: SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+ok 1 - SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+  ---
+  duration_ms: 1333.477898
+  type: 'test'
+  ...
+# Subtest: SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+ok 2 - SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+  ---
+  duration_ms: 507.081844
+  type: 'test'
+  ...
+# Subtest: SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+ok 3 - SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+  ---
+  duration_ms: 994.375731
+  type: 'test'
+  ...
+# Subtest: SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+ok 4 - SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+  ---
+  duration_ms: 783.323505
+  type: 'test'
+  ...
+# Subtest: SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+ok 5 - SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+  ---
+  duration_ms: 1300.846066
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5465.534469
+

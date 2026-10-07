@@ -1,0 +1,142 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": "1d8e9644-f16a-447c-bc88-120aacac0ec1",
+  "baseline_commit": "ca8099b202a6b9cbb022d06776e7ffd23498b0f5",
+  "recorded_at": "2026-10-07T06:49:33.221414+00:00",
+  "status": "scoped_implementation_verified_native_activation_open",
+  "authorizes": false,
+  "approved_source_sha256": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "sources_sha256": {
+    "packages/core/lib/control-inspect/cockpit.js": "dfdf589f4e0725c2b04977921e02ef642b32f6b97beae328df9b3d7ed2f23ffa",
+    "packages/control-ui/src/WorkStep.tsx": "dbf423f0c61bbfeeaa4cdacd1b5e0b9a9ac150b5b27a82f349c2938153ca61ce",
+    "packages/control-ui/src/App.tsx": "e1f99ee814c7dde18be5e946fcb3520b1fc726e29950f3cf3d0782424509064b",
+    "packages/control-ui/src/RunDetail.tsx": "2b253684a0fd6b3e71d3283552f2525f2bfbf68b5e28e4b73f105c18fdf80734",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "b4ed1916b934f7015486bb99a537806f0f8ee42af8f6dcc7ae4122d60907e759",
+    "packages/control-ui/src/style.css": "c65bfc5a6190efb39f1e025c1b54ae5dde7a04dbec45a74ab4960e59740c2087",
+    "packages/control-ui/src/mcp/style.css": "1f80939643d630ac291473a9cf4fcc6754f60ff409e3b1f72a614849a151284d",
+    "packages/control-ui/src/api.ts": "87c13df799bfcd8b0530937af8b933e7f66985f8f912ed12555f2db9f306f798",
+    "packages/control-ui/src/types.ts": "a80c7d7a60dc11d7a557829f2eeabebd1e2fc4485e1de9d55c13b2bdf83e97dd",
+    "packages/cli/scripts/cockpit-mcp-test.js": "57d7ecc5d102d03ad5096b5b54266855ba9488543b89817ee9dbb2e276ddda83"
+  },
+  "unchanged_header_and_pages_sha256": {
+    "packages/control-ui/src/BrandHeader.tsx": "f408d572bb994f0b7f9d0b4d0239e04f6b414db5da079feecc651265729cc764",
+    "packages/control-ui/src/brand.css": "b6291f0f9f8c70c64850e3ed1dabf6d843478c62089f13ee17e0531356590dc5",
+    "pages/src/design/tokens.json": "119cb79567c89a83faf4dc902b3c7f45150b2cacba0bdf59183d85044dbd2f0e",
+    "pages/src/styles/fonts.css": "d50a36373909e9c92fdb1c7cc90f6debf3a9d30c1188dc61890b872397761e83",
+    "pages/src/styles/design-tokens.css": "00fb45aa63a3346dc0281e5d9fa711002a444df69acb6c84378d4d56d1916455"
+  },
+  "project_configuration_sha256": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "tests": {
+    "core_projection": {
+      "count": 7,
+      "result": "pass"
+    },
+    "core_sessions_publication": {
+      "count": 23,
+      "result": "pass"
+    },
+    "ui": {
+      "count": 80,
+      "result": "pass"
+    },
+    "service": {
+      "count": 5,
+      "result": "pass"
+    },
+    "browser": {
+      "count": 10,
+      "result": "pass",
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "widths": [
+        320,
+        560,
+        800,
+        1280
+      ],
+      "source_byte_invariance": true
+    },
+    "protocol": {
+      "protocols": [
+        "2025-11-25",
+        "2026-07-28"
+      ],
+      "result": "pass",
+      "evidence_class": "actual_stdio_protocol_not_host_ui",
+      "canonical_assessment_parity": true
+    },
+    "typecheck": "pass",
+    "browser_build": "pass",
+    "mcp_build": "pass",
+    "design_tokens_check": "pass",
+    "git_diff_check": "pass"
+  },
+  "commands": {
+    "core_projection": "node --test packages/core/test/control-cockpit-projection-test.js",
+    "core_sessions_publication": "node --test packages/core/test/cockpit-session-test.js packages/core/test/cockpit-publication-test.js",
+    "ui": "packages/control-ui: vitest run",
+    "service": "packages/control-ui: node --test test/service.test.mjs",
+    "browser": "packages/control-ui: playwright test",
+    "protocol": "AGDF_COCKPIT_TEST_PREPARATION=<isolated preparation> node packages/cli/scripts/cockpit-mcp-test.js",
+    "typecheck": "packages/control-ui: npm run typecheck",
+    "browser_build": "packages/control-ui: npm run build",
+    "mcp_build": "packages/control-ui: npm run build:mcp"
+  },
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1026046,
+    "digest": "sha256:75972110ba916128d1c150584bc10f2923fd6973105ea1bfa2bddc3db7b6333a"
+  },
+  "isolated_preparation": {
+    "schema_version": "1",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "entrypoint": "/private/tmp/cockpit-orientation-runtime-SRwvD9/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "860fc509b9e0b7a3ae8e75dd606d748924f62449429aa079f06c620c87234515",
+    "dispatcher_digest": "a8b539760c8ec5e016d06dff5f49f5a8e4ff35dd426cd31191d91e4802bdda34",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1026046,
+      "digest": "sha256:75972110ba916128d1c150584bc10f2923fd6973105ea1bfa2bddc3db7b6333a"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "activated": false,
+  "native_current_build": "unverified; registered owned runtime not replaced",
+  "native_previous_build": "separate historical checkpoints only",
+  "earlier_attempts": [
+    "Sandbox loopback listen denied; local-server tests passed with permitted escalation.",
+    "Old text/default-disclosure assertions updated for the requested UX.",
+    "Browser failures exposed hidden return focus and primary-button leading drift; both fixed and all ten final journeys passed.",
+    "Two render controls for one resource originally competed for return focus; explicit per-control origin now preserves the exact source entry."
+  ],
+  "evidence": {
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/browser.log": "1248dda1114c685b6f4a079f9a1f26ffc9f835d8685eba2a156da43470c6d1e9",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/ui.log": "6e3930db27663656ae9ad4e76ae5e25b80d31a1c5da302e9cbfe5c42c380a8ae",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/mcp_build.log": "24f540da8d451915e9b087cdb84cad8757041d524fceecc78ee1c4be897ff256",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/core_sessions_publication.log": "10a8bdc886abc8c755fc7193f38fde47147c8ad940becbd24ac0b01acf3e72a9",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/card-light-560.png": "f61720ff781a5d0dbc91ab9d060dc8bbd7973fafb802bf8b5e83e2529eaaa4c7",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/typecheck.log": "39e33b62bb283bc45cbcaca490bfc6d27544f252623c3f6fdaf0becbc2ccc3f6",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/core_projection.log": "bfc7d6e122e79db44ef9d21b39a97dc62016e369150ae6a737cb08bea3cef994",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/service.log": "fdfb331ed5cbc47da1557288c832d0582600ad932fb5e11603dde3a2f87a93a4",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/browser_build.log": "73a64c3b29efad812a9933e12a39c17518d55ecb3ce0025fc19eeabe0fd8c391",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/protocol.log": "37f1b16985c37f2dc96c06486c8dd05ca35e8e3500df731c0f9a69f362fb116a",
+    ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/work-step-orientation-evidence-03/card-dark-560.png": "7a3b5cbc71dedd490d921e1228ea05892a23c78f3d787d799410ebe49b71c316"
+  },
+  "remaining": "Existing TP fulfilment/reviews, native current-build activation and recovery/rollback, QA/UAT/OR remain open."
+}

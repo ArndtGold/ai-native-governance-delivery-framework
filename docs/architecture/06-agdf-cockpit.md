@@ -69,7 +69,7 @@ nicht aus URL oder Browser-Speicher wiederhergestellt.
 | Ansicht | Zweck und Verhalten |
 |---|---|
 | Kompakte Karte | Führt einspaltig mit gespeichertem Arbeitsstand, aktueller Kontrollaussage und einer Quellenaktion. Nachweise, Freigaben und Ziel/Run-ID sind zunächst geschlossen. „Run ansehen“ bleibt ein nachgeordneter Zugang zur größeren Ansicht. |
-| Run-Übersicht | Führt mit dem kanonischen Titel, Ziel, verständlicher Phase und gemeldeten offenen Punkten. Die Run-ID bleibt zur Zuordnung sichtbar. Suche filtert vorübergehend nach Titel, ID oder Gate. Eingeschränkte Einträge bleiben mit ihren Quellen erkennbar. |
+| Vorhaben-Übersicht | Liest ausschließlich gespeicherte Masterbacklog-Einträge. Die drei Bereichsschalter „Aktiv“, „Geplant“ und „Archiv“ zeigen die Anzahlen der jeweiligen Backlog-Abschnitte; „Archiv“ umfasst abgeschlossene und abgelöste Einträge. „Aktiv“ startet ausgewählt. Die einspaltige Liste führt mit Titel, gespeichertem Stand und nächstem Schritt beziehungsweise Ergebnis. Der Titel öffnet den konkreten Run für dessen aktuelle Core-Prüfung. |
 | Run-Zusammenfassung | Bündelt aktuellen Arbeitsschritt, exakte Core-Aktion, Voraussetzungen und Nachweise. Ziel, ID und Kontrollgrundlage sind aufklappbar. |
 | Run-Details | Zeigt zusätzliche Originalangaben und Quellen. Der Schiebeschalter „Zusammenfassung / Details“ ändert den Lesemodus innerhalb der größeren Ansicht. |
 | Dokument | Führt mit einer vorhandenen deutschen Quellenkurzfassung, dem gespeicherten Dokumentstand und der getrennten aktuellen Core-Kontrollauswertung. Quellenangaben und unveränderter Originaltext starten geschlossen. Hier gibt es keinen Zusammenfassungs-/Details-Schalter. „Dokument schließen“ kehrt zum Run zurück und stellt den Fokus auf den öffnenden Quellenzugang wieder her. |
@@ -77,6 +77,22 @@ nicht aus URL oder Browser-Speicher wiederhergestellt.
 Das Cockpit schreibt weder kanonische Titel noch freigegebene Ziele um. Fachlich unklare
 Originalangaben bleiben als solche sichtbar. Es erfindet keinen Fortschritt oder nächsten
 Arbeitsschritt aus einer UI-Auswahl.
+
+Die Übersicht ordnet Einträge nach ihrem gespeicherten Backlog-Abschnitt, nicht durch eine
+zusätzliche Run-Auswertung oder automatische Statuskorrektur. Die Suche filtert den ausgewählten
+Bereich nach Titel, Schlüssel oder gespeichertem Status; ein Bereichswechsel leert die Suche.
+Bereich und Suchbegriff bleiben bei Rückkehr aus einem geöffneten Vorhaben erhalten, ebenso der
+Tastaturfokus auf dessen Titel, sofern der Eintrag noch vorhanden ist. Es gibt keinen zweiten
+identischen Öffnen-Button pro Zeile. Bekannte vorangestellte Scope-Tags werden im sichtbaren Titel
+ausgeblendet; Originaltitel, Schlüssel, Scope, Priorität, vollständiger nächster Schritt und
+Quellenangaben bleiben unverändert in zunächst geschlossenen Angaben verfügbar.
+
+Zähler sind keine Aussage über aktuell erlaubte Arbeit. Nicht auswertbare oder fehlende Abschnitte
+zeigen „Nicht verfügbar“ statt Null; Eintragshinweise kennzeichnen betroffene Bereichszähler als
+eingeschränkt. Ein einzelner, zunächst geschlossener Lesehinweis nennt die betroffenen Bereiche;
+lesbare Einträge bleiben zugänglich. Lange nächste Schritte werden visuell auf zwei Zeilen
+begrenzt, ihr Original bleibt vollständig aufklappbar. Schrift, Farben, Flächen und Abstände
+verwenden die bestehenden Pages-Tokens in Hell/Dunkel; der Branding-Kopf bleibt erhalten.
 
 Die Dokumentkurzfassung verwendet ausschließlich den ersten vollständigen Absatz einer
 eindeutig vorhandenen `AGDF Approval Summary (de; source=en)` aus der gelesenen Markdownquelle.
@@ -91,9 +107,9 @@ Bindung, bleibt der Dokumentstand unbestätigt. Veraltete Beobachtungen werden a
 beschrieben; sie bestätigen keine aktuelle Weiterarbeit. Abweichende `draft`-/`open`-Angaben im
 unveränderten Original ersetzen weder den Run-Stand noch die Core-Kontrollauswertung.
 
-#Die Dokumentansicht bündelt Titel, Lesehinweise, Einordnung, Quellen und Kontextzugang auf einer gemeinsamen neutralen Pages-Lesefläche. Sie ist einschließlich Innenabständen auf 80ch begrenzt und symmetrisch zentriert. Texte und Anschlussaktionen teilen dieselbe Innenkante. Der Kontextzugang bleibt eine mindestens 44px hohe, per Tastatur erreichbare Textaktion; seine Inhalte öffnen innerhalb der Lesefläche. Originale erhalten darin keinen zusätzlichen Kartenrahmen oder Schatten. Der Branding-Kopf bleibt unverändert.
+Die Dokumentansicht bündelt Titel, Lesehinweise, Einordnung, Quellen und Kontextzugang auf einer gemeinsamen neutralen Pages-Lesefläche. Sie ist einschließlich Innenabständen auf 80ch begrenzt und symmetrisch zentriert. Texte und Anschlussaktionen teilen dieselbe Innenkante. Der Kontextzugang bleibt eine mindestens 44px hohe, per Tastatur erreichbare Textaktion; seine Inhalte öffnen innerhalb der Lesefläche. Originale erhalten darin keinen zusätzlichen Kartenrahmen oder Schatten. Der Branding-Kopf bleibt unverändert.
 
-## Eine zusammenhängende Arbeitseinheit
+### Eine zusammenhängende Arbeitseinheit
 
 Die Phase und die zuletzt gespeicherte Entscheidung geben zuerst Orientierung. Davon getrennt
 steht die aktuelle Kontrollaussage. Core projiziert dafür die bereits ausgewertete Gate-Entscheidung

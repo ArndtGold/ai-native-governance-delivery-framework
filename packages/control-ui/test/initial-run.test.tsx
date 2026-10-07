@@ -5,37 +5,37 @@ import { EmbeddedEntry } from '../src/mcp/EmbeddedEntry';
 import { CockpitBridge } from '../src/mcp/transport';
 import { readRenderBootstrap } from '../src/mcp/bootstrap';
 import type { ReadTransport } from '../src/api';
-const target={target_id:'target',display_path:'/fixture'};
-const inventory={schema_version:'1',target,snapshot_id:'snapshot',observed_as_of:'2026-10-06T08:00:00Z',source_digest:'digest',state:'available',code:null,retryable:false,data:{runs:['run-a','run-b'].map(run_id=>({run_id,title:run_id,valid:true,lifecycle:'active',current_gate:'TP',source_path:'run.md',revision_id:'revision',objective:'Fixture goal',status:'open',code:null})),file_count:1,byte_count:1}};
-const detail=(id:string)=>({...inventory,data:{run_id:id,resources:[],persisted:{decision:'open'}}});
-const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):inventory) as unknown as ReadTransport;
+import { backlog, pointer, runData, fixtureMeta } from './scoped-fixtures';
+const target=fixtureMeta.target;
+const inventory=backlog();
+const detail=(id:string)=>({...fixtureMeta,snapshot_id:'run-snapshot',data:{kind:'run' as const,run:runData(id)}});
+const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/snapshot?run_id=')?detail(path.split('run_id=')[1]):path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):inventory) as unknown as ReadTransport;
 const sessionA='00000000-0000-4000-8000-000000000001',sessionB='00000000-0000-4000-8000-000000000002';
 const bootstrap=(session_id=sessionA,render_generation=1,initial_run_id:string|undefined='run-a')=>({structuredContent:{schema_version:'1',authorizes:false,target},_meta:{agdf_cockpit:{session_id,render_generation,initial_run_id,target}}});
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
-for (const compact of [true, false]) for (const stage of ['snapshot', 'run', 'snapshot-envelope', 'run-envelope']) {
+for (const compact of [true, false]) for (const stage of ['snapshot-throw', 'snapshot-envelope', 'snapshot-blocked', 'snapshot-limit']) {
   it(`initial Run survives a transient ${stage} failure and retry in ${compact ? 'compact' : 'expanded'} view`, async () => {
     let failed = false;
     const read = vi.fn(async (path:string) => {
-      if (!failed && (stage.startsWith('snapshot') ? path === '/api/snapshot' : path.startsWith('/api/runs/'))) {
+      if (!failed && path === '/api/snapshot?run_id=run-a') {
         failed = true;
-        if (stage.endsWith('envelope')) return { ...inventory, data:null, code:'read_failed', state:'error', retryable:true };
-        throw Error('read_failed');
+        if(stage==='snapshot-throw')throw Error('read_failed');
+        return {...fixtureMeta,snapshot_id:null,data:null,code:stage==='snapshot-limit'?'resource_limit':'read_failed',state:stage==='snapshot-blocked'?'blocked':'error',retryable:true};
       }
-      return path.startsWith('/api/runs/') ? detail('run-a') : inventory;
+      return detail('run-a');
     }) as unknown as ReadTransport;
     render(<App compact={compact} initialRunId="run-a" transport={read}/>);
-    await screen.findByText('Die Daten konnten nicht gelesen werden. Quelle oder lokalen Dienst prüfen und wiederholen.');
+    await screen.findByText(stage==='snapshot-limit'?'Ein Ressourcenlimit wurde erreicht. Dateigröße und Umfang außerhalb des Cockpits prüfen.':'Die Daten konnten nicht gelesen werden. Quelle oder lokalen Dienst prüfen und wiederholen.');
+    expect(screen.getByText('run-a',{selector:'code'})).toBeTruthy(); expect(screen.queryByRole('combobox')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: compact ? 'Neu laden' : 'Wiederholen' }));
     await screen.findByRole('heading', { name: 'run-a', level: compact ? 2 : 1 });
-    expect(vi.mocked(read).mock.calls.at(-1)?.[0]).toBe('/api/runs/run-a?snapshot=snapshot');
-    expect(vi.mocked(read).mock.calls.some(c => c[0].startsWith('/api/runs/run-b'))).toBe(false);
+    expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
   });
 }
 for (const compact of [true, false]) for (const initialFailure of [true, false]) {
   it(`expired session requires reopening without retrying in ${compact ? 'compact' : 'expanded'} view (${initialFailure ? 'initial' : 'retained'})`, async () => {
     let expired = initialFailure;
-    const read = vi.fn(async (path:string) => expired ? { ...inventory, snapshot_id:null, state:'blocked', code:'session_expired', data:null, retryable:false }
-      : path.startsWith('/api/runs/') ? detail('run-a') : inventory) as unknown as ReadTransport;
+    const read = vi.fn(async () => expired ? { ...fixtureMeta, snapshot_id:null, state:'blocked', code:'session_expired', data:null, retryable:false } : detail('run-a')) as unknown as ReadTransport;
     render(<App compact={compact} initialRunId="run-a" transport={read}/>);
     if (!initialFailure) {
       await screen.findByRole('heading', { name:'run-a', level:compact ? 2 : 1 });
@@ -50,74 +50,65 @@ for (const compact of [true, false]) for (const initialFailure of [true, false])
     if (!initialFailure) expect(screen.getByRole('heading', { name:'run-a', level:compact ? 2 : 1 })).toBeTruthy();
   });
 }
-it('a validated initial Run hides discovery controls; explicit switching focuses search and retains selection without extra reads',async()=>{
-  const many={...inventory,data:{...inventory.data,runs:[...inventory.data.runs,...Array.from({length:12},(_,i)=>({...inventory.data.runs[0],run_id:`other-${i}`,title:`Other ${i}`}))]}};
-  const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):many) as unknown as ReadTransport;
+it('a validated initial Run hides discovery; explicitly returning to backlog enables search with a separate read',async()=>{
+  const many=backlog([pointer('run-a'),...Array.from({length:12},(_,i)=>pointer(`other-${i}`,`Other ${i}`))]);
+  const read=vi.fn(async(path:string)=>path==='/api/snapshot'?many:path.startsWith('/api/runs/')?detail(path.slice(10).split('?')[0]):detail('run-a')) as unknown as ReadTransport;
   render(<App compact initialRunId="run-a" transport={read}/>);
   await screen.findByRole('heading',{name:'run-a'});
   expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
-  expect(screen.queryByText('aktive Runs',{exact:false})).toBeNull();
-  const toggle=screen.getByRole('button',{name:'Anderen Run wählen'});
-  expect(toggle.getAttribute('aria-expanded')).toBe('false');
-  fireEvent.click(toggle);
-  const search=screen.getByRole('searchbox',{name:'Runs suchen'}),select=screen.getByRole('combobox',{name:'Run auswählen'});
-  expect(document.activeElement).toBe(search);expect((select as HTMLSelectElement).value).toBe('run-a');
+  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
+  const search=await screen.findByRole('searchbox',{name:'Vorhaben suchen'}),select=screen.getByRole('combobox',{name:'Vorhaben auswählen'});
+  expect((select as HTMLSelectElement).value).toBe('');
   fireEvent.change(search,{target:{value:'other-7'}});
-  expect((select as HTMLSelectElement).value).toBe('run-a');expect(vi.mocked(read).mock.calls).toHaveLength(2);
-  fireEvent.click(screen.getByRole('button',{name:'Auswahl schließen'}));
-  expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Anderen Run wählen'}));
-  expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('other-7');
-  fireEvent.change(screen.getByRole('combobox'),{target:{value:'other-7'}});
-  await screen.findByRole('heading',{name:'Other 7'});
-  expect(screen.getByText('other-7',{exact:true})).toBeTruthy();
-  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot','/api/runs/other-7?snapshot=snapshot']);
+  expect(screen.getAllByRole('option')).toHaveLength(2);
+  fireEvent.change(select,{target:{value:'other-7'}});
+  await screen.findByRole('heading',{name:'other-7'});
+  expect(screen.queryByRole('combobox')).toBeNull();
+  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot','/api/runs/other-7?snapshot=snapshot']);
 });
-it('a formerly valid initial Run exposes recovery selection if a reload removes it, without choosing another',async()=>{
+it('a formerly inspected initial Run returns to confirmed removal backlog without choosing another',async()=>{
   let removed=false;
-  const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/')?detail('run-a'):removed?{...inventory,snapshot_id:'next',data:{...inventory.data,runs:inventory.data.runs.filter(r=>r.run_id!=='run-a')}}:inventory) as unknown as ReadTransport;
+  const read=vi.fn(async()=>removed?{...inventory,snapshot_id:'next',data:{...inventory.data!,removed_run_id:'run-a',entries:[pointer('run-b')]}}:detail('run-a')) as unknown as ReadTransport;
   render(<App compact initialRunId="run-a" transport={read}/>);
   await screen.findByRole('heading',{name:'run-a'});expect(screen.queryByRole('combobox')).toBeNull();
   removed=true;fireEvent.click(screen.getByRole('button',{name:'Neu laden'}));
   await screen.findByText(/nicht mehr vorhanden. Kein anderer Run/);
   await waitFor(()=>expect((screen.getByRole('combobox') as HTMLSelectElement).disabled).toBe(false));
   expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('');
-  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot','/api/snapshot']);
+  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
 });
-it('SCN-039/043: named opening checks one snapshot then exact run, and resizing or prop changes preserve manual selection',async()=>{
+it('SCN-039/043: named opening uses one exact request and resizing or prop changes preserve manual selection',async()=>{
   const read=transport();const view=render(<App compact initialRunId="run-a" transport={read}/>);
   await screen.findByRole('heading',{name:'run-a'});
-  expect(screen.queryByRole('combobox')).toBeNull();
-  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot']);
-  fireEvent.click(screen.getByRole('button',{name:'Anderen Run wählen'}));
-  const select=screen.getByRole('combobox');expect(document.activeElement).toBe(select);
+  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a']);
+  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
+  const select=await screen.findByRole('combobox');
   fireEvent.change(select,{target:{value:'run-b'}});await screen.findByRole('heading',{name:'run-b'});
   view.rerender(<App initialRunId="run-a" transport={read}/>);
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
-  expect(vi.mocked(read).mock.calls.filter(c=>c[0]==='/api/snapshot')).toHaveLength(1);
+  expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/snapshot'))).toHaveLength(2);
 });
-it('SCN-040: unknown initial ID stays identified on overview and never reads an alternate Run',async()=>{
-  const read=transport();render(<App compact initialRunId="missing-run" transport={read}/>);
-  await screen.findByText('missing-run');expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('');
-  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot']);
-  expect(screen.getByText(/nicht mehr vorhanden. Kein anderer Run/)).toBeTruthy();
+it('SCN-040: an unknown initial ID stays identified without discovery or an alternate Run',async()=>{
+  const read=vi.fn(async()=>({...fixtureMeta,state:'missing',code:'run_missing',data:{kind:'run',requested_run_id:'missing-run',run:null}})) as unknown as ReadTransport;
+  render(<App compact initialRunId="missing-run" transport={read}/>);
+  await screen.findByText('missing-run',{selector:'code'});expect(screen.queryByRole('combobox')).toBeNull();
+  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=missing-run']);
 });
-it('SCN-040: a listed invalid Run retains its own diagnostic identity; an unavailable read retains requested identity',async()=>{
-  const invalid={...inventory,state:'partial',code:'inventory_partial',data:{...inventory.data,runs:inventory.data.runs.map(r=>r.run_id==='run-a'?{...r,valid:false,code:'invalid_run'}:r)}};
-  const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/')?{...detail('run-a'),state:'invalid',code:'invalid_run'}:invalid) as unknown as ReadTransport;
+it('SCN-040: an invalid Run retains diagnostic identity; unavailable reads retain the requested identity',async()=>{
+  const read=vi.fn(async()=>({...fixtureMeta,state:'invalid',code:'invalid_run',data:{kind:'run',requested_run_id:'run-a',run:{run_id:'run-a',revision_id:null,lifecycle:null,resources:[],diagnostics:[{code:'invalid_run'}]}}})) as unknown as ReadTransport;
   const view=render(<App compact initialRunId="run-a" transport={read}/>);
-  await screen.findByRole('heading',{name:'run-a'});expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('run-a');
-  view.unmount();
-  const unavailable=vi.fn(async(path:string)=>path.startsWith('/api/runs/')?{...inventory,state:'blocked',code:'resource_denied',data:null}:inventory) as unknown as ReadTransport;
+  await screen.findByRole('heading',{name:'run-a'});expect(screen.queryByRole('combobox')).toBeNull();
+  expect(screen.getAllByText(/Dieser Run ist ungültig/).length).toBeGreaterThan(0);view.unmount();
+  const unavailable=vi.fn(async()=>({...fixtureMeta,state:'blocked',code:'resource_denied',data:null})) as unknown as ReadTransport;
   render(<App compact initialRunId="run-a" transport={unavailable}/>);
-  await screen.findByText(/Daten noch nicht lesbar. Kein anderer Run/);expect(screen.getByText('run-a',{exact:true})).toBeTruthy();
-  expect(vi.mocked(unavailable).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
+  await screen.findByText(/Daten noch nicht lesbar. Kein anderer Run/);expect(screen.getByText('run-a',{selector:'code'})).toBeTruthy();
+  expect(vi.mocked(unavailable).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a']);
 });
-it('SCN-042/043: delayed initial read cannot replace a manual choice or issue a late run read after cancellation',async()=>{
+it('SCN-042/043: delayed initial read cannot replace a new manual binding after cancellation',async()=>{
   let finish!: (value:ReturnType<typeof detail>)=>void;
-  const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/run-a')?new Promise<ReturnType<typeof detail>>(resolve=>{finish=resolve;}):path.startsWith('/api/runs/')?detail('run-b'):inventory) as unknown as ReadTransport;
+  const read=vi.fn(async(path:string)=>path==='/api/snapshot?run_id=run-a'?new Promise<ReturnType<typeof detail>>(resolve=>{finish=resolve;}):detail('run-b')) as unknown as ReadTransport;
   const view=render(<App compact initialRunId="run-a" transport={read}/>);
-  await act(async()=>{});view.unmount();expect(vi.mocked(read).mock.calls[1][1].aborted).toBe(true);
+  await act(async()=>{});view.unmount();expect(vi.mocked(read).mock.calls[0][1].aborted).toBe(true);
   render(<App compact initialRunId="run-b" transport={read}/>);await screen.findByRole('heading',{name:'run-b'});
   await act(async()=>finish(detail('run-a')));expect(screen.queryByRole('heading',{name:'run-a'})).toBeNull();
 });
@@ -131,7 +122,7 @@ it('SCN-042: scoped bootstrap validates identity and malformed selectors',()=>{
 it('a fresh host render reopens an expired session with the same explicit Run and no automatic message', async () => {
   let expired = true;
   const read = vi.fn(async (path:string) => expired ? { ...inventory, snapshot_id:null, state:'blocked', code:'session_expired', retryable:false, data:null }
-    : path.startsWith('/api/runs/') ? detail('run-a') : inventory) as unknown as ReadTransport;
+    : path.startsWith('/api/snapshot?run_id=') ? detail('run-a') : inventory) as unknown as ReadTransport;
   const app = { getHostVersion:()=>({name:'test-host',version:'fixture'}), connect:vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
     updateModelContext:vi.fn(), sendMessage:vi.fn(), ontoolresult:(_:unknown)=>{}, onhostcontextchanged:()=>{} };
   const bridge = { app, read, readForSession:()=>read, operation:vi.fn(async()=>({})), session:'' } as unknown as CockpitBridge;
@@ -144,23 +135,23 @@ it('a fresh host render reopens an expired session with the same explicit Run an
   await screen.findByRole('heading',{name:'run-a',level:2});
   expect(bridge.session).toBe(sessionB);
   expect((screen.getByRole('button',{name:'Neu laden'}) as HTMLButtonElement).disabled).toBe(false);
-  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot','/api/snapshot','/api/runs/run-a?snapshot=snapshot']);
+  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
   expect(app.updateModelContext).not.toHaveBeenCalled(); expect(app.sendMessage).not.toHaveBeenCalled();
 });
 it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored, host mode preserves the reader and publishes nothing',async()=>{
   let finish!: (value:ReturnType<typeof detail>)=>void;
-  const evaluatedB={...detail('run-b'),data:{...detail('run-b').data,evaluation:{status:'open',current_gate:'CD+Tests',blocking_reason:'none',missing_approval:'none',next_allowed_action:'Implement approved scope',next_action_de:'Freigegebenen Umfang umsetzen.',doctor_status:'pass',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[],missing_evidence:[]}}};
-  const read=vi.fn(async(path:string)=>path.startsWith('/api/runs/run-a')?new Promise<ReturnType<typeof detail>>(resolve=>{finish=resolve;}):path.startsWith('/api/runs/')?evaluatedB:inventory) as unknown as ReadTransport;
+  const evaluatedB=detail('run-b');
+  const read=vi.fn(async(path:string)=>path==='/api/snapshot?run_id=run-a'?new Promise<ReturnType<typeof detail>>(resolve=>{finish=resolve;}):evaluatedB) as unknown as ReadTransport;
   let mode='inline';
   const app={getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:mode,availableDisplayModes:['fullscreen']}),requestDisplayMode:vi.fn(async()=>({mode:'fullscreen'})),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult: (_:unknown)=>{},onhostcontextchanged:()=>{}};
   const bridge={app,read,readForSession:()=>read,operation:vi.fn(async()=>({})),session:''} as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>{app.ontoolresult(bootstrap());});
-  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot','/api/runs/run-a?snapshot=snapshot']);
+  expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a']);
   await act(async()=>{app.ontoolresult(bootstrap(sessionB,2,'run-b'));});
-  await screen.findByRole('heading',{name:'run-b'});expect(vi.mocked(read).mock.calls[1][1].aborted).toBe(true);
+  await screen.findByRole('heading',{name:'run-b'});expect(vi.mocked(read).mock.calls[0][1].aborted).toBe(true);
   await act(async()=>{app.ontoolresult(bootstrap());finish(detail('run-a'));});
-  expect(screen.queryByRole('combobox')).toBeNull();expect(screen.getByRole('button',{name:'Anderen Run wählen'})).toBeTruthy();expect(bridge.session).toBe(sessionB);
+  expect(screen.queryByRole('combobox')).toBeNull();expect(screen.getByRole('button',{name:'Alle Vorhaben'})).toBeTruthy();expect(bridge.session).toBe(sessionB);
   const count=vi.mocked(read).mock.calls.length;
   await act(async()=>{mode='fullscreen';app.onhostcontextchanged();});
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(vi.mocked(read).mock.calls.length).toBe(count);

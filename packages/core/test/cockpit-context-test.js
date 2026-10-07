@@ -19,13 +19,20 @@ function setGraph(f, refs, content) {
   else fs.rmSync(join(f.root, graphPath), { force: true });
 }
 function inspect(f) {
-  const reader = createCockpitReader(f.root), snapshot = reader.snapshot();
-  const detail = reader.run('fixture-a', snapshot.snapshot_id), resource = detail.data.resources.find(r => r.type === 'UR');
-  const document = reader.document(resource.resource_id, snapshot.snapshot_id);
-  const context = reader.context('fixture-a', snapshot.snapshot_id);
-  const input = { snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a', revision_id: detail.data.revision_id,
+  const reader = createCockpitReader(f.root), initial = reader.snapshot('fixture-a');
+  assert.equal(initial.data.kind, 'run');
+  const original = initial.data.run.resources.find(r => r.type === 'UR');
+  const source = reader.document(original.resource_id, initial.snapshot_id, 'fixture-a');
+  assert.equal(source.data.kind, 'document'); assert.notEqual(source.snapshot_id, initial.snapshot_id);
+  const scope = reader.context('fixture-a', source.snapshot_id);
+  if (!scope.data) return { reader, context: scope };
+  assert.equal(scope.data.kind, 'context'); assert.notEqual(scope.snapshot_id, source.snapshot_id);
+  const detail = { ...scope, data: scope.data.run }, document = { ...scope, data: scope.data.document };
+  const context = { ...scope, data: scope.data.context }, resource = document.data.resource;
+  assert.ok(detail.data.resources.some(r => r.resource_id === resource.resource_id));
+  const input = { snapshot_id: scope.snapshot_id, run_id: 'fixture-a', revision_id: detail.data.revision_id,
     resource_id: resource.resource_id, graph_ids: [], excluded_ids: [], generation: 1 };
-  return { reader, snapshot, detail, resource, document, context, input };
+  return { reader, snapshot: scope, detail, resource, document, context, input };
 }
 test('SCN-007/008: exact references preserve passive node bytes, fences and section boundaries without recursive expansion', () => {
   const f = fixture(); try {
@@ -74,7 +81,8 @@ test('SCN-009/010/011: 64 refs, 16 selected, deliberate unavailable exclusion an
     s.reader.run('fixture-a',s.snapshot.snapshot_id);
     assert.throws(()=>s.reader.prepareContext(s.input),/resource_denied/);
     setGraph(f, [...refs,'CG-65'].join(';'),'### CG-N0\n');
-    assert.throws(()=>inspect(f),/resource_limit/);
+    const limited = inspect(f).context;
+    assert.equal(limited.code,'resource_limit'); assert.equal(limited.data,null);
     setGraph(f, 'CG-A; CG-MISSING', '### CG-A\nText\n'); s=inspect(f);
     assert.throws(()=>s.reader.prepareContext(s.input),/context_exclusion_required/);
     s.input.excluded_ids=[s.context.data.references[1].resource_id];
@@ -109,7 +117,7 @@ test('SCN-013/020: changed captures, generation, supersession and invalidation p
     assert.throws(()=>s.reader.validateContext(packet.context_id,1),/source_changed/);
     assert.equal(s.reader.validateContext(packet.context_id,1).code,'context_superseded');
     assert.throws(()=>s.reader.prepareContext(s.input),/source_changed/);
-    s=inspect(f); s.reader.snapshot(); assert.throws(()=>s.reader.prepareContext(s.input),/source_changed/);
+    s=inspect(f); s.reader.snapshot(); assert.throws(()=>s.reader.prepareContext(s.input),/resource_denied/);
     // Composition is surrounded by revalidation: a mutation during JSON sizing
     // cannot be promoted as current, even if the captured content itself is stable.
     s=inspect(f);

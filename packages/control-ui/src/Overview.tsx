@@ -1,16 +1,64 @@
 import { useState } from 'react';
 import type { Envelope, Inventory } from './types';
-import { label, ReadState } from './feedback';
-import { phaseName, runAttention, runStatus } from './presentation';
-export function Overview({ result, onSelect }: { result: Envelope<Inventory>; onSelect: (id: string) => void }) {
-  const [filter, setFilter] = useState('');
-  const runs = result.data?.runs ?? [], shown = runs.filter(r => `${r.run_id} ${r.title} ${r.objective ?? ''} ${phaseName(r.current_gate)}`.toLocaleLowerCase('de').includes(filter.toLocaleLowerCase('de')));
-  const active = runs.filter(r => r.lifecycle === 'active').length;
-  return <>
-    {result.code && result.data && <ReadState code={result.code} state={result.state}/>}
-    <div className="metrics"><div><strong>{runs.length}</strong><span>Runs erfasst</span></div><div><strong>{active}</strong><span>Aktive Runs</span></div><div><strong>{runs.filter(r => r.lifecycle === 'completed').length}</strong><span>Abgeschlossen</span></div><div><strong>{runs.filter(r => r.code).length}</strong><span>Mit Lesehinweisen</span></div></div>
-    <section className="panel agdf-surface"><div className="section-toolbar"><div><div className="eyebrow">Deine Vorhaben</div><h2>Runs im Repository</h2><p className="muted">Wähle ein Vorhaben, um seinen Stand, offene Punkte und den nächsten erlaubten Schritt zu verstehen.</p></div><label className="search">Runs suchen<input type="search" value={filter} onChange={e => setFilter(e.target.value)} placeholder="Vorhaben, Ziel oder Run-ID"/></label></div>
-      {result.state === 'empty' ? <ReadState state="empty"/> : !result.data ? <ReadState state={result.state} code={result.code}/> : <div className="table-scroll"><table className="undertaking-list"><thead><tr><th scope="col">Vorhaben</th><th scope="col">Arbeitsschritt und offene Nachweise</th></tr></thead><tbody>{shown.map(r => <tr key={r.run_id}><td data-label="Vorhaben"><button className="run-link" data-focus-id={r.run_id} onClick={() => onSelect(r.run_id)}>{r.title}</button>{r.objective && r.objective !== r.title && <p className="run-objective">{r.objective}</p>}<small className="run-identity"><code>{r.run_id}</code></small></td><td data-label="Arbeitsschritt und offene Nachweise"><span className={r.code ? 'status warning' : 'status'}>{runStatus(r)}</span><strong className="row-step">{phaseName(r.current_gate)}</strong><details className="row-source"><summary>Kontrolldaten</summary><small>Lebenszyklus: {label(r.lifecycle)} · Gate: {r.current_gate || 'Nicht verfügbar'} · Auswertung: {label(r.status)}</small></details><ul className="attention-list">{runAttention(r).map(item => <li key={item}>{item}</li>)}</ul><button className="text-link row-evidence" onClick={() => onSelect(r.run_id)}>{!r.valid || r.code ? 'Quelle prüfen' : 'Schritt und Nachweise ansehen'}</button></td></tr>)}</tbody></table>{!shown.length && <p>Keine Runs für diese Suche.</p>}</div>}
-    </section>
-  </>;
+import { ReadState } from './feedback';
+
+const areas = [
+  { section: 'Active Backlog', label: 'Aktiv' },
+  { section: 'Planned / Parking Lot', label: 'Geplant' },
+  { section: 'Completed / Superseded Pointers', label: 'Archiv' },
+] as const;
+const unreadableLayout = /^(backlog_(section_missing|layout_missing|layout_unsupported)|AGDF_BACKLOG_LAYOUT_UNKNOWN)$/;
+const titleWithoutScope = (title: string) => title.replace(/^\[(framework[-_]maintenance|external[-_]delivery)\]\s*/i, '') || title;
+export interface BacklogView { section: string; filter: string }
+
+export function Overview({ result, onSelect, view, onViewChange }: { result: Envelope<Inventory>; onSelect: (id: string) => void; view?: BacklogView; onViewChange?: (view: BacklogView) => void }) {
+  const [localView, setLocalView] = useState<BacklogView>({ section: areas[0].section, filter: '' });
+  const { section: selected, filter } = view ?? localView;
+  const changeView = onViewChange ?? setLocalView;
+  const inventory = result.data, entries = inventory?.entries ?? [];
+  const diagnostics = inventory?.diagnostics ?? [];
+  const inArea = entries.filter(r => r.section === selected);
+  const shown = inArea.filter(r => `${r.key} ${r.title} ${r.stored_status}`.toLocaleLowerCase('de').includes(filter.trim().toLocaleLowerCase('de')));
+  const areaName = areas.find(a => a.section === selected)!.label;
+  const affected = (section: string) => diagnostics.filter(d => !d.section || d.section === section);
+  const unavailable = (section: string) => !inventory || !(section in inventory.counts) || affected(section).some(d => unreadableLayout.test(d.code));
+  const affectedNames = areas.filter(a => affected(a.section).length).map(a => a.label).join(', ');
+  return <section className="panel agdf-surface backlog-overview" aria-label="Vorhaben nach Backlog-Bereich">
+    <div className="backlog-switch" role="group" aria-label="Backlog-Bereich">
+      {areas.map(area => <button key={area.section} type="button" aria-pressed={selected === area.section} aria-controls="backlog-list"
+        onClick={() => changeView({ section: area.section, filter: '' })}>
+        <span className="backlog-area-label">{area.label}</span>
+        <strong>{unavailable(area.section) ? 'Nicht verfügbar' : inventory!.counts[area.section]}</strong>
+        {affected(area.section).length > 0 && !unavailable(area.section) && <small>Eingeschränkt</small>}
+      </button>)}
+    </div>
+    {!!diagnostics.length && <details className="notice backlog-notice" role="status"><summary>Teilweise verfügbar · {affectedNames}<span> · {diagnostics.length} {diagnostics.length === 1 ? 'Lesehinweis' : 'Lesehinweise'}</span></summary>
+      <p>Hier sind Tabellen oder Einträge nicht eindeutig lesbar. Lesbare Vorhaben kannst du weiterhin öffnen; eingeschränkte Zähler sind kein vollständiger Bestand.</p>
+      <ul>{diagnostics.map((d, i) => <li key={i}>
+        {d.section && <span>{areas.find(a => a.section === d.section)?.label ?? d.section}: </span>}<code>{d.code}</code>{d.key && <code> · {d.key}</code>}{d.message && <p>{d.message}</p>}
+      </li>)}</ul>
+    </details>}
+    {inventory && <label className="search backlog-search">{areaName}: Vorhaben suchen<input type="search" value={filter} onChange={e => changeView({ section: selected, filter: e.target.value })} placeholder="Titel, Schlüssel oder gespeicherter Status"/></label>}
+    <div id="backlog-list" role="region" aria-label={`Vorhaben · ${areaName}`}>
+      <h2>{selected === areas[0].section ? 'Aktive Vorhaben' : selected === areas[1].section ? 'Geplante Vorhaben' : 'Archivierte Vorhaben'}</h2>
+      {!inventory ? <ReadState state={result.state} code={result.code}/> : !shown.length ? <p className="muted" role="status">
+        {unavailable(selected) ? 'Dieser Bereich ist nicht auswertbar. Die Quelle prüfen und bewusst neu laden.'
+          : filter.trim() ? 'Keine gespeicherten Vorhaben für diese Suche.' : 'In diesem Bereich sind keine Vorhaben gespeichert.'}
+      </p> : <ul className="undertaking-list">{shown.map((r, index) => <li key={`${r.section}:${r.key}:${index}`}>
+        <h3><button className="run-link" disabled={!r.selectable} data-focus-id={r.key} onClick={() => onSelect(r.key)}>{titleWithoutScope(r.title)}</button></h3>
+        <span className="status">Gespeichert: {r.stored_status || 'Nicht angegeben'}</span>
+        <p className="row-step">{selected === areas[2].section ? 'Ergebnis laut Backlog' : 'Nächster Schritt laut Backlog'}: {r.stored_next_step || 'Nicht angegeben'}</p>
+        {!r.selectable && <p className="muted">Dieser Eintrag ist nicht eindeutig zugeordnet und kann nicht geöffnet werden.</p>}
+        <details className="row-source"><summary>Gespeicherte Angaben und Quellen</summary>
+          <dl><dt>Originaltitel</dt><dd>{r.title}</dd><dt>Schlüssel</dt><dd><code>{r.original_key}</code></dd>
+            {r.priority && <><dt>Priorität</dt><dd>{r.priority}</dd></>}
+            {r.scope && <><dt>Umfang</dt><dd>{r.scope}</dd></>}
+            <dt>{selected === areas[2].section ? 'Ergebnis' : 'Nächster Schritt'}</dt><dd>{r.stored_next_step || 'Nicht angegeben'}</dd>
+            <dt>Quellen</dt><dd>{r.source_links || 'Keine Links gespeichert'}</dd>
+            {r.current_spec && <><dt>Spezifikation</dt><dd>{r.current_spec}</dd></>}
+          </dl>
+        </details>
+      </li>)}</ul>}
+    </div>
+  </section>;
 }

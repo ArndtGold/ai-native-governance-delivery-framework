@@ -6,7 +6,8 @@ import { ReadState, label } from '../src/feedback';
 import { initialState, readingReducer } from '../src/state';
 import { App } from '../src/App';
 import type { Envelope, Inventory } from '../src/types';
-const snapshot: Envelope<Inventory> = { schema_version: '1', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: 'view-1', source_digest: 'digest', observed_as_of: '2026-10-05T12:00:00Z', state: 'available', code: null, retryable: false, data: { runs: [{ run_id: 'fixture-a', valid: true, title: 'Original title', objective: null, source_path: '.agdf/control/runs/fixture-a/RUN_STATE.md', lifecycle: 'active', revision_id: 'revision', status: 'open', current_gate: 'UR', code: null }], file_count: 1, byte_count: 1 } };
+import { backlog, pointer } from './scoped-fixtures';
+const snapshot = { ...backlog([pointer('fixture-a', 'Original title')]), snapshot_id: 'view-1' };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 describe('read state and passive documents', () => {
   it('SCN-009/024/027: raw HTML/images/foreign links are inert and registered links are buttons', () => {
@@ -17,8 +18,8 @@ describe('read state and passive documents', () => {
   });
   it('SCN-006/015/016: older completions cannot replace selection, failure retains explicitly stale content', () => {
     const state = readingReducer(initialState, { type: 'begin', generation: 2, route: { view: 'overview' } });
-    expect(readingReducer(state, { type: 'ready', generation: 1, route: { view: 'overview' }, inventory: snapshot, detail: null, document: null })).toBe(state);
-    const ready = readingReducer(state, { type: 'ready', generation: 2, route: { view: 'overview' }, inventory: snapshot, detail: null, document: null });
+    expect(readingReducer(state, { type: 'ready', generation: 1, route: { view: 'overview' }, scope: snapshot, inventory: snapshot, detail: null, document: null })).toBe(state);
+    const ready = readingReducer(state, { type: 'ready', generation: 2, route: { view: 'overview' }, scope: snapshot, inventory: snapshot, detail: null, document: null });
     const failed = readingReducer(ready, { type: 'error', generation: 2, code: 'read_failed' }); expect(failed.stale).toBe(true); expect(failed.inventory).toBe(snapshot);
     expect(readingReducer(ready, { type: 'stale', snapshot: 'foreign', code: 'source_changed' })).toBe(ready);
   });
@@ -28,7 +29,7 @@ describe('read state and passive documents', () => {
     expect(() => validateEnvelope({ ...snapshot, schema_version: '2' })).toThrow('dto_invalid');
     expect(() => validateEnvelope({ ...snapshot, retryable: 'yes' })).toThrow('dto_invalid');
     expect(() => validateData('/api/snapshot', { ...snapshot, data: { runs: [{}] } } as unknown as Envelope<unknown>)).toThrow('dto_invalid');
-    expect(() => validateData('/api/runs/removed', { ...snapshot, state: 'missing', data: { run_id: 'removed', resources: [] } } as unknown as Envelope<unknown>)).not.toThrow();
+    expect(() => validateData('/api/runs/removed', { ...snapshot, state: 'missing', data: { kind: 'run', requested_run_id: 'removed', run: null } } as unknown as Envelope<unknown>)).not.toThrow();
   });
   it('SCN-032: session fragment is removed without durable storage', () => {
     window.history.replaceState(null, '', '/#' + 'a'.repeat(64)); const storage = vi.spyOn(Storage.prototype, 'setItem');
@@ -46,7 +47,7 @@ describe('read state and passive documents', () => {
     render(<App secret={'a'.repeat(64)}/>); await waitFor(() => expect(screen.getByText('/fixture')).toBeTruthy()); expect(screen.getAllByText(/Für dieses Repository fehlen/).length).toBeGreaterThan(0);
   });
   it('SCN-012/028: availability states have distinct German feedback and unknown values retain explicit source context', () => {
-    for (const [state, code, heading] of [['empty', null, 'Keine Runs'], ['partial', 'inventory_partial', 'Teilweise verfügbar'], ['invalid', 'invalid_run', 'Ungültig'], ['missing', 'document_missing', 'Fehlt'], ['unsupported', 'document_unsupported', 'Vorschau nicht verfügbar'], ['blocked', 'resource_denied', 'Gesperrt'], ['error', 'read_failed', 'Lesefehler'], ['stale', 'source_changed', 'Veraltet']]) {
+    for (const [state, code, heading] of [['empty', null, 'Keine Einträge'], ['partial', 'inventory_partial', 'Teilweise verfügbar'], ['invalid', 'invalid_run', 'Ungültig'], ['missing', 'document_missing', 'Fehlt'], ['unsupported', 'document_unsupported', 'Vorschau nicht verfügbar'], ['blocked', 'resource_denied', 'Gesperrt'], ['error', 'read_failed', 'Lesefehler'], ['stale', 'source_changed', 'Veraltet']]) {
       const { unmount } = render(<ReadState state={state!} code={code}/>); expect(screen.getByText(heading!)).toBeTruthy(); unmount();
     }
     expect(label('unknown_core_value')).toBe('Nicht verfügbar · Original: unknown_core_value');

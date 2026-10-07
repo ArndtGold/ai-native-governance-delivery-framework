@@ -3,9 +3,9 @@ import { createCockpitReader } from '../control-inspect/cockpit.js';
 const reader = createCockpitReader(workerData.root, { limits: workerData.limits });
 parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
-    const result = operation === 'snapshot' ? reader.snapshot()
+    const result = operation === 'snapshot' ? reader.snapshot(input?.run_id)
       : operation === 'run' ? reader.run(selector, snapshot)
-      : operation === 'document' ? reader.document(selector, snapshot)
+      : operation === 'document' ? reader.document(selector, snapshot, input?.run_id)
       : operation === 'freshness' ? reader.freshness(snapshot)
       : operation === 'context' ? reader.context(selector, snapshot)
       : operation === 'prepare_context' ? reader.prepareContext(input)

@@ -35,15 +35,16 @@ for (const modern of [false, true]) {
       const snapshot = (await call({ operation: 'snapshot' })).structuredContent;
       assert.equal(snapshot.authorizes, false); assert.ok(snapshot.snapshot_id);
       const detail = (await call({ operation: 'run', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' })).structuredContent;
-      assert.deepEqual(detail.data.evaluation.control_assessment,
-        projectCockpitAssessment(evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true }), detail.data.lifecycle));
-      const selected = detail.data.resources.find(r => r.type === 'UR');
-      const docargs = { operation: 'document', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a', resource_id: selected.resource_id };
-      assert.match((await call(docargs)).structuredContent.data.content, /Fixture document/);
-      const context = (await call({ operation: 'context', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' })).structuredContent;
-      assert.equal(context.state, 'empty'); assert.deepEqual(context.data.references, []);
-      const prepared = (await call({ operation: 'prepare_context', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a',
-        revision_id: detail.data.revision_id, resource_id: selected.resource_id, graph_ids: [], excluded_ids: [], generation: 1 })).structuredContent;
+      assert.deepEqual(detail.data.run.evaluation.control_assessment,
+        projectCockpitAssessment(evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true }), detail.data.run.lifecycle));
+      const selected = detail.data.run.resources.find(r => r.type === 'UR');
+      const docargs = { operation: 'document', snapshot_id: detail.snapshot_id, run_id: 'fixture-a', resource_id: selected.resource_id };
+      const document=(await call(docargs)).structuredContent;
+      assert.match(document.data.document.content, /Fixture document/); assert.notEqual(document.snapshot_id,detail.snapshot_id);
+      const context = (await call({ operation: 'context', snapshot_id: document.snapshot_id, run_id: 'fixture-a' })).structuredContent;
+      assert.equal(context.state, 'empty'); assert.deepEqual(context.data.context.references, []);
+      const prepared = (await call({ operation: 'prepare_context', snapshot_id: context.snapshot_id, run_id: 'fixture-a',
+        revision_id: context.data.run.revision_id, resource_id: context.data.document.resource.resource_id, graph_ids: [], excluded_ids: [], generation: 1 })).structuredContent;
       assert.equal(prepared.state, 'available'); const packet = prepared.data.packet;
       assert.equal(packet.run_id, 'fixture-a'); assert.equal(packet.authorizes, false);
       assert.equal(packet.artefact.content, readFileSync(new URL(selected.path, 'file://' + f.root + '/'), 'utf8'));
@@ -67,14 +68,14 @@ for (const modern of [false, true]) {
       assert.equal(focused._meta.agdf_cockpit.initial_run_id, 'fixture-a');
       assert.equal(focused.structuredContent.snapshot_id, undefined);
       const focusedSession = focused._meta.agdf_cockpit.session_id;
-      const focusedSnapshot = (await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: focusedSession } })).structuredContent;
-      const focusedDetail = (await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'run', session_id: focusedSession, snapshot_id: focusedSnapshot.snapshot_id, run_id: 'fixture-a' } })).structuredContent;
-      assert.equal(focusedDetail.data.run_id, 'fixture-a');
+      const focusedDetail = (await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: focusedSession, run_id: 'fixture-a' } })).structuredContent;
+      assert.equal(focusedDetail.data.kind,'run'); assert.equal(focusedDetail.data.run.run_id, 'fixture-a');
       const callB = args => client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id: focusedSession, ...args } });
-      const sourceB = focusedDetail.data.resources.find(r => r.type === 'UR');
-      await callB({ operation: 'document', snapshot_id: focusedSnapshot.snapshot_id, run_id: 'fixture-a', resource_id: sourceB.resource_id });
-      const prepareB = { operation: 'prepare_context', snapshot_id: focusedSnapshot.snapshot_id, run_id: 'fixture-a', revision_id: focusedDetail.data.revision_id,
-        resource_id: sourceB.resource_id, graph_ids: [], excluded_ids: [], generation: 1 };
+      const sourceB = focusedDetail.data.run.resources.find(r => r.type === 'UR');
+      const documentB=(await callB({ operation: 'document', snapshot_id: focusedDetail.snapshot_id, run_id: 'fixture-a', resource_id: sourceB.resource_id })).structuredContent;
+      const contextB=(await callB({operation:'context',snapshot_id:documentB.snapshot_id,run_id:'fixture-a'})).structuredContent;
+      const prepareB = { operation: 'prepare_context', snapshot_id: contextB.snapshot_id, run_id: 'fixture-a', revision_id: contextB.data.run.revision_id,
+        resource_id: contextB.data.document.resource.resource_id, graph_ids: [], excluded_ids: [], generation: 1 };
       assert.equal((await callB(prepareB)).structuredContent.code, 'busy');
       assert.equal((await callB(validation)).structuredContent.code, 'resource_denied');
       assert.equal((await callB({ operation: 'invalidate_context' })).structuredContent.data.host_publication_required, false);
@@ -93,7 +94,7 @@ for (const modern of [false, true]) {
         assert.equal((await client.callTool({ name: 'agdf_cockpit', arguments: args })).isError, true);
       }
       const expired = (await call({ operation: 'snapshot' })).structuredContent;
-      assert.equal(expired.state, 'available');
+      assert.equal(expired.state, 'empty');
       await call({ operation: 'close' });
       assert.equal((await call({ operation: 'snapshot' })).structuredContent.code, 'session_expired');
       assert.deepEqual(treeBytes(f.root), before);

@@ -5,12 +5,12 @@ export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60
   sessions: 4, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });
 const id = { type: 'string', format: 'uuid' };
 const run = { type: 'string', pattern: '^[A-Za-z0-9_-]{1,128}$' };
-function operation(name, fields = {}) {
+function operation(name, fields = {}, optional = []) {
   const properties = { operation: { const: name }, session_id: id, ...fields };
-  return { type: 'object', additionalProperties: false, properties, required: Object.keys(properties) };
+  return { type: 'object', additionalProperties: false, properties, required: Object.keys(properties).filter(key => !optional.includes(key)) };
 }
 export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
-  operation('snapshot'),
+  operation('snapshot', { run_id: run }, ['run_id']),
   operation('run', { snapshot_id: id, run_id: run }),
   operation('document', { snapshot_id: id, run_id: run, resource_id: id }),
   operation('freshness', { snapshot_id: id }),
@@ -44,7 +44,7 @@ export function parseCockpitArguments(value, render = false) {
     return { run_id: value.run_id };
   }
   const branch = COCKPIT_READ_SCHEMA.oneOf.find(row => row.properties.operation.const === value.operation);
-  if (!branch || Object.keys(value).length !== branch.required.length || branch.required.some(key => !Object.hasOwn(value, key))) return reject();
+  if (!branch || Object.keys(value).some(key => !Object.hasOwn(branch.properties, key)) || branch.required.some(key => !Object.hasOwn(value, key))) return reject();
   const valid = (item, rule) => {
     if (rule.const !== undefined) return item === rule.const;
     if (rule.type === 'string') return typeof item === 'string'
@@ -55,6 +55,6 @@ export function parseCockpitArguments(value, render = false) {
       && new Set(item).size === item.length && item.every(entry => valid(entry, rule.items));
     return false;
   };
-  if (branch.required.some(key => !valid(value[key], branch.properties[key]))) return reject();
+  if (Object.keys(value).some(key => !valid(value[key], branch.properties[key]))) return reject();
   return { ...value };
 }

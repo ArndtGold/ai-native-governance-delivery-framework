@@ -16,8 +16,8 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   // Copilot exposes the default dispatcher/inspector, never the private Codex cockpit.
   // Its default entry point has no dependency on this opt-in read closure.
   if (copilot) for (const module of [
-    'control-inspect/cockpit.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
-    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js',
+    'control-inspect/cockpit.js', 'control-inspect/cockpit-backlog.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
+    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-read/snapshot.js',
   ]) rmSync(join(target, 'lib', module));
   // Only the explicit build-owned resource descriptor differs from private source composition.
   const contracts = copilot ? '../../skills/contracts/' : 'plugins/agdf/meta/contracts/';

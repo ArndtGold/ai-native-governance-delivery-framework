@@ -1,13 +1,14 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { ReadTransport } from './api';
-import type { Envelope, GraphData, Detail, DocumentData } from './types';
+import type { Envelope, GraphData, Detail, DocumentData, ReadingScope } from './types';
 import { PassiveMarkdown } from './DocumentView';
 import type { HandoffController, HandoffState } from './mcp/handoff';
 
 const idle: HandoffState = { phase: 'idle' };
 const inertSubscribe = () => () => {};
-export function ContextPanel({ read, detail, document, disabled, handoff }: {
+export function ContextPanel({ read, detail, document, disabled, handoff, onScope }: {
   read: ReadTransport; detail: Envelope<Detail>; document?: Envelope<DocumentData> | null; disabled: boolean; handoff?: HandoffController;
+  onScope: (scope: Envelope<ReadingScope>) => void;
 }) {
   const [expanded, setExpanded] = useState(false), [graph, setGraph] = useState<Envelope<GraphData> | null>(null);
   const [problem, setProblem] = useState(''), [selected, setSelected] = useState<string[]>([]), [excluded, setExcluded] = useState<string[]>([]);
@@ -15,13 +16,14 @@ export function ContextPanel({ read, detail, document, disabled, handoff }: {
   const runId = detail.data?.run_id;
   useEffect(() => {
     if (!expanded || disabled || !runId || !detail.snapshot_id) return;
+    if (graph?.snapshot_id === detail.snapshot_id) return;
     const controller = new AbortController(); setGraph(null); setProblem('');
-    void read<GraphData>(`/api/context/${runId}?snapshot=${detail.snapshot_id}`, controller.signal,
-      { target: detail.target.target_id, snapshot: detail.snapshot_id }).then(value => {
+    void read<ReadingScope>(`/api/context/${runId}?snapshot=${detail.snapshot_id}`, controller.signal,
+      { target: detail.target.target_id, snapshot: detail.snapshot_id, replacement: true }).then(value => {
       if (controller.signal.aborted) return;
-      if (value.data && (value.data.run_id !== runId || value.data.references.some(r => r.run_id !== runId))) throw Error('dto_invalid');
-      if (!value.data) throw Error(value.code ?? 'read_failed');
-      setGraph(value);
+      if (!value.data || value.data.kind !== 'context' || value.data.run.run_id !== runId) throw Error(value.code ?? 'dto_invalid');
+      setGraph({ ...value, data: value.data.context }); setSelected([]); setExcluded([]);
+      onScope(value);
     }).catch(error => { if (!controller.signal.aborted) setProblem(error instanceof Error ? error.message : 'read_failed'); });
     return () => controller.abort();
   }, [expanded, disabled, runId, detail.snapshot_id, detail.target.target_id, read]);

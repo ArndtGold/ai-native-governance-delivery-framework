@@ -37,11 +37,14 @@ test('SCN-020/022/032: loopback authenticated read journey, origin/method/select
     assert.equal((await request(service, '/assets/unregistered.woff2')).status, 404);
     const s = (await request(service, '/api/snapshot')).body; assert.ok(s.snapshot_id);
     const d = (await request(service, '/api/runs/fixture-a?snapshot=' + s.snapshot_id)).body;
-    const resource = d.data.resources.find(r => r.type === 'UR'); const doc = (await request(service, `/api/documents/${resource.resource_id}?snapshot=${s.snapshot_id}`)).body; assert.match(doc.data.content, /Fixture document/);
-    assert.equal((await request(service, '/api/freshness?snapshot=' + s.snapshot_id)).body.data.unchanged, true);
-    const context = (await request(service, '/api/context/fixture-a?snapshot=' + s.snapshot_id)).body;
-    assert.equal(context.state, 'empty'); assert.equal(context.data.run_id, 'fixture-a');
-    assert.deepEqual(context.data.references, []);
+    assert.equal(s.data.kind, 'backlog'); assert.equal(d.data.kind, 'run');
+    const resource = d.data.run.resources.find(r => r.type === 'UR');
+    const doc = (await request(service, `/api/documents/${resource.resource_id}?snapshot=${d.snapshot_id}`)).body;
+    assert.match(doc.data.document.content, /Fixture document/); assert.notEqual(doc.snapshot_id,d.snapshot_id);
+    assert.equal((await request(service, '/api/freshness?snapshot=' + doc.snapshot_id)).body.data.unchanged, true);
+    const context = (await request(service, '/api/context/fixture-a?snapshot=' + doc.snapshot_id)).body;
+    assert.equal(context.state, 'empty'); assert.equal(context.data.context.run_id, 'fixture-a');
+    assert.deepEqual(context.data.context.references, []); assert.notEqual(context.snapshot_id,doc.snapshot_id);
     for (const [path, options] of [
       ['/api/snapshot', { headers: { 'x-agdf-session': '' } }], ['/api/snapshot', { headers: { 'x-agdf-session': 'é'.repeat(64) } }],
       ['/api/snapshot', { headers: { Origin: 'https://foreign.invalid' } }], ['/api/snapshot', { headers: { Origin: 'null' } }],
@@ -54,10 +57,10 @@ test('SCN-020/022/032: loopback authenticated read journey, origin/method/select
     ]) {
       const response = await request(service, path, options); assert.ok(response.status >= 400, path + JSON.stringify(options)); assert.doesNotMatch(response.text, /Fixture document/); assert.doesNotMatch(response.text, new RegExp(service.secret)); assert.equal(response.headers['access-control-allow-origin'], undefined);
     }
-    assert.equal((await request(service, '/api/freshness?snapshot=' + s.snapshot_id, { headers: { Origin: service.origin } })).status, 200);
+    assert.equal((await request(service, '/api/freshness?snapshot=' + context.snapshot_id, { headers: { Origin: service.origin } })).status, 200);
     assert.deepEqual(treeBytes(f.root), before);
-    fs.writeFileSync(join(f.root, f.documentPath), 'external edit'); assert.equal((await request(service, '/api/freshness?snapshot=' + s.snapshot_id)).body.code, 'source_changed');
-    const fresh = (await request(service, '/api/snapshot')).body; assert.notEqual(fresh.snapshot_id, s.snapshot_id); assert.equal((await request(service, `/api/runs/fixture-a?snapshot=${s.snapshot_id}`)).body.code, 'source_changed');
+    fs.writeFileSync(join(f.root, f.documentPath), 'external edit'); assert.equal((await request(service, '/api/freshness?snapshot=' + context.snapshot_id)).body.code, 'source_changed');
+    const fresh = (await request(service, '/api/snapshot')).body; assert.notEqual(fresh.snapshot_id, s.snapshot_id); assert.equal((await request(service, `/api/runs/fixture-a?snapshot=${s.snapshot_id}`)).body.code, 'resource_denied');
     await assert.rejects(startControlServer({ dir: f.root, port: Number(new URL(service.origin).port) }), /EADDRINUSE/);
   } finally { await service.close(); f.close(); }
 });

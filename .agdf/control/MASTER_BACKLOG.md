@@ -2,11 +2,11 @@
 
 ## Lifecycle Rules
 
-- Keep an item in **Active Backlog** while work, required evidence, a required approval, or delivery closeout remains open.
-- Move an item to **Completed / Superseded Pointers** only when its scoped work is delivered, required validation and QA have passed, required user approvals including UAT are recorded, and the OR states the final outcome.
-- A commit alone is not completion evidence. The artefact chain and required approvals decide completion.
-- Quick Tasks without a formal QA or UAT gate may move to Completed after their relevant checks and compact closeout are recorded.
-- Use **superseded** instead of **completed** when another artefact or scope replaces the item; retain the historical link and name the replacement.
+-   Keep an item in **Active Backlog** while work, required evidence, a required approval, or delivery closeout remains open.
+-   Move an item to **Completed / Superseded Pointers** only when its scoped work is delivered, required validation and QA have passed, required user approvals including UAT are recorded, and the OR states the final outcome.
+-   A commit alone is not completion evidence. The artefact chain and required approvals decide completion.
+-   Quick Tasks without a formal QA or UAT gate may move to Completed after their relevant checks and compact closeout are recorded.
+-   Use **superseded** instead of **completed** when another artefact or scope replaces the item; retain the historical link and name the replacement.
 
 ## Active Backlog
 

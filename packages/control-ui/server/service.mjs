@@ -94,12 +94,14 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
     else return send(403, error('resource_denied'));
     const params = [...url.searchParams.keys()];
-    if (operation === 'snapshot' ? params.length : params.length !== 1 || params[0] !== 'snapshot'
+    if (operation === 'snapshot' ? params.length > 1 || params.length === 1 && (params[0] !== 'run_id'
+        || !/^[A-Za-z0-9_-]{1,128}$/.test(url.searchParams.get('run_id') ?? '')) : params.length !== 1 || params[0] !== 'snapshot'
       || !/^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')) return send(403, error('resource_denied'));
     const cancellation = new AbortController();
     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
     try {
-      const result = await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot') }, cancellation.signal);
+      const result = await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
+        input: operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
       send(200, result);
     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }
   });

@@ -1,0 +1,150 @@
+
+Running 11 tests using 1 worker
+
+(node:55194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 test/browser/journeys.spec.mjs:15:1 › document orientation separates approved Run facts from draft originals in both Pages themes (2.3s)
+(node:55207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 test/browser/journeys.spec.mjs:76:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (1.9s)
+(node:55220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 test/browser/journeys.spec.mjs:133:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (1.7s)
+(node:55233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 test/browser/journeys.spec.mjs:160:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (1.5s)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 test/browser/journeys.spec.mjs:197:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (2.2s)
+(node:55266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 test/browser/journeys.spec.mjs:217:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (7.5s)
+(node:55286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 test/browser/journeys.spec.mjs:234:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (2.6s)
+(node:55288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 test/browser/journeys.spec.mjs:284:1 › summary leads with the work step and stale reads never claim a missing Run or current control (6.7s)
+(node:55299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 test/browser/journeys.spec.mjs:317:1 › Pages surface recipes survive neutral host colors in light and dark across all views (4.4s)
+(node:55302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 test/browser/journeys.spec.mjs:379:1 › built Pages action and type hierarchy matches Cockpit in both themes (3.2s)
+(node:55305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 test/browser/journeys.spec.mjs:445:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (2.4s)
+
+
+  1) test/browser/journeys.spec.mjs:15:1 › document orientation separates approved Run facts from draft originals in both Pages themes 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:16:91
+
+    Error Context: test-results/journeys-document-orientat-5d0f1-ginals-in-both-Pages-themes/error-context.md
+
+  2) test/browser/journeys.spec.mjs:76:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:77:65
+
+    Error Context: test-results/journeys-SCN-044-Pages-fon-92fc9--card-list-Run-and-document/error-context.md
+
+  3) test/browser/journeys.spec.mjs:133:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:137:45
+
+    Error Context: test-results/journeys-SCN-002-005-007-0-4be9c-ble-at-container-boundaries/error-context.md
+
+  4) test/browser/journeys.spec.mjs:160:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:161:100
+
+    Error Context: test-results/journeys-SCN-003-007-028-0-dc6e3-idelity-and-unchanged-bytes/error-context.md
+
+  4 failed
+    test/browser/journeys.spec.mjs:15:1 › document orientation separates approved Run facts from draft originals in both Pages themes 
+    test/browser/journeys.spec.mjs:76:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document 
+    test/browser/journeys.spec.mjs:133:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries 
+    test/browser/journeys.spec.mjs:160:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+  7 passed (44.9s)

@@ -1,4 +1,4 @@
-import { validateEnvelope, graphReferences, validateData } from '../api';
+import { validateEnvelope, graphReferences, documentData } from '../api';
 import type { ContextPacket } from '../types';
 import type { HandoffPort } from './handoff';
 import type { CockpitBridge } from './transport';
@@ -33,7 +33,7 @@ export function createHandoffPort(bridge: CockpitBridge, session = bridge.sessio
           || (ref.reason === 'deliberate_exclusion') !== selection.excluded_ids.includes(ref.resource_id))
         || selection.excluded_ids.some(id => !packet.excluded.some(ref => ref.resource_id === id && ref.reason === 'deliberate_exclusion'))) throw Error('dto_invalid');
       validateEnvelope(packetEnvelope(value, packet));
-      validateData('/api/documents/registered', packetEnvelope(value, packet));
+      if (!documentData(packet.artefact) || typeof packet.artefact.content !== 'string') throw Error('dto_invalid');
       if (new TextEncoder().encode(JSON.stringify(packet)).byteLength > 64 * 1024) throw Error('context_limit');
       return packet;
     },

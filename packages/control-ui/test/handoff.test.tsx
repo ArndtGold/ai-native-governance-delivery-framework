@@ -2,9 +2,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { act, render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { HandoffController, type HandoffPort, type ContextSelection } from '../src/mcp/handoff';
 import { ContextPanel } from '../src/ContextPanel';
-import type { ContextPacket, Envelope, Detail, DocumentData, GraphData } from '../src/types';
+import type { ContextPacket, Envelope, Detail, DocumentData, GraphData, ReadingScope } from '../src/types';
 import type { ReadTransport } from '../src/api';
 import { CockpitBridge } from '../src/mcp/transport';
+import { useState } from 'react';
+import { runData } from './scoped-fixtures';
 import { createHandoffPort } from '../src/mcp/handoff-port';
 const selection: ContextSelection={target:'target',snapshot_id:'snapshot',run_id:'run-a',revision_id:'revision',resource_id:'source',graph_ids:[],excluded_ids:[]};
 const packet=(generation:number):ContextPacket=>({schema_version:'1',target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',source_digest:'digest',observed_as_of:'2026-10-06T12:00:00Z',prepared_at:'2026-10-06T12:00:01Z',run_id:'run-a',revision_id:'revision',context_id:'context',generation,
@@ -141,15 +143,23 @@ describe('bounded contextual handoff',()=>{
   it('SCN-010/015/020: UI exposes unavailable exclusion and packet provenance, never sends merely from reading',async()=>{
     const{port,controller}=fixture();
     const envelope=<T,>(data:T):Envelope<T>=>({schema_version:'1',target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',source_digest:'digest',observed_as_of:'now',state:'available',code:null,retryable:false,data});
-    const detail=envelope<Detail>({run_id:'run-a',revision_id:'revision',lifecycle:'active',resources:[]});
+    const detail=envelope<Detail>({...runData('run-a'),resources:[packet(1).artefact.resource]});
     const document=envelope<DocumentData>(packet(1).artefact);
     const graph=envelope<GraphData>({run_id:'run-a',references:[{resource_id:'missing-node',run_id:'run-a',origin:'CG-MISSING',path:'.agdf/control/CONTEXT_GRAPH.md',node_id:'CG-MISSING',graph_digest:'digest',content_digest:null,content:null,state:'missing',code:'node_missing'}]});
-    render(<ContextPanel read={vi.fn(async()=>graph) as ReadTransport} detail={detail} document={document} disabled={false} handoff={controller}/>);
+    port.prepare=vi.fn(async(s,g)=>({...packet(g),snapshot_id:s.snapshot_id,artefact:{...packet(g).artefact,resource:{...packet(g).artefact.resource,resource_id:s.resource_id}}}));
+    const replacement:Envelope<ReadingScope>={...graph,snapshot_id:'graph-snapshot',data:{kind:'context',run:{...detail.data!,resources:[{...packet(1).artefact.resource,resource_id:'graph-source'}]},document:{...document.data!,resource:{...document.data!.resource,resource_id:'graph-source'}},context:graph.data!}};
+    function Harness(){
+      const [parent,setParent]=useState(detail),[source,setSource]=useState(document);
+      return <ContextPanel read={vi.fn(async()=>replacement) as ReadTransport} detail={parent} document={source} disabled={false} handoff={controller} onScope={value=>{
+        if(value.data?.kind==='context'){setParent({...value,data:value.data.run});setSource({...value,data:value.data.document!});}
+      }}/>;
+    }
+    render(<Harness/>);
     fireEvent.click(screen.getByRole('button',{name:'Verknüpfter Kontext ansehen'}));await screen.findAllByText('CG-MISSING');
     expect((screen.getByRole('button',{name:'Kontext übergeben'}) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole('checkbox',{name:'Bewusst ausschließen'}));
     await act(async()=>{fireEvent.click(screen.getByRole('button',{name:'Kontext übergeben'}));});
-    expect(port.prepare).toHaveBeenCalledWith({...selection,excluded_ids:['missing-node']},expect.any(Number));
+    expect(port.prepare).toHaveBeenCalledWith({...selection,snapshot_id:'graph-snapshot',resource_id:'graph-source',excluded_ids:['missing-node']},expect.any(Number));
     expect(port.question).not.toHaveBeenCalled();expect(screen.getByText(/Kontext vom Host bestätigt/)).toBeTruthy();
     await act(async()=>{fireEvent.click(screen.getByRole('button',{name:'Frage zu diesen Quellen senden'}));});expect(port.question).toHaveBeenCalledTimes(1);
   });

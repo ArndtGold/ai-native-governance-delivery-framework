@@ -1,6 +1,6 @@
-import { useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { useId, useRef, useState, type RefObject } from 'react';
 import { hasExpiredSession, type ReadingState } from '../state';
-import { label, ReadState, ReadingFeedback } from '../feedback';
+import { ReadState, ReadingFeedback } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
 import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
@@ -13,41 +13,30 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onExpand?: () => void;
   onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void;
 }) {
-  const runs = state.inventory?.data?.runs ?? [], active = runs.filter(r => r.lifecycle === 'active');
+  const entries = state.inventory?.data?.entries ?? [];
   const [search, setSearch] = useState('');
-  const [choosing, setChoosing] = useState(false);
   const pickerId = useId(), picker = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    if (choosing) picker.current?.querySelector<HTMLInputElement | HTMLSelectElement>('input, select')?.focus();
-  }, [choosing]);
-  const shown = runs.filter(r => `${r.title} ${r.run_id} ${r.current_gate ?? ''}`.toLocaleLowerCase('de').includes(search.toLocaleLowerCase('de')));
-  const affected = runs.filter(r => !r.valid || r.code);
-  const selected = runs.find(r => r.run_id === state.route.runId), data = state.detail?.data, e = data?.evaluation;
-  const focused = !!initialRunId && !!selected?.valid && data?.run_id === selected.run_id
-    && (state.detail?.state === 'available' || state.detail?.state === 'partial') && !state.problem && !state.removed;
+  const shown = entries.filter(r => `${r.title} ${r.key} ${r.stored_status}`.toLocaleLowerCase('de').includes(search.toLocaleLowerCase('de')));
+  const data = state.detail?.data, e = data?.evaluation;
+  const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
   const expired = hasExpiredSession(state);
-  const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && state.phase === 'ready' && !!state.inventory?.data;
-  const target = state.inventory?.target.display_path;
-  const inventoryNotice = state.inventory?.code && state.inventory.data && !state.problem ? <ReadState state={state.inventory.state} code={state.inventory.code}/> : null;
-  const inventoryHints = !expired && inventoryNotice && <details className="compact-inventory"><summary>Inventarhinweise{affected.length > 0 && <span> · {affected.length} von {runs.length} Runs eingeschränkt</span>}</summary>
-    {affected.length ? <><p>Betroffene Runs auswählen, um die verfügbaren Diagnosen zu lesen.</p><ul>{affected.map(r => <li key={r.run_id}><button className="text-link" disabled={expired || busy} onClick={() => onSelect(r.run_id)}>{r.title} · {r.run_id}</button><small>{label(r.valid ? 'blocked' : 'invalid')} · {r.code ?? 'invalid_run'}</small><code>{r.source_path}</code></li>)}</ul></> : inventoryNotice}
-  </details>;
+  const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && !state.problem && state.phase === 'ready' && !!state.scope?.data;
+  const target = state.scope?.target.display_path;
+  const inventoryHints = !!state.inventory?.data?.diagnostics.length && <details className="compact-inventory"><summary>Backlog-Hinweise · {state.inventory.data.diagnostics.length}</summary><ReadState state={state.inventory.state} code={state.inventory.code}/><ul>{state.inventory.data.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul></details>;
   return <section className="compact-cockpit agdf-surface" aria-label="AGDF Cockpit" aria-busy={busy || state.refreshing}>
     <BrandHeader variant="card" projectPath={target} contextTitle={selected?.title} headingRef={headingRef}>
       <button className="compact-reload" onClick={onReload} disabled={expired || !enabled || busy} aria-label="Neu laden"><Icon name="reload"/></button>
     </BrandHeader>
-    {state.route.view !== 'document' && (!focused || choosing) && <div className="compact-controls" id={pickerId} ref={picker}>
-    <div className="compact-counts"><span><strong>{active.length}</strong> aktive Runs</span><span>{runs.length} insgesamt</span></div>
-    {runs.length > 12 && <label className="compact-search">Runs suchen<input type="search" placeholder="Titel, Run-ID oder Gate" value={search} onChange={event => setSearch(event.target.value)}/></label>}
-    <label className="compact-select">Run auswählen
-      <select value={selected?.run_id ?? ''} disabled={expired || !enabled || busy || !runs.length} onChange={event => event.target.value ? onSelect(event.target.value) : onOverview()}>
-        <option value="">Alle Runs · bewusst auswählen</option>
-        {selected && !shown.some(r => r.run_id === selected.run_id) && <option value={selected.run_id}>{selected.title} · {selected.run_id}</option>}
-        <optgroup label="Aktive Runs">{shown.filter(r => r.lifecycle === 'active').map(r => <option key={r.run_id} value={r.run_id}>{r.title} · {r.current_gate ?? 'Gate fehlt'} · {r.run_id}</option>)}</optgroup>
-        <optgroup label="Weitere Runs">{shown.filter(r => r.lifecycle !== 'active').map(r => <option key={r.run_id} value={r.run_id}>{r.title} · {label(r.lifecycle)} · {r.run_id}</option>)}</optgroup>
+    {state.route.view === 'overview' && state.inventory?.data && <div className="compact-controls" id={pickerId} ref={picker}>
+    <div className="compact-counts"><span><strong>{entries.length}</strong> Backlog-Einträge</span></div>
+    {entries.length > 12 && <label className="compact-search">Vorhaben suchen<input type="search" placeholder="Titel, Schlüssel oder gespeicherter Status" value={search} onChange={event => setSearch(event.target.value)}/></label>}
+    <label className="compact-select">Vorhaben auswählen
+      <select value="" disabled={!usable || !entries.length} onChange={event => { if (event.target.value) onSelect(event.target.value); }}>
+        <option value="">Gespeicherte Vorhaben · bewusst auswählen</option>
+        {shown.map((r, index) => <option key={`${r.section}:${r.key}:${index}`} value={r.key} disabled={!r.selectable}>{r.title} · gespeichert: {r.stored_status} · {r.key}</option>)}
       </select>
     </label>
-    {search && <p className="compact-search-result" role="status">{shown.length} Treffer · Die aktuelle Auswahl bleibt erhalten.</p>}
+    {search && <p className="compact-search-result" role="status">{shown.length} Treffer</p>}
     </div>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
     <ReadingFeedback state={state}/>
@@ -62,16 +51,16 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
         {e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action) && <ReadState state="partial" code="persisted_mismatch"/>}
         </div><div className="compact-run-followup">
         <WorkStep data={data} compact onOpen={onOpen} sourceDisabled={!usable} current={usable && state.detail?.state === 'available' && !(e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action))}>
-        <div className="compact-actions"><button className="text-link" disabled={!usable || !onExpand} onClick={onExpand}>Run ansehen <Icon name="expand"/></button>{focused ? <button className="text-link" disabled={expired || busy} aria-expanded={choosing} aria-controls={pickerId} onClick={() => setChoosing(value => !value)}>{choosing ? 'Auswahl schließen' : 'Anderen Run wählen'}</button> : <button className="text-link" disabled={expired || busy} onClick={onOverview}>Alle Runs</button>}</div>
+        <div className="compact-actions"><button className="text-link" disabled={!usable || !onExpand} onClick={onExpand}>Run ansehen <Icon name="expand"/></button><button className="text-link" disabled={expired || busy} onClick={onOverview}>Alle Vorhaben</button></div>
         </WorkStep></div>
         <details className="compact-identity"><summary>Ziel und Run-ID · Originalangaben</summary><code className="compact-run-id">{data.run_id}</code>
         {data.objective && data.objective !== selected.title && <p className="compact-goal">{data.objective}</p>}</details>
-      </div> : <div className="compact-overview">
-        <p className="compact-muted">Wähle einen Run für Status, offene Nachweise und den nächsten erlaubten Schritt.</p>
-        <button className="primary" disabled={!usable || !onExpand} onClick={onExpand}>Run-Übersicht <span aria-hidden="true">↗</span></button>
-      </div>}
+      </div> : state.route.view === 'overview' && state.inventory?.data ? <div className="compact-overview">
+        <p className="compact-muted">Das Masterbacklog zeigt gespeicherte Angaben. Öffne ein Vorhaben für seinen aktuellen Kontrollstand.</p>
+        <button className="primary" disabled={!usable || !onExpand} onClick={onExpand}>Vorhaben-Übersicht <span aria-hidden="true">↗</span></button>
+      </div> : null}
     </div>
     {inventoryHints}
-    <div className="compact-footnote">Freigaben bleiben bei dir.{state.inventory?.observed_as_of && <time dateTime={state.inventory.observed_as_of}>Stand {new Date(state.inventory.observed_as_of).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</time>}</div>
+    <div className="compact-footnote">Freigaben bleiben bei dir.{state.scope?.observed_as_of && <time dateTime={state.scope.observed_as_of}>Stand {new Date(state.scope.observed_as_of).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</time>}</div>
   </section>;
 }

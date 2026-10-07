@@ -7,12 +7,12 @@ const source={resource_id:'opaque-cd',run_id:'run',type:'CD+Tests',path:null,reg
 const runSource={...source,resource_id:'opaque-state',type:'Run State'};
 const data:Detail={run_id:'run',revision_id:'revision',lifecycle:'active',resources:[source,runSource],persisted:{current_gate:'CD+Tests',decision:'in_progress',next_allowed_action:'Implement and test',artefacts:[]},evaluation:{status:'open',control_assessment:{state:'open',authorizes:false},current_gate:'CD+Tests',blocking_reason:'none',missing_approval:'none',next_allowed_action:'Implement and test',next_action_de:'Umsetzung und Prüfung abschließen.',doctor_status:'warn',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[{gate:'TP',status:'approved',evidence:'Bound TP approval'}],missing_evidence:[{missing_evidence:'Native Anzeige prüfen',impact:'Aktueller Build noch nicht im Host bestätigt.',required_next_step:'Neue Karte öffnen und prüfen.'}]}};
 afterEach(cleanup);
-it('accepts old read DTOs but rejects malformed or authorizing assessment fields',()=>{
- const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data};
+it('accepts current scoped Run DTOs but rejects malformed or authorizing assessment fields',()=>{
+ const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:{kind:'run' as const,run:data}};
  expect(()=>validateData('/api/runs/run',envelope)).not.toThrow();
- expect(()=>validateData('/api/runs/run',{...envelope,data:{...data,evaluation:{...data.evaluation!,control_assessment:undefined}}})).not.toThrow();
+ expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:{...data,evaluation:{...data.evaluation!,control_assessment:undefined}}}})).not.toThrow();
  for(const assessment of [{state:'invented',authorizes:false},{state:'open',authorizes:true},null])
-   expect(()=>validateData('/api/runs/run',{...envelope,data:{...data,evaluation:{...data.evaluation!,control_assessment:assessment}}})).toThrow('dto_invalid');
+   expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:{...data,evaluation:{...data.evaluation!,control_assessment:assessment}}}})).toThrow('dto_invalid');
 });
 it('leads with saved state, Core assessment and the actual registered step source; all originals start closed',()=>{
  const open=vi.fn();render(<WorkStep data={data} compact onOpen={open}/>);

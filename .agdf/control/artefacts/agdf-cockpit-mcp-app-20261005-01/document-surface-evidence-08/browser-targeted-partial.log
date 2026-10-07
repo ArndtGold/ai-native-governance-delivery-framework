@@ -1,0 +1,46 @@
+
+Running 4 tests using 1 worker
+
+(node:55336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/journeys.spec.mjs:15:1 › document orientation separates approved Run facts from draft originals in both Pages themes (13.6s)
+(node:55379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/journeys.spec.mjs:76:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (4.8s)
+(node:55383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 test/browser/journeys.spec.mjs:133:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (2.2s)
+(node:55336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 test/browser/journeys.spec.mjs:160:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (1.0m)
+
+
+  1) test/browser/journeys.spec.mjs:160:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.focus: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.resources button').filter({ hasText: /\/UR\.md/ })
+
+
+      168 |     await page.getByRole('button',{name:'Details',exact:true}).click();
+      169 |     await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: true });
+    > 170 |     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
+          |                                                                                                        ^
+      171 |     await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
+      172 |     await expect(page.getByRole('group', {name:'Ansicht'})).toHaveCount(0);
+      173 |     const expectedSource = fs.readFileSync(join(root, '.agdf/control/artefacts/agdf-control-cockpit-20261005-01/UR.md'), 'utf8'); expect(expectedSource).toContain('Local read-only AGDF control cockpit');
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:170:104
+
+    Error Context: test-results/journeys-SCN-003-007-028-0-dc6e3-idelity-and-unchanged-bytes/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:160:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+  3 passed (1.4m)

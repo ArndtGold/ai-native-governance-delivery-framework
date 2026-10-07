@@ -1,6 +1,6 @@
 import { relative, join, posix } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
-import { captureControl, fail, READ_LIMITS } from '../control-read/snapshot.js';
+import { captureControlScope, fail, READ_LIMITS } from '../control-read/snapshot.js';
 import { withControlReadView } from '../control-read/fs.js';
 import { discoverRuns } from '../control-state/run-state-reader.js';
 import { readRunState, readArtefactHeading } from '../control-evaluation/run-state.js';
@@ -10,6 +10,7 @@ import { resolveControlCommandTarget } from '../control-state/approval-command-c
 import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
 import { interactionLocales } from '../resources/context.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
+import { projectCockpitBacklog } from './cockpit-backlog.js';
 
 const CONTROL = '.agdf/control/';
 const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
@@ -32,7 +33,7 @@ export function projectCockpitAssessment(report, lifecycle) {
 }
 
 export function createCockpitReader(root, options = {}) {
-  let view = null, runs = [], details = new Map(), documents = new Map();
+  let view = null, details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
   const invalidate = () => { packet = null; };
   const target = { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
@@ -92,8 +93,8 @@ export function createCockpitReader(root, options = {}) {
       context_graph: { refs: state.context_graph.refs }, resources };
   }
   function assertSnapshot(id) {
+    if (!view || id !== view.snapshot_id) fail('resource_denied');
     try {
-      if (!view || id !== view.snapshot_id) fail('source_changed');
       view.revalidate();
     } catch (error) { invalidate(); inspected = null; graph = null; throw error; }
   }
@@ -123,60 +124,87 @@ export function createCockpitReader(root, options = {}) {
       }
       return envelope({ resource, format, content, content_digest: createHash('sha256').update(bytes).digest('hex'), links });
   }
+  function discardScope() {
+    invalidate(); inspected = null; graph = null; view = null;
+    details = new Map(); documents = new Map();
+  }
+  function selectedRun(runId) {
+    const run = discoverRuns(root).find(row => row.run_id === runId);
+    if (!run) return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } };
+    if (!run.valid) return { state: 'invalid', code: 'invalid_run', data: { kind: 'run', requested_run_id: runId,
+      run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
+    const data = detail(run);
+    details.set(runId, { state: 'available', code: null, data });
+    return { state: 'available', code: null, data: { kind: 'run', run: data } };
+  }
+  function replaceScope(project) {
+    // Incoming opaque selectors have already been checked. Drop retained bytes
+    // before recording a candidate; a failed candidate never restores them.
+    discardScope();
+    try {
+      const captured = captureControlScope(root, candidate => {
+        view = candidate; details = new Map(); documents = new Map(); graph = null; inspected = null;
+        return project();
+      }, options);
+      view = captured.view;
+      return envelope(captured.data.data, captured.data.state, captured.data.code, !!captured.data.code);
+    } catch (error) { discardScope(); return envelope(null, 'error', boundedCode(error), true); }
+  }
+  const sameRegistration = (a, b) => a.run_id === b.run_id && a.type === b.type && a.registered_reference === b.registered_reference;
+  function backlogScope(removedRunId = null) {
+    const result = projectCockpitBacklog(root);
+    if (result.data) Object.assign(result.data, { file_count: view.file_count, byte_count: view.byte_count,
+      ...(removedRunId ? { removed_run_id: removedRunId } : {}) });
+    return result;
+  }
+  function reopenRun(runId, wasInspected) {
+    const selected = selectedRun(runId);
+    return selected.code === 'run_missing' && wasInspected ? backlogScope(runId) : selected;
+  }
+  function selectedDocument(previous, runId) {
+    const selected = selectedRun(runId);
+    if (selected.state !== 'available') return selected;
+    const resource = selected.data.run.resources.find(row => sameRegistration(row, previous));
+    if (!resource) return { state: 'missing', code: 'document_removed', data: { kind: 'document', run: selected.data.run, document: null } };
+    const document = readDocument(resource.resource_id);
+    if (document.state === 'available') inspected = { resource_id: resource.resource_id, run_id: runId, snapshot_id: view.snapshot_id };
+    return { state: document.state, code: document.code, data: { kind: 'document', run: selected.data.run, document: document.data } };
+  }
   return Object.freeze({
-    snapshot() {
-      // Destroy old selectors even when a replacement fails.
-      invalidate(); inspected = null; graph = null;
-      view = null; details = new Map(); documents = new Map(); runs = [];
-      try {
-        view = captureControl(root, options);
-        if (view.control_absent) return envelope(null, 'missing', 'control_absent', true);
-        const inventory = withControlReadView(view, () => discoverRuns(root));
-        const deadline = Date.now() + READ_LIMITS.timeout;
-        runs = inventory.map(run => {
-          if (Date.now() > deadline) fail('timeout');
-          const base = { run_id: run.run_id, valid: run.valid, lifecycle: run.meta?.lifecycle ?? null,
-            revision_id: run.meta?.revision_id ?? null, objective: objective(run.content), title: objective(run.content) ?? run.run_id,
-            source_path: relative(root, run.path), status: null, current_gate: null, code: null };
-          if (!run.valid) { details.set(run.run_id, { state: 'invalid', code: 'invalid_run', data: { ...base, diagnostics: run.findings, resources: [] } }); return { ...base, code: 'invalid_run' }; }
-          try {
-            const data = withControlReadView(view, () => detail(run));
-            details.set(run.run_id, { state: 'available', code: null, data });
-            return { ...base, title: data.title, status: data.evaluation.status, current_gate: data.evaluation.current_gate,
-              attention: { blocking_reason: data.evaluation.blocking_reason, missing_approval: data.evaluation.missing_approval,
-                missing_evidence_count: data.evaluation.missing_evidence.length } };
-          } catch (error) {
-            const code = boundedCode(error);
-            details.set(run.run_id, { state: 'blocked', code, data: { ...base, resources: [] } });
-            return { ...base, code };
-          }
-        });
-        view.revalidate();
-        const partial = runs.some(run => !run.valid || run.code);
-        return envelope({ runs, file_count: view.file_count, byte_count: view.byte_count }, partial ? 'partial' : runs.length ? 'available' : 'empty', partial ? 'inventory_partial' : null);
-      } catch (error) { view = null; return envelope(null, 'error', boundedCode(error), true); }
+    snapshot(runId) {
+      if (runId !== undefined && !/^[A-Za-z0-9_-]{1,128}$/.test(runId)) fail('resource_denied');
+      const wasInspected = details.get(runId)?.state === 'available';
+      return replaceScope(() => {
+        if (view.control_absent) return { state: 'missing', code: 'control_absent', data: null };
+        if (runId) return reopenRun(runId, wasInspected);
+        return backlogScope();
+      });
     },
     run(runId, id) {
-      invalidate(); inspected = null;
-      if (graph?.run_id !== runId) graph = null;
+      if (!/^[A-Za-z0-9_-]{1,128}$/.test(runId)) fail('resource_denied');
       assertSnapshot(id);
-      const selected = details.get(runId);
-      if (!selected) return envelope({ run_id: runId, resources: [] }, 'missing', 'run_removed', true);
-      return envelope(selected.data, selected.state, selected.code, selected.code === 'read_failed');
+      const wasInspected = details.get(runId)?.state === 'available';
+      return replaceScope(() => reopenRun(runId, wasInspected));
     },
-    document(resourceId, id) {
-      assertSnapshot(id); invalidate(); inspected = null;
-      const result = readDocument(resourceId);
-      if (result.state === 'available') inspected = { resource_id: resourceId, run_id: result.data.resource.run_id, snapshot_id: id };
-      return result;
+    document(resourceId, id, runId) {
+      // Check selectors before revalidation or replacing the legitimate view.
+      const previous = documents.get(resourceId);
+      if (!previous || runId !== undefined && previous.run_id !== runId) fail('resource_denied');
+      assertSnapshot(id);
+      return replaceScope(() => selectedDocument(previous, previous.run_id));
     },
     context(runId, id) {
+      if (!details.has(runId)) fail('resource_denied');
       assertSnapshot(id);
-      if (inspected && inspected.run_id !== runId) { invalidate(); inspected = null; }
-      const selected = details.get(runId);
-      if (selected?.state !== 'available') return envelope(null, 'blocked', 'resource_denied');
-      if (!graph || graph.run_id !== runId) graph = projectCockpitContext(view, root, runId, selected.data.context_graph.refs);
-      return envelope(graph, !graph.references.length ? 'empty' : graph.references.some(ref => ref.state !== 'available') ? 'partial' : 'available');
+      const previous = inspected ? documents.get(inspected.resource_id) : null;
+      return replaceScope(() => {
+        const selected = previous ? selectedDocument(previous, runId) : selectedRun(runId);
+        if (selected.state !== 'available') return selected;
+        const run = selected.data.run;
+        graph = projectCockpitContext(view, root, runId, run.context_graph.refs);
+        return { state: !graph.references.length ? 'empty' : graph.references.some(ref => ref.state !== 'available') ? 'partial' : 'available', code: null,
+          data: { kind: 'context', run, document: selected.data.document ?? null, context: graph } };
+      });
     },
     prepareContext(input) {
       invalidate(); assertSnapshot(input.snapshot_id);

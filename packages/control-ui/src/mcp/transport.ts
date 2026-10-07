@@ -33,11 +33,11 @@ export class CockpitBridge {
   readForSession(session: string): ReadTransport { return this.reader(new Map(), session); }
   readonly read: ReadTransport = this.reader(this.resourceRuns);
   private reader(resourceRuns: Map<string, string>, session?: string): ReadTransport {
-    return async <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string }): Promise<Envelope<T>> => {
+    return async <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }): Promise<Envelope<T>> => {
     const url = new URL(path, 'https://local.invalid');
     const snapshot_id = url.searchParams.get('snapshot');
     let argumentsValue: Record<string, unknown>;
-    if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot' }; }
+    if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot', ...(url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : {}) }; }
     else if (url.pathname === '/api/freshness') argumentsValue = { operation: 'freshness', snapshot_id };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };
@@ -48,9 +48,10 @@ export class CockpitBridge {
     } else throw Error('resource_denied');
     const value = await this.operation(argumentsValue, signal, session);
     validateEnvelope(value, expected); validateData(path, value);
-    if (argumentsValue.operation === 'run' && value.data) {
-      const data = value.data as { run_id: string; resources: { resource_id: string }[] };
-      for (const resource of data.resources) resourceRuns.set(resource.resource_id, data.run_id);
+    if (['snapshot', 'run', 'document', 'context'].includes(String(argumentsValue.operation))) {
+      resourceRuns.clear();
+      const data = value.data as { run?: { run_id: string; resources: { resource_id: string }[] } } | null;
+      if (data?.run) for (const resource of data.run.resources) resourceRuns.set(resource.resource_id, data.run.run_id);
     }
     return value as Envelope<T>;
     };

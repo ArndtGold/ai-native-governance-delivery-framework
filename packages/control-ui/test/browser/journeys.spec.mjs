@@ -3,17 +3,30 @@ import * as fs from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { startControlServer } from '../../server/service.mjs';
-import { fixture } from '../../../core/test/control-cockpit-fixtures.js';
+import { fixture as canonicalFixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
 import { READ_LIMITS } from '../../../core/lib/control-read/snapshot.js';
 
+// Stored pointers are explicit fixture inputs; Run creation does not populate the backlog.
+function fixture(){
+ const f=canonicalFixture();
+ fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Fixture document | In progress | [UR](artefacts/fixture-a/UR.md) | UR | Stored next step |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| fixture-completed | Completed fixture | Completed | none | Stored outcome |\n');
+ return f;
+}
+function repositoryFixture(){
+ const f=canonicalFixture(),source=resolve(import.meta.dirname,'../../../..');
+ fs.rmSync(join(f.root,'.agdf/control'),{recursive:true});fs.cpSync(join(source,'.agdf/control'),join(f.root,'.agdf/control'),{recursive:true});
+ // Preserve actual registered source bytes; supply explicit valid stored pointers only in this disposable copy.
+ fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | agdf-cockpit-mcp-app-20261005-01 | Embedded AGDF Cockpit for Codex | In progress | none | TP | Stored next step |\n| 2 | agdf-control-cockpit-20261005-01 | Local read-only AGDF control cockpit | In progress | none | TP | Stored next step |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
+ return f;
+}
 function hashes(root) {
   const data = {};
   const visit = dir => { for (const name of fs.readdirSync(dir)) { const path = join(dir, name), stats = fs.lstatSync(path); data[path.slice(root.length)] = stats.isDirectory() ? 'directory' : createHash('sha256').update(fs.readFileSync(path)).digest('hex'); if (stats.isDirectory()) visit(path); } };
   visit(join(root, '.agdf/control')); return data;
 }
 test('document orientation separates approved Run facts from draft originals in both Pages themes', async ({page}) => {
-  const root=resolve(import.meta.dirname,'../../../..'),before=hashes(root),service=await startControlServer({dir:root});
+  const f=repositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
   try {
     await openSession(page,service);
     await page.locator('.run-link[data-focus-id="agdf-cockpit-mcp-app-20261005-01"]').click();
@@ -64,13 +77,28 @@ test('document orientation separates approved Run facts from draft originals in 
     await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
     await expect(page.getByRole('button',{name:'Anforderungen ansehen',exact:true})).toBeFocused();
-  }finally{await service.close();expect(hashes(root)).toEqual(before);}
+    // Capture the same bound document through the embedded-card browser entry,
+    // whose expanded reader shares the MCP panel layout without the browser rail.
+    await page.setViewportSize({width:845,height:1100});
+    await openSession(page,service,'/card.html');
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('agdf-cockpit-mcp-app-20261005-01');
+    await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    await page.locator('.work-step-approvals > summary').click();
+    await page.getByRole('button',{name:'Anforderungen ansehen',exact:true}).click();
+    await expect(page.locator('.document-reading')).toBeVisible();
+    await expect(page.locator('.document-original')).not.toHaveAttribute('open');
+    for(const theme of ['light','dark']){
+      await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+      await expect(page.locator('.context-toggle')).toHaveCSS('color',theme==='light'?'rgb(15, 118, 110)':'rgb(94, 234, 212)');
+      await page.screenshot({path:`/private/tmp/agdf-cockpit-reading-panel-${theme}-845.png`,fullPage:true});
+    }
+  }finally{await service.close();expect(hashes(root)).toEqual(before);f.close();}
 });
 async function openSession(page, service, pathname = '/') {
   await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
   await page.goto(service.origin + pathname);
-  await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Runs im Repository' })).toBeVisible({ timeout: 12_000 });
-  if (pathname === '/card.html') await expect(page.getByRole('combobox', {name:'Run auswählen',exact:true})).toBeEnabled({ timeout: 12_000 });
+  await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Gespeicherte Vorhaben',level:1 })).toBeVisible({ timeout: 12_000 });
+  if (pathname === '/card.html') await expect(page.getByRole('combobox', {name:'Vorhaben auswählen',exact:true})).toBeEnabled({ timeout: 12_000 });
   expect(new URL(page.url()).hash).toBe('');
 }
 test('SCN-044: Pages fonts survive host body overrides across card, list, Run and document', async ({ page }) => {
@@ -108,7 +136,7 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
         }
       }
     };
-    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
     await expect(page.locator('.compact-run')).toBeVisible();
     await inspect('card','.compact-run-summary h2');
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
@@ -157,8 +185,8 @@ test('SCN-002/005/007/008/010: explicit graph inspection stays passive and reada
     expect(remote).toEqual([]);expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
   } finally {await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });
-test('SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes', async ({ page }) => {
-  const root = resolve(import.meta.dirname, '../../../..'), before = hashes(root), service = await startControlServer({ dir: root });
+test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes', async ({ page }) => {
+  const f=repositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
   const remote = [], errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('request', request => { if (!request.url().startsWith(service.origin)) remote.push(request.url()); expect(request.url()).not.toContain(service.secret); });
   try {
     await openSession(page, service); await page.screenshot({ path: '/private/tmp/agdf-cockpit-overview.png', fullPage: true });
@@ -166,6 +194,7 @@ test('SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fi
     await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('region', { name: 'So geht dein Vorhaben weiter' })).toBeVisible();
     await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('button',{name:'Details',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: true });
     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
     await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
@@ -192,16 +221,17 @@ test('SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fi
     await page.setViewportSize({ width: 390, height: 844 }); await page.screenshot({ path: '/private/tmp/agdf-cockpit-mobile.png' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(errors).toEqual([]); expect(remote).toEqual([]); expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
-  } finally { await service.close(); expect(hashes(root)).toEqual(before); }
+  } finally { await service.close(); expect(hashes(root)).toEqual(before); f.close(); }
 });
 test('SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents', async ({ page }) => {
   const f = fixture();
   fs.mkdirSync(join(f.root, '.agdf/control/runs/broken')); fs.writeFileSync(join(f.root, '.agdf/control/runs/broken/RUN_STATE.md'), 'invalid');
+  const backlog=join(f.root,'.agdf/control/MASTER_BACKLOG.md');fs.writeFileSync(backlog,fs.readFileSync(backlog,'utf8').replace('## Planned / Parking Lot','| 2 | broken | Broken stored pointer | In progress | none | none | Check source |\n\n## Planned / Parking Lot'));
   fs.unlinkSync(join(f.root, f.documentPath));
   const service = await startControlServer({ dir: f.root });
   try {
-    await openSession(page, service); await expect(page.getByText('Teilweise verfügbar', { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'broken', exact: true }).click(); await expect(page.getByText('Dieser Run ist ungültig. Die Quelldaten außerhalb des Cockpits prüfen.')).toBeVisible();
+    await openSession(page, service); await expect(page.getByText('Gespeichert: In progress', { exact: true }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Broken stored pointer', exact: true }).click(); await expect(page.getByText('Dieser Run ist ungültig. Die Quelldaten außerhalb des Cockpits prüfen.')).toBeVisible();
     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).click();
     await page.locator('.run-link[data-focus-id="fixture-a"]').click();
     await expect(page.getByText('Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.')).toBeVisible();
@@ -225,9 +255,9 @@ test('SCN-009/014/018/024: hostile document, stale reload, retry and removed sel
     fs.writeFileSync(join(f.root, f.documentPath), '# Updated document\nNew content');
     await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toBeVisible({ timeout: 12_000 }); await expect(page.locator('article.document')).toContainText('Hostile document');
     await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.locator('article.document')).toContainText('Updated document'); await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveCount(0);
-    let fail = true; await page.route('**/api/snapshot', route => { if (fail) { fail = false; return route.abort(); } return route.continue(); });
+    let fail = true; await page.route('**/api/snapshot*', route => { if (fail) { fail = false; return route.abort(); } return route.continue(); });
     await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('button', { name: 'Wiederholen' })).toBeVisible(); await page.getByRole('button', { name: 'Wiederholen' }).click(); await expect(page.locator('article.document')).toContainText('Updated document');
-    fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true }); await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('heading', { name: 'Run-Übersicht' })).toBeVisible(); await expect(page.getByText(/Der ausgewählte Run ist nicht mehr vorhanden/)).toBeVisible(); expect(remote).toEqual([]);
+    fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true }); await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('heading', { name: 'Gespeicherte Vorhaben',level:1 })).toBeVisible(); await expect(page.getByText(/Der ausgewählte Run ist nicht mehr vorhanden/)).toBeVisible(); expect(remote).toEqual([]);
   } finally { await service.close(); f.close(); }
 });
 
@@ -245,7 +275,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
   };
   try {
     await page.setViewportSize({width:800,height:400});await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
     await expect(page.locator('.work-step')).toBeVisible();
     await page.locator('.work-step-approvals > summary').click();
     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
@@ -270,6 +300,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await page.emulateMedia({reducedMotion:'reduce'});
     expect(await slider.evaluate(e=>parseFloat(getComputedStyle(e,'::before').transitionDuration))).toBeLessThanOrEqual(.001);
     if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
+    await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.getByRole('heading',{name:'Long original source',exact:true})).toBeVisible();
     await expect(page.getByRole('group',{name:'Ansicht',exact:true})).toHaveCount(0);
     await page.evaluate(()=>window.scrollTo(0,300));await pinned();
@@ -286,7 +317,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
   try {
     await page.setViewportSize({width:800,height:900});
     await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
@@ -333,7 +364,7 @@ test('Pages surface recipes survive neutral host colors in light and dark across
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
     await page.route(service.origin+'/__neutral-host.css',r=>r.fulfill({contentType:'text/css',body:':root{--color-background-primary:white;--color-background-secondary:#f5f5f5;--color-text-primary:#1a1c1f;--color-text-secondary:#999;--color-border-secondary:rgba(26,28,31,.08)}html,body{font-family:Arial,sans-serif!important}'}));
     await page.addStyleTag({url:service.origin+'/__neutral-host.css'});
-    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');await expect(page.locator('.work-step')).toBeVisible();
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');await expect(page.locator('.work-step')).toBeVisible();
     const inspect=async(view,selector,controlled=false)=>{
       for(const theme of ['light','dark']){
         await page.mouse.move(0,0);await reference.mouse.move(0,0);
@@ -350,6 +381,13 @@ test('Pages surface recipes survive neutral host colors in light and dark across
         if(controlled){
           expect(actual.accentWidth).toBe('3px');expect(actual.accentWidth).toBe(expected.accentWidth);
           expect(actual.accent).toBe(theme==='dark'?'rgb(45, 212, 191)':'rgb(15, 118, 110)');expect(actual.accent).toBe(expected.accent);
+        }
+        if(view==='document'){
+          const referenceLink=await styles(reference.locator('.text-link'));
+          await expect.poll(async()=>(await styles(page.locator('.context-toggle'))).color).toBe(referenceLink.color);
+          const access=await styles(page.locator('.context-toggle'));
+          expect(access.bg).toBe('rgba(0, 0, 0, 0)');expect(access.shadow).toBe('none');
+          expect(contrast(access.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);
         }
         if(view==='run'){
           if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();
@@ -389,7 +427,7 @@ test('built Pages action and type hierarchy matches Cockpit in both themes',asyn
     await reference.route('**/*.woff2',r=>{const file=fs.readdirSync(assets).find(n=>r.request().url().endsWith(n));return file?r.fulfill({contentType:'font/woff2',body:fs.readFileSync(join(assets,file))}):r.abort();});
     await reference.goto(service.origin+'/__pages-components');
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
     await expect(page.locator('.work-step')).toBeVisible();
     const compare=async(view,actual,expected,keys)=>{
       for(const theme of ['light','dark']){
@@ -450,9 +488,9 @@ test('work action leads, qualifications stay honest and evidence access survives
     const headers={'x-agdf-session':service.secret};
     const snapshot=await(await page.request.get(service.origin+'/api/snapshot',{headers})).json();
     const detail=await(await page.request.get(service.origin+'/api/runs/fixture-a?snapshot='+snapshot.snapshot_id,{headers})).json();
-    const e=detail.data.evaluation;
+    const e=detail.data.run.evaluation;
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
     await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');

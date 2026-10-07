@@ -1,0 +1,90 @@
+
+Running 11 tests using 1 worker
+
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/journeys.spec.mjs:15:1 › document orientation separates approved Run facts from draft originals in both Pages themes (14.0s)
+(node:51673) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 test/browser/journeys.spec.mjs:61:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (5.1s)
+(node:51675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 test/browser/journeys.spec.mjs:118:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (2.3s)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 test/browser/journeys.spec.mjs:145:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (20.6s)
+(node:51694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 test/browser/journeys.spec.mjs:182:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (2.0s)
+(node:51696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 test/browser/journeys.spec.mjs:202:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (7.2s)
+(node:51698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 test/browser/journeys.spec.mjs:219:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (2.5s)
+(node:51702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 test/browser/journeys.spec.mjs:269:1 › summary leads with the work step and stale reads never claim a missing Run or current control (6.6s)
+(node:51705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 test/browser/journeys.spec.mjs:302:1 › Pages surface recipes survive neutral host colors in light and dark across all views (8.4s)
+(node:51727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 test/browser/journeys.spec.mjs:363:1 › built Pages action and type hierarchy matches Cockpit in both themes (3.9s)
+(node:51757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 test/browser/journeys.spec.mjs:429:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (3.4s)
+
+
+  1) test/browser/journeys.spec.mjs:302:1 › Pages surface recipes survive neutral host colors in light and dark across all views 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('article.document')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" locator('article.document') with timeout 5000ms
+      - waiting for locator('article.document')
+        13 × locator resolved to <article class="document agdf-surface">…</article>
+           - unexpected value "hidden"
+
+
+      354 |     await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toHaveCount(0);
+      355 |     await inspect('run','.work-step',true);if(!await page.locator('.work-step-evidence').evaluate(e=>e.open)) await page.locator('.work-step-evidence > summary').click();await page.getByRole('button',{name:'Anforderungen öffnen',exact:true}).click();
+    > 356 |     await expect(page.locator('article.document')).toBeVisible();await inspect('document','article.document');
+          |                                                    ^
+      357 |     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
+      358 |     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();await inspect('list','main > div[aria-busy] > .panel');
+      359 |     fs.writeFileSync('/private/tmp/agdf-cockpit-brand-observations.json',JSON.stringify(observations,null,2));
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:356:52
+
+    Error Context: test-results/journeys-Pages-surface-rec-a53b9-t-and-dark-across-all-views/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:302:1 › Pages surface recipes survive neutral host colors in light and dark across all views 
+  10 passed (1.4m)

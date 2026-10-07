@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "expected_revision_id": "60ef4f1f-be1b-4632-90f0-7fa4071ef5d1",
+  "operation_id": "f6b28d16-82bb-41f6-8b56-0d99dd738938",
+  "source_gate": "SD",
+  "reason": "The user requests newer stored backlog rows first and linked UR headings in list titles. Approved SD/TP forbid linked artefact reads for overview decoration, so the bounded lazy title scope needs a supported late design revision.",
+  "intended_change": "Retain backlog-only initial membership/counts/status and direct Run evaluation; reverse each area row order for presentation; allow serialized at-most-twelve explicitly linked visible UR-title reads through existing safe immutable Core capture, with provenance, bounded ephemeral metadata, local fallback, truthful search scope and unchanged fixed capacity/authority. Renew TP before implementation.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+      "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+      "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md",
+      "digest": "sha256:9ecabf0255e2ca49be10cf8170d0cabab8cdf762e02d7f9a3d8183d010898a0e"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md",
+      "digest": "sha256:22d38e6c344d940a0787e4d725faa297689d074648927b893ea1a4216a3c889c"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex implementing agent; cooperative source impact review",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+        "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+        "rationale": "Identifiable maintained sources, readable selected-Run exploration, bounded passive reading and human authority remain unchanged. PRD section 8 assigns concrete APIs/source capacity to SD. No new user, acceptance or contextual action; stored list headings carry provenance and never replace current Core evaluation."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+        "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+        "rationale": "Identifiable maintained sources, readable selected-Run exploration, bounded passive reading and human authority remain unchanged. PRD section 8 assigns concrete APIs/source capacity to SD. No new user, acceptance or contextual action; stored list headings carry provenance and never replace current Core evaluation."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7d253cc02529f9d07d44d3dab3c390a18fc7b679ad0ffd1407816495f73b5f95",
+        "disposition": "retain",
+        "reason": "Same existing Core capture/projection, shared React/transports, local Codex first journey and stored/current authority distinction. Bounded explicitly linked title reads introduce no separate reader/database, graph inference, writer or message flow; concrete scope/race/capacity obligations belong to renewed SD/TP."
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:09783d6bf308353e687aafd92819060150427c00a57833a7a249eca54713696a",
+        "disposition": "retain",
+        "reason": "Same existing Core capture/projection, shared React/transports, local Codex first journey and stored/current authority distinction. Bounded explicitly linked title reads introduce no separate reader/database, graph inference, writer or message flow; concrete scope/race/capacity obligations belong to renewed SD/TP."
+      }
+    ],
+    "implementation_evidence": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BACKLOG_UR_TITLE_IMPACT-19.md records source conflicts and retained checkpoints 13/16/17/18; current code/tests remain dated evidence and require renewed TP qualification. Lazy UR titles and reversed ordering are not implemented.",
+    "unresolved": []
+  }
+}

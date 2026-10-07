@@ -18,8 +18,8 @@ function controlled(options = {}) {
     const pool = { pause: null, fail: null, closes: 0, async close() { this.closes++; }, async request({ operation, selector, snapshot, input }) {
       if (this.fail === operation) throw Object.assign(Error('worker lost'), { code: 'read_failed' });
       if (operation === 'prepare_context' && this.pause) await this.pause.promise;
-      return operation === 'snapshot' ? reader.snapshot() : operation === 'run' ? reader.run(selector, snapshot)
-        : operation === 'document' ? reader.document(selector, snapshot) : operation === 'context' ? reader.context(selector, snapshot)
+      return operation === 'snapshot' ? reader.snapshot(input.run_id) : operation === 'run' ? reader.run(selector, snapshot)
+        : operation === 'document' ? reader.document(selector, snapshot, input.run_id) : operation === 'context' ? reader.context(selector, snapshot)
         : operation === 'prepare_context' ? reader.prepareContext(input) : operation === 'validate_context' ? reader.validateContext(input.context_id, input.generation)
         : operation === 'invalidate_context' ? reader.invalidateContext() : reader.freshness(snapshot);
     } };
@@ -28,16 +28,32 @@ function controlled(options = {}) {
   return { f, service, pools };
 }
 async function view(service) {
-  const id = (await service.render())._meta.agdf_cockpit.session_id;
-  const call = input => service.read({ session_id: id, ...input });
-  const snapshot = await call({ operation: 'snapshot' });
-  const detail = await call({ operation: 'run', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a' });
-  const resource = detail.data.resources.find(r => r.type === 'UR');
-  const documentArgs = { operation: 'document', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a', resource_id: resource.resource_id };
-  const document = await call(documentArgs);
-  const prepare = { operation: 'prepare_context', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a', revision_id: detail.data.revision_id,
-    resource_id: resource.resource_id, graph_ids: [], excluded_ids: [], generation: 1 };
-  return { id, call, snapshot, document, documentArgs, prepare };
+  const id = (await service.render({ run_id: 'fixture-a' }))._meta.agdf_cockpit.session_id;
+  let scope, inspectedDocument;
+  const call = async input => {
+    const result = await service.read({ session_id: id, ...input });
+    if (['snapshot', 'run', 'document', 'context'].includes(input.operation) && result.data?.run && result.snapshot_id) scope = result;
+    return result;
+  };
+  const result = {
+    id, call,
+    get snapshot() { return scope; },
+    get document() { return inspectedDocument; },
+    get documentArgs() { return { operation: 'document', snapshot_id: scope.snapshot_id, run_id: 'fixture-a',
+      resource_id: scope.data.run.resources.find(r => r.type === 'UR').resource_id }; },
+    get prepare() { return { operation: 'prepare_context', snapshot_id: scope.snapshot_id, run_id: 'fixture-a',
+      revision_id: scope.data.run.revision_id, resource_id: scope.data.document.resource.resource_id,
+      graph_ids: [], excluded_ids: [], generation: 1 }; },
+  };
+  const initial = await call({ operation: 'snapshot', run_id: 'fixture-a' });
+  assert.equal(initial.data.kind, 'run');
+  const source = await call(result.documentArgs);
+  assert.equal(source.data.kind, 'document'); assert.notEqual(source.snapshot_id, initial.snapshot_id);
+  const context = await call({ operation: 'context', snapshot_id: scope.snapshot_id, run_id: 'fixture-a' });
+  assert.equal(context.data.kind, 'context'); assert.notEqual(context.snapshot_id, source.snapshot_id);
+  assert.ok(context.data.run.resources.some(r => r.resource_id === context.data.document.resource.resource_id));
+  inspectedDocument = { ...context, data: context.data.document };
+  return result;
 }
 
 test('SCN-050/052/053/054: deferred reservation excludes another publisher while independent equal-Run sources stay readable', async () => {
@@ -47,7 +63,7 @@ test('SCN-050/052/053/054: deferred reservation excludes another publisher while
     pools[0].pause = deferred();
     const pending = a.call(a.prepare);
     assert.equal((await b.call(b.prepare)).code, 'busy');
-    assert.equal((await b.call(b.documentArgs)).data.content, b.document.data.content);
+    assert.equal((await b.call(b.documentArgs)).data.document.content, b.document.data.content);
     assert.equal((await b.call({ operation: 'invalidate_context' })).data.host_publication_required, false);
     pools[0].pause.resolve(); const packet = (await pending).data.packet;
     assert.equal((await b.call({ operation: 'validate_context', context_id: packet.context_id, generation: 1 })).code, 'resource_denied');
@@ -88,8 +104,8 @@ test('SCN-050: equal Run/source bytes do not make graph, snapshot or artefact se
     fs.writeFileSync(f.runPath, sealRunState(f.root, replaceFirstScalar(source, 'context_graph_refs', 'CG-A')
       ?? `${source}\n## Context Graph Impact\n\n- context_graph_refs: CG-A\n`));
     const before = treeBytes(f.root), a = await view(service), b = await view(service);
-    const graphA = (await a.call({ operation: 'context', snapshot_id: a.snapshot.snapshot_id, run_id: 'fixture-a' })).data.references[0];
-    const graphB = (await b.call({ operation: 'context', snapshot_id: b.snapshot.snapshot_id, run_id: 'fixture-a' })).data.references[0];
+    const graphA = (await a.call({ operation: 'context', snapshot_id: a.snapshot.snapshot_id, run_id: 'fixture-a' })).data.context.references[0];
+    const graphB = (await b.call({ operation: 'context', snapshot_id: b.snapshot.snapshot_id, run_id: 'fixture-a' })).data.context.references[0];
     assert.equal(graphA.content, graphB.content); assert.notEqual(graphA.resource_id, graphB.resource_id);
     assert.equal((await b.call({ operation: 'context', snapshot_id: a.snapshot.snapshot_id, run_id: 'fixture-a' })).code, 'resource_denied');
     assert.equal((await b.call({ ...b.prepare, resource_id: a.prepare.resource_id })).code, 'resource_denied');
@@ -153,7 +169,7 @@ for (const loss of ['close', 'idle', 'lifetime', 'worker']) test(`SCN-048/055/05
       assert.equal((await a.call({ operation: 'freshness', snapshot_id: a.snapshot.snapshot_id })).code, 'session_expired');
     }
     assert.equal((await b.call(b.prepare)).code, 'context_cleanup_uncertain');
-    assert.equal((await b.call(b.documentArgs)).data.content, b.document.data.content);
+    assert.equal((await b.call(b.documentArgs)).data.document.content, b.document.data.content);
     const c = await view(service);
     assert.equal((await c.call(c.prepare)).code, 'context_cleanup_uncertain');
     assert.equal((await c.call(c.documentArgs)).state, 'available');
@@ -190,4 +206,41 @@ test('SCN-049/052: invalidate or shutdown during deferred preparation cannot ret
       assert.equal((await b.call(b.prepare)).state, action === 'shutdown' ? 'blocked' : 'available');
     } finally { await service.close(); f.close(); }
   }
+});
+
+test('SCN-078: scoped replacement discards the owner packet but retains exclusive publication until matched release', async () => {
+  const { f, service } = controlled();
+  try {
+    const a = await view(service), b = await view(service);
+    const packet = (await a.call(a.prepare)).data.packet;
+    const priorB = b.snapshot.snapshot_id;
+    const changedB = await b.call({ operation: 'context', snapshot_id: priorB, run_id: 'fixture-a' });
+    assert.notEqual(changedB.snapshot_id, priorB);
+    assert.equal((await a.call({ operation: 'validate_context', context_id: packet.context_id, generation: 1 })).data.current, true);
+    assert.equal((await b.call({ operation: 'invalidate_context' })).data.host_publication_required, false);
+    const changedA = await a.call({ operation: 'snapshot', run_id: 'fixture-a' });
+    assert.equal(changedA.data.kind, 'run');
+    assert.notEqual(changedA.snapshot_id, packet.snapshot_id);
+    assert.equal((await a.call({ operation: 'validate_context', context_id: packet.context_id, generation: 1 })).code, 'context_superseded');
+    assert.equal((await b.call(b.prepare)).code, 'busy');
+    const release = (await a.call({ operation: 'invalidate_context' })).data;
+    assert.equal(release.host_publication_required, true);
+    await a.call({ operation: 'complete_context_invalidation', invalidation_id: release.invalidation_id });
+    assert.equal((await b.call(b.prepare)).state, 'available');
+  } finally { await service.close(); f.close(); }
+});
+
+test('SCN-078: source replacement during reserved preparation cannot publish a late packet or discard the new read scope', async () => {
+  const { f, service, pools } = controlled();
+  try {
+    const a = await view(service), b = await view(service), old = a.snapshot.snapshot_id;
+    pools[0].pause = deferred();
+    const pending = a.call(a.prepare);
+    const next = await a.call({ operation: 'run', snapshot_id: old, run_id: 'fixture-a' });
+    assert.equal(next.data.kind, 'run'); assert.notEqual(next.snapshot_id, old);
+    assert.equal((await b.call(b.prepare)).state, 'available');
+    pools[0].pause.resolve();
+    assert.equal((await pending).data, null);
+    assert.equal((await a.call({ operation: 'freshness', snapshot_id: next.snapshot_id })).data.unchanged, true);
+  } finally { await service.close(); f.close(); }
 });

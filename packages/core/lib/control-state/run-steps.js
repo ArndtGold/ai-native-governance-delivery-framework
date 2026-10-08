@@ -20,7 +20,7 @@ import { withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
 import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
 import { pendingRunStepIds } from "./run-step-pending.js";
 import { prepareArtefactRecording } from "./run-artefact-recording.js";
-import { backlogStatusForPolicy, assertBacklogPath, prepareRunBacklog } from "./run-backlog.js";
+import { backlogStatusForPolicy, assertBacklogPath, prepareRunBacklog, backlogTableLayout } from "./run-backlog.js";
 
 // run-step records one standard transition of the small path in a single sealed revision. The agent
 // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
@@ -76,8 +76,9 @@ function prepareBacklog(root, key, { title, status, links, next, closeout }) {
   const lines = text.split("\n");
   const active = firstSection(lines, "Active Backlog");
   const indexes = active ? tableLineIndexes(lines, active) : [];
-  const header = indexes.length ? tableCells(lines[indexes[0]]).map(cell => cell.replaceAll("`", "").toLowerCase()) : [];
-  if (header.join(";") !== "priority;key;work item;status;artefacts;current spec;next step") return { status: "layout_unsupported", update: null };
+  const layout = indexes.length ? backlogTableLayout(tableCells(lines[indexes[0]])) : null;
+  if (layout === "legacy") return { status: "layout_legacy", update: null };
+  if (layout !== "compact") return { status: "layout_unsupported", update: null };
   const matching = indexes.slice(2).filter(index => tableCells(lines[index])[1]?.replaceAll("`", "").trim() === key);
   if (matching.length > 1) throw Error("AGDF_BACKLOG_IDENTITY_AMBIGUOUS");
   if (matching.some(index => tableCells(lines[index]).length !== 7)) return { status: "layout_unsupported", update: null };
@@ -255,9 +256,13 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     if (failed) return failed;
   }
 
-  const backlogPlan = backlog
+  let backlogPlan = backlog
     ? prepareBacklog(root, key, { ...backlog, status: backlogStatusForPolicy(after), links: backlogLinks(text), next: after.next_allowed_action })
     : prepareRunBacklog(root, key, text, run.path);
+  // Legacy rows keep their title and per-gate link columns. Status and next step still follow
+  // the Run where the row exists; a closeout move is left to the maintainer.
+  if (backlogPlan.status === "layout_legacy") backlogPlan = { ...(backlog.closeout ? { status: "skipped", update: null }
+    : prepareRunBacklog(root, key, text, run.path)), reason: "backlog_layout_legacy" };
   if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
   const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update)
     ? commitRunStepLocked(root, {
@@ -280,6 +285,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     current_gate: after.current_gate,
     next_allowed_action: after.next_allowed_action,
     backlog: backlogPlan.status,
+    ...(backlogPlan.reason ? { backlog_reason: backlogPlan.reason } : {}),
   });
 }
 

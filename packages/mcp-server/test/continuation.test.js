@@ -21,7 +21,7 @@ try {
   rmSync(join(fixture.governanceTarget, ".agdf/control/AGDF_RUN.md"), { force: true });
   // Authoring setup uses canonical empty pointer tables, not mutable live backlog formatting.
   writeFileSync(join(fixture.governanceTarget, ".agdf/control/MASTER_BACKLOG.md"),
-    readFileSync(join(fixture.dispatcherRoot, "generated/.agdf/control/MASTER_BACKLOG.md")));
+    readFileSync(join(fixture.dispatcherRoot, "generated/.agdf/control/templates/MASTER_BACKLOG.md")));
   const urRun = "ur-definition-mcp-test";
   const prdRun = createPrdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "prd-definition-mcp-test");
   const sdRun = createSdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "sd-definition-mcp-test");

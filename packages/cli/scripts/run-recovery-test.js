@@ -205,13 +205,21 @@ try {
   mkdirSync(linkRunDir);
   mkdirSync(linkArtifactDir, { recursive: true });
   writeFileSync(join(linkArtifactDir, "real.md"), "# Safe target\n");
-  symlinkSync("real.md", join(linkArtifactDir, "alias.md"));
-  const linkState = source.replaceAll(runId, linkId)
-    .replace("| UR |  | missing | |", `| UR | .agdf/control/artefacts/${linkId}/alias.md | draft | |`);
-  const linkStatePath = join(linkRunDir, "RUN_STATE.md");
-  writeFileSync(linkStatePath, linkState);
-  assert.throws(() => previewRunRecovery(root, linkId), /AGDF_RECOVERY_ARTEFACT_PATH_INVALID/);
-  assert.equal(readFileSync(linkStatePath, "utf8"), linkState, "symlink artefact must block before Run State write");
+  // Windows without Developer Mode refuses symlinks; only these rejection checks are skipped there.
+  let linked = true;
+  try { symlinkSync("real.md", join(linkArtifactDir, "alias.md")); } catch (error) {
+    if (process.platform !== "win32" || error.code !== "EPERM") throw error;
+    linked = false; rmSync(linkRunDir, { recursive: true }); rmSync(linkArtifactDir, { recursive: true });
+    console.warn("SKIPPED symlink artefact assertions: symlinks need Windows Developer Mode (EPERM)");
+  }
+  if (linked) {
+    const linkState = source.replaceAll(runId, linkId)
+      .replace("| UR |  | missing | |", `| UR | .agdf/control/artefacts/${linkId}/alias.md | draft | |`);
+    const linkStatePath = join(linkRunDir, "RUN_STATE.md");
+    writeFileSync(linkStatePath, linkState);
+    assert.throws(() => previewRunRecovery(root, linkId), /AGDF_RECOVERY_ARTEFACT_PATH_INVALID/);
+    assert.equal(readFileSync(linkStatePath, "utf8"), linkState, "symlink artefact must block before Run State write");
+  }
 
   for (const status of ["missing", "pending", "done", "approved"]) {
     const plannedId = `planned-${status}`;
@@ -251,8 +259,13 @@ try {
   assert.throws(() => applyRunRecovery(root, { runId: plannedRaceId,
     previewId: plannedRacePreview.preview_id, confirmation: plannedRacePreview.confirmation }), /AGDF_STALE_RUN_REVISION/);
   unlinkSync(join(root, plannedRaceFile));
-  symlinkSync(join(root, "outside-missing.md"), join(root, plannedRaceFile));
-  assert.throws(() => previewRunRecovery(root, plannedRaceId), /AGDF_RECOVERY_ARTEFACT_MISSING|AGDF_RECOVERY_ARTEFACT_PATH_INVALID/);
+  try {
+    symlinkSync(join(root, "outside-missing.md"), join(root, plannedRaceFile));
+    assert.throws(() => previewRunRecovery(root, plannedRaceId), /AGDF_RECOVERY_ARTEFACT_MISSING|AGDF_RECOVERY_ARTEFACT_PATH_INVALID/);
+  } catch (error) {
+    if (process.platform !== "win32" || error.code !== "EPERM") throw error;
+    console.warn("SKIPPED planned-race symlink assertion: symlinks need Windows Developer Mode (EPERM)");
+  }
 
 
   const completedId = "completed-run";

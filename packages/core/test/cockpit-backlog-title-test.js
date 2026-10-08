@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
-import { fixture, treeBytes } from './control-cockpit-fixtures.js';
+import { fixture, treeBytes, symlinkOrSkip } from './control-cockpit-fixtures.js';
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { createCockpitSessionService } from '../lib/control-inspect/cockpit-session.js';
 import { backlogUrHeading, backlogUrSource } from '../lib/control-inspect/cockpit-backlog.js';
@@ -68,9 +68,9 @@ test('SCN-089: missing, unsupported, huge and heading-limit URs are local fallba
   } finally { f.close(); }
 });
 
-test('SCN-087/090: optional symlink and denied ancestor are captured without following them; later replacement invalidates', () => {
+test('SCN-087/090: optional symlink and denied ancestor are captured without following them; later replacement invalidates', t => {
   const f = fixture(); try {
-    setup(f); fs.rmSync(join(f.root, ur)); fs.symlinkSync('/etc/passwd', join(f.root, ur));
+    setup(f); fs.rmSync(join(f.root, ur)); if (!symlinkOrSkip('/etc/passwd', join(f.root, ur), t)) return;
     const reads = [], reader = createCockpitReader(f.root, { checkpoint(stage, path) { if (stage === 'file_read') reads.push(path); } });
     let first = reader.snapshot(), result = enrichment(reader, first);
     assert.equal(result.data.entries[0].title_observation.code, 'resource_denied'); assert.deepEqual(new Set(reads), new Set([join(f.root, source)]));

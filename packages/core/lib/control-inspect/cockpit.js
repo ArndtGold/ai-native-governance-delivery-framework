@@ -80,17 +80,31 @@ export function createCockpitReader(root, options = {}) {
     }
     return result;
   }
+  // The canonical gate-check reads registered sources outside the control scope, which this
+  // reader never opens. Report that as unevaluated instead of a divergent second evaluation.
+  function outOfScopeEvaluation(state, paths) {
+    return { status: 'not_evaluated', current_gate: state.current_gate, blocking_reason: 'not_evaluated',
+      missing_approval: 'not_evaluated', next_allowed_action: state.next_allowed_action, next_action_de: null,
+      allowed: [], forbidden: [], control_assessment: { state: 'unconfirmed', authorizes: false },
+      doctor_status: 'not_evaluated', quality_outlook: 'not_evaluated',
+      diagnostics: paths.map(path => ({ code: 'evaluation_out_of_scope', severity: 'warning', path,
+        message: 'The gate evaluation depends on a registered source outside .agdf/control, which the cockpit does not read.',
+        next_step: 'Check the current gate with the existing AGDF gate-check.' })),
+      approvals: [...state.approvals].map(([gate, row]) => ({ gate, ...row })),
+      missing_evidence: state.missing_evidence, git_evidence: 'unavailable' };
+  }
   function detail(run) {
     const state = readRunState(root, { runId: run.run_id, ignoreRunIdEnv: true });
-    const report = evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
     const resources = manifest(run.run_id, state);
+    const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
+    const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       objective: objective(run.content), title: resolveHumanRunTitle({
         urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
         runContent: run.content, runId: run.run_id,
       }),
-      evaluation: evaluation(state, report, run.meta.lifecycle), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
+      evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources };
   }

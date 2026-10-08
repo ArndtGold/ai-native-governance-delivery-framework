@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { fixture } from '../../../core/test/control-cockpit-fixtures.js';
-import { startControlServer } from './server-fixture.mjs';
+import { startControlServer, evidencePath } from './server-fixture.mjs';
 const content = status => `# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | My undertaking | ${status} | | UR | Check evidence |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n`;
 for (const theme of ['light', 'dark']) test(`actual ${theme} browser updates from a file event and retains the reading context`, async ({ page }) => {
   const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md'); fs.writeFileSync(path, content('Awaiting QA'));
@@ -26,7 +26,7 @@ for (const theme of ['light', 'dark']) test(`actual ${theme} browser updates fro
     await expect(refresh.locator('.cockpit-icon')).toHaveCSS('animation-name', 'none');
     await page.setViewportSize({ width: 320, height: 900 });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `/private/tmp/cockpit-refresh-${theme}-320.png` });
+    await page.screenshot({ path: evidencePath(`cockpit-refresh-${theme}-320.png`) });
     release();
     await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting UAT')).toBeVisible({ timeout: 3000 });
     await expect(page.locator('.refresh-update-dot')).toHaveCount(0);
@@ -60,7 +60,7 @@ for (const theme of ['light', 'dark']) test(`${theme} changed original uses the 
       await expect(refresh.locator('.refresh-update-dot')).toBeVisible();
       await expect(refresh).toHaveAttribute('title', 'Quelle geändert · Neu laden');
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      await page.screenshot({ path: `/private/tmp/cockpit-source-change-${theme}-${width}.png`, fullPage: true });
+      await page.screenshot({ path: evidencePath(`cockpit-source-change-${theme}-${width}.png`), fullPage: true });
     }
     await refresh.click();
     await page.getByText('Originaldokument lesen', { exact: true }).click();

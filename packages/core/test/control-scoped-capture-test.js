@@ -112,12 +112,32 @@ test('SCN-077: inclusive actual file bytes, unique file counts, path depth and c
 
 test('SCN-082: atomic replacement during recording, freeze, replay and final publication cannot yield a current observation',()=>{
   for(const boundary of ['file_read','captured','replay','published']){
-    const f=fixture();let changed=false;
+    const f=fixture();let changed=false,blocked=false;
     try {
-      assert.throws(()=>captureControlScope(f.root,()=>readFileSync(f.backlog,'utf8'),{checkpoint(stage){
-        if(stage===boundary&&!changed){changed=true;const next=f.backlog+'.next';fs.writeFileSync(next,'replacement bytes');fs.renameSync(next,f.backlog);}
-      }}),/source_changed/);
+      // Windows cannot replace a file while the capture holds it open; that boundary is not reproducible there.
+      const replace=()=>{const next=f.backlog+'.next';fs.writeFileSync(next,'replacement bytes');
+        try{fs.renameSync(next,f.backlog);}catch(error){if(process.platform==='win32'&&error.code==='EPERM'){blocked=true;fs.rmSync(next);}throw error;}};
+      let error;
+      try{captureControlScope(f.root,()=>readFileSync(f.backlog,'utf8'),{checkpoint(stage){if(stage===boundary&&!changed){changed=true;replace();}}});}
+      catch(caught){error=caught;}
+      if(blocked){console.warn(`SKIPPED ${boundary} replacement: Windows refuses to replace an open file (EPERM)`);continue;}
+      assert.match(String(error?.code),/source_changed/);
       assert.equal(changed,true);
     } finally {f.close();}
   }
+});
+
+test('statting the project root and .agdf anchors keeps unrelated root entries out of freshness', () => {
+  const f = fixture();
+  try {
+    const { view } = captureControlScope(f.root, scope => {
+      for (const anchor of [f.root, join(f.root, '.agdf'), f.control]) assert.equal(scope.statSync(anchor).isDirectory(), true);
+      return readFileSync(f.backlog, 'utf8');
+    });
+    fs.writeFileSync(join(f.root, 'unrelated.lock'), 'editor lock');
+    fs.mkdirSync(join(f.root, '.agdf', 'cache'));
+    assert.equal(view.revalidate(), true);
+    fs.writeFileSync(join(f.control, 'NEW.md'), 'control change');
+    assert.throws(() => view.revalidate(), /source_changed/, 'control directory changes still invalidate');
+  } finally { f.close(); }
 });

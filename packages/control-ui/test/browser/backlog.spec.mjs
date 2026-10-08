@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
-import { startControlServer } from './server-fixture.mjs';
+import { startControlServer, evidencePath } from './server-fixture.mjs';
 
 function storedBacklog(planned = true) {
   return '# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Unterlagen schneller zuordnen | In progress | | UR | Quellen prüfen und den nächsten Arbeitsschritt anhand der bestätigten Voraussetzungen vorbereiten. |\n\n## Planned / Parking Lot\n' + (planned ? '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 2 | planned-a | Beratung vorbereiten | Needs UR | | | Umfang klären. |\n' : 'Nicht auswertbare Tabelle.\n') + '\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| fixture-completed | Frühere Umsetzung | Completed | none | Ergebnis dokumentiert. |\n| superseded-a | Abgelöstes Vorhaben | Superseded | none | Durch ein neues Vorhaben ersetzt. |\n';
@@ -39,7 +39,7 @@ test('backlog areas filter stored entries locally, keep search on return, and ma
         expect(controls.every(c => c.height >= 44 && c.width >= 44)).toBe(true);
         expect(new Set(controls.map(c => c.top)).size).toBe(1);
         expect(controls[0].background).not.toBe(controls[1].background);
-        await page.screenshot({ path: `/private/tmp/agdf-backlog-${theme}-${width}-17.png`, fullPage: true });
+        await page.screenshot({ path: evidencePath(`agdf-backlog-${theme}-${width}-17.png`), fullPage: true });
       }
     }
     await page.getByRole('button', { name: 'Geplant 1' }).focus(); await page.keyboard.press('Enter');

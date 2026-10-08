@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { commandFixture } from "../../../scripts/support/control-command-fixture.js";
+import { symlinkOrSkip } from "./control-cockpit-fixtures.js";
 import { executeApprovalCommand } from "../lib/control-state/approval-command.js";
 import { evaluateGateCheck } from "../lib/control-evaluation/gate-check.js";
 import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
@@ -74,8 +75,9 @@ try {
     [valid.replace("| Status |", "| Unexpected |"), "backlog_layout_unsupported", "unsupported header"],
     [valid.replace(row(f), `${row(f)}\n${row(f)}`), "backlog_identity_ambiguous", "duplicate identity"],
   ]) {
-    writeFileSync(path, bad); const before = bytes(f);
-    assert.equal(update().reason, reason); assert.deepEqual(bytes(f), before); pass(`${label} fails closed with zero mutation`);
+    writeFileSync(path, bad); const before = bytes(f), skipped = update();
+    assert.equal(skipped.outcome, "unchanged"); assert.equal(skipped.backlog, "skipped"); assert.equal(skipped.backlog_reason, reason);
+    assert.deepEqual(bytes(f), before); pass(`${label} is reported as skipped with zero mutation`);
   }
   writeFileSync(path, valid);
   const beforeStale = bytes(f);
@@ -92,16 +94,21 @@ try {
   pass("legacy pointer repair retains its thirteen columns and existing links");
 
   const foreign = join(f.root, "foreign-backlog.md"); writeFileSync(foreign, valid); unlinkSync(path);
-  symlinkSync(foreign, path);
-  assert.equal(update().reason, "backlog_path_invalid"); assert.equal(readFileSync(foreign, "utf8"), valid);
-  assert.equal(bytes(f).run, accepted.run); unlinkSync(path); writeFileSync(path, valid);
-  pass("symlink Backlog rejected without changing foreign file or Run");
+  if (symlinkOrSkip(foreign, path)) {
+    const skipped = update(); assert.equal(skipped.outcome, "unchanged"); assert.equal(skipped.backlog_reason, "backlog_path_invalid");
+    assert.equal(readFileSync(foreign, "utf8"), valid);
+    assert.equal(bytes(f).run, accepted.run); unlinkSync(path);
+    pass("symlink Backlog is skipped without changing foreign file or Run");
+  }
+  writeFileSync(path, valid);
 
   const foreignRun = join(f.root, "foreign-run.md"); writeFileSync(foreignRun, accepted.run); unlinkSync(f.runPath);
-  symlinkSync(foreignRun, f.runPath);
-  assert.equal(update().reason, "run_path_invalid"); assert.equal(readFileSync(foreignRun, "utf8"), accepted.run);
-  assert.equal(bytes(f).backlog, valid); unlinkSync(f.runPath); writeFileSync(f.runPath, accepted.run);
-  pass("symlink Run cannot authorize a Backlog-only repair");
+  if (symlinkOrSkip(foreignRun, f.runPath)) {
+    assert.equal(update().reason, "run_path_invalid"); assert.equal(readFileSync(foreignRun, "utf8"), accepted.run);
+    assert.equal(bytes(f).backlog, valid); unlinkSync(f.runPath);
+    pass("symlink Run cannot authorize a Backlog-only repair");
+  }
+  writeFileSync(f.runPath, accepted.run);
 
   writeFileSync(path, stale(valid));
   const evidence = recordRunStep(f.root, { runId: f.runId, revisionId, step: "evidence", evidence: "Synthetic check" }, { policy: policyForRunContent });
@@ -109,5 +116,41 @@ try {
   assert.equal(runSealState(f.root, bytes(f).run).status, "valid");
   pass("evidence recording also synchronizes status and next action");
 } finally { f.cleanup(); }
+
+{
+  const g = commandFixture();
+  try {
+    const free = "# AGDF Master Backlog\n\nFree-form planning notes without pointer tables.\n";
+    writeFileSync(backlogPath(g), free);
+    const accepted = executeApprovalCommand(g.root, g.command, dependencies);
+    assert.equal(accepted.outcome, "accepted", JSON.stringify(accepted));
+    assert.equal(accepted.backlog, "skipped"); assert.equal(accepted.backlog_reason, "backlog_layout_unsupported");
+    assert.equal(readFileSync(backlogPath(g), "utf8"), free);
+    assert.equal(readApprovalOperations(bytes(g).run).receipts.length, 1);
+    assert.equal(runSealState(g.root, bytes(g).run).status, "valid");
+    pass("approval is accepted when the Backlog cannot be synchronized and reports why");
+  } finally { g.cleanup(); }
+}
+
+{
+  const g = commandFixture();
+  try {
+    assert.equal(executeApprovalCommand(g.root, g.command, dependencies).outcome, "accepted");
+    const path = backlogPath(g), compact = bytes(g).backlog;
+    const legacyHeader = "| Prio | Key | Title | Status | UR | Brownfield Review | PRD | SD | TP | QA | OR | Current spec | Notes |";
+    const legacyRow = `| P1 | ${g.runId} | Legacy title | Awaiting SD | [UR](artefacts/${g.runId}/UR.md) | | | | | | | retained spec | stale next |`;
+    writeFileSync(path, compact.replace("| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |", legacyHeader)
+      .replace(/\|---:?\|---\|---\|---\|---\|---\|---\|/u, "|---|---|---|---|---|---|---|---|---|---|---|---|---|").replace(row(g), legacyRow));
+    const revisionId = parseRunState(bytes(g).run).meta.revision_id;
+    // route rewrites a compact row (title, links); a legacy row keeps them and follows status only.
+    writeFileSync(join(g.root, ".agdf/control/artefacts", g.runId, "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n\nSynthetic legacy review.\n");
+    const step = recordRunStep(g.root, { runId: g.runId, revisionId, step: "route", route: "quick_task",
+      reason: "isolated legacy fixture", evidence: "test" }, { policy: policyForRunContent });
+    assert.equal(step.outcome, "recorded", JSON.stringify(step)); assert.equal(step.backlog_reason, "backlog_layout_legacy");
+    assert.equal(row(g).split("|").length, 15); assert.ok(row(g).includes("Legacy title")); assert.ok(row(g).includes("retained spec"));
+    assert.match(row(g), /\| In Progress \|/u); assert.ok(row(g).includes(step.next_allowed_action));
+    pass("run-step keeps a legacy row's title and links, updates its status and reports the layout");
+  } finally { g.cleanup(); }
+}
 
 console.log(`${checks} Backlog writer scenarios passed.`);

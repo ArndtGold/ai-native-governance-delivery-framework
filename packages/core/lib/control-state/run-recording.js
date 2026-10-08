@@ -5,6 +5,7 @@ import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tabl
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
 import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+import { backlogSkip } from "./run-backlog.js";
 import { runPath } from "./run-state-reader.js";
 
 const DURABLE_STATUS_GATES = new Set(["UR", "PRD", "SD", "TP"]);
@@ -94,7 +95,8 @@ export function recordRunRevision(root, { runId, revisionId }) {
     const synced = guardedWrite(runId, () => synchronizeRunBacklog(root, run.path, revisionId));
     if (synced.rejection) return synced.rejection;
     return Object.freeze({ schema_version: "1", outcome: synced.state.backlog === "updated" ? "updated" : "unchanged", run_id: runId,
-      revision: run.meta.revision, revision_id: run.meta.revision_id, run_state: "unchanged", backlog: synced.state.backlog });
+      revision: run.meta.revision, revision_id: run.meta.revision_id, run_state: "unchanged", backlog: synced.state.backlog,
+      ...backlogSkip({ status: synced.state.backlog, reason: synced.state.backlog_reason }) });
   }
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
@@ -107,6 +109,7 @@ export function recordRunRevision(root, { runId, revisionId }) {
     previous_revision_id: revisionId,
     revision: written.state.meta.revision,
     revision_id: written.state.meta.revision_id,
+    ...backlogSkip({ status: written.state.backlog, reason: written.state.backlog_reason }),
   });
 }
 
@@ -216,7 +219,8 @@ export function approveRunGate(root, input, dependencies) {
     return Object.freeze({ schema_version: "1", outcome: "approved", run_id: runId,
       gate, approval: `Approval: ${gate}`, previous_revision_id: revisionId,
       revision: state.meta.revision, revision_id: state.meta.revision_id,
-      next_gate_after_approval: after.current_gate, allowed_after_approval: after.next_allowed_action });
+      next_gate_after_approval: after.current_gate, allowed_after_approval: after.next_allowed_action,
+      ...backlogSkip({ status: state.backlog, reason: state.backlog_reason }) });
   }));
   return written.rejection ?? written.state;
 }

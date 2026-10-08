@@ -58,3 +58,16 @@ it('completed and zero-evidence observations never grant new permission',()=>{
  expect(screen.getByText('Vorhaben abgeschlossen')).toBeTruthy();expect(screen.getByText('Keine offenen Nachweise ausgewiesen.')).toBeTruthy();
  expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
 });
+it('shows an out-of-scope evaluation as unconfirmed without presenting the saved step as Core output',async()=>{
+ const { RunDetail } = await import('../src/RunDetail');
+ const unevaluated:Detail={...data,evaluation:{...data.evaluation!,status:'not_evaluated',control_assessment:{state:'unconfirmed',authorizes:false},blocking_reason:'not_evaluated',missing_approval:'not_evaluated',doctor_status:'not_evaluated',next_allowed_action:data.persisted!.next_allowed_action,next_action_de:null,
+   diagnostics:[{code:'evaluation_out_of_scope',severity:'warning',path:'docs/notes.md',message:'outside'}]}};
+ const envelope={schema_version:'1' as const,target:{target_id:'target',display_path:'/fixture'},snapshot_id:'snapshot',observed_as_of:'now',source_digest:'digest',state:'available' as const,code:null,retryable:false,data:unevaluated};
+ expect(()=>validateData('/api/runs/run',{...envelope,data:{kind:'run',run:unevaluated}})).not.toThrow();
+ render(<RunDetail result={envelope} onOpen={vi.fn()}/>);
+ expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();
+ expect(screen.getByText(/Im Cockpit nicht ausgewertet/)).toBeTruthy();
+ expect(screen.queryByText('Originalangabe der Core-Auswertung:',{exact:false})).toBeNull();
+ expect(screen.getAllByText('Nicht ausgewertet').length).toBeGreaterThan(0);
+ expect(screen.getByText('evaluation_out_of_scope')).toBeTruthy();
+});

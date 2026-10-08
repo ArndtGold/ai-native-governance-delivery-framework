@@ -5,14 +5,15 @@ import { runSealState } from "./run-seal.js";
 import { atomicWrite, withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
 import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
 import { pendingRunStepIds } from "./run-step-pending.js";
-import { assertBacklogPath, BACKLOG_RELATIVE_PATH, prepareRunBacklog } from "./run-backlog.js";
+import { BACKLOG_RELATIVE_PATH, prepareRunBacklogOrSkip } from "./run-backlog.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 
 export function withRunBacklogLock(root, path, work, options = {}) {
   const relativePath = relative(root, path).split(sep).join("/");
   if (hasSymlinkComponent(root, relativePath) || containedRegularFile(root, relativePath).status !== "valid") throw Error("AGDF_RUN_PATH_INVALID");
+  // The Run path check covers the shared .agdf/control ancestors, so the sibling Backlog lock is
+  // contained. An unusable Backlog file itself is reported by the planner, not by the lock.
   return withOwnedFileLock(path, () => {
-    assertBacklogPath(root);
     return withOwnedFileLock(join(root, BACKLOG_RELATIVE_PATH), () => {
       const run = parseRunState(readFileSync(path, "utf8"));
       if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
@@ -30,15 +31,16 @@ export function writeRunWithBacklogLocked(root, path, content, revisionId, optio
   const old = readFileSync(path, "utf8"), run = parseRunState(old);
   if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
   if (run.meta.revision_id !== revisionId || options.expectedContent !== undefined && old !== options.expectedContent) throw Error("AGDF_STALE_RUN_REVISION");
-  const plan = prepareRunBacklog(root, run.meta.run_id, content, path);
-  if (!plan.update) return writeRunLocked(path, content, revisionId, options);
+  const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path);
+  const withBacklog = state => ({ ...state, backlog: plan.status, backlog_reason: plan.reason ?? null });
+  if (!plan.update) return withBacklog(writeRunLocked(path, content, revisionId, options));
   // Full gate/presentation evaluation still sees the original sealed Run, under both
   // locks. The journal then rechecks its captured source digests and envelope at commit.
   options.validateBeforeWrite?.();
-  return commitRunStepLocked(root, { runId: run.meta.run_id, runPath: path, content,
+  return withBacklog(commitRunStepLocked(root, { runId: run.meta.run_id, runPath: path, content,
     revisionId, expectedContent: old, backlog: plan.update, or: null,
     nextRevisionId: options.nextRevisionId,
-    writeOptions: { ...options, validateBeforeWrite: options.validateDuringTransaction }, afterWrite: options.afterWrite });
+    writeOptions: { ...options, validateBeforeWrite: options.validateDuringTransaction }, afterWrite: options.afterWrite }));
 }
 
 export function writeRunWithBacklog(root, path, content, revisionId, options = {}) {
@@ -53,12 +55,12 @@ export function synchronizeRunBacklog(root, path, revisionId) {
     if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
     if (run.meta.revision_id !== revisionId) throw Error("AGDF_STALE_RUN_REVISION");
     if (runSealState(root, content).status !== "valid") throw Error("AGDF_RUN_SEAL_INVALID");
-    const plan = prepareRunBacklog(root, run.meta.run_id, content, path);
+    const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path);
     if (plan.update) {
       if (readFileSync(path, "utf8") !== content || runSealState(root, content).status !== "valid"
           || readFileSync(join(root, BACKLOG_RELATIVE_PATH), "utf8") !== plan.update.old) throw Error("AGDF_STALE_RUN_REVISION");
       atomicWrite(join(root, BACKLOG_RELATIVE_PATH), plan.update.next);
     }
-    return { meta: run.meta, backlog: plan.status };
+    return { meta: run.meta, backlog: plan.status, backlog_reason: plan.reason ?? null };
   });
 }

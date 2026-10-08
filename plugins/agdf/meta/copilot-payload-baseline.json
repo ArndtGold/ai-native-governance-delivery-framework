@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
-  "max_files": 203,
-  "max_bytes": 1716129,
-  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, including native-default read seams and snapshot-scoped catalog validation. Private React UI, dependencies and build remain excluded; no speculative headroom."
+  "max_files": 204,
+  "max_bytes": 1716735,
+  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom."
 }

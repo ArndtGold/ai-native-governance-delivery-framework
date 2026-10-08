@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { startControlServer } from '../server/service.mjs';
 import { ReadWorkerPool } from '../server/pool.mjs';
-import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
+import { fixture, treeBytes, symlinkOrSkip } from '../../core/test/control-cockpit-fixtures.js';
 import { READ_LIMITS } from '../../core/lib/control-read/snapshot.js';
 
 function request(service, path, { headers = {}, method = 'GET' } = {}) {
@@ -65,7 +66,7 @@ test('SCN-020/022/032: loopback authenticated read journey, origin/method/select
   } finally { await service.close(); f.close(); }
 });
 test('SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown', async () => {
-  const pool = new ReadWorkerPool('/private/tmp', { workerURL: new URL('./slow-worker.mjs', import.meta.url), timeout: 1500 });
+  const pool = new ReadWorkerPool(tmpdir(), { workerURL: new URL('./slow-worker.mjs', import.meta.url), timeout: 1500 });
   try {
     const first = pool.request({ operation: 'first' }), cancelled = new AbortController();
     const second = pool.request({ operation: 'second' }, cancelled.signal); const rejection = assert.rejects(second, /cancelled/);
@@ -75,7 +76,7 @@ test('SCN-017/026: one active and one queued job, cancellation, deadline, and sh
     active.abort(); await rejected; assert.deepEqual(await pool.request({ operation: 'after-cancellation' }), { operation: 'after-cancellation' });
   } finally { await pool.close(); }
   await assert.rejects(pool.request({ operation: 'closed' }), /read_failed/);
-  const timeoutPool = new ReadWorkerPool('/private/tmp', { workerURL: new URL('./slow-worker.mjs', import.meta.url), timeout: 1 });
+  const timeoutPool = new ReadWorkerPool(tmpdir(), { workerURL: new URL('./slow-worker.mjs', import.meta.url), timeout: 1 });
   try { await assert.rejects(timeoutPool.request({ operation: 'timeout' }), /timeout/); } finally { await timeoutPool.close(); }
 });
 test('SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage', async () => {
@@ -92,8 +93,8 @@ test('SCN-022/025: startup needs explicit valid target, build and port; fresh pr
     await assert.rejects(startControlServer({ dir: f.root, port: 'bad' }), /port_invalid/);
     await assert.rejects(startControlServer({ dir: join(f.root, 'absent') }), /ENOENT/);
     const dist = join(f.root, 'test-dist'); fs.mkdirSync(dist); fs.writeFileSync(join(dist, 'index.html'), '<!doctype html>');
-    fs.symlinkSync(join(f.root, f.documentPath), join(dist, 'linked.js'));
-    await assert.rejects(startControlServer({ dir: f.root, dist }), /asset_boundary_invalid/);
+    if (symlinkOrSkip(join(f.root, f.documentPath), join(dist, 'linked.js')))
+      await assert.rejects(startControlServer({ dir: f.root, dist }), /asset_boundary_invalid/);
     const a = await startControlServer({ dir: f.root }); const secret = a.secret; await a.close();
     const b = await startControlServer({ dir: f.root }); try { assert.notEqual(b.secret, secret); assert.equal((await request(b, '/api/snapshot', { headers: { 'x-agdf-session': secret } })).status, 401); } finally { await b.close(); }
   } finally { f.close(); }

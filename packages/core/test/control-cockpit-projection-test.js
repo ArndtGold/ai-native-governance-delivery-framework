@@ -113,7 +113,12 @@ test('SCN-002/008: absent and genuinely empty stores differ, JSON/text retain ex
     fs.writeFileSync(backlog, '# AGDF Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
     assert.equal(reader.snapshot().state, 'empty');
     fs.chmodSync(backlog, 0);
-    try { const failed = reader.snapshot(); assert.equal(failed.code, 'resource_denied'); assert.equal(failed.state, 'error'); assert.equal(failed.data, null); }
+    try {
+      // Windows and privileged users still read a mode-0 file, so the denial is not reproducible there.
+      let readable = true; try { fs.readFileSync(backlog); } catch { readable = false; }
+      if (readable) console.warn('SKIPPED permission-denial assertions: mode 0 does not deny reads in this environment');
+      else { const failed = reader.snapshot(); assert.equal(failed.code, 'resource_denied'); assert.equal(failed.state, 'error'); assert.equal(failed.data, null); }
+    }
     finally { fs.chmodSync(backlog, 0o600); }
     fs.rmSync(join(f.root, '.agdf/control'), { recursive: true }); assert.equal(reader.snapshot().code, 'control_absent');
   } finally { f.close(); }

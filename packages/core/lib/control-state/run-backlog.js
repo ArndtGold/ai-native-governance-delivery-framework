@@ -8,6 +8,15 @@ export const BACKLOG_RELATIVE_PATH = ".agdf/control/MASTER_BACKLOG.md";
 const compactHeaders = ["priority", "key", "work item", "status", "artefacts", "current spec", "next step"];
 const legacyHeaders = ["prio", "key", "title", "status", "ur", "brownfield review", "prd", "sd", "tp", "qa", "or", "current spec", "notes"];
 const clean = value => value.replaceAll("`", "").trim();
+export const backlogTableLayout = headers => {
+  const normalized = headers.map(value => clean(value).toLowerCase()).join("\0");
+  return normalized === compactHeaders.join("\0") ? "compact" : normalized === legacyHeaders.join("\0") ? "legacy" : null;
+};
+const SKIPPABLE_BACKLOG_ERRORS = new Map([
+  ["AGDF_BACKLOG_PATH_INVALID", "backlog_path_invalid"],
+  ["AGDF_BACKLOG_LAYOUT_UNSUPPORTED", "backlog_layout_unsupported"],
+  ["AGDF_BACKLOG_IDENTITY_AMBIGUOUS", "backlog_identity_ambiguous"],
+]);
 
 // A saved projection of the same policy used by the Run writer, never UR metadata or a
 // reader-side claim of current readiness. Completion still belongs to explicit closeout.
@@ -37,8 +46,8 @@ export function prepareRunBacklog(root, runId, content, runPath) {
   const old = readFileSync(path, "utf8"), lines = old.split("\n");
   const section = firstSection(lines, "Active Backlog");
   if (!section) throw Error("AGDF_BACKLOG_LAYOUT_UNSUPPORTED");
-  const indexes = tableLineIndexes(lines, section), headers = tableCells(lines[indexes[0]] ?? "").map(value => clean(value).toLowerCase());
-  const width = [compactHeaders, legacyHeaders].find(values => values.join("\0") === headers.join("\0"))?.length;
+  const indexes = tableLineIndexes(lines, section), layout = backlogTableLayout(tableCells(lines[indexes[0]] ?? ""));
+  const width = layout === "compact" ? compactHeaders.length : layout === "legacy" ? legacyHeaders.length : undefined;
   if (!width || indexes.length < 2 || tableCells(lines[indexes[1]]).length !== width
       || tableCells(lines[indexes[1]]).some(value => !/^:?-{3,}:?$/u.test(value))) throw Error("AGDF_BACKLOG_LAYOUT_UNSUPPORTED");
   const matches = indexes.slice(2).filter(index => clean(tableCells(lines[index])[1] ?? "") === runId);
@@ -57,3 +66,15 @@ export function prepareRunBacklog(root, runId, content, runPath) {
   lines[index] = tableLine(cells);
   return { status: "updated", update: { old, next: lines.join("\n") } };
 }
+
+// Approvals and run-update stay valid when the saved pointer cannot be synchronized. The
+// pointer is left untouched and the result names why; the doctor reports the backlog itself.
+export function prepareRunBacklogOrSkip(root, runId, content, runPath) {
+  try { return prepareRunBacklog(root, runId, content, runPath); }
+  catch (error) {
+    const reason = SKIPPABLE_BACKLOG_ERRORS.get(error?.message);
+    if (!reason) throw error;
+    return { status: "skipped", reason, update: null };
+  }
+}
+export const backlogSkip = plan => plan?.reason ? { backlog: plan.status, backlog_reason: plan.reason } : {};

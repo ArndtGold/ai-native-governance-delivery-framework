@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { captureControl } from '../lib/control-read/snapshot.js';
+import { symlinkOrSkip } from './control-cockpit-fixtures.js';
 const setup = () => { const root = fs.realpathSync(fs.mkdtempSync(join(tmpdir(), 'control-capture-'))); fs.mkdirSync(join(root, '.agdf/control'), { recursive: true }); fs.writeFileSync(join(root, '.agdf/control/a.txt'), 'before'); return root; };
 test('SCN-013: private immutable bytes, edits and membership invalidate revalidation', () => {
   const root = setup(); try {
@@ -31,7 +32,7 @@ test('SCN-023: file and ancestor symlinks and out-of-control reads are denied', 
   const root = setup(); try {
     const view = captureControl(root);
     assert.throws(() => view.readFileSync(join(root, 'secret')), /resource_denied/);
-    fs.symlinkSync(join(root, '.agdf/control/a.txt'), join(root, '.agdf/control/link'));
+    if (!symlinkOrSkip(join(root, '.agdf/control/a.txt'), join(root, '.agdf/control/link'))) return;
     assert.throws(() => captureControl(root), /resource_denied/);
     fs.unlinkSync(join(root, '.agdf/control/link')); fs.renameSync(join(root, '.agdf/control'), join(root, '.agdf/elsewhere'));
     fs.symlinkSync(join(root, '.agdf/elsewhere'), join(root, '.agdf/control')); assert.throws(() => view.revalidate(), /resource_denied/);

@@ -24,6 +24,17 @@ export function fixture() {
       fs.writeFileSync(runPath, sealRunState(root, text));
     } };
 }
+// Windows without Developer Mode refuses symlinks (EPERM). Only the symlink assertions are
+// skipped there: a whole test via `t`, otherwise the caller skips its own symlink step.
+export function symlinkOrSkip(target, path, t) {
+  try { fs.symlinkSync(target, path); return true; }
+  catch (error) {
+    if (process.platform !== 'win32' || error.code !== 'EPERM') throw error;
+    const reason = 'symlinks need elevated privileges or Windows Developer Mode (EPERM)';
+    if (t) t.skip(reason); else console.warn(`SKIPPED symlink assertions: ${reason}`);
+    return false;
+  }
+}
 export function treeBytes(root) {
   const entries = {};
   const walk = path => { for (const name of fs.readdirSync(path)) {

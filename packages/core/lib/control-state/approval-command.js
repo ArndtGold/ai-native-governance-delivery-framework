@@ -10,6 +10,7 @@ import { appendApprovalOperation, readApprovalOperations } from "./approval-oper
 import { approvalRequestDigest, commandBinding, COOPERATIVE_ASSURANCE, ownDataValue, resolveControlCommandTarget, validateApprovalCommand } from "./approval-command-contract.js";
 import { flushRunCommit } from "./run-state-writer.js";
 import { withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+import { backlogSkip } from "./run-backlog.js";
 
 function sealIsValid(root, content) {
   try { return runSealState(root, content).status === "valid"; } catch { return false; }
@@ -87,17 +88,15 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
           next_gate_after_approval: prepared.after.current_gate, allowed_after_approval: prepared.after.next_allowed_action },
       };
       checkpoint("before_final_validation");
-      writeRunWithBacklogLocked(target.root, path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
+      const written = writeRunWithBacklogLocked(target.root, path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
         allowApprovalChange: true, expectedContent: run.content, appendedReceipt: receipt,
         nextRevisionId: receipt.effect.resulting_revision_id, validateBeforeWrite: prepared.validateBeforeWrite,
         validateDuringTransaction: prepared.validateDuringTransaction, checkpoint, afterWrite,
       });
       checkpoint("before_response");
-      return result("accepted", null, receipt);
+      return result("accepted", null, receipt, backlogSkip({ status: written.backlog, reason: written.backlog_reason }));
     }, { checkpoint });
   } catch (error) {
-    const backlogRejections = { AGDF_BACKLOG_PATH_INVALID: "backlog_path_invalid", AGDF_BACKLOG_LAYOUT_UNSUPPORTED: "backlog_layout_unsupported", AGDF_BACKLOG_IDENTITY_AMBIGUOUS: "backlog_identity_ambiguous" };
-    if (backlogRejections[error.message]) return result("rejected", backlogRejections[error.message]);
     if (error.message === "AGDF_RUN_WRITE_LOCKED") return result(error.lock_owner_status === "unknown" ? "recovery_required" : "retryable_failure",
       error.lock_owner_status === "unknown" ? "lock_owner_unconfirmed" : "run_write_locked");
     if (error.message === "AGDF_STALE_RUN_REVISION") return result("rejected", "stale_revision", null,

@@ -121,12 +121,27 @@ ausstehende Transaktion ab und bestätigt deren ursprünglichen Beleg ohne zweit
 Die vollständige Freigabeprüfung läuft vor dem Journal unter beiden Sperren; unmittelbar
 vor dem Commit werden Run-Ausgangsstand, Quelldigests und Präsentationsbeleg erneut geprüft.
 
+Eine Freigabe hängt nicht von der Form des Backlogs ab. Lässt sich die Zeile für `run-approve`,
+`control approve` oder `run-update` nicht nachführen (nicht unterstütztes Layout, doppelte
+Identität, Backlog-Datei als Symlink oder kein reguläres File), gilt die Run-Änderung trotzdem.
+Das Backlog bleibt dann unverändert, und das Ergebnis meldet `backlog: skipped` mit
+`backlog_reason` (`backlog_layout_unsupported`, `backlog_identity_ambiguous` oder
+`backlog_path_invalid`); den Zustand des Backlogs selbst meldet `doctor`. Eine ausstehende
+Transaktion eines anderen Runs blockiert weiterhin, weil alle Schreibwege dasselbe
+Backlog-Journal teilen.
+
 Ein ausdrückliches `run-update` kann einen veralteten Backlog-Zeiger eines gültig versiegelten
 Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert nur
 Status und nächsten Schritt der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
-und andere Vorhaben bleiben erhalten. Kompakte und bestehende ältere Tabellen werden bei
-dieser Zeigerkorrektur unterstützt; nicht unterstützte Layouts, doppelte Identitäten,
-Symlink-Pfade, veraltete Revisionen und ausstehende fremde Transaktionen verhindern den Schreibzugriff.
+und andere Vorhaben bleiben erhalten. Kompakte und bestehende ältere 13-spaltige Tabellen werden
+bei dieser Zeigerkorrektur unterstützt; veraltete Revisionen und ausstehende fremde
+Transaktionen verhindern den Schreibzugriff.
+
+`run-step`-Schritte, die eine kompakte Zeile neu schreiben (`artefact`, `ur`, `route`, `review`,
+`closeout`), lassen in einer älteren 13-spaltigen Tabelle Titel und Link-Spalten unverändert.
+Status und nächster Schritt einer vorhandenen Zeile folgen dem Run; ein Abschluss verschiebt
+die Zeile dort nicht. Das Ergebnis meldet in diesem Fall `backlog_reason: backlog_layout_legacy`.
+Andere nicht unterstützte Layouts lehnt `run-step` weiterhin mit `backlog_layout_unsupported` ab.
 Dies ist keine Migration historischer Einträge und verschiebt keine Vorhaben ins Archiv.
 Direkte Dateiänderungen außerhalb der Core-Writer umgehen weiterhin deren Schreibvertrag.
 

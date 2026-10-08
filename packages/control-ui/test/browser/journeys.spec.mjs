@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import { startControlServer } from './server-fixture.mjs';
+import { startControlServer, evidencePath } from './server-fixture.mjs';
 import { fixture as canonicalFixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
 import { READ_LIMITS } from '../../../core/lib/control-read/snapshot.js';
@@ -66,7 +66,7 @@ test('document orientation separates approved Run facts from draft originals in 
         await expect(page.locator('.document-reading .context-panel')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
         await expect(page.locator('.document-reading .context-panel')).toHaveCSS('box-shadow','none');
         await expect(page.locator('.context-toggle')).toHaveCSS('min-height','44px');
-        await page.screenshot({path:`/private/tmp/agdf-cockpit-document-orientation-${theme}-${width}.png`,fullPage:true});
+        await page.screenshot({path:evidencePath(`agdf-cockpit-document-orientation-${theme}-${width}.png`),fullPage:true});
       }
     }
     await page.locator('.document-provenance > summary').click();
@@ -92,7 +92,7 @@ test('document orientation separates approved Run facts from draft originals in 
     for(const theme of ['light','dark']){
       await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
       await expect(page.locator('.context-toggle')).toHaveCSS('color',theme==='light'?'rgb(15, 118, 110)':'rgb(94, 234, 212)');
-      await page.screenshot({path:`/private/tmp/agdf-cockpit-reading-panel-${theme}-845.png`,fullPage:true});
+      await page.screenshot({path:evidencePath(`agdf-cockpit-reading-panel-${theme}-845.png`),fullPage:true});
     }
   }finally{await service.close();expect(hashes(root)).toEqual(before);f.close();}
 });
@@ -133,7 +133,7 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
           const geometry = await page.evaluate(() => ({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
             overflow:Array.from(document.querySelectorAll('body *')).filter(e=>e.getBoundingClientRect().right>innerWidth || e.scrollWidth>e.clientWidth && getComputedStyle(e).overflowX==='visible').slice(0,12).map(e=>({tag:e.tagName,class:e.className,text:e.textContent.slice(0,90),right:e.getBoundingClientRect().right,client:e.clientWidth,scroll:e.scrollWidth}))}));
           observations.push({view,theme,...fonts,...geometry});
-          await page.screenshot({path:`/private/tmp/agdf-cockpit-pages-${view}-${theme}-${width}.png`});
+          await page.screenshot({path:evidencePath(`agdf-cockpit-pages-${view}-${theme}-${width}.png`)});
           expect(geometry.scrollWidth,JSON.stringify(geometry.overflow)).toBeLessThanOrEqual(width);
         }
       }
@@ -157,7 +157,7 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();
     await inspect('list','.run-link[data-focus-id="fixture-a"]');
     expect(remote).toEqual([]);
-    fs.writeFileSync('/private/tmp/agdf-cockpit-pages-alignment-observations.json',JSON.stringify(observations,null,2));
+    fs.writeFileSync(evidencePath('agdf-cockpit-pages-alignment-observations.json'),JSON.stringify(observations,null,2));
   } finally { await service.close(); expect(hashes(f.root)).toEqual(before); f.close(); }
 });
 test('SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries', async ({ page }) => {
@@ -182,7 +182,7 @@ test('SCN-002/005/007/008/010: explicit graph inspection stays passive and reada
     for(const width of [320,720,1280]) {
       await page.setViewportSize({width,height:900});
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-      await page.screenshot({path:`/private/tmp/agdf-cockpit-context-${width}.png`,fullPage:true});
+      await page.screenshot({path:evidencePath(`agdf-cockpit-context-${width}.png`),fullPage:true});
     }
     expect(remote).toEqual([]);expect(await page.evaluate(()=>[localStorage.length,sessionStorage.length])).toEqual([0,0]);
   } finally {await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
@@ -191,7 +191,7 @@ test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, 
   const f=repositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
   const remote = [], errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('request', request => { if (!request.url().startsWith(service.origin)) remote.push(request.url()); expect(request.url()).not.toContain(service.secret); });
   try {
-    await openSession(page, service); await page.screenshot({ path: '/private/tmp/agdf-cockpit-overview.png', fullPage: true });
+    await openSession(page, service); await page.screenshot({ path: evidencePath('agdf-cockpit-overview.png'), fullPage: true });
     await page.getByRole('searchbox').fill('agdf-control-cockpit-20261005-01'); await page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true }).click();
     await expect(page.locator('.page-title h1')).toBeFocused(); await expect(page.getByRole('region', { name: 'Zuletzt beobachteter Arbeitsschritt' })).toBeVisible();
     await expect(page.locator('.work-step-prerequisites')).toContainText('Aktuelle Voraussetzungen nicht bestätigt');
@@ -201,13 +201,13 @@ test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, 
     // Chromium's full-page capture temporarily sets a one-pixel viewport and
     // legitimately triggers the narrow summary rule. Preserve this journey's
     // actual wide reading surface while recording its visible appearance.
-    await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: false });
+    await page.screenshot({ path: evidencePath('agdf-cockpit-detail.png'), fullPage: false });
     await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
     await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
     await expect(page.getByRole('group', {name:'Ansicht'})).toHaveCount(0);
     const expectedSource = fs.readFileSync(join(root, '.agdf/control/artefacts/agdf-control-cockpit-20261005-01/UR.md'), 'utf8'); expect(expectedSource).toContain('Local read-only AGDF control cockpit');
-    await page.screenshot({ path: '/private/tmp/agdf-cockpit-document.png', fullPage: true });
+    await page.screenshot({ path: evidencePath('agdf-cockpit-document.png'), fullPage: true });
     await page.getByRole('navigation', {name:'Vorhaben-Pfad'}).getByRole('button', {name:'Local read-only AGDF control cockpit',exact:true}).click(); await expect(document).toBeFocused();
     await expect(page.getByRole('button', {name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).click(); await expect(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true })).toBeFocused();
@@ -225,7 +225,7 @@ test('SCN-003/007/028/031: copied repository sources, explicit stored pointers, 
       await activate(page.getByRole('button', { name: 'Alle Vorhaben', exact: true }));
       await expect(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true })).toBeFocused();
     }
-    await page.setViewportSize({ width: 390, height: 844 }); await page.screenshot({ path: '/private/tmp/agdf-cockpit-mobile.png' });
+    await page.setViewportSize({ width: 390, height: 844 }); await page.screenshot({ path: evidencePath('agdf-cockpit-mobile.png') });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(errors).toEqual([]); expect(remote).toEqual([]); expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
   } finally { await service.close(); expect(hashes(root)).toEqual(before); f.close(); }
@@ -245,10 +245,10 @@ test('SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing a
     await page.getByRole('button',{name:'Details',exact:true}).click();
     await page.getByText('Kontrollstatus und Quellen', {exact:true}).click(); await expect(page.getByText('QA', { exact: true })).toBeVisible(); await expect(page.getByText('UAT', { exact: true })).toBeVisible();
     await page.locator('.resources button').filter({ hasText: /\/UR\.md/ }).click(); await expect(page.getByText('Das registrierte Dokument fehlt. Quelle prüfen und erneut laden.')).toBeVisible();
-    await page.screenshot({ path: '/private/tmp/agdf-cockpit-missing.png' });
+    await page.screenshot({ path: evidencePath('agdf-cockpit-missing.png') });
     fs.writeFileSync(join(f.root, f.documentPath), Buffer.from([255]));
     await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByText('Dieses Dokument kann nicht als UTF-8-Markdown, JSON oder Text angezeigt werden.')).toBeVisible();
-    await page.screenshot({ path: '/private/tmp/agdf-cockpit-unsupported.png' });
+    await page.screenshot({ path: evidencePath('agdf-cockpit-unsupported.png') });
   } finally { await service.close(); f.close(); }
 });
 test('SCN-009/014/018/024: hostile document, stale reload, retry and removed selection', async ({ page }) => {
@@ -291,7 +291,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await expect(page.locator('.work-step')).toBeVisible();
     await page.locator('.work-step-approvals > summary').click();
     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
-    await page.screenshot({path:'/private/tmp/agdf-cockpit-sticky-card.png'});
+    await page.screenshot({path:evidencePath('agdf-cockpit-sticky-card.png')});
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     const slider=page.getByRole('group',{name:'Ansicht',exact:true});await expect(slider).toBeVisible();
     await expect(slider).toHaveAttribute('data-mode','summary');
@@ -302,7 +302,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).press('Space');
     await expect(slider).toHaveAttribute('data-mode','summary');
     await expect.poll(()=>slider.evaluate(e=>new DOMMatrixReadOnly(getComputedStyle(e,'::before').transform).m41)).toBe(0);
-    await page.screenshot({path:'/private/tmp/agdf-cockpit-sliding-summary.png'});
+    await page.screenshot({path:evidencePath('agdf-cockpit-sliding-summary.png')});
     await page.getByRole('button',{name:'Details',exact:true}).click();
     await expect(page.getByRole('heading',{name:'Dokumente',exact:true})).toBeVisible();
     await page.setViewportSize({width:560,height:400});await expect(slider).toBeHidden();
@@ -316,7 +316,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await expect(page.getByRole('heading',{name:'Long original source',exact:true})).toBeVisible();
     await expect(page.getByRole('group',{name:'Ansicht',exact:true})).toHaveCount(0);
     await page.evaluate(()=>window.scrollTo(0,300));await pinned();
-    await page.screenshot({path:'/private/tmp/agdf-cockpit-sticky-document.png'});
+    await page.screenshot({path:evidencePath('agdf-cockpit-sticky-document.png')});
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
     const source=page.getByRole('button',{name:'Anforderungen öffnen',exact:true});await expect(source).toBeFocused();
     const h=await page.locator('.cockpit-brand-header').boundingBox(),r=await source.boundingBox();expect(r.y).toBeGreaterThanOrEqual(h.y+h.height-1);
@@ -340,7 +340,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
     const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});
     expect(order).toBe(true);
-    await page.screenshot({path:'/private/tmp/agdf-cockpit-summary-current.png'});
+    await page.screenshot({path:evidencePath('agdf-cockpit-summary-current.png')});
     const refreshed = page.waitForResponse(response => new URL(response.url()).pathname === '/api/snapshot' && new URL(response.url()).searchParams.get('run_id') === 'fixture-a');
     fs.writeFileSync(f.runPath,sealRunState(f.root,fs.readFileSync(f.runPath,'utf8')+'\n\nUpdated fixture observation.\n'));
     const afterChange=hashes(f.root);
@@ -417,7 +417,7 @@ test('neutral light reading planes and Pages dark surfaces survive host colors a
           const hover=await styles(page.locator('.work-step-sources .text-link').first());expect(hover.color).toBe((await styles(reference.locator('.text-link'))).color);expect(hover.bg).toBe('rgba(0, 0, 0, 0)');
           expect(contrast(hover.color,actual.bg,canvas)).toBeGreaterThanOrEqual(4.5);await page.mouse.move(0,0);
         }
-        observations.push({view,theme,...actual,canvas,surfaceContrast:separation,textContrast:contrast(actual.color,actual.bg,canvas)});await page.screenshot({path:`/private/tmp/agdf-cockpit-brand-${view}-${theme}.png`});
+        observations.push({view,theme,...actual,canvas,surfaceContrast:separation,textContrast:contrast(actual.color,actual.bg,canvas)});await page.screenshot({path:evidencePath(`agdf-cockpit-brand-${view}-${theme}.png`)});
       }
     };
     await inspect('card','.compact-cockpit');await inspect('card-step','.work-step',true);
@@ -427,8 +427,10 @@ test('neutral light reading planes and Pages dark surfaces survive host colors a
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.locator('article.document')).toBeVisible();await inspect('document','.document-reading');
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
-    await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();await inspect('list','main > div[aria-busy] > .panel');
-    fs.writeFileSync('/private/tmp/agdf-cockpit-brand-observations.json',JSON.stringify(observations,null,2));
+    await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).click();
+    // Measure only the settled list; a loading pass replaces its panel and detached nodes report empty styles.
+    await expect(page.locator('main > div[aria-busy="false"] > .panel')).toBeVisible();await inspect('list','main > div[aria-busy="false"] > .panel');
+    fs.writeFileSync(evidencePath('agdf-cockpit-brand-observations.json'),JSON.stringify(observations,null,2));
   }finally{await reference.close();await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });
 
@@ -472,7 +474,7 @@ test('Pages action and type hierarchy retains the Cockpit neutral light palette'
         // Shared recipes animate color only; normalize the capture after hover checks.
         await page.emulateMedia({reducedMotion:'reduce'});await reference.emulateMedia({reducedMotion:'reduce'});
         observations.push({view,theme,actual:a,reference:b,hover:ah});
-        await page.screenshot({path:`/private/tmp/agdf-cockpit-components-${view}-${theme}.png`});
+        await page.screenshot({path:evidencePath(`agdf-cockpit-components-${view}-${theme}.png`)});
       }
     };
     const keys=['font','size','line','weight','bg','color','border','radius','padding'];
@@ -495,7 +497,7 @@ test('Pages action and type hierarchy retains the Cockpit neutral light palette'
     await expect(page.locator('.resources button > span:not([aria-hidden])').first()).toHaveCSS('line-height','20px');
     await page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true}).hover();
     await expect(page.getByRole('button',{name:'Verknüpfter Kontext ansehen',exact:true})).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
-    fs.writeFileSync('/private/tmp/agdf-cockpit-components-observations.json',JSON.stringify(observations,null,2));
+    fs.writeFileSync(evidencePath('agdf-cockpit-components-observations.json'),JSON.stringify(observations,null,2));
   }finally{await reference.close();await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });
 
@@ -535,7 +537,7 @@ test('work action leads, qualifications stay honest and evidence access survives
         const geometry=await page.locator('.work-step').evaluate(el=>({width:el.clientWidth,height:el.getBoundingClientRect().height,columns:getComputedStyle(el.querySelector('.work-step-support')).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth}));
         expect(geometry.overflow).toBe(false);expect(geometry.columns).toBe(1);
         observations.push({theme,viewport:width,...geometry});
-        await page.screenshot({path:`/private/tmp/agdf-cockpit-work-hierarchy-${theme}-${width}.png`});
+        await page.screenshot({path:evidencePath(`agdf-cockpit-work-hierarchy-${theme}-${width}.png`)});
       }
     }
     const source=page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true});
@@ -543,6 +545,6 @@ test('work action leads, qualifications stay honest and evidence access survives
     await expect(page.getByRole('button',{name:'Dokument schließen',exact:true})).toBeVisible();
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
     await expect(page.getByRole('button',{name:'Zusammenfassung',exact:true})).toHaveAttribute('aria-pressed','true');
-    fs.writeFileSync('/private/tmp/agdf-cockpit-work-hierarchy-observations.json',JSON.stringify(observations,null,2));
+    fs.writeFileSync(evidencePath('agdf-cockpit-work-hierarchy-observations.json'),JSON.stringify(observations,null,2));
   }finally{await service.close();expect(hashes(f.root)).toEqual(before);f.close();}
 });

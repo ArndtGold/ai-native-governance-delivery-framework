@@ -178,3 +178,24 @@ test('canonical Run State is a registered resource on every platform', () => {
     assert.equal(runState.path, '.agdf/control/runs/fixture-a/RUN_STATE.md');
   } finally { f.close(); }
 });
+
+test('an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed', () => {
+  for (const exists of [false, true]) {
+    const f = fixture(); try {
+      if (exists) { fs.mkdirSync(join(f.root, 'docs')); fs.writeFileSync(join(f.root, 'docs/notes.md'), '# Notes\n'); }
+      f.register('PRD', 'docs/notes.md');
+      const before = treeBytes(f.root);
+      const result = createCockpitReader(f.root).snapshot('fixture-a');
+      assert.equal(result.state, 'available', JSON.stringify([result.state, result.code]));
+      const { run } = result.data;
+      assert.equal(run.resources.find(r => r.type === 'PRD').status, 'blocked');
+      assert.equal(run.resources.find(r => r.type === 'UR').status, 'registered');
+      assert.equal(run.evaluation.status, 'not_evaluated');
+      assert.equal(run.evaluation.control_assessment.state, 'unconfirmed');
+      assert.equal(run.evaluation.current_gate, run.persisted.current_gate);
+      assert.equal(run.evaluation.next_allowed_action, run.persisted.next_allowed_action);
+      assert.deepEqual(run.evaluation.diagnostics.map(d => [d.code, d.path]), [['evaluation_out_of_scope', 'docs/notes.md']]);
+      assert.deepEqual(treeBytes(f.root), before);
+    } finally { f.close(); }
+  }
+});

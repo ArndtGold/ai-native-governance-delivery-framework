@@ -13,7 +13,10 @@ export const fail = code => { throw new ControlReadError(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 const keyOf = value => resolve(value instanceof URL ? fileURLToPath(value) : String(value));
 const identity = s => `${s.dev}:${s.ino}:${s.mode}`;
-const signature = s => `${identity(s)}:${s.size}:${s.mtimeNs}:${s.ctimeNs}`;
+// Windows bumps ChangeTime when scanners or indexers touch an unchanged new file, so it is no
+// change signal there. Size, mtime and the captured content digest still bind the source.
+const changeTime = process.platform === 'win32' ? () => '' : s => s.ctimeNs;
+const signature = s => `${identity(s)}:${s.size}:${s.mtimeNs}:${changeTime(s)}`;
 
 // Both broad and dependency captures use the same bounded descriptor read.
 function capturedFile(path, before, deadline, verifyAncestors, checkpoint) {
@@ -278,8 +281,11 @@ export function captureControlScope(rootInput, project, options = {}) {
       return format ? entry.bytes.toString(format) : Buffer.from(entry.bytes);
     },
     statSync(value, opts) {
-      const { entry } = get(value);
-      if (entry.kind === 'directory' && !entry.statObserved) {
+      const { path, entry } = get(value);
+      // Root and .agdf are containment anchors whose children outside control are never read;
+      // their timestamps change with unrelated project entries, so only identity and type bind.
+      const anchor = path === root || path === join(root, '.agdf');
+      if (entry.kind === 'directory' && !entry.statObserved && !anchor) {
         if (frozen) fail('source_changed');
         entry.statObserved = true; entry.signature = signature(entry.stats);
       }

@@ -21,6 +21,8 @@ for (const compact of [false, true]) it(`${compact ? 'compact' : 'expanded'} ref
   }));
   render(<App compact={compact} transport={read} initialRunId="run-a"/>);
   await screen.findByRole('button', { name: 'Neu laden' });
+  // The change wait starts after the first render; deliver only once the app is subscribed.
+  await waitFor(() => expect(read.waitForChanges).toHaveBeenCalled());
   await act(async () => deliver());
   const refreshing = await screen.findByRole('button', { name: 'Stand wird aktualisiert …' });
   expect(refreshing.hasAttribute('disabled')).toBe(true);

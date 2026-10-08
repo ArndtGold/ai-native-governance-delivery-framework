@@ -22,7 +22,7 @@ export const messages: Record<string, string> = {
   timeout: 'Das Lesen hat das Zeitlimit erreicht. Quelle und Umfang prüfen, dann wiederholen.',
   dto_invalid: 'Die Antwort des Dienstes passt nicht zum erwarteten Datenstand. Neu laden oder den Dienst erneut starten.',
 };
-export const labels: Record<string, string> = { available: 'Verfügbar', empty: 'Keine Einträge', partial: 'Teilweise verfügbar', invalid: 'Ungültig', missing: 'Fehlt', unsupported: 'Vorschau nicht verfügbar', blocked: 'Gesperrt', stale: 'Neuer Stand verfügbar', error: 'Lesefehler', active: 'Aktiv', completed: 'Abgeschlossen', superseded: 'Ersetzt', abandoned: 'Beendet', open: 'Offen', pass: 'Bestanden', passed: 'Bestanden', approved: 'Freigegeben', done: 'Erledigt', revise: 'Überarbeiten', block: 'Blockiert', none: 'Keine', in_progress: 'In Arbeit' };
+export const labels: Record<string, string> = { available: 'Verfügbar', empty: 'Keine Einträge', partial: 'Teilweise verfügbar', invalid: 'Ungültig', missing: 'Fehlt', unsupported: 'Vorschau nicht verfügbar', blocked: 'Gesperrt', stale: 'Neuer Stand verfügbar', error: 'Lesefehler', active: 'Aktiv', completed: 'Abgeschlossen', superseded: 'Ersetzt', abandoned: 'Beendet', open: 'Offen', pass: 'Bestanden', passed: 'Bestanden', approved: 'Freigegeben', done: 'Erledigt', revise: 'Überarbeiten', block: 'Blockiert', none: 'Keine', in_progress: 'In Arbeit', not_evaluated: 'Nicht ausgewertet' };
 export const label = (value: string | null | undefined) => value ? labels[value] ?? `Nicht verfügbar · Original: ${value}` : 'Nicht verfügbar';
 export function readingStatus(state: ReadingState) {
   const busy = state.phase === 'loading' || state.refreshing;

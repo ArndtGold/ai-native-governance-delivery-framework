@@ -47,6 +47,11 @@ import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from
 const pluginRoot = join(import.meta.dirname, "..", "..", "..", "plugins", "agdf");
 const localeRegistry = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-interaction-locales.json"), "utf8"));
 
+// The fixtures are English control repositories. `init` otherwise adopts the host locale, and a
+// non-English chat language legitimately changes presentation, e.g. untranslated next steps
+// then require user action. Pin the locale for the spawned CLI and in-process readers.
+process.env.LC_ALL = "en_US.UTF-8";
+
 const root = mkdtempSync(join(tmpdir(), "agdf-control-state-"));
 const cli = join(import.meta.dirname, "..", "..", "cli", "bin", "create-agdf.js");
 try {

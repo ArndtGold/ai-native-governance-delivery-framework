@@ -50,7 +50,7 @@ test('SCN-062/083: duplicate/malformed pointers stay identifiable and nonselecta
 test('SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation', () => {
   const f = fixture(); try {
     backlog(f, ''); const before = treeBytes(f.root);
-    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true, presentationLanguage: 'de' });
+    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
     const actual = createCockpitReader(f.root).snapshot('fixture-a');
     assert.equal(actual.data.kind, 'run'); assert.equal(actual.data.run.evaluation.current_gate, expected.current_gate);
     for (const key of ['status', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'allowed', 'forbidden']) assert.deepEqual(actual.data.run.evaluation[key], expected[key]);
@@ -119,7 +119,7 @@ test('SCN-079/080/083: canonical approval without backlog membership leaves stor
     const before = treeBytes(f.root), stored = reader.snapshot(); assert.deepEqual(storedFacts(stored.data),storedFacts(pointer.data));
     const session = (await service.render())._meta.agdf_cockpit.session_id;
     const wire = await service.read({operation:'snapshot',session_id:session}); assert.deepEqual(storedFacts(wire.data),storedFacts(stored.data));
-    const expected = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true,presentationLanguage:'de'});
+    const expected = evaluateGateCheck(f.root,{runId:'fixture-a',ignoreRunIdEnv:true});
     assert.notEqual(expected.next_allowed_action,previousCore.next_allowed_action);
     const checked = await service.read({operation:'run',session_id:session,snapshot_id:wire.snapshot_id,run_id:'fixture-a'});
     assert.equal(checked.data.run.revision_id,f.revision()); assert.equal(checked.data.run.evaluation.next_allowed_action,expected.next_allowed_action);
@@ -148,11 +148,33 @@ test('SCN-080/082/083: linked canonical approval changes the stored pointer; bot
     const wire = await service.read({ operation: 'snapshot', session_id });
     assert.deepEqual(storedFacts(wire.data), storedFacts(stored.data));
     assert.notDeepEqual(storedFacts(stored.data), storedFacts(pointer.data));
-    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true, presentationLanguage: 'de' });
+    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
     const checked = await service.read({ operation: 'run', session_id, snapshot_id: wire.snapshot_id, run_id: 'fixture-a' });
     assert.equal(checked.data.run.revision_id, f.revision());
     assert.equal(checked.data.run.evaluation.next_allowed_action, expected.next_allowed_action);
     assert.equal(checked.authorizes, false);
     assert.deepEqual(treeBytes(f.root), before);
   } finally { await service.close(); f.close(); }
+});
+
+test('UR readiness follows the configured project language exactly like the canonical gate-check', () => {
+  const f = fixture(); try {
+    const configPath = join(f.root, '.agdf/control/config.json');
+    fs.writeFileSync(configPath, JSON.stringify({ ...JSON.parse(fs.readFileSync(configPath, 'utf8')), artifact_language: 'en', chat_language: 'en' }));
+    const sections = ['Problem', 'Goal', 'Affected Users', 'Scope', 'Non-Goals', 'Acceptance Signals', 'Existing Source Of Truth', 'Risks And Unknowns', 'Next Step'];
+    fs.writeFileSync(join(f.root, f.documentPath), `# UR: English fixture\n\nRequirements clarification: complete\n\n${sections.map(s => `## ${s}\n\nConcrete ${s.toLowerCase()} for the fixture.\n`).join('\n')}`);
+    f.register('UR', f.documentPath);
+    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
+    assert.notEqual(expected.blocking_reason, 'AGDF_UR_REQUIREMENTS_INCOMPLETE', 'English project needs no German approval summary');
+    const actual = createCockpitReader(f.root).snapshot('fixture-a').data.run.evaluation;
+    for (const key of ['status', 'blocking_reason', 'missing_approval', 'next_allowed_action']) assert.deepEqual(actual[key], expected[key]);
+  } finally { f.close(); }
+});
+
+test('canonical Run State is a registered resource on every platform', () => {
+  const f = fixture(); try {
+    const runState = createCockpitReader(f.root).snapshot('fixture-a').data.run.resources.find(r => r.type === 'Run State');
+    assert.equal(runState.status, 'registered');
+    assert.equal(runState.path, '.agdf/control/runs/fixture-a/RUN_STATE.md');
+  } finally { f.close(); }
 });

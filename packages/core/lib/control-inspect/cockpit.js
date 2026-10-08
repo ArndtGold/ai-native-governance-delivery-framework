@@ -1,4 +1,4 @@
-import { relative, join, posix } from 'node:path';
+import { relative, join, posix, sep } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { captureControlScope, fail, READ_LIMITS } from '../control-read/snapshot.js';
 import { withControlReadView } from '../control-read/fs.js';
@@ -67,7 +67,8 @@ export function createCockpitReader(root, options = {}) {
     const result = [];
     const paths = new Set();
     // The canonical state itself and each explicit Artefacts row are registrations.
-    const rows = [{ type: 'Run State', path: state.path }, ...[...state.artefacts].map(([type, row]) => ({ type, ...row }))];
+    // The canonical state path is platform-native; registrations use POSIX separators.
+    const rows = [{ type: 'Run State', path: state.path?.split(sep).join(posix.sep) }, ...[...state.artefacts].map(([type, row]) => ({ type, ...row }))];
     for (const row of rows) {
       const path = String(row.path ?? '').replace(/^`|`$/g, '').trim();
       if (!path || path === 'none' || paths.has(path)) continue;
@@ -81,7 +82,7 @@ export function createCockpitReader(root, options = {}) {
   }
   function detail(run) {
     const state = readRunState(root, { runId: run.run_id, ignoreRunIdEnv: true });
-    const report = evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true, presentationLanguage: 'de' });
+    const report = evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
     const resources = manifest(run.run_id, state);
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.

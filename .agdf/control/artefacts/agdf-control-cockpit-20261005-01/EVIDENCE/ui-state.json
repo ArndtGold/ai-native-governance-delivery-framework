@@ -1,0 +1,19 @@
+{
+  "SCN-006": {
+    "scenario_id": "SCN-006",
+    "criterion_id": "AC-003",
+    "design_decision_id": "SDD-004",
+    "task_id": "T-006",
+    "tested_source_or_fixture": "state reducer and browser navigation",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Overview to detail to document and back retains valid target/run/version; deliberately reversed request completion cannot overwrite a later run selection",
+    "actual_result": "obsolete generations are ignored; three views and return keep identified run/snapshot; client rejects wrong version/target/snapshot and malformed nested DTO",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "ui-tests.log",
+      "playwright-results.json"
+    ]
+  }
+}

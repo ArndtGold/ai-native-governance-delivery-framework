@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views
+not ok 1 - SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views
+  ---
+  duration_ms: 820.053882
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-publication-test.js:83:1'
+  failureType: 'testCodeFailure'
+  error: 'AGDF_RUN_STATE_INVALID'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    applyRunSeals (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-state/run-seal.js:134:21)
+    sealRunState (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-state/run-seal.js:143:10)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-publication-test.js:87:33)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1172.516143

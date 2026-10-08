@@ -1,0 +1,49 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Embedded AGDF Cockpit for Codex
+  - generic: Nur Lesen
+  - button "Neu laden":
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben"
+      - text: ›
+      - button "Embedded AGDF Cockpit for Codex"
+      - text: ›
+      - generic: Umsetzungs- und Prüfnachweise
+  - generic: Dein Repository · Deine Vorhaben
+  - heading "Umsetzungs- und Prüfnachweise" [level=1]
+  - paragraph: Registrierte Quelle und ihre Bedeutung für das Vorhaben.
+  - button "Dokument schließen":
+  - generic "Stand 7.10.2026, 07:57:11 · Datenstand und Herkunft"
+  - paragraph:
+    - text: Quelle zum Vorhaben
+    - strong: Embedded AGDF Cockpit for Codex
+  - paragraph: Hält Umsetzung, Prüfergebnisse und noch offene Nachweise fest.
+  - generic: CD+Tests
+  - code: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SESSION_PUBLICATION_IMPLEMENTATION-02.md
+  - article:
+    - heading "CD+Tests — independent reading and exclusive publication" [level=1]
+    - paragraph: "Status: in_progress. Run: agdf-cockpit-mcp-app-20261005-01. Current approved SD/TP and upstream sources are byte-identical. SESSION_PUBLICATION_VERIFICATION-02.json binds source hashes, current tests, exact prepared runtime, scenario-labelled cases and bounded logs. HOST_FEASIBILITY-05.md records the required early native checkpoint; it passed before full publication work."
+    - paragraph: The existing Core connection service owns four independent active/retiring views, their own selectors, captured sources, generation, deadlines and private lazy workers. Capacity stays counted until actual retirement. Browser worker/capture limits remain unchanged. The existing Core owner now reserves one exclusive publication before asynchronous preparation. Failed never-returned reservations release; returned packets retain ownership. Nonowners cannot clear the host context. Begin invalidation clears the packet and retains one opaque token; only acknowledged host invalidation followed by matched server completion permits another publisher. One receipt per live view provides idempotent completion without clearing a later publication. Owner loss quarantines publication while independent reading continues. No elapsed timer permits takeover.
+    - paragraph: "Immutable UI ports/controllers capture their own view session. They serialize context acceptance, deliberate question and release. Failed begin makes no host call. Lost completion retries only server completion; lost host-clear acknowledgement requires fresh connection and actual host-context qualification. Diagnostic UI now displays capability metadata only: executable synthetic buttons are removed, avoiding a second context publication path. Current context acknowledgement never claims historical chat erasure or a correct model answer."
+    - paragraph: "Current checks: 23 Core session/publication cases across the combined and additional selector logs; nine retained graph/source checks; 79 UI and five HTTP cases; typecheck and both builds; all ten browser journeys, including light/dark Pages conformity and the closed canonical no-write window; both actual stdio protocol eras with exact packet/source equality, competing owner refusal, foreign/stale tokens and strict completion schema. The full default MCP suite also passes after correcting recognition of the existing explicitly qualified regular-server inventory; no assertion of actual tool identity was weakened. Failed fixture/test attempts remain labelled in retained logs."
+    - paragraph: "Architecture and UI setup documentation describe the implemented bounds, per-connection owner and release/recovery path. This is cooperative implementation inspection, not formal CR or independent QA/UAT. HOST_RESOURCE_IDENTITY-09.md and HOST_PRODUCTION_HANDOFF-10.md establish that newly expanded native cards load the exact current prepared module. One current native view completed production packet receipt, one separately authorized question received and answered by the model, acknowledged owned release and return to its Run, with closed canonical no-write windows. Older panels retain dated builds or expired sessions. A second current native view is still not exposed to the tools: complete concurrent ownership/takeover and recovery/rollback qualification remain open. The dated graph implementation statement has a bounded corrective addendum; final knowledge reconciliation and routed reviews/QA/UAT/OR remain open. No accepted synthetic or production question is repeated. No commit, push, release, public installation or unrelated architecture-diagram change is performed."
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ausblenden" [expanded]
+    - paragraph: Explizit im Vorhaben gepflegte Zusammenhänge. Quellen werden als Text gelesen.
+    - list:
+      - strong: CG-MCP-DISPATCH-ADAPTER
+      - checkbox "In Kontext aufnehmen" [checked]
+      - text: In Kontext aufnehmen
+      - generic "Quelle lesen"
+    - paragraph:
+      - text: "Übergabe:"
+      - strong: CD+Tests
+      - text: · 1 von höchstens 16 Knoten. Ausgelassene und nicht verfügbare Verweise werden im Paket offengelegt.
+    - button "Kontext übergeben"
+    - button "Frage zu diesen Quellen senden"
+    - status: Kontext vom Host bestätigt. Die Frage wurde noch nicht gesendet.
+    - generic "Übergebenes Paket prüfen"
+  - generic: Lokale Beobachtung · Verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

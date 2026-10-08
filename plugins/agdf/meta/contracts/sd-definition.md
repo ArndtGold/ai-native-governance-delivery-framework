@@ -43,6 +43,10 @@ or manufacture answers; use supported revision/recovery and fresh source approva
 
 ## Explicit revision and recording
 
+Before recording, use the continuation's resolved language and summary fields with
+gate-artifact-preparation's Language and approval summary preparation. A translated summary
+must be part of the draft before presentation, not deferred until a renderer failure.
+
 A ready registered draft requires actual human editing intent; skill loading/selection is not
 permission. Ordinary continuation presents its current result. Explicit canonical revision uses
 gate-check intake true, intake_mode resume, run_id, expected_revision_id and sd_action revise

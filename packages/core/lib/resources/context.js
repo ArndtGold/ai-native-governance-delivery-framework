@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "../control-read/fs.js";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalizeLanguageTag, resolvePresentationLocale } from "../interaction-presentation.js";
@@ -42,4 +42,20 @@ export function resolveConfiguredChatLanguage(targetDir, context = resources) {
 export function resolveConfiguredArtifactLanguage(targetDir) {
   try { return canonicalizeLanguageTag(JSON.parse(readFileSync(join(targetDir, ".agdf", "control", "config.json"), "utf8")).artifact_language).split("-")[0] || "en"; }
   catch { return "en"; }
+}
+
+// Shared by artefact authoring and approval rendering; the selected locale may override
+// the configured chat default, but never changes the persisted artefact language.
+export function resolveArtifactPresentationLanguages(targetDir, requestedLanguage, context = resources) {
+  const artifactLanguage = resolveConfiguredArtifactLanguage(targetDir);
+  const presentationLanguage = requestedLanguage
+    ? resolvePresentationLocale(context.interactionLocales, requestedLanguage)
+    : resolveConfiguredChatLanguage(targetDir, context);
+  const required = artifactLanguage !== presentationLanguage.split("-")[0];
+  return Object.freeze({
+    artifact_language: artifactLanguage,
+    presentation_language: presentationLanguage,
+    approval_summary_required: required,
+    approval_summary_heading: required ? `AGDF Approval Summary (${presentationLanguage}; source=${artifactLanguage})` : null,
+  });
 }

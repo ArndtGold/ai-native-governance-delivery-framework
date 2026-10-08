@@ -1,0 +1,11 @@
+# Actual Codex Product Journey
+
+Date: 2026-10-06. Run: agdf-cockpit-mcp-app-20261005-01. Source revision: 644ed373-6fce-46d7-891e-1304a476e8c6. Cooperative agent observation, not human UAT or QA approval.
+
+Named opening, deliberate current-state reload, registered UR document, explicit CG-MCP-DISPATCH-ADAPTER source, deliberate node selection, packet preparation and SDK updateModelContext were exercised in the real Codex fullscreen side panel. The host confirmed context before the separately clicked neutral question. The host accepted that question; its answer and actual subsequent model-facing response have not been validated. No synthetic or approval message was sent in this production journey.
+
+Context 489c145c-089b-459f-a7b3-fd82d170475b, snapshot 28250a7f-0048-4cd9-ade8-2d32fb77614b, packet 21284 UTF-8 bytes. Saved packet content equals the original UR and graph-node bytes, with exact hashes. Actual module bytes and prepared styles match UI sha256:871304bfaef32e93dc956a325f6fa8860962cb80acc5c82ffdac9ac9cb5be68a; 816px width and 816px scrollWidth. Closing the document returns to the same Run/details and focuses the original UR control. Opening again with empty arguments separately showed the untouched Run overview without selecting a Run; the new module matches the same build. This closes the previously retained empty-opening observation gap in SCN-045. Opening a new view retires the previous ephemeral session, as designed; the previous panel visibly reported expiry. Independent per-view sessions remain a separate proposed follow-up.
+
+The app-only window ran 2026-10-06T12:40:29.026Z to 2026-10-06T12:47:40.971Z; all 3405 canonical control entries are unchanged. Evidence/bookkeeping occurs after that window. NATIVE_PRODUCT_EVIDENCE-01.json records the exact tuple, source-byte checks, question acknowledgement, scenarios and remaining limitations; accompanying DOM/screenshots and packet remain inspectable.
+
+A subsequent full default MCP safety test found the private snapshot dependency statically imported by the dispatcher wrapper. Its import has been moved to the explicit cockpit branch; corrected startup/protocol results and prepared-runtime identity must be recorded separately. No unchanged UI/Core reading behavior is claimed as a fresh post-correction host startup. Full reviews, final QA/UAT and closeout remain open.

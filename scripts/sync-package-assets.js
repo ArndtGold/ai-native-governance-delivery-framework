@@ -8,6 +8,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
 import { syncPluginMcp } from "./sync-plugin-mcp.js";
+import { COCKPIT_UI_BUILD_COMMAND, readCockpitUiBuild } from "./cockpit-ui-build.mjs";
 import { validateInteractionCatalog } from "../packages/core/lib/interaction-catalog-validation.js";
 import {
   renderClaudePluginManifest,
@@ -598,7 +599,10 @@ export function syncPackageAssets({
   // The runtime plugin root is shared by Codex and Claude Code; it always carries the plugin-local
   // MCP launcher so `claude plugin uninstall` removes the MCP registration and its runtime.
   syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, mcpRuntime: true });
-  syncPluginMcp({ pluginRoot: generatedCodexPluginRoot });
+  // Only the Claude build carries the cockpit app; it needs the verified control-ui MCP build first.
+  syncPluginMcp({ pluginRoot: generatedCodexPluginRoot, cockpitUi: surface === "claude"
+    ? readCockpitUiBuild({ failure: `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the Claude build.` })
+    : undefined });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
   write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
   // Codex 0.160.0 selects portable mode when root plugin.json has $schema and then

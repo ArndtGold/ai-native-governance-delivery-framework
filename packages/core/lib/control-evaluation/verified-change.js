@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync } from "../control-read/fs.js";
 import { containedRegularFile, isSafeControlRelativePath } from "../control-state/contained-file.js";
 import { cleanStatusCell, isPlaceholderValue } from "./shared.js";
 

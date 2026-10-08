@@ -172,9 +172,12 @@ try {
     ["pending transaction", x => writeFileSync(join(x.root, `.agdf/control/runs/${runId}/RUN_STEP_PENDING.json`), "{}")],
     ["changed source", x => { writeFileSync(join(x.root, `${x.prefix}PRD.md`), "Changed approved source\n"); x.edit(text => text); }],
     ["changed destination", x => writeFileSync(join(x.root, `${x.prefix}SD.md`), "Changed destination\n")],
-    ["symlink proof", x => { const receipt = readArtefactBindings(readFileSync(x.state, "utf8")).active[0]; const path = join(x.root, receipt.review.path); cpSync(path, `${path}.copy`); rmSync(path); symlinkSync(`${path}.copy`, path); }],
+    ["symlink proof", x => { const receipt = readArtefactBindings(readFileSync(x.state, "utf8")).active[0]; const path = join(x.root, receipt.review.path); cpSync(path, `${path}.copy`); rmSync(path);
+      // Windows without Developer Mode refuses symlinks; only this tamper case is skipped there.
+      try { symlinkSync(`${path}.copy`, path); } catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; return false; } }],
   ]) {
-    const x = fixture(); assert.equal(x.record().outcome, "recorded"); x.omit(); alter(x);
+    const x = fixture(); assert.equal(x.record().outcome, "recorded"); x.omit();
+    if (alter(x) === false) { console.warn(`SKIPPED ${name}: symlinks need Windows Developer Mode (EPERM)`); continue; }
     const snapshot = readFileSync(x.state, "utf8");
     assert.equal(correctRunRelationship(x.root, { runId, revisionId: x.revision() }, { evaluateGateCheck }).outcome, "rejected", name);
     assert.equal(readFileSync(x.state, "utf8"), snapshot, name); assertions += 3;

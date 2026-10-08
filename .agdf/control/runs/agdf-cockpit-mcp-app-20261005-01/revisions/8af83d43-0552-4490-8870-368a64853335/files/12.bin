@@ -1,0 +1,133 @@
+# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: agdf-cockpit-mcp-app-20261005-01
+- lifecycle: active
+- revision: 22
+- revision_id: 4f600635-8e63-48fd-9a15-22379f65ddda
+- content_seal: sha256:e7a13347cfaeca966bd5bf6f2a36560bd6c369a0879dc3c7cc0dd8cf22dcce33
+- approval_seal: sha256:4b78bf9c4c359193b2a993355df0a70efd75bb240322cb2993bbcb6c5f66dfd0
+- updated_at: 2026-10-06T07:37:01.077Z
+- mode: structured_delivery
+- current_gate: CD+Tests
+- decision: in_progress
+- owner: agent
+
+## Objective
+
+Enable the existing local AGDF cockpit as an embedded MCP app in Codex: select a run, inspect registered artefacts and explicit Context Graph references, and use a checked selection for a contextual question while preserving canonical control authority.
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Shared Pages branding across card, overview, run and document views implemented; interactive browser navigation, 320px layouts, dark header layout, TypeScript, 18 UI tests, five service tests, builds and prepared protocols pass. Native connection still returns Transport closed. |
+| What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
+| What is missing? | T-006 actual host feasibility; remaining T-007 to T-012 evidence; full current Copilot compatibility payload. No approval pending. |
+| What is the next allowed action? | Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR. |
+| What is explicitly forbidden right now? | claim QA or release readiness; bypass early actual-host checkpoint |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | `Approval: UR` · 2026-10-05 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md` sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc |
+| PRD | approved | `Approval: PRD` · 2026-10-05 · revision 6 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md` sha256:8f372986651c47aa · presentation c230ef55-ea75-42f0-b02d-49947a0c0c89 sha256:72000977e7c06e5eb5099ef6d42b7fe0ec4e22229f834f5e36877c982ee16072 |
+| SD | approved | `Approval: SD` · 2026-10-05 · revision 8 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md` sha256:e074c33a11168f4d · presentation 49adc650-c2ef-4334-afe4-59adb04ad931 sha256:d7b0037aa6ac87719c979468e06da2dead65eb7f47ded55c642e7c9d3d9c6c51 |
+| TP | approved | `Approval: TP` · 2026-10-05 · revision 10 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md` sha256:b4f00e615ae98d0f · presentation 567ba91a-beb1-4c7b-832e-26967fb23c6f sha256:993aa4223c4e8334ae05d347ca1a1b5ed65e732d57069b41b4aedeffe49bb9bb |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md` | approved |  |
+| Brownfield Review | `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md` | done |  |
+| UX Intent Definition | `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md` | done | ready; analytical PRD input only |
+| Verified Change |  | missing |  |
+| PRD | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md | approved | Reviewed source binding recorded atomically |
+| SD | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md | approved | Reviewed source binding recorded atomically |
+| TP | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md | approved | Reviewed source binding recorded atomically |
+| Brownfield Analysis | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_ANALYSIS.md | done | pass; approved-TP preparation; baseline and reuse path recorded |
+| CD+Tests | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/IMPLEMENTATION_CHECKPOINT.md | in_progress | Minimal path checked; T-006 real host feasibility unqualified; no dependent expansion |
+| CR |  | missing |  |
+| QA |  | missing |  |
+| Binding proof ce2a8b08-d584-4957-9ff6-ad17680e1784 | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json | done | Subordinate reviewed mapping evidence |
+| Binding proof 31c0990e-da4f-4fb9-baf4-9c3f8495ec14 | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-01.json | done | Subordinate reviewed mapping evidence |
+| Binding proof b596b406-2c26-4850-a971-1846c8c88a6a | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-01.json | done | Subordinate reviewed mapping evidence |
+
+## Mode/Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: external_contract_depth: MCP app resources and model-context exchange add a compatibility-sensitive host contract; structured_slice fails full_depth_impacts_absent.
+- evidence: .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-05 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md` sha256:97d809260eca01b3 · presentation 5d0dbac9-6299-42f8-86f1-174caf8b4f9f sha256:755f25cf53ade0fa8930ed99c661388722003b1de372402026fd684197100bbc |
+| PRD | derived_from | UR | binding ce2a8b08-d584-4957-9ff6-ad17680e1784; reviewed by Codex implementing agent; cooperative source derivation review, not independent proof; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json |
+| SD | derived_from | PRD | binding 31c0990e-da4f-4fb9-baf4-9c3f8495ec14; reviewed by Codex implementing agent; cooperative approved-PRD derivation review, not independent proof; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-01.json |
+| TP | derived_from | SD | binding b596b406-2c26-4850-a971-1846c8c88a6a; reviewed by Codex implementing agent; cooperative approved-SD derivation review, not independent proof; .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-01.json |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Run creation | run-create | Control initialization | direct |
+| UR draft | `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+| Brownfield Review | `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_delivery` | direct |
+| UX intent recovery | `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md` | Working modes, state authority, context transfer, blockers and recovery; ready before PRD | direct |
+| Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD_MAPPING_REVIEW-01.json | PRD derived_from UR; binding ce2a8b08-d584-4957-9ff6-ad17680e1784; operation f5067e10-21d4-4338-8f7a-b69d635c4380; fad46820-c267-40ae-affe-56c546b6962c -> 4ea85645-79ab-47a4-84e0-619d5c0278a0 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD_MAPPING_REVIEW-01.json | SD derived_from PRD; binding 31c0990e-da4f-4fb9-baf4-9c3f8495ec14; operation 48dc148e-33b7-48aa-b456-81a013c32ba1; 2b4f67c7-ffee-4041-ba26-b35f82f07ee5 -> 5acedbd3-1a7d-4248-91ec-5b683121b01d | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP_MAPPING_REVIEW-01.json | TP derived_from SD; binding b596b406-2c26-4850-a971-1846c8c88a6a; operation 4ad06f80-501e-4b24-bd01-b794a23eafff; aa604652-f69e-4af3-ada3-884875c09514 -> dd3de9fc-a1e3-4899-b493-0ed041f4e39a | reviewed cooperative mapping |
+| Pre-implementation Brownfield Analysis | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_ANALYSIS.md | T-001; baseline, owners, reuse, regression and early host checkpoint | cooperative source inspection |
+| BUILD_DEPENDENCY_EVIDENCE.md | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BUILD_DEPENDENCY_EVIDENCE.md | Approved TP minimal implementation and bounded qualification | direct checks; native host gap explicit |
+| MCP_PROTOCOL_EVIDENCE.json | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/MCP_PROTOCOL_EVIDENCE.json | Approved TP minimal implementation and bounded qualification | direct checks; native host gap explicit |
+| CORE_READ_EVIDENCE.md | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/CORE_READ_EVIDENCE.md | Approved TP minimal implementation and bounded qualification | direct checks; native host gap explicit |
+| HOST_FEASIBILITY.md | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_FEASIBILITY.md | Approved TP minimal implementation and bounded qualification | direct checks; native host gap explicit |
+| SETUP_ROLLBACK_EVIDENCE.json | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SETUP_ROLLBACK_EVIDENCE.json | Approved TP minimal implementation and bounded qualification | direct checks; native host gap explicit |
+| COMPATIBILITY_EVIDENCE.md | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/COMPATIBILITY_EVIDENCE.md | Approved TP minimal implementation and bounded qualification | direct checks; native host gap explicit |
+| Compact entry fix | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ENTRY_CARD_FIX.md | Compact/full shared state; tests; prepared resource; native gap explicit | direct tests and browser layout; pre-update native observation |
+| Canonical logo reuse | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/LOGO_REUSE_EVIDENCE.md | Original Pages SVG reused, inline resource, visual preview and prepared runtime | direct build/protocol and browser layout |
+| Pages design alignment | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/DESIGN_ALIGNMENT.md | Shared design/font owner; readable run card; actual browser asset delivery; tests and prepared resource | direct build/browser/protocol; native refresh gap explicit |
+| Decorative card header | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/RACE_HEADER_EVIDENCE.md | Canonical inline background; light/dark/320px and prepared runtime | direct build/protocol and browser layout; native gap retained |
+| Visible compact card refresh | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/AUTO_REFRESH_EVIDENCE.md | Shared visible read refresh; selection/focus/race/failure tests and synthetic actual browser gate transition | direct tests/browser/protocol; native host gap retained |
+| Interactive browser card | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/INTERACTIVE_BROWSER_EVIDENCE.md | Actual React card/detail return journey; default entry preserved; 18 UI tests and five service tests | direct local browser/read evidence; native host gap retained |
+| Shared per-view branding | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SHARED_BRANDING_EVIDENCE.md | One shared head; canonical assets; actual browser/320px and dark header layout; focus regression retained | direct browser/build/test/protocol; native gap explicit |
+| Adaptive layout and run search | .agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/ADAPTIVE_LAYOUT_EVIDENCE.md | 20 UI and 5 service tests; responsive geometry, actual browser reading journey; optional initial Run-ID requires SD revision | direct |
+
+## Closeout
+
+- next_allowed_action: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.
+- quality_outlook:
+
+## Artefact Bindings
+
+- schema_version: 1
+
+| binding_id | receipt_digest | receipt |
+|---|---|---|
+| ce2a8b08-d584-4957-9ff6-ad17680e1784 | sha256:8d57b624845f344849d3f845bf2ea2b6cbf06a35bc1056578045ea7ef3970d30 | eyJiaW5kaW5nX2lkIjoiY2UyYThiMDgtZDU4NC00OTU3LTlmZjYtYWQxNzY4MGUxNzg0IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjhmMzcyOTg2NjUxYzQ3YWEzNzZhY2NiOTA0NGJkYzJhZDgyMmRiMTAxMjcwZjFjNzZhYzBhYjA4ZTQxZGNiMWMiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvYWdkZi1jb2NrcGl0LW1jcC1hcHAtMjAyNjEwMDUtMDEvUFJELm1kIiwic3RhdHVzIjoiZHJhZnQiLCJ0eXBlIjoiUFJEIn0sIm9wZXJhdGlvbiI6eyJpZCI6ImY1MDY3ZTEwLTIxZDQtNDMzOC04ZjdhLWI2OWQ2MzVjNDM4MCIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiZmFkNDY4MjAtYzI2Ny00MGFlLWFmZmUtNTZjNTQ2YjY5NjJjIiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNGVhODU2NDUtNzlhYi00N2E0LTg0ZTAtNjE5ZDVjMDI3OGEwIiwicmV2aXNpb24iOjZ9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJQUkQiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlVSIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6NDY0ZmE4MTY2NTY5NDVkN2NjNTZlMGIxNjIzN2Q4NTE3MWJjOTU4NTdiOGE0Njc5NzdiMzE4NDhkNTYzNDhhYSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9hZ2RmLWNvY2twaXQtbWNwLWFwcC0yMDI2MTAwNS0wMS9QUkRfTUFQUElOR19SRVZJRVctMDEuanNvbiIsInJldmlld2VyIjoiQ29kZXggaW1wbGVtZW50aW5nIGFnZW50OyBjb29wZXJhdGl2ZSBzb3VyY2UgZGVyaXZhdGlvbiByZXZpZXcsIG5vdCBpbmRlcGVuZGVudCBwcm9vZiJ9LCJydW5faWQiOiJhZ2RmLWNvY2twaXQtbWNwLWFwcC0yMDI2MTAwNS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6OTdkODA5MjYwZWNhMDFiMzdlZTU0NjhhYTRhZTA1NTE5MGI1ZmIyMDg5ZjNhNDk0MTYwMzY1N2I4OGNjZWY3ZiIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9hZ2RmLWNvY2twaXQtbWNwLWFwcC0yMDI2MTAwNS0wMS9VUi5tZCIsInR5cGUiOiJVUiJ9LCJzdXBlcnNlZGVzIjpudWxsLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |
+| 31c0990e-da4f-4fb9-baf4-9c3f8495ec14 | sha256:546f875db7833971762397f3522ff9e3938b60cb003326ab90c586bf810d53cd | eyJiaW5kaW5nX2lkIjoiMzFjMDk5MGUtZGE0Zi00ZmI5LWJhZjQtOWMzZjg0OTVlYzE0IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmUwNzRjMzNhMTExNjhmNGQ3NmMwYWY4ODVjNTE4NjY5MGMwOTM0OTUxZmIyNGI5ZGJlYzljMzA0MjRkNDk5NTciLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvYWdkZi1jb2NrcGl0LW1jcC1hcHAtMjAyNjEwMDUtMDEvU0QubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJTRCJ9LCJvcGVyYXRpb24iOnsiaWQiOiI0OGRjMTQ4ZS0zM2I3LTQ4YWEtYjQ1Ni04MWEwMTNjMzJiYTEiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6IjJiNGY2N2M3LWZmZWUtNDA0MS1iYTI2LWIzNWY4MmYwN2VlNSIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjVhY2VkYmQzLTFhN2QtNDI0OC05MWVjLTViNjgzMTIxYjAxZCIsInJldmlzaW9uIjo4fSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiU0QiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlBSRCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2OmM4NGRmYTk2NzRlNzRkM2E5ZmMyOWFhYWQ5M2FiNGRhOGE4ZjYzMmU3NWM2Mzc5N2QwZGEwZDBhZWZmZDE3ZTgiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvYWdkZi1jb2NrcGl0LW1jcC1hcHAtMjAyNjEwMDUtMDEvU0RfTUFQUElOR19SRVZJRVctMDEuanNvbiIsInJldmlld2VyIjoiQ29kZXggaW1wbGVtZW50aW5nIGFnZW50OyBjb29wZXJhdGl2ZSBhcHByb3ZlZC1QUkQgZGVyaXZhdGlvbiByZXZpZXcsIG5vdCBpbmRlcGVuZGVudCBwcm9vZiJ9LCJydW5faWQiOiJhZ2RmLWNvY2twaXQtbWNwLWFwcC0yMDI2MTAwNS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6OGYzNzI5ODY2NTFjNDdhYTM3NmFjY2I5MDQ0YmRjMmFkODIyZGIxMDEyNzBmMWM3NmFjMGFiMDhlNDFkY2IxYyIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9hZ2RmLWNvY2twaXQtbWNwLWFwcC0yMDI2MTAwNS0wMS9QUkQubWQiLCJ0eXBlIjoiUFJEIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
+| b596b406-2c26-4850-a971-1846c8c88a6a | sha256:0567754f5f411aa80f410cbe728f4bf645493274ddc1a2ccc17e18d2bc1641e6 | eyJiaW5kaW5nX2lkIjoiYjU5NmI0MDYtMmMyNi00ODUwLWE5NzEtMTg0NmM4Yzg4YTZhIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmI0ZjAwZTYxNWFlOThkMGY1YzRmZGQyZTc0NTRjNmM4MmRkMmQxNGEwY2MwYjZhMGQ0M2IxMTNkN2NiYzM5NTUiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvYWdkZi1jb2NrcGl0LW1jcC1hcHAtMjAyNjEwMDUtMDEvVFAubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJUUCJ9LCJvcGVyYXRpb24iOnsiaWQiOiI0YWQwNmY4MC01MDFlLTRiMjQtYmQwMS1iNzk0YTIzZWFmZmYiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImFhNjA0NjUyLWY2OWUtNGFmMy1hZGEzLTg4NDg3NWMwOTUxNCIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImRkM2RlOWZjLWExZTMtNDg5OS1iNDkzLTBlZDA0MWY0ZTM5YSIsInJldmlzaW9uIjoxMH0sIm9yaWdpbiI6InJldmlld2VkX21hcHBpbmciLCJyZWxhdGlvbnNoaXAiOnsiZnJvbSI6IlRQIiwicmVsYXRpb25zaGlwIjoiZGVyaXZlZF9mcm9tIiwidG8iOiJTRCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2Ojc2MmIzMTQ1YjRlMmNlZmVjMDA3Y2EwNDkzYjg5ZTdjMmIyYjkwYmIyNmE4YWE2ODdlMjY1ZGFmNjM3MWRmYmEiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvYWdkZi1jb2NrcGl0LW1jcC1hcHAtMjAyNjEwMDUtMDEvVFBfTUFQUElOR19SRVZJRVctMDEuanNvbiIsInJldmlld2VyIjoiQ29kZXggaW1wbGVtZW50aW5nIGFnZW50OyBjb29wZXJhdGl2ZSBhcHByb3ZlZC1TRCBkZXJpdmF0aW9uIHJldmlldywgbm90IGluZGVwZW5kZW50IHByb29mIn0sInJ1bl9pZCI6ImFnZGYtY29ja3BpdC1tY3AtYXBwLTIwMjYxMDA1LTAxIiwic2NoZW1hX3ZlcnNpb24iOiIxIiwic291cmNlIjp7ImRpZ2VzdCI6InNoYTI1NjplMDc0YzMzYTExMTY4ZjRkNzZjMGFmODg1YzUxODY2OTBjMDkzNDk1MWZiMjRiOWRiZWM5YzMwNDI0ZDQ5OTU3IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2FnZGYtY29ja3BpdC1tY3AtYXBwLTIwMjYxMDA1LTAxL1NELm1kIiwidHlwZSI6IlNEIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
+
+## Missing Evidence
+
+| Missing evidence | Impact | Required next step |
+|---|---|---|
+| Post-update Codex T-006 display/context/message | Prior native display/read observed; full checkpoint remains unqualified | Establish fresh named connection; capture real host observations and deliberate probe outcomes |
+| Remaining TP implementation and scenarios | CD+Tests remains in_progress | Continue approved dependent work only after T-006 passes |
+| Current complete Copilot payload and compatibility | T-011 not fulfilled | Re-measure complete profile; correct bounded propagation and run compatibility checks |
+
+## Risks
+
+| Risk | Impact | Mitigation or owner |
+|---|---|---|
+| Closed current host transport | No usable native app or bridge proof | Exact named connection recovery; do not infer unsupported host methods |
+| Payload growth in first full sync | Cross-host packaging regression possible | Preserve baseline; implementing agent resolves T-011 before readiness |

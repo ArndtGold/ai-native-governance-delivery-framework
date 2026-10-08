@@ -1,0 +1,46 @@
+/* Shared action hierarchy. Compact adapters may reduce spacing, not change roles. */
+:root {
+  --agdf-action-color: var(--agdf-color-dark-900);
+  --agdf-action-border: var(--agdf-color-dark-200);
+  --agdf-action-hover-color: var(--agdf-color-agdf-700);
+  --agdf-action-hover-border: var(--agdf-color-agdf-700);
+}
+:root.dark, :root[data-theme='dark'] {
+  --agdf-action-color: var(--agdf-color-dark-100);
+  --agdf-action-border: var(--agdf-color-dark-700);
+  --agdf-action-hover-color: var(--agdf-color-agdf-200);
+  --agdf-action-hover-border: var(--agdf-color-agdf-500);
+}
+.btn-primary, .btn-ghost, .btn-nav {
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.btn-primary, .btn-ghost, .btn-nav,
+:where(.shell, .mcp-entry, .browser-card-layout) button {
+  border-radius: var(--agdf-radius-lg);
+  font-weight: var(--agdf-weight-semibold);
+  line-height: var(--agdf-leading-normal);
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+.btn-ghost, :where(.shell, .mcp-entry, .browser-card-layout) button {
+  padding: var(--agdf-space-3) var(--agdf-space-6);
+  border: 1px solid var(--agdf-action-border);
+  background: transparent; color: var(--agdf-action-color);
+}
+.btn-ghost:hover, :where(.shell, .mcp-entry, .browser-card-layout) button:hover {
+  border-color: var(--agdf-action-hover-border);
+  background: transparent; color: var(--agdf-action-hover-color);
+}
+.btn-primary, :where(.shell, .mcp-entry, .browser-card-layout) button.primary {
+  padding: var(--agdf-space-3) var(--agdf-space-6);
+  border: 0; background: var(--agdf-color-agdf-700); color: #fff;
+}
+.btn-primary:hover, :where(.shell, .mcp-entry, .browser-card-layout) button.primary:hover {
+  background: var(--agdf-color-agdf-800); color: #fff;
+}
+.btn-nav {
+  padding: var(--agdf-space-2) var(--agdf-space-4);
+  border: 1px solid color-mix(in srgb, var(--agdf-color-agdf-600) 60%, transparent);
+  background: color-mix(in srgb, var(--agdf-color-agdf-950) 60%, transparent);
+  color: var(--agdf-color-agdf-100);
+}
+.btn-nav:hover { border-color: var(--agdf-color-agdf-400); }

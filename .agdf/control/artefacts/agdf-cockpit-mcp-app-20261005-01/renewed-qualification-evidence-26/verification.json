@@ -1,0 +1,188 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-07T15:41:13.231Z",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "starting_revision_id": "7bc8fd2f-5651-4911-8dec-d57da5a229a0",
+  "authorizes": false,
+  "head": "5444aab1a5567d77cc13bfe11df11f596e642703",
+  "earlier_observed_head": "20cf9c9b5ac8587d43d0bc3cbe673635e468e440",
+  "head_change_actor": "not established; no VCS write by this continuation",
+  "results": {
+    "core_initial": {
+      "total": 56,
+      "pass": 55,
+      "fail": 1,
+      "reason": "linked approval correctly synchronizes its Backlog row; old fixture assumed otherwise"
+    },
+    "core_scoped_corrected": {
+      "total": 7,
+      "pass": 7,
+      "fail": 0,
+      "unlinked_real_approval": true,
+      "linked_real_approval_invalidates_both_readers": true,
+      "app_only_no_write": true,
+      "qualification": "50 unaffected passing initial cases plus seven corrected scoped cases; not a single rerun of all 57"
+    },
+    "ui": {
+      "files": 10,
+      "tests": 113,
+      "pass": 113
+    },
+    "writer": {
+      "backlog_cases": 14,
+      "source_revision_cases": 20,
+      "transaction_boundary_suite": "pass"
+    },
+    "browser": {
+      "fixed_assets": true,
+      "total": 15,
+      "pass": 15,
+      "light_dark": true,
+      "widths": [
+        320,
+        560,
+        800,
+        1280
+      ],
+      "navigation_no_write": true
+    },
+    "protocol": {
+      "cockpit_old_tuple": [
+        "2025-11-25",
+        "2026-07-28"
+      ],
+      "cockpit_new_tuple": [
+        "2025-11-25",
+        "2026-07-28"
+      ],
+      "default_profile": [
+        "2025-11-25",
+        "2026-07-28"
+      ],
+      "result": "pass actual stdio, not host qualification"
+    }
+  },
+  "frozen_browser_assets": {
+    "assets/inter-latin-wght-normal-Dx4kXJAl.woff2": "sha256:3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62",
+    "assets/jetbrains-mono-latin-wght-normal-B9CIFXIH.woff2": "sha256:18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e",
+    "assets/main-DQ7RQOuG.js": "sha256:5eca3888624cc581d588a7315a253a63bf4d9fdd63e3b45cfbbaecf338bd0ce9",
+    "assets/main-lXyUuj_s.css": "sha256:d89efb1220258a47820b876a066469b5924ab6ff84e4e56310ad746281f298de"
+  },
+  "changed_test_sources": [
+    {
+      "path": "packages/core/test/cockpit-scoped-read-test.js",
+      "digest": "sha256:8bc807ab3877c27c8f0d9c5a04c3e9d743c0c317e8c7a98cf20ddef1a2379a26"
+    },
+    {
+      "path": "packages/control-ui/test/browser/server-fixture.mjs",
+      "digest": "sha256:ca63e8cbeae7942e661ff9c0ed550b5e05748499c2b6eb46937551328fbb4bfa"
+    },
+    {
+      "path": "packages/control-ui/test/browser/backlog.spec.mjs",
+      "digest": "sha256:82d94b97ca7ecab61275ba487d9426e5ffa044332137a4e10efff81bd36204d7"
+    },
+    {
+      "path": "packages/control-ui/test/browser/backlog-titles.spec.mjs",
+      "digest": "sha256:75e4f5d284aa21645ef67c735e70ca1cf38da84e1cdd5380dc97d02ab53685bc"
+    },
+    {
+      "path": "packages/control-ui/test/browser/scoped.spec.mjs",
+      "digest": "sha256:a2d39ac939fbc4f23f2d9825e222a8e765ba89796063d103f7c3b12833840569"
+    },
+    {
+      "path": "packages/control-ui/test/browser/journeys.spec.mjs",
+      "digest": "sha256:a6a58095d0f67764cb90bac546fadc0dd1df7fa3365d6df92e84c40d54fbcbb9"
+    },
+    {
+      "path": "packages/control-ui/README.md",
+      "digest": "sha256:f75154f9e576f48614b4a04af3d75f4b7159d3f3eacaf0c377aa0d60a25bdcb4"
+    }
+  ],
+  "approved_source_digests": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "5b689f0855e9523a7e291b06086cd79b2b5533b6248fc85706349eb4b416a3cc",
+    "TP": "d67074d42aea32553247aafdc50ba91a5ae081ec1ad27fac649b1684c5b64509"
+  },
+  "protected_diagram_digest": "sha256:b5bfbb74afd100e5dda4a7ae56df978c99e1cf4ce57e10239782c7448d9a90bf",
+  "native": {
+    "previous_reading_checkpoint": "HOST_BACKLOG_TITLE_EVIDENCE-25.md pass on its recorded tuple only",
+    "latest_actions": "both views deliberate refresh fail read_failed; named render tool returns Transport closed",
+    "new_contexts": 0,
+    "new_questions": 0,
+    "app_only_window_files": 3560,
+    "canonical_bytes_unchanged": true,
+    "loaded_old_html_digest": "sha256:e1a3ff7d30d573927fcdd04c0278d74e40636a5455ca7f83d2691b19524cf04e",
+    "prepared_new_ui_digest": "sha256:d110a0e1b3c2ea99e0b95c6caa1f3d6dc6f864328e2a9fab1bacc099b9c54f23",
+    "prepared_new_server_digest": "5cc840999fc07a3cc996889dfbfb6728b3efa150a8332adf9dee9c88790bc8d9",
+    "prepared_new_dispatcher_digest": "8366988e6bc057a8ce67fc533dc51c030c3dfb0ae9446280801921595c65c15c",
+    "runtime_replacement_actor": "not established; observed metadata/digest/time change outside these verification commands"
+  },
+  "remaining": [
+    "Fresh native feasibility against the replacement registered tuple before dependent expansion",
+    "Current native source/context/question and concurrent publication/refusal/release/recovery/rollback qualification; no accepted historical question replay",
+    "Complete approved TP fulfillment and mandatory reviews, QA/UAT/OR"
+  ],
+  "files": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-core-renewed-26.log",
+      "digest": "sha256:46863d944d8135fb3de9c56029d0890a052ab815ad590a53a963daa4d3e77af6"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-scoped-renewed-26-fixed3.log",
+      "digest": "sha256:85b08c5824c3f80ab3766ea6bb4e9f45bcbede4867044af0957a5357e4061858"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-ui-renewed-26.log",
+      "digest": "sha256:0346ddb464f25190f961c7349232a7bdad2243162c2a92e7d6b4d797c7e8a092"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-writer-renewed-26.log",
+      "digest": "sha256:0b55f68ff89816004e452d17d135c2d1ef82e26718f0cdb3565b282ca1ca1ed2"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-protocol-renewed-26.log",
+      "digest": "sha256:a10faa1065dea9838f4fba9c3059ba8c3d8cb283c3a86f9bcb498db6095db605"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-default-protocol-renewed-26.log",
+      "digest": "sha256:8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-protocol-new-tuple-26.log",
+      "digest": "sha256:649c940524559022bd517118ee3dae5dbfc4f4045892e3e12635b678ca51ea4b"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-browser-renewed-26.log",
+      "digest": "sha256:cbced0630cd13b500b8f2063b61e7074f31daa71cb7593550787e3ce6e5f8bf9"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-browser-renewed-26-fixed.log",
+      "digest": "sha256:e8cd873fa18c3e35381db16f026060bae07f8f5c128a2747509ac950c76b8aaa"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-browser-frozen-26.log",
+      "digest": "sha256:610b6abe1ad9e81f146bd48bba188b15ba7b13016739c17c0caa6633256f4971"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-removal-browser-renewed-26.log",
+      "digest": "sha256:d0b8e6c3749b604f2a64effcde413d6995c2d8dacf08925d9b4fd7ab5ef7a675"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-native-window-26-before.json",
+      "digest": "sha256:b1becb376fffe3af14df997b9d2eae15a4903b4c4f1de0a3e0e8f870c3ef2832"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-native-window-26-after.json",
+      "digest": "sha256:794264386bb87f87f31f42cc6ef4df79a4d4fff05ee1465856f8aed4e92ec6b9"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-native26-closed.png",
+      "digest": "sha256:f7a072bbb8d06468a716bec55962d12013e26195d684b7c55d52065e56f10c90"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/renewed-qualification-evidence-26/cockpit-native26-closed-dom.txt",
+      "digest": "sha256:e24aa62884355789d79dc5aec11bf7647ff78dc2c061fe6721f01d60e189f223"
+    }
+  ]
+}

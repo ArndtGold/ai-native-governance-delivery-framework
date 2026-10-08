@@ -1,0 +1,12 @@
+# Established conversation Run: opening instruction correction
+
+- Run: agdf-cockpit-mcp-app-20261005-01
+- Date: 2026-10-06
+- Status: implemented and protocol-verified; fresh native host discovery remains open.
+- Trigger: the user observed overview-only opening despite the established conversation Run, asked whether instructions require the Run ID, then explicitly requested the instruction fix.
+- Scope: clarify the existing approved explicit initial Run focus under SD section 4.2.1 and TP T-004/T-005. Preserve the existing optional wire field, empty overview, user-selected identity, validation and non-authorizing read boundary; no approved source or acceptance bytes changed.
+- Brownfield reuse: the canonical tool definition is packages/core/lib/control-inspect/cockpit-contract.js. The runtime publishes this same definition through existing composition; generated CLI assets and the isolated local profile are refreshed through their current owners. README documents the same invocation rule. No separate host policy or run-assignment owner is introduced.
+- Rule: pass the Run ID when the request names it or the conversation unambiguously establishes it with the user, including a later generic “open the cockpit” request. Empty arguments are for expressly requested overall overview or absent unambiguous Run context. Ask when several Runs could be intended. Directory, recency and inventory never choose the Run.
+- Verification: seven existing Core session tests pass; existing actual stdio MCP tests pass under 2025-11-25 and 2026-07-28, including empty/direct opening, strict selectors, supersession, read-only containment and unchanged default tools. Fresh clients under both protocols return the exact revised model-facing description; see OPENING_INSTRUCTION_VERIFICATION.json. git diff --check passes.
+- Local profile: preparation preserved the owned project config byte-for-byte and stopped only the two exact named cockpit processes. Dispatcher digest: dab36bbe91b4d3da2ce6d15d74e9d8f1a429156a1ba75b2521831c29393b0a1b. Server/UI digests remain cb81b9820ff7b21761d7aa453d7caefb30d4f99302234377270946af9c609521 / sha256:08e8923bac3ceb79d3bbd15c9f36aee6052956181dfab2ab6082dab7a82f4454; UI source was unchanged.
+- Evidence boundary: instruction publication is verified, not guaranteed future model compliance. Current Codex discovery still exposes the prior description; a new host connection must load this descriptor. Native selected-Run display remains a separate SCN-045 checkpoint, and full T-006 / QA / UAT / OR are not claimed complete.

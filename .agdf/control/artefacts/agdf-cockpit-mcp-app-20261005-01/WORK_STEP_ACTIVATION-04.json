@@ -1,0 +1,190 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision_id": "c28359fc-a9c4-4e94-9eff-f10f2c02ee9a",
+  "source_revision": 78,
+  "observed_at": "2026-10-07T07:12:11.748633+00:00",
+  "requested_action": "aktiviere es",
+  "status": "registered_runtime_refreshed_native_reconnect_pending",
+  "activation_receipt": {
+    "schema_version": "1",
+    "observed_at": "2026-10-07T07:09:41.364Z",
+    "requested_action": "explicit user activation: aktiviere es",
+    "status": "current_production_prepared_for_fresh_connection",
+    "replaced_only_named_project_runtime": true,
+    "stopped_connections": [
+      {
+        "pid": 36547,
+        "parent": 31624,
+        "exact_command": "/usr/local/Cellar/node@22/22.22.3/bin/node /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js --surface codex --cockpit-dir /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+      },
+      {
+        "pid": 45625,
+        "parent": 31624,
+        "exact_command": "/usr/local/Cellar/node@22/22.22.3/bin/node /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js --surface codex --cockpit-dir /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+      }
+    ],
+    "config_restored": true,
+    "config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+    "prepared_runtime": {
+      "schema_version": "1",
+      "profile": "codex-cockpit",
+      "name": "agdf-cockpit-local",
+      "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "version": "0.14.5",
+      "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+      "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+      "server_digest": "860fc509b9e0b7a3ae8e75dd606d748924f62449429aa079f06c620c87234515",
+      "dispatcher_digest": "a8b539760c8ec5e016d06dff5f49f5a8e4ff35dd426cd31191d91e4802bdda34",
+      "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+      "ui": {
+        "schema_version": "1",
+        "uri": "ui://agdf/cockpit/v1.html",
+        "mime_type": "text/html;profile=mcp-app",
+        "bytes": 1026046,
+        "digest": "sha256:75972110ba916128d1c150584bc10f2923fd6973105ea1bfa2bddc3db7b6333a"
+      },
+      "activated": false,
+      "authorizes": false
+    },
+    "actual_native_load": "not_yet_observed",
+    "historical_host_context_erasure": "not_claimed",
+    "authorizes": false
+  },
+  "protocol": {
+    "status": "pass",
+    "evidence_class": "actual_stdio_protocol_not_host_ui",
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-011",
+          "SCN-013",
+          "SCN-020",
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046",
+          "SCN-050",
+          "SCN-052",
+          "SCN-053",
+          "SCN-054"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      },
+      {
+        "protocol": "2026-07-28",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-011",
+          "SCN-013",
+          "SCN-020",
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046",
+          "SCN-050",
+          "SCN-052",
+          "SCN-053",
+          "SCN-054"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      }
+    ],
+    "server_digest": "860fc509b9e0b7a3ae8e75dd606d748924f62449429aa079f06c620c87234515",
+    "ui_digest": "sha256:75972110ba916128d1c150584bc10f2923fd6973105ea1bfa2bddc3db7b6333a"
+  },
+  "fresh_readback": {
+    "status": "pass",
+    "observed_at": "2026-10-07T07:11:13.878Z",
+    "evidence_class": "fresh_registered_entrypoint_stdio_not_native_host",
+    "owned_runtime_status": "matched",
+    "control_unchanged": true,
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "ui_digest": "sha256:75972110ba916128d1c150584bc10f2923fd6973105ea1bfa2bddc3db7b6333a",
+        "ui_bytes": 1026046,
+        "inventory_state": "partial",
+        "run_state": "available",
+        "run_id": "agdf-cockpit-mcp-app-20261005-01",
+        "revision_id": "c28359fc-a9c4-4e94-9eff-f10f2c02ee9a",
+        "assessment": {
+          "state": "open",
+          "authorizes": false
+        }
+      },
+      {
+        "protocol": "2026-07-28",
+        "ui_digest": "sha256:75972110ba916128d1c150584bc10f2923fd6973105ea1bfa2bddc3db7b6333a",
+        "ui_bytes": 1026046,
+        "inventory_state": "partial",
+        "run_state": "available",
+        "run_id": "agdf-cockpit-mcp-app-20261005-01",
+        "revision_id": "c28359fc-a9c4-4e94-9eff-f10f2c02ee9a",
+        "assessment": {
+          "state": "open",
+          "authorizes": false
+        }
+      }
+    ]
+  },
+  "native_open": {
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "is_error": true,
+    "message": "Transport closed",
+    "loaded_build": "unobserved",
+    "question_sent": false
+  },
+  "approved_source_hashes": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "readback_initial_attempt": "Failed before Run read: assumed full inventory available, actual partial. Corrected harness accepts readable available/partial inventory; selected Run must remain available and UI digest/byte equality remain exact. Production unchanged. Failure retained.",
+  "authorizes": false,
+  "evidence": {
+    "activation-receipt.json": {
+      "sha256": "202ae348bdfb4ce6bd19f1e8a3a95d1ba361341786b0f81da077ad9d4394095e",
+      "bytes": 2480
+    },
+    "protocol.log": {
+      "sha256": "37f1b16985c37f2dc96c06486c8dd05ca35e8e3500df731c0f9a69f362fb116a",
+      "bytes": 839
+    },
+    "fresh-readback.json": {
+      "sha256": "38ae9d31f8521e155999793696695fb765622517fc5ec7629c2dfbb53c107298",
+      "bytes": 861
+    },
+    "initial-readback-failed.stderr": {
+      "sha256": "74832a239ba10fb5ff056ca0b5d35f0ccab1d4348962e0008afba3d6aa94bdc9",
+      "bytes": 746
+    },
+    "activation-helper.mjs": {
+      "sha256": "e940ea740ec423c7f02ed382fd4a59059f1ae0601bb0ea41f2e6b01bd3422e3e",
+      "bytes": 4575
+    },
+    "fresh-readback-helper.mjs": {
+      "sha256": "d63d7a58bc6c61ad6f95439e5454bda000b931b2a953c6b6d8194a8f657bcc91",
+      "bytes": 2819
+    }
+  }
+}

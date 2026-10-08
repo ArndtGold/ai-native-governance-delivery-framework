@@ -1,0 +1,49 @@
+{
+  "outcome": "reopened",
+  "authorizes": false,
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "operation_id": "48c8dbaf-02d6-462f-9344-a40bae280096",
+  "gate": "SD",
+  "revision_id": "80265afe-c575-4e9f-a745-312bd94a062e",
+  "revision": "84",
+  "impact": {
+    "source_gate": "SD",
+    "retained": [
+      "UR",
+      "PRD"
+    ],
+    "superseded": [
+      "SD",
+      "TP"
+    ],
+    "invalidated_bindings": [
+      "17df981f-2f72-43b4-8806-c621e4fc69fd",
+      "23404522-8c48-43c6-8abd-31995aa9da0d"
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7d253cc02529f9d07d44d3dab3c390a18fc7b679ad0ffd1407816495f73b5f95",
+        "reason": "Existing Structured Delivery analysis covers shared Core reads, source ownership, runtime/host boundaries and bounded evidence. No new authority, persistence, host or evaluator is introduced; renewed post-TP Brownfield preparation must validate the scoped dependency design."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:09783d6bf308353e687aafd92819060150427c00a57833a7a249eca54713696a",
+        "reason": "Existing orientation-select-inspect modes, stored versus current source identity, explicit failure and deliberate contextual use remain. Backlog-only start and direct Run start preserve these intentions with honest source scope and requested-ID error feedback."
+      }
+    ],
+    "invalidated_steps": [
+      "Brownfield Analysis",
+      "CD+Tests",
+      "CR"
+    ],
+    "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+    "next_gate": "SD",
+    "implementation_authority": false
+  },
+  "next_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved."
+}

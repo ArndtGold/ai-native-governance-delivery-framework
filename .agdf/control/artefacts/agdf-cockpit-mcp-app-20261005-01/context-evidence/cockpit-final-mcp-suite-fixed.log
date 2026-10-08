@@ -1,0 +1,55 @@
+
+> @agdf/mcp-server@0.14.5 test
+> npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+
+
+> @agdf/mcp-server@0.14.5 test:contract
+> node ./test/contract.test.js
+
+AGDF MCP semantic contract tests passed.
+
+> @agdf/mcp-server@0.14.5 test:continuation
+> node ./test/continuation.test.js
+
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+
+> @agdf/mcp-server@0.14.5 test:late-source-revision
+> node ./test/late-source-revision.test.js
+
+Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).
+
+> @agdf/mcp-server@0.14.5 test:protocol
+> node ./test/protocol.test.js && node ./test/skill-names.test.js
+
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+
+> @agdf/mcp-server@0.14.5 test:safety
+> node ./test/safety.test.js
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: module runtime/core/lib/control-read/snapshot.js exceeds its declared filesystem write boundary
++ actual - expected
+
++ [
++   'openSync'
++ ]
+- []
+
+    at assertWriteBoundary (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/safety.test.js:68:10)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/safety.test.js:79:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [ 'openSync' ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

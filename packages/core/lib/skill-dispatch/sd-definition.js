@@ -1,4 +1,5 @@
 import { extractField } from "../control-evaluation/verified-change.js";
+import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 
 // Pure assignment over evaluated state and checked source facts; no writer or approval.
 export function sdDefinitionPhase(targetDir, control, input, sources) {
@@ -27,7 +28,8 @@ export function sdDefinitionPhase(targetDir, control, input, sources) {
       && control.sd_readiness?.ready !== false && control.traceability_readiness?.ready !== false) return null;
   return Object.freeze({
     phase: "sd_definition", skill_id: "sd-definition", governance_target: targetDir,
-    run_id: input.run_id, revision_id: revisionId, presentation_language: input.presentation_language,
+    run_id: input.run_id, revision_id: revisionId,
+    ...resolveArtifactPresentationLanguages(targetDir, input.presentation_language),
     artifact_path: artifactPath, source_artifacts: Object.freeze(sources.map(s => s.path)),
     sources: Object.freeze(sources.map(s => Object.freeze({ ...s }))), draft_registered: registered,
     instruction: "Execute sd-definition from these exact approved/analytical inputs and confirmed answers. Require actual editing intent before changing a ready draft. Preserve approved product authority, declare sd-decisions-v1, retain material open decisions and criteria-chain-v1. Use the shared typed recording procedure, then redispatch gate-check. Neither assignment nor authoring approves a gate; changed content needs fresh presentation and a new deliberate Approval: SD.",

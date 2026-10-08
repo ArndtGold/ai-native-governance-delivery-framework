@@ -1,13 +1,16 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { prepareGateApproval } from "./run-recording.js";
 import { readRun } from "./run-state-edits.js";
-import { parseControlState } from "./run-state-parser.js";
+import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { runSealState } from "./run-seal.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { appendApprovalOperation, readApprovalOperations } from "./approval-operations.js";
 import { approvalRequestDigest, commandBinding, COOPERATIVE_ASSURANCE, ownDataValue, resolveControlCommandTarget, validateApprovalCommand } from "./approval-command-contract.js";
-import { flushRunCommit, withRunLock, writeRunLocked } from "./run-state-writer.js";
+import { flushRunCommit } from "./run-state-writer.js";
+import { withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+import { backlogSkip } from "./run-backlog.js";
 
 function sealIsValid(root, content) {
   try { return runSealState(root, content).status === "valid"; } catch { return false; }
@@ -28,7 +31,7 @@ function observe(root, command, evaluateGateCheck) {
 // Internal dependencies expose I/O checkpoints for deterministic fault/process tests. The public
 // facade supplies only canonical policy, Git observations and package metadata, never caller policy.
 export function executeApprovalCommand(root, command, { evaluateGateCheck, packageVersion,
-  checkpoint = () => {}, flush = flushRunCommit } = {}) {
+  checkpoint = () => {}, flush = flushRunCommit, afterWrite } = {}) {
   let target, requestDigest, path, snapshot;
   const result = (outcome, reason = null, receipt = null, details = {}) => Object.freeze({
     schema_version: "1", outcome, reason,
@@ -55,7 +58,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
     return result("rejected", "run_path_invalid");
   }
   try {
-    return withRunLock(path, () => {
+    return withRunBacklogLock(target.root, path, () => {
       const run = readRun(target.root, command.run_id);
       if (run.rejection) return result("recovery_required", run.rejection.reason);
       snapshot = run.content;
@@ -85,12 +88,13 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
           next_gate_after_approval: prepared.after.current_gate, allowed_after_approval: prepared.after.next_allowed_action },
       };
       checkpoint("before_final_validation");
-      writeRunLocked(path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
+      const written = writeRunWithBacklogLocked(target.root, path, appendApprovalOperation(prepared.next, receipt), command.expected_revision_id, {
         allowApprovalChange: true, expectedContent: run.content, appendedReceipt: receipt,
-        nextRevisionId: receipt.effect.resulting_revision_id, validateBeforeWrite: prepared.validateBeforeWrite, checkpoint,
+        nextRevisionId: receipt.effect.resulting_revision_id, validateBeforeWrite: prepared.validateBeforeWrite,
+        validateDuringTransaction: prepared.validateDuringTransaction, checkpoint, afterWrite,
       });
       checkpoint("before_response");
-      return result("accepted", null, receipt);
+      return result("accepted", null, receipt, backlogSkip({ status: written.backlog, reason: written.backlog_reason }));
     }, { checkpoint });
   } catch (error) {
     if (error.message === "AGDF_RUN_WRITE_LOCKED") return result(error.lock_owner_status === "unknown" ? "recovery_required" : "retryable_failure",
@@ -98,7 +102,16 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
     if (error.message === "AGDF_STALE_RUN_REVISION") return result("rejected", "stale_revision", null,
       { recovery: "Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply." });
     // Rename can succeed before sync or lock release fails. Never infer absence from an exception.
-    const current = readRun(target.root, command.run_id);
+    let current = readRun(target.root, command.run_id);
+    // A committed receipt remains observable while its Backlog journal is pending.
+    // This acknowledgement is recovery-required, never a readiness/approval claim.
+    if (current.rejection?.reason === "run_step_recovery_required") {
+      try {
+        if (hasSymlinkComponent(target.root, relativePath) || containedRegularFile(target.root, relativePath).status !== "valid") throw Error("run_path_invalid");
+        const content = readFileSync(path, "utf8"), parsed = parseRunState(content, command.run_id);
+        if (parsed.valid) current = { content, meta: parsed.meta };
+      } catch { /* Preserve the unavailable observation. */ }
+    }
     if (!current.rejection && sealIsValid(target.root, current.content)) {
       const receipt = readApprovalOperations(current.content).receipts.find((item) => item.operation_id === command.operation_id);
       if (receipt?.request_digest === requestDigest) return result("recovery_required", "commit_acknowledgement_unconfirmed", receipt,

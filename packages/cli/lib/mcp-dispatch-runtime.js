@@ -8,8 +8,8 @@ import {
   parseSkillDispatchFunctionArguments,
   serializeSkillDispatchResult,
 } from "#agdf-core/skill-dispatch/contract.js";
-import { existsSync, lstatSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
+import { isAbsolute, join, resolve } from "node:path";
 import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArguments, serializeControlInspectResult } from "#agdf-core/control-inspect/contract.js";
 import { createInspectFailureResult } from "#agdf-core/control-inspect/service.js";
 import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.js";
@@ -21,6 +21,33 @@ import {
 } from "#agdf-core/runtime/plugin-provenance.js";
 
 const MCP_RUNTIME_OWNER = "create-agdf:mcp-runtime";
+
+export async function createMcpCockpitRuntime({ surface, cockpitDir, inspected = inspectMcpDispatcherRuntime() } = {}) {
+  if (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir)) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
+  let root;
+  try { root = realpathSync(cockpitDir); if (!lstatSync(root).isDirectory()) throw Error(); }
+  catch { throw new TypeError('AGDF_COCKPIT_TARGET_INVALID'); }
+  const [{ COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS, parseCockpitArguments },
+    { createCockpitSessionService }, { READ_LIMITS }] = await Promise.all([
+    import("#agdf-core/control-inspect/cockpit-contract.js"),
+    import("#agdf-core/control-inspect/cockpit-session.js"),
+    import("#agdf-core/control-read/snapshot.js"),
+  ]);
+  const session = createCockpitSessionService(root);
+  const tools = [
+    { name: COCKPIT_RENDER_DEFINITION.name, definition: COCKPIT_RENDER_DEFINITION,
+      parse: value => parseCockpitArguments(value, true), execute: value => session.render(value) },
+    { name: COCKPIT_READ_DEFINITION.name, definition: COCKPIT_READ_DEFINITION,
+      parse: parseCockpitArguments, execute: (value, signal) => session.read(value, signal) },
+  ];
+  // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
+  return Object.freeze({ mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools,
+    uiCapabilityRequired: surface === 'claude', responseLimit: READ_LIMITS.response,
+    ui: Object.freeze({ uri: COCKPIT_UI_URI, mimeType: COCKPIT_MIME, limit: COCKPIT_LIMITS.html }),
+    serialize: value => JSON.stringify(value), failure: code => session.failure(code), close: () => session.close(),
+    trustedContext: Object.freeze({ surface, expectedVersion: inspected.expectedVersion, provenanceStatus: inspected.provenanceStatus }),
+  });
+}
 
 function readOwnedRuntimeMarker(dispatcherDigest) {
   const root = resolve(packageRoot, "..", "..");

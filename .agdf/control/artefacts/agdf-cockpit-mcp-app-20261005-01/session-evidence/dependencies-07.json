@@ -1,0 +1,37 @@
+{
+  "schema_version": "1",
+  "scenarios": [
+    "SCN-029",
+    "SCN-033"
+  ],
+  "evidence_class": "current_owned_package_lock_and_bundle_inspection",
+  "status": "pass",
+  "packages": {
+    "@modelcontextprotocol/ext-apps": {
+      "version": "2.0.3",
+      "integrity": "sha512-Tn+4+cyhO4f4cQSDxNyLiIfEE+qlTTuIbWBJB8JTinEXOhDYgCT4wDTQplxD9MBYZH5pCYGC59GaxiwIT4bu8w=="
+    },
+    "@modelcontextprotocol/client": {
+      "version": "2.0.0",
+      "integrity": "sha512-8f1OghQ2rjzIOfqgUCP+8GiUWqRs89njoWLNqAe8kWmDePv3s1fZXseej+QXemssEuuOvLLmLO/kqM3IQHtISw=="
+    },
+    "@modelcontextprotocol/core": {
+      "version": "2.0.0",
+      "integrity": "sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA=="
+    },
+    "zod": {
+      "version": "4.2.0",
+      "integrity": "sha512-Bd5fw9wlIhtqCCxotZgdTOMwGm1a0u75wARVEY9HMs1X17trvA/lMi4+MGK5EUfYkXVTbX8UDiDKW4OgzHVUZw=="
+    }
+  },
+  "private_server_no_frontend_packages": true,
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1023355,
+    "digest": "sha256:2da0c09c9921220c127f782de0e7281f9243f5fe17246cc423175c92e2143e5f"
+  },
+  "self_contained_scripts_and_css": true,
+  "authorizes": false
+}

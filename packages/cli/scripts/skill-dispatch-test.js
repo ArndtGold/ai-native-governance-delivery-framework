@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "#agdf-core/skill-dispatch/contract.js";
 import { createSkillDispatchService } from "#agdf-core/skill-dispatch/service.js";
+import { CD_TESTS_NEXT_ALLOWED_ACTION } from "#agdf-core/control-evaluation/gate-policy.js";
 import { deliveryIntakePhase } from "#agdf-core/skill-dispatch/delivery-intake.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
@@ -508,6 +509,35 @@ assert.deepEqual(brownfieldContinuation.continuation.runtime_contracts, ["contra
 assert.match(brownfieldContinuation.continuation.instruction, /before CD\+Tests/u);
 assert.match(brownfieldContinuation.continuation.instruction, /without continue_delivery/u);
 assert.equal(runtimeContractReads.at(-1), "brownfield-analysis");
+// After a recorded Brownfield Analysis the implementation continuation depends on the effective
+// next step equalling the shared CD+Tests constant; run-specific same-gate text still stops it.
+const implementationDispatch = (nextAllowedAction) => createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    status: "open",
+    current_gate: "CD+Tests",
+    blocking_reason: "none",
+    missing_approval: "none",
+    next_allowed_action: nextAllowedAction,
+    revision_id: "analysed-revision",
+    status_presentation: { markdown: "## AGDF-Statuskarte" },
+    status_card: {
+      run_id: "delivery-run",
+      mode_slice_decision: structuredRoute,
+      breadcrumb: [{ gate: "TP", status: "fulfilled" }],
+      runState: { content: "- revision_id: analysed-revision" },
+    },
+  }),
+  readSkillRuntimeContracts: (skillId) => [`contracts:${skillId}`],
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+const implementation = implementationDispatch(CD_TESTS_NEXT_ALLOWED_ACTION);
+assert.equal(implementation.outcome, "skill_continuation");
+assert.equal(implementation.continuation.phase, "implementation");
+assert.equal(implementation.continuation.revision_id, "analysed-revision");
+const pendingDecision = implementationDispatch("Choose whether AC-006 stays open under this TP.");
+assert.notEqual(pendingDecision.continuation?.phase, "implementation", "a pending same-gate decision must not start implementation");
 let orStatus = "missing";
 const postUatDispatch = createSkillDispatchService({
   resolveTaskTarget: () => resolved,

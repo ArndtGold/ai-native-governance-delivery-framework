@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+not ok 1 - SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+  ---
+  duration_ms: 1021.283463
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:19:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+  ...
+# Subtest: SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+ok 2 - SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+  ---
+  duration_ms: 481.290089
+  type: 'test'
+  ...
+# Subtest: SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+not ok 3 - SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+  ---
+  duration_ms: 617.1783
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:78:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+  ...
+# Subtest: SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+not ok 4 - SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+  ---
+  duration_ms: 698.913704
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:86:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+  ...
+# Subtest: SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+not ok 5 - SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+  ---
+  duration_ms: 984.216407
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:98:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 1
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4583.866674

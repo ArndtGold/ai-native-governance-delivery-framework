@@ -1,11 +1,11 @@
+@import './design-tokens.css';
+@import './fonts.css';
+@import './surfaces.css';
+@import './actions.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-    --agdf-glow: rgba(20, 184, 166, 0.30);
-    --shadow-card: 0 1px 0 rgba(148, 163, 184, 0.06) inset, 0 18px 48px -28px rgba(2, 6, 23, 0.88);
-}
 
 html { scroll-behavior: smooth; }
 
@@ -20,8 +20,8 @@ body {
 ::selection { @apply bg-agdf-500/30 text-white; }
 
 :focus-visible {
-    outline: 3px solid rgb(94 234 212);
-    outline-offset: 3px;
+    outline: var(--agdf-focus-width) solid var(--agdf-focus-color);
+    outline-offset: var(--agdf-focus-offset);
 }
 
 section[id] { scroll-margin-top: 4.5rem; }
@@ -52,16 +52,6 @@ section[id] { scroll-margin-top: 4.5rem; }
     mask-image: radial-gradient(ellipse at center, black, transparent 78%);
 }
 .hero-grid > div { position: relative; }
-
-.surface {
-    @apply rounded-2xl border border-dark-700/80 bg-dark-900/65;
-    box-shadow: var(--shadow-card);
-}
-
-.controlled-card {
-    @apply border-agdf-500/50 bg-agdf-950/35;
-    box-shadow: 0 1px 0 rgba(153, 246, 228, 0.12) inset, 0 24px 64px -38px var(--agdf-glow);
-}
 
 .logo-orbit {
     position: absolute;
@@ -107,16 +97,6 @@ section[id] { scroll-margin-top: 4.5rem; }
 .metric { @apply rounded-xl border border-dark-700 bg-dark-950/60 p-4; }
 .metric dt { @apply text-xs font-medium uppercase tracking-wide text-slate-400; }
 .metric dd { @apply mt-2 font-mono text-xl font-bold text-agdf-200; }
-
-.btn-primary,
-.btn-ghost,
-.btn-nav {
-    @apply inline-flex items-center justify-center rounded-lg font-semibold transition-colors;
-}
-.btn-primary { @apply bg-agdf-600 px-6 py-3 text-white hover:bg-agdf-500; }
-.btn-ghost { @apply border border-dark-700 px-6 py-3 text-dark-100 hover:border-agdf-500 hover:text-agdf-200; }
-.btn-nav { @apply border border-agdf-600/60 bg-agdf-950/60 px-4 py-2 text-agdf-100 hover:border-agdf-400; }
-.text-link { @apply items-center gap-2 font-semibold text-agdf-300 hover:text-agdf-100; }
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }

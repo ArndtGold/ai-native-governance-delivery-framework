@@ -1,0 +1,19 @@
+{
+  "SCN-018": {
+    "scenario_id": "SCN-018",
+    "criterion_id": "AC-007",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-010",
+    "tested_source_or_fixture": "browser recovery journey",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Browser observes error, retry, progress and recovery on the same journey; persistent failure offers repair outside cockpit and retains previous-data warning",
+    "actual_result": "error/retry/recovery on selected document; no implicit content replacement; removed selection explained",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "playwright-results.json",
+      "browser.log"
+    ]
+  }
+}

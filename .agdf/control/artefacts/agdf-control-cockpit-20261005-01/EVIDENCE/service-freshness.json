@@ -1,0 +1,21 @@
+{
+  "SCN-015": {
+    "scenario_id": "SCN-015",
+    "criterion_id": "AC-006",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-005",
+    "tested_source_or_fixture": "Core/service snapshot IDs + UI generation",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Snapshot replacement invalidates old IDs, concurrent readers cannot mix versions, and failed refresh retains a stale label rather than a current claim",
+    "actual_result": "old snapshot and resource selectors are invalidated on replacement; concurrent contexts cannot mix target/views; failed refresh retains old data with stale warning",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log",
+      "provider.log",
+      "ui-tests.log",
+      "playwright-results.json"
+    ]
+  }
+}

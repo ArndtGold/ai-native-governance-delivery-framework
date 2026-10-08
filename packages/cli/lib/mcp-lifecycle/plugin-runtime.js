@@ -1,7 +1,8 @@
 import { execFileSync, spawn } from "node:child_process";
 import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { isAbsolute, join, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
+import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
 import { digestDirectory, digestPluginMcpDispatcherSource, MCP_DISPATCHER_RUNTIME_ENTRIES } from "#agdf-core/runtime/plugin-provenance.js";
 import { inspectMcpServerPackage, mcpPackageConstants, prepareMcpServerPackage } from "./package.js";
 
@@ -52,6 +53,14 @@ function copyPluginPackages({ pluginRoot, stage, version }) {
   }, null, 2)}\n`, "utf8");
 }
 
+// Other launchers must see an outdated runtime either complete or absent, never half deleted: move it
+// aside atomically first. A launcher that loses the rename continues with the fresh inspection in prepare.
+function retireRuntimeRoot(root, now) {
+  const retired = join(dirname(root), `.retired-${basename(root)}-${process.pid}-${now}`);
+  try { renameSyncWithRetry(root, retired); } catch { return; }
+  rmSync(retired, { recursive: true, force: true });
+}
+
 function pruneMcpDataRoot(mcpDataRoot, version, now) {
   for (const name of readdirSync(mcpDataRoot)) {
     const path = join(mcpDataRoot, name);
@@ -60,7 +69,7 @@ function pruneMcpDataRoot(mcpDataRoot, version, now) {
     if (!stats.isDirectory() || stats.isSymbolicLink() || name === version) continue;
     // Plugin updates keep ${CLAUDE_PLUGIN_DATA}; retire owned runtimes of other versions and
     // stages abandoned by a launcher the host stopped mid-install.
-    const staleStage = name.startsWith(".stage-") && now - statSync(path).mtimeMs > STALE_STAGE_MS;
+    const staleStage = (name.startsWith(".stage-") || name.startsWith(".retired-")) && now - statSync(path).mtimeMs > STALE_STAGE_MS;
     if (staleStage || (!name.startsWith(".") && ownedRoot(path))) rmSync(path, { recursive: true, force: true });
   }
 }
@@ -96,7 +105,6 @@ export function ensurePluginMcpRuntime({
   const mcpDataRoot = join(resolve(dataRoot), "mcp");
   mkdirSync(mcpDataRoot, { recursive: true });
   pruneMcpDataRoot(mcpDataRoot, version, now);
-  let current = inspectMcpServerPackage({ dataRoot: mcpDataRoot, expectedVersion: version });
   const sourceServerDigest = digestDirectory(join(pluginRoot, "mcp", "server"));
   const sourceDispatcherDigest = digestPluginMcpDispatcherSource(join(pluginRoot, "runtime", "create-agdf"), version);
   // Without the override only a runtime holding exactly the shipped SDK tree is reused; one installed
@@ -105,49 +113,72 @@ export function ensurePluginMcpRuntime({
     && runtime.digest === sourceServerDigest
     && runtime.dispatcherDigest === sourceDispatcherDigest
     && (override || (runtime.sdkDigest === expected.sdk_digest && runtime.sdkVerification !== SDK_VERIFICATION.override));
-  if (usable(current)) return Object.freeze({ ...current, changed: false });
-  if (["matched", "mismatch"].includes(current.status) && ownedRoot(current.root)) {
-    rmSync(current.root, { recursive: true, force: true });
-  } else if (current.status !== "absent") {
-    throw new Error("AGDF_MCP_RUNTIME_UNOWNED");
-  }
-  try {
-    const prepared = prepareMcpServerPackage({
-      dataRoot: mcpDataRoot,
-      expectedVersion: version,
-      execPath,
-      exec,
-      npmOptions,
-      expectedSdk: override ? null : expected,
-      sdkVerification: override ? SDK_VERIFICATION.override : SDK_VERIFICATION.verified,
-      acquire({ stage, install, installLocked }) {
-        if (override) {
-          install([SDK_PACKAGE_SPEC]);
-        } else {
-          cpSync(join(sdkRoot, SDK_BUNDLE.manifest), join(stage, "package.json"));
-          cpSync(join(sdkRoot, SDK_BUNDLE.lock), join(stage, "package-lock.json"));
-          installLocked();
-        }
-        copyPluginPackages({ pluginRoot, stage, version });
-      },
-    });
-    prepared.commit();
-    return prepared;
-  } catch (error) {
-    // A concurrent session may have installed the same runtime first.
-    current = inspectMcpServerPackage({ dataRoot: mcpDataRoot, expectedVersion: version });
+  // After a plugin update several launchers replace the same runtime at once (Claude's version probe and
+  // respawn, every plugin server, reconnecting sessions); states they cause each other are retried briefly.
+  for (let attempt = 1; ; attempt += 1) {
+    const current = inspectMcpServerPackage({ dataRoot: mcpDataRoot, expectedVersion: version });
     if (usable(current)) return Object.freeze({ ...current, changed: false });
-    throw error;
+    try {
+      if (["matched", "mismatch"].includes(current.status) && ownedRoot(current.root)) {
+        retireRuntimeRoot(current.root, now);
+      } else if (current.status !== "absent") {
+        throw new Error("AGDF_MCP_RUNTIME_UNOWNED");
+      }
+      const prepared = prepareMcpServerPackage({
+        dataRoot: mcpDataRoot,
+        expectedVersion: version,
+        execPath,
+        exec,
+        npmOptions,
+        expectedSdk: override ? null : expected,
+        sdkVerification: override ? SDK_VERIFICATION.override : SDK_VERIFICATION.verified,
+        acquire({ stage, install, installLocked }) {
+          if (override) {
+            install([SDK_PACKAGE_SPEC]);
+          } else {
+            cpSync(join(sdkRoot, SDK_BUNDLE.manifest), join(stage, "package.json"));
+            cpSync(join(sdkRoot, SDK_BUNDLE.lock), join(stage, "package-lock.json"));
+            installLocked();
+          }
+          copyPluginPackages({ pluginRoot, stage, version });
+        },
+      });
+      prepared.commit();
+      return prepared;
+    } catch (error) {
+      // A concurrent launcher may have installed the same runtime first.
+      const settled = inspectMcpServerPackage({ dataRoot: mcpDataRoot, expectedVersion: version });
+      if (usable(settled)) return Object.freeze({ ...settled, changed: false });
+      if (attempt >= CONCURRENT_REPLACEMENT_ATTEMPTS || !concurrentReplacementError(error)) throw error;
+      sleepSync(CONCURRENT_REPLACEMENT_DELAY_MS * attempt);
+    }
   }
 }
 
-// Claude Code passes ${CLAUDE_PLUGIN_DATA} in the environment and needs no arguments. Codex and
-// Copilot declarations pass the surface and an absolute data root after host variable expansion.
+const CONCURRENT_REPLACEMENT_ATTEMPTS = 6;
+const CONCURRENT_REPLACEMENT_DELAY_MS = 150;
+
+// Only states another launcher can cause: a runtime moved away mid-inspection or a lost stage rename.
+// npm, SDK and verification failures are never retried.
+function concurrentReplacementError(error) {
+  return error?.message === "AGDF_MCP_RUNTIME_UNOWNED" || ["EPERM", "EEXIST", "ENOTEMPTY", "EBUSY", "ENOENT"].includes(error?.code);
+}
+
+function sleepSync(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+// Claude Code passes ${CLAUDE_PLUGIN_DATA} in the environment and needs no arguments; its cockpit entry
+// adds the project root Claude substitutes for ${CLAUDE_PROJECT_DIR}. Codex and Copilot declarations
+// pass the surface and an absolute data root after host variable expansion.
 export function parseLauncherArguments(argv, env = {}) {
   const args = [...argv];
   const prepareOnly = args.at(-1) === "--prepare";
   if (prepareOnly) args.pop();
   if (args.length === 0) return { surface: "claude", dataRoot: env.CLAUDE_PLUGIN_DATA, prepareOnly };
+  if (args.length === 2 && args[0] === "--cockpit-dir" && typeof args[1] === "string" && isAbsolute(args[1]) && !args[1].includes("${")) {
+    return { surface: "claude", dataRoot: env.CLAUDE_PLUGIN_DATA, cockpitDir: args[1], prepareOnly };
+  }
   if (args.length === 4 && args[0] === "--surface" && ["codex", "copilot"].includes(args[1]) && args[2] === "--data"
       && typeof args[3] === "string" && isAbsolute(args[3])) {
     return { surface: args[1], dataRoot: args[3], prepareOnly };
@@ -190,7 +221,7 @@ export async function launchPluginMcpServer({
     process.exitCode = 1;
     return null;
   }
-  const { surface, dataRoot, prepareOnly } = invocation;
+  const { surface, dataRoot, cockpitDir, prepareOnly } = invocation;
   let runtime;
   try {
     runtime = ensure({ pluginRoot, dataRoot, env });
@@ -209,7 +240,7 @@ export async function launchPluginMcpServer({
   }
   // The verified server runs as a child with inherited stdio, exactly as a direct registration
   // would start it; the launcher only forwards termination and the exit status.
-  const child = spawn(execPath, [runtime.entrypoint, "--surface", surface], { stdio: "inherit" });
+  const child = spawn(execPath, [runtime.entrypoint, "--surface", surface, ...(cockpitDir ? ["--cockpit-dir", cockpitDir] : [])], { stdio: "inherit" });
   for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => child.kill(signal));
   return new Promise((resolveExit) => {
     child.once("error", () => { stderr.write("AGDF_MCP_PLUGIN_RUNTIME_FAILED\n"); process.exitCode = 1; resolveExit(null); });

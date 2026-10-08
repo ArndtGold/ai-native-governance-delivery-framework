@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFileSync, statSync } from "node:fs";
-import { canonicalJson, digest, DIGEST_PATTERN, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
+import { readFileSync, statSync } from "../control-read/fs.js";
+import { canonicalJson, digest, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from "./contained-file.js";
 import { APPROVAL_GATES, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths } from "./run-seal.js";
 import { parseControlState, parseRunState } from "./run-state-parser.js";
@@ -37,10 +37,10 @@ export function validateRevisionHistory(root, receipt) {
     const bytes = readHistoryBytes(root, receipt.archive.path);
     if (byteDigest(bytes) !== receipt.archive.digest) return false;
     const manifest = JSON.parse(bytes.toString("utf8")), prefix = revisionHistoryPrefix(receipt.run_id, receipt.operation_id);
+    // target_id names the recording checkout; clones verify it via the archived proposal, not their path.
     if (!exactObject(manifest, ["schema_version", "run_id", "operation_id", "files"]) || manifest.schema_version !== "1"
         || manifest.run_id !== receipt.run_id || manifest.operation_id !== receipt.operation_id
         || !Array.isArray(manifest.files) || !manifest.files.length) return false;
-    if (receipt.target_id !== resolveControlCommandTarget(root).target_id) return false;
     const names = new Set(), snapshots = new Set(), archived = new Map(), digests = new Map();
     for (const row of manifest.files) {
       if (!exactObject(row, ["path", "snapshot", "length", "digest", "canonical_digest"])

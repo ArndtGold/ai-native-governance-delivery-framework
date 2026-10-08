@@ -1,0 +1,76 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-07T10:04:17.899368+00:00",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "run_revision_id": "302e5cbb-40de-46f9-b8d4-688b7567ad96",
+  "task_id": "T-006",
+  "status": "native_open_accepted_render_checkpoint_pending",
+  "native_tool": {
+    "name": "agdf_cockpit",
+    "arguments": {
+      "run_id": "agdf-cockpit-mcp-app-20261005-01"
+    },
+    "result": "accepted; target binding returned",
+    "authorizes": false
+  },
+  "discovery": {
+    "snapshot_optional_run_id": "advertised by fresh native tool descriptor",
+    "resource_loaded": "unconfirmed",
+    "rendered_requested_run": "unconfirmed",
+    "larger_surface": "unconfirmed",
+    "two_simultaneously_readable_views": "unconfirmed",
+    "bridge_capabilities": "unconfirmed",
+    "questions_sent": 0
+  },
+  "computer_use_observation": {
+    "backend": "Codex MCP Apps",
+    "reachable_side_panel_tabs": 0,
+    "inline_apps": "not exposed by this backend"
+  },
+  "registered_preparation": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "41b4cf7269f8d0d97605c26d198b4c5aeb9fc4001bc03eb571c545c7d7d5a004",
+    "dispatcher_digest": "62069d7e2e4eab81d59270474b621301d3f0b80d860b07f9c2799e1553d12e24",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1032710,
+      "digest": "sha256:0e925ce89400fd5fb39f6fefeab925c08ccd2e25a96c226542cb1a537f4edf0d"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "source_hashes_match_previous_checkpoint": true,
+  "source_hashes": {
+    "packages/core/lib/control-read/snapshot.js": "64ba42114aec6d476cdd296a1acef68ef228727660fa0a35422bc4d15ae50885",
+    "packages/core/lib/control-inspect/cockpit.js": "fe4b6601085d367e448b7cf0af10b3b138f554e39288492b443b7bc3e8f65cce",
+    "packages/core/lib/control-inspect/cockpit-backlog.js": "6f28a31fb9266c532f9611da6ef9cb63104766a5622969482c43efd49ca16cde",
+    "packages/core/lib/control-inspect/cockpit-contract.js": "22345e03d86c142779e6ec38a0c0976ed08028fa1e031f4e9ade913f0ec352f6",
+    "packages/core/lib/control-inspect/cockpit-session.js": "af35039d117b1f2dd80e84bda89502f5b83d0cf2f067ce437bb97e080569bf71",
+    "packages/core/lib/control-read/cockpit-worker.js": "e140465db765dfd885de37f7ba15da5fa204c90e888a385ae90462e297bf531c",
+    "packages/control-ui/src/App.tsx": "03ebe6ec23d6cda5a11e031ddd3074f973ae55fbf6b0711ec399bfe6c315fac7",
+    "packages/control-ui/src/api.ts": "30eeebe700a0cb9cb08276bc01b0633ce0c2c88326eee5e0612d95a001d71bb6",
+    "packages/control-ui/src/state.ts": "ba17340ee44aef6227d80ca276b4e039d8f39fccbab4021d1cd5ee0a74806082",
+    "packages/control-ui/src/types.ts": "abe50d7805bb5b31303e2f67c3fba1ced2250c69294dcc823ea4d4d60b5ab744",
+    "packages/control-ui/src/Overview.tsx": "b471909181046cc896ccc1d4d346f1165477f9a57514240abdc8a862a099764e",
+    "packages/control-ui/src/ContextPanel.tsx": "1d86800aaac8a78465ebd7de2ba87d4678e247386096ce9d717ba0134aebc696",
+    "packages/control-ui/src/feedback.tsx": "4a5c0cb5dbd02f47f03ad330d52e3b9de15685c3cfa5b74fb6137a441e8da9e4",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "7f1a5f49ea10d68868bc7cf9acb5479f7b4dadd733c24fe5c4a4ce6ce791330d",
+    "packages/control-ui/src/mcp/transport.ts": "fd60e30974511c889cbff5b484da11d588fa844f2388ee8728bbc71cd9898037",
+    "packages/control-ui/src/mcp/handoff-port.ts": "85484b753ed40717ffcdebe746a825e0e3bf356946e56bea0a07cd9f49b2ff53",
+    "packages/control-ui/server/service.mjs": "558ea84ac00da6282e8c15d146d4f3b598a272e45ae751568eb6f2946e57327b",
+    "scripts/core-projection.mjs": "b5b3d3de1a93a364a9b1400f6cb29757de34fac8e4b4a7325f7aa1a811d330ef"
+  },
+  "dependent_feature_expansion": "not started; pending approved native feasibility checkpoint",
+  "authorizes": false
+}

@@ -1,0 +1,648 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision_id": "b7a89b40-0db8-45da-91e4-41a552c2906a",
+  "observed_at": "2026-10-06T13:30:20.116932+00:00",
+  "source_sha256": {
+    "pages/src/design/tokens.json": "fd706a4d7e063555689a571b5a52cb9057b10a2a09447c0a8f6e01186710bd7e",
+    "pages/scripts/design-tokens.mjs": "9328509bf5b3ffce975ed9ed5b9130873a438fc5541662a39eef3864fa4afa64",
+    "pages/src/styles/design-tokens.css": "75048719bdf0f7438f9ab5c33eabbd14e00cf14123f1dadc20236c27d73a732f",
+    "packages/control-ui/src/style.css": "9d8fd3b1686f88ca5fb9d860cd2c73e9564459f9190bb69ee51316693d7e311d",
+    "packages/control-ui/src/theme.css": "d6aa864d4eac73a2f536a126f5a051f428e3a9b86348186f61d82d53254aaece",
+    "packages/control-ui/src/brand.css": "c457c86e70a8f342beadc5b8a7f7a328ea83459e1947d32d6cb0ac72d3809a2d",
+    "packages/control-ui/src/mcp/style.css": "91d66bb01072583fbd6ac3e333f047e22766c75f22081e483be3c80862690c4b",
+    "packages/control-ui/src/browser.css": "a39351b83c3cfd55d94aabf02684feda11fee4f7a8f018dbb87dc142f36f5248",
+    "packages/control-ui/README.md": "8a4f82534f6295c49db32f5d2d20183b29538d1d9c03240c731f1f59e01d5307",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "e2da7fe74aa2d9904a5d89cf8144b8e75c0370f0cafa0ac53a2770e964ccd686"
+  },
+  "approved_sha256_unchanged": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec",
+    "TP": "e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+  },
+  "matrix": [
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenStandOffene Punkte",
+          "right": 38,
+          "client": 1,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Stand",
+          "right": 53.5,
+          "client": 16,
+          "scroll": 53
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Offene Punkte",
+          "right": 53,
+          "client": 16,
+          "scroll": 62
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenStandOffene Punkte",
+          "right": 38,
+          "client": 1,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Stand",
+          "right": 53.5,
+          "client": 16,
+          "scroll": 53
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Offene Punkte",
+          "right": 53,
+          "client": 16,
+          "scroll": 62
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenStandOffene Punkte",
+          "right": 38,
+          "client": 1,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Stand",
+          "right": 53.5,
+          "client": 16,
+          "scroll": 53
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Offene Punkte",
+          "right": 53,
+          "client": 16,
+          "scroll": 62
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenStandOffene Punkte",
+          "right": 38,
+          "client": 1,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Stand",
+          "right": 53.5,
+          "client": 16,
+          "scroll": 53
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Offene Punkte",
+          "right": 53,
+          "client": 16,
+          "scroll": 62
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    }
+  ],
+  "matrix_notes": "Narrow list diagnostic entries refer to intentionally visually-hidden accessible column headings; page scroll width stays within viewport. Font measurements are captured for each view before resizing; geometry is captured at each width.",
+  "tests": {
+    "UI": 59,
+    "HTTP": 5,
+    "browser_journeys": 5,
+    "Pages_landing": "pass",
+    "typecheck": "pass",
+    "browser_and_MCP_builds": "pass",
+    "config": "pass",
+    "actual_stdio_protocols": [
+      "2025-11-25",
+      "2026-07-28"
+    ]
+  },
+  "preparation": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "18487936a6b65525905b0cd9da3b1e62fc87eade18c73b2cfdd1bf538646dbcb",
+    "dispatcher_digest": "9c3e542d97dea9b4d2cb235fbdd1cdbac73d0bb7e8c589acf46c2bc19e2ab590",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1012215,
+      "digest": "sha256:e8c49c2f08e66db806821ee0e4b737baaa1945321021051898b55d20c143bf12"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "native_final_UI_verified": false,
+  "native_attempt": "Exact Run opening returned Transport closed after owned runtime refresh; no repeated question or native host completion inferred.",
+  "browser_real_project": "Actual registered UR of the exact Run, read-only local browser preview; screenshots PAGES_REAL_CARD-02.png and PAGES_REAL_DOCUMENT-02.png.",
+  "host_font_rule": "Regression fixture serves html,body{font-family:Arial,sans-serif!important} through an intercepted same-origin CSS resource; production CSP remains intact.",
+  "browser_fixture_no_write_and_no_external_requests": true,
+  "authorizes": false
+}

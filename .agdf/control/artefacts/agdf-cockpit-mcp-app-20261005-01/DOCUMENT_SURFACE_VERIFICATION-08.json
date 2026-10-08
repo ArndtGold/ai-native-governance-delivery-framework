@@ -1,0 +1,115 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "pre_bookkeeping_revision_id": "213f5689-973f-4924-a70a-cc38412e81fa",
+  "observed_at": "2026-10-07T08:09:18.925342+00:00",
+  "baseline_head": "8e248494081ea89c3828b8368b26b5873060d8cf",
+  "final_observed_head": "a7baffc86aeb7d00188af122f6294fc91024364d",
+  "agent_vcs_action": "none; externally changed index/HEAD preserved",
+  "checks": {
+    "ui_tests": 92,
+    "unique_browser_cases_passed_across_qualified_and_targeted_runs": 11,
+    "document_themes": [
+      "light",
+      "dark"
+    ],
+    "document_widths": [
+      320,
+      560,
+      800,
+      1280
+    ],
+    "source_and_return_focus": "pass",
+    "shared_pages_surface_recipe_and_text_contrast": "pass",
+    "equal_outer_gutters_and_inner_edges": "pass within 1px",
+    "context_access_min_height": "44px",
+    "context_action_contrast_minimum": 4.5,
+    "protocol_eras": [
+      "2025-11-25",
+      "2026-07-28"
+    ],
+    "typecheck_builds_tokens_diff": "pass"
+  },
+  "runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "e8dc4ebc8535e7ec53a5197cc47be5c4f0583cc3571035daf7e5e8e75f3d8539",
+    "dispatcher_digest": "a8b539760c8ec5e016d06dff5f49f5a8e4ff35dd426cd31191d91e4802bdda34",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1031985,
+      "digest": "sha256:7d55ed54cf1eaf8994441bf6511f1c2de535ad0db3417c38c365e67d20618f7a"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "config_sha256": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "approved_sources": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "sources": {
+    "packages/control-ui/src/App.tsx": "7f003dfc035eb169ae8ff982cbdca797d9d5a57295854e40c428f66545360231",
+    "packages/control-ui/src/style.css": "c98e841e7c7d4bd3ca0ced5eb04b52dc5c32f8a8a39db8b2e82266c5bdd80f20",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "0c537ea74d07db4daa2ae789ead08854424a609abf8a08dc21968de5728cb75b",
+    "packages/control-ui/README.md": "432bca42390ccca2571234eafbab75f8f2b1620697a858f107b605cc04e51890",
+    "docs/architecture/06-agdf-cockpit.md": "449adf4dad882b3e262713b2d438d641be221027ea973a4fd58a9a37f91a748e"
+  },
+  "native_open_after_refresh": {
+    "isError": true,
+    "error": "Transport closed",
+    "new_display": "not verified"
+  },
+  "failed_attempts": [
+    "First full browser invocation: asset_boundary_invalid before UI in ten cases; unchanged file checks were retained.",
+    "Explicit Node full invocation: four asset_boundary_invalid before UI, seven cases passed; direct file-stat diagnostic did not reproduce a mismatch. Exact external file-change cause remains unverified.",
+    "Targeted replay: three passed; real repository navigation timed out waiting for source after Details. Explicitly awaiting the Details pressed state before capture qualifies the unchanged navigation path.",
+    "Final single navigation, final panel journey and final Pages contrast cases pass; no timeout or security limit relaxed."
+  ],
+  "limits": [
+    "browser/protocol evidence is separate from new native host display",
+    "no packet/question/approval sent",
+    "remaining native recovery/rollback, task fulfilment/CR/QA/UAT/OR open"
+  ],
+  "files": {
+    "activation-helper.mjs": "1a78dbfd162d871dde89c2451d1b3399f2154b7e4dc2a83efe0c9ea192b61858",
+    "activation-receipt.json": "e47e4eb4fffd7eff239e44037e12a1f9db57fe3e255e63045d451d3acb1b703d",
+    "browser-batch-partial.log": "8386bb845bc1df5e5e1f9438ec3d26a60616e230a877bba5a9a4f37138a624c8",
+    "browser-build.log": "cc6618e6e0f221582d744f2c77d4c9fa1cda893871423e0f345ca1594d97082d",
+    "browser-contrast-final.log": "a3287b8553961d64047fcb8f73533cd96f4dd3f05a20769523ebd8cb9fe65ab0",
+    "browser-initial-failed.log": "986f56b67bd1109e8b9d10ccaf9e8ef342a0aa962f015f2816844dcaaf16a91f",
+    "browser-navigation-final.log": "78a5a493d3c12c4768ccf699ff9f85e6716e690fcf71a2bac18328e026746f0c",
+    "browser-panel-final.log": "458eecd59e8051493afc35e6cb302ae2ef2aa737a5654137f6e192c9f6ef5f67",
+    "browser-panel-initial.log": "7bfdd5579f441f819d600246cfd41fe3296c1d51b07709b72db17f565fe423c7",
+    "browser-targeted-partial.log": "417f0f475c45d261d21e5b0f9cbdf379516eefbf39e42fedbc61a7e095e4ed10",
+    "document-dark-1280.png": "d8f360a8605b8b392c5b995b80068ea07aea5915eef098b91783167d9d3a044f",
+    "document-dark-320.png": "ee827998060742bc29a2cd30f87b748589af8054d77fae00a8f1e7d2e9718910",
+    "document-dark-560.png": "b2ea48c78fd4826f1b59497151c9767a0d7975c872b5a022d44df45336d3977f",
+    "document-dark-800.png": "a97f9751df67e67e8bd35488534fc38503b19c4b3486380313b9b05fd5ea4938",
+    "document-light-1280.png": "e4a69a2b3219a4b19f1d8d69630783074f6b8c2beb09d86db649ba091e02311b",
+    "document-light-320.png": "57c3d35ed669d275ef36ed0e3525d9f98ba7003b8bc3ba8d02eb8051be360841",
+    "document-light-560.png": "c65fb8d129c75b927520ff8b6e21699a295dd719017d18efa7c10c53fe17f25e",
+    "document-light-800.png": "c0eabb7048fc1a8c72751cabe66977d2f3fcb1e11434c17f3022b57f6065dc8a",
+    "isolated-preparation.json": "ea0e1a0c2eb777843daacac04cccfef135d9f37e29b58d4b2ed0edd4033a8450",
+    "mcp-build.log": "2dd3320c9d096e7b525c59ee9d773c6a6f9163147dc8d022dcf18ecddbdff08d",
+    "pages-observations.json": "319f36dd8087384b0001b82c568bc01d4301f424700601197417cccc26408e6b",
+    "panel-dark-845.png": "58cfe2e1a0f7657643f704ca964f71f09ce1fb1bf095b3efc62fec649c1cfedf",
+    "panel-light-845.png": "75562ea2a5dbc147a8bacecd0b15dbf42efc8aceb112d213a753d9ac25926231",
+    "protocol.log": "bdc462406534fe10f70f6b8135c9d4c5260f83f5a43b603805b05f7f2bbee8cc",
+    "registered-readback.json": "6d0c8dcb463e0c055771189f09d70e45acb02f87256fc5383ed49e47950f12d4",
+    "registered-readback.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck.log": "39e33b62bb283bc45cbcaca490bfc6d27544f252623c3f6fdaf0becbc2ccc3f6",
+    "ui.log": "73f774389003db782d0746e5ca3cb3eb9fbd1f59d46d824bc88957eab73724a3"
+  }
+}

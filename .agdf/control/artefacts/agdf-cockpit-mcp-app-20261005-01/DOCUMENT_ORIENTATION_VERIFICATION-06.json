@@ -1,0 +1,320 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": 80,
+  "source_revision_id": "bc45fcb0-895b-4150-947b-ca6e1697bd4d",
+  "observed_at": "2026-10-07T07:42:29.783877+00:00",
+  "baseline_commit": "8e248494081ea89c3828b8368b26b5873060d8cf",
+  "status": "implemented_browser_and_registered_protocol_verified_native_reconnect_pending",
+  "scope": "Document orientation from authored German source summary, separate bound saved status/current Core assessment, closed provenance/originals, heading focus and approval-row spacing",
+  "approved_source_hashes": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "source_hashes": {
+    "packages/control-ui/src/DocumentView.tsx": "554e1d7e48f7807232862bd5be49ed119e250ab550ef768bf9ee7f9cde6e15b8",
+    "packages/control-ui/src/presentation.ts": "42f0512d8c0c5a766a9e156de22745eb45f0e4672946762a8773225adbf80742",
+    "packages/control-ui/src/WorkStep.tsx": "5922c2d3869c0f7b95e43fffbed934b69d29ead203cf5c4f35d06894185607e6",
+    "packages/control-ui/src/App.tsx": "6d5571aa87aebdf79b9b7409785fc27f7a6640db6a3ec15a644e809ebf88a447",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "68a7c087f9f996cf470718fb9b4a5bc26fecabf1ee3ea9b0eb0a927e6dbe70a2",
+    "packages/control-ui/src/style.css": "9c6e585f24c7a5b0a49c2ae79a296fdbf3cdb1032ea272983287683a88c3c719",
+    "packages/control-ui/test/document.test.tsx": "05d513a43a6e479e6664288f39519f55b03fe77536506d27dd70b3db9e5de100",
+    "packages/control-ui/test/presentation.test.tsx": "cba8d14b2d6b14711547a865eba1584e6b99507e5bd0c026d13d376fe553cb0d",
+    "packages/control-ui/test/compact.test.tsx": "c20001c6e71ec336d7bc48f3c36c55fc6c383a1da938c290761a7cb98dfba545",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "f9ae066c9ff019906dd2ac0784bffe512ab782073cabec5229e5ad56bf85968e",
+    "packages/control-ui/README.md": "88e157f68beccebe5c067e2bc345477e1fb6831f283877e4b31568946a9f2683",
+    "docs/architecture/06-agdf-cockpit.md": "f8dd7a17cf95cb9e22ca0e0794bc8aebdf607812e2e46b36814c1753f086a6fc"
+  },
+  "checks": {
+    "ui": 92,
+    "service": 5,
+    "browser_unique_cases": 11,
+    "browser_count_basis": "Initial ten passed; the remaining surface case passed its targeted retry. Final one-paragraph document orientation passed again without concurrent preparation load. Missing-metadata guard subsequently passed all 92 UI cases; it does not change rendering for the browser-tested valid Core DTO.",
+    "typecheck": "pass",
+    "build": "pass",
+    "mcp_build": "pass",
+    "design_tokens": "pass",
+    "diff_check": "pass",
+    "protocol_eras": [
+      "2025-11-25",
+      "2026-07-28"
+    ]
+  },
+  "failed_attempts": [
+    "Two initial UI harness assumptions ignored that jsdom exposes closed-details descendants to role/text queries; corrected scope/disclosure checks. Browser still asserts real hidden original visibility.",
+    "Service tests initially denied loopback listening by sandbox; repeated with required permissions and passed.",
+    "One pre-existing surface test needed deliberate opening of now-folded original; targeted retry passed.",
+    "Final real-repository orientation repetition hit the existing read timeout while tests and npm preparation ran concurrently. UI showed the bounded timeout correctly; an unchanged sequential repetition passed. No time limit was relaxed.",
+    "A path-relative editing helper ran from the UI directory and failed before edits. It was corrected at repository root.",
+    "The qualified short-summary runtime was prepared before the last missing-metadata guard. It was replaced again while no cockpit process was running; both bounded receipts are retained."
+  ],
+  "runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "317be98e576d1decb0051bbbfabe78d56a867e0e12afdaf797fa6aa8bacf0752",
+    "dispatcher_digest": "a8b539760c8ec5e016d06dff5f49f5a8e4ff35dd426cd31191d91e4802bdda34",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1030815,
+      "digest": "sha256:9bec9e9d7d80b06bda938d9e492bc29a6a353561966d3cb75f54accdeb22b273"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "activation_receipt": {
+    "schema_version": "1",
+    "observed_at": "2026-10-07T07:39:49.731Z",
+    "requested_action": "continued project-local activation authorized by aktiviere es; current document UX change requested by leg los",
+    "status": "current_production_prepared_for_fresh_connection",
+    "replaced_only_named_project_runtime": true,
+    "stopped_connections": [],
+    "config_restored": true,
+    "config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+    "prepared_runtime": {
+      "schema_version": "1",
+      "profile": "codex-cockpit",
+      "name": "agdf-cockpit-local",
+      "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "version": "0.14.5",
+      "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+      "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+      "server_digest": "317be98e576d1decb0051bbbfabe78d56a867e0e12afdaf797fa6aa8bacf0752",
+      "dispatcher_digest": "a8b539760c8ec5e016d06dff5f49f5a8e4ff35dd426cd31191d91e4802bdda34",
+      "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+      "ui": {
+        "schema_version": "1",
+        "uri": "ui://agdf/cockpit/v1.html",
+        "mime_type": "text/html;profile=mcp-app",
+        "bytes": 1030815,
+        "digest": "sha256:9bec9e9d7d80b06bda938d9e492bc29a6a353561966d3cb75f54accdeb22b273"
+      },
+      "activated": false,
+      "authorizes": false
+    },
+    "actual_native_load": "not_yet_observed",
+    "historical_host_context_erasure": "not_claimed",
+    "authorizes": false
+  },
+  "protocol": {
+    "status": "pass",
+    "evidence_class": "actual_stdio_protocol_not_host_ui",
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-011",
+          "SCN-013",
+          "SCN-020",
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046",
+          "SCN-050",
+          "SCN-052",
+          "SCN-053",
+          "SCN-054"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      },
+      {
+        "protocol": "2026-07-28",
+        "tools": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "resource": "ui://agdf/cockpit/v1.html",
+        "scenarios": [
+          "SCN-011",
+          "SCN-013",
+          "SCN-020",
+          "SCN-026",
+          "SCN-036",
+          "SCN-039",
+          "SCN-041",
+          "SCN-042",
+          "SCN-046",
+          "SCN-050",
+          "SCN-052",
+          "SCN-053",
+          "SCN-054"
+        ],
+        "read_no_write": true,
+        "status": "pass"
+      }
+    ],
+    "server_digest": "317be98e576d1decb0051bbbfabe78d56a867e0e12afdaf797fa6aa8bacf0752",
+    "ui_digest": "sha256:9bec9e9d7d80b06bda938d9e492bc29a6a353561966d3cb75f54accdeb22b273"
+  },
+  "fresh_active_readback": {
+    "status": "pass",
+    "observed_at": "2026-10-07T07:40:38.404Z",
+    "evidence_class": "fresh_registered_entrypoint_stdio_not_native_host",
+    "owned_runtime_status": "matched",
+    "control_unchanged": true,
+    "observations": [
+      {
+        "protocol": "2025-11-25",
+        "ui_digest": "sha256:9bec9e9d7d80b06bda938d9e492bc29a6a353561966d3cb75f54accdeb22b273",
+        "ui_bytes": 1030815,
+        "inventory_state": "partial",
+        "run_state": "available",
+        "run_id": "agdf-cockpit-mcp-app-20261005-01",
+        "revision_id": "bc45fcb0-895b-4150-947b-ca6e1697bd4d",
+        "assessment": {
+          "state": "open",
+          "authorizes": false
+        }
+      },
+      {
+        "protocol": "2026-07-28",
+        "ui_digest": "sha256:9bec9e9d7d80b06bda938d9e492bc29a6a353561966d3cb75f54accdeb22b273",
+        "ui_bytes": 1030815,
+        "inventory_state": "partial",
+        "run_state": "available",
+        "run_id": "agdf-cockpit-mcp-app-20261005-01",
+        "revision_id": "bc45fcb0-895b-4150-947b-ca6e1697bd4d",
+        "assessment": {
+          "state": "open",
+          "authorizes": false
+        }
+      }
+    ]
+  },
+  "config_digest": "9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9",
+  "native_open": {
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "is_error": true,
+    "message": "Transport closed",
+    "current_native_module": "unobserved",
+    "packet_prepared": false,
+    "question_sent": false
+  },
+  "screenshots": "Both themes/four widths after shortening to the first authored paragraph and before the final missing-metadata guard; valid-Core rendering and styles are unchanged by that guard.",
+  "authorizes": false,
+  "evidence": {
+    "ui.log": {
+      "sha256": "6721237fbe78d9b073f4c11487ec4ca5281cdda5914d55bcfcb82648d440d9db",
+      "bytes": 560
+    },
+    "browser-load-timeout.log": {
+      "sha256": "be31c3da384d67c30135fbdb309660317b1a8a1d1578e8afe6c02616c183d5dc",
+      "bytes": 2397
+    },
+    "browser-initial.log": {
+      "sha256": "782ef50bb79eae9a4f3d976446157dfd54661c846172f2c77845752affdde874",
+      "bytes": 7412
+    },
+    "document-dark-320.png": {
+      "sha256": "14c3f50963fe4be01f2092947ce501d6d1765712a18b2db337366078bb00862c",
+      "bytes": 152539
+    },
+    "document-light-800.png": {
+      "sha256": "ff021c1fd768e94b3598459735801bb6ccb06ef7ee9b6d147e41e6973e291186",
+      "bytes": 175705
+    },
+    "mcp-build.log": {
+      "sha256": "9de9420c9ff680bb13b158afce45934bb1a819e4118589367bc234b8498d8915",
+      "bytes": 338
+    },
+    "interim-activation-receipt.json": {
+      "sha256": "f2e8ecd88730e4e6a36b17a9659f3b3d971a18797993382b42553d77cf0d1fc4",
+      "bytes": 2164
+    },
+    "document-dark-1280.png": {
+      "sha256": "7529c7fe0b9ba5dbe8df30a8b047937fa521f22ec237121b41f4138660d918e1",
+      "bytes": 186348
+    },
+    "ui-initial-failed.log": {
+      "sha256": "b15c1ef5383cccaf04b33ddd828ac31431232fb5dd47b9e770b4a65e17142681",
+      "bytes": 7406
+    },
+    "typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "document-dark-800.png": {
+      "sha256": "dd4ffda137b5de63794608b7207245be39df421f72be70d605a3ab2619930944",
+      "bytes": 175333
+    },
+    "document-light-320.png": {
+      "sha256": "0f9e8d4e012f00803aa5c410d1564113cf6cd7b91e5e1875e914397bad5bf5b7",
+      "bytes": 150400
+    },
+    "activation-receipt.json": {
+      "sha256": "b2404050a0ebc06a2ad7fd2aeefa41a4a75c83ce5d6213c0f56019542e008dfc",
+      "bytes": 1774
+    },
+    "interim-activation-helper.mjs": {
+      "sha256": "42e8b359f8552a9c197532fb69552880f01215933db63a894ecea9deb3b5c85c",
+      "bytes": 4624
+    },
+    "activation-helper.mjs": {
+      "sha256": "f1df4784d2737bc7de3c0109834896062f2dd4a3746fc3b2ba7b014fcfd237e6",
+      "bytes": 4617
+    },
+    "browser-surface-retry.log": {
+      "sha256": "2d0db873534c552fdc7dfa99e125fa25c1786017f33c52d7e3eb1f5425fe4ecd",
+      "bytes": 685
+    },
+    "service.log": {
+      "sha256": "dbea68f7558401426f4f1f4f421a907e6b4d4732dc6ddeefd4b2c3ceb23a43fd",
+      "bytes": 1440
+    },
+    "document-dark-560.png": {
+      "sha256": "1654eb5c880b1ad22f685abeb851fcc13ad1cffb83237e4e5ba745b6da2cfd2a",
+      "bytes": 161507
+    },
+    "service-sandbox-failed.log": {
+      "sha256": "1b91732c0f53026a1abd96d02c1f9be5c4de7ded6948f24f979d59d087b5a17d",
+      "bytes": 3274
+    },
+    "browser-final-orientation.log": {
+      "sha256": "23a5674b1a13f996715e6c8889cfcbbc9f22c6d42a0d1a4bb246086b63ca8bbb",
+      "bytes": 529
+    },
+    "document-light-1280.png": {
+      "sha256": "046b5c84221ea8d0d096273abc8e2fa45f73ab4339b74bd44cef2bcab3ad6ce7",
+      "bytes": 186631
+    },
+    "protocol.log": {
+      "sha256": "495ef2256dd8e59211c0d553af70c00fd1e3f4308727b1b454062db27443c44a",
+      "bytes": 839
+    },
+    "document-light-560.png": {
+      "sha256": "5641c7ae381063e927903bc330c0a9f8d121d92798483579ea48a999c3f653d2",
+      "bytes": 161047
+    },
+    "isolated-preparation.json": {
+      "sha256": "a9f6ec3d7ab2bbe9abb866f6c8a34c4172cfa215575774241fb02547ee41b802",
+      "bytes": 858
+    },
+    "fresh-active-readback.json": {
+      "sha256": "9ab804d441a2731ace24d6feb6b1d4fec3f73e40859dab2672c103fefb2bdbfb",
+      "bytes": 861
+    },
+    "build.log": {
+      "sha256": "bf917047b8a7e340f86e45bd8da669324b0f37d63cdfcb560acb9afaca81fa8b",
+      "bytes": 672
+    }
+  }
+}

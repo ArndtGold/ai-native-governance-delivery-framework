@@ -1,9 +1,11 @@
-import { createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import * as dispatcherRuntime from "create-agdf/mcp-dispatch-runtime";
 import { readFileSync } from "node:fs";
 import process from "node:process";
 import { createAgdfWorkerExecutor, serveAgdfStdio } from "./server.js";
+import { loadCockpitResource } from './cockpit-resource.js';
 
-export async function runMcpServer({ surface, runtime = createMcpDispatchRuntime({ surface }), executor } = {}) {
+export async function runMcpServer({ surface, cockpitDir, runtime, executor } = {}) {
+  runtime ??= cockpitDir !== undefined ? await dispatcherRuntime.createMcpCockpitRuntime({ surface, cockpitDir }) : dispatcherRuntime.createMcpDispatchRuntime({ surface });
   const serverVersion = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
   if (runtime.trustedContext.expectedVersion !== serverVersion) {
     process.stderr.write("AGDF_MCP_VERSION_MISMATCH\n");
@@ -15,7 +17,8 @@ export async function runMcpServer({ surface, runtime = createMcpDispatchRuntime
     process.exitCode = 1;
     return null;
   }
-  const dispatchExecutor = executor ?? createAgdfWorkerExecutor(runtime);
+  if (runtime.mode === 'cockpit') loadCockpitResource(runtime.ui);
+  const dispatchExecutor = executor ?? (runtime.mode === 'cockpit' ? undefined : createAgdfWorkerExecutor(runtime));
   const handle = serveAgdfStdio({
     runtime,
     executor: dispatchExecutor,

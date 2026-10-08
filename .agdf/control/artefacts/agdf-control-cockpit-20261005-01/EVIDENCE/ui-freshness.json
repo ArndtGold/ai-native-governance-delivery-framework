@@ -1,0 +1,19 @@
+{
+  "SCN-014": {
+    "scenario_id": "SCN-014",
+    "criterion_id": "AC-006",
+    "design_decision_id": "SDD-004",
+    "task_id": "T-006",
+    "tested_source_or_fixture": "browser five-second check + DOM visibility return",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Five-second checks while visible and a check after visibility return mark changed data; only explicit reload replaces content; removed run returns to inventory with explanation",
+    "actual_result": "external change marks previous data; only explicit reload replaces content; hidden visibility event does not request freshness; return checks and marks old content stale; removed run returns to inventory",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "playwright-results.json",
+      "ui-tests.log"
+    ]
+  }
+}

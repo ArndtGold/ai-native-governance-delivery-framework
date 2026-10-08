@@ -288,7 +288,12 @@ try {
   });
   scenario("SCN-011 symlink run paths are rejected before mutation", () => {
     const content = readFileSync(runPath, "utf8");
-    rmSync(runPath); writeFileSync(`${runPath}.real`, content); symlinkSync(`${runPath}.real`, runPath);
+    rmSync(runPath); writeFileSync(`${runPath}.real`, content);
+    // Windows without Developer Mode refuses symlinks; only this rejection check is skipped there.
+    try { symlinkSync(`${runPath}.real`, runPath); } catch (error) {
+      if (process.platform !== "win32" || error.code !== "EPERM") throw error;
+      writeFileSync(runPath, content); console.warn("SKIPPED SCN-011 symlink assertions: symlinks need Windows Developer Mode (EPERM)"); return;
+    }
     assert.equal(recordGateApprovalCommand(root, command).reason, "run_path_invalid");
     assert.equal(readFileSync(`${runPath}.real`, "utf8"), content);
   });

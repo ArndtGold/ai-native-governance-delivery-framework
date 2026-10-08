@@ -1,0 +1,99 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "expected_revision_id": "0b23145e-ecd7-445b-bd40-26584c3911bd",
+  "observed_at": "2026-10-07T11:39:49.476Z",
+  "status": "pass_backlog_ui_slice",
+  "authorizes": false,
+  "user_request": "Three section counters/switches and a compact single-column stored undertaking list, aligned with Pages.",
+  "task": "T-009",
+  "scenarios": [
+    "SCN-044",
+    "SCN-062",
+    "SCN-070",
+    "SCN-078"
+  ],
+  "approved_source_hashes": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "9ecabf0255e2ca49be10cf8170d0cabab8cdf762e02d7f9a3d8183d010898a0e",
+    "TP": "22d38e6c344d940a0787e4d725faa297689d074648927b893ea1a4216a3c889c"
+  },
+  "behavior": {
+    "sections": [
+      "Active Backlog",
+      "Planned / Parking Lot",
+      "Completed / Superseded Pointers"
+    ],
+    "labels": [
+      "Aktiv",
+      "Geplant",
+      "Archiv"
+    ],
+    "default": "Aktiv",
+    "search": "Selected section only; section change clears search; Run return keeps section/search and restores visible title focus.",
+    "counts": "Stored section counts, not current Run lifecycle; unreadable counts unavailable rather than zero; partial row findings marked restricted.",
+    "rows": "One column; title opens exact Run; no repeated current-state action. Known scope tags hidden from visible title, original retained. Saved state and next step/outcome shown; full sources and identifiers closed. No translation or inferred work permission.",
+    "notices": "One closed section-aware reading notice; unchanged higher-priority error/stale/session feedback.",
+    "tokens": "Existing Pages fonts/colors/surfaces/spacing; branding header unchanged."
+  },
+  "checks": {
+    "ui": {
+      "passed": 107,
+      "files": 9,
+      "log": "backlog-ux-evidence-17/ui.log"
+    },
+    "typecheck": {
+      "passed": true,
+      "log": "backlog-ux-evidence-17/types.log"
+    },
+    "http": {
+      "passed": 5,
+      "log": "backlog-ux-evidence-17/http.log"
+    },
+    "browser": {
+      "passed": 3,
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "widths": [
+        320,
+        560,
+        800,
+        1280
+      ],
+      "log": "backlog-ux-evidence-17/browser.log",
+      "no_write": "Actual service fixture tree bytes unchanged across all three browser journeys."
+    },
+    "build": {
+      "browser": "pass",
+      "mcp": {
+        "schema_version": "1",
+        "uri": "ui://agdf/cockpit/v1.html",
+        "mime_type": "text/html;profile=mcp-app",
+        "bytes": 1036559,
+        "digest": "sha256:0f02da933dce6a4a95699f1a4c673a73c370942bf715d4f34ad6432a6bf77984"
+      }
+    }
+  },
+  "project_preview": {
+    "surface": "Browser card expanded through Run ansehen then Alle Vorhaben; shared React larger-view layout, not native MCP proof.",
+    "counts": {
+      "active": 54,
+      "planned": 2,
+      "archive": 86
+    },
+    "restriction": "One Planned section diagnostic; not repaired by the app.",
+    "screenshot": "backlog-ux-evidence-17/project-preview.png"
+  },
+  "boundary": {
+    "native_updated_version_verified": false,
+    "installed_native_runtime_replaced": false,
+    "canonical_backlog_modified": false,
+    "gate_approvals_modified": false,
+    "full_task_plan_complete": false,
+    "qa_uat_or_complete": false
+  },
+  "remaining": "Full renewed TP/Core/MCP/browser regression and review qualification plus current native full journey and later QA/UAT/OR remain open. Checkpoint 16 native reading evidence is historical for its own tuple; it does not verify this rebuilt UI."
+}

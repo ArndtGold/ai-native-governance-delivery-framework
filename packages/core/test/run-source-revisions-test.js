@@ -8,7 +8,8 @@ import { createLateSourceRevisionTestRun } from "../../cli/scripts/fixtures/late
 import { previewSourceRevision, applySourceRevision, inspectSourceRevision, recoverSourceRevision } from "../lib/control-state/run-revision.js";
 import { readSourceRevisions, revisionHistoryPrefix } from "../lib/control-state/run-source-revisions.js";
 import { readApprovalOperations } from "../lib/control-state/approval-operations.js";
-import { readArtefactBindings } from "../lib/control-state/artefact-bindings.js";
+import { appendArtefactBinding, readArtefactBindings } from "../lib/control-state/artefact-bindings.js";
+import { resolveControlCommandTarget } from "../lib/control-state/approval-command-contract.js";
 import { validateRevisionHistory, byteDigest } from "../lib/control-state/run-revision-history.js";
 import { runSealState, sealRunState } from "../lib/control-state/run-seal.js";
 import { validateBindingProof, exactApprovedArtefacts } from "../lib/control-state/artefact-binding-proof.js";
@@ -41,6 +42,9 @@ console.log(JSON.stringify({tp_digest:digest,criterion_id:'AC-001',task_id:'T-00
 const code = readFileSync(join(root, "retained-filter.mjs")), retainedTest = readFileSync(join(root, "retained-filter-test.mjs"));
 cpSync(join(root, ".agdf"), seed, { recursive: true });
 const originalRevision = f.revision(), evidence = [], observations = [], gates = ["UR", "PRD", "SD", "TP"];
+const structuredBacklogRow = readFileSync(join(root, ".agdf/control/MASTER_BACKLOG.md"), "utf8").split("\n").find(line => line.includes(`| ${f.runId} |`));
+assert.match(structuredBacklogRow, /\| In Progress \|/u, "persisted TP approval updates Backlog beyond Awaiting TP");
+assert.ok(structuredBacklogRow.includes("Implement the approved TP scope"), "Backlog next action follows the approved TP transition");
 const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
 const tree = () => {
   const result = {};
@@ -234,6 +238,29 @@ try {
   assert.equal(runSealState(root, f.readState().content).status, "invalid"); assert.equal(recordRunRevision(root, { runId: f.runId, revisionId: f.revision() }).outcome, "rejected");
   assert.equal(validateRevisionHistory(root, receipt), false);
   passed(["SCN-006"], "Unsafe source path, owned-name collision and corrupt archived bytes cannot change or restore effective authority.");
+
+  // Durable receipts keep the recording checkout's target_id; a clone at another absolute path must
+  // still verify them, while new commands stay bound to the checkout that executes them.
+  const clone = join(temporary, "relocated-clone"), cloneState = join(clone, ".agdf/control/runs", f.runId, "RUN_STATE.md");
+  const cloneOf = () => { rmSync(clone, { recursive: true, force: true }); cpSync(root, clone, { recursive: true }); };
+  reset(); const portable = prepare(); cloneOf();
+  const cloneTarget = resolveControlCommandTarget(clone).target_id;
+  assert.notEqual(cloneTarget, resolveControlCommandTarget(root).target_id);
+  assert.equal(previewSourceRevision(clone, portable.input).reason, "revision_proposal_invalid", "a proposal for the original checkout stays local");
+  writeFileSync(join(clone, portable.input.evidence), JSON.stringify({ ...portable.value, target_id: cloneTarget }));
+  assert.equal(previewSourceRevision(clone, portable.input).outcome, "preview", "recorded approvals and bindings verify in the clone");
+  assert.equal(applySourceRevision(root, portable.input).outcome, "reopened"); cloneOf();
+  const relocated = readFileSync(cloneState, "utf8"), relocatedHistory = readSourceRevisions(relocated).receipts;
+  assert.equal(runSealState(clone, relocated).status, "valid");
+  assert.ok(relocatedHistory.length === 1 && relocatedHistory.every(row => validateRevisionHistory(clone, row)));
+  assert.ok(readArtefactBindings(relocated).active.every(row => validateBindingProof(clone, row)));
+  assert.equal(evaluateGateCheck(clone, { runId: f.runId }).current_gate, evaluateGateCheck(root, { runId: f.runId }).current_gate);
+  const recorded = readArtefactBindings(relocated), prior = recorded.latest[0];
+  const continued = readArtefactBindings(appendArtefactBinding(relocated, { ...prior, binding_id: randomUUID(), target_id: cloneTarget,
+    operation: { id: randomUUID(), previous_revision_id: randomUUID(), resulting_revision_id: randomUUID(), revision: Math.max(...recorded.receipts.map(row => row.operation.revision)) + 1 },
+    supersedes: prior.binding_id }));
+  assert.equal(continued.latest.length, recorded.latest.length, "a clone's later binding supersedes the original checkout's binding");
+  rmSync(clone, { recursive: true, force: true });
 
   for (const alter of [() => unlinkSync(f.file("BROWNFIELD_ANALYSIS.md")), () => { const id = readArtefactBindings(f.readState().content).active[0]; unlinkSync(join(root, id.review.path)); }]) {
     reset(); const p = prepare(); alter(); const unchanged = tree(); assert.equal(applySourceRevision(root, p.input).outcome, "rejected"); assert.deepEqual(tree(), unchanged);

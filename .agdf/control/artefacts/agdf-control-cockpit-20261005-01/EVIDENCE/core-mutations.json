@@ -1,0 +1,21 @@
+{
+  "SCN-013": {
+    "scenario_id": "SCN-013",
+    "criterion_id": "AC-006",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-002",
+    "tested_source_or_fixture": "deterministic capture/evaluation/revalidation mutations",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Create/delete/rename, file/ancestor replacement, same-size edits and change-then-restore during capture/evaluation/revalidation yield one coherent observation or source_changed; no live bytes enter a captured evaluation",
+    "actual_result": "private bytes stay immutable; edit/create/rename/restore/ancestor changes invalidate old observation; one retry maximum; evaluation during live edit uses only old captured bytes",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "snapshot.log",
+      "provider.log",
+      "projection.log",
+      "playwright-results.json"
+    ]
+  }
+}

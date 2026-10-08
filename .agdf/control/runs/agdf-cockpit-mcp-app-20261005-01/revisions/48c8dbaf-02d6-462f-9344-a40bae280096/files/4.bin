@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "expected_revision_id": "a103a17b-d4ec-40e1-8120-2368b1413992",
+  "operation_id": "48c8dbaf-02d6-462f-9344-a40bae280096",
+  "source_gate": "SD",
+  "reason": "The user requests a Master-Backlog-only overview and scoped on-demand Run/source reads after native resource_limit from the approved full-tree capture. Current control data exceeds the fixed 64 MiB MCP view limit.",
+  "intended_change": "Revise SD and dependent TP to use existing Core owners for Master Backlog orientation, explicit named Run evaluation, dependency-scoped immutable captures and source/context transitions; preserve fixed limits, seals, evaluator parity, independent views, exclusive publication, canonical authority and UR/PRD acceptance.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+      "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+      "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/SD.md",
+      "digest": "sha256:2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/TP.md",
+      "digest": "sha256:54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex scoped read impact review; cooperative, no independent approval",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md",
+        "digest": "sha256:97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+        "rationale": "The local embedded select-inspect-checked-question journey and canonical ownership remain unchanged; this fixes unnecessary source loading, not delivery authority."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/PRD.md",
+        "digest": "sha256:8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+        "rationale": "PRD preserves current or partial canonical orientation and selected-source parity while delegating source capacities, concrete APIs and integration to SD. AC-001 through AC-010 remain unchanged; stored backlog pointers are explicitly distinguished from selected Run/Core evaluation."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7d253cc02529f9d07d44d3dab3c390a18fc7b679ad0ffd1407816495f73b5f95",
+        "reason": "Existing Structured Delivery analysis covers shared Core reads, source ownership, runtime/host boundaries and bounded evidence. No new authority, persistence, host or evaluator is introduced; renewed post-TP Brownfield preparation must validate the scoped dependency design."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:09783d6bf308353e687aafd92819060150427c00a57833a7a249eca54713696a",
+        "reason": "Existing orientation-select-inspect modes, stored versus current source identity, explicit failure and deliberate contextual use remain. Backlog-only start and direct Run start preserve these intentions with honest source scope and requested-ID error feedback."
+      }
+    ],
+    "implementation_evidence": "SCOPED_READ_IMPACT-09.md records reproduction, owners, read-set design, compatibility and evidence. Retain current production source and prior tests as dated work only; renew SD/TP, preparation, affected source/transport/security/freshness/host proofs before claiming implementation or QA. No production file changed.",
+    "unresolved": []
+  }
+}

@@ -48,6 +48,10 @@ and unrelated integrity/source blockers are not clarification permission.
 
 ## Explicit revision and recording
 
+Before recording, use the continuation's resolved language and summary fields with
+gate-artifact-preparation's Language and approval summary preparation. A translated summary
+must be part of the draft before presentation, not deferred until a renderer failure.
+
 For a registered ready unapproved draft, require an actual human drafting/revision request;
 loading or selecting this skill is insufficient. The shared explicit route is gate-check with
 intake true, intake_mode resume, run_id, expected_revision_id and prd_action revise

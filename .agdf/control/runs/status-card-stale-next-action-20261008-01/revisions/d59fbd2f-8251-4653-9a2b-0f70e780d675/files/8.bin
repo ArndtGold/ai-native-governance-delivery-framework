@@ -1,0 +1,61 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "status-card-stale-next-action-20261008-01",
+  "expected_revision_id": "42adf2e9-6040-4075-b1c3-0db15d2830ed",
+  "operation_id": "d59fbd2f-8251-4653-9a2b-0f70e780d675",
+  "source_gate": "SD",
+  "reason": "CD+Tests exposed a second design gap: the revised forward-only rule checks only the stored gate. The existing smoke scenario (packages/cli/scripts/smoke-test.js, gate-check presentation scenarios, line ~2072) stores gate UR with the hand-authored next step \"Draft PRD.\" for an evaluated PRD gate and requires that text to stay visible; the forward-only rule replaces it with the generic PRD text. PRD AC-003 requires that both the stored gate and the stored next step belong to an earlier gate.",
+  "intended_change": "Revise SDD-01 and SDD-04: a stored next step is stale only when the run is active, the evaluated gate moved forward past the stored gate, and the stored text is a registered canonical operational value of the English locale pack in plugins/agdf/meta/agdf-interaction-locales.json (loaded through resources/context.js) that differs from the evaluated text. Hand-authored texts are never replaced. The observed cockpit defect (canonical Brownfield Analysis text, forward move) stays fixed; both existing safety and smoke scenarios stay unchanged.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/UR.md",
+      "digest": "sha256:b06a79f013dd90e4e34cc7b31e02f818e4c8041352c4617ef80f4a16bce50d15"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/PRD.md",
+      "digest": "sha256:5a6706f51fe3c78e8f6ab2b8e7704e2f871df87365af49a4b9a644a005322a43"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/SD.md",
+      "digest": "sha256:15018344d60808222ddbe669dd0b9f70a9d9cdb8cad0d1ef5ea0e7681688cb5c"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/TP.md",
+      "digest": "sha256:81294e130d538d5e64dad8fcd5de562c2c6bae17aaa17ed9829834eecd0c36f6"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude Code implementing agent; cooperative impact assessment, not independent proof",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/UR.md",
+        "digest": "sha256:b06a79f013dd90e4e34cc7b31e02f818e4c8041352c4617ef80f4a16bce50d15",
+        "rationale": "The UR need (next step belongs to the evaluated gate after recording an internal step, observed as a forward move) is unchanged."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/PRD.md",
+        "digest": "sha256:5a6706f51fe3c78e8f6ab2b8e7704e2f871df87365af49a4b9a644a005322a43",
+        "rationale": "PRD AC-003 already states the stored gate belongs to an earlier gate than the evaluated one; the forward-only rule is a design clarification within approved behavior and acceptance. The decision row wording 'differs' is clarified by the SD revision, not changed in intent."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:06a1af48ca19863852d9569834edab745446bd7cdc8dc12c7e3fe938ea26bca4",
+        "reason": "Routing (structured_slice), owners and scan evidence are unchanged; the backward case adds no new boundary."
+      }
+    ],
+    "implementation_evidence": "Working-tree implementation of the forward-only rule (next-action.js storedGateMoved with canonical gate order, writer refresh, gate-check, delivery-map, constant) passes all focused suites; node scripts/smoke-test.js fails at the gate-check presentation scenario because the hand-authored stored next step is replaced. Retained code and tests require fresh assessment under the renewed TP.",
+    "unresolved": []
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "SCN-028": {
+    "scenario_id": "SCN-028",
+    "criterion_id": "AC-011",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-010",
+    "tested_source_or_fixture": "normal/invalid/missing/stale/error browser and DOM",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Representative normal, blocker, stale and error views use German labels/actions; unknown Core values remain unavailable with original source context",
+    "actual_result": "German controls and state/action explanations; unknown Core value explicitly unavailable with original source context; source documents remain original language",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "playwright-results.json",
+      "ui-tests.log",
+      "browser-detail.png",
+      "browser-missing.png"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "SCN-022": {
+    "scenario_id": "SCN-022",
+    "criterion_id": "AC-009",
+    "design_decision_id": "SDD-002",
+    "task_id": "T-005",
+    "tested_source_or_fixture": "HTTP boundary + startup checks",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Wrong/missing secret, foreign/null Origin, wrong Host/port, foreign fetch site, preflight, unsupported method, invalid/missing target and public-host arguments fail closed; valid authenticated same-origin reads succeed",
+    "actual_result": "wrong/missing/Unicode secret, Origin null/foreign, Host, fetch-site, OPTIONS/POST, selectors rejected; valid same-origin GET accepted; missing/invalid target and port rejected; CLI accepts only dir/port",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "ui-tests.log",
+      "../../../../../../packages/control-ui/server/start.mjs"
+    ]
+  },
+  "SCN-032": {
+    "scenario_id": "SCN-032",
+    "criterion_id": "AC-009",
+    "design_decision_id": "SDD-002",
+    "task_id": "T-005",
+    "tested_source_or_fixture": "session + fixed assets HTTP/browser",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Fragment secret is removed immediately and never appears in request URL, cookie, browser durable storage, error or request log; fixed assets reject unknown/escaped/symlink paths and carry restrictive security headers",
+    "actual_result": "fragment immediately removed; secret absent request URLs/cookies/storage/errors; no request logging; restrictive headers; unknown/escaped and symlink assets denied; startup deliberately prints private local bootstrap URL",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "ui-tests.log",
+      "playwright-results.json"
+    ]
+  }
+}

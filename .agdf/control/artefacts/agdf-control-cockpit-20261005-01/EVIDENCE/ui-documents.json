@@ -1,0 +1,55 @@
+{
+  "SCN-009": {
+    "scenario_id": "SCN-009",
+    "criterion_id": "AC-004",
+    "design_decision_id": "SDD-005",
+    "task_id": "T-007",
+    "tested_source_or_fixture": "passive renderer + real browser malicious document",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Registered Markdown/JSON/text show source provenance and content; script, raw HTML, forms, images and unknown/external links execute or fetch nothing",
+    "actual_result": "original document content rendered; HTML/script/iframe/image/form/unknown URLs are inert, registered resource links are buttons",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "ui-tests.log",
+      "playwright-results.json",
+      "browser-document.png"
+    ]
+  },
+  "SCN-024": {
+    "scenario_id": "SCN-024",
+    "criterion_id": "AC-009",
+    "design_decision_id": "SDD-005",
+    "task_id": "T-007",
+    "tested_source_or_fixture": "malicious Markdown DOM/browser",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Malicious Markdown URLs, SVG/HTML/embed payloads and disguised registered links cause neither execution, remote request nor out-of-scope resource navigation",
+    "actual_result": "URL/HTML/SVG/image/embed/script payloads fetch/execute nothing; navigation map exposes registered controls only",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "ui-tests.log",
+      "playwright-results.json"
+    ]
+  },
+  "SCN-027": {
+    "scenario_id": "SCN-027",
+    "criterion_id": "AC-011",
+    "design_decision_id": "SDD-005",
+    "task_id": "T-007",
+    "tested_source_or_fixture": "original multilingual documents",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Original multilingual UTF-8 documents and IDs preserve content through passive rendering/escaped text; markup interpretation does not translate source text",
+    "actual_result": "German/Greek/Japanese source strings retained; JSON/text byte content preserved and escaped; renderer performs no source translation",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log",
+      "ui-tests.log",
+      "playwright-results.json"
+    ]
+  }
+}

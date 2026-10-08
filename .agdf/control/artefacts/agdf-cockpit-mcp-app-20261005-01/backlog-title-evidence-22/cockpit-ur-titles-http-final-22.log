@@ -1,0 +1,89 @@
+TAP version 13
+# Subtest: SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+not ok 1 - SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+  ---
+  duration_ms: 1499.470448
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:19:1'
+  failureType: 'testCodeFailure'
+  error: 'asset_boundary_invalid'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+    assets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+    startControlServer (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:20:68)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+ok 2 - SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+  ---
+  duration_ms: 459.442396
+  type: 'test'
+  ...
+# Subtest: SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+not ok 3 - SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+  ---
+  duration_ms: 1209.433585
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:81:1'
+  failureType: 'testCodeFailure'
+  error: 'asset_boundary_invalid'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+    assets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+    startControlServer (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:82:40)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+  ...
+# Subtest: SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+not ok 4 - SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+  ---
+  duration_ms: 1102.797111
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:89:1'
+  failureType: 'testCodeFailure'
+  error: 'asset_boundary_invalid'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+    visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+    assets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+    startControlServer (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/service.test.mjs:97:21)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+ok 5 - SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+  ---
+  duration_ms: 888.720636
+  type: 'test'
+  ...
+# Subtest: SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+ok 6 - SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+  ---
+  duration_ms: 743.923071
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 3
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6350.676803

@@ -20,6 +20,7 @@ import { withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
 import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
 import { pendingRunStepIds } from "./run-step-pending.js";
 import { prepareArtefactRecording } from "./run-artefact-recording.js";
+import { backlogStatusForPolicy, assertBacklogPath, prepareRunBacklog, backlogTableLayout } from "./run-backlog.js";
 
 // run-step records one standard transition of the small path in a single sealed revision. The agent
 // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
@@ -33,13 +34,6 @@ const NEXT_GATE_BY_ROUTE = Object.freeze({
   structured_slice: "PRD",
   structured_delivery: "PRD",
   block: "none",
-});
-const BACKLOG_STATUS_BY_ROUTE = Object.freeze({
-  quick_task: "In Progress",
-  verified_change: "In Progress",
-  structured_slice: "Awaiting PRD",
-  structured_delivery: "Awaiting PRD",
-  block: "Blocked",
 });
 const BACKLOG_LABELS = Object.freeze([["UR", "UR"], ["Brownfield Review", "Brownfield"], ["PRD", "PRD"], ["SD", "SD"], ["TP", "TP"], ["QA", "QA"], ["OR", "OR"]]);
 const BACKLOG_PATH = join(".agdf", "control", "MASTER_BACKLOG.md");
@@ -81,17 +75,24 @@ function prepareBacklog(root, key, { title, status, links, next, closeout }) {
   let text = canonicalRunText(original);
   const lines = text.split("\n");
   const active = firstSection(lines, "Active Backlog");
+  const indexes = active ? tableLineIndexes(lines, active) : [];
+  const layout = indexes.length ? backlogTableLayout(tableCells(lines[indexes[0]])) : null;
+  if (layout === "legacy") return { status: "layout_legacy", update: null };
+  if (layout !== "compact") return { status: "layout_unsupported", update: null };
+  const matching = indexes.slice(2).filter(index => tableCells(lines[index])[1]?.replaceAll("`", "").trim() === key);
+  if (matching.length > 1) throw Error("AGDF_BACKLOG_IDENTITY_AMBIGUOUS");
+  if (matching.some(index => tableCells(lines[index]).length !== 7)) return { status: "layout_unsupported", update: null };
   const existing = active
-    ? tableLineIndexes(lines, active).slice(2).map((index) => tableCells(lines[index])).find((cells) => cells[1] === key)
+    ? tableLineIndexes(lines, active).slice(2).map((index) => tableCells(lines[index])).find((cells) => cells[1]?.replaceAll("`", "").trim() === key)
     : undefined;
   const rowTitle = oneLine(title) || existing?.[2] || key;
   if (closeout) {
-    text = removeTableRows(text, "Active Backlog", 1, key) ?? text;
+    text = removeTableRows(text, "Active Backlog", 1, existing?.[1] ?? key) ?? text;
     text = upsertTableRow(text, "Completed / Superseded Pointers", 0, key, [key, rowTitle, "Completed", closeout.record, oneLine(closeout.outcome)]);
   } else {
-    text = upsertTableRow(text, "Active Backlog", 1, key, [
+    text = upsertTableRow(text, "Active Backlog", 1, existing?.[1] ?? key, [
       existing?.[0] || "P1",
-      key,
+      existing?.[1] ?? key,
       rowTitle,
       status ?? existing?.[3] ?? "In Progress",
       links.join(" · "),
@@ -172,7 +173,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     if (failed) return failed;
     known = `UR drafted at \`${path}\`.`;
     evidenceRow = ["UR draft", `\`${path}\``, "problem, goal, scope and acceptance signals", "direct"];
-    backlog = { title: input.title, status: "Needs UR" };
+    backlog = { title: input.title };
   } else if (step === "route") {
     const routeBeforeUrApproval = !approved("UR")
       && before.status === "open"
@@ -199,7 +200,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     }
     known = `Brownfield Review at \`${path}\` selected \`${input.route}\`.`;
     evidenceRow = ["Brownfield Review", `\`${path}\``, `Mode/Slice Decision \`${input.route}\``, "direct"];
-    backlog = { status: BACKLOG_STATUS_BY_ROUTE[input.route] };
+    backlog = {};
   } else if (step === "review") {
     if (!RUN_STEP_ROUTES.includes(route)) return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
     if (!REVIEW_DECISIONS.has(input.decision)) return rejected(runId, "decision_invalid", { decisions: [...REVIEW_DECISIONS] });
@@ -255,9 +256,13 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     if (failed) return failed;
   }
 
-  const backlogPlan = backlog
-    ? prepareBacklog(root, key, { ...backlog, links: backlogLinks(text), next: after.next_allowed_action })
-    : { status: "unchanged", update: null };
+  let backlogPlan = backlog
+    ? prepareBacklog(root, key, { ...backlog, status: backlogStatusForPolicy(after), links: backlogLinks(text), next: after.next_allowed_action })
+    : prepareRunBacklog(root, key, text, run.path);
+  // Legacy rows keep their title and per-gate link columns. Status and next step still follow
+  // the Run where the row exists; a closeout move is left to the maintainer.
+  if (backlogPlan.status === "layout_legacy") backlogPlan = { ...(backlog.closeout ? { status: "skipped", update: null }
+    : prepareRunBacklog(root, key, text, run.path)), reason: "backlog_layout_legacy" };
   if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
   const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update)
     ? commitRunStepLocked(root, {
@@ -280,6 +285,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
     current_gate: after.current_gate,
     next_allowed_action: after.next_allowed_action,
     backlog: backlogPlan.status,
+    ...(backlogPlan.reason ? { backlog_reason: backlogPlan.reason } : {}),
   });
 }
 
@@ -289,7 +295,9 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
   let path;
   try { path = runPath(root, runId); } catch { return rejected(runId, "run_id_invalid"); }
   const backlogPath = join(root, BACKLOG_PATH);
-  const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => withOwnedFileLock(backlogPath, () => {
+  const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => {
+    assertBacklogPath(root);
+    return withOwnedFileLock(backlogPath, () => {
     const otherPending = pendingRunStepIds(root).find((id) => id !== runId);
     if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
     const recovered = recoverPendingRunStepLocked(root, runId);
@@ -299,6 +307,7 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
         backlog: "updated" });
     }
     return recordRunStepLocked(root, input, { policy, date, afterWrite });
-  })));
+    });
+  }));
   return locked.rejection ?? locked.state;
 }

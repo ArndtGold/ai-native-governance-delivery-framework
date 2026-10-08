@@ -1,0 +1,21 @@
+{
+  "SCN-031": {
+    "scenario_id": "SCN-031",
+    "criterion_id": "AC-010",
+    "design_decision_id": "SDD-006",
+    "task_id": "T-010",
+    "tested_source_or_fixture": "README reproduction and actual browser",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "README steps reproduce local startup, real overview/detail/document journey and shutdown with explicit target; before/after control bytes match and no installation/cloud/time-saving claim is made",
+    "actual_result": "clean install, sync, typecheck/build, explicit service startup, actual three-view pointer/keyboard journey, shutdown and full tree invariance; local host only",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "clean-install.log",
+      "build.log",
+      "playwright-results.json",
+      "../../../../../../packages/control-ui/README.md"
+    ]
+  }
+}

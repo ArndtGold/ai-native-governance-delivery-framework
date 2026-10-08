@@ -14,6 +14,13 @@ Eine Dokumentzuordnung beschließt keine neuen Tool-Namen, Schemata oder Schreib
 
 ## Ausgangspunkt: bestehende Schnittstelle
 
+Die folgende Beschreibung betrifft den regulären Dispatch-/Inspect-Server. Seit dem lokalen
+Cockpit-Umsetzungsstand vom 6. Oktober 2026 besteht daneben eine separate private MCP-App mit
+`agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Ihre
+[Bestandsbeschreibung](06-agdf-cockpit.md) erklärt Run-Bindung, Leseansichten, Kontextübergabe
+und offene native Host-Nachweise. Diese lokale Implementierung verwirklicht nicht automatisch
+die übrigen Operationen des Zielbilds und ist keine allgemeine Schreib-/Approval-Schnittstelle.
+
 Im untersuchten Quellstand bestehen die Werkzeugverträge `agdf_dispatch` und `agdf_inspect`.
 Dispatch liefert nach Zielbindung eine Kontrollantwort oder begrenzte Fortsetzung; Inspect bietet
 lesende Abfragen für `doctor`, `gate-check`, `delivery-map` und `contract`.

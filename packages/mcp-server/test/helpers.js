@@ -11,6 +11,7 @@ export async function withStdioClient({
   command = SERVER_COMMAND,
   args = SERVER_ARGS,
   cwd = fileURLToPath(new URL("..", import.meta.url)),
+  capabilities,
 } = {}, callback) {
   const transport = new StdioClientTransport({
     command,
@@ -20,7 +21,7 @@ export async function withStdioClient({
   });
   let stderr = "";
   transport.stderr.on("data", (chunk) => { stderr += chunk; });
-  const options = modern ? { versionNegotiation: { mode: { pin: "2026-07-28" } } } : {};
+  const options = { ...(modern ? { versionNegotiation: { mode: { pin: "2026-07-28" } } } : {}), ...(capabilities ? { capabilities } : {}) };
   const client = new Client({ name: "agdf-mcp-test", version: "1.0.0" }, options);
   try {
     await client.connect(transport);

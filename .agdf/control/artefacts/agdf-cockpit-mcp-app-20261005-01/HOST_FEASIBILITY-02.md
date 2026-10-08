@@ -1,0 +1,15 @@
+# Host feasibility checkpoint: renewed Run opening
+
+- Status: partially qualified; current rebuilt native direct opening remains unqualified.
+- Date: 2026-10-06
+- Run: agdf-cockpit-mcp-app-20261005-01
+- Actual surface: Codex desktop native MCP Apps panel; bridge identifies itself as chatgpt 26.930.51102. This is the reported bridge tuple, not a guessed SDK alias or model/version claim.
+- Pre-refresh actual native agdf_cockpit({}) succeeded; registered sources were visible through the existing bound-project overview and larger surface.
+- Host advertised serverTools/serverResources, updateModelContext structuredContent and message text; supported modes inline/fullscreen. Observed fullscreen container maxWidth 939/maxHeight 1372, locale de-DE. See NATIVE_PROBE_RECORD-02.json for exact returned host context/capabilities.
+- SCN-014: executed the deliberately labelled synthetic context test and separately clicked the neutral test-question button under the user's earlier explicit request to perform them. Context acknowledgement is visible; host context contains the same synthetic structured payload, authorizes false. UI subsequently shows “Frage vom Host angenommen; Antwort nicht geprüft.” This proves acknowledgement and host acceptance, not a inspected conversation answer, production packet semantics or UAT.
+- The exact synthetic neutral question contains no approval/delivery command and does not transfer any gate approval. NATIVE_PROBE-02.png records the actual resulting native state.
+- App-only probe window: 2,899 canonical control files before/after, zero changed; NATIVE_NO_WRITE-02.json. All agent evidence bookkeeping occurred after the closed window.
+- Scoped owned runtime replacement preserved the exact project config digest sha256:9a0a10a5ff4eb139d05946ec610ae7432bf595bfca469ad8a07ad6bd0f4401a9; installed governance/default connection was not replaced. New UI sha256:08e8923bac3ceb79d3bbd15c9f36aee6052956181dfab2ab6082dab7a82f4454, 983715 bytes; server cb81b9820ff7b21761d7aa453d7caefb30d4f99302234377270946af9c609521.
+- Current-turn host tool catalog still declares empty opening arguments. Attempted native direct opening after replacement returned Transport closed; no current resource/bootstrap/display was observed. Independent fresh stdio clients discover and execute the new optional run_id under both supported protocol eras; this is not native UI proof.
+- SCN-045 remains open: a fresh Codex connection must discover the new descriptor and matching resource, then display the explicitly named Run and empty overview. Do not reuse the old rendered UI or acknowledgement as updated-resource qualification. No automatic repeated neutral question is planned after its accepted outcome.
+- T-006 remains partial, so extensive T-007 onward graph/packet/handoff work is not started. Next action: reload/reopen the Codex project/chat to recreate the named local MCP transport; read back the descriptor, invoke the named Run and inspect the actual current native card. Record the result before continuing dependent work.

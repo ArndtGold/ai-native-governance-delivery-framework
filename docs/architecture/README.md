@@ -5,7 +5,7 @@ Voraussetzungen prüfen, Arbeit vorbereiten, menschliche Entscheidungen erfassen
 prüfen. Der Agent läuft weiterhin in seinem Host, etwa Codex oder Claude Code. AGDF verbindet
 Anweisungen, ausführbare Kontrollen und den dauerhaften Projektzustand unter `.agdf/control/`.
 
-**Stand der redaktionellen Übersicht: 3. Oktober 2026, Repository-Quelle.** Die folgenden Seiten unterscheiden
+**Stand der redaktionellen Übersicht: 6. Oktober 2026, Repository-Quelle.** Die folgenden Seiten unterscheiden
 bestehende Implementierung, vorgeschlagene Weiterentwicklung und noch offene Detailfragen.
 Normative Regeln bleiben in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
 
@@ -71,6 +71,7 @@ keine aktualisierte Installation oder bereits beobachtete Verbesserung in einer 
 | Die Weiterentwicklung als Ganzes verstehen | [Gesamtkonzept zur Agentenkontrolle](03-agentenkontrolle-zielbild.md) | Gemeinsames vorgeschlagenes Zielbild für Ablaufsteuerung, Ausführungskontrolle und Ergebnisprüfung; mit einer Roadmap |
 | Offene MCP-Details klären | [MCP-Schnittstellen im gemeinsamen Zielbild](04-mcp-schnittstellen.md) | Ergänzende Fragen und Zuordnung zum Operationskatalog des Gesamtkonzepts |
 | Code und Auslieferung zuordnen | [Paket- und Quellstruktur](05-paketstruktur.md) | Referenz der Implementierungs- und Build-Grenzen |
+| Kontrollstand und Quellen im Cockpit verstehen | [Lokale MCP-App](06-agdf-cockpit.md) | Implementierte Ansichten, Run-Bindung, gemeinsames Pages-Design, Aktualität und getrennte Host-Nachweise |
 
 Für den ersten Durchgang: diese Seite, dann die Bestandsbeschreibung und anschließend das Zielbild.
 Dispatcher und Paketstruktur vertiefen konkrete Teile. Die MCP-Seite ergänzt das Zielbild um offene
@@ -86,7 +87,10 @@ Schnittstellenfragen; sie besitzt keinen zweiten Operationskatalog und keine eig
 | Menschliche Entscheidung | Gebundene Darstellung und exakte Antwort im kooperativen Weg | Qualifizierte native Auswahlfelder und gegebenenfalls stärkere Herkunftsnachweise |
 | MCP | Zwei Werkzeuge vermitteln Dispatch und lesende Inspektion | Zusammenhängende Operationen aus dem Zielbild, erst nach Klärung von Wirkung, Autorisierung und Kompatibilität |
 
-MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`.
+MCP-Werkzeuge des regulären Servers: `agdf_dispatch`, `agdf_inspect`.
+Die separate lokale Cockpit-Verbindung bietet `agdf_cockpit`, `agdf_cockpit_read` und eine
+eingebettete UI-Resource. Ihr [Umsetzungsstand](06-agdf-cockpit.md) ist eine private
+Entwicklungsintegration; sie erteilt keine Freigabe und ist kein Nachweis nativer Host-Abnahme.
 
 Die vorgeschlagenen Ergänzungen sind durch die Dokumentation noch nicht implementiert. Maßgeblich
 für ihre weitere Planung sind der [Operationskatalog](03-agentenkontrolle-zielbild.md#7-mcp-operationskatalog-für-den-gesamten-lebenszyklus)

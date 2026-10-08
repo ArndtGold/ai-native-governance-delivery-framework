@@ -1,0 +1,68 @@
+
+Running 1 test using 1 worker
+
+(node:5187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+return geometry {
+  history: [
+    { width: 1045, view: 'Run-Übersicht', mode: undefined },
+    { width: 1045, view: 'Run-Übersicht', mode: undefined },
+    { width: 1, view: 'Run-Übersicht', mode: undefined },
+    { width: 1045, view: 'Run-Übersicht', mode: undefined },
+    { width: 1045, view: 'Run-Übersicht', mode: undefined },
+    { width: 1045, view: 'Run-Übersicht', mode: undefined },
+    {
+      width: 1045,
+      view: 'Local read-only AGDF control cockpit',
+      mode: 'details'
+    },
+    {
+      width: 1045,
+      view: 'Local read-only AGDF control cockpit',
+      mode: 'details'
+    },
+    { width: 1045, view: 'Anforderungen', mode: undefined },
+    { width: 1, view: 'Anforderungen', mode: undefined },
+    { width: 1045, view: 'Anforderungen', mode: undefined },
+    { width: 1045, view: 'Anforderungen', mode: undefined },
+    {
+      width: 1045,
+      view: 'Local read-only AGDF control cockpit',
+      mode: 'summary'
+    }
+  ],
+  width: 1045,
+  mode: 'summary'
+}
+  ✘  1 test/browser/status-captured.spec.mjs:105:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (21.8s)
+
+
+  1) test/browser/status-captured.spec.mjs:105:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator: locator('.resources button').filter({ hasText: /\/UR\.md/ })
+    Expected: focused
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeFocused" locator('.resources button').filter({ hasText: /\/UR\.md/ }) with timeout 5000ms
+      - waiting for locator('.resources button').filter({ hasText: /\/UR\.md/ })
+
+
+      116 |     const expectedSource = fs.readFileSync(join(root, '.agdf/control/artefacts/agdf-control-cockpit-20261005-01/UR.md'), 'utf8'); expect(expectedSource).toContain('Local read-only AGDF control cockpit');
+      117 |     await page.screenshot({ path: '/private/tmp/agdf-cockpit-document.png', fullPage: true });
+    > 118 |     await page.getByRole('navigation', {name:'Vorhaben-Pfad'}).getByRole('button', {name:'Local read-only AGDF control cockpit',exact:true}).click(); await expect(page.getByRole('group',{name:'Ansicht'})).toBeVisible(); console.log('return geometry',await page.evaluate(()=>({history:window.__widths,width:document.querySelector('.workspace').getBoundingClientRect().width, mode:document.querySelector('.view-switch')?.getAttribute('data-mode')}))); await expect(document).toBeFocused();
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      119 |     await expect(page.getByRole('button', {name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
+      120 |     await page.getByRole('button', { name: 'Alle Vorhaben', exact: true }).click(); await expect(page.getByRole('button', { name: 'Local read-only AGDF control cockpit', exact: true })).toBeFocused();
+      121 |     // Complete the entire journey with each input method, including the return controls.
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/status-captured.spec.mjs:118:474
+
+    Error Context: test-results/status-captured-SCN-003-00-45b4c-idelity-and-unchanged-bytes/error-context.md
+
+  1 failed
+    test/browser/status-captured.spec.mjs:105:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 

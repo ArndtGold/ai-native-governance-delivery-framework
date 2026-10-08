@@ -48,6 +48,10 @@ try {
   const initial = bound("--continue-delivery");
   assert.equal(initial.continuation?.phase, "prd_definition", JSON.stringify(initial));
   assert.equal(initial.continuation.draft_registered, false);
+  assert.equal(initial.continuation.artifact_language, "en");
+  assert.equal(initial.continuation.presentation_language, "de");
+  assert.equal(initial.continuation.approval_summary_required, true);
+  assert.equal(initial.continuation.approval_summary_heading, "AGDF Approval Summary (de; source=en)");
   assert.equal(initial.continuation.sources[0].type, "UR");
   assert.match(initial.continuation.sources[0].digest, /^sha256:[a-f0-9]{64}$/u);
   assert.deepEqual(initial.continuation.runtime_contracts.map(c => c.module), ["prd-definition", "gate-artifact-preparation"]);

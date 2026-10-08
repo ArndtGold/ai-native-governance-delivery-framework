@@ -1,0 +1,69 @@
+
+> agdf-web@0.14.5 prebuild
+> node scripts/design-tokens.mjs
+
+
+> agdf-web@0.14.5 build
+> astro build
+
+17:27:58 [content] Syncing content
+17:27:58 [content] Synced content
+17:27:58 [types] Generated 295ms
+17:27:58 [build] output: "static"
+17:27:58 [build] mode: "static"
+17:27:58 [build] directory: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/pages/dist/
+17:27:58 [build] Collecting build info...
+17:27:58 [build] ✓ Completed in 490ms.
+17:27:58 [build] Building static entrypoints...
+17:28:03 [vite] ✓ built in 5.00s
+17:28:03 [build] ✓ Completed in 5.32s.
+
+ generating static routes 
+17:28:03 ▶ src/pages/[document].astro
+17:28:03   ├─ /privacy/index.html (+26ms) 
+17:28:03   ├─ /terms/index.html (+2ms) 
+17:28:03   └─ /support/index.html (+2ms) 
+17:28:03 ▶ src/pages/index.astro
+17:28:03   └─ /index.html (+9ms) 
+17:28:03 ✓ Completed in 68ms.
+
+17:28:03 [build] 4 page(s) built in 5.92s
+17:28:03 [build] Complete!
+
+> agdf-web@0.14.5 test:landing
+> npm run build && node ./scripts/landing-page-test.mjs
+
+
+> agdf-web@0.14.5 prebuild
+> node scripts/design-tokens.mjs
+
+
+> agdf-web@0.14.5 build
+> astro build
+
+17:28:10 [content] Syncing content
+17:28:11 [content] Synced content
+17:28:11 [types] Generated 192ms
+17:28:11 [build] output: "static"
+17:28:11 [build] mode: "static"
+17:28:11 [build] directory: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/pages/dist/
+17:28:11 [build] Collecting build info...
+17:28:11 [build] ✓ Completed in 391ms.
+17:28:11 [build] Building static entrypoints...
+17:28:14 [vite] ✓ built in 3.49s
+17:28:14 [build] ✓ Completed in 3.59s.
+
+ generating static routes 
+17:28:14 ▶ src/pages/[document].astro
+17:28:14   ├─ /privacy/index.html (+16ms) 
+17:28:14   ├─ /terms/index.html (+2ms) 
+17:28:14   └─ /support/index.html (+2ms) 
+17:28:14 ▶ src/pages/index.astro
+17:28:14   └─ /index.html (+10ms) 
+17:28:14 ✓ Completed in 54ms.
+
+17:28:14 [build] 4 page(s) built in 4.08s
+17:28:14 [build] Complete!
+Landing-page visible word count: 1711 (editorial target 1500–1800; hard maximum 2200)
+Landing-page local image payload: 1210792 bytes across 2 unique assets
+Landing-page structure, copy, boundary, metadata, No-JS and payload tests passed

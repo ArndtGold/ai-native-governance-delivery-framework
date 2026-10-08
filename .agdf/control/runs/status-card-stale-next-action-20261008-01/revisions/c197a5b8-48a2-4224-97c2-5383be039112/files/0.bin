@@ -1,0 +1,78 @@
+# Brownfield Analysis: Stale next step after internal step recording
+
+Gate: Brownfield Analysis
+Type: Brownfield Analysis
+Mode: `pre_implementation_analysis`
+Status: `done`
+
+## Run
+
+- run_id: status-card-stale-next-action-20261008-01
+- related_tp: `.agdf/control/artefacts/status-card-stale-next-action-20261008-01/TP.md` (approved, revision 12)
+- reviewer: Claude Code implementing agent (cooperative analysis, not independent proof)
+- reviewed_at: 2026-10-08
+
+## Result
+
+- decision: `pass`
+- scope: TP tasks T-001 to T-011 against the approved SD (SDD-01 to SDD-08).
+- current_coverage: `not_done` for the precedence helper, the `run-update` refresh and the shared constant. `partially_done` for the write-side refresh pattern, which already exists in `run-steps.js:244-257` and `run-recording.js:170-192` and is reused.
+- reuse_strategy: `extend`. Add one helper module and change three call sites and one writer path. No new writer, evaluator, CLI surface or test harness framework.
+
+## Owners And Affected Paths
+
+| Path | Owner role | Change | Clean at baseline |
+|---|---|---|---|
+| `packages/core/lib/control-evaluation/next-action.js` | Precedence rule (new) | New | yes (new file) |
+| `packages/core/lib/control-evaluation/gate-check.js` | Gate-check report and status card | Fallback branch and `continuePostTpWork` | yes |
+| `packages/core/lib/control-evaluation/delivery-map.js` | Delivery-map report | Line 228 | yes |
+| `packages/core/lib/control-evaluation/gate-policy.js` | Gate decisions | Export `CD_TESTS_NEXT_ALLOWED_ACTION` | yes |
+| `packages/core/lib/control-state/run-recording.js` | `run-update` writer | Refresh in the content-changed path of `recordRunRevision` | yes |
+| `packages/core/lib/skill-dispatch/service.js` | Implementation continuation | Import the constant | yes |
+| Tests: `packages/core/test/next-action-test.js` (new), `packages/core/test/control-state-test.js`, `packages/cli/scripts/cli-gate-scenarios-test.js`, `packages/cli/scripts/skill-dispatch-test.js`, `packages/core/test/cockpit-scoped-read-test.js` | Evidence | Extend | yes |
+| `packages/cli/package.json` | Script registry | Add `test:next-action` | no: the file already carries unrelated uncommitted changes from the cockpit run. The added line stays isolated and is listed separately in closeout. |
+
+Unrelated uncommitted changes from `agdf-cockpit-claude-host-20261008-01` remain in `packages/cli/lib/mcp-*`, `packages/mcp-server/**`, `scripts/*` and `plugins/agdf/meta/copilot-payload-baseline.json`. This run does not touch them.
+
+## Implementation Path
+
+1. **T-001.** Capture the baseline first with the repository CLI (`node packages/cli/bin/create-agdf.js gate-check|delivery-map --dir . --run <id> --json`). The harness passes native Windows paths: the earlier scan showed that a forward-slash target breaks `readRunState`'s path prefix check.
+2. **T-002.** `next-action.js` imports `isPlaceholderValue` (`shared.js`) and `extractField` (`verified-change.js`). Neither imports gate-check or delivery-map, so no cycle arises.
+3. **T-003 and T-004.** The gate and delivery-map fixtures in `cli-gate-scenarios-test.js` use a hand-written sealed `RUN_STATE.md` (pattern: the late-gate fixtures in `smoke-test.js:1517-1600`, with `sealRunState`, already imported there). Fixture pairs:
+   - stale: stored gate Brownfield Analysis with its next step, Brownfield Analysis row done, evaluated CD+Tests;
+   - never-stale: identical but stored CD+Tests;
+   - same-gate custom at CD+Tests;
+   - completed;
+   - stale with an open blocker.
+   The existing `dispatch()` helper also allows an end-to-end `--continue-delivery` assertion on these fixtures, in addition to the mocked unit tests in `skill-dispatch-test.js`.
+4. **T-005.** `control-state-test.js` already covers `run-update`. The refresh must keep the existing `duplicatePrdRow` rejection order (duplicate check before seal state) and the `approvals_unrecorded` rejection.
+5. **T-006.** The literal occurs in `gate-policy.js`, `service.js`, three tests (`artefact-recording-test.js`, `interaction-presentation-test.js`, `smoke-test.js`) and the locale registry `plugins/agdf/meta/agdf-interaction-locales.json`, which is keyed by the English text. The constant keeps the identical string, so the tests and the locale lookup stay valid.
+6. **T-007.** `cockpit-scoped-read-test.js` is not registered in any npm script. It runs with `node --test packages/core/test/cockpit-scoped-read-test.js`, as in the cockpit run's evidence. Registering it is out of scope.
+7. **T-008.** The generated copies (`packages/cli/generated*/`, `packages/cli/runtime/`) are gitignored, so regenerating them mixes no tracked scope. The sync script itself carries uncommitted cockpit-run changes, so regenerated copies also contain that work. This is acceptable because they are build outputs, not tracked sources.
+
+## Regression Risks And Test Impact
+
+| Risk | Mitigation |
+|---|---|
+| Gate-check blocker and readiness overrides change `nextAllowedAction` after the precedence step | The stale fixture with an open blocker asserts that the blocker text wins |
+| `continuePostTpWork` alters the status-card next step for same-gate custom runs | Same-gate custom fixture asserts the unchanged card |
+| `run-update` refresh breaks seal, binding or approval validation | Writer tests run `doctor` and gate-check on the refreshed fixture |
+| Delivery-map changes for Verified Change or source-revision runs | Delivery-map keeps its rule apart from the helper; completed Verified Change fixture asserts unchanged output |
+| Comparison noise from legacy runs with resolution errors | The harness records the error state, and a diff only counts changed values |
+
+## Context Graph Impact
+
+- context_graph_impact: `update_existing_node`
+- context_graph_refs: `CG-RUN-STATUS-CARD`
+- context_graph_required_action: `update` (T-011, after implementation evidence)
+- context_graph_gate_effect: `none`
+- context_graph_reconciliation: `open_gap` until T-011
+
+## Next Permissible Step
+
+- next_allowed_action: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.
+- forbidden_until_then: QA pass claims, UAT approval requests, release.
+
+## Recording Note
+
+This run records Brownfield Analysis through the existing hand edit plus `run-update`. To avoid the stale-next-step defect this run fixes, the same edit sets `current_gate`, `next_allowed_action` and the derived Current Control State rows to the evaluated CD+Tests values. This is what SDD-04 will automate.

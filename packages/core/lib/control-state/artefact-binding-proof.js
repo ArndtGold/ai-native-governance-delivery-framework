@@ -1,5 +1,5 @@
-import { readFileSync, statSync } from "node:fs";
-import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
+import { readFileSync, statSync } from "../control-read/fs.js";
+import { canonicalJson, digest, exactObject } from "./approval-command-contract.js";
 import { readApprovalOperations } from "./approval-operations.js";
 import { artefactFileDigest, APPROVAL_GATES } from "./run-seal.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
@@ -22,7 +22,7 @@ export function exactApprovedArtefacts(root, control, { fileDigest = path => art
   if (!operations.valid) return false;
   const revisions = readSourceRevisions(control.content), bindings = readArtefactBindings(control.content);
   if (!revisions.valid || !bindings.valid) return false;
-  const target = resolveControlCommandTarget(root).target_id;
+  // Receipts keep their recording checkout's target_id; writers bind new commands locally.
   for (const gate of APPROVAL_GATES.filter(gate => gate !== "UAT" && control.approvals.get(gate)?.status === "approved")) {
     const row = control.artefacts.get(gate), actual = fileDigest(row?.path);
     if (!actual.startsWith("sha256:")) return false;
@@ -35,7 +35,7 @@ export function exactApprovedArtefacts(root, control, { fileDigest = path => art
     const receipt = operations.receipts.filter(item => item.binding.gate === gate && item.binding.presentation_id === presentation[1]);
     if (receipt.length > 1) return false;
     if (receipt.length === 1) {
-      if (receipt[0].binding.target_id !== target || receipt[0].binding.run_id !== control.meta.run_id
+      if (receipt[0].binding.run_id !== control.meta.run_id
           || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest !== presentation[2]) return false;
       // The row identifies the exact prepared record, not a historical superseded approval.
     }
@@ -53,8 +53,7 @@ export function exactApprovedArtefacts(root, control, { fileDigest = path => art
 
 // Local reviewed attestation: explicit exact mapping, never prose or inferred gate order.
 export function validateBindingProof(root, receipt, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false } = {}) {
-  if (receipt.target_id !== resolveControlCommandTarget(root).target_id
-      || [receipt.destination, receipt.source, receipt.review].some(file => !historical && hasSymlinkComponent(root, file.path)
+  if ([receipt.destination, receipt.source, receipt.review].some(file => !historical && hasSymlinkComponent(root, file.path)
         || fileDigest(file.path) !== file.digest)) return false;
   try {
     const proof = readJson(receipt.review.path);

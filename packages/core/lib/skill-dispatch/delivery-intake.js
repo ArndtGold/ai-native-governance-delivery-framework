@@ -4,6 +4,7 @@ import { assertCanonicalRunStore } from "../control-state/run-store-inspection.j
 import { runPath } from "../control-state/run-state-reader.js";
 import { isDurableApprovalArtefactPresent } from "../control-evaluation/gate-check.js";
 import { extractField } from "../control-evaluation/verified-change.js";
+import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 
 export const DELIVERY_INTAKE_OPERATION = "delivery.start";
 
@@ -70,7 +71,8 @@ export function urDefinitionPhase(targetDir, control, input) {
       && control.ur_readiness?.ready !== false) return null;
   return Object.freeze({
     phase: "ur_definition", skill_id: "ur-definition", governance_target: targetDir,
-    run_id: input.run_id, revision_id: revisionId, presentation_language: input.presentation_language,
+    run_id: input.run_id, revision_id: revisionId,
+    ...resolveArtifactPresentationLanguages(targetDir, input.presentation_language),
     artifact_path: canonicalPath, template_path: UR_TEMPLATE, draft_registered: registered,
     ...(input.intake ? { operation_id: DELIVERY_INTAKE_OPERATION } : {}),
     instruction: "Execute ur-definition with the original request and answered context for this exact unapproved UR. Follow the focused contract, record through the existing canonical writer, then redispatch gate-check. Dispatch approves no gate; a changed draft requires a new presentation and a new deliberate response.",

@@ -1,0 +1,37 @@
+{
+  "SCN-001": {
+    "scenario_id": "SCN-001",
+    "criterion_id": "AC-001",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-004",
+    "tested_source_or_fixture": "snapshot/projected discovery",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Stable captured inventory contains known active, completed and malformed entries with exact identity; Core discovery parity preserves unavailable fields",
+    "actual_result": "active/completed/malformed fixture entries are retained; actual repository contains 111 entries",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log",
+      "real-approved-run-parity.json"
+    ]
+  },
+  "SCN-002": {
+    "scenario_id": "SCN-002",
+    "criterion_id": "AC-001",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-004",
+    "tested_source_or_fixture": "absence/empty/partial/read failure fixtures",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Absent control, unreadable subtree and genuinely empty store produce distinct absent/partial/empty results; known entries survive partial failure",
+    "actual_result": "absence is missing; truly empty is empty; malformed known entries remain partial. Unreadable directory invalidates the complete capture as read_failed, never empty, as required by SDD-001; previous UI data remains stale on refresh failure.",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log",
+      "ui-tests.log",
+      "browser.log"
+    ]
+  }
+}

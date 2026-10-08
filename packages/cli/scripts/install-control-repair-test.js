@@ -21,6 +21,16 @@ import { runCli } from "../lib/cli/application.js";
 
 const base = mkdtempSync(join(tmpdir(), "agdf-install-repair-"));
 const textDigest = (text) => `sha256:${createHash("sha256").update(canonicalRunText(text)).digest("hex")}`;
+// Windows without Developer Mode refuses symlinks (EPERM). Only the assertions that depend on
+// the symlink are skipped there; every other failure still throws.
+function symlinkOrSkip(target, path, label) {
+  try { symlinkSync(target, path); return true; }
+  catch (error) {
+    if (process.platform !== "win32" || error.code !== "EPERM") throw error;
+    console.warn(`SKIPPED ${label} symlink assertions: symlinks need elevated privileges or Windows Developer Mode (EPERM)`);
+    return false;
+  }
+}
 function repository(name) {
   const root = join(base, name);
   mkdirSync(root);
@@ -286,19 +296,21 @@ try {
   assert.equal(readFileSync(assetRace.run.path, "utf8"), assetRun, "an asset race must never be re-sealed");
 
   const sourceLink = missingFixture("source-link");
-  symlinkSync("elsewhere.md", join(sourceLink.root, sourceLink.artifact));
-  git(sourceLink.root, ["add", sourceLink.artifact]);
-  git(sourceLink.root, ["commit", "-qm", "Symlink is not an original report"]);
-  unlinkSync(join(sourceLink.root, sourceLink.artifact));
-  // A deleted symlink must never be materialized as report text. An earlier regular original
-  // may still be offered because it is the exact path in this repository's history.
-  const linkPlan = inspectControlRepair(sourceLink.root);
-  assert.equal(Buffer.from(linkPlan.items[0].files[0].bytes, "base64").toString("utf8"), "Original user request\n");
+  if (symlinkOrSkip("elsewhere.md", join(sourceLink.root, sourceLink.artifact), "source-link")) {
+    git(sourceLink.root, ["add", sourceLink.artifact]);
+    git(sourceLink.root, ["commit", "-qm", "Symlink is not an original report"]);
+    unlinkSync(join(sourceLink.root, sourceLink.artifact));
+    // A deleted symlink must never be materialized as report text. An earlier regular original
+    // may still be offered because it is the exact path in this repository's history.
+    const linkPlan = inspectControlRepair(sourceLink.root);
+    assert.equal(Buffer.from(linkPlan.items[0].files[0].bytes, "base64").toString("utf8"), "Original user request\n");
+  }
 
   const linked = missingFixture("linked");
-  symlinkSync(join(missing.root, ".agdf/control/artefacts/missing"), join(linked.root, ".agdf/control/artefacts/linked/symlink"));
-  writeFileSync(linked.run.path, linked.run.content.replace(linked.artifact, ".agdf/control/artefacts/linked/symlink/UR.md"));
-  assert.equal(inspectControlRepair(linked.root).items[0].available, false);
+  if (symlinkOrSkip(join(missing.root, ".agdf/control/artefacts/missing"), join(linked.root, ".agdf/control/artefacts/linked/symlink"), "linked")) {
+    writeFileSync(linked.run.path, linked.run.content.replace(linked.artifact, ".agdf/control/artefacts/linked/symlink/UR.md"));
+    assert.equal(inspectControlRepair(linked.root).items[0].available, false);
+  }
   assert.equal(readFileSync(join(missing.root, missing.artifact), "utf8"), "Original user request\n");
 
   for (const boundary of ["beforeRunWrite", "afterRunWrite"]) {

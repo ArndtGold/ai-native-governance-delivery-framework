@@ -11,7 +11,8 @@ const uuid = value => typeof value === "string" && REVISION_ID_PATTERN.test(valu
 const file = (value, keys) => exactObject(value, keys) && text(value.type)
   && isSafeControlRelativePath(value.path) && DIGEST_PATTERN.test(value.digest ?? "");
 export const artefactBindingDigest = receipt => digest(`agdf-artefact-binding/1\0${canonicalJson(receipt)}`);
-export const artefactBindingKey = receipt => canonicalJson([receipt.target_id, receipt.run_id, receipt.relationship]);
+// One current binding per run relationship, whichever checkout recorded it.
+export const artefactBindingKey = receipt => canonicalJson([receipt.run_id, receipt.relationship]);
 
 export function validArtefactBinding(receipt) {
   if (!exactObject(receipt, fields) || receipt.schema_version !== "1" || !uuid(receipt.binding_id)

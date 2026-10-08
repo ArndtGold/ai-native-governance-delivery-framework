@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: SCN-050/052/053/054: deferred reservation excludes another publisher while independent equal-Run sources stay readable
+ok 1 - SCN-050/052/053/054: deferred reservation excludes another publisher while independent equal-Run sources stay readable
+  ---
+  duration_ms: 1014.259602
+  type: 'test'
+  ...
+# Subtest: SCN-052: a rejected never-returned preparation releases its reservation; successful ownership cannot be replaced without release
+ok 2 - SCN-052: a rejected never-returned preparation releases its reservation; successful ownership cannot be replaced without release
+  ---
+  duration_ms: 730.956881
+  type: 'test'
+  ...
+# Subtest: SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views
+ok 3 - SCN-050: equal Run/source bytes do not make graph, snapshot or artefact selectors transferable between views
+  ---
+  duration_ms: 695.422767
+  type: 'test'
+  ...
+# Subtest: SCN-053/054: nonowner refresh/close preserve the packet; only the newest single receipt can be retried
+ok 4 - SCN-053/054: nonowner refresh/close preserve the packet; only the newest single receipt can be retried
+  ---
+  duration_ms: 836.536149
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: close owner loss quarantines publication without disabling other reading slots
+ok 5 - SCN-048/055/056: close owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 795.395861
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: idle owner loss quarantines publication without disabling other reading slots
+ok 6 - SCN-048/055/056: idle owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 966.062317
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: lifetime owner loss quarantines publication without disabling other reading slots
+ok 7 - SCN-048/055/056: lifetime owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 1285.052144
+  type: 'test'
+  ...
+# Subtest: SCN-048/055/056: worker owner loss quarantines publication without disabling other reading slots
+ok 8 - SCN-048/055/056: worker owner loss quarantines publication without disabling other reading slots
+  ---
+  duration_ms: 875.238092
+  type: 'test'
+  ...
+# Subtest: SCN-054/055/056: failed begin grants no release; active owner can complete its same pending token after worker loss
+ok 9 - SCN-054/055/056: failed begin grants no release; active owner can complete its same pending token after worker loss
+  ---
+  duration_ms: 1267.597354
+  type: 'test'
+  ...
+# Subtest: SCN-049/052: invalidate or shutdown during deferred preparation cannot return a newly usable packet
+ok 10 - SCN-049/052: invalidate or shutdown during deferred preparation cannot return a newly usable packet
+  ---
+  duration_ms: 2174.434471
+  type: 'test'
+  ...
+# Subtest: SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session
+ok 11 - SCN-011/013/020/022/025: production worker packet operations bind inspected source and expire with their session
+  ---
+  duration_ms: 1120.125661
+  type: 'test'
+  ...
+# Subtest: SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial
+ok 12 - SCN-003/026/027: shared production worker reads same immutable source, no write and cross-run document denial
+  ---
+  duration_ms: 858.701083
+  type: 'test'
+  ...
+# Subtest: SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker
+ok 13 - SCN-022/036/047: render retains independent sessions; strict selectors and scoped close release only one worker
+  ---
+  duration_ms: 628.804185
+  type: 'test'
+  ...
+# Subtest: SCN-022: fake clock proves idle and absolute session expiry without prolonged waits
+ok 14 - SCN-022: fake clock proves idle and absolute session expiry without prolonged waits
+  ---
+  duration_ms: 658.321779
+  type: 'test'
+  ...
+# Subtest: SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs
+ok 15 - SCN-036: shared wire parser rejects extra fields, unknown/malformed selectors and forged target inputs
+  ---
+  duration_ms: 0.988095
+  type: 'test'
+  ...
+# Subtest: SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview
+ok 16 - SCN-039/041: optional render ID uses the same bounded strict Run schema, preserving empty overview
+  ---
+  duration_ms: 0.455263
+  type: 'test'
+  ...
+# Subtest: SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write
+ok 17 - SCN-039/042/046: render carries requested focus without eager capture; ordinary checked reads remain scoped and no-write
+  ---
+  duration_ms: 761.381694
+  type: 'test'
+  ...
+# Subtest: SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen
+ok 18 - SCN-047/049: concurrent renders retain four independent slots and shutdown cannot reopen
+  ---
+  duration_ms: 874.698105
+  type: 'test'
+  ...
+# Subtest: SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained
+ok 19 - SCN-047/049: a retiring slot stays counted, late reads cannot revive it, allocation failure is contained
+  ---
+  duration_ms: 612.708418
+  type: 'test'
+  ...
+# Subtest: SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do
+ok 20 - SCN-048/050: rejected and foreign reads do not extend another view idle, own valid reads do
+  ---
+  duration_ms: 949.195388
+  type: 'test'
+  ...
+# Subtest: SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable
+ok 21 - SCN-048/050: actual independent workers retain private equal-Run sources, own close leaves the other readable
+  ---
+  duration_ms: 982.195223
+  type: 'test'
+  ...
+# Subtest: SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job
+ok 22 - SCN-049/051: production worker replacement waits for termination and cannot overwrite a queued job
+  ---
+  duration_ms: 1655.663466
+  type: 'test'
+  ...
+# Subtest: SCN-051: production MCP capture accepts exactly 64 MiB, rejects above, browser default remains available
+ok 23 - SCN-051: production MCP capture accepts exactly 64 MiB, rejects above, browser default remains available
+  ---
+  duration_ms: 4944.040959
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14474.77294

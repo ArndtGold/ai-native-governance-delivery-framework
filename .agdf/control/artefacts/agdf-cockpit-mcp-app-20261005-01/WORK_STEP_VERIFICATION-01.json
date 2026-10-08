@@ -1,0 +1,628 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": "48",
+  "source_revision_id": "89c93583-6376-4eda-bf09-228e56ec7e08",
+  "observed_at": "2026-10-06T13:45:49.246432+00:00",
+  "source_sha256": {
+    "packages/control-ui/src/WorkStep.tsx": "c0e7681d0a411cfa8d1bb78e59df6b3ab61a6bfbddbd9c39092ded0781916fbf",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "7275b24c856556f6c7d24e9ec3624052a5740382fed216219087f4cfe8efda02",
+    "packages/control-ui/src/RunDetail.tsx": "d818051f755366fc692f47e4edf2fb3f661f07c9f159f027586c226b453c82f7",
+    "packages/control-ui/src/Overview.tsx": "0300f76040180e389a7b31079f981f3a2926c0c0be266c0df129d00532f5b770",
+    "packages/control-ui/src/presentation.ts": "ba9f22df6d7a9ed7590a2bf6766932a4eead8553c2371c5eca7a4a73d59c63cf",
+    "packages/control-ui/src/style.css": "2e8dbfab336e56311e4dce8bb16340a5a686af719d6f49b172187e328bf14fac",
+    "packages/control-ui/src/mcp/style.css": "1110229a2a5bbfdde0136e0c8ddbd1a012b80383ca54b99f5361682b54dc0909",
+    "packages/control-ui/test/work-step.test.tsx": "8b7cc0aafcbc25067bbb193572f2693ff5286fbbc68146f18ac0712438be51b9",
+    "packages/control-ui/test/presentation.test.tsx": "8438ac90200da853ceea0db7a1c5efb95279c383cfe8d925d486ebde1297f388",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "abf23ed9798384c4dfdef29943439b18a07983b7a67badad64510863884a4133",
+    "packages/control-ui/README.md": "fec9943427b249942fda74668c8cd4c04b9de2fab905fc98b5a39432b92a8b75"
+  },
+  "approved_sources_unchanged": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec",
+    "TP": "e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+  },
+  "checks": {
+    "UI": 66,
+    "HTTP": 5,
+    "browser_journeys": 5,
+    "layout_matrix": 32,
+    "typecheck": "pass",
+    "browser_build": "pass",
+    "MCP_build": "pass",
+    "actual_stdio_protocols": [
+      "2025-11-25",
+      "2026-07-28"
+    ],
+    "diff_whitespace": "pass"
+  },
+  "observations": [
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "card",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "20px",
+      "leading": "27.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "run",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "30px",
+      "leading": "37.5px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "document",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "28px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "light",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 320,
+      "scrollWidth": 320,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 560,
+      "scrollWidth": 560,
+      "overflow": [
+        {
+          "tag": "TR",
+          "class": "",
+          "text": "VorhabenArbeitsschritt und offene Nachweise",
+          "right": 38,
+          "client": 1,
+          "scroll": 121
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Vorhaben",
+          "right": 53,
+          "client": 16,
+          "scroll": 81
+        },
+        {
+          "tag": "TH",
+          "class": "",
+          "text": "Arbeitsschritt und offene Nachweise",
+          "right": 53,
+          "client": 16,
+          "scroll": 121
+        }
+      ]
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 800,
+      "scrollWidth": 800,
+      "overflow": []
+    },
+    {
+      "view": "list",
+      "theme": "dark",
+      "family": "Inter, system-ui, sans-serif",
+      "size": "16px",
+      "leading": "22px",
+      "loaded": [
+        "Inter",
+        "JetBrains Mono"
+      ],
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": []
+    }
+  ],
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "699b50b2e5bfa1f8b2cdcfa366b333ff27b48f762cd8067bdd30ac32c92d97c7",
+    "dispatcher_digest": "9c3e542d97dea9b4d2cb235fbdd1cdbac73d0bb7e8c589acf46c2bc19e2ab590",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1014257,
+      "digest": "sha256:918cd7cbd4d4fa44a33b07a99116421811a9cb001623af5c4199e3c7b0084afd"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "native_opening": {
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "response": "success",
+    "authorizes": false,
+    "host_UI_identity_verified": false
+  },
+  "real_browser": {
+    "origin": "http://127.0.0.1:53105",
+    "run_id": "agdf-cockpit-mcp-app-20261005-01",
+    "evidence_source": "CD+Tests registered opaque resource",
+    "return_focus": "Umsetzungs- und Pr\u00fcfnachweise \u00f6ffnen",
+    "same_run_return": true,
+    "preview_deliberately_retained": true
+  },
+  "boundary": "Existing Core controls blocking and permission. Unknown evidence has no inferred prerequisite/output classification; source navigation uses registered resources only.",
+  "authorizes": false
+}

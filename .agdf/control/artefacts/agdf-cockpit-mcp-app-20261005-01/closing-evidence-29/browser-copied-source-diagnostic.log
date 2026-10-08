@@ -1,0 +1,41 @@
+
+Running 1 test using 1 worker
+
+(node:98804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 packages/control-ui/test/browser/journeys.spec.mjs:190:1 › SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes (12.5s)
+
+
+  1) packages/control-ui/test/browser/journeys.spec.mjs:190:1 › SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('button', { name: 'Details', exact: true })
+    Expected: "true"
+    Received: "false"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('button', { name: 'Details', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Details', exact: true })
+        14 × locator resolved to <button aria-pressed="false">Details</button>
+           - unexpected value "false"
+
+
+      202 |     await page.screenshot({ path: '/private/tmp/agdf-cockpit-detail.png', fullPage: true });
+      203 |     fs.writeFileSync('/private/tmp/cockpit-width-29-debug.json', JSON.stringify(await page.evaluate(() => window.__cockpitWidthChecks)));
+    > 204 |     await expect(page.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-pressed','true');
+          |                                                                        ^
+      205 |     const document = page.locator('.resources button').filter({ hasText: /\/UR\.md/ }); await document.focus(); await page.keyboard.press('Enter');
+      206 |     await expect(page.locator('.page-title h1')).toBeFocused(); await page.getByText('Originaldokument lesen',{exact:true}).click(); await expect(page.locator('article.document')).toContainText('Local read-only AGDF control cockpit');
+      207 |     await expect(page.getByRole('group', {name:'Ansicht'})).toHaveCount(0);
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:204:72
+
+    Error Context: packages/control-ui/test-results/journeys-SCN-003-007-028-0-87a1c-idelity-and-unchanged-bytes/error-context.md
+
+  1 failed
+    packages/control-ui/test/browser/journeys.spec.mjs:190:1 › SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes 

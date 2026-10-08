@@ -1,0 +1,18 @@
+{
+  "SCN-019": {
+    "scenario_id": "SCN-019",
+    "criterion_id": "AC-008",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-003",
+    "tested_source_or_fixture": "simultaneous target provider contexts",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Two simultaneous provider contexts retain distinct captures/targets, live callers keep default reads, and missing captured paths fail closed; scope exits restore default reader",
+    "actual_result": "two async scopes preserve distinct captured bytes; live reads restored outside; swallowed and repeated outside-boundary failures cannot pass or be memoized",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "provider.log"
+    ]
+  }
+}

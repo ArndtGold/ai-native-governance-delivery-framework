@@ -1,0 +1,184 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision": "b1c635af-cd49-41a0-9d02-b55869cc3790",
+  "status": "in_progress",
+  "approved_sources_unchanged": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "2ad7312e1e7cb5c94d84932fd5ee6600efc1732ca684d55e627fd65fd8780d54",
+    "TP": "54fa11acb3bd754752296d2be94473b530ed82470bcfaf79dd70712880582388"
+  },
+  "checks": {
+    "core_session": {
+      "passed": 13,
+      "log": "session-evidence/core-02.log"
+    },
+    "ui": {
+      "passed": 75,
+      "log": "session-evidence/ui-04.log"
+    },
+    "http": {
+      "passed": 5,
+      "log": "session-evidence/ui-04.log"
+    },
+    "typecheck": "pass",
+    "build_mcp": "pass",
+    "browser": {
+      "distinct_journeys_passed": 10,
+      "logs": [
+        "session-evidence/browser-02.log",
+        "session-evidence/browser-04.log"
+      ],
+      "earlier_failures": [
+        "sandbox Chromium process-port denial",
+        "agent evidence writes invalidated no-write comparison; isolated retry retained all assertions",
+        "focus asserted before bounded read completed; now await existing ten-second read limit before strict focus check"
+      ]
+    },
+    "protocol": {
+      "status": "pass",
+      "evidence_class": "actual_stdio_protocol_not_host_ui",
+      "observations": [
+        {
+          "protocol": "2025-11-25",
+          "tools": [
+            "agdf_cockpit",
+            "agdf_cockpit_read"
+          ],
+          "resource": "ui://agdf/cockpit/v1.html",
+          "scenarios": [
+            "SCN-011",
+            "SCN-013",
+            "SCN-020",
+            "SCN-026",
+            "SCN-036",
+            "SCN-039",
+            "SCN-041",
+            "SCN-042",
+            "SCN-046"
+          ],
+          "read_no_write": true,
+          "status": "pass"
+        },
+        {
+          "protocol": "2026-07-28",
+          "tools": [
+            "agdf_cockpit",
+            "agdf_cockpit_read"
+          ],
+          "resource": "ui://agdf/cockpit/v1.html",
+          "scenarios": [
+            "SCN-011",
+            "SCN-013",
+            "SCN-020",
+            "SCN-026",
+            "SCN-036",
+            "SCN-039",
+            "SCN-041",
+            "SCN-042",
+            "SCN-046"
+          ],
+          "read_no_write": true,
+          "status": "pass"
+        }
+      ],
+      "server_digest": "cfeaa0ba2fdd9554375605f7f9dd3a43a6d80d71431f44f0d309284d5105345b",
+      "ui_digest": "sha256:ec5b10df42b5358e80c371b63f1361e645fcf4e44e866b5b47d2b5f6e30f4fd8"
+    }
+  },
+  "native_reading": {
+    "host": {
+      "name": "chatgpt",
+      "version": "26.930.61225"
+    },
+    "native_tabs": [
+      "1",
+      "2"
+    ],
+    "module_sha256": "b5d115fa654cacea784b7a95d9d7f8ab922e5f1d1a3a86038fd34c8df88faea2",
+    "both_equal_prepared": true,
+    "widthA": 791,
+    "scrollWidthA": 791,
+    "display": "fullscreen",
+    "prepared_ui_digest": "sha256:61c1316462588da21157c13895ebe3bb09ccafeffb4e011b45cae482bd5b0e8c",
+    "server_digest": "b5280e08b09d1f04336cecd7be48f703dba2527edadf12713c9989cf99eabb0b",
+    "process_pid": 29200,
+    "authorizes": false
+  },
+  "native_reading_scenarios": {
+    "SCN-059": "pass on native read tuple only",
+    "SCN-045": "empty opening first observed overview; named A opened established Run"
+  },
+  "t006": {
+    "status": "partial",
+    "current_build": "26.930.61225",
+    "historical_probe_build": "26.930.51102",
+    "current_context_and_message_ack": "not_done",
+    "original_probes": "HOST_FEASIBILITY-02.md and NATIVE_PROBE_RECORD-02.json; not current-build proof",
+    "activation_gap": "After scoped paired update native open returned Transport closed; fresh host connection required"
+  },
+  "prepared_runtime": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "cfeaa0ba2fdd9554375605f7f9dd3a43a6d80d71431f44f0d309284d5105345b",
+    "dispatcher_digest": "2b02659267dda916f10baae1573c45e9d2d3a65c7bd6cc9139a216dae2173083",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1022832,
+      "digest": "sha256:ec5b10df42b5358e80c371b63f1361e645fcf4e44e866b5b47d2b5f6e30f4fd8"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "implementation_pending": [
+    "T-006 current-build protocol acknowledgement",
+    "T-007 renewed graph proof",
+    "T-008 exclusive publication owner and matched completion",
+    "T-009 full feedback qualification",
+    "T-010 two-sided serialized invalidation",
+    "T-011 full reviews/regressions",
+    "T-012 production native context/answer/recovery/rollback"
+  ],
+  "authority": {
+    "authorizes": false,
+    "qa": false,
+    "uat": false,
+    "vcs": false
+  },
+  "evidence_hashes": {
+    "browser-01.log": "53dca54bf9dff9c0d69d13bfba7879ec4a27557af9446419ea6df90973d167a5",
+    "browser-02.log": "9b21edca1cc66c2ea5125e523514f1a14aa2355ad151ce33fded66dc9e406006",
+    "browser-03.log": "9f4f56086744e79103238c67c424b38c3795cc04bac22bc513f97726d1d8d190",
+    "browser-04.log": "38252ae0d3af599792674f3299d0ba26a62520a232b97a588907646ed1c9c0b2",
+    "build-mcp-01.log": "f307463f083605aa428cfcd6e08b403d48905ac27a24b50b0ad41918d8b40b5b",
+    "build-mcp-02.log": "c0780f8388819662dcebf34bab45754bcf089ab5e18b3e0aa01d141c062e8c7c",
+    "core-02.log": "fd6ef33211391bfd620b4076780659a1806fb71ae8f37ebc9a8006b1f2247aef",
+    "loaded-module-identity.json": "0f1f247c4316fe49c3261be516a30c69e22c9c9b2c35c2ca53b034f3a318583f",
+    "native-a-run-after-b.txt": "9bc6909b30195ab83187b6fabb435846a79bfe3fb11b42f7b750ec2d78041dc8",
+    "native-a-source-before-b.jpg": "4d5528b165145fbca41bb62ec0b22ed9d714fb9bd81e073360e6767f4b1e3863",
+    "native-a-source-before-b.txt": "681db0ccd4b728e022e1155cab50326bb9c54236a445b687d5a9d2f9b3b9ac4e",
+    "native-b-plan-after-a-return.jpg": "ae7c7c6c95a600b6351c885789a92047ef4d649d978f0b548f3ec373595987ec",
+    "native-b-plan-after-a-return.txt": "3c253b8dbd116367ab520bf61eb375e95ba5fb3bb21ecb0421b767a060a469a0",
+    "native-b-run-return.txt": "d8769f7ab44f0267bb0887d61e3b67722e1032f57be2c5d30bf6151a3213d403",
+    "native-two-view-checkpoint.jpg": "acf1d3e25df2b033e31a0a9dfe14154d4b295bda5884dd2e594b297bac99a410",
+    "preparation-01.log": "4317ddbce38ab9390835623bed2ba90dd1c607cd7dea59d0894ddba423517f7a",
+    "preparation-02.log": "fccd1833b1e7cfef1783535ce47f64ded58a9e9fe360b7257eda07a9730c09bd",
+    "protocol-01.log": "6e0c4f56ad6c11526baa16a59f4f2ae579f04a68f43138bd0dd28b0175663859",
+    "protocol-02.log": "97ce43361ad7740962600658a55851d7e2608d3854ea58dc978ac36e403f0af6",
+    "refresh-01.log": "c491cee9d521492b1f8bc85cf8650045d627915dc615380b5fbe39e9bb2f3dae",
+    "refresh-02.log": "35505f25bb4ab2fb74b133685cebf5a8bc785cb5f104c788a31b01568987911f",
+    "typecheck-04.log": "39e33b62bb283bc45cbcaca490bfc6d27544f252623c3f6fdaf0becbc2ccc3f6",
+    "ui-03.log": "bcbe495e8326ca8a403b3cf81cda7dbb70fdb60438d5d9047cfb19d3dadf5c89",
+    "ui-04.log": "02849cb422d8b2521242b424872eeb930a07df0256571f52ea02833f81c812c7"
+  }
+}

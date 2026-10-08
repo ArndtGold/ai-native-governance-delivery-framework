@@ -1,0 +1,50 @@
+
+> @agdf/mcp-server@0.14.5 test
+> npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+
+
+> @agdf/mcp-server@0.14.5 test:contract
+> node ./test/contract.test.js
+
+AGDF MCP semantic contract tests passed.
+
+> @agdf/mcp-server@0.14.5 test:continuation
+> node ./test/continuation.test.js
+
+All catalog-registered MCP judgement skill continuations supply exact packaged contracts without a hook binding.
+
+> @agdf/mcp-server@0.14.5 test:late-source-revision
+> node ./test/late-source-revision.test.js
+
+Late source revision CLI/Core/MCP parity passed (actual stdio server, synthetic fixture approvals).
+
+> @agdf/mcp-server@0.14.5 test:protocol
+> node ./test/protocol.test.js && node ./test/skill-names.test.js
+
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+
+> @agdf/mcp-server@0.14.5 test:safety
+> node ./test/safety.test.js
+
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+
+> @agdf/mcp-server@0.14.5 test:provenance
+> node ./test/provenance.test.js
+
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+
+> @agdf/mcp-server@0.14.5 test:performance
+> node ./test/performance.test.js
+
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[638.57,651.044,630.016,613.978,624.786,622.36,605.072,631.691,623.502,613.178,627.848,623.46,629.11,617.425,613.18,614.605,624.793,661.908,622.456,619.084],"cold_p95_ms":651.044,"warm_dispatch_ms":[524.492,467.695,478.391,491.717,478.858,472.212,476.258,472.242,469.785,470.635,476.638,485.303,501.105,490.62,468.882,472.612,478.163,480.278,476.211,478.711],"warm_p95_ms":501.105}
+
+> @agdf/mcp-server@0.14.5 test:package
+> node ./test/package.test.js
+
+AGDF MCP package boundary tests passed.
+
+> @agdf/mcp-server@0.14.5 test:sdk-digest
+> node ./test/sdk-digest.test.js
+
+MCP SDK digest tests passed

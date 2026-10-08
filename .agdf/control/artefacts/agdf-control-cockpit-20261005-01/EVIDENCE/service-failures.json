@@ -1,0 +1,37 @@
+{
+  "SCN-011": {
+    "scenario_id": "SCN-011",
+    "criterion_id": "AC-005",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-005",
+    "tested_source_or_fixture": "service worker failure and filesystem failure",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Injected filesystem, evaluator, worker and transport failures return bounded typed scope/retryability; internal errors, unrelated bytes and secret are absent",
+    "actual_result": "unreadable capture and interrupted worker produce bounded read_failed; internal exception omitted; retryable flag explicit; transient transport failure recovers",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "projection.log",
+      "ui-tests.log",
+      "playwright-results.json"
+    ]
+  },
+  "SCN-017": {
+    "scenario_id": "SCN-017",
+    "criterion_id": "AC-007",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-005",
+    "tested_source_or_fixture": "worker pool cancellation/failure/deadline",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Worker/read interruption can be retried after recovery; cancelled requests and shutdown release resources; no implicit unbounded capture retry occurs",
+    "actual_result": "queued and active cancellation handled; later job succeeds; worker failure recovers; timeout terminates worker; shutdown closes listener/worker; only one bounded capture retry",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "ui-tests.log",
+      "snapshot.log"
+    ]
+  }
+}

@@ -32,6 +32,24 @@ Set `Requirements clarification: complete` only when all required sections are c
 no material requirement decision remains open. This is cooperative semantic judgement, not approval.
 Keep Status draft and Gate approval open.
 
+## Language and approval summary
+
+Use the continuation's `artifact_language` resolved from `.agdf/control/config.json` for
+the UR and its resolved `presentation_language` for user-facing text. Do not infer the
+artefact language from the request, template headings or runtime rules. The configured
+chat language is the direct-command default; explicit dispatcher presentation input
+follows its current-request language contract and does not change the artefact language.
+
+Before recording a complete draft, when `approval_summary_required` is true, include exactly
+one `## <approval_summary_heading>` section using the supplied heading verbatim. Write a
+complete summary in the resolved presentation language covering problem, goal, affected users,
+scope, non-goals, acceptance signals, source ownership, risks/unknowns and next step.
+Do not truncate decision-relevant content or use ellipses. The existing approval renderer's
+limits and validation apply. This summary is editorial; the UR remains authoritative.
+For new-format URs, a missing or invalid required summary returns to this same authoring
+route before presentation. Correct it through the existing revision writer; no user approval
+is required merely to complete an unapproved incomplete draft.
+
 ## Revision and recording
 
 A new draft is recorded through existing run-step --step ur --title <short title>, using

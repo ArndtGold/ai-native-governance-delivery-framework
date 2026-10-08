@@ -1,0 +1,21 @@
+{
+  "SCN-026": {
+    "scenario_id": "SCN-026",
+    "criterion_id": "AC-010",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-005",
+    "tested_source_or_fixture": "parameterized capture + actual preview/API + pool bounds",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "File-count, per-file, total-capture, document and response caps accept boundary values and reject boundary-plus-one; ten-second deadline, one-active/one-queued limit and port conflict are explicit and shutdown closes worker/listener",
+    "actual_result": "inclusive file count/file bytes/total bytes tested with scaled limits; actual 2 MiB preview and 8 MiB serialized response exact/plus-one tested; timeout injection uses same deadline logic; one-active/one-queued busy, port conflict and shutdown pass. Real 48.4 MB/2739-file capture succeeds within production limits. No full 256 MiB stress benchmark claimed.",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "snapshot.log",
+      "projection.log",
+      "ui-tests.log",
+      "real-approved-run-parity.json"
+    ]
+  }
+}

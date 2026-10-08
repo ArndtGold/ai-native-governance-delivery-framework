@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "../control-read/fs.js";
 import { join, posix } from "node:path";
 
 export function cleanStatusCell(value) {

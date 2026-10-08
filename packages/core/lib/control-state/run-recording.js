@@ -1,10 +1,13 @@
-import { validateRunPresentation } from "./run-presentation.js";
+import { validateRunPresentation, validateRunPresentationRecord } from "./run-presentation.js";
 import { validateGateApprovalResponse } from "./gate-approval-validator.js";
 import { duplicateArtefactRowTypes, parseControlState } from "./run-state-parser.js";
 import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
-import { writeRun } from "./run-state-writer.js";
+import { storedNextActionStale } from "../control-evaluation/next-action.js";
+import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+import { backlogSkip } from "./run-backlog.js";
+import { runPath } from "./run-state-reader.js";
 
 const DURABLE_STATUS_GATES = new Set(["UR", "PRD", "SD", "TP"]);
 
@@ -79,6 +82,29 @@ function recordUrApprovalChain(text, evidence) {
 
 // run-update: record the current run state and listed artefacts as a new sealed revision. Approval
 // rows must match the recorded approvals; only run-approve may change them.
+// run-update reseals hand-edited content. When the edit moved an active run's evaluated gate (for
+// example a recorded internal step), refresh the derived control fields as the other canonical
+// writers do; run-specific text on an unchanged gate and "What is known?" stay as authored.
+function refreshMovedGateFields(content) {
+  const state = parseControlState(content, {
+    userGates: APPROVAL_GATES,
+    internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
+    closeoutArtefacts: ["OR"],
+  });
+  const after = transitionDecisionForRunState({ ...state, content });
+  if (!storedNextActionStale({ content, current_gate: state.current_gate, next_allowed_action: state.next_allowed_action }, after)) return content;
+  const approvedGates = APPROVAL_GATES.filter((gate) => state.approvals.get(gate)?.status === "approved");
+  let next = replaceFirstScalar(content, "current_gate", after.current_gate) ?? content;
+  next = replaceFirstScalar(next, "next_allowed_action", after.next_allowed_action) ?? next;
+  for (const [key, value] of [
+    ["What is approved?", approvedGates.length ? approvedGates.map((gate) => `Approval: ${gate}`).join(", ") : "Nothing yet."],
+    ["What is missing?", after.missing_approval !== "none" ? `Exact ${after.missing_approval}.` : "No approval is pending."],
+    ["What is the next allowed action?", after.next_allowed_action],
+    ["What is explicitly forbidden right now?", after.forbidden.join("; ") || "none"],
+  ]) next = upsertTableRow(next, "Current Control State", 0, key, [key, value]) ?? next;
+  return next;
+}
+
 export function recordRunRevision(root, { runId, revisionId }) {
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
@@ -90,11 +116,16 @@ export function recordRunRevision(root, { runId, revisionId }) {
   });
   const seal = runSealState(root, run.content);
   if (seal.status === "valid") {
-    return Object.freeze({ schema_version: "1", outcome: "unchanged", run_id: runId, revision: run.meta.revision, revision_id: run.meta.revision_id });
+    const synced = guardedWrite(runId, () => synchronizeRunBacklog(root, run.path, revisionId));
+    if (synced.rejection) return synced.rejection;
+    return Object.freeze({ schema_version: "1", outcome: synced.state.backlog === "updated" ? "updated" : "unchanged", run_id: runId,
+      revision: run.meta.revision, revision_id: run.meta.revision_id, run_state: "unchanged", backlog: synced.state.backlog,
+      ...backlogSkip({ status: synced.state.backlog, reason: synced.state.backlog_reason }) });
   }
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
-  const written = guardedWrite(runId, () => writeRun(run.path, run.content, revisionId, { expectedContent: run.content, allowContentChange: true }));
+  const content = refreshMovedGateFields(run.content);
+  const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",
@@ -103,6 +134,7 @@ export function recordRunRevision(root, { runId, revisionId }) {
     previous_revision_id: revisionId,
     revision: written.state.meta.revision,
     revision_id: written.state.meta.revision_id,
+    ...backlogSkip({ status: written.state.backlog, reason: written.state.backlog_reason }),
   });
 }
 
@@ -188,28 +220,32 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
       const current = validateRunPresentation(root, { runId, gate, revisionId, presentationId }, { evaluateGateCheck });
       if (current.reason || current.digest !== presentation.digest) throw new Error("AGDF_STALE_RUN_REVISION");
     },
+    validateDuringTransaction: () => {
+      const current = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
+      if (current.reason || current.digest !== presentation.digest) throw new Error("AGDF_STALE_RUN_REVISION");
+    },
   };
 }
 
 export function approveRunGate(root, input, dependencies) {
-  const prepared = prepareGateApproval(root, input, dependencies);
-  if (prepared.outcome === "rejected") return prepared;
-  const { run, next, after, validateBeforeWrite } = prepared;
   const { runId, gate, revisionId } = input;
-  const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
-    allowApprovalChange: true, validateBeforeWrite, expectedContent: run.content,
+  if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
+  const initial = readRun(root, runId);
+  if (initial.rejection && initial.rejection.reason !== "run_step_recovery_required") return initial.rejection;
+  const written = guardedWrite(runId, () => withRunBacklogLock(root, runPath(root, runId), () => {
+    // Recovery precedes preparation: an interrupted legacy approval may have committed
+    // already, in which case the old reply is rejected rather than applied a second time.
+    const prepared = prepareGateApproval(root, input, dependencies);
+    if (prepared.outcome === "rejected") return prepared;
+    const { run, next, after, validateBeforeWrite, validateDuringTransaction } = prepared;
+    const state = writeRunWithBacklogLocked(root, run.path, next, revisionId, {
+      allowApprovalChange: true, validateBeforeWrite, validateDuringTransaction, expectedContent: run.content,
+    });
+    return Object.freeze({ schema_version: "1", outcome: "approved", run_id: runId,
+      gate, approval: `Approval: ${gate}`, previous_revision_id: revisionId,
+      revision: state.meta.revision, revision_id: state.meta.revision_id,
+      next_gate_after_approval: after.current_gate, allowed_after_approval: after.next_allowed_action,
+      ...backlogSkip({ status: state.backlog, reason: state.backlog_reason }) });
   }));
-  if (written.rejection) return written.rejection;
-  return Object.freeze({
-    schema_version: "1",
-    outcome: "approved",
-    run_id: runId,
-    gate,
-    approval: `Approval: ${gate}`,
-    previous_revision_id: revisionId,
-    revision: written.state.meta.revision,
-    revision_id: written.state.meta.revision_id,
-    next_gate_after_approval: after.current_gate,
-    allowed_after_approval: after.next_allowed_action,
-  });
+  return written.rejection ?? written.state;
 }

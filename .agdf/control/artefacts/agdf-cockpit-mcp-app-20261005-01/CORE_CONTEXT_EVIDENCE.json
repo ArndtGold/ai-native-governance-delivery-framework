@@ -1,0 +1,66 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "source_revision_id": "c627d03f-0ac9-4c75-b2a1-f94416806027",
+  "observed_at": "2026-10-06T12:36:23.175Z",
+  "evidence_class": "source_fixture_browser_protocol_not_final_native_acceptance",
+  "authorizes": false,
+  "approved_sources": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "be8a77a2daddde8adadcefad03023259a11cc3bb32aac12c0ea2aa2e91e4acec",
+    "TP": "e1e6cb3ede265cfc20ecbd282123986e376b105a1654e0ea63d834d60a5b953b"
+  },
+  "source_sha256": {
+    "packages/core/lib/control-inspect/cockpit-context.js": "3f67491f1f247ef35ee962820bacafa00477782f27ded4178b7ea6002f84e978",
+    "packages/core/lib/control-inspect/cockpit.js": "54d74e8b49d9a420c4995a95383f8ba8d4de1958239440e4afa9934a223bd848",
+    "packages/core/lib/control-inspect/cockpit-session.js": "5a406ff39991b8e55292ac73d7c7ebb809cd321393a8d06e671d56f6dc2bbdc1",
+    "packages/core/lib/control-read/cockpit-worker.js": "77bfe9a6288e0a40f4b6624d445ddba294153116bfad89afba4c2caa8f79507e",
+    "packages/control-ui/src/ContextPanel.tsx": "2b264ebc7ccea56305d4251456594cb09d368fb248617d8c13ec22ff107afe3e",
+    "packages/control-ui/src/App.tsx": "5b553477b1d76ad45c8e3fa3efb4b720fb72d9f3ff8e99413a07501fa3fd1107",
+    "packages/control-ui/src/mcp/handoff.ts": "9a331cd191b009a8dda44518b3b260c2f6d780181cee51f407a4143af613c528",
+    "packages/control-ui/src/mcp/handoff-port.ts": "99c3716125e5333b741367040d4ca4a1b633c42e31fc282e471df8beff78f9b7",
+    "packages/control-ui/src/mcp/transport.ts": "a2c070d619743435561d91f12c6c5eb2dbe5ec5ae0cee3477e118f696a8f3150",
+    "packages/control-ui/src/mcp/EmbeddedEntry.tsx": "589ea97e6c3fa89527a2b346dd247e1731764e4a8c2014d7cd9579fa6d146d84",
+    "packages/control-ui/src/style.css": "cd3ffd8e599e37fcfa051003300749047576a40e546fd1c4368ca650a2bfac39",
+    "packages/control-ui/server/service.mjs": "fc77db3c6f49dcefd5fba42c2f693ddaa580ffe11f581e509c1620d427e45ae9",
+    "scripts/core-projection.mjs": "6db755627be485b0e6d0701fd389b54d471e759f89bf07ba6628df08dafee2ef",
+    "packages/cli/scripts/copilot-profile-test.js": "7ee60b34a63c93a060e096a1b81bd2b0aeb650935dad196097ca3dbcfd904723",
+    "packages/cli/scripts/cockpit-mcp-test.js": "603a57abdf9e3bc0e3d027387579aabc5c025a67a6ac78e09aa6fe47ece7ce76",
+    "packages/core/test/cockpit-context-test.js": "8f89718e19e918096a4d826c4f3d77e8cfa6701a9e917ae63aed65ba73cf9a0a",
+    "packages/core/test/cockpit-session-test.js": "7e9634a7a08bae420fe56cfacef764963edf9dc06a3cb2f9114a069b97c8a171",
+    "packages/control-ui/test/handoff.test.tsx": "bc834cf79be004b90c4964c9fd04d0a55b57ee34bd32970e5a1512cf8fff4655",
+    "packages/control-ui/test/initial-run.test.tsx": "5bb9dfd93996a53494aa2f1f2da0dd112bd4fa85e4da1c4f7d8226df53724b30",
+    "packages/control-ui/test/service.test.mjs": "be3eb50552e64db5c481eb89ba26673ad8facd73e649d2589131eb707b131761",
+    "packages/control-ui/test/browser/journeys.spec.mjs": "3329d642152acdecd25385e05984e22a31de1a191c62f5b3a03150ba119ca3ba",
+    "packages/control-ui/README.md": "99af0bdf6181801f120a0614e4e7e024e0e5f018547b38408ccc8df78e6a3fae"
+  },
+  "tasks": [
+    "T-007",
+    "T-008"
+  ],
+  "scenarios": [
+    "SCN-007",
+    "SCN-008",
+    "SCN-009",
+    "SCN-010",
+    "SCN-011",
+    "SCN-012",
+    "SCN-013",
+    "SCN-020",
+    "SCN-025"
+  ],
+  "checks": {
+    "graph": "Exact IDs and fragments, optional backticks, fences and same/higher section boundaries; original content and SHA-256; no recursive expansion",
+    "negative": "Empty, file-only, missing graph/node, malformed, duplicate, invalid UTF-8, denied and oversized cases",
+    "limits": "64 references pass; 65 fail; 16 selected pass; 17 fail; inclusive full serialized 64 KiB with multibyte text and provenance, no truncation",
+    "packets": "Currently inspected source; exact Run/revision/snapshot; pre/post composition revalidation including deterministic mutation during preparation; BOM/CRLF preservation; supersession, invalidation and session expiry"
+  },
+  "core_suite": {
+    "pass": 23,
+    "fail": 0,
+    "skip": 0,
+    "log": "context-evidence/core-tests.log"
+  },
+  "native_product_qualification": "pending"
+}

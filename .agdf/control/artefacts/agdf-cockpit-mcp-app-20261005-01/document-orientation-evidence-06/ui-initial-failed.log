@@ -1,0 +1,211 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/document.test.tsx (11 tests | 1 failed) 339ms
+   × puts authored German orientation and separate saved/Core facts before closed exact originals 158ms
+ ❯ test/presentation.test.tsx (5 tests | 1 failed) 387ms
+   × the document keeps exact source content and adds its undertaking and purpose 54ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/document.test.tsx > puts authored German orientation and separate saved/Core facts before closed exact originals
+TestingLibraryElementError: Found multiple elements with the text: Kunden können ihre Unterlagen schneller zuordnen.
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p>[39m
+  [0mKunden können ihre Unterlagen schneller zuordnen.[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p>[39m
+  [0mKunden können ihre Unterlagen schneller zuordnen.[0m
+[36m</p>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Einordnung des Dokuments"[39m
+      [33mclass[39m=[32m"document-context"[39m
+    [36m>[39m
+      [36m<h2>[39m
+        [0mWorum es hier geht[0m
+      [36m</h2>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"document-summary"[39m
+      [36m>[39m
+        [36m<p>[39m
+          [0mKunden können ihre Unterlagen schneller zuordnen.[0m
+        [36m</p>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mQuellen und fehlende Angaben bleiben sichtbar.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"muted document-summary-origin"[39m
+      [36m>[39m
+        [0mAus der deutschsprachigen Zusammenfassung dieser Quelle.[0m
+      [36m</p>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"document-control"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mGespeicherter Dokumentstand[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mFreigegeben[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mAktuelle Kontrollauswertung[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mWeiterarbeit offen[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mAktueller Arbeitsschritt[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mUmsetzung und Prüfung[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"muted document-status-note"[39m
+      [36m>[39m
+        [0mStatusangaben im Original werden unverändert gezeigt. Maßgeblich für den gespeicherten Stand ist der Run-Stand; für die Weiterarbeit die aktuelle Kontrollauswertung. Eine gespeicherte Freigabe ersetzt diese Prüfung nicht.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+    [36m<details[39m
+      [33mclass[39m=[32m"document-provenance"[39m
+    [36m>[39m
+      [36m<summary>[39m
+        [0mQuellenangaben[0m
+      [36m</summary>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"document-source-fields"[39m
+      [36m>[39m
+        [36m<dt>[39m
+          [0mDokumenttyp[0m
+        [36m</dt>[39m
+        [36m<dd>[39m
+          [0mUR[0m
+        [36m</dd>[39m
+        [36m<dt>[39m
+          [0mRegistrierte Quelle[0m
+        [36m</dt>[39m
+        [36m<dd>[39m
+          [36m<code>[39m
+            [0mUR.md[0m
+          [36m</code>[39m
+        [36m</dd>[39m
+      [36m</dl>[39m
+    [36m</details>[39m
+    [36m<details[39m
+      [33mclass[39m=[32m"document-original"[39m
+    [36m>[39m
+      [36m<summary>[39m
+        [0mOriginaldokument lesen[0m
+      [36m</summary>[39m
+      [36m<article[39m
+        [33mclass[39m=[32m"document agdf-surface"[39m
+      [36m>[39m
+        [36m<h1>[39m
+          [0mRequirements[0m
+        [36m</h1>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mStatus: draft
+Gate approval: open[0m
+        [36m</p>[39m
+        [0m
+[0m
+        [36m<h2>[39m
+          [0mGoal[0m
+        [36m</h2>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mAn English source.[0m
+        [36m</p>[39m
+        [0m
+[0m
+        [36m<h2>[39m
+          [0mAGDF Approval Summary (de; source=en)[0m
+        [36m</h2>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mKunden können ihre Unterlagen schneller zuordnen.[0m
+        [36m</p>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mQuellen und fehlende Angaben bleiben sichtbar.[0m
+        [36m</p>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mNicht Teil der Kurzfassung.[0m
+        [36m</p>[39m
+      [36m</article>[39m
+    [36m</details>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ test/document.test.tsx:14:17
+     12| it('puts authored German orientation and separate saved/Core facts bef…
+     13|   render(<DocumentView result={result} detail={detail} onOpen={vi.fn()…
+     14|   expect(screen.getByText('Kunden können ihre Unterlagen schneller zuo…
+       |                 ^
+     15|   expect(screen.getByText('Freigegeben')).toBeTruthy(); expect(screen.…
+     16|   expect(screen.getByText('Umsetzung und Prüfung')).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/presentation.test.tsx > the document keeps exact source content and adds its undertaking and purpose
+AssertionError: expected <h1></h1> to be null
+
+- Expected:
+null
+
++ Received:
+<h1>
+  Original 日本語
+</h1>
+
+ ❯ test/presentation.test.tsx:45:63
+     43|   render(<DocumentView result={{...inventory,data:{resource,format:'ma…
+     44|   expect(screen.getByText(run.title)).toBeTruthy();expect(screen.getBy…
+     45|   expect(screen.queryByRole('heading',{name:'Original 日本語'})).toBeNull…
+       |                                                               ^
+     46|   fireEvent.click(screen.getByText('Originaldokument lesen',{exact:tru…
+     47|   expect(screen.getByRole('heading',{name:'Original 日本語'})).toBeTruthy…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  2 failed | 89 passed (91)
+   Start at  09:28:56
+   Duration  9.09s (environment 39%, tests 33%, import 22%, transform 6%)
+
+Environment  jsdom was created 8 times · 8.73s total, 39% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

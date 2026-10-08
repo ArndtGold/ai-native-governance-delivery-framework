@@ -1,0 +1,200 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test
+
+
+Running 10 tests using 1 worker
+
+(node:21715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 test/browser/journeys.spec.mjs:21:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (2.7s)
+(node:21729) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21745) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 test/browser/journeys.spec.mjs:77:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (1.5s)
+(node:21751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (2.7s)
+(node:21771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 test/browser/journeys.spec.mjs:138:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (1.6s)
+(node:21787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 test/browser/journeys.spec.mjs:158:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (7.3s)
+(node:21816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 test/browser/journeys.spec.mjs:174:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (1.0m)
+(node:21881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 test/browser/journeys.spec.mjs:224:1 › summary leads with the work step and stale reads never claim a missing Run or current control (6.5s)
+(node:21901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 test/browser/journeys.spec.mjs:257:1 › Pages surface recipes survive neutral host colors in light and dark across all views (4.0s)
+(node:21909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 test/browser/journeys.spec.mjs:317:1 › built Pages action and type hierarchy matches Cockpit in both themes (3.1s)
+(node:21920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 test/browser/journeys.spec.mjs:383:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (2.2s)
+
+
+  1) test/browser/journeys.spec.mjs:21:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:22:65
+
+    Error Context: test-results/journeys-SCN-044-Pages-fon-92fc9--card-list-Run-and-document/error-context.md
+
+  2) test/browser/journeys.spec.mjs:77:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:81:45
+
+    Error Context: test-results/journeys-SCN-002-005-007-0-4be9c-ble-at-container-boundaries/error-context.md
+
+  3) test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:105:100
+
+    Error Context: test-results/journeys-SCN-003-007-028-0-dc6e3-idelity-and-unchanged-bytes/error-context.md
+
+  4) test/browser/journeys.spec.mjs:138:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents 
+
+    Error: asset_boundary_invalid
+
+       at ../../server/service.mjs:42
+
+      40 |       }
+      41 |       if (fs.readSync(fd, Buffer.alloc(1), 0, 1, offset)) throw Error('asset_boundary_invalid');
+    > 42 |       if (!equal(opened, fs.fstatSync(fd, { bigint: true })) || !equal(opened, fs.lstatSync(path, { bigint: true }))) throw Error('asset_boundary_invalid');
+         |                                                                                                                             ^
+      43 |       for (let parent = dirname(path); ; parent = dirname(parent)) {
+      44 |         const now = fs.lstatSync(parent, { bigint: true }), captured = directories.get(parent);
+      45 |         if (!captured || now.isSymbolicLink() || now.dev !== captured.dev || now.ino !== captured.ino || fs.realpathSync(parent) !== parent) throw Error('asset_boundary_invalid');
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:42:125)
+        at visit (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:23:48)
+        at assets (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:53:3)
+        at startControlServer (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/server/service.mjs:61:24)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:142:25
+
+    Error Context: test-results/journeys-SCN-005-010-012-0-4a087-g-and-unsupported-documents/error-context.md
+
+  5) test/browser/journeys.spec.mjs:174:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('.work-step-evidence summary')
+
+
+      188 |     await page.getByRole('combobox',{name:'Run auswählen',exact:true}).selectOption('fixture-a');
+      189 |     await expect(page.locator('.work-step')).toBeVisible();
+    > 190 |     await page.locator('.work-step-evidence summary').click();
+          |                                                       ^
+      191 |     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
+      192 |     await page.screenshot({path:'/private/tmp/agdf-cockpit-sticky-card.png'});
+      193 |     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:190:55
+
+    Error Context: test-results/journeys-sticky-card-and-d-da777-mary-retain-source-identity/error-context.md
+
+  6) test/browser/journeys.spec.mjs:224:1 › summary leads with the work step and stale reads never claim a missing Run or current control 
+
+    Error: expect(locator).not.toHaveAttribute() failed
+
+    Locator: locator('.work-step-evidence')
+    Expected: not have attribute
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toHaveAttribute" locator('.work-step-evidence') with timeout 5000ms
+      - waiting for locator('.work-step-evidence')
+
+
+      231 |     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
+      232 |     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
+    > 233 |     await expect(page.locator('.work-step-evidence')).not.toHaveAttribute('open');
+          |                                                           ^
+      234 |     await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
+      235 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Beginn blockiert');
+      236 |     await expect(page.locator('.work-step-proof summary')).toContainText('Nachweis');
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:233:59
+
+    Error Context: test-results/journeys-summary-leads-wit-adc11-sing-Run-or-current-control/error-context.md
+
+  6 failed
+    test/browser/journeys.spec.mjs:21:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document 
+    test/browser/journeys.spec.mjs:77:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries 
+    test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+    test/browser/journeys.spec.mjs:138:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents 
+    test/browser/journeys.spec.mjs:174:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity 
+    test/browser/journeys.spec.mjs:224:1 › summary leads with the work step and stale reads never claim a missing Run or current control 
+  4 passed (1.7m)

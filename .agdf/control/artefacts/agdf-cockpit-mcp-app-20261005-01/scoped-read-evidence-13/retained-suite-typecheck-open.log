@@ -1,0 +1,19 @@
+packages/control-ui/test/compact.test.tsx(7,290): error TS2353: Object literal may only specify known properties, and 'runs' does not exist in type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(12,110): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(12,119): error TS7006: Parameter 'run' implicitly has an 'any' type.
+packages/control-ui/test/compact.test.tsx(24,80): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(24,139): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(40,35): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(41,83): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(211,79): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(211,104): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/compact.test.tsx(223,224): error TS2339: Property 'runs' does not exist on type 'Inventory'.
+packages/control-ui/test/handoff.test.tsx(147,13): error TS2741: Property 'onScope' is missing in type '{ read: ReadTransport; detail: Envelope<Detail>; document: Envelope<DocumentData>; disabled: false; handoff: HandoffController; }' but required in type '{ read: ReadTransport; detail: Envelope<Detail>; document?: Envelope<DocumentData> | null | undefined; disabled: boolean; handoff?: HandoffController | undefined; onScope: (scope: Envelope<...>) => void; }'.
+packages/control-ui/test/presentation.test.tsx(9,243): error TS2353: Object literal may only specify known properties, and 'runs' does not exist in type 'Inventory'.
+packages/control-ui/test/presentation.test.tsx(22,83): error TS2353: Object literal may only specify known properties, and 'runs' does not exist in type 'Inventory'.
+packages/control-ui/test/presentation.test.tsx(24,67): error TS2353: Object literal may only specify known properties, and 'runs' does not exist in type 'Inventory'.
+packages/control-ui/test/reading.test.tsx(9,267): error TS2353: Object literal may only specify known properties, and 'runs' does not exist in type 'Inventory'.
+packages/control-ui/test/reading.test.tsx(20,34): error TS2345: Argument of type '{ type: "ready"; generation: number; route: { view: "overview"; }; inventory: Envelope<Inventory>; detail: null; document: null; }' is not assignable to parameter of type 'ReadingAction'.
+  Property 'scope' is missing in type '{ type: "ready"; generation: number; route: { view: "overview"; }; inventory: Envelope<Inventory>; detail: null; document: null; }' but required in type '{ type: "ready"; generation: number; route: Route; scope: Envelope<ReadingScope>; inventory: Envelope<Inventory> | null; detail: Envelope<...> | null; document: Envelope<...> | null; removed?: boolean | undefined; }'.
+packages/control-ui/test/reading.test.tsx(21,41): error TS2345: Argument of type '{ type: "ready"; generation: number; route: { view: "overview"; }; inventory: Envelope<Inventory>; detail: null; document: null; }' is not assignable to parameter of type 'ReadingAction'.
+  Property 'scope' is missing in type '{ type: "ready"; generation: number; route: { view: "overview"; }; inventory: Envelope<Inventory>; detail: null; document: null; }' but required in type '{ type: "ready"; generation: number; route: Route; scope: Envelope<ReadingScope>; inventory: Envelope<Inventory> | null; detail: Envelope<...> | null; document: Envelope<...> | null; removed?: boolean | undefined; }'.

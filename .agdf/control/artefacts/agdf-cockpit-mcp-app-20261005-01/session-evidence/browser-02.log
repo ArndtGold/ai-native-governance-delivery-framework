@@ -1,0 +1,97 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test
+
+
+Running 10 tests using 1 worker
+
+(node:30018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/journeys.spec.mjs:21:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (5.6s)
+(node:30038) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 test/browser/journeys.spec.mjs:77:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (2.1s)
+(node:30018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes (23.8s)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 test/browser/journeys.spec.mjs:138:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (3.6s)
+(node:30085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 test/browser/journeys.spec.mjs:158:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (7.6s)
+(node:30098) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 test/browser/journeys.spec.mjs:174:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (2.9s)
+(node:30100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 test/browser/journeys.spec.mjs:224:1 › summary leads with the work step and stale reads never claim a missing Run or current control (7.1s)
+(node:30111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 test/browser/journeys.spec.mjs:257:1 › Pages surface recipes survive neutral host colors in light and dark across all views (4.5s)
+(node:30114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 test/browser/journeys.spec.mjs:317:1 › built Pages action and type hierarchy matches Cockpit in both themes (4.0s)
+(node:30134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30074) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 test/browser/journeys.spec.mjs:383:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (2.9s)
+
+
+  1) test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+    @@ -382,10 +382,13 @@
+        "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-step-preparation.log": "9a6debb459f507953d0fa180fc9b0ec7f09d623e56f76f5ab058f93d6cbbb6b2",
+        "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-step-protocol.log": "6f9a02daa3ebd69a9484e07586ff4d94986686c7b656bd381c92d3670e794896",
+        "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-step-run-light-1280.png": "6649e9337379da93c6529dc831c558f48daca7be1a51a8ea5d53f317bad11449",
+        "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-step-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/context-evidence/work-step-ui-final.log": "1df67fcdaba28e42d9cf00eb03c861398a8cb3b8332ed9a4f8f5547bc51b20ac",
+    +   "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence": "directory",
+    +   "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-a-source-before-b.jpg": "4d5528b165145fbca41bb62ec0b22ed9d714fb9bd81e073360e6767f4b1e3863",
+    +   "/.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/session-evidence/native-a-source-before-b.txt": "681db0ccd4b728e022e1155cab50326bb9c54236a445b687d5a9d2f9b3b9ac4e",
+        "/.agdf/control/artefacts/agdf-control-cockpit-20261005-01": "directory",
+        "/.agdf/control/artefacts/agdf-control-cockpit-20261005-01/BROWNFIELD_ANALYSIS.md": "4bbc0255a6674998c8846a62401b3a12e7901e482494b4026f4274a7edf6e3cc",
+        "/.agdf/control/artefacts/agdf-control-cockpit-20261005-01/BROWNFIELD_REVIEW.md": "cc7c541d266c57e8190b41688675c9109ed0db75b8ab49ef69374dd10d7324db",
+        "/.agdf/control/artefacts/agdf-control-cockpit-20261005-01/CD_TESTS.md": "ae02cf6ee2445a7e40130b49e9dbe887650d0199ab1e23431d908be1934f6864",
+        "/.agdf/control/artefacts/agdf-control-cockpit-20261005-01/CLEAN_IMPLEMENTATION_REVIEW.md": "7481e3b08f9ed3181666b22bf20c3bad4de883e504997909467c702b3158ada1",
+
+      134 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      135 |     expect(errors).toEqual([]); expect(remote).toEqual([]); expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
+    > 136 |   } finally { await service.close(); expect(hashes(root)).toEqual(before); }
+          |                                                           ^
+      137 | });
+      138 | test('SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents', async ({ page }) => {
+      139 |   const f = fixture();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:136:59
+
+    Error Context: test-results/journeys-SCN-003-007-028-0-dc6e3-idelity-and-unchanged-bytes/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:104:1 › SCN-003/007/028/031: real repository, pointer + keyboard, focus, source fidelity and unchanged bytes 
+  9 passed (1.2m)

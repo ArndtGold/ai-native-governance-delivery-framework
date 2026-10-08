@@ -1,0 +1,22 @@
+{
+  "SCN-025": {
+    "scenario_id": "SCN-025",
+    "criterion_id": "AC-010",
+    "design_decision_id": "SDD-006",
+    "task_id": "T-008",
+    "tested_source_or_fixture": "clean lockfile install + typecheck/build + package checks",
+    "command_or_steps": "See referenced executed test logs and test sources; browser journeys include pointer/Enter, return, stale/reload/retry/removal.",
+    "expected_result": "Local clean package installation, typecheck and build succeed with recorded exact lockfile/engine versions; dist/dependencies are absent from public CLI/plugin payloads",
+    "actual_result": "npm ci --ignore-scripts installed exact pins; typecheck/build pass; runtime/profile/package inventory excludes private React UI and dependencies",
+    "comparison": "pass within the approved SD observation/error boundary; scaled synthetic limit tests are explicitly distinguished from actual integration limits",
+    "result": "pass",
+    "observed_at": "2026-10-05T19:09:27.043694+00:00",
+    "output_references": [
+      "clean-install.log",
+      "typecheck.log",
+      "build.log",
+      "payload-budget.log",
+      "package-contents.log"
+    ]
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-cockpit-mcp-app-20261005-01",
+  "revision_id": "3910ecf6-6e2c-4ac4-a4c1-255da47caa5c",
+  "status": "native_reading_and_two_view_host_handoff_observed_not_complete_qualification",
+  "preparation": {
+    "schema_version": "1",
+    "profile": "codex-cockpit",
+    "name": "agdf-cockpit-local",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "version": "0.14.5",
+    "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/codex-project-config.toml",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex-cockpit/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "server_digest": "5cc840999fc07a3cc996889dfbfb6728b3efa150a8332adf9dee9c88790bc8d9",
+    "dispatcher_digest": "8366988e6bc057a8ce67fc533dc51c030c3dfb0ae9446280801921595c65c15c",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1046097,
+      "digest": "sha256:d110a0e1b3c2ea99e0b95c6caa1f3d6dc6f864328e2a9fab1bacc099b9c54f23"
+    },
+    "activated": false,
+    "authorizes": false
+  },
+  "loaded_resource": {
+    "module_bytes": 659885,
+    "module_digest": "87f3999bca640bfbdbea33a4bd3fb4e5be821c0a48c39159de1b52ba56e77554",
+    "style_bytes": 385952,
+    "style_digest": "4541672c0451c9c78aa04d484f027ce27473254dbe8d91652c0194883cd82289"
+  },
+  "approved_source_digests": {
+    "UR": "97d809260eca01b37ee5468aa4ae055190b5fb2089f3a4941603657b88ccef7f",
+    "PRD": "8f372986651c47aa376accb9044bdc2ad822db101270f1c76ac0ab08e41dcb1c",
+    "SD": "5b689f0855e9523a7e291b06086cd79b2b5533b6248fc85706349eb4b416a3cc",
+    "TP": "d67074d42aea32553247aafdc50ba91a5ae081ec1ad27fac649b1684c5b64509"
+  },
+  "no_write": {
+    "file_count": 3577,
+    "unchanged": true,
+    "before": "cockpit-native-window-27-before.json",
+    "after": "cockpit-native-window-27-after.json"
+  },
+  "ordered_steps": [
+    "initial_run",
+    "explicit_run_identity",
+    "registered_run_document",
+    "registered_run_source_digest",
+    "run_document_return",
+    "overview_initial",
+    "title_provenance",
+    "after_visible_scroll",
+    "planned_fallback",
+    "archive_reverse",
+    "overview_selection",
+    "overview_return",
+    "advertised_host_capabilities",
+    "host_context_ack",
+    "second_view_publication_busy",
+    "once_authorized_question_ack",
+    "owner_document_return",
+    "second_view_takeover_ack",
+    "second_owner_return_after_release",
+    "both_final_readable",
+    "second_view_prd_context_ack",
+    "reverse_nonowner_busy",
+    "nonowner_cleanup_preserves_prd_owner",
+    "once_authorized_prd_question_ack",
+    "prd_owner_return_release",
+    "final_after_both_questions"
+  ],
+  "questions": {
+    "count": 2,
+    "each_has_distinct_current_user_authorization": true,
+    "host_acknowledged": true,
+    "model_received_or_answer_verified": false,
+    "automatic_resends": 0
+  },
+  "publication_takeover": {
+    "first_context_id": "e67c0eb9-0458-4f73-a09b-7dcad4ab9655",
+    "second_context_id": "8220340a-8e55-4809-b784-ff8b215b5005",
+    "prd_context_id": "0398b82c-5ec8-4271-b7ad-0b6ec2a0c268",
+    "foreign_cleanup_preserves_owner": true,
+    "returns_after_owned_release": true
+  },
+  "open": [
+    "Native model receipt/answer is not available in this tool output; host acknowledgement is recorded separately.",
+    "Final scoped native configuration/runtime rollback and reconnect proof remains open.",
+    "Final task fulfilment and mandatory reviews, canonical QA/UAT/OR remain open."
+  ],
+  "authorizes": false,
+  "files": {
+    "cockpit-native27-observations.json": "36a58ed2a2cd257d2bb4e3524e431847ae9d748269c908e8b46629ee4076f8f7",
+    "cockpit-packet-27.json": "5fa4c4268035574d2eff393f9a1c6a63452330158dde37a730519127697f8f25",
+    "cockpit-question-27.txt": "a7b7123a76dcdcf965055f32c7d8d1db502de86a5d4595c26ca21c45a673156f",
+    "cockpit-prd-question-27.txt": "f0fbea9914edf23366780df92b38308053b4e47e2ef92f8ccc9093081a161907",
+    "cockpit-native-window-27-before.json": "c829f7215f55263bfa8a7090cf5527a1d94a0506c0df7bd4b4b02f11d08806db",
+    "cockpit-native-window-27-after.json": "74645c56dc622578f36bf3d020a875572550391ad4ebf24d99584b516a66d5d7",
+    "cockpit-tuple-27.json": "475a2de023e433ce796618f891b8bacd9d1d98f0a2b9032ef0dd842741334745",
+    "cockpit-native27-context.png": "3965021e0a84f0a4c2f34e7714f1c0d354e55c9938c63bc59f5dd8c75c180560",
+    "cockpit-native27-question.png": "611d2127c18d29b2c4111310844eabfb618a7d005e97984f54a5bde8c0c13e87",
+    "cockpit-native27-prd-context.png": "66d46577a569ff6c835f966099f757faa8fc95b65d48afb5812063261818d87c",
+    "cockpit-native27-prd-question.png": "4910d2b0d1e0914e894336642360847e964f2b72519c77d08c2c7bd8423e000c",
+    "cockpit-native27-final-run.png": "d08a323e0354c5f1720ac9c4b460de4f6bd60b81bd89d4de15abfea444a69c33",
+    "cockpit-native27-overview.png": "82045a473a8934b21fdc2cbe16501edd71f9004f1dbc89f2160d9d57b1c0a023"
+  }
+}

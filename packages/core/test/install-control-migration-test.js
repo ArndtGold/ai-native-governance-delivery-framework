@@ -238,13 +238,17 @@ try {
 
   const linked = join(base, "linked");
   mkdirSync(linked);
-  symlinkSync(join(safe, ".agdf"), join(linked, ".agdf"));
-  assert.equal((await migrateInstallationControl(linked, { mode: "safe" })).status, "repair_required");
-  assert.deepEqual(readFileSync(old.path), migrated);
+  try {
+    symlinkSync(join(safe, ".agdf"), join(linked, ".agdf"));
+    assert.equal((await migrateInstallationControl(linked, { mode: "safe" })).status, "repair_required");
+    assert.deepEqual(readFileSync(old.path), migrated);
+  } catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
   const dangling = join(base, "dangling");
   mkdirSync(dangling);
-  symlinkSync(join(base, "missing-target"), join(dangling, ".agdf"));
-  assert.equal(inspectControlMigration(dangling).status, "repair_required");
+  try {
+    symlinkSync(join(base, "missing-target"), join(dangling, ".agdf"));
+    assert.equal(inspectControlMigration(dangling).status, "repair_required");
+  } catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
   const stale = repository("stale");
   const staleRun = addRun(stale, "stale", (content) => content.replace("| UR | missing |", "| UR | approved | Approval: UR"));
   const conflicted = await install(stale, {}, { confirmControlMigration: () => {

@@ -202,10 +202,12 @@ test('an artefact registered outside .agdf/control blocks only that resource and
   }
 });
 
-test('a stored next step from an earlier gate is replaced by the evaluated one; a backward move keeps it; the persisted view keeps the stored values', async () => {
+test('a generated next step from an earlier gate is replaced; custom text and backward moves keep the stored values', async () => {
   const f = await approvalFixture(); try {
+    const beforeApproval = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
+    assert.equal(beforeApproval.current_gate, 'UR');
+    const stale = beforeApproval.next_allowed_action;
     assert.equal(f.approve().outcome, 'approved');
-    const stale = 'Request exact UR approval before anything else.';
     let source = replaceFirstScalar(fs.readFileSync(f.runPath, 'utf8'), 'current_gate', 'UR');
     source = replaceFirstScalar(source, 'next_allowed_action', stale);
     fs.writeFileSync(f.runPath, sealRunState(f.root, source));
@@ -216,6 +218,17 @@ test('a stored next step from an earlier gate is replaced by the evaluated one; 
     assert.notEqual(run.evaluation.next_allowed_action, stale);
     assert.equal(run.persisted.current_gate, 'UR');
     assert.equal(run.persisted.next_allowed_action, stale);
+
+    const custom = 'Request exact UR approval before anything else.';
+    source = replaceFirstScalar(source, 'next_allowed_action', custom);
+    fs.writeFileSync(f.runPath, sealRunState(f.root, source));
+    const beforeRead = treeBytes(f.root);
+    const customRun = createCockpitReader(f.root).snapshot('fixture-a').data.run;
+    assert.equal(customRun.evaluation.current_gate, run.evaluation.current_gate);
+    assert.equal(customRun.evaluation.next_allowed_action, custom, 'a forward gate move preserves hand-authored instructions');
+    assert.equal(customRun.persisted.current_gate, 'UR');
+    assert.equal(customRun.persisted.next_allowed_action, custom);
+    assert.deepEqual(treeBytes(f.root), beforeRead, 'reading the cockpit never repairs stored state');
   } finally { f.close(); }
   const b = fixture(); try {
     const retracted = 'Draft the PRD slice before anything else.';

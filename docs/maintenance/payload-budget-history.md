@@ -423,3 +423,13 @@ The cockpit-only capture module `control-read/snapshot.js` is no longer projecte
 The measured Copilot closure is 204 files / 1716735 bytes, +1 file / +606 bytes from the
 reviewed 203 / 1716129 baseline. The baseline records exactly the measured inventory with no
 unused headroom.
+
+## Cockpit capability gating and next-step precedence (2026-10-08)
+
+The shared MCP server and launcher add 1 file / 4678 bytes. The Core next-step changes add
+1 file / 3959 bytes relative to `fe02a54`: `next-action.js` +2054, `gate-check.js` -31,
+`gate-policy.js` +222, `run-recording.js` +1711, `delivery-map.js` -21 and
+`skill-dispatch/service.js` +24 bytes. The final helper preserves hand-authored instructions;
+its actual closure is 529 bytes larger than the previously recorded 3430-byte estimate.
+The exact generated Copilot inventory is 206 files / 1725372 bytes, up from 204 / 1716735.
+No UI assets or spare budget are included, and the file, byte and provenance checks remain active.

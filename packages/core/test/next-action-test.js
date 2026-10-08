@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { effectiveNextAllowedAction, storedGateMoved, storedNextActionApplies } from "../lib/control-evaluation/next-action.js";
+import { effectiveNextAllowedAction, storedNextActionStale, storedNextActionApplies } from "../lib/control-evaluation/next-action.js";
 
 // The stored next step refines the evaluated gate for active runs; completed runs keep their
-// authored closeout text; only a forward-moved gate falls back to the evaluated decision.
+// authored closeout text; only a generated next step from an earlier gate falls back to the evaluated decision.
 const CD_TESTS = { current_gate: "CD+Tests", next_allowed_action: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." };
 const run = ({ lifecycle = "active", gate = "CD+Tests", next = "" } = {}) => ({
   content: `# AGDF Run State\n\n## Run Meta\n\n- lifecycle: ${lifecycle}\n- current_gate: ${gate}\n`,
@@ -29,15 +29,21 @@ assert.equal(effectiveNextAllowedAction(custom, CD_TESTS), custom.next_allowed_a
 const sameText = run({ next: CD_TESTS.next_allowed_action });
 assert.equal(effectiveNextAllowedAction(sameText, CD_TESTS), CD_TESTS.next_allowed_action);
 
+// A forward gate move does not discard a deliberate run-specific instruction.
+const movedCustom = run({ gate: "Brownfield Analysis", next: custom.next_allowed_action });
+assert.equal(storedNextActionStale(movedCustom, CD_TESTS), false);
+assert.equal(storedNextActionApplies(movedCustom, CD_TESTS), true);
+assert.equal(effectiveNextAllowedAction(movedCustom, CD_TESTS), movedCustom.next_allowed_action);
+
 // A backward move after retracted evidence (stored QA, evaluated CD+Tests) keeps the stored text and
 // therefore keeps stopping automatic implementation; an unknown stored gate also fails closed.
 const backward = run({ gate: "QA", next: "Draft or refine the current artefact." });
-assert.equal(storedGateMoved(backward, CD_TESTS), false);
+assert.equal(storedNextActionStale(backward, CD_TESTS), false);
 assert.equal(effectiveNextAllowedAction(backward, CD_TESTS), backward.next_allowed_action);
 const unknown = run({ gate: "Legacy Review Step", next: "Finish the legacy review." });
-assert.equal(storedGateMoved(unknown, CD_TESTS), false);
+assert.equal(storedNextActionStale(unknown, CD_TESTS), false);
 assert.equal(effectiveNextAllowedAction(unknown, CD_TESTS), unknown.next_allowed_action);
-assert.equal(storedGateMoved(stale, CD_TESTS), true, "the observed defect is a forward move");
+assert.equal(storedNextActionStale(stale, CD_TESTS), true, "the observed defect is a generated next step from an earlier gate");
 
 // A backtick-quoted stored gate still compares by its gate name.
 const quoted = run({ gate: "`CD+Tests`", next: "Run the remaining integration scenario first." });

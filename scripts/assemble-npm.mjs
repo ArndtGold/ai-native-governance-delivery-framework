@@ -1,9 +1,10 @@
-import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cliRoot, coreRoot, mcpRoot, repoRoot, projectCore, coreImports } from './core-projection.mjs';
 import { createHash } from 'node:crypto';
 import { COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS } from '../packages/core/lib/control-inspect/cockpit-contract.js';
+import { renameSyncWithRetry } from '../packages/core/lib/fs-swap.js';
 const OWNER = 'agdf:npm-assembly';
 export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
   if (surface && !['codex', 'claude', 'copilot', 'opencode'].includes(surface)) throw new Error('AGDF_ASSEMBLY_SURFACE_INVALID');
@@ -60,12 +61,12 @@ export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
     }
     writeFileSync(join(stage, 'assembly.json'), JSON.stringify({ owner: OWNER, version: definition.version, ...(cockpit ? { profile: 'codex-cockpit' } : {}), packages: results }, null, 2) + '\n');
     beforePublish?.({ stage, output });
-    if (existsSync(output)) { renameSync(output, backup); moved = true; }
-    renameSync(stage, output); published = true;
+    if (existsSync(output)) { renameSyncWithRetry(output, backup); moved = true; }
+    renameSyncWithRetry(stage, output); published = true;
     if (moved) rmSync(backup, { recursive: true });
     return results;
   } catch (error) {
-    if (moved && !published && !existsSync(output)) renameSync(backup, output);
+    if (moved && !published && !existsSync(output)) renameSyncWithRetry(backup, output);
     throw error;
   } finally {
     if (!published) rmSync(stage, { recursive: true, force: true });

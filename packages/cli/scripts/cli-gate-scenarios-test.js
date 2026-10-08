@@ -11,6 +11,7 @@ const scenarios = new Map([
   ["new-ur", newUrWithoutArtefact],
   ["duplicate-prd", duplicatePrdRow],
   ["bound-ur", boundUrApproval],
+  ["stale-next-step", staleNextStep],
 ]);
 
 function invoke(args, expectedExit = 0) {
@@ -161,6 +162,170 @@ function boundUrApproval() {
     assert.equal(approved.outcome, "approved");
     assert.match(readFileSync(join(root, ".agdf", "control", "runs", runId, "RUN_STATE.md"), "utf8"),
       /\| UR \| `\.agdf\/control\/artefacts\/bound-ur\/UR\.md` \| approved \|/u);
+  });
+}
+
+const BROWNFIELD_NEXT = "Run Brownfield Analysis for the approved TP scope before CD+Tests.";
+const CD_TESTS_NEXT = "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.";
+
+// Approved TP with a recorded Brownfield Analysis: the evaluated gate is CD+Tests. The stored
+// header gate and next step vary per case.
+function internalStepRunState(runId, { storedGate, storedNext, lifecycle = "active", mode = "structured_delivery", extraArtefactRow = "" }) {
+  return `# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: ${runId}
+- lifecycle: ${lifecycle}
+- revision: 1
+- revision_id: 44444444-4444-4444-8444-444444444444
+- mode: ${mode}
+- current_gate: ${storedGate}
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Approved TP; Brownfield Analysis recorded. |
+| What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
+| What is missing? | No approval is pending. |
+| What is the next allowed action? | ${storedNext} |
+| What is explicitly forbidden right now? | claim QA pass |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | approved | Approval: PRD |
+| SD | approved | Approval: SD |
+| TP | approved | Approval: TP |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | UR.md | approved | |
+| Brownfield Review | BROWNFIELD_REVIEW.md | done | |
+| PRD | PRD.md | approved | |
+| SD | SD.md | approved | |
+| TP | TP.md | approved | |
+| Brownfield Analysis | BROWNFIELD_ANALYSIS.md | done | pre_implementation_analysis; decision pass |
+| CD+Tests |  | missing | |
+| CR |  | missing | |
+| QA |  | missing | |
+${extraArtefactRow}
+## Mode/Slice Decision
+
+- decision: ${mode}
+- required_next_gate: PRD
+- scope_reason: Stale next-step fixture.
+- evidence: BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | exact approval |
+| PRD | derived_from | UR | linked |
+| SD | derived_from | PRD | linked |
+| TP | derived_from | SD | linked |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| stale next-step fixture | cli-gate-scenarios-test.js | transition | direct |
+
+## Closeout
+
+- next_allowed_action: ${storedNext}
+`;
+}
+
+function withInternalStepRun(caseName, options, action) {
+  withFixture("internal-step", `stale-${caseName}`, (context) => {
+    const statePath = join(context.root, ".agdf", "control", "runs", context.runId, "RUN_STATE.md");
+    writeFileSync(statePath, sealRunState(context.root, internalStepRunState(context.runId, options)));
+    action({ ...context, statePath });
+  });
+}
+
+function nextStepView({ root, runId }) {
+  const report = json(["gate-check", "--dir", root, "--run", runId, "--json"]);
+  const map = json(["delivery-map", "--dir", root, "--run", runId, "--json"]);
+  const card = invoke(["gate-check", "--dir", root, "--run", runId, "--status-card"]);
+  return { report, map, card };
+}
+
+function staleNextStep() {
+  let neverStale;
+  withInternalStepRun("current", { storedGate: "CD+Tests", storedNext: CD_TESTS_NEXT }, (context) => {
+    neverStale = nextStepView(context);
+    assert.equal(neverStale.report.current_gate, "CD+Tests");
+    assert.equal(neverStale.report.next_allowed_action, CD_TESTS_NEXT);
+    const continued = dispatch(context, "--continue-delivery");
+    assert.equal(continued.continuation?.phase, "implementation", "a current CD+Tests next step continues into implementation");
+  });
+
+  // The stored gate moved (Brownfield Analysis recorded without refreshing derived fields): every
+  // read surface and the dispatcher follow the evaluated gate, exactly like the never-stale run.
+  withInternalStepRun("moved", { storedGate: "Brownfield Analysis", storedNext: BROWNFIELD_NEXT }, (context) => {
+    const stale = nextStepView(context);
+    assert.equal(stale.report.current_gate, "CD+Tests");
+    assert.equal(stale.report.next_allowed_action, CD_TESTS_NEXT, "gate-check uses the evaluated next step");
+    assert.equal(stale.report.status_card.next_step, neverStale.report.status_card.next_step);
+    assert.equal(stale.card, neverStale.card, "the status card equals the never-stale card");
+    assert.equal(stale.map.next_allowed_action, CD_TESTS_NEXT, "delivery-map uses the evaluated next step");
+    assert.doesNotMatch(stale.card, /Run Brownfield Analysis/u);
+    const continued = dispatch(context, "--continue-delivery");
+    assert.equal(continued.continuation?.phase, "implementation", "a moved gate no longer stalls continue_delivery");
+  });
+
+  // A deliberate same-gate decision keeps its text and keeps stopping automatic implementation.
+  const pending = "Choose whether AC-006 stays open under this TP or a separate scope update starts.";
+  withInternalStepRun("same-gate", { storedGate: "CD+Tests", storedNext: pending }, (context) => {
+    const view = nextStepView(context);
+    assert.equal(view.report.next_allowed_action, pending);
+    assert.equal(view.map.next_allowed_action, pending);
+    const continued = dispatch(context, "--continue-delivery");
+    assert.notEqual(continued.continuation?.phase, "implementation", "a pending same-gate decision must not start implementation");
+  });
+
+  // A backward move after retracted evidence (stored QA, evaluated CD+Tests) keeps the stored text and
+  // never starts automatic implementation.
+  const retracted = "Draft or refine the current artefact.";
+  withInternalStepRun("backward", { storedGate: "QA", storedNext: retracted }, (context) => {
+    const view = nextStepView(context);
+    assert.equal(view.report.current_gate, "CD+Tests");
+    assert.equal(view.report.next_allowed_action, retracted, "a backward move keeps the stored next step");
+    assert.equal(view.map.next_allowed_action, retracted);
+    const continued = dispatch(context, "--continue-delivery");
+    assert.notEqual(continued.continuation?.phase, "implementation", "a backward move must not start implementation");
+  });
+
+  // Completed runs keep their authored closeout text, even when the layout evaluates to another gate.
+  const closeout = "No run work remains; VCS actions require a separate explicit instruction.";
+  for (const mode of ["structured_delivery", "verified_change"]) {
+    withInternalStepRun(`completed-${mode}`, { storedGate: "OR", storedNext: closeout, lifecycle: "completed", mode }, (context) => {
+      const view = nextStepView(context);
+      if (mode === "structured_delivery") assert.equal(view.report.next_allowed_action, closeout);
+      assert.equal(view.map.next_allowed_action, closeout, `delivery-map keeps the closeout text (${mode})`);
+    });
+  }
+
+  // An open blocker keeps precedence over the evaluated next step.
+  withInternalStepRun("blocked", { storedGate: "Brownfield Analysis", storedNext: BROWNFIELD_NEXT,
+    extraArtefactRow: "| CR |  | missing | |\n" }, (context) => {
+    const report = json(["gate-check", "--dir", context.root, "--run", context.runId, "--json"], 2);
+    assert.equal(report.status, "blocked");
+    assert.notEqual(report.next_allowed_action, CD_TESTS_NEXT, "a blocker's recovery wins over the evaluated next step");
+    assert.notEqual(report.next_allowed_action, BROWNFIELD_NEXT);
   });
 }
 

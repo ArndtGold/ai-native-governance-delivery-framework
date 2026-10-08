@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -90,6 +91,30 @@ assert.deepEqual(parseLauncherArguments(["--surface", "copilot", "--data", absol
 for (const invalid of [["--surface", "claude"], ["--surface", "codex", "--data", "relative"], ["--surface", "copilot", "--data", "relative"], ["--surface", "codex"], ["--unknown"]]) {
   assert.equal(parseLauncherArguments(invalid, {}), null, invalid.join(" "));
 }
+// Claude cockpit entry: the project root Claude substitutes for ${CLAUDE_PROJECT_DIR}, never cwd.
+const project = join(tmpdir(), "agdf project with spaces");
+assert.deepEqual(parseLauncherArguments(["--cockpit-dir", project], { CLAUDE_PLUGIN_DATA: "/claude/data" }),
+  { surface: "claude", dataRoot: "/claude/data", cockpitDir: project, prepareOnly: false });
+assert.deepEqual(parseLauncherArguments(["--cockpit-dir", project, "--prepare"], { CLAUDE_PLUGIN_DATA: "/claude/data" }),
+  { surface: "claude", dataRoot: "/claude/data", cockpitDir: project, prepareOnly: true });
+for (const invalid of [["--cockpit-dir"], ["--cockpit-dir", "relative/project"], ["--cockpit-dir", "${CLAUDE_PROJECT_DIR}"],
+  ["--cockpit-dir", join(tmpdir(), "${CLAUDE_PROJECT_DIR}")], ["--cockpit-dir", ""], ["--cockpit-dir", project, "--surface", "claude"]]) {
+  assert.equal(parseLauncherArguments(invalid, { CLAUDE_PLUGIN_DATA: "/claude/data" }), null, invalid.join(" "));
+}
+{
+  // The launcher passes the cockpit root as one argv element to the verified server.
+  const spawnRoot = mkdtempSync(join(tmpdir(), "agdf-launcher-argv-"));
+  try {
+    const entrypoint = join(spawnRoot, "record-argv.mjs"), recorded = join(spawnRoot, "argv.json");
+    writeFileSync(entrypoint, `import { writeFileSync } from "node:fs"; writeFileSync(${JSON.stringify(recorded)}, JSON.stringify(process.argv.slice(2)));\n`);
+    const runtime = { status: "matched", version, root: spawnRoot, entrypoint, changed: false, sdkVerification: "verified" };
+    for (const [argv, expected] of [[[], ["--surface", "claude"]], [["--cockpit-dir", project], ["--surface", "claude", "--cockpit-dir", project]]]) {
+      await launchPluginMcpServer({ pluginRoot, argv, env: { CLAUDE_PLUGIN_DATA: join(spawnRoot, "data") },
+        stdout: { write() {} }, stderr: { write(text) { throw new Error(text); } }, ensure: () => runtime });
+      assert.deepEqual(JSON.parse(readFileSync(recorded, "utf8")), expected);
+    }
+  } finally { rmSync(spawnRoot, { recursive: true, force: true }); }
+}
 
 // The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
 const sdkRoot = mkdtempSync(join(tmpdir(), "agdf-plugin-mcp-sdk-"));
@@ -177,6 +202,29 @@ try {
   assert.match(launcherFailureLine("AGDF_MCP_RUNTIME_UNOWNED"), /^AGDF_MCP_RUNTIME_UNOWNED: .+\. Move the directory away and restart\.$/u);
 } finally {
   rmSync(sdkRoot, { recursive: true, force: true });
+}
+
+{
+  // After a plugin update, several launchers (Claude's version probe plus respawn, both servers, every
+  // reconnecting session) replace the outdated runtime at once. None may observe a half-deleted runtime.
+  const updateRoot = mkdtempSync(join(tmpdir(), "agdf-plugin-mcp-update-"));
+  try {
+    const updatedPlugin = join(updateRoot, "plugin"), dataRoot = join(updateRoot, "data");
+    cpSync(pluginRoot, updatedPlugin, { recursive: true });
+    ensurePluginMcpRuntime({ pluginRoot: updatedPlugin, dataRoot, exec: offlineNpm });
+    writeFileSync(join(updatedPlugin, "mcp", "server", "README.md"), `${readFileSync(join(updatedPlugin, "mcp", "server", "README.md"), "utf8")}\nUpdated plugin build.\n`);
+    const worker = join(import.meta.dirname, "fixtures", "plugin-mcp-ensure-worker.js");
+    const results = await Promise.all(Array.from({ length: 6 }, () => new Promise((resolveRun, reject) => {
+      const child = spawn(process.execPath, [worker, updatedPlugin, dataRoot], { stdio: ["ignore", "pipe", "pipe"] });
+      let stdout = "";
+      child.stdout.on("data", (chunk) => { stdout += chunk; });
+      child.once("error", reject);
+      child.once("exit", () => resolveRun(JSON.parse(stdout)));
+    })));
+    assert.deepEqual(results.filter((row) => row.error), [], JSON.stringify(results));
+    assert.equal(ensurePluginMcpRuntime({ pluginRoot: updatedPlugin, dataRoot, exec() { throw new Error("must reuse"); } }).changed, false);
+    assert.deepEqual(readdirSync(join(dataRoot, "mcp")).filter((name) => name.startsWith(".")), [], "no retired or staged leftovers");
+  } finally { rmSync(updateRoot, { recursive: true, force: true }); }
 }
 
 console.log("Plugin MCP runtime tests passed");

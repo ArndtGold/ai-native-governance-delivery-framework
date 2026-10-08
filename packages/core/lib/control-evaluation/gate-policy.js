@@ -2,6 +2,10 @@ import { extractField, verifiedChangeEscalationTargets } from "./verified-change
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
 
+// The dispatcher's implementation continuation compares against this exact text: equality means
+// no run-specific same-gate decision is pending.
+export const CD_TESTS_NEXT_ALLOWED_ACTION = "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.";
+
 function durableArtefactBlock(gate, nextGate) {
   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
   const stablePath = gate === "QA" ? ".agdf/control/artefacts/<key>/QA_REPORT.md" : `.agdf/control/artefacts/<key>/${gate}.md`;
@@ -256,7 +260,7 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
       missing_approval: "none",
       allowed: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
       forbidden: ["claim QA pass", "request UAT approval", "release"],
-      next_allowed_action: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      next_allowed_action: CD_TESTS_NEXT_ALLOWED_ACTION,
     };
   }
 

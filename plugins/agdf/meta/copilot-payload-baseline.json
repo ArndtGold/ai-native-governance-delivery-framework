@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
-  "max_files": 204,
-  "max_bytes": 1716735,
-  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom."
+  "max_files": 206,
+  "max_bytes": 1724843,
+  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3430 bytes of Core control code (forward-only next-step precedence helper, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom."
 }

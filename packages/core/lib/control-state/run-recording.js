@@ -4,6 +4,7 @@ import { duplicateArtefactRowTypes, parseControlState } from "./run-state-parser
 import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
+import { storedGateMoved } from "../control-evaluation/next-action.js";
 import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
 import { backlogSkip } from "./run-backlog.js";
 import { runPath } from "./run-state-reader.js";
@@ -81,6 +82,29 @@ function recordUrApprovalChain(text, evidence) {
 
 // run-update: record the current run state and listed artefacts as a new sealed revision. Approval
 // rows must match the recorded approvals; only run-approve may change them.
+// run-update reseals hand-edited content. When the edit moved an active run's evaluated gate (for
+// example a recorded internal step), refresh the derived control fields as the other canonical
+// writers do; run-specific text on an unchanged gate and "What is known?" stay as authored.
+function refreshMovedGateFields(content) {
+  const state = parseControlState(content, {
+    userGates: APPROVAL_GATES,
+    internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
+    closeoutArtefacts: ["OR"],
+  });
+  const after = transitionDecisionForRunState({ ...state, content });
+  if (!storedGateMoved({ content, current_gate: state.current_gate }, after)) return content;
+  const approvedGates = APPROVAL_GATES.filter((gate) => state.approvals.get(gate)?.status === "approved");
+  let next = replaceFirstScalar(content, "current_gate", after.current_gate) ?? content;
+  next = replaceFirstScalar(next, "next_allowed_action", after.next_allowed_action) ?? next;
+  for (const [key, value] of [
+    ["What is approved?", approvedGates.length ? approvedGates.map((gate) => `Approval: ${gate}`).join(", ") : "Nothing yet."],
+    ["What is missing?", after.missing_approval !== "none" ? `Exact ${after.missing_approval}.` : "No approval is pending."],
+    ["What is the next allowed action?", after.next_allowed_action],
+    ["What is explicitly forbidden right now?", after.forbidden.join("; ") || "none"],
+  ]) next = upsertTableRow(next, "Current Control State", 0, key, [key, value]) ?? next;
+  return next;
+}
+
 export function recordRunRevision(root, { runId, revisionId }) {
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
@@ -100,7 +124,8 @@ export function recordRunRevision(root, { runId, revisionId }) {
   }
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
-  const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, run.content, revisionId, { expectedContent: run.content, allowContentChange: true }));
+  const content = refreshMovedGateFields(run.content);
+  const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",

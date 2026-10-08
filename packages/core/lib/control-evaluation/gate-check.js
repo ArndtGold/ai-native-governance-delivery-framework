@@ -3,9 +3,9 @@ import { interactionLocales, resolveConfiguredChatLanguage } from "../resources/
 import { evaluateDoctor } from "./doctor.js";
 import { analyzeDeliveryMap, deriveQualityOutlook } from "./delivery-map.js";
 import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
+import { effectiveNextAllowedAction } from "./next-action.js";
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from "./run-state.js";
-import { isPlaceholderValue } from "./shared.js";
 import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
 import { evaluateUrReadiness } from "./ur-readiness.js";
 import { evaluatePrdReadiness } from "./prd-readiness.js";
@@ -332,9 +332,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   let forbidden = transitionDecision.forbidden;
   let nextAllowedAction = modeSliceDecision(runState) === "verified_change" || readSourceRevisions(runState.content ?? "").present
     ? transitionDecision.next_allowed_action
-    : isPlaceholderValue(runState.next_allowed_action)
-    ? transitionDecision.next_allowed_action
-    : runState.next_allowed_action;
+    : effectiveNextAllowedAction(runState, transitionDecision);
   let controlSetupRequired = false;
 
   if (doctorBlocker?.code === "AGDF_CONTROL_FILE_MISSING") {
@@ -446,7 +444,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     && approvalArtefactReady;
   const continuePostTpWork = status === "open" && blockingReason === "none"
     && currentGate === "CD+Tests" && isGateSatisfied(runState, "TP")
-    && runState.next_allowed_action === transitionDecision.next_allowed_action;
+    && effectiveNextAllowedAction(runState, transitionDecision) === transitionDecision.next_allowed_action;
   const hostEvidenceProvisioningChoice = localePack(interactionLocales, "en").operationalValues.hostEvidenceProvisioningChoice;
   const statusCardNextStep = continuePostTpWork
     ? localePack(interactionLocales, "en").operationalValues.nextCdTestsAfterTpApproval

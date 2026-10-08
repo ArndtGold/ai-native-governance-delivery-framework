@@ -2,24 +2,13 @@ import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, re
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cliRoot, coreRoot, mcpRoot, repoRoot, projectCore, coreImports } from './core-projection.mjs';
-import { createHash } from 'node:crypto';
-import { COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS } from '../packages/core/lib/control-inspect/cockpit-contract.js';
 import { renameSyncWithRetry } from '../packages/core/lib/fs-swap.js';
+import { readCockpitUiBuild } from './cockpit-ui-build.mjs';
 const OWNER = 'agdf:npm-assembly';
 export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
   if (surface && !['codex', 'claude', 'copilot', 'opencode'].includes(surface)) throw new Error('AGDF_ASSEMBLY_SURFACE_INVALID');
   if (typeof cockpit !== 'boolean' || cockpit && surface !== 'codex') throw new Error('AGDF_ASSEMBLY_COCKPIT_INVALID');
-  let ui;
-  if (cockpit) {
-    const uiRoot = join(repoRoot, 'packages', 'control-ui', 'dist-mcp');
-    for (const path of [uiRoot, join(uiRoot, 'manifest.json'), join(uiRoot, 'cockpit.html')]) if (lstatSync(path).isSymbolicLink()) throw new Error('AGDF_ASSEMBLY_UI_INVALID');
-    const bytes = readFileSync(join(uiRoot, 'cockpit.html'));
-    const manifest = JSON.parse(readFileSync(join(uiRoot, 'manifest.json'), 'utf8'));
-    if (bytes.length > COCKPIT_LIMITS.html || manifest.bytes !== bytes.length || manifest.uri !== COCKPIT_UI_URI
-      || manifest.mime_type !== COCKPIT_MIME || manifest.schema_version !== '1'
-      || manifest.digest !== 'sha256:' + createHash('sha256').update(bytes).digest('hex')) throw new Error('AGDF_ASSEMBLY_UI_INVALID');
-    ui = uiRoot;
-  }
+  const ui = cockpit ? readCockpitUiBuild({ failure: 'AGDF_ASSEMBLY_UI_INVALID' }).root : undefined;
   const dist = surface ? join(repoRoot, 'dist', 'local', cockpit ? 'codex-cockpit' : surface) : join(repoRoot, 'dist');
   const output = join(dist, 'npm');
   for (const root of relative(repoRoot, output).split(sep).map((_, index, parts) => join(repoRoot, ...parts.slice(0, index + 1)))) if (existsSync(root) && (lstatSync(root).isSymbolicLink() || !lstatSync(root).isDirectory())) throw new Error('AGDF_ASSEMBLY_PATH_INVALID');

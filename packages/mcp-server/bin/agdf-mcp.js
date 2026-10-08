@@ -7,7 +7,7 @@ if (!Number.isInteger(major) || major < 22) {
   process.exitCode = 1;
 } else {
   const args = process.argv.slice(2);
-  const valid = (args.length === 2 || args.length === 4 && args[1] === 'codex' && args[2] === '--cockpit-dir')
+  const valid = (args.length === 2 || args.length === 4 && ['codex', 'claude'].includes(args[1]) && args[2] === '--cockpit-dir')
     && args[0] === "--surface"
     && ["codex", "claude", "copilot", "opencode"].includes(args[1]);
   if (!valid) {

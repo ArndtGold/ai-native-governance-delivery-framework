@@ -1,0 +1,61 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "status-card-stale-next-action-20261008-01",
+  "expected_revision_id": "f7a44829-28ce-404e-a82e-83c59253cff7",
+  "operation_id": "c197a5b8-48a2-4224-97c2-5383be039112",
+  "source_gate": "SD",
+  "reason": "CD+Tests exposed a design gap: the approved SDD-01/SDD-04 rule treats any stored-versus-evaluated gate difference as stale. An existing safety test (packages/core/test/artefact-recording-test.js:254-258) requires that a run whose evaluated gate moved backward after evidence was retracted (stored QA, CD+Tests reset to missing) does not start automatic implementation. The approved rule would start it.",
+  "intended_change": "Revise SDD-01 and SDD-04 to a forward-only rule: the stored next step is stale only when the run is active and the evaluated gate lies after the stored gate in the canonical gate order; a backward or unknown stored gate keeps the stored text (fail closed). The observed defect (stored Brownfield Analysis, evaluated CD+Tests) is a forward move and stays fixed; PRD AC-003 already specifies the earlier-gate case. TP scenarios add the backward case.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/UR.md",
+      "digest": "sha256:b06a79f013dd90e4e34cc7b31e02f818e4c8041352c4617ef80f4a16bce50d15"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/PRD.md",
+      "digest": "sha256:5a6706f51fe3c78e8f6ab2b8e7704e2f871df87365af49a4b9a644a005322a43"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/SD.md",
+      "digest": "sha256:66432a4b6b8545f2de8a89bc5ed8aa094b1ba0477ccf56b18cc09838a6923efb"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/TP.md",
+      "digest": "sha256:96bb022d0ba6322347c78b2b30196325564847c6d5e6c2baddfc531b6e01a5f2"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude Code implementing agent; cooperative impact assessment, not independent proof",
+    "earliest_source": "SD",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/UR.md",
+        "digest": "sha256:b06a79f013dd90e4e34cc7b31e02f818e4c8041352c4617ef80f4a16bce50d15",
+        "rationale": "The UR need (next step belongs to the evaluated gate after recording an internal step, observed as a forward move) is unchanged."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/PRD.md",
+        "digest": "sha256:5a6706f51fe3c78e8f6ab2b8e7704e2f871df87365af49a4b9a644a005322a43",
+        "rationale": "PRD AC-003 already states the stored gate belongs to an earlier gate than the evaluated one; the forward-only rule is a design clarification within approved behavior and acceptance. The decision row wording 'differs' is clarified by the SD revision, not changed in intent."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "retain",
+        "path": ".agdf/control/artefacts/status-card-stale-next-action-20261008-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:06a1af48ca19863852d9569834edab745446bd7cdc8dc12c7e3fe938ea26bca4",
+        "reason": "Routing (structured_slice), owners and scan evidence are unchanged; the backward case adds no new boundary."
+      }
+    ],
+    "implementation_evidence": "Working-tree implementation of SDD-01 to SDD-06 exists (next-action.js, gate-check.js, delivery-map.js, gate-policy.js constant, run-recording.js refresh, service.js import) with tests; test:control-state fails at artefact-recording-test.js:258 under the equality rule. Retained code and tests require fresh assessment under the renewed TP.",
+    "unresolved": []
+  }
+}

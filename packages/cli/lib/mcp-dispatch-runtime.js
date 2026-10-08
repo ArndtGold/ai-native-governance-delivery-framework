@@ -23,7 +23,7 @@ import {
 const MCP_RUNTIME_OWNER = "create-agdf:mcp-runtime";
 
 export async function createMcpCockpitRuntime({ surface, cockpitDir, inspected = inspectMcpDispatcherRuntime() } = {}) {
-  if (surface !== 'codex' || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir)) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
+  if (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir)) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
   let root;
   try { root = realpathSync(cockpitDir); if (!lstatSync(root).isDirectory()) throw Error(); }
   catch { throw new TypeError('AGDF_COCKPIT_TARGET_INVALID'); }
@@ -40,8 +40,9 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, inspected =
     { name: COCKPIT_READ_DEFINITION.name, definition: COCKPIT_READ_DEFINITION,
       parse: parseCockpitArguments, execute: (value, signal) => session.read(value, signal) },
   ];
+  // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
   return Object.freeze({ mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools,
-    responseLimit: READ_LIMITS.response,
+    uiCapabilityRequired: surface === 'claude', responseLimit: READ_LIMITS.response,
     ui: Object.freeze({ uri: COCKPIT_UI_URI, mimeType: COCKPIT_MIME, limit: COCKPIT_LIMITS.html }),
     serialize: value => JSON.stringify(value), failure: code => session.failure(code), close: () => session.close(),
     trustedContext: Object.freeze({ surface, expectedVersion: inspected.expectedVersion, provenanceStatus: inspected.provenanceStatus }),

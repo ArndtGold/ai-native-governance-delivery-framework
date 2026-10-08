@@ -4,9 +4,10 @@ import { aggregate } from "../control-state/aggregate.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { resolveConfiguredChatLanguage } from "../resources/context.js";
 import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
+import { effectiveNextAllowedAction } from "./next-action.js";
 import { gateApprovalStatus, readRunState, resolvedArtefactFile } from "./run-state.js";
 import { deliveryRelationships, relationshipRequired, sameRelationship } from "./delivery-relationships.js";
-import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
+import { allowNoActiveRuns, filled, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
 import { evaluateReconciliationState } from "./parent-reconciliation.js";
 import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
 import { readArtefactBindings } from "../control-state/artefact-bindings.js";
@@ -225,7 +226,7 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
   const status = maxSeverity >= 3 ? "block" : maxSeverity === 2 ? "revise" : maxSeverity === 1 ? "warn" : "pass";
 
   const qualityOutlook = deriveQualityOutlook(runState, map.findings);
-  const nextAllowedAction = isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action;
+  const nextAllowedAction = effectiveNextAllowedAction(runState, gateDecision);
   const postApproval = postApprovalTransition(gateDecision.missing_approval);
   const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
 

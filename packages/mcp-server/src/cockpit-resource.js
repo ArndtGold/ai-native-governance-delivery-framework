@@ -1,9 +1,9 @@
 import { readFileSync, lstatSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
-export function loadCockpitResource({ uri, mimeType, limit } = {}) {
+export function loadCockpitResource({ uri, mimeType, limit, directory = new URL('../ui/', import.meta.url) } = {}) {
   try {
-    const directory = new URL('../ui/', import.meta.url), manifestURL = new URL('manifest.json', directory), htmlURL = new URL('cockpit.html', directory);
+    const manifestURL = new URL('manifest.json', directory), htmlURL = new URL('cockpit.html', directory);
     for (const url of [directory, manifestURL, htmlURL]) if (lstatSync(url).isSymbolicLink()) throw Error();
     const manifest = JSON.parse(readFileSync(manifestURL, 'utf8'));
     const stat = lstatSync(htmlURL);

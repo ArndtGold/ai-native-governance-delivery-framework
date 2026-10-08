@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { fixture, treeBytes } from './control-cockpit-fixtures.js';
+import { approvalFixture, fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { createCockpitSessionService } from '../lib/control-inspect/cockpit-session.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { parseCockpitArguments } from '../lib/control-inspect/cockpit-contract.js';
+import { replaceFirstScalar } from '../lib/control-state/run-state-edits.js';
+import { sealRunState } from '../lib/control-state/run-seal.js';
 
 const storedFacts = data => ({ ...data, entries: data.entries.map(({ row_id, ...facts }) => facts) });
 
@@ -198,4 +200,31 @@ test('an artefact registered outside .agdf/control blocks only that resource and
       assert.deepEqual(treeBytes(f.root), before);
     } finally { f.close(); }
   }
+});
+
+test('a stored next step from an earlier gate is replaced by the evaluated one; a backward move keeps it; the persisted view keeps the stored values', async () => {
+  const f = await approvalFixture(); try {
+    assert.equal(f.approve().outcome, 'approved');
+    const stale = 'Request exact UR approval before anything else.';
+    let source = replaceFirstScalar(fs.readFileSync(f.runPath, 'utf8'), 'current_gate', 'UR');
+    source = replaceFirstScalar(source, 'next_allowed_action', stale);
+    fs.writeFileSync(f.runPath, sealRunState(f.root, source));
+    const expected = evaluateGateCheck(f.root, { runId: 'fixture-a', ignoreRunIdEnv: true });
+    const run = createCockpitReader(f.root).snapshot('fixture-a').data.run;
+    assert.notEqual(run.evaluation.current_gate, 'UR', 'the evaluated gate moved forward past the stored UR');
+    assert.equal(run.evaluation.next_allowed_action, expected.next_allowed_action);
+    assert.notEqual(run.evaluation.next_allowed_action, stale);
+    assert.equal(run.persisted.current_gate, 'UR');
+    assert.equal(run.persisted.next_allowed_action, stale);
+  } finally { f.close(); }
+  const b = fixture(); try {
+    const retracted = 'Draft the PRD slice before anything else.';
+    let source = replaceFirstScalar(fs.readFileSync(b.runPath, 'utf8'), 'current_gate', 'PRD');
+    source = replaceFirstScalar(source, 'next_allowed_action', retracted);
+    fs.writeFileSync(b.runPath, sealRunState(b.root, source));
+    const run = createCockpitReader(b.root).snapshot('fixture-a').data.run;
+    assert.equal(run.evaluation.current_gate, 'UR');
+    assert.equal(run.evaluation.next_allowed_action, evaluateGateCheck(b.root, { runId: 'fixture-a', ignoreRunIdEnv: true }).next_allowed_action);
+    assert.equal(run.evaluation.next_allowed_action, retracted, 'a backward move keeps the stored next step');
+  } finally { b.close(); }
 });

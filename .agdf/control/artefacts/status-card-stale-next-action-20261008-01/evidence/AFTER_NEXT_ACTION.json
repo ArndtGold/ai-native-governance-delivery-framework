@@ -1,0 +1,1847 @@
+{
+  "schema_version": "1",
+  "captured_at": "2026-10-08T11:31:29.323Z",
+  "run_count": 115,
+  "runs": {
+    "activation-diagnosis-determinism": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No run work remains; commit, push, PR, release or install-cache mutation requires separate explicit user instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No run work remains; commit, push, PR, release or install-cache mutation requires separate explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-actionable-card-ux-20260928-01": {
+      "lifecycle": "active",
+      "stored_gate": "CD+Tests",
+      "stored_next": "Choose whether AC-006 stays open under this TP or a separate host-provisioning scope update starts. Host changes are not authorized by this TP.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Choose whether AC-006 stays open under this TP or a separate host-provisioning scope update starts. Host changes are not authorized by this TP.",
+        "status_card_next_step": "Choose whether AC-006 stays open under this TP or a separate host-provisioning scope update starts. Host changes are not authorized by this TP.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Choose whether AC-006 stays open under this TP or a separate host-provisioning scope update starts. Host changes are not authorized by this TP.",
+        "status": "pass"
+      }
+    },
+    "agdf-backlog-or-status": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No run work remains; VCS or release actions require separate explicit user instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status_card_next_step": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No run work remains; VCS or release actions require separate explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-chat-noise-suppression": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "Brownfield Analysis",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Brownfield Analysis",
+        "next_allowed_action": "No further delivery step. Commit, push, PR or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-clean-build-output-repair-20261004-01": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-cockpit-claude-host-20261008-01": {
+      "lifecycle": "active",
+      "stored_gate": "Brownfield Analysis",
+      "stored_next": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status_card_next_step": "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status": "pass"
+      }
+    },
+    "agdf-cockpit-mcp-app-20261005-01": {
+      "lifecycle": "active",
+      "stored_gate": "UAT",
+      "stored_next": "Request exact approval: Approval: UAT before delivery handoff.",
+      "gate_check": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+        "status": "pass"
+      }
+    },
+    "agdf-control-cockpit-20261005-01": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status_card_next_step": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status": "pass"
+      }
+    },
+    "agdf-control-command-slice1-20260930-01": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer the scoped commit through delivery-closeout; no automatic VCS or installation action.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer the scoped commit through delivery-closeout; no automatic VCS or installation action.",
+        "status_card_next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer the scoped commit through delivery-closeout; no automatic VCS or installation action.",
+        "status": "pass"
+      }
+    },
+    "agdf-copilot-plugin-integration": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "agdf-cross-host-mcp-integration": {
+      "lifecycle": "completed",
+      "stored_gate": "`OR`",
+      "stored_next": "Handle the post-acceptance Codex terminal-fidelity and QA-run-discovery findings in one separately governed correction scope.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Handle the post-acceptance Codex terminal-fidelity and QA-run-discovery findings in one separately governed correction scope.",
+        "status": "block"
+      }
+    },
+    "agdf-cross-host-runtime-integrity": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-gate-rationale-why": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No further delivery step. Commit, push, PR or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-guided-mcp-activation": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "agdf-handbook-first-reader-content-transfer": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "None inside this completed run; VCS actions require a separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "None inside this completed run; VCS actions require a separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-host-adapter-compatibility": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-human-decision-surface": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-intake-continuation-repair": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Execute LIVE_VALIDATION.md after Codex restart, then refresh TP Review and qa-gate.",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Execute LIVE_VALIDATION.md after Codex restart, then refresh TP Review and qa-gate.",
+        "status_card_next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Execute LIVE_VALIDATION.md after Codex restart, then refresh TP Review and qa-gate.",
+        "status": "pass"
+      }
+    },
+    "agdf-interaction-ownership-quick-path-ux": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 and the remaining `opencode-single-install-activation` owner decision.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 and the remaining `opencode-single-install-activation` owner decision.",
+        "status": "block"
+      }
+    },
+    "agdf-intermediate-status-card-reduction-20261002-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status_card_next_step": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status": "pass"
+      }
+    },
+    "agdf-live-host-conformance-matrix": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "keine weitere Child-Arbeit; Parent darf RMP-06 verlinken.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "keine weitere Child-Arbeit; Parent darf RMP-06 verlinken.",
+        "status": "block"
+      }
+    },
+    "agdf-local-plugin-install-scripts": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull request handoff.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull request handoff.",
+        "status": "block"
+      }
+    },
+    "agdf-mcp-dispatch-server": {
+      "lifecycle": "completed",
+      "stored_gate": "`OR`",
+      "stored_next": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status": "block"
+      }
+    },
+    "agdf-mcp-inspect-slice1-20260929-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "persist or refine the QA report",
+        "status_card_next_step": "persist or refine the QA report",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status": "pass"
+      }
+    },
+    "agdf-npm-package-payload-cleanup": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "agdf-onboarding-fit-default-prompt": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-pages-landing-simplification": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No run work remains; any deployment, publication, release or further VCS action requires a separate explicit user instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No run work remains; any deployment, publication, release or further VCS action requires a separate explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-pages-limits-and-risks": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Re-evaluate `pages-agentic-control-layer-evidence` now that this run is completed.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Re-evaluate `pages-agentic-control-layer-evidence` now that this run is completed.",
+        "status": "block"
+      }
+    },
+    "agdf-pages-positioning-clarity": {
+      "lifecycle": "completed",
+      "stored_gate": "`OR`",
+      "stored_next": "Use delivery closeout only after an explicit VCS instruction.",
+      "gate_check": {
+        "current_gate": "PRD",
+        "next_allowed_action": "draft the structured PRD required by the declared escalation target",
+        "status_card_next_step": "draft the structured PRD required by the declared escalation target",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Use delivery closeout only after an explicit VCS instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-pages-structured-depth-positioning": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No work remains in this superseded run; route future work to the current owner or a separately approved successor.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No work remains in this superseded run; route future work to the current owner or a separately approved successor.",
+        "status": "block"
+      }
+    },
+    "agdf-parent-reconciliation-handoff": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No governance work remains; use `delivery-closeout` only after an explicit request for a VCS handoff.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No governance work remains; use `delivery-closeout` only after an explicit request for a VCS handoff.",
+        "status": "block"
+      }
+    },
+    "agdf-physical-package-boundaries-20261001-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status_card_next_step": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status": "warn"
+      }
+    },
+    "agdf-plugin-family-language": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-plugin-reliability-hardening": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer the commit-ready delivery handoff and wait for explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer the commit-ready delivery handoff and wait for explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-portable-plugin-package-structure-20261001-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "persist or refine the QA report",
+        "status_card_next_step": "persist or refine the QA report",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status": "pass"
+      }
+    },
+    "agdf-product-maturity-roadmap": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-proportionality-benchmark": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-public-plugin-distribution": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-qa-block-transition-integrity": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "VCS-, Reinstall- oder Release-Aktionen nur nach separater ausdrücklicher Nutzeranweisung; Parent-Roadmap separat fortsetzen.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "VCS-, Reinstall- oder Release-Aktionen nur nach separater ausdrücklicher Nutzeranweisung; Parent-Roadmap separat fortsetzen.",
+        "status": "block"
+      }
+    },
+    "agdf-request-activation-boundary": {
+      "lifecycle": "active",
+      "stored_gate": "`QA`",
+      "stored_next": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status_card_next_step": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "status": "warn"
+      }
+    },
+    "agdf-review-remediation-20260929-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Obtain exact candidate Linux/Windows CI and release/host observations, then rerun qa-gate.",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Obtain exact candidate Linux/Windows CI and release/host observations, then rerun qa-gate.",
+        "status_card_next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Obtain exact candidate Linux/Windows CI and release/host observations, then rerun qa-gate.",
+        "status": "pass"
+      }
+    },
+    "agdf-run-scoped-control-state": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; VCS and release actions still require separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Offer delivery closeout; VCS and release actions still require separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-scope-classification-card": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No parent run work remains; any VCS, release, publication, deployment or plugin reinstall requires a separate explicit user instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No parent run work remains; any VCS, release, publication, deployment or plugin reinstall requires a separate explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-self-maintenance-overhead-reduction": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; VCS and release actions still require separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Offer delivery closeout; VCS and release actions still require separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-skill-evaluation-framework": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer a commit-ready handoff; do not perform VCS or release actions automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer a commit-ready handoff; do not perform VCS or release actions automatically.",
+        "status": "block"
+      }
+    },
+    "agdf-staged-proportionality-baseline-v3": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "None for governance closeout; use `delivery-closeout` only after explicit user instruction for a VCS handoff.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "None for governance closeout; use `delivery-closeout` only after explicit user instruction for a VCS handoff.",
+        "status": "block"
+      }
+    },
+    "agdf-staged-proportionality-observation": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "agdf-state-orientation": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-structured-delivery-depth-boundary": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer one scoped commit; execute no VCS action without explicit user instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer one scoped commit; execute no VCS action without explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-surface-parity-fix": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "Brownfield Analysis",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Brownfield Analysis",
+        "next_allowed_action": "No further delivery step. Commit, push, PR or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "agdf-ux-next-round": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout for an explicit commit decision.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer delivery closeout for an explicit commit decision.",
+        "status": "block"
+      }
+    },
+    "agent-control-dispatcher-mcp-concept-20261002-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status": "pass"
+      }
+    },
+    "agent-skills-conformance-portability": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use `delivery-closeout` only when an operative commit, push or pull-request handoff is explicitly requested.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use `delivery-closeout` only when an operative commit, push or pull-request handoff is explicitly requested.",
+        "status": "block"
+      }
+    },
+    "approval-card-decision-focus": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "formulate and persist UR",
+        "status_card_next_step": "formulate and persist UR",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "approval-orientation-completeness": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer the commit-ready delivery closeout; perform no VCS action without explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer the commit-ready delivery closeout; perform no VCS action without explicit instruction.",
+        "status": "block"
+      }
+    },
+    "approval-orientation-internal-step-integrity": {
+      "lifecycle": "completed",
+      "stored_gate": "`OR`",
+      "stored_next": "Use delivery closeout only after an explicit VCS handoff request; otherwise none.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use delivery closeout only after an explicit VCS handoff request; otherwise none.",
+        "status": "block"
+      }
+    },
+    "architecture-doc-a9-fixes-20261002-01": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+        "status_card_next_step": "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+        "status": "pass"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+        "status": "pass"
+      }
+    },
+    "architecture-review-prevention-2026-09-27": {
+      "lifecycle": "active",
+      "stored_gate": "CD+Tests",
+      "stored_next": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+        "status_card_next_step": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status": "revise"
+      }
+    },
+    "automatic-version-asset-sync": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Continue the approved QA revision in `agdf-interaction-ownership-quick-path-ux`; VCS delivery remains separately instructed.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Continue the approved QA revision in `agdf-interaction-ownership-quick-path-ux`; VCS delivery remains separately instructed.",
+        "status": "block"
+      }
+    },
+    "claude-loaded-host-conformance-observation": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "claude-local-install-content-refresh": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull-request handoff.",
+      "gate_check": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull-request handoff.",
+        "status": "block"
+      }
+    },
+    "codex-activation-matrix-adaptive-runs": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Delivery-Closeout als Git-Handoff erstellen; Commit, Push, PR und Veröffentlichung nur bei gesonderter ausdrücklicher Anweisung.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Delivery-Closeout als Git-Handoff erstellen; Commit, Push, PR und Veröffentlichung nur bei gesonderter ausdrücklicher Anweisung.",
+        "status_card_next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Delivery-Closeout als Git-Handoff erstellen; Commit, Push, PR und Veröffentlichung nur bei gesonderter ausdrücklicher Anweisung.",
+        "status": "pass"
+      }
+    },
+    "codex-harness-conformance-slice": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "coding-agent-user-guide-de": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Request explicit Git delivery instruction if desired.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Request explicit Git delivery instruction if desired.",
+        "status": "block"
+      }
+    },
+    "copilot-skill-name-normalization-20261002-01": {
+      "lifecycle": "active",
+      "stored_gate": "UAT",
+      "stored_next": "Request exact approval: Approval: UAT before delivery handoff.",
+      "gate_check": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+        "status": "pass"
+      }
+    },
+    "create-agdf-cli-modularization": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Provide a delivery handoff; use `delivery-closeout` only when commit, push or pull-request work is explicitly requested.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Provide a delivery handoff; use `delivery-closeout` only when commit, push or pull-request work is explicitly requested.",
+        "status": "block"
+      }
+    },
+    "cross-surface-executable-skill-dispatcher": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "cross-surface-plugin-opt-out": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "cross-surface-skill-target-preflight": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "delivery-path-search-control-input-integrity": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "deterministic-agent-ux": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. A separately requested delivery handoff may prepare VCS actions; it must not execute them automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No further delivery step. A separately requested delivery handoff may prepare VCS actions; it must not execute them automatically.",
+        "status": "block"
+      }
+    },
+    "doctor-presentation-identity-parity": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "gate-check-recovery-command": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer a path-scoped commit without including unrelated dirty-worktree changes.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer a path-scoped commit without including unrelated dirty-worktree changes.",
+        "status": "block"
+      }
+    },
+    "github-community-health-governance": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "install-scripts-fresh-checkout-fix": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull-request handoff.",
+      "gate_check": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull-request handoff.",
+        "status": "block"
+      }
+    },
+    "installation-consent-runtime-checks": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "installer-output-parity": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "late-source-revision-20261005-01": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use delivery-closeout for the operational VCS handoff when requested; do not perform VCS actions automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use delivery-closeout for the operational VCS handoff when requested; do not perform VCS actions automatically.",
+        "status_card_next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use delivery-closeout for the operational VCS handoff when requested; do not perform VCS actions automatically.",
+        "status": "pass"
+      }
+    },
+    "legacy-profile-upgrade-recovery": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "mcp-routing-guard-20260929-01": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "formulate and persist UR",
+        "status_card_next_step": "formulate and persist UR",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "mcp-zielarchitektur-doku-20260929-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Present the persisted QA report and request exact approval: Approval: QA",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+        "status_card_next_step": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Present the persisted QA report and request exact approval: Approval: QA",
+        "status": "revise"
+      }
+    },
+    "native-gate-buttons-live": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further delivery step. Continue any revised human-decision UX only through `agdf-human-decision-surface`.",
+      "gate_check": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "UAT",
+        "next_allowed_action": "No further delivery step. Continue any revised human-decision UX only through `agdf-human-decision-surface`.",
+        "status": "block"
+      }
+    },
+    "opencode-native-dispatch-tool": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "warn"
+      }
+    },
+    "opencode-plugin-honesty-hardening": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "none",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "none",
+        "status": "block"
+      }
+    },
+    "opencode-registry-install": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "opencode-single-install-activation": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 using this accepted owner outcome.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 using this accepted owner outcome.",
+        "status": "block"
+      }
+    },
+    "opencode-surface-hardening-parity": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "pages-agentic-control-layer-evidence": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "none; optional delivery handoff only on explicit user instruction.",
+      "gate_check": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "none; optional delivery handoff only on explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "pages-contact-email": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "PRD",
+        "next_allowed_action": "draft the structured PRD required by the declared escalation target",
+        "status_card_next_step": "draft the structured PRD required by the declared escalation target",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "pages-governed-transition-graphic": {
+      "lifecycle": "completed",
+      "stored_gate": "`OR`",
+      "stored_next": "Use delivery closeout only after an explicit VCS instruction.",
+      "gate_check": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Use delivery closeout only after an explicit VCS instruction.",
+        "status": "block"
+      }
+    },
+    "pages-landing-ci-coverage": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use `delivery-closeout` only when an operative commit, push or pull-request handoff is explicitly requested.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Use `delivery-closeout` only when an operative commit, push or pull-request handoff is explicitly requested.",
+        "status": "block"
+      }
+    },
+    "pages-narrow-bug-track-clarity": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "pages-self-hosting-gate-proof": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "User review or an explicitly requested delivery action.",
+      "gate_check": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "User review or an explicitly requested delivery action.",
+        "status": "block"
+      }
+    },
+    "pages-self-hosting-proof": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "none; optional delivery handoff only on explicit user instruction.",
+      "gate_check": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "none; optional delivery handoff only on explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "pages-skill-evaluation-evidence": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; commit, push, PR or release only on explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Offer delivery closeout; commit, push, PR or release only on explicit instruction.",
+        "status": "block"
+      }
+    },
+    "payload-budget-root-resolution-20261008-01": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "complete the UR requirement clarification, then record the revision with run-update",
+        "status_card_next_step": "complete the UR requirement clarification, then record the revision with run-update",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "plugin-mcp-sdk-supply-chain-20261002-01": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status_card_next_step": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        "status": "pass"
+      }
+    },
+    "prd-definition-separation-20261004-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status": "pass"
+      }
+    },
+    "prd-ux-intent-requirements": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No further governance step; use delivery closeout only after explicit VCS instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No further governance step; use delivery closeout only after explicit VCS instruction.",
+        "status": "block"
+      }
+    },
+    "pre-decision-status-card-visibility": {
+      "lifecycle": "active",
+      "stored_gate": "UR",
+      "stored_next": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+      "gate_check": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "status": "pass"
+      }
+    },
+    "quality-readiness-surface": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; await separate VCS/release instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer delivery closeout; await separate VCS/release instruction.",
+        "status": "block"
+      }
+    },
+    "quick-task-closeout-status-20261002-01": {
+      "lifecycle": "active",
+      "stored_gate": "Quick Task Execution",
+      "stored_next": "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+      "gate_check": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+        "status_card_next_step": "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "Quick Task Execution",
+        "next_allowed_action": "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+        "status": "pass"
+      }
+    },
+    "repository-control-compatibility-20260930-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+        "status_card_next_step": "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "status": "revise"
+      }
+    },
+    "restore-unsealed-active-run-records-20260929-01": {
+      "lifecycle": "active",
+      "stored_gate": "QA",
+      "stored_next": "Resolve the SD-routed approval-provenance design gap and the transaction/platform evidence obligations; rerun Task Plan Review and QA. Approval: QA is not available while this report is revise.",
+      "gate_check": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the SD-routed approval-provenance design gap and the transaction/platform evidence obligations; rerun Task Plan Review and QA. Approval: QA is not available while this report is revise.",
+        "status_card_next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the SD-routed approval-provenance design gap and the transaction/platform evidence obligations; rerun Task Plan Review and QA. Approval: QA is not available while this report is revise.",
+        "status": "pass"
+      }
+    },
+    "runtime-contract-modularization": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Await an explicit delivery instruction; use delivery-closeout before any requested VCS handoff.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Await an explicit delivery instruction; use delivery-closeout before any requested VCS handoff.",
+        "status": "block"
+      }
+    },
+    "scope-classification-card-contract-hardening": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "No run work remains; any VCS, release, publication or plugin reinstall requires a separate explicit user instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "No run work remains; any VCS, release, publication or plugin reinstall requires a separate explicit user instruction.",
+        "status": "block"
+      }
+    },
+    "sd-definition-separation-20261004-01": {
+      "lifecycle": "active",
+      "stored_gate": "CD+Tests",
+      "stored_next": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status_card_next_step": "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status": "pass"
+      }
+    },
+    "status-card-stale-next-action-20261008-01": {
+      "lifecycle": "active",
+      "stored_gate": "CD+Tests",
+      "stored_next": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "gate_check": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status_card_next_step": "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "CD+Tests",
+        "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "status": "pass"
+      }
+    },
+    "surface-native-interactions": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer delivery closeout; VCS and release actions require separate explicit instruction.",
+        "status": "block"
+      }
+    },
+    "task-target-resolution-boundary": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Product Maturity Roadmap PMR-5/PMR-6 anhand des akzeptierten Ergebnisses neu bewerten.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Product Maturity Roadmap PMR-5/PMR-6 anhand des akzeptierten Ergebnisses neu bewerten.",
+        "status": "block"
+      }
+    },
+    "ur-definition-separation-20261004-01": {
+      "lifecycle": "active",
+      "stored_gate": "UAT",
+      "stored_next": "Request exact approval: Approval: UAT before delivery handoff.",
+      "gate_check": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+        "status_card_next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+        "status": "open"
+      },
+      "delivery_map": {
+        "current_gate": "UAT",
+        "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+        "status": "pass"
+      }
+    },
+    "verified-change-control-integrity": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Offer an explicit commit or delivery handoff decision; do not execute VCS or release actions automatically.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Offer an explicit commit or delivery handoff decision; do not execute VCS or release actions automatically.",
+        "status": "block"
+      }
+    },
+    "verified-change-path": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Create the Orchestration Report and offer delivery closeout.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "OR",
+        "next_allowed_action": "Create the Orchestration Report and offer delivery closeout.",
+        "status": "block"
+      }
+    },
+    "windows-native-install-viability": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull-request handoff.",
+      "gate_check": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Use `delivery-closeout` only if the user explicitly requests a commit, push or pull-request handoff.",
+        "status": "block"
+      }
+    },
+    "windows-release-bump-symlink-fixture": {
+      "lifecycle": "completed",
+      "stored_gate": "OR",
+      "stored_next": "Optionaler Delivery Closeout nur auf ausdrücklichen VCS-Auftrag; den langsamen Copilot-Skillaufruf in einem separaten Scope diagnostizieren.",
+      "gate_check": {
+        "current_gate": "OR",
+        "next_allowed_action": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status_card_next_step": "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
+        "status": "blocked"
+      },
+      "delivery_map": {
+        "current_gate": "Verified Change Execution",
+        "next_allowed_action": "Optionaler Delivery Closeout nur auf ausdrücklichen VCS-Auftrag; den langsamen Copilot-Skillaufruf in einem separaten Scope diagnostizieren.",
+        "status": "block"
+      }
+    }
+  }
+}

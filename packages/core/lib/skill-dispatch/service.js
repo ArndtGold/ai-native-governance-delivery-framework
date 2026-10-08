@@ -9,6 +9,7 @@ import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluation/gate-check.js";
+import { CD_TESTS_NEXT_ALLOWED_ACTION } from "../control-evaluation/gate-policy.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, urDefinitionPhase, quoteDispatchArgument } from "./delivery-intake.js";
@@ -473,7 +474,7 @@ export function createSkillDispatchService(dependencies = {}) {
       const tpIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "TP" && item.status === "fulfilled");
       if (input.continue_delivery && control.status === "open" && control.current_gate === "CD+Tests"
           && control.missing_approval === "none" && structuredRoute && tpIsFulfilled
-          && control.next_allowed_action === "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.") {
+          && control.next_allowed_action === CD_TESTS_NEXT_ALLOWED_ACTION) {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);

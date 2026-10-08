@@ -1,7 +1,8 @@
-import { McpServer, fromJsonSchema } from "@modelcontextprotocol/server";
+import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
 import { loadCockpitResource } from './cockpit-resource.js';
+import { requestDeclaresMcpAppUi } from "./ui-capability.js";
 
 export const SERVER_NAME = "agdf-mcp";
 
@@ -40,6 +41,9 @@ export function buildAgdfServer({ runtime, executor } = {}) {
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
     { capabilities: { tools: {}, ...(runtime.mode === 'cockpit' ? { resources: {} } : {}) } },
   );
+  // A UI-gated cockpit is offered only to clients that declare MCP app UI support for its resource type.
+  const gated = runtime.mode === 'cockpit' && runtime.uiCapabilityRequired === true;
+  const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   for (const { name, definition, serialize } of tools) {
     server.registerTool(
       name,
@@ -51,6 +55,7 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
+        if (!uiAllowed(context)) return toolResult(runtime, runtime.failure("resource_denied", name), serialize ?? runtime.serialize);
         try {
           const result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
           return toolResult(runtime, result, serialize ?? runtime.serialize);
@@ -64,7 +69,22 @@ export function buildAgdfServer({ runtime, executor } = {}) {
   if (runtime.mode === 'cockpit') {
     const resource = loadCockpitResource(runtime.ui);
     server.registerResource('AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
-      async () => ({ contents: [resource] }));
+      async (_uri, context) => {
+        if (!uiAllowed(context)) throw new ProtocolError(ProtocolErrorCode.InvalidParams, "resource_denied");
+        return { contents: [resource] };
+      });
+    if (gated) {
+      // McpServer's list handlers ignore the request context, so the gated surface lists per request.
+      const listedTools = tools.map(({ name, definition }) => ({
+        name, description: definition.description, inputSchema: server.toolInputSchemaJson(name),
+        annotations: definition.annotations, ...(definition._meta ? { _meta: definition._meta } : {}),
+      }));
+      const listedResource = { uri: resource.uri, name: 'AGDF Cockpit', mimeType: resource.mimeType, _meta: resource._meta };
+      server.server.removeRequestHandler("tools/list");
+      server.server.setRequestHandler("tools/list", (_request, context) => ({ tools: uiAllowed(context) ? listedTools : [] }));
+      server.server.removeRequestHandler("resources/list");
+      server.server.setRequestHandler("resources/list", (_request, context) => ({ resources: uiAllowed(context) ? [listedResource] : [] }));
+    }
   }
   return Object.assign(server, {
     closeAgdfRuntime: () => dispatchExecutor.close(),

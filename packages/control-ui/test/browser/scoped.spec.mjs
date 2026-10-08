@@ -20,7 +20,7 @@ test('scoped HTTP reading preserves stored backlog, source navigation and Pages 
   });
   try {
     await page.goto(service.startupURL); await expect(page.getByText('Gespeicherter Stand laut Backlog: In progress', { exact: true })).toBeVisible();
-    expect(calls.filter(p => !p.startsWith('/api/backlog-titles'))).toEqual(['/api/snapshot']);
+    expect(calls.filter(p => !p.startsWith('/api/backlog-titles') && !p.startsWith('/api/changes'))).toEqual(['/api/snapshot']);
     expect(calls.filter(p => p.startsWith('/api/backlog-titles')).every(p => new URL('http://local' + p).searchParams.get('rows').split(',').length <= 12)).toBe(true);
     await titlesCommitted;
     await page.getByRole('button', { name: 'Fixture document' }).click();
@@ -41,7 +41,7 @@ test('scoped HTTP reading preserves stored backlog, source navigation and Pages 
     }
     await page.getByRole('button', { name: 'Dokument schließen' }).click();
     await expect(page.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true })).toBeFocused();
-    const reads = calls.filter(p => !p.startsWith('/api/freshness') && !p.startsWith('/api/backlog-titles'));
+    const reads = calls.filter(p => !p.startsWith('/api/freshness') && !p.startsWith('/api/backlog-titles') && !p.startsWith('/api/changes'));
     expect(reads.map(p => p.split('?')[0])).toEqual(['/api/snapshot', '/api/snapshot', reads[2].split('?')[0], '/api/runs/fixture-a']);
     expect(reads[1]).toBe('/api/snapshot?run_id=fixture-a');
     expect(reads[2]).toMatch(/^\/api\/documents\//);

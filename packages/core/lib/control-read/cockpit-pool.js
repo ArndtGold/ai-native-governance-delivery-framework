@@ -6,7 +6,7 @@ export class ReadWorkerPool {
     limits, maxOldGenerationSizeMb = 768 } = {}) {
     this.root = root; this.timeout = timeout; this.workerURL = workerURL;
     this.limits = limits; this.maxOldGenerationSizeMb = maxOldGenerationSizeMb;
-    this.retiring = null;
+    this.retiring = null; this.scope = null; this.changed = null; this.changeWaiter = null;
     this.worker = null; this.active = null; this.waiting = null; this.closed = false; this.sequence = 0;
   }
   #spawn() {
@@ -14,8 +14,17 @@ export class ReadWorkerPool {
     const worker = new Worker(this.workerURL, { workerData: { root: this.root, limits: this.limits }, env, execArgv: [],
       resourceLimits: { maxOldGenerationSizeMb: this.maxOldGenerationSizeMb } });
     this.worker = worker;
-    worker.on('message', ({ id, result, error }) => {
+    worker.on('message', ({ id, result, error, changed }) => {
+      if (this.worker !== worker) return;
+      if (changed) {
+        if (changed === this.scope?.snapshot_id) { this.changed = changed; this.changeWaiter?.finish(true); }
+        return;
+      }
       if (this.worker !== worker || this.active?.id !== id) return;
+      if (!error && result?.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context'].includes(this.active.request.operation)) {
+        this.scope = { ...result, data: null }; this.changed = null;
+        this.changeWaiter?.reject(new ControlReadError('cancelled'));
+      }
       this.#finish(this.active, error ? new ControlReadError(error) : null, result);
     });
     worker.on('error', () => { if (this.worker === worker) this.#reset('read_failed'); });
@@ -29,6 +38,7 @@ export class ReadWorkerPool {
     this.#pump();
   }
   #reset(code) {
+    this.scope = null; this.changed = null; this.changeWaiter?.reject(new ControlReadError(code));
     const worker = this.worker; this.worker = null;
     const retirement = Promise.resolve().then(() => worker?.terminate());
     this.retiring = retirement;
@@ -68,7 +78,25 @@ export class ReadWorkerPool {
       this.waiting = job; this.#pump();
     });
   }
+  waitForChange(snapshot, signal, timeout = 8000) {
+    if (this.closed || !snapshot || snapshot !== this.scope?.snapshot_id) return Promise.reject(new ControlReadError('resource_denied'));
+    if (signal?.aborted) return Promise.reject(new ControlReadError('cancelled'));
+    if (this.changeWaiter) return Promise.reject(new ControlReadError('busy'));
+    const scope = this.scope;
+    const envelope = changed => ({ ...scope, state: 'available', code: null, retryable: false, data: { changed }, authorizes: false });
+    if (this.changed === snapshot) return Promise.resolve(envelope(true));
+    return new Promise((resolve, reject) => {
+      let timer;
+      const cleanup = () => { clearTimeout(timer); signal?.removeEventListener('abort', abort); if (this.changeWaiter === waiter) this.changeWaiter = null; };
+      const waiter = { finish: changed => { cleanup(); resolve(envelope(changed)); }, reject: error => { cleanup(); reject(error); } };
+      const abort = () => waiter.reject(new ControlReadError('cancelled'));
+      this.changeWaiter = waiter;
+      timer = setTimeout(() => waiter.finish(false), timeout);
+      timer.unref?.(); signal?.addEventListener('abort', abort, { once: true });
+    });
+  }
   async close() {
+    this.changeWaiter?.reject(new ControlReadError('cancelled'));
     this.closed = true;
     for (const job of [this.active, this.waiting].filter(Boolean)) this.#finish(job, new ControlReadError('cancelled'));
     const worker = this.worker; this.worker = null;

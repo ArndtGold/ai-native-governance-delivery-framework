@@ -248,11 +248,38 @@ Die Speicheroption ist keine Obergrenze des gesamten Prozessspeichers. Ein Ersat
 erst nach dem Ende seines Vorgängers. Abgewiesene fremde Kennungen verlängern keine Sitzung;
 Aktivität in einer Ansicht hält eine andere nicht am Leben.
 
-Die sichtbare kompakte Karte prüft den Datenstand alle fünf Sekunden und bei erneuter Sichtbarkeit.
-Eine erkannte Quellenänderung lädt ihren bisherigen Run im Hintergrund neu, ohne den Fokus zu
-übernehmen. Größere Leseansichten kennzeichnen Änderungen als veraltet und verlangen bewusstes
-Neuladen. Frühere Inhalte bleiben als vorheriger Datenstand erkennbar. Verspätete Antworten
-dürfen eine neuere Auswahl nicht überschreiben.
+Sichtbare Ansichten warten auf Änderungssignale aus dem Core. Der Dateiwächter beobachtet die
+Abhängigkeiten des erfassten Lesestands, bündelt Ereignisse und bestätigt eine Änderung durch
+die vorhandene Quellenprüfung. Ein Dateisystemereignis allein bestätigt keinen neuen Status.
+Atomarer Dateiaustausch wird über Verzeichniswächter erkannt; fremde Prozesse benötigen keine
+gemeinsame In-Memory-Ereignisinstanz. Die Prüfung alle fünf Sekunden bleibt bei verlorenen
+Ereignissen oder nicht verfügbaren Wächtern als Rückfall bestehen.
+
+MCP transportiert das Signal als `agdf_cockpit_read`, Operation `changes`, gebunden an
+`session_id` und `snapshot_id`. Eine Anfrage wartet höchstens acht Sekunden; pro Lesesitzung
+ist nur ein wartender Empfänger erlaubt. Sie belegt keinen Worker-Leseauftrag und liefert nur
+`changed`, keine Freigabe oder neue Quellenauswertung. HTTP verwendet dieselbe Core-Funktion
+über das authentifizierte `GET /api/changes?snapshot=…`. Alte Snapshots und fremde Sitzungen
+bleiben abgewiesen. Navigation, Ausblenden und Schließen beenden die wartende Anfrage; die
+bestehende absolute Lebensdauer wird nicht verlängert. Host-spezifische Weiterleitung von
+MCP-Ressourcenbenachrichtigungen ist für diesen Weg nicht erforderlich.
+
+Kompakte und große Run-/Backlog-Ansichten lesen ihren bisherigen Zielstand im Hintergrund neu.
+Suchfilter, Bereich, offene Nachweise, Lesemodus, Fokus und Scrollposition bleiben erhalten.
+Ein blauer Punkt am transparenten Refresh-Button zeigt bestätigte Quellenänderungen an;
+während des Lesens dreht sich das Symbol. Nach erfolgreichem Laden verschwindet der Punkt.
+Tooltip und Screenreader benennen den Zustand, bei reduzierter Bewegung bleibt das Symbol ruhig.
+Geöffnete Originaldokumente behalten ihren Text und zeigen „Quelle geändert · Neu laden“ am
+Refresh-Button bis zum bewussten Neuladen. Ein gelber Veraltet-Hinweis entfällt für diesen
+normalen Änderungsfall. Header, Fehlerhinweis und Fußzeile nutzen dieselbe Zustandsdarstellung:
+„Neuer Stand verfügbar“ bei bestätigter Änderung, „Aktualisierung fehlgeschlagen“ bei einem
+Lesefehler mit vorhandenem Altstand und „Lesefehler“ ohne vorherige Daten. Der vorhandene
+Altstand bleibt mit „Vorheriger Datenstand bleibt sichtbar“ gekennzeichnet. Abgelaufene oder
+ungültige Sitzungen werden ausdrücklich benannt und bestätigen keinen aktuellen Stand.
+Verspätete
+Antworten dürfen eine neuere Auswahl nicht überschreiben. Änderungssignale und Aktualisierung
+publizieren keinen Kontext und senden keine Chatfrage; eine frühere Kontextübergabe wird über
+den bestehenden Besitzerpfad invalidiert.
 
 Die MCP-Lesesitzung läuft nach 30 Minuten Inaktivität oder spätestens nach acht Stunden ab.
 Dann muss das Cockpit mit derselben expliziten Run-ID neu geöffnet werden. Ein temporärer
@@ -260,6 +287,13 @@ Lesefehler erhält dagegen die angefragte Route für den erneuten Versuch. Ein A
 vorbereiteten Runtime benötigt eine frische Server-/Hostverbindung. „Transport closed“ belegt
 keine aktuelle UI-Darstellung; Wiederverbindung und aktuelle Ressourcenidentität sind getrennt
 zu prüfen.
+
+Die lokale Runtime für Änderungssignale, Aktualisierungspunkt und einheitliche Statusmeldungen liegt separat unter
+`dist/local/codex-cockpit-reading-status/`; der projektbezogene Eintrag `agdf-cockpit-local`
+verweist auf ihren geprüften Einstiegspunkt. Die vorherige Runtime bleibt für den Rückbau
+erhalten. `activation.json` unterscheidet die konfigurierte Verbindung von einem tatsächlich
+geprüften nativen Host. Bereits laufende Server und eingebettete Dokumente werden dadurch
+nicht im Speicher ersetzt: Codex muss die Verbindung neu aufbauen und das Cockpit neu öffnen.
 
 ## 5. Quellen und ContextGraph
 

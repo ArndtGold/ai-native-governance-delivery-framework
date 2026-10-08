@@ -37,7 +37,8 @@ export function validateData(path: string, value: Envelope<unknown>) {
   const data = value.data;
   let valid = false;
   if (object(data)) {
-    if (path.startsWith('/api/freshness')) valid = data.unchanged === true;
+    if (path.startsWith('/api/changes')) valid = typeof data.changed === 'boolean';
+    else if (path.startsWith('/api/freshness')) valid = data.unchanged === true;
     else if (data.kind === 'backlog' && (path.startsWith('/api/snapshot') || path.startsWith('/api/runs/') || path.startsWith('/api/backlog-titles'))) {
       valid = Array.isArray(data.entries) && data.entries.every(r => object(r)
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
@@ -86,13 +87,18 @@ export function validateEnvelope(value: unknown, expected?: { target: string; sn
   if (expected && (value.target.target_id !== expected.target
     || !expected.replacement && value.data !== null && value.snapshot_id !== expected.snapshot)) throw Error('dto_invalid');
 }
-export type ReadTransport = <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }) => Promise<Envelope<T>>;
+export type ReadTransport = {
+  <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }): Promise<Envelope<T>>;
+  waitForChanges?: (snapshot: string, signal: AbortSignal, target: string) => Promise<Envelope<{ changed: boolean }>>;
+};
 export function createApi(secret: string): ReadTransport {
-  return async function read<T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }): Promise<Envelope<T>> {
+  const read: ReadTransport = async function read<T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }): Promise<Envelope<T>> {
     const response = await fetch(path, { headers: { 'x-agdf-session': secret }, signal, cache: 'no-store', credentials: 'omit', redirect: 'error' });
     const value: unknown = await response.json(); validateEnvelope(value, expected); validateData(path, value);
     return value as Envelope<T>;
   };
+  read.waitForChanges = (snapshot, signal, target) => read('/api/changes?snapshot=' + snapshot, signal, { target, snapshot });
+  return read;
 }
 export function consumeSession(): string {
   const value = window.location.hash.slice(1);

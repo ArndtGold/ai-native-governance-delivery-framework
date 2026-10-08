@@ -27,7 +27,7 @@ for (const compact of [true, false]) for (const stage of ['snapshot-throw', 'sna
     render(<App compact={compact} initialRunId="run-a" transport={read}/>);
     await screen.findByText(stage==='snapshot-limit'?'Ein Ressourcenlimit wurde erreicht. Dateigröße und Umfang außerhalb des Cockpits prüfen.':'Die Daten konnten nicht gelesen werden. Quelle oder lokalen Dienst prüfen und wiederholen.');
     expect(screen.getByText('run-a',{selector:'code'})).toBeTruthy(); expect(screen.queryByRole('combobox')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: compact ? 'Neu laden' : 'Wiederholen' }));
+    fireEvent.click(screen.getByRole('button', { name: compact ? stage === 'snapshot-throw' ? 'Lesefehler · Wiederholen' : 'Neu laden' : 'Wiederholen' }));
     await screen.findByRole('heading', { name: 'run-a', level: compact ? 2 : 1 });
     expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
   });
@@ -43,7 +43,7 @@ for (const compact of [true, false]) for (const initialFailure of [true, false])
     }
     await screen.findByText('Die MCP-Sitzung ist abgelaufen. Öffne das Cockpit im Chat erneut für diesen Run. Angezeigte Inhalte gehören zum vorherigen Datenstand.');
     expect(screen.queryByRole('button', { name:'Wiederholen' })).toBeNull();
-    const reload = screen.getByRole('button', { name:/^(Neu laden|Daten aktualisieren)$/ });
+    const reload = screen.getByRole('button', { name:'Sitzung abgelaufen' });
     expect((reload as HTMLButtonElement).disabled).toBe(true);
     const count = vi.mocked(read).mock.calls.length; fireEvent.click(reload);
     expect(vi.mocked(read).mock.calls.length).toBe(count);
@@ -129,7 +129,7 @@ it('a fresh host render reopens an expired session with the same explicit Run an
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>app.ontoolresult(bootstrap()));
   await screen.findByText(/Die MCP-Sitzung ist abgelaufen/);
-  expect((screen.getByRole('button',{name:'Neu laden'}) as HTMLButtonElement).disabled).toBe(true);
+  expect((screen.getByRole('button',{name:'Sitzung abgelaufen'}) as HTMLButtonElement).disabled).toBe(true);
   expired = false;
   await act(async()=>app.ontoolresult(bootstrap(sessionB,2,'run-a')));
   await screen.findByRole('heading',{name:'run-a',level:2});

@@ -40,7 +40,7 @@ export function Overview({ result, onSelect, view, onViewChange, loadTitles, tit
         {d.section && <span>{areas.find(a => a.section === d.section)?.label ?? d.section}: </span>}<code>{d.code}</code>{d.key && <code> · {d.key}</code>}{d.message && <p>{d.message}</p>}
       </li>)}</ul>
     </details>}
-    {inventory && <label className="search backlog-search">{areaName}: Vorhaben suchen<input type="search" value={filter} onChange={e => changeView({ section: selected, filter: e.target.value })} placeholder="Titel, Schlüssel oder gespeicherter Status"/></label>}
+    {inventory && <label className="search backlog-search">{areaName}: Vorhaben suchen<input type="search" data-focus-id="backlog-search" value={filter} onChange={e => changeView({ section: selected, filter: e.target.value })} placeholder="Titel, Schlüssel oder gespeicherter Status"/></label>}
     <p className="muted">Letzter gespeicherter Eintrag zuerst. Die Suche umfasst Backlog-Angaben und bereits geladene UR-Titel.</p>
     {titles.loading && <p className="muted" role="status">Überschriften sichtbarer Vorhaben werden geladen.</p>}
     <div id="backlog-list" role="region" aria-label={`Vorhaben · ${areaName}`}>

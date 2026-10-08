@@ -36,31 +36,40 @@ describe('read state and passive documents', () => {
     expect(consumeSession()).toBe('a'.repeat(64)); expect(window.location.hash).toBe(''); expect(storage).not.toHaveBeenCalled();
   });
   it('SCN-005/016/018: transient service failure has German retry/progress and recovers overview', async () => {
-    const fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(Error('offline')).mockResolvedValueOnce(new Response(JSON.stringify(snapshot)));
+    let attempts = 0;
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async path => {
+      if (String(path).startsWith('/api/changes')) return new Promise(() => {});
+      if (++attempts === 1) throw Error('offline');
+      return new Response(JSON.stringify(snapshot));
+    });
     render(<App secret={'a'.repeat(64)}/>);
     await screen.findByText('Die Daten konnten nicht gelesen werden. Quelle oder lokalen Dienst prüfen und wiederholen.');
     fireEvent.click(screen.getByRole('button', { name: 'Wiederholen' })); await screen.findByRole('button', { name: 'Original title' });
-    expect(fetch).toHaveBeenCalledTimes(2); expect(screen.getByText('Nur Lesen', { exact: false })).toBeTruthy();
+    expect(fetch.mock.calls.filter(c => !String(c[0]).startsWith('/api/changes'))).toHaveLength(2); expect(screen.getByText('Nur Lesen', { exact: false })).toBeTruthy();
   });
   it('SCN-002/005: missing control preserves target provenance and explicit failure', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ ...snapshot, state: 'missing', code: 'control_absent', retryable: true, data: null })));
     render(<App secret={'a'.repeat(64)}/>); await waitFor(() => expect(screen.getByText('/fixture')).toBeTruthy()); expect(screen.getAllByText(/Für dieses Repository fehlen/).length).toBeGreaterThan(0);
   });
   it('SCN-012/028: availability states have distinct German feedback and unknown values retain explicit source context', () => {
-    for (const [state, code, heading] of [['empty', null, 'Keine Einträge'], ['partial', 'inventory_partial', 'Teilweise verfügbar'], ['invalid', 'invalid_run', 'Ungültig'], ['missing', 'document_missing', 'Fehlt'], ['unsupported', 'document_unsupported', 'Vorschau nicht verfügbar'], ['blocked', 'resource_denied', 'Gesperrt'], ['error', 'read_failed', 'Lesefehler'], ['stale', 'source_changed', 'Veraltet']]) {
+    for (const [state, code, heading] of [['empty', null, 'Keine Einträge'], ['partial', 'inventory_partial', 'Teilweise verfügbar'], ['invalid', 'invalid_run', 'Ungültig'], ['missing', 'document_missing', 'Fehlt'], ['unsupported', 'document_unsupported', 'Vorschau nicht verfügbar'], ['blocked', 'resource_denied', 'Gesperrt'], ['error', 'read_failed', 'Lesefehler'], ['stale', 'source_changed', 'Neuer Stand verfügbar']]) {
       const { unmount } = render(<ReadState state={state!} code={code}/>); expect(screen.getByText(heading!)).toBeTruthy(); unmount();
     }
     expect(label('unknown_core_value')).toBe('Nicht verfügbar · Original: unknown_core_value');
   });
-  it('SCN-014: returning to visibility checks freshness without replacing displayed content', async () => {
-    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(snapshot))).mockResolvedValueOnce(new Response(JSON.stringify({ ...snapshot, state: 'stale', code: 'source_changed', data: null })));
+  it('SCN-014: returning to visibility quietly refreshes the stored overview', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async path => {
+      if (String(path).startsWith('/api/changes')) return new Promise(() => {});
+      if (String(path).startsWith('/api/freshness')) return new Response(JSON.stringify({ ...snapshot, state: 'stale', code: 'source_changed', data: null }));
+      return new Response(JSON.stringify(snapshot));
+    });
     render(<App secret={'a'.repeat(64)}/>); await screen.findByRole('button', { name: 'Original title' });
     await act(async () => {});
     const descriptor = Object.getOwnPropertyDescriptor(document, 'hidden');
     try {
-      Object.defineProperty(document, 'hidden', { configurable: true, value: true }); fireEvent(document, new Event('visibilitychange')); expect(fetch).toHaveBeenCalledTimes(1);
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true }); fireEvent(document, new Event('visibilitychange')); expect(fetch.mock.calls.filter(c => !String(c[0]).startsWith('/api/changes'))).toHaveLength(1);
       Object.defineProperty(document, 'hidden', { configurable: true, value: false }); fireEvent(document, new Event('visibilitychange'));
-      await screen.findByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.'); expect(screen.getByRole('button', { name: 'Original title' })).toBeTruthy(); expect(fetch).toHaveBeenCalledTimes(2);
+      await waitFor(() => expect(fetch.mock.calls.filter(c => !String(c[0]).startsWith('/api/changes'))).toHaveLength(3)); expect(screen.getByRole('button', { name: 'Original title' })).toBeTruthy(); expect(screen.queryByText('Veraltet')).toBeNull();
     } finally { if (descriptor) Object.defineProperty(document, 'hidden', descriptor); else Reflect.deleteProperty(document, 'hidden'); }
   });
 });

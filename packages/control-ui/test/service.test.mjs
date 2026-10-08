@@ -124,3 +124,18 @@ test('SCN-096/100: HTTP title batch requires opaque rows, replaces scope, reject
     assert.deepEqual(treeBytes(f.root),before);
   } finally { await service.close(); f.close(); }
 });
+
+test('authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding', async () => {
+  const f = fixture(), service = await startControlServer({ dir: f.root });
+  try {
+    const snapshot = (await request(service, '/api/snapshot')).body;
+    assert.equal((await request(service, `/api/changes?snapshot=${snapshot.snapshot_id}`, { headers: { 'x-agdf-session': '0'.repeat(64) } })).status, 401);
+    const pending = request(service, `/api/changes?snapshot=${snapshot.snapshot_id}`);
+    const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
+    fs.writeFileSync(path + '.replacement', fs.readFileSync(path, 'utf8') + '\nChanged saved backlog\n'); fs.renameSync(path + '.replacement', path);
+    const event = await pending;
+    assert.equal(event.status, 200); assert.equal(event.body.data.changed, true);
+    assert.equal(event.body.snapshot_id, snapshot.snapshot_id); assert.equal(event.body.authorizes, false);
+    assert.equal((await request(service, '/api/changes?snapshot=00000000-0000-0000-0000-000000000000')).status, 409);
+  } finally { await service.close(); f.close(); }
+});

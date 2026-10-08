@@ -33,11 +33,12 @@ export class CockpitBridge {
   readForSession(session: string): ReadTransport { return this.reader(new Map(), session); }
   readonly read: ReadTransport = this.reader(this.resourceRuns);
   private reader(resourceRuns: Map<string, string>, session?: string): ReadTransport {
-    return async <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }): Promise<Envelope<T>> => {
+    const read: ReadTransport = async <T>(path: string, signal: AbortSignal, expected?: { target: string; snapshot: string; replacement?: boolean }): Promise<Envelope<T>> => {
     const url = new URL(path, 'https://local.invalid');
     const snapshot_id = url.searchParams.get('snapshot');
     let argumentsValue: Record<string, unknown>;
     if (url.pathname === '/api/snapshot') { resourceRuns.clear(); argumentsValue = { operation: 'snapshot', ...(url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : {}) }; }
+    else if (url.pathname === '/api/changes') argumentsValue = { operation: 'changes', snapshot_id };
     else if (url.pathname === '/api/freshness') argumentsValue = { operation: 'freshness', snapshot_id };
     else if (url.pathname === '/api/backlog-titles') argumentsValue = { operation: 'backlog_titles', snapshot_id, row_ids: url.searchParams.get('rows')?.split(',') };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
@@ -56,5 +57,7 @@ export class CockpitBridge {
     }
     return value as Envelope<T>;
     };
+    read.waitForChanges = (snapshot, signal, target) => read('/api/changes?snapshot=' + snapshot, signal, { target, snapshot });
+    return read;
   }
 }

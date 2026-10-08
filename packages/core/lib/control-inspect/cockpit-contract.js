@@ -15,6 +15,7 @@ export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
   operation('run', { snapshot_id: id, run_id: run }),
   operation('document', { snapshot_id: id, run_id: run, resource_id: id }),
   operation('freshness', { snapshot_id: id }),
+  operation('changes', { snapshot_id: id }),
   operation('context', { snapshot_id: id, run_id: run }),
   operation('prepare_context', { snapshot_id: id, run_id: run, revision_id: id, resource_id: id,
     graph_ids: { type: 'array', maxItems: 16, uniqueItems: true, items: id },

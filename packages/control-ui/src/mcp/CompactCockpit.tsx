@@ -1,7 +1,8 @@
 import { useId, useRef, useState, type RefObject } from 'react';
 import { hasExpiredSession, type ReadingState } from '../state';
-import { ReadState, ReadingFeedback } from '../feedback';
+import { ReadState, ReadingFeedback, readingStatus } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
+import { RefreshControl } from '../RefreshControl';
 import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
 import { DocumentView } from '../DocumentView';
@@ -20,12 +21,13 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
   const data = state.detail?.data, e = data?.evaluation;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
   const expired = hasExpiredSession(state);
+  const status = readingStatus(state);
   const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && !state.problem && state.phase === 'ready' && !!state.scope?.data;
   const target = state.scope?.target.display_path;
   const inventoryHints = !!state.inventory?.data?.diagnostics.length && <details className="compact-inventory"><summary>Backlog-Hinweise · {state.inventory.data.diagnostics.length}</summary><ReadState state={state.inventory.state} code={state.inventory.code}/><ul>{state.inventory.data.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul></details>;
   return <section className="compact-cockpit agdf-surface" aria-label="AGDF Cockpit" aria-busy={busy || state.refreshing}>
     <BrandHeader variant="card" projectPath={target} contextTitle={selected?.title} headingRef={headingRef}>
-      <button className="compact-reload" onClick={onReload} disabled={expired || !enabled || busy} aria-label="Neu laden"><Icon name="reload"/></button>
+      <RefreshControl state={state} enabled={enabled} onReload={onReload}/>
     </BrandHeader>
     {state.route.view === 'overview' && state.inventory?.data && <div className="compact-controls" id={pickerId} ref={picker}>
     <div className="compact-counts"><span><strong>{entries.length}</strong> Backlog-Einträge</span></div>
@@ -61,6 +63,6 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
       </div> : null}
     </div>
     {inventoryHints}
-    <div className="compact-footnote">Freigaben bleiben bei dir.{state.scope?.observed_as_of && <time dateTime={state.scope.observed_as_of}>Stand {new Date(state.scope.observed_as_of).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</time>}</div>
+    <div className="compact-footnote"><span>Freigaben bleiben bei dir.{status.previous && ' Vorheriger Datenstand bleibt sichtbar.'}</span>{state.scope?.observed_as_of && <time dateTime={state.scope.observed_as_of}>Stand {new Date(state.scope.observed_as_of).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</time>}</div>
   </section>;
 }

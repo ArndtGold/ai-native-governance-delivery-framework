@@ -22,20 +22,37 @@ export const messages: Record<string, string> = {
   timeout: 'Das Lesen hat das Zeitlimit erreicht. Quelle und Umfang prüfen, dann wiederholen.',
   dto_invalid: 'Die Antwort des Dienstes passt nicht zum erwarteten Datenstand. Neu laden oder den Dienst erneut starten.',
 };
-export const labels: Record<string, string> = { available: 'Verfügbar', empty: 'Keine Einträge', partial: 'Teilweise verfügbar', invalid: 'Ungültig', missing: 'Fehlt', unsupported: 'Vorschau nicht verfügbar', blocked: 'Gesperrt', stale: 'Veraltet', error: 'Lesefehler', active: 'Aktiv', completed: 'Abgeschlossen', superseded: 'Ersetzt', abandoned: 'Beendet', open: 'Offen', pass: 'Bestanden', passed: 'Bestanden', approved: 'Freigegeben', done: 'Erledigt', revise: 'Überarbeiten', block: 'Blockiert', none: 'Keine', in_progress: 'In Arbeit' };
+export const labels: Record<string, string> = { available: 'Verfügbar', empty: 'Keine Einträge', partial: 'Teilweise verfügbar', invalid: 'Ungültig', missing: 'Fehlt', unsupported: 'Vorschau nicht verfügbar', blocked: 'Gesperrt', stale: 'Neuer Stand verfügbar', error: 'Lesefehler', active: 'Aktiv', completed: 'Abgeschlossen', superseded: 'Ersetzt', abandoned: 'Beendet', open: 'Offen', pass: 'Bestanden', passed: 'Bestanden', approved: 'Freigegeben', done: 'Erledigt', revise: 'Überarbeiten', block: 'Blockiert', none: 'Keine', in_progress: 'In Arbeit' };
 export const label = (value: string | null | undefined) => value ? labels[value] ?? `Nicht verfügbar · Original: ${value}` : 'Nicht verfügbar';
-export function ReadState({ code, state }: { code?: string | null; state?: string }) {
-  return <div className="notice" role="status"><strong>{state ? label(state) : 'Hinweis'}</strong><p>{code ? messages[code] ?? 'Die Quelle ist nicht verfügbar. Außerhalb des Cockpits prüfen und neu laden.' : state === 'empty' ? 'Für diese Ansicht sind keine Einträge gespeichert.' : 'Daten werden gelesen.'}</p></div>;
+export function readingStatus(state: ReadingState) {
+  const busy = state.phase === 'loading' || state.refreshing;
+  const previous = !!state.scope?.data && (state.stale || busy);
+  const changed = !!state.scope?.data && state.sourceChanged;
+  const expired = state.problem === 'session_expired' || state.scope?.code === 'session_expired';
+  const invalid = state.problem === 'session_invalid' || state.scope?.code === 'session_invalid';
+  const failed = !!state.problem && (state.problem !== 'source_changed' || state.phase === 'error');
+  const title = busy ? 'Stand wird aktualisiert …' : expired ? 'Sitzung abgelaufen' : invalid ? 'Sitzung ungültig'
+    : failed ? previous ? 'Aktualisierung fehlgeschlagen' : 'Lesefehler'
+    : changed ? 'Neuer Stand verfügbar' : label(state.scope?.state);
+  const action = busy || expired || invalid ? title : failed ? `${title} · Wiederholen`
+    : changed ? state.route.view === 'document' ? 'Quelle geändert · Neu laden' : 'Neuer Stand verfügbar · Aktualisieren' : 'Neu laden';
+  return { busy, previous, changed, title, action };
+}
+export function ReadState({ code, state, heading, previous = false }: { code?: string | null; state?: string; heading?: string; previous?: boolean }) {
+  return <div className="notice" role="status"><strong>{heading ?? (state ? label(state) : 'Hinweis')}</strong><p>{code ? messages[code] ?? 'Die Quelle ist nicht verfügbar. Außerhalb des Cockpits prüfen und neu laden.' : state === 'empty' ? 'Für diese Ansicht sind keine Einträge gespeichert.' : 'Daten werden gelesen.'}</p>{previous && code !== 'session_expired' && <p>Vorheriger Datenstand bleibt sichtbar.</p>}</div>;
 }
 
 export function ReadingFeedback({ state, backlogHintsInView = false }: { state: ReadingState; backlogHintsInView?: boolean }) {
+  // An ordinary source change is explained by the shared header refresh control.
+  // Failed reads and unavailable sources still need visible, actionable feedback.
+  const changed = state.phase === 'ready' && state.stale && state.problem === 'source_changed' && !!state.scope?.data;
+  const status = readingStatus(state);
   const requestedUnreadable = state.requestedRunId && state.detail?.data?.run_id !== state.requestedRunId
     && (state.problem || state.removed || state.scope?.code);
   return <div aria-live="polite" className="reading-feedback">
-    {state.phase === 'loading' || state.refreshing ? <p>Kontrolldaten werden gelesen …{state.scope?.data ? ' Vorheriger Datenstand bleibt sichtbar.' : ''}</p> : null}
-    {state.problem ? <ReadState state={state.stale ? 'stale' : 'error'} code={state.problem}/>
+    {state.problem && !changed ? <ReadState state="error" heading={status.title} code={state.problem} previous={status.previous}/>
       : state.removed ? <ReadState state="missing" code="run_removed"/>
-      : state.stale ? <ReadState state="stale" code="source_changed"/>
+      : state.stale && state.phase !== 'loading' && !state.refreshing && !changed ? <ReadState state="stale" code="source_changed"/>
       : state.scope?.code && !state.detail && !(backlogHintsInView && state.scope.code === 'backlog_partial') ? <ReadState state={state.scope.state} code={state.scope.code}/> : null}
     {requestedUnreadable && <p role="status">Angefragter Run: <code>{state.requestedRunId}</code> · {state.removed ? 'nicht mehr vorhanden.' : 'Daten noch nicht lesbar.'} Kein anderer Run wurde ausgewählt.</p>}
   </div>;

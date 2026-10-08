@@ -345,6 +345,9 @@ export function captureControlScope(rootInput, project, options = {}) {
       get digest() { return sourceDigest; },
       get control_absent() { return guard(() => observe(control).kind === 'absent'); },
       get file_count() { return files; }, get byte_count() { return total; },
+      // Private dependency inventory for change hints; never an API filesystem selector.
+      get dependencies() { return [...entries].flatMap(([path, entry]) =>
+        entry.kind === 'directory' ? entry.children || entry.statObserved ? [{ path, directory: true }] : [] : [{ path, directory: false }]); },
       assertBoundary() { if (fatal) throw fatal; }, revalidate,
     };
     for (const [name, method] of Object.entries(methods)) view[name] = (...args) => guard(() => method(...args));

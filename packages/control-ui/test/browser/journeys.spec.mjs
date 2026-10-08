@@ -260,14 +260,14 @@ test('SCN-009/014/018/024: hostile document, stale reload, retry and removed sel
     await page.getByText('Originaldokument lesen',{exact:true}).click();
     await expect(page.locator('article.document')).toContainText('Original 日本語'); expect(await page.evaluate(() => window.pwned)).toBeUndefined(); expect(await page.locator('article.document img,article.document iframe,article.document script,article.document a').count()).toBe(0);
     fs.writeFileSync(join(f.root, f.documentPath), '# Updated document\nNew content');
-    await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toBeVisible({ timeout: 12_000 }); await expect(page.locator('article.document')).toContainText('Hostile document');
-    await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.locator('article.document')).toContainText('Updated document'); await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Quelle geändert · Neu laden' })).toBeVisible({ timeout: 12_000 }); await expect(page.locator('.refresh-update-dot')).toBeVisible(); await expect(page.locator('article.document')).toContainText('Hostile document');
+    await page.getByRole('button', { name: 'Quelle geändert · Neu laden' }).click(); await expect(page.locator('article.document')).toContainText('Updated document'); await expect(page.locator('.refresh-update-dot')).toHaveCount(0); await expect(page.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveCount(0);
     let fail = true; await page.route('**/api/snapshot*', route => { if (fail) { fail = false; return route.abort(); } return route.continue(); });
-    await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('button', { name: 'Wiederholen' })).toBeVisible(); await page.getByRole('button', { name: 'Wiederholen' }).click();
+    await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('button', { name: 'Wiederholen', exact: true })).toBeVisible(); await page.getByRole('button', { name: 'Wiederholen', exact: true }).click();
     // The previous source remains visible during retry. Wait for the new read to
     // settle before removing its Run, rather than mutating an in-flight capture.
     await expect(page.getByRole('button', { name: 'Neu laden', exact: true })).toBeEnabled({ timeout: READ_LIMITS.timeout });
-    await expect(page.getByRole('button', { name: 'Wiederholen' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Wiederholen', exact: true })).toHaveCount(0);
     await expect(page.locator('article.document')).toContainText('Updated document');
     fs.rmSync(join(f.root, '.agdf/control/runs/fixture-a'), { recursive: true }); await page.getByRole('button', { name: /^(Neu laden|Daten aktualisieren)$/ }).click(); await expect(page.getByRole('heading', { name: 'Gespeicherte Vorhaben',level:1 })).toBeVisible(); await expect(page.getByText(/Der ausgewählte Run ist nicht mehr vorhanden/)).toBeVisible(); expect(remote).toEqual([]);
   } finally { await service.close(); f.close(); }
@@ -341,18 +341,16 @@ test('summary leads with the work step and stale reads never claim a missing Run
     const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});
     expect(order).toBe(true);
     await page.screenshot({path:'/private/tmp/agdf-cockpit-summary-current.png'});
+    const refreshed = page.waitForResponse(response => new URL(response.url()).pathname === '/api/snapshot' && new URL(response.url()).searchParams.get('run_id') === 'fixture-a');
     fs.writeFileSync(f.runPath,sealRunState(f.root,fs.readFileSync(f.runPath,'utf8')+'\n\nUpdated fixture observation.\n'));
     const afterChange=hashes(f.root);
-    await expect(page.getByText('Aktuelle Voraussetzungen nicht bestätigt',{exact:true})).toBeVisible({timeout:12_000});
-    await expect(page.locator('.reading-feedback .notice')).toHaveCount(1);
-    await expect(page.getByText(/Angefragter Run:/)).toHaveCount(0);
-    await expect(page.getByText('Weiterarbeit offen',{exact:true})).toHaveCount(0);
-    await expect(page.locator('footer')).toContainText('Veraltet');
-    await page.screenshot({path:'/private/tmp/agdf-cockpit-summary-stale.png'});
-    await page.getByRole('button',{name:'Daten aktualisieren',exact:true}).click();
+    await refreshed;
     await expect(page.getByRole('region',{name:'So geht dein Vorhaben weiter'})).toBeVisible();
+    await expect(page.getByText(/Angefragter Run:/)).toHaveCount(0);
     await expect(page.locator('.reading-feedback .notice')).toHaveCount(0);
     await expect(page.locator('footer')).toContainText('Verfügbar');
+    await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
     expect(hashes(f.root)).toEqual(afterChange);
   } finally {await service.close();f.close();}
 });

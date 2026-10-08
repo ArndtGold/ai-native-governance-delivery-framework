@@ -2,13 +2,14 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState }
 import { createApi, type ReadTransport } from './api';
 import { initialState, readingReducer, hasExpiredSession } from './state';
 import type { Inventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
-import { ReadState, ReadingFeedback, label } from './feedback';
+import { ReadState, ReadingFeedback, readingStatus } from './feedback';
 import { Overview, type BacklogView } from './Overview';
 import { RunDetail } from './RunDetail';
 import { DocumentView } from './DocumentView';
 import { CompactCockpit } from './mcp/CompactCockpit';
 import { BrandMark } from './BrandMark';
 import { BrandHeader } from './BrandHeader';
+import { RefreshControl } from './RefreshControl';
 import { useCardVisibility } from './useCardVisibility';
 import { documentName } from './presentation';
 import { Icon } from './mcp/Icon';
@@ -45,6 +46,10 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const returnFocus = useRef<string | null>(null);
   const returnSource = useRef<{ type: string; reference: string; prefix: string } | null>(null);
   const documentOrigin = useRef<string | null>(null);
+  const readingPosition = useRef<{ generation: number; open: string[]; scroll: { element: Element; top: number; left: number }[]; x: number; y: number; focus: string | null;
+    resource?: { type: string; reference: string; prefix: string } } | null>(null);
+  const disclosureKey = (element: Element) => (element.closest('[data-backlog-row]')?.querySelector('[data-focus-id]')?.getAttribute('data-focus-id') ?? '')
+    + ':' + (element.querySelector('summary')?.textContent?.replace(/ · \d+$/, '') ?? '');
   const previousCompact = useRef(compact);
   useLayoutEffect(() => { if (previousCompact.current !== compact) heading.current?.focus(); previousCompact.current = compact; }, [compact]);
   const read = useRef(transport ?? createApi(secret)).current;
@@ -60,6 +65,17 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
     pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
     const generation = ++sequence.current;
+    if (background) {
+      const root = workspace.current ?? heading.current?.closest('.compact-cockpit');
+      const elements = root ? [root, ...root.querySelectorAll('*')] : [];
+      for (let parent = root?.parentElement; parent; parent = parent.parentElement) elements.push(parent);
+      const focus = document.activeElement?.getAttribute('data-focus-id') ?? null;
+      const resource = live.current.detail?.data?.resources.find(r => focus?.endsWith(r.resource_id));
+      readingPosition.current = { generation, open: root ? [...root.querySelectorAll('details[open]')].map(disclosureKey) : [],
+        scroll: elements.filter(e => e.scrollTop || e.scrollLeft).map(element => ({ element, top: element.scrollTop, left: element.scrollLeft })),
+        x: window.scrollX, y: window.scrollY, focus,
+        ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
+    } else readingPosition.current = null;
     focusAfterRead.current = !background;
     dispatch({ type: 'begin', generation, route: requested, background });
     try {
@@ -134,13 +150,29 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       dispatch({ type: 'titles', generation, inventory: result });
       return result;
     } catch (error) {
-      if (!controller.signal.aborted && generation === sequence.current) dispatch({ type: 'stale', snapshot: scope.snapshot_id, code: error instanceof Error ? error.message : 'read_failed' });
+      if (!controller.signal.aborted && generation === sequence.current) {
+        if (error instanceof Error && error.message === 'source_changed') void navigate(live.current.route, true, true);
+        else dispatch({ type: 'stale', snapshot: scope.snapshot_id, code: error instanceof Error ? error.message : 'read_failed' });
+      }
       return null;
     } finally { signal.removeEventListener('abort', cancel); if (titlePending.current === controller) titlePending.current = null; }
-  }, [read]);
+  }, [read, navigate]);
   useEffect(() => { if (enabled) void navigate(initialRoute, true); return () => pending.current?.abort(); }, [navigate, enabled, initialRoute]);
   useLayoutEffect(() => {
-    if (state.phase !== 'ready' || !focusAfterRead.current) return;
+    if (state.phase !== 'ready' || state.refreshing) return;
+    const position = readingPosition.current;
+    if (position?.generation === state.generation) {
+      readingPosition.current = null;
+      const root = workspace.current ?? heading.current?.closest('.compact-cockpit');
+      for (const element of root?.querySelectorAll('details') ?? []) (element as HTMLDetailsElement).open = position.open.includes(disclosureKey(element));
+      for (const { element, top, left } of position.scroll) { element.scrollTop = top; element.scrollLeft = left; }
+      if (window.scrollX !== position.x || window.scrollY !== position.y) window.scrollTo(position.x, position.y);
+      const resource = position.resource && state.detail?.data?.resources.find(r => r.type === position.resource!.type && r.registered_reference === position.resource!.reference);
+      const focusId = resource ? position.resource!.prefix + resource.resource_id : position.focus;
+      const focus = [...(root?.querySelectorAll<HTMLElement>('[data-focus-id]') ?? [])].find(e => e.dataset.focusId === focusId);
+      focus?.focus({ preventScroll: true });
+    }
+    if (!focusAfterRead.current) return;
     let origin = returnFocus.current; returnFocus.current = null;
     if (returnSource.current) {
       const binding = returnSource.current; returnSource.current = null;
@@ -154,7 +186,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       if (parent instanceof HTMLDetailsElement) parent.open = true;
     }
     (control ?? heading.current)?.focus();
-  }, [state.phase, state.route]);
+  }, [state.phase, state.route, state.refreshing, state.generation]);
   useEffect(() => {
     const justShown = cardVisible && !wasCardVisible.current; wasCardVisible.current = cardVisible;
     const snapshot = state.scope?.snapshot_id;
@@ -171,15 +203,37 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         catch (error) { if (request.signal.aborted) return; throw error; }
         finally { controller.signal.removeEventListener('abort', cancel); if (freshnessPending.current === request) freshnessPending.current = null; }
         if (request.signal.aborted || controller.signal.aborted || generation !== sequence.current || document.hidden) return;
-        if (result.code === 'source_changed' && compact) void navigate(live.current.route, true, true);
+        if (result.code === 'source_changed' && live.current.route.view !== 'document') void navigate(live.current.route, true, true);
         else if (result.code) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: result.code }); }
       } catch { if (!controller.signal.aborted && generation === sequence.current) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: 'read_failed' }); } }
       finally { checking = false; }
     };
-    const visibility = () => { void handoff?.invalidate(); if (!document.hidden) void check(); };
+    let waiting: AbortController | null = null;
+    const listen = async () => {
+      if (!read.waitForChanges || document.hidden || controller.signal.aborted || waiting) return;
+      waiting = new AbortController(); const request = waiting, generation = sequence.current;
+      try {
+        const result = await read.waitForChanges(snapshot, request.signal, state.scope!.target.target_id);
+        if (!request.signal.aborted && !controller.signal.aborted && generation === sequence.current && !document.hidden) {
+          if (!result.data || typeof result.data.changed !== 'boolean') return;
+          if (result.data.changed) await check();
+        }
+      } catch { return; /* Hosts without this operation keep the freshness fallback. */ }
+      finally { if (waiting === request) waiting = null; }
+      if (!controller.signal.aborted && !document.hidden && generation === sequence.current) {
+        // Bound retries also prevent a fast unsupported response from spinning.
+        restart = window.setTimeout(() => { void listen(); }, 250);
+      }
+    };
+    let restart: ReturnType<typeof setTimeout> | undefined;
+    const visibility = () => {
+      void handoff?.invalidate(); waiting?.abort(); window.clearTimeout(restart);
+      if (!document.hidden) { void check(); restart = window.setTimeout(() => { void listen(); }, 250); }
+    };
     const timer = window.setInterval(check, 5000); document.addEventListener('visibilitychange', visibility);
-    if (compact && justShown) void check();
-    return () => { window.clearInterval(timer); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
+    if (justShown) void check();
+    void listen();
+    return () => { window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
   }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
   const open = (resource: Resource, origin = resource.resource_id) => {
@@ -200,7 +254,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   };
   const summarizing = state.route.view === 'detail' && (!wideReader || readerMode === 'summary') && !!state.detail?.data?.evaluation;
   const documentVisible = state.route.view === 'document';
-  const current = state.scope;
+  const status = readingStatus(state);
   const renderedGeneration = state.generation;
   const expired = hasExpiredSession(state), reloadRoute = state.requestedRoute ?? state.route;
   const runTitle = state.detail?.data?.title ?? state.route.runId;
@@ -233,7 +287,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     onOpen={(resource, origin) => { open(resource, origin); onExpand?.(); }} onBack={showRun} onExpand={onExpand}/>;
   return <div className="shell"><aside className="rail"><div className="brand"><BrandMark className="brand-mark"/><span>AGDF<small>Control Cockpit</small></span></div><div className="rail-label">Lokaler Arbeitsbereich</div><button className="nav-item" disabled={expired} onClick={() => void navigate({ view: 'overview' })}>▦ <span>Run-Übersicht</span></button><div className="rail-footer"><span className="live-dot"/> Lokale Sitzung<br/><small>Entscheidungen bleiben bei dir.</small></div></aside>
     <div className={`workspace${documentVisible ? ' workspace--document' : ''}${summarizing ? ' workspace--summary' : ''}`} ref={workspace}><BrandHeader projectPath={state.scope?.target.display_path} contextTitle={state.route.view !== 'overview' ? runTitle : undefined} variant={documentVisible ? 'document' : 'view'}>
-      <button className={`refresh-control${state.stale ? ' refresh-control--stale' : ''}`} aria-label={state.stale ? 'Daten aktualisieren' : 'Neu laden'} title={state.stale ? 'Veralteten Datenstand aktualisieren' : 'Datenstand neu laden'} onClick={() => void navigate(reloadRoute, true)} disabled={expired || !enabled || state.phase === 'loading'}><Icon name="reload"/></button>
+      <RefreshControl state={state} enabled={enabled} onReload={() => void navigate(reloadRoute, true)}/>
     </BrandHeader><main>
       {state.route.view !== 'overview' && <nav className="breadcrumbs" aria-label="Vorhaben-Pfad"><ol>
         <li><button onClick={showOverview} disabled={expired || state.phase === 'loading'}>Alle Vorhaben</button></li>
@@ -241,7 +295,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         {documentVisible && <li><span aria-current="page">{pageTitle}</span></li>}
       </ol></nav>}
       {documentVisible ? <section className="document-reading agdf-surface" aria-label="Dokument lesen">{readingContent}</section> : readingContent}
-      <footer>Lokale Beobachtung · {label(state.stale ? 'stale' : current?.state)} · Das Cockpit verändert keine Kontrolldateien.</footer>
+      <footer>Lokale Beobachtung · {status.title}{status.previous && ' · Vorheriger Datenstand bleibt sichtbar'} · Das Cockpit verändert keine Kontrolldateien.</footer>
     </main></div></div>;
 }
 const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'read_failed', 'busy', 'timeout', 'resource_limit', 'control_absent', 'dto_invalid', 'backlog_missing', 'backlog_unsupported', 'run_missing', 'invalid_run'].map(c => [c, true]));

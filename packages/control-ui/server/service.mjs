@@ -90,6 +90,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     if (url.pathname === '/api/snapshot') operation = 'snapshot';
     else if (url.pathname === '/api/backlog-titles') operation = 'backlog_titles';
     else if (url.pathname === '/api/freshness') operation = 'freshness';
+    else if (url.pathname === '/api/changes') operation = 'changes';
     else if (/^\/api\/runs\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }
     else if (/^\/api\/context\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
@@ -106,7 +107,7 @@ export async function startControlServer({ dir, port = 0, dist = fileURLToPath(n
     const cancellation = new AbortController();
     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
     try {
-      const result = await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
+      const result = operation === 'changes' ? await pool.waitForChange(url.searchParams.get('snapshot'), cancellation.signal) : await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
         input: operation === 'backlog_titles' ? { row_ids: rowIds } : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
       send(200, result);
     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }

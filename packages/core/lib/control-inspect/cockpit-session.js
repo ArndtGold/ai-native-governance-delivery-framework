@@ -118,6 +118,11 @@ export function createCockpitSessionService(root, {
         }
         if (input.operation === 'snapshot') { discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; }
         else if (input.snapshot_id && session.snapshot !== input.snapshot_id) return failure('resource_denied');
+        if (input.operation === 'changes') {
+          const result = await session.pool.waitForChange(input.snapshot_id, signal);
+          if (active(session.id) !== session || generation !== session.generation) return failure('session_expired');
+          touch(session); return result;
+        }
         if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return failure('resource_denied');
         if (['document', 'prepare_context'].includes(input.operation)
           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return failure('resource_denied');

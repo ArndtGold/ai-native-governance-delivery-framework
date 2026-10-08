@@ -109,7 +109,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   const read=vi.fn(async(path:string)=>{if(path.startsWith('/api/freshness'))return changed;if(fail)throw Error('read_failed');return named(path)?detail:inventory;}) as unknown as ReadTransport;
   render(<App compact transport={read} onExpand={vi.fn()}/>);fireEvent.change(await readySelection(),{target:{value:'run-a'}});await screen.findByText('Freigegebenen Umfang umsetzen.');fail=true;await tick();
   await screen.findByText('Die Daten konnten nicht gelesen werden. Quelle oder lokalen Dienst prüfen und wiederholen.');expect((screen.getByRole('button',{name:'Run ansehen'}) as HTMLButtonElement).disabled).toBe(true);
-  const count=vi.mocked(read).mock.calls.length;await tick();expect(read).toHaveBeenCalledTimes(count);fail=false;fireEvent.click(screen.getByRole('button',{name:'Neu laden'}));await screen.findByText('Weiterarbeit offen');
+  const count=vi.mocked(read).mock.calls.length;await tick();expect(read).toHaveBeenCalledTimes(count);fail=false;fireEvent.click(screen.getByRole('button',{name:'Aktualisierung fehlgeschlagen · Wiederholen'}));await screen.findByText('Weiterarbeit offen');
  });
  it('discards obsolete freshness after deliberate navigation to another Run',async()=>{
   vi.useFakeTimers({toFake:['setInterval','clearInterval']});let finish!:(value:typeof changed)=>void;
@@ -130,19 +130,21 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   vi.useFakeTimers({toFake:['setInterval','clearInterval']});let finish!:(value:typeof detail)=>void;
   const two=backlog([pointer('run-a'),pointer('run-b','Second run')]);
   const read=vi.fn(async(path:string)=>path.startsWith('/api/freshness')?changed:path==='/api/snapshot?run_id=run-a'?new Promise<typeof detail>(resolve=>{finish=resolve;}):path.startsWith('/api/runs/run-b')?runScope(runData('run-b','Second run'),'second-snapshot'):named(path)?detail:two) as unknown as ReadTransport;
-  render(<App compact transport={read}/>);fireEvent.change(await readySelection(),{target:{value:'run-a'}});await screen.findByText('Freigegebenen Umfang umsetzen.');await tick();await screen.findByText('Kontrolldaten werden gelesen … Vorheriger Datenstand bleibt sichtbar.');
+  render(<App compact transport={read}/>);fireEvent.change(await readySelection(),{target:{value:'run-a'}});await screen.findByText('Freigegebenen Umfang umsetzen.');await tick();await screen.findByRole('button', {name:'Stand wird aktualisiert …'});
   fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));fireEvent.change(await readySelection(),{target:{value:'run-b'}});await screen.findByRole('heading',{name:'Second run'});
   await act(async()=>finish(advanced()));expect(screen.getByRole('heading',{name:'Second run'})).toBeTruthy();expect(screen.queryByText('Qualität prüfen.')).toBeNull();expect(screen.queryByText(/Kontrolldaten werden gelesen/)).toBeNull();
  });
 });
-it('stale Run remains identified with one warning and unconfirmed assessment until explicit reload',async()=>{
+it('expanded Run refreshes quietly and retains open evidence and its exact selection',async()=>{
  const read=vi.fn(async(path:string)=>path.startsWith('/api/freshness')?changed:detail) as unknown as ReadTransport;
  render(<App initialRunId="run-a" transport={read}/>);await screen.findByText('Weiterarbeit offen');
- expect(screen.getByText('Ziel und Run-ID · Originalangaben').closest('details')?.open).toBe(false);expect(screen.getByText('Nachweise und offene Punkte · 1').closest('details')?.open).toBe(false);
- await act(async()=>{});await act(async()=>document.dispatchEvent(new Event('visibilitychange')));await screen.findByText('Aktuelle Voraussetzungen nicht bestätigt');
- expect(screen.queryByText('Weiterarbeit offen')).toBeNull();expect(screen.queryByText(/Angefragter Run:/)).toBeNull();
- expect(screen.getAllByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.')).toHaveLength(1);expect(document.querySelector('footer')?.textContent).toContain('Veraltet');
- fireEvent.click(screen.getByRole('button',{name:'Daten aktualisieren'}));await screen.findByText('Weiterarbeit offen');expect(document.querySelector('footer')?.textContent).toContain('Verfügbar');
+ const evidence=screen.getByText('Nachweise und offene Punkte · 1').closest('details')!;
+ evidence.open=true;
+ await act(async()=>document.dispatchEvent(new Event('visibilitychange')));
+ await waitFor(()=>expect(vi.mocked(read).mock.calls.filter(c=>c[0]==='/api/snapshot?run_id=run-a')).toHaveLength(2));
+ expect(screen.getByText('Nachweise und offene Punkte · 1').closest('details')?.open).toBe(true);
+ expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();expect(screen.queryByText(/Angefragter Run:/)).toBeNull();
+ expect(document.querySelector('footer')?.textContent).toContain('Verfügbar');
 });
 it('inventory failure is visible directly without false empty counts or usable overview action',async()=>{
  const read=vi.fn(async()=>({...fixtureMeta,state:'error',code:'timeout',data:null,retryable:true})) as unknown as ReadTransport;

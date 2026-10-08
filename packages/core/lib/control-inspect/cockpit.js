@@ -244,5 +244,6 @@ export function createCockpitReader(root, options = {}) {
     },
     invalidateContext() { invalidate(); return envelope({ invalidated: true }); },
     freshness(id) { assertSnapshot(id); return envelope({ unchanged: true }); },
+    dependencies() { return view?.dependencies ?? []; },
   });
 }

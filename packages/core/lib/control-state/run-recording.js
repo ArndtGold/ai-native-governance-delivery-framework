@@ -4,7 +4,7 @@ import { duplicateArtefactRowTypes, parseControlState } from "./run-state-parser
 import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
-import { storedGateMoved } from "../control-evaluation/next-action.js";
+import { storedNextActionStale } from "../control-evaluation/next-action.js";
 import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
 import { backlogSkip } from "./run-backlog.js";
 import { runPath } from "./run-state-reader.js";
@@ -92,7 +92,7 @@ function refreshMovedGateFields(content) {
     closeoutArtefacts: ["OR"],
   });
   const after = transitionDecisionForRunState({ ...state, content });
-  if (!storedGateMoved({ content, current_gate: state.current_gate }, after)) return content;
+  if (!storedNextActionStale({ content, current_gate: state.current_gate, next_allowed_action: state.next_allowed_action }, after)) return content;
   const approvedGates = APPROVAL_GATES.filter((gate) => state.approvals.get(gate)?.status === "approved");
   let next = replaceFirstScalar(content, "current_gate", after.current_gate) ?? content;
   next = replaceFirstScalar(next, "next_allowed_action", after.next_allowed_action) ?? next;

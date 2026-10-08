@@ -86,21 +86,6 @@ The late SD revision (forward-only rule) invalidated the first Brownfield Analys
 
 decision: `pass`
 
-## Second Renewal After Source Revision `d59fbd2f-8251-4653-9a2b-0f70e780d675`
-
-The second SD revision adds the canonical-text condition. Assessment of the retained code:
-
-- In `next-action.js`, `storedGateMoved` becomes `storedNextActionStale`. It additionally requires the stored text to be one of the English `operationalValues` of the locale registry and to differ from the evaluated text. The registry comes from `interactionLocales` in `resources/context.js`, read through `localePack` in `interaction-presentation.js`. Neither module imports gate-check, delivery-map or run-recording, so no cycle arises. Gate-check already imports `interactionLocales` from the same module.
-- `run-recording.js` switches its import to `storedNextActionStale`. No other code changes.
-- Tests to adapt:
-  - the cockpit forward fixture must store a canonical earlier-gate text instead of a hand-authored one;
-  - new hand-authored forward cases in `next-action-test.js`, `cli-gate-scenarios-test.js` and `run-revision-test.js`.
-- The existing smoke scenario (`smoke-test.js`, gate-check presentation scenarios) and the safety case (`artefact-recording-test.js:254-258`) must pass unchanged.
-- The copilot payload baseline grows again by the exact attributed delta, and the generated copies are re-synced.
-- Regression risk: the rule only narrows further. The cockpit run's stored text is a registered value, so it stays fixed.
-
-decision: `pass`
-
 ## Recording Note
 
 This run records Brownfield Analysis through the existing hand edit plus `run-update`. To avoid the stale-next-step defect this run fixes, the same edit sets `current_gate`, `next_allowed_action` and the derived Current Control State rows to the evaluated CD+Tests values. This is what SDD-04 will automate.

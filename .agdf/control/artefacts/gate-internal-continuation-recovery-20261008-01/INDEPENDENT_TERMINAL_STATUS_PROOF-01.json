@@ -1,0 +1,83 @@
+{
+  "thread_id": "01a11d02-cb5a-7a82-89ea-d6129505fcfa",
+  "turn_id": "01a11d10-fa6e-7d43-9884-9251cecd4a27",
+  "case": "status",
+  "actual_dispatch": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "control_result",
+    "terminal": true,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "gate-check",
+      "dispatch_mode": "deterministic_control",
+      "deterministic_command": "gate-check",
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "31cdf187b33826ea9bb70cfb12f477c522c836a598a0acc8b1fdb8d350c66002",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/tmp/agdf-independent-observations-YnLVr8/qa-evidence",
+      "evidence_sources": [],
+      "working_directory": "/private/tmp/agdf-independent-observations-YnLVr8/qa-evidence",
+      "governance_target": "/private/tmp/agdf-independent-observations-YnLVr8/qa-evidence",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "QA",
+      "gate_route": {
+        "gate": "QA",
+        "skills": [
+          "qa-gate"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "Approval: QA",
+      "next_operation": null,
+      "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "run_id": "independent-qa-evidence",
+      "revision_id": "af96a7cd-f330-4691-8c15-a81525747cbc",
+      "doctor_status": "warn",
+      "candidate_runs": []
+    },
+    "presentation": {
+      "markdown": "## Kurzfassung \u00b7 QA\n\nRun: `independent-qa-evidence` \u00b7 Gate: `QA` \u00b7 Revision: `af96a7cd-f330-4691-8c15-a81525747cbc`\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- Ergebnis: QA pass f\u00fcr den ausdr\u00fccklich begrenzten synthetischen Service-Test.\n- Nachweise: Vollst\u00e4ndige Testdatei erfolgreich; tats\u00e4chliche Code-, TP- und Clean-Reviews abgeschlossen; ein Task und sein Kriterium erf\u00fcllt.\n- Grenzen: Keine Produktions- oder UI-Beobachtung, kein menschliches Approval. Freigegebene Quelldateien sind bytegleich geblieben.\n- N\u00e4chster Schritt: Aktuellen QA-Zustand auswerten und an seiner Entscheidungsgrenze stoppen.\n\n## Pr\u00fcfartefakt \u00b7 QA\n\nRun: `independent-qa-evidence` \u00b7 Gate: `QA` \u00b7 Revision: `af96a7cd-f330-4691-8c15-a81525747cbc`\n\nArtefakt: [QA_REPORT.md](</private/tmp/agdf-independent-observations-YnLVr8/qa-evidence/.agdf/control/artefacts/independent-qa-evidence/QA_REPORT.md>)\n\nSHA-256: `sha256:f5880f3c35f6f38d8a9adecb66c2b8122ce5bff4ca2e201042dd6eb3224ecd84`\n\nBitte \u00f6ffne die verlinkte Fassung vor deiner Entscheidung.",
+      "authorizes": false
+    },
+    "continuation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "transmit_presentation_verbatim_and_stop",
+      "source": "presentation.markdown",
+      "text": "## Kurzfassung \u00b7 QA\n\nRun: `independent-qa-evidence` \u00b7 Gate: `QA` \u00b7 Revision: `af96a7cd-f330-4691-8c15-a81525747cbc`\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- Ergebnis: QA pass f\u00fcr den ausdr\u00fccklich begrenzten synthetischen Service-Test.\n- Nachweise: Vollst\u00e4ndige Testdatei erfolgreich; tats\u00e4chliche Code-, TP- und Clean-Reviews abgeschlossen; ein Task und sein Kriterium erf\u00fcllt.\n- Grenzen: Keine Produktions- oder UI-Beobachtung, kein menschliches Approval. Freigegebene Quelldateien sind bytegleich geblieben.\n- N\u00e4chster Schritt: Aktuellen QA-Zustand auswerten und an seiner Entscheidungsgrenze stoppen.\n\n## Pr\u00fcfartefakt \u00b7 QA\n\nRun: `independent-qa-evidence` \u00b7 Gate: `QA` \u00b7 Revision: `af96a7cd-f330-4691-8c15-a81525747cbc`\n\nArtefakt: [QA_REPORT.md](</private/tmp/agdf-independent-observations-YnLVr8/qa-evidence/.agdf/control/artefacts/independent-qa-evidence/QA_REPORT.md>)\n\nSHA-256: `sha256:f5880f3c35f6f38d8a9adecb66c2b8122ce5bff4ca2e201042dd6eb3224ecd84`\n\nBitte \u00f6ffne die verlinkte Fassung vor deiner Entscheidung.",
+      "allow_surrounding_text": false,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 7.191,
+      "target_ms": 1.423,
+      "control_ms": 174.045,
+      "render_ms": 9.705,
+      "total_ms": 193.031
+    },
+    "diagnostics": []
+  },
+  "actual_final_text": "## Kurzfassung \u00b7 QA\n\nRun: `independent-qa-evidence` \u00b7 Gate: `QA` \u00b7 Revision: `af96a7cd-f330-4691-8c15-a81525747cbc`\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- Ergebnis: QA pass f\u00fcr den ausdr\u00fccklich begrenzten synthetischen Service-Test.\n- Nachweise: Vollst\u00e4ndige Testdatei erfolgreich; tats\u00e4chliche Code-, TP- und Clean-Reviews abgeschlossen; ein Task und sein Kriterium erf\u00fcllt.\n- Grenzen: Keine Produktions- oder UI-Beobachtung, kein menschliches Approval. Freigegebene Quelldateien sind bytegleich geblieben.\n- N\u00e4chster Schritt: Aktuellen QA-Zustand auswerten und an seiner Entscheidungsgrenze stoppen.\n\n## Pr\u00fcfartefakt \u00b7 QA\n\nRun: `independent-qa-evidence` \u00b7 Gate: `QA` \u00b7 Revision: `af96a7cd-f330-4691-8c15-a81525747cbc`\n\nArtefakt: [QA_REPORT.md](</private/tmp/agdf-independent-observations-YnLVr8/qa-evidence/.agdf/control/artefacts/independent-qa-evidence/QA_REPORT.md>)\n\nSHA-256: `sha256:f5880f3c35f6f38d8a9adecb66c2b8122ce5bff4ca2e201042dd6eb3224ecd84`\n\nBitte \u00f6ffne die verlinkte Fassung vor deiner Entscheidung.",
+  "exact_host_text_equal": true,
+  "later_tool_calls": [],
+  "source": "Actual named local Codex response_items, inspected after completed isolated test turn"
+}

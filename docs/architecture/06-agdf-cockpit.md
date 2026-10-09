@@ -60,7 +60,7 @@ automatisch ausgewählt. Diese Regel gehört zur [Werkzeugbeschreibung](../../pa
 nicht zu einem zweiten Regelwerk in der UI.
 
 Bei einem erfolgreich geladenen expliziten Run entfallen in der kompakten Karte Inventarzähler,
-Suche und Auswahlfeld. „Anderen Run wählen“ blendet die Auswahl bewusst ein. Der bisherige Run
+Suche und Vorhabenliste. „Anderen Run wählen“ blendet die aktive Liste bewusst ein. Der bisherige Run
 bleibt ausgewählt, bis der Nutzer einen anderen auswählt. Auswahl und Kontextpakete werden
 nicht aus URL oder Browser-Speicher wiederhergestellt.
 
@@ -69,7 +69,7 @@ nicht aus URL oder Browser-Speicher wiederhergestellt.
 | Ansicht | Zweck und Verhalten |
 |---|---|
 | Kompakte Karte | Führt einspaltig mit gespeichertem Arbeitsstand, aktueller Kontrollaussage und einer Quellenaktion. Nachweise, Freigaben und Ziel/Run-ID sind zunächst geschlossen. „Run ansehen“ bleibt ein nachgeordneter Zugang zur größeren Ansicht. |
-| Vorhaben-Übersicht | Startet ausschließlich mit gespeicherten Masterbacklog-Einträgen und lädt UR-Überschriften nur für sichtbare Zeilen nach. Die drei Bereichsschalter „Aktiv“, „Geplant“ und „Archiv“ zeigen die Anzahlen der jeweiligen Backlog-Abschnitte; „Archiv“ umfasst abgeschlossene und abgelöste Einträge. „Aktiv“ startet ausgewählt. Die einspaltige Liste führt mit Titel, gespeichertem Stand und nächstem Schritt beziehungsweise Ergebnis. Der Titel öffnet den konkreten Run für dessen aktuelle Core-Prüfung. |
+| Vorhaben-Übersicht | Startet ausschließlich mit gespeicherten Masterbacklog-Einträgen und lädt UR-Überschriften nur für sichtbare Zeilen nach. Die drei Bereichsschalter „Aktiv“, „Geplant“ und „Archiv“ zeigen die Anzahlen der jeweiligen Backlog-Abschnitte; „Archiv“ umfasst abgeschlossene und abgelöste Einträge. „Aktiv“ startet ausgewählt. Die Liste führt mit Titel, gespeichertem Stand und nächstem Schritt beziehungsweise Ergebnis. Ab 1000px Breite des Lesebereichs stehen die Einträge in zwei Spalten; schmalere Ansichten bleiben einspaltig. Der Titel öffnet den konkreten Run für dessen aktuelle Core-Prüfung. |
 | Run-Zusammenfassung | Bündelt aktuellen Arbeitsschritt, exakte Core-Aktion, Voraussetzungen und Nachweise. Ziel, ID und Kontrollgrundlage sind aufklappbar. |
 | Run-Details | Zeigt zusätzliche Originalangaben und Quellen. Der Schiebeschalter „Zusammenfassung / Details“ ändert den Lesemodus innerhalb der größeren Ansicht. |
 | Dokument | Führt mit einer vorhandenen deutschen Quellenkurzfassung, dem gespeicherten Dokumentstand und der getrennten aktuellen Core-Kontrollauswertung. Quellenangaben und unveränderter Originaltext starten geschlossen. Hier gibt es keinen Zusammenfassungs-/Details-Schalter. „Dokument schließen“ kehrt zum Run zurück und stellt den Fokus auf den öffnenden Quellenzugang wieder her. |
@@ -81,12 +81,50 @@ Arbeitsschritt aus einer UI-Auswahl.
 Die Übersicht ordnet Einträge nach ihrem gespeicherten Backlog-Abschnitt, nicht durch eine
 zusätzliche Run-Auswertung oder automatische Statuskorrektur. Innerhalb jedes Bereichs steht
 der letzte gespeicherte Tabelleneintrag zuerst; daraus wird kein Erstellungsdatum abgeleitet.
-Die Suche filtert nach Backlog-Titel, Schlüssel, gespeichertem Status und bereits beobachteten
-UR-Titeln. Sie durchsucht keine noch ungelesenen URs. Der Suchumfang wird in der Ansicht erklärt;
+Die Suche filtert nach gespeichertem Backlog-Titel, Schlüssel und gespeichertem Status.
+Ergänzende UR-Überschriften verändern die Treffer nicht. Der Suchumfang wird in der Ansicht erklärt;
 ein Bereichswechsel leert die Suche. Bereich, Suchbegriff und beobachtete Titel bleiben bei der
 Rückkehr aus einem Vorhaben erhalten, solange sich die Backlog-Grundlage nicht geändert hat.
-Der Tastaturfokus kehrt zu dessen Titel zurück, sofern der Eintrag noch vorhanden ist.
+Der Tastaturfokus kehrt zu dessen auswählbarem Titel zurück, sofern er im aktuellen Ausschnitt
+sichtbar ist. Andernfalls erhält die Listenüberschrift den Fokus mit einer passenden Rückmeldung.
 Es gibt keinen zweiten identischen Öffnen-Button pro Zeile.
+
+Die Chat-Vorschau zeigt höchstens drei Treffer ohne internen Scrollbereich. Titel und gespeicherter
+Stand bleiben sichtbar; der vollständige nächste Schritt steht in den aufklappbaren Quellenangaben.
+„Alle Vorhaben öffnen“ vergrößert die Ansicht unter Beibehaltung der Suche. Hinweise zur Lesbarkeit
+beziehen sich hier auf den aktiven Bereich; ein Fehler in Geplant oder Archiv erzeugt keine
+pauschale Warnung über den aktiven Bestand. Die große Übersicht zeigt alle Treffer in einem eigenen, per Tastatur bedienbaren Scrollbereich.
+Die Liste füllt den verbleibenden Platz unter Kopfzeile, Bereichsauswahl, Suche und Zählern; diese
+Bedienelemente bleiben beim Scrollen sichtbar. Bei sehr geringer Höhe bleibt zusätzlich das
+Scrollen der Gesamtansicht möglich, damit keine Bedienelemente unerreichbar werden.
+
+### Gemeinsame Core-Listenprojektion
+
+`packages/core/lib/control-inspect/cockpit-list.js` enthält die gemeinsame reine Listenlogik
+für kompakte Karte und große Übersicht. Sie arbeitet ohne Dateisystem, Netzwerk oder React
+mit bereits geprüften Lesedaten. Die vorhandene Transportstruktur bleibt unverändert und in
+Quellreihenfolge; nur die Darstellung kehrt den gewählten Abschnitt um. Core besitzt Bereiche,
+Titelherkunft, Suche, Identität und Vollständigkeit. React besitzt Eingabe, Navigation und Darstellung.
+
+Kompakt erscheint ausschließlich „Active Backlog“, höchstens drei Treffer nach Suche im gesamten
+lesbaren Abschnitt. Der letzte gespeicherte Eintrag steht zuerst. „Aktiv“ ist die Bereichszugehörigkeit,
+keine neue Lifecycle-Regel; gespeichertes Completed bleibt dort sichtbar. Geplant und Archiv sind
+in der großen Übersicht erreichbar. Vergrößern erhält die aktive Suche; Bereichswechsel löscht sie.
+Eine Rückkehr aus einem anderen Bereich nach kompakt setzt Aktiv mit leerer Suche.
+
+Gesucht wird unabhängig von Großschreibung nach getrimmter Zeichenfolge getrennt in Originaltitel,
+Schlüssel und gespeichertem Status. UR-Überschriften verändern weder primären Titel noch Treffer.
+Bekannte Scope-Präfixe entfallen nur in der Anzeige. Gemeinsame passive Zeilen umbrechen Titel und
+zeigen Originalangaben, Herkunft und vollständigen nächsten Schritt aufklappbar. Bereich, Treffer
+und kompakter Ausschnitt haben getrennte Zähler. Teilbestände behaupten keine vollständigen
+Nulltreffer; nicht verfügbare Bereiche besitzen keine numerische Anzahl.
+
+Die Darstellungsidentität bindet Backlog-Digest, ursprüngliche Position, Bereich und Schlüssel.
+Sie ersetzt keine beobachtungsgebundenen Lese-Selektoren. Rückkehr erhält Bereich/Suche und den
+exakten sichtbaren Fokus. Entfernte Einträge werden von solchen außerhalb des Fünfer-Ausschnitts
+unterschieden; es wird kein benachbarter Run ausgewählt. Quellenänderungen in der Übersicht
+markieren vorherige Daten als veraltet, bis bewusst neu geladen wird. Run-, Dokument-, Kontext-
+und Sitzungsgrenzen behalten ihre bestehenden Zuständigkeiten.
 
 ### Überschriften verlinkter Anforderungen
 
@@ -98,12 +136,12 @@ Eine unsichtbare Ansicht startet keine neue Titelanfrage. Dabei werden weder all
 noch ihre Gates ausgewertet.
 
 Core verwendet den ausdrücklich gespeicherten `[UR](relativer-pfad)`-Verweis. Gleiche Ziele
-werden zusammengeführt; fehlende oder widersprüchliche Verweise führen zum Backlog-Titel zurück.
+werden zusammengeführt; fehlende oder widersprüchliche Verweise machen nur die ergänzende Überschrift unverfügbar.
 Nur enthaltene Markdown-Dateien unter `.agdf/control/artefacts/` werden gelesen. Externe oder
 absolute Ziele, kodierte Umgehungen und symbolische Links werden abgewiesen. Ein OR-Verweis
 oder der Schlüssel genügt nicht, um eine UR abzuleiten. Die erste echte H1 außerhalb von
 Frontmatter, Kommentaren und Codeblöcken wird als passiver Text angezeigt; nur das führende
-`UR:` entfällt im Listentitel. Originalüberschrift und Backlog-Titel bleiben aufklappbar.
+`UR:` entfällt in der ergänzenden Titelbeobachtung. Primärer Listentitel bleibt der gespeicherte Backlog-Titel; Originalüberschrift und Backlog-Titel bleiben aufklappbar.
 
 Der Status steht ausdrücklich als „Gespeicherter Stand laut Backlog“ in der Liste; auch
 der nächste Schritt beziehungsweise das Ergebnis stammt ausschließlich aus dem Masterbacklog.
@@ -279,8 +317,11 @@ bleiben abgewiesen. Navigation, Ausblenden und Schließen beenden die wartende A
 bestehende absolute Lebensdauer wird nicht verlängert. Host-spezifische Weiterleitung von
 MCP-Ressourcenbenachrichtigungen ist für diesen Weg nicht erforderlich.
 
-Kompakte und große Run-/Backlog-Ansichten lesen ihren bisherigen Zielstand im Hintergrund neu.
-Suchfilter, Bereich, offene Nachweise, Lesemodus, Fokus und Scrollposition bleiben erhalten.
+Run-Ansichten lesen ihren bisherigen Zielstand im Hintergrund neu; offene Nachweise,
+Lesemodus, Fokus und Scrollposition bleiben dabei erhalten.
+Backlog-Ansichten behalten den bisherigen Stand bis zum bewussten Aktualisieren; neue
+Run-Auswahl bleibt währenddessen gesperrt. Suchfilter und Bereich bleiben beim Neuladen
+erhalten; die Quellenangaben der neu beobachteten Zeilen starten geschlossen.
 Ein blauer Punkt am transparenten Refresh-Button zeigt bestätigte Quellenänderungen an;
 während des Lesens dreht sich das Symbol. Nach erfolgreichem Laden verschwindet der Punkt.
 Tooltip und Screenreader benennen den Zustand, bei reduzierter Bewegung bleibt das Symbol ruhig.

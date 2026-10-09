@@ -1,0 +1,195 @@
+{
+  "at": "2026-10-08T19:12:52.147Z",
+  "target": "/private/tmp/agdf-summary-native-VumLdW/case",
+  "run_id": "native-summary-recovery",
+  "revision_id": "ee2f7b84-a089-4e99-8f8a-d30aacb40d18",
+  "prefix": ".agdf/control/artefacts/native-summary-recovery/",
+  "candidate": {
+    "at": "2026-10-08T19:10:13.903Z",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-8f578728e735",
+    "source_digest": "8f578728e735dbb72f1b05a708ec2b4db30f894b01460a907ea198855fda2ba6",
+    "plugin_digest": "099214aae578ec224126701a13138b2f1e402ae07c94ac4a386e9e64d10c6e4a",
+    "runtime_digest": "668cf476a06c93027cead7615eed2c47ef5414500eb93d002cb6aaba41bfa8c9",
+    "mcp_dispatcher_digest": "31cdf187b33826ea9bb70cfb12f477c522c836a598a0acc8b1fdb8d350c66002",
+    "plugin_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/summary-recovery-qualification/marketplaces/agdf/plugins/agdf",
+    "marketplace": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/summary-recovery-qualification/marketplaces/agdf",
+    "generated_manifest": {
+      "schema_version": "1",
+      "generated": true,
+      "source": "create-agdf/cli",
+      "version": "0.14.5",
+      "entrypoint": "create-agdf/bin/agdf-validator.js",
+      "digest": "668cf476a06c93027cead7615eed2c47ef5414500eb93d002cb6aaba41bfa8c9"
+    },
+    "scope": "QF-002 summary prevalidation, exact diagnosis and existing authoring recovery; no public schema, phase, gate or installer change",
+    "activated": false
+  },
+  "validator": "/private/tmp/agdf-summary-native-VumLdW/plugins/agdf/runtime/agdf-local.js",
+  "lane": "explicit isolated saved-filter scenario and synthetic setup receipts; no production authority",
+  "setup_commands": [
+    {
+      "command": "run-create",
+      "args": [
+        "--run",
+        "native-summary-recovery"
+      ],
+      "code": 0,
+      "value": null,
+      "stderr": ""
+    },
+    {
+      "command": "run-step",
+      "args": [
+        "--run",
+        "native-summary-recovery",
+        "--revision",
+        "2c59d8f6-fe80-4542-b7ce-b5b3de6e7872",
+        "--step",
+        "ur",
+        "--title",
+        "Synthetic saved filter"
+      ],
+      "code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "native-summary-recovery",
+        "step": "ur",
+        "previous_revision_id": "2c59d8f6-fe80-4542-b7ce-b5b3de6e7872",
+        "revision": "2",
+        "revision_id": "43e51cc1-3197-4aee-a94b-b8b186ce71f5",
+        "current_gate": "UR",
+        "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+        "backlog": "updated"
+      },
+      "stderr": ""
+    },
+    {
+      "command": "run-present",
+      "args": [
+        "--run",
+        "native-summary-recovery",
+        "--revision",
+        "43e51cc1-3197-4aee-a94b-b8b186ce71f5",
+        "--gate",
+        "UR",
+        "--language",
+        "en"
+      ],
+      "code": 0,
+      "value": {
+        "schema_version": "1",
+        "presentation_id": "ed3d07dd-bb50-435b-a6ab-1d7a743f6c12",
+        "created_at": "2026-10-08T19:12:49.581Z",
+        "run_id": "native-summary-recovery",
+        "gate": "UR",
+        "revision_id": "43e51cc1-3197-4aee-a94b-b8b186ce71f5",
+        "content_digest": "sha256:04fdff1f9b893a4d20baa730186b00f40962e58fd153b326b2e5c791c18badd2",
+        "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+        "summary_digest": "sha256:0448fe08184dce3b862cab162d6dd395fb22fd3ce6dc3b4b75be5162fbe43551",
+        "presentation_language": "en",
+        "presentation_digest": "sha256:2a87a2d2f6f16e8789d07825b3f329ece724d58b7d7b6c36784f6f3db332b32a",
+        "outcome": "prepared",
+        "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `native-summary-recovery`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `native-summary-recovery` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `native-summary-recovery` · Gate: `UR` · Revision: `43e51cc1-3197-4aee-a94b-b8b186ce71f5`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `native-summary-recovery` · Gate: `UR` · Revision: `43e51cc1-3197-4aee-a94b-b8b186ce71f5`\n\nArtefact: [UR.md](</private/tmp/agdf-summary-native-VumLdW/case/.agdf/control/artefacts/native-summary-recovery/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `native-summary-recovery`\n[UR](.agdf/control/artefacts/native-summary-recovery/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+        "record_digest": "sha256:a9ab09f3417608d782d96ee91ea226aa3048e63105d39613d44fb941521f2298",
+        "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+      },
+      "stderr": ""
+    },
+    {
+      "command": "run-approve",
+      "args": [
+        "--run",
+        "native-summary-recovery",
+        "--revision",
+        "43e51cc1-3197-4aee-a94b-b8b186ce71f5",
+        "--gate",
+        "UR",
+        "--presentation",
+        "ed3d07dd-bb50-435b-a6ab-1d7a743f6c12",
+        "--response",
+        "Approval: UR"
+      ],
+      "code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "approved",
+        "run_id": "native-summary-recovery",
+        "gate": "UR",
+        "approval": "Approval: UR",
+        "previous_revision_id": "43e51cc1-3197-4aee-a94b-b8b186ce71f5",
+        "revision": "3",
+        "revision_id": "850e3f79-319d-41da-a80d-adc546deb71f",
+        "next_gate_after_approval": "Brownfield Review",
+        "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "command": "run-step",
+      "args": [
+        "--run",
+        "native-summary-recovery",
+        "--revision",
+        "850e3f79-319d-41da-a80d-adc546deb71f",
+        "--step",
+        "route",
+        "--route",
+        "structured_delivery",
+        "--reason",
+        "Synthetic public-contract test route, never live authorization",
+        "--evidence",
+        ".agdf/control/artefacts/native-summary-recovery/BROWNFIELD_REVIEW.md"
+      ],
+      "code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "native-summary-recovery",
+        "step": "route",
+        "previous_revision_id": "850e3f79-319d-41da-a80d-adc546deb71f",
+        "revision": "4",
+        "revision_id": "af2b87de-2f40-42d4-b27c-5bcd6f78c50a",
+        "current_gate": "PRD",
+        "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "backlog": "updated"
+      },
+      "stderr": ""
+    },
+    {
+      "command": "run-step",
+      "args": [
+        "--run",
+        "native-summary-recovery",
+        "--revision",
+        "af2b87de-2f40-42d4-b27c-5bcd6f78c50a",
+        "--step",
+        "artefact",
+        "--gate",
+        "PRD",
+        "--evidence",
+        ".agdf/control/artefacts/native-summary-recovery/recording-c5916fc3-2729-47ee-8e75-b1f78b75d32c.json"
+      ],
+      "code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "native-summary-recovery",
+        "step": "artefact",
+        "previous_revision_id": "af2b87de-2f40-42d4-b27c-5bcd6f78c50a",
+        "revision": "5",
+        "revision_id": "ee2f7b84-a089-4e99-8f8a-d30aacb40d18",
+        "current_gate": "PRD",
+        "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "backlog": "updated"
+      },
+      "stderr": ""
+    }
+  ]
+}

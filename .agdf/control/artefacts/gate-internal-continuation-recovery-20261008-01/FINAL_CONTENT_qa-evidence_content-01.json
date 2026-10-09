@@ -1,0 +1,102 @@
+{
+  "at": "2026-10-08T19:26:57.629Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/qa-evidence",
+  "run": "final-qa-evidence",
+  "revision": "e4ba290b-161b-4ff5-933e-f4ffb3c503ab",
+  "observations": {
+    "tests": {
+      "baseline": {
+        "command": [
+          "/usr/local/Cellar/node@22/22.22.3/bin/node",
+          "filter.test.mjs"
+        ],
+        "cwd": "/private/tmp/agdf-final-observations-Lrpg2S/qa-evidence",
+        "at": "2026-10-08T19:26:55.261Z",
+        "exit_code": 0,
+        "stdout": "Full synthetic approved saved-filter scope passed: existing store, save/restore, value copies, personal ownership, replace and rejected save preservation.\n",
+        "stderr": ""
+      },
+      "final": {
+        "command": [
+          "/usr/local/Cellar/node@22/22.22.3/bin/node",
+          "filter.test.mjs"
+        ],
+        "cwd": "/private/tmp/agdf-final-observations-Lrpg2S/qa-evidence",
+        "at": "2026-10-08T19:26:55.473Z",
+        "exit_code": 0,
+        "stdout": "Full synthetic approved saved-filter scope passed: existing store, save/restore, value copies, personal ownership, replace and rejected save preservation.\n",
+        "stderr": ""
+      },
+      "code_before": "e79518d90ad681d2770fb68b1d66c20e49efa6435df4939b8580499595dfbfdb",
+      "code_after": "e79518d90ad681d2770fb68b1d66c20e49efa6435df4939b8580499595dfbfdb",
+      "test_digest": "833f54a0919d7864020d0a51262bc92e8a3738df72722d10d1ad03b9a36ad507"
+    },
+    "review": "Three actual same-agent review dimensions pass; QA remains revise until separate owner assessment"
+  },
+  "commands": [
+    {
+      "args": [
+        "run-update",
+        "--revision",
+        "837aaf3d-8b00-430d-b4fe-4a8f9fa71697"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "updated",
+        "run_id": "final-qa-evidence",
+        "previous_revision_id": "837aaf3d-8b00-430d-b4fe-4a8f9fa71697",
+        "revision": "15",
+        "revision_id": "a907338f-8317-44c8-8aed-3d72d93efd05"
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "run-step",
+        "--revision",
+        "a907338f-8317-44c8-8aed-3d72d93efd05",
+        "--step",
+        "review",
+        "--decision",
+        "pass",
+        "--source",
+        ".agdf/control/artefacts/final-qa-evidence/CODE_REVIEW.md",
+        "--evidence",
+        ".agdf/control/artefacts/final-qa-evidence/CODE_REVIEW.md"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "final-qa-evidence",
+        "step": "review",
+        "previous_revision_id": "a907338f-8317-44c8-8aed-3d72d93efd05",
+        "revision": "16",
+        "revision_id": "8550eebd-2e75-4d44-bd60-587965947763",
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "backlog": "unchanged"
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "run-update",
+        "--revision",
+        "8550eebd-2e75-4d44-bd60-587965947763"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "updated",
+        "run_id": "final-qa-evidence",
+        "previous_revision_id": "8550eebd-2e75-4d44-bd60-587965947763",
+        "revision": "17",
+        "revision_id": "e4ba290b-161b-4ff5-933e-f4ffb3c503ab"
+      },
+      "stderr": ""
+    }
+  ],
+  "approved_sources_unchanged": true
+}

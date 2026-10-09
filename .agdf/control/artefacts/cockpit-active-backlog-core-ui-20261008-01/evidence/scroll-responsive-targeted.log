@@ -1,0 +1,42 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test test/browser/backlog.spec.mjs test/browser/backlog-titles.spec.mjs test/browser/journeys.spec.mjs -g SCN-008/009/011/012/013|SCN-084/085/092/093/094/095/100|document orientation separates --timeout=30000 --reporter=line
+
+
+Running 3 tests using 1 worker
+
+(node:33653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/3] test/browser/backlog-titles.spec.mjs:7:1 › SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR details, reversed order, scope replacement and unchanged sources in light/dark
+test/browser/backlog-titles.spec.mjs:7:1 › SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR details, reversed order, scope replacement and unchanged sources in light/dark
+(node:33669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:33653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[2/3] test/browser/backlog.spec.mjs:79:1 › SCN-008/009/011/012/013: compact active three-preview, full search, long wrapped rows and exact expanded return
+test/browser/backlog.spec.mjs:79:1 › SCN-008/009/011/012/013: compact active three-preview, full search, long wrapped rows and exact expanded return
+(node:33672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:33653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[3/3] test/browser/journeys.spec.mjs:28:1 › document orientation separates approved Run facts from draft originals in both Pages themes
+test/browser/journeys.spec.mjs:28:1 › document orientation separates approved Run facts from draft originals in both Pages themes
+(node:33678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:33653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+  3 passed (22.3s)

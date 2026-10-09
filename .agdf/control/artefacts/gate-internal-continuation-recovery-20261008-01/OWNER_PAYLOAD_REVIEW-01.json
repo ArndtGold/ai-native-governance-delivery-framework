@@ -1,0 +1,20 @@
+{
+  "before": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 208,
+    "max_bytes": 1758095,
+    "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3959 bytes of Core control code (forward-only generated next-step precedence preserving hand-authored instructions, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom. Run gate-internal-continuation-recovery-20261008-01: two shared Core read owners, bounded dispatcher follow-up, bilingual source/status diagnostics and existing-owner recovery instructions. Exact verified generated inventory; no speculative headroom or new host/UI payload. Summary-recovery follow-up: reuse canonical summary validation before PRD ready routing, precise bilingual diagnosis and bounded existing author correction; exact generated 208-file inventory, no additional host/UI or speculative headroom."
+  },
+  "after": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 208,
+    "max_bytes": 1758215,
+    "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3959 bytes of Core control code (forward-only generated next-step precedence preserving hand-authored instructions, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom. Run gate-internal-continuation-recovery-20261008-01: two shared Core read owners, bounded dispatcher follow-up, bilingual source/status diagnostics and existing-owner recovery instructions. Exact verified generated inventory; no speculative headroom or new host/UI payload. Summary-recovery follow-up: reuse canonical summary validation before PRD ready routing, precise bilingual diagnosis and bounded existing author correction; exact generated 208-file inventory, no additional host/UI or speculative headroom. QF-003: include the validated unique upstream source-owner targets in the existing Core follow-up reason; +120 bytes in the same file, no new route map, UI asset or unused headroom."
+  },
+  "observed": {
+    "files": 208,
+    "bytes": 1758215
+  }
+}

@@ -25,7 +25,7 @@ it('SCN-091: metadata cache enforces LRU, count and serialized UTF-8 byte bounds
   expect(cache.byteLength).toBeLessThanOrEqual(256*1024); expect(cache.count).toBeLessThan(128);
   cache.clear(); expect(cache.count).toBe(0); expect(cache.byteLength).toBe(0);
 });
-it('SCN-093/094: intersection demand plus one neighbour only; cached UR participates in search, unavailable title never retries', async () => {
+it('SCN-093/094: intersection demand plus one neighbour only; supplementary UR never changes stored titles/search; bounded reads persist', async () => {
   const observers: {callback:IntersectionObserverCallback;targets:Element[]}[]=[];
   class Observer { targets:Element[]=[]; constructor(callback:IntersectionObserverCallback) { observers.push({callback,targets:this.targets}); } observe(target:Element) {this.targets.push(target);} disconnect() {} }
   vi.stubGlobal('IntersectionObserver',Observer);
@@ -36,10 +36,13 @@ it('SCN-093/094: intersection demand plus one neighbour only; cached UR particip
   last.callback([{target:last.targets[0],isIntersecting:true} as IntersectionObserverEntry],{} as IntersectionObserver);
   await waitFor(()=>expect(load).toHaveBeenCalledTimes(1));
   expect(load.mock.calls[0][0]).toEqual([rows[19].row_id,rows[18].row_id]);
-  await waitFor(()=>expect(screen.getByRole('button',{name:'Kundenberatung key19'})).toBeTruthy());
+  await waitFor(()=>expect(screen.getByText('UR: Kundenberatung key19')).toBeTruthy());
+  expect(screen.getByRole('button',{name:'Backlog 19'})).toBeTruthy();
   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'Kundenberatung'}});
-  expect(screen.getAllByRole('button',{name:/Kundenberatung/})).toHaveLength(2);
-  expect(screen.getByText(/bereits geladene UR-Titel/)).toBeTruthy();
+  expect(screen.queryByRole('button',{name:/Backlog/})).toBeNull();
+  expect(screen.getByText('Keine gespeicherten Vorhaben für diese Suche.')).toBeTruthy();
+  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'Backlog 19'}});
+  expect(screen.getByRole('button',{name:'Backlog 19'})).toBeTruthy();
   rerender(<Overview result={initial} onSelect={vi.fn()} loadTitles={load} titlesEnabled={false} resetTitles/>);
   await waitFor(()=>expect(screen.queryByRole('button',{name:/Kundenberatung/})).toBeNull());
 });
@@ -65,7 +68,7 @@ it('SCN-093: hidden document starts no batch, missing UR is attempted once until
   intersect(); await new Promise(resolve=>setTimeout(resolve,100)); expect(load).not.toHaveBeenCalled();
   hidden.mockReturnValue(false); fireEvent(document,new Event('visibilitychange'));
   await waitFor(()=>expect(load).toHaveBeenCalledTimes(1));
-  await waitFor(()=>expect(screen.getByText('Backlog-Titel · UR-Überschrift nicht verfügbar')).toBeTruthy());
+  await waitFor(()=>expect(screen.getByText('Nicht verfügbar',{selector:'dd'})).toBeTruthy());
   intersect(); await new Promise(resolve=>setTimeout(resolve,150)); expect(load).toHaveBeenCalledTimes(1);
   rerender(<Overview result={initial} onSelect={vi.fn()} loadTitles={load} resetTitles/>);
   intersect(); await waitFor(()=>expect(load).toHaveBeenCalledTimes(2)); hidden.mockRestore();

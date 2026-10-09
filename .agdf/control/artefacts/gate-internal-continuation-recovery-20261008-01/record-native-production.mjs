@@ -1,0 +1,22 @@
+// Link new supporting evidence; existing sealed QA report/decision and approvals stay intact.
+import {readFileSync,writeFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {upsertTableRow} from '../../../../packages/core/lib/control-state/run-state-edits.js';
+const root=process.cwd(),run='gate-internal-continuation-recovery-20261008-01';
+const base=`.agdf/control/artefacts/${run}/`,state=`.agdf/control/runs/${run}/RUN_STATE.md`;
+const expected='d7a3f2c9-49d1-441f-a18e-48cccf48bd97';
+const before=readFileSync(state,'utf8');if(!before.includes(`- revision_id: ${expected}\n`))throw Error('Changed production binding');
+const approved={UR:'47b5049fcdc03dce6c2968e8f972a7122d1be195529d1d7242d09207941d55c1',PRD:'4c78b38f0588e0784a2d2fb849995301d2bced94799a6deb87613ebe6bd2cb0b',SD:'cbba6550d7daf05f3233cb31dd4d1a9d587f41637e41f442372003a09005f596',TP:'7de5565692e344eaf8df8b2d5a0ba87605dc7492a2d88a09750c7794e6b6d957'};
+for(const [key,value] of Object.entries(approved))if(createHash('sha256').update(readFileSync(base+key+'.md')).digest('hex')!==value)throw Error('Approved source changed: '+key);
+const rows=[['Native qualification evidence',base+'EVIDENCE_NATIVE-02.md','done','Installation and actual desktop partial observations; QA remains revise'],['Candidate installation evidence',base+'INSTALLATION-01.json','done','Exact authorized candidate healthy'],['Fresh connection evidence',base+'FRESH_CONNECTION-01.json','done','Fresh stdio dispatcher provenance matched'],['Desktop connection evidence',base+'DESKTOP_CONNECTION-01.json','done','Actual desktop MCP digest matched']];
+let content=before;for(const row of rows)content=upsertTableRow(content,'Artefacts',0,row[0],row);
+writeFileSync(state,content);
+const cli='/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-0ad3b168da8e/runtime/agdf-local.js';
+const result=spawnSync(process.execPath,[cli,'run-update','--dir',root,'--run',run,'--revision',expected,'--json'],{encoding:'utf8'});
+writeFileSync(base+'NATIVE_PROGRESS_RECORDING-01.json',result.stdout);
+if(result.status!==0)throw Error(result.stdout+result.stderr);
+const doctor=spawnSync(process.execPath,[cli,'doctor','--dir',root,'--run',run,'--json'],{encoding:'utf8'});
+writeFileSync(base+'POST_NATIVE_DOCTOR-01.json',doctor.stdout);
+if(doctor.status!==0)throw Error(doctor.stdout+doctor.stderr);
+console.log(JSON.stringify({recording:JSON.parse(result.stdout),doctor_exit:doctor.status,approved_sources:'unchanged',QA:'revise'}));

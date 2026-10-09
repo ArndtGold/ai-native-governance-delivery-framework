@@ -124,3 +124,5 @@ the result to `.agdf/control/artefacts/<key>/UX_INTENT_DEFINITION.md` without a 
 - add a gate, approval value or implementation permission;
 - prescribe components, persistence, endpoints, styles or other technical design;
 - treat supporting analysis as authoritative beside the approved PRD.
+
+Apply interaction.md Bounded internal recovery and prepared observation for eligible bound follow-up. It adds no gate or approval authority.

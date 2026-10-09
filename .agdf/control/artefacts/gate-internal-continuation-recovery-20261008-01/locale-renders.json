@@ -1,0 +1,132 @@
+[
+  {
+    "locale": "en",
+    "state": "ux_source_missing",
+    "text": "The required UX analysis is missing.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `missing`\nNext action: The UX owner may prepare or correct this unapproved analysis, validate it and record it canonically before fresh evaluation."
+  },
+  {
+    "locale": "en",
+    "state": "ux_decision_malformed",
+    "text": "The UX readiness field is absent or ambiguous.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `exact field absent`\nNext action: The UX owner may prepare or correct this unapproved analysis, validate it and record it canonically before fresh evaluation."
+  },
+  {
+    "locale": "en",
+    "state": "ux_source_unrecorded",
+    "text": "The ready UX analysis is not canonically recorded.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `unrecorded`\nNext action: The UX owner may prepare or correct this unapproved analysis, validate it and record it canonically before fresh evaluation."
+  },
+  {
+    "locale": "en",
+    "state": "ux_not_ready",
+    "text": "The UX analysis is not ready.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `blocked`\nNext action: The source owner must resolve this condition before dependent work."
+  },
+  {
+    "locale": "en",
+    "state": "unsafe_ux_source",
+    "text": "The UX source belongs to another path or is unsafe.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `foreign or unsafe source`\nNext action: The source owner must resolve this condition before dependent work."
+  },
+  {
+    "locale": "en",
+    "state": "unsafe_destination",
+    "text": "The output path is unsafe.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `unsafe`\nNext action: The source owner must resolve this condition before dependent work."
+  },
+  {
+    "locale": "en",
+    "state": "source_unavailable",
+    "text": "A required source is unavailable.\n\nSource: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nExpected field/value: `- decision: ready`\nObserved (original wording): `missing`\nNext action: The source owner must resolve this condition before dependent work."
+  },
+  {
+    "locale": "en",
+    "state": "inspect",
+    "text": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Locale Test · `locale-test` |\n| Status | open |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | implement the approved TP tasks |\n| Forbidden now | claim QA pass |\n| Next permitted agent action | TP approved. Implementation, tests and CD+Tests evidence are permitted within the approved scope. |\n| Missing approval | none |"
+  },
+  {
+    "locale": "en",
+    "state": "continue",
+    "text": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Locale Test · `locale-test` |\n| Status | open |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | implement the approved TP tasks |\n| Forbidden now | claim QA pass |\n| I am continuing | TP approved. Implementation, tests and CD+Tests evidence are permitted within the approved scope. |\n| Missing approval | none |"
+  },
+  {
+    "locale": "en",
+    "state": "external",
+    "text": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Locale Test · `locale-test` |\n| Status | open |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | implement the approved TP tasks |\n| Forbidden now | claim QA pass |\n| Your turn | Choose whether AC-006 stays open under this TP or a separate host-provisioning scope update starts. Host changes are not authorized by this TP. |\n| Missing approval | none |"
+  },
+  {
+    "locale": "en",
+    "state": "integrity",
+    "text": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Locale Test · `locale-test` |\n| Status | blocked |\n| Current gate | Implementation and tests (`CD+Tests`) |\n| Allowed now | run doctor again |\n| Forbidden now | implement code<br>claim QA pass |\n| Blocked by | An unresolved control finding needs attention (AGDF_RUN_ID_MISMATCH) |\n| Next permitted agent action | run doctor again |\n| Missing approval | none |"
+  },
+  {
+    "locale": "en",
+    "state": "qa-upstream",
+    "text": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Locale Test · `locale-test` |\n| Status | open |\n| Current gate | Quality assurance (`QA`) |\n| Allowed now | route the blocking QA findings to their authoritative owner |\n| Forbidden now | implement code<br>claim QA pass |\n| QA follow-up | SD source-owner decision required. (original wording) |\n| Next permitted agent action | Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report. |\n| Missing approval | none |"
+  },
+  {
+    "locale": "en",
+    "state": "ready",
+    "text": "## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | Locale Test · `locale-test` |\n| Status | open |\n| Current gate | Task and test plan (`TP`) |\n| Your decision | Approval: TP · Revise · Decline |\n| Agent may work on now | implement the approved TP tasks |\n| Forbidden now | claim QA pass |\n| Waiting for | Approval: TP |"
+  },
+  {
+    "locale": "de",
+    "state": "ux_source_missing",
+    "text": "Die erforderliche UX-Analyse fehlt.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `missing`\nNächster Schritt: Der UX-Verantwortliche darf diese unfreigegebene Analyse vorbereiten oder korrigieren, prüfen und vor erneuter Auswertung kanonisch erfassen."
+  },
+  {
+    "locale": "de",
+    "state": "ux_decision_malformed",
+    "text": "Das genaue UX-Bereitschaftsfeld fehlt oder ist mehrdeutig.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `exact field absent`\nNächster Schritt: Der UX-Verantwortliche darf diese unfreigegebene Analyse vorbereiten oder korrigieren, prüfen und vor erneuter Auswertung kanonisch erfassen."
+  },
+  {
+    "locale": "de",
+    "state": "ux_source_unrecorded",
+    "text": "Die bereite UX-Analyse ist noch nicht kanonisch erfasst.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `unrecorded`\nNächster Schritt: Der UX-Verantwortliche darf diese unfreigegebene Analyse vorbereiten oder korrigieren, prüfen und vor erneuter Auswertung kanonisch erfassen."
+  },
+  {
+    "locale": "de",
+    "state": "ux_not_ready",
+    "text": "Die UX-Analyse ist nicht bereit.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `blocked`\nNächster Schritt: Der Quellenverantwortliche muss diese Bedingung vor abhängiger Arbeit klären."
+  },
+  {
+    "locale": "de",
+    "state": "unsafe_ux_source",
+    "text": "Die UX-Quelle liegt an einem fremden oder unsicheren Pfad.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `foreign or unsafe source`\nNächster Schritt: Der Quellenverantwortliche muss diese Bedingung vor abhängiger Arbeit klären."
+  },
+  {
+    "locale": "de",
+    "state": "unsafe_destination",
+    "text": "Der Ausgabepfad ist unsicher.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `unsafe`\nNächster Schritt: Der Quellenverantwortliche muss diese Bedingung vor abhängiger Arbeit klären."
+  },
+  {
+    "locale": "de",
+    "state": "source_unavailable",
+    "text": "Eine erforderliche Quelle ist nicht verfügbar.\n\nQuelle: `.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md`\nErwartetes Feld/Wert: `- decision: ready`\nGefunden (Originalangabe): `missing`\nNächster Schritt: Der Quellenverantwortliche muss diese Bedingung vor abhängiger Arbeit klären."
+  },
+  {
+    "locale": "de",
+    "state": "inspect",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Locale Test · `locale-test` |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren |\n| Aktuell verboten | QA als bestanden erklären |\n| Nächster erlaubter Agentenschritt | TP freigegeben. Umsetzung, Tests und CD+Tests-Nachweise sind im genehmigten Umfang erlaubt. |\n| Fehlende Freigabe | keine |"
+  },
+  {
+    "locale": "de",
+    "state": "continue",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Locale Test · `locale-test` |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren |\n| Aktuell verboten | QA als bestanden erklären |\n| Ich arbeite weiter | TP freigegeben. Umsetzung, Tests und CD+Tests-Nachweise sind im genehmigten Umfang erlaubt. |\n| Fehlende Freigabe | keine |"
+  },
+  {
+    "locale": "de",
+    "state": "external",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Locale Test · `locale-test` |\n| Status | offen |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | die freigegebenen TP-Aufgaben implementieren |\n| Aktuell verboten | QA als bestanden erklären |\n| Du bist dran | AC-006 offenlassen oder eine separate Umfangsänderung für Host-Bereitstellung starten. Dieser TP erlaubt keine Host-Änderungen. |\n| Fehlende Freigabe | keine |"
+  },
+  {
+    "locale": "de",
+    "state": "integrity",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Locale Test · `locale-test` |\n| Status | blockiert |\n| Aktuelles Gate | Implementierung und Tests (`CD+Tests`) |\n| Jetzt erlaubt | doctor erneut ausführen |\n| Aktuell verboten | Code implementieren<br>QA als bestanden erklären |\n| Blockiert durch | Ein ungeklärter Kontrollbefund muss bearbeitet werden (AGDF_RUN_ID_MISMATCH) |\n| Nächster erlaubter Agentenschritt | doctor erneut ausführen |\n| Fehlende Freigabe | keine |"
+  },
+  {
+    "locale": "de",
+    "state": "qa-upstream",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Locale Test · `locale-test` |\n| Status | offen |\n| Aktuelles Gate | Qualitätssicherung (`QA`) |\n| Jetzt erlaubt | die blockierenden QA-Befunde an ihren zuständigen Owner leiten |\n| Aktuell verboten | Code implementieren<br>QA als bestanden erklären |\n| QA-Nacharbeit | SD source-owner decision required. (Originalwortlaut) |\n| Nächster erlaubter Agentenschritt | Kläre QA-Revise-Befunde beim zuständigen Verantwortlichen vor abhängiger Arbeit. Aus Revise keine Approval: QA anfordern. |\n| Fehlende Freigabe | keine |"
+  },
+  {
+    "locale": "de",
+    "state": "ready",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Locale Test · `locale-test` |\n| Status | offen |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Deine Entscheidung | Approval: TP · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | die freigegebenen TP-Aufgaben implementieren |\n| Aktuell verboten | QA als bestanden erklären |\n| Wartet auf | Approval: TP |"
+  }
+]

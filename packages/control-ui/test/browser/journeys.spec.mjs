@@ -83,7 +83,7 @@ test('document orientation separates approved Run facts from draft originals in 
     // whose expanded reader shares the MCP panel layout without the browser rail.
     await page.setViewportSize({width:845,height:1100});
     await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('agdf-cockpit-mcp-app-20261005-01');
+    await page.locator('.run-link[data-focus-id=\"agdf-cockpit-mcp-app-20261005-01\"]').click();
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await page.locator('.work-step-approvals > summary').click();
     await page.getByRole('button',{name:'Anforderungen ansehen',exact:true}).click();
@@ -100,7 +100,7 @@ async function openSession(page, service, pathname = '/') {
   await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
   await page.goto(service.origin + pathname);
   await expect(page.getByRole('heading', { name: pathname === '/card.html' ? 'AGDF Cockpit' : 'Gespeicherte Vorhaben',level:1 })).toBeVisible({ timeout: 12_000 });
-  if (pathname === '/card.html') await expect(page.getByRole('combobox', {name:'Vorhaben auswählen',exact:true})).toBeEnabled({ timeout: 12_000 });
+  if (pathname === '/card.html') await expect(page.locator('.undertaking-list .run-link').first()).toBeEnabled({ timeout: 12_000 });
   expect(new URL(page.url()).hash).toBe('');
 }
 test('SCN-044: Pages fonts survive host body overrides across card, list, Run and document', async ({ page }) => {
@@ -138,7 +138,7 @@ test('SCN-044: Pages fonts survive host body overrides across card, list, Run an
         }
       }
     };
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
+    await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await expect(page.locator('.compact-run')).toBeVisible();
     await inspect('card','.compact-run-summary h2');
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
@@ -287,7 +287,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
   };
   try {
     await page.setViewportSize({width:800,height:400});await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
+    await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await expect(page.locator('.work-step')).toBeVisible();
     await page.locator('.work-step-approvals > summary').click();
     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
@@ -329,7 +329,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
   try {
     await page.setViewportSize({width:800,height:900});
     await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
+    await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
@@ -374,7 +374,7 @@ test('neutral light reading planes and Pages dark surfaces survive host colors a
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
     await page.route(service.origin+'/__neutral-host.css',r=>r.fulfill({contentType:'text/css',body:':root{--color-background-primary:white;--color-background-secondary:#f5f5f5;--color-text-primary:#1a1c1f;--color-text-secondary:#999;--color-border-secondary:rgba(26,28,31,.08)}html,body{font-family:Arial,sans-serif!important}'}));
     await page.addStyleTag({url:service.origin+'/__neutral-host.css'});
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');await expect(page.locator('.work-step')).toBeVisible();
+    await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();await expect(page.locator('.work-step')).toBeVisible();
     const inspect=async(view,selector,controlled=false)=>{
       for(const theme of ['light','dark']){
         await page.mouse.move(0,0);await reference.mouse.move(0,0);
@@ -447,7 +447,7 @@ test('Pages action and type hierarchy retains the Cockpit neutral light palette'
     await reference.route('**/*.woff2',r=>{const file=fs.readdirSync(assets).find(n=>r.request().url().endsWith(n));return file?r.fulfill({contentType:'font/woff2',body:fs.readFileSync(join(assets,file))}):r.abort();});
     await reference.goto(service.origin+'/__pages-components');
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
+    await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await expect(page.locator('.work-step')).toBeVisible();
     const compare=async(view,actual,expected,keys)=>{
       for(const theme of ['light','dark']){
@@ -512,7 +512,7 @@ test('work action leads, qualifications stay honest and evidence access survives
     const detail=await(await page.request.get(service.origin+'/api/runs/fixture-a?snapshot='+snapshot.snapshot_id,{headers})).json();
     const e=detail.data.run.evaluation;
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
-    await page.getByRole('combobox',{name:'Vorhaben auswählen',exact:true}).selectOption('fixture-a');
+    await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
     await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');

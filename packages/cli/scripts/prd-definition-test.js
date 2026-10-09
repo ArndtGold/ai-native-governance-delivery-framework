@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, symlinkSync, unlinkSync, readlinkSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { randomUUID, createHash } from "node:crypto";
 import { join, resolve } from "node:path";
@@ -22,8 +22,10 @@ try {
     const scan = (folder) => {
       for (const entry of readdirSync(folder, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
         const path = join(folder, entry.name);
+        hash.update(path.slice(directory.length)).update(entry.isDirectory() ? "directory" : entry.isSymbolicLink() ? "symlink" : "file");
         if (entry.isDirectory()) scan(path);
-        else if (entry.isFile()) hash.update(path.slice(directory.length)).update(readFileSync(path));
+        else if (entry.isFile()) hash.update(readFileSync(path));
+        else if (entry.isSymbolicLink()) hash.update(readlinkSync(path));
       }
     };
     scan(directory); return hash.digest("hex");
@@ -74,11 +76,45 @@ try {
   writeFileSync(f.file("BROWNFIELD_REVIEW.md"), reviewBytes.toString().replace("required: no", "required: yes"));
   assert.equal(f.run("run-update", "--revision", f.revision()).value.outcome, "updated");
   const blockedUx = bound("--continue-delivery");
-  assert.equal(blockedUx.terminal, true);
-  assert.equal(blockedUx.diagnostics[0].code, "prd_authoring_inputs_invalid");
+  assert.equal(blockedUx.terminal, false);
+  assert.equal(blockedUx.continuation.skill_id, "ux-intent-definition");
+  assert.equal(blockedUx.continuation.phase, "source_analysis_reassessment");
+  assert.equal(blockedUx.diagnostics[0].code, "ux_source_missing");
+  assert.match(blockedUx.continuation.instruction, /UX_INTENT_DEFINITION.md/);
+  assert.match(blockedUx.continuation.instruction, /decision: ready/);
+  assert.equal(dispatch("gate-check", "--run", f.runId).terminal, true, "explicit status never prepares UX");
+  writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "# UX intent\nDecision: ready\n");
+  const malformed = bound("--continue-delivery");
+  assert.equal(malformed.continuation.skill_id, "ux-intent-definition");
+  assert.equal(malformed.diagnostics[0].code, "ux_decision_malformed");
+  assert.match(malformed.continuation.instruction, /exact field absent/);
+  assert.match(malformed.continuation.instruction, /unchanged failure stops/);
+  assert.equal(bound("--continue-delivery").diagnostics[0].code, "ux_decision_malformed", "unchanged condition grants no new kind of work");
+  writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "- decision: ready\n- decision: blocked\n");
+  assert.equal(bound("--continue-delivery").diagnostics[0].code, "ux_decision_malformed");
   writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "# UX intent\n- decision: blocked\n");
   assert.equal(bound("--continue-delivery").terminal, true);
+  const stoppedUx = bound("--continue-delivery");
+  assert.match(stoppedUx.host_action.text, /blocked/);
+  assert.doesNotMatch(stoppedUx.host_action.text, /Ich arbeite weiter/);
+  if (process.platform !== "win32") {
+    unlinkSync(f.file("UX_INTENT_DEFINITION.md"));
+    const outsideUx = join(temporary, "outside-ux.md");
+    writeFileSync(outsideUx, "- decision: ready\n");
+    symlinkSync(outsideUx, f.file("UX_INTENT_DEFINITION.md"));
+    const unsafe = bound("--continue-delivery");
+    assert.equal(unsafe.terminal, true);
+    assert.match(unsafe.host_action.text, /unsicheren Pfad/);
+    assert.equal(readFileSync(outsideUx, "utf8"), "- decision: ready\n");
+    unlinkSync(f.file("UX_INTENT_DEFINITION.md"));
+  }
   writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "# UX intent\n- decision: ready\n");
+  assert.equal(bound("--continue-delivery").diagnostics[0].code, "ux_source_unrecorded", "ready bytes alone do not replace canonical analytical recording");
+  const uxState = readFileSync(f.state, "utf8");
+  writeFileSync(f.state, uxState.replace("| Brownfield Review |", `| UX Intent Definition | ${f.prefix}UX_INTENT_DEFINITION.md | done | prepared in the same chain |\n| Brownfield Review |`));
+  const uxRevision = f.revision();
+  assert.equal(f.run("run-update", "--revision", uxRevision).value.outcome, "updated");
+  assert.notEqual(f.revision(), uxRevision);
   assert.equal(bound("--continue-delivery").continuation.sources[2].type, "UX Intent Definition");
   writeFileSync(f.file("BROWNFIELD_REVIEW.md"), reviewBytes);
   assert.equal(f.run("run-update", "--revision", f.revision()).value.outcome, "updated");
@@ -130,6 +166,17 @@ try {
   assert.notEqual(f.revision(), old);
   const stateAfter = readFileSync(f.state, "utf8");
   assert.equal((stateAfter.match(/\| sha256:[a-f0-9]{64} \| ey/g) ?? []).length, 2, "old binding receipt retained");
+  // Even a ready registered PRD cannot present approval before required analytical recording.
+  const readyReview = readFileSync(f.file("BROWNFIELD_REVIEW.md"), "utf8");
+  writeFileSync(f.file("BROWNFIELD_REVIEW.md"), readyReview.replace("required: no", "required: yes"));
+  const readyState = readFileSync(f.state,"utf8");
+  writeFileSync(f.state, readyState.replace(/^\| UX Intent Definition \|.*\n/mu, ""));
+  assert.equal(f.run("run-update", "--revision", f.revision()).value.outcome, "updated");
+  const readyWithoutAnalysis = bound("--continue-delivery");
+  assert.equal(readyWithoutAnalysis.continuation.skill_id, "ux-intent-definition", JSON.stringify(readyWithoutAnalysis));
+  assert.notEqual(f.present("PRD", "de").value.outcome, "prepared", "readiness and authoring share source facts");
+  writeFileSync(f.file("BROWNFIELD_REVIEW.md"), readyReview);
+  assert.equal(f.run("run-update", "--revision", f.revision()).value.outcome, "updated");
   assert.equal(bound("--continue-delivery").continuation.phase, "presentation_required");
   assert.equal(revise().continuation.draft_registered, true);
   assert.equal(dispatch("prd-definition", "--run", f.runId).continuation.phase, "prd_definition");
@@ -158,13 +205,42 @@ try {
     text => text.replace(/^- Entscheidungen:.*\n/mu, ""),
     text => text.replace("- Ziel:", "- Ziel: " + "x".repeat(3000)),
     text => text.replace("(de; source=en)", "(xx; source=en)"),
+    text => text.replace("- Ziel:", "- Ziel und Umfang:").replace("- Entscheidungen:", "- Entscheidungskontext:"),
   ];
   for (const mutate of invalidSummaries) {
     writeFileSync(f.file("PRD.md"), mutate(original));
     assert.equal(f.record(true).value.outcome, "recorded");
+    const repair = bound("--continue-delivery");
+    assert.equal(repair.terminal, false, "an own invalid summary remains a permitted authoring correction");
+    assert.equal(repair.continuation.phase, "prd_definition");
+    assert.equal(repair.continuation.draft_registered, true);
+    assert.equal(repair.control.blocking_reason, "AGDF_PRD_DECISIONS_OPEN");
+    assert.match(repair.continuation.instruction, /approval_summary_/);
+    assert.match(repair.continuation.instruction, /one condition-specific correction/);
+    assert.match(repair.continuation.instruction, /unchanged failed correction stops/);
+    const status = bound();
+    assert.equal(status.terminal, true, "status must not start summary correction");
+    assert.equal(status.continuation, null);
+    assert.match(status.host_action.text, /approval_summary_/);
     assert.notEqual(f.present("PRD", "de").value?.outcome, "prepared", "invalid localized summary cannot be presented");
   }
+  // Reproduce the actual native combined-label mistake; then complete one typed correction chain.
+  const summaryBroken = original.replace("- Ziel:", "- Ziel und Umfang:").replace("- Entscheidungen:", "- Entscheidungskontext:");
+  writeFileSync(f.file("PRD.md"), summaryBroken); assert.equal(f.record(true).value.outcome, "recorded");
+  const ownSummary = bound("--continue-delivery");
+  assert.match(ownSummary.continuation.instruction, /approval_summary_user_goal_missing/);
+  assert.match(ownSummary.continuation.instruction, /- Ziel:/);
+  const failingRevision = f.revision();
+  const unchangedSummary = bound("--continue-delivery");
+  assert.equal(f.revision(), failingRevision, "reinspection performs no implicit correction or progress recording");
+  assert.equal(unchangedSummary.continuation.phase, "prd_definition");
+  assert.match(unchangedSummary.continuation.instruction, /unchanged failed correction stops/);
+  writeFileSync(f.file("PRD.md"), summaryBroken.replace("- Ziel und Umfang:", "- Ziel:"));
+  assert.equal(f.record(true).value.outcome, "recorded");
+  assert.match(bound("--continue-delivery").continuation.instruction, /approval_summary_decisions_missing/);
+  assert.match(bound("--continue-delivery").continuation.instruction, /- Entscheidungen:/);
   writeFileSync(f.file("PRD.md"), original); assert.equal(f.record(true).value.outcome, "recorded");
+  assert.equal(bound("--continue-delivery").continuation.phase, "presentation_required", "validated canonical replacement reaches the next real decision without explicit revise intake");
   const fresh = f.present(); assert.equal(f.approve("PRD", fresh.value.presentation_id).value.outcome, "approved");
   const approved = protectedState();
   assert.equal(dispatch("prd-definition", "--run", f.runId).terminal, true);

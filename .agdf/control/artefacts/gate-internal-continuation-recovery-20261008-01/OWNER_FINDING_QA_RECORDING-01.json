@@ -1,0 +1,83 @@
+[
+  {
+    "args": [
+      "run-update",
+      "--revision",
+      "f34c12b2-92c2-4c65-aa58-4ffbfef0c5cb"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "previous_revision_id": "f34c12b2-92c2-4c65-aa58-4ffbfef0c5cb",
+      "revision": "27",
+      "revision_id": "d19a7d88-2d8d-4b99-81e5-2eee1859de87"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "run-step",
+      "--revision",
+      "d19a7d88-2d8d-4b99-81e5-2eee1859de87",
+      "--step",
+      "artefact",
+      "--gate",
+      "QA",
+      "--evidence",
+      ".agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/OWNER_FINDING_QA_RECORDING_INPUT-01.json"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "step": "artefact",
+      "previous_revision_id": "d19a7d88-2d8d-4b99-81e5-2eee1859de87",
+      "revision": "28",
+      "revision_id": "46f0a95b-c441-4c6e-8450-82fe515cc683",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "unchanged"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "doctor"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "status": "pass",
+      "checked_at": "2026-10-08T19:59:17.418Z",
+      "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "summary": {
+        "findings": 0,
+        "block": 0,
+        "revise": 0,
+        "warn": 0
+      },
+      "parent_reconciliation": {
+        "outcome": "not_applicable",
+        "target_run_id": "",
+        "disposition": "not_applicable",
+        "evidence": "",
+        "missing_evidence": "none",
+        "next_action": "none"
+      },
+      "programme_aggregation": {
+        "applicable": false,
+        "startable": false,
+        "final_ready": false,
+        "acceptance_ref": "",
+        "evidence": [],
+        "missing_evidence": [],
+        "next_action": "none"
+      },
+      "findings": []
+    },
+    "stderr": ""
+  }
+]

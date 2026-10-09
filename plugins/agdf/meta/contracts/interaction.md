@@ -648,10 +648,39 @@ an intake run. This assignment is transient; RUN_STATE.md and the UR remain the 
 On a bound run, continue_delivery permits only these canonical
 internal continuations: Brownfield Review and proportional routing; on a structured route after the
 preceding approval, the missing PRD, SD or TP draft before its card; Brownfield Analysis after TP
-approval; and the OR closeout after UAT. A ready artefact returns presentation_required instead.
+approval; eligible required UX preparation before PRD; approved-scope QA revise follow-up classified
+by Core from quality.md Normalized Review Gaps; and the OR closeout after UAT. A ready artefact returns presentation_required instead.
 None of them approves a gate. Stop at the next user decision or concrete blocker; report unchanged
 internal state rather than looping. Status/advice never activates it.
 
 The record proves prepared state, not actual display or user-response timing. The host/agent must
 show it before waiting and bind only the subsequent deliberate reply. Visible multi-turn evidence
 is required for a live claim. Filesystem digests are integrity checks, not adversarial signatures.
+
+### Bounded internal recovery and prepared observation
+
+For an authorized bound continuation, inspect the exact current condition before dependent work.
+Missing own unapproved UX analysis and malformed exact readiness fields route to the existing UX
+owner for preparation/validation/canonical recording, then fresh same-run dispatch. An explicit
+blocked decision, foreign/unsafe source, integrity conflict or material missing choice stops.
+Never coerce a ready decision, edit an approved source or create approval from this handoff.
+
+Core consumes quality.md Normalized Review Gaps once for QA revise routing: an approved-scope
+implementation obligation may refresh implementation/tests/reviews; evidence obligations require
+supported acquisition through the existing owner; upstream source gaps require their existing
+revision decision first. A revise label or free text never grants general implementation authority.
+Incomplete, unknown or conflicting findings stop dependent work. QA alone decides quality readiness.
+
+A recoverable preparation/invocation error permits one condition-specific correction before fresh
+validation and canonical recording. Use the declared schema (MCP presentation_language, CLI
+--language; no continue_delivery on judgement skills). Repeated unchanged conditions stop; do not
+retry ordinary intake, reinterpret invalid input, persist retry state or intercept terminal output.
+Status/terminal presentation describes the next permitted actor/action without promising execution.
+Only an actually executing nonterminal continuation may say that work is continuing.
+
+Before asking for necessary host installation/reconnection or other external evidence action, prepare
+one complete observation sequence: exact source/package/runtime/resource identity, supported host
+and model, isolated targets, prompts/actions, expected observations, evidence applicability and stop
+conditions. Preserve applicable proof; version changes require affected fresh observations. Source,
+package and transport checks do not prove actual native multi-turn behavior. An inaccessible host
+remains an explicit evidence gap; do not silently install, reconnect or claim completion.

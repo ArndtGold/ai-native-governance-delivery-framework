@@ -1155,7 +1155,7 @@ smokePhase("gate check status card");
       if (!output.includes("## AGDF status-card")
         || !output.includes("| Status | blocked |")
         || !output.includes("| Current gate | User requirements (`UR`) |")
-        || !output.includes("| I am continuing |")) {
+        || !output.includes("| Next permitted agent action |")) {
         throw new Error("gate-check --status-card should print compact status-card fields, including the actor row.");
       }
       if (output.includes("doctor_report") || output.includes("delivery_map")) {
@@ -2189,7 +2189,7 @@ smokePhase("Mode and slice decision scenarios");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
-        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:I am continuing|No reply needed|Your turn) |/u.test(statusCardOutput)) {
+        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:Next permitted agent action|No reply needed|Your turn) |/u.test(statusCardOutput)) {
       throw new Error("Internal-step status card should show its actor and next step without implying approval authority.");
     }
   } finally {
@@ -2274,7 +2274,7 @@ smokePhase("gate check or handoff");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
-        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:I am continuing|No reply needed|Your turn) |/u.test(statusCardOutput)) {
+        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:Next permitted agent action|No reply needed|Your turn) |/u.test(statusCardOutput)) {
       throw new Error("OR handoff status card should show its actor and next step without implying approval authority.");
     }
   } finally {

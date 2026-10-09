@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-08T19:27:36.643Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/qa-implementation",
+  "run": "final-qa-implementation",
+  "revision": "2eecb3ac-b894-4763-b9c2-2df524383623",
+  "observations": {
+    "QA": "pass for synthetic fixture scope; pending human decision, not approval"
+  },
+  "commands": [
+    {
+      "args": [
+        "run-update",
+        "--revision",
+        "36106e19-b87f-4759-9ede-a2b554c35eda"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "updated",
+        "run_id": "final-qa-implementation",
+        "previous_revision_id": "36106e19-b87f-4759-9ede-a2b554c35eda",
+        "revision": "18",
+        "revision_id": "15904aaa-a5e5-462f-bfb6-82f868563c4d"
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "run-step",
+        "--revision",
+        "15904aaa-a5e5-462f-bfb6-82f868563c4d",
+        "--step",
+        "artefact",
+        "--gate",
+        "QA",
+        "--evidence",
+        ".agdf/control/artefacts/final-qa-implementation/recording-d908a066-b043-4d78-a89e-2d15a2e489b5.json"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "final-qa-implementation",
+        "step": "artefact",
+        "previous_revision_id": "15904aaa-a5e5-462f-bfb6-82f868563c4d",
+        "revision": "19",
+        "revision_id": "2eecb3ac-b894-4763-b9c2-2df524383623",
+        "current_gate": "QA",
+        "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+        "backlog": "updated"
+      },
+      "stderr": ""
+    }
+  ],
+  "approved_sources_unchanged": true
+}

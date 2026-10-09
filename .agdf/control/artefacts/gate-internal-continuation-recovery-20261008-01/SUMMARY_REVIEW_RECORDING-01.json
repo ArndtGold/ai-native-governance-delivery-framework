@@ -1,0 +1,65 @@
+[
+  {
+    "args": [
+      "run-update",
+      "--revision",
+      "e7ba899d-e287-4e26-9570-90955ee9d088"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "previous_revision_id": "e7ba899d-e287-4e26-9570-90955ee9d088",
+      "revision": "22",
+      "revision_id": "ef56970f-4997-4bf9-b554-ef0c625e2501"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "run-step",
+      "--revision",
+      "ef56970f-4997-4bf9-b554-ef0c625e2501",
+      "--step",
+      "review",
+      "--decision",
+      "pass",
+      "--source",
+      ".agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/CODE_REVIEW.md",
+      "--evidence",
+      ".agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/CODE_REVIEW.md"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "step": "review",
+      "previous_revision_id": "ef56970f-4997-4bf9-b554-ef0c625e2501",
+      "revision": "23",
+      "revision_id": "c0decbe2-175e-493c-88e8-6e94aa823d09",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "unchanged"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "run-update",
+      "--revision",
+      "c0decbe2-175e-493c-88e8-6e94aa823d09"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "previous_revision_id": "c0decbe2-175e-493c-88e8-6e94aa823d09",
+      "revision": "24",
+      "revision_id": "803f18f1-1db3-467e-a281-686e7af73792"
+    },
+    "stderr": ""
+  }
+]

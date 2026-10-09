@@ -15,8 +15,9 @@ Run State, gate evaluation and exact approval remain authoritative.
 - After persistence, redispatch `gate-check` for the same target/run and use its fresh revision,
   gate route and approval presentation. Do not reuse this operation or ask for approval until the
   fresh dispatcher result supplies a valid presentation.
-- If a source is missing, a prerequisite is unresolved, the state changed, or the artifact cannot be
-  persisted, stop with the concrete blocker. Never create a later-gate artifact or infer approval.
+- If a source is missing, a prerequisite is unresolved, the state changed, or persistence fails, stop
+  dependent authoring. Use interaction.md Bounded internal recovery only for its dispatched eligible
+  analytical owner; other conditions stay blocked. Never infer approval or create later-gate work.
 
 ## Reviewed Recording Input (version 1)
 
@@ -33,6 +34,16 @@ summary completeness and size limits; use no ellipses or hidden decision-relevan
 For PRD include user goal, scope, every canonical criterion ID exactly once, and decision context
 when approval decisions exist. Corrections use the existing permitted recording/revision path
 and require a fresh presentation. The summary grants no approval and is not another authority.
+
+Validate with the existing Core `evaluateApprovalSummaryReadiness` owner before recording.
+For a German PRD summary use separate `- Ziel:`, `- Umfang:` and, when decisions exist,
+`- Entscheidungen:` lines; English summaries use `- Goal:`, `- Scope:` and `- Decisions:`.
+Each criterion has its own `- AC-...:` line. A combined label such as `Ziel und Umfang:` or
+`Entscheidungskontext:` is not one of these fields. Readiness and presentation share this validator;
+do not accept prose as a substitute or invent another parser. An eligible own unapproved format
+correction stays with the existing authoring continuation, once per diagnosed condition, followed
+by canonical replacement and fresh evaluation. A ready draft still needs actual editing intent;
+status is read-only, protected sources and unrelated blockers remain stopped.
 
 Prepare files under `.agdf/control/artefacts/<run_id>/` before recording. The single shared Core
 relationship registry selects PRD-derived_from-UR, SD-derived_from-PRD, TP-derived_from-SD or

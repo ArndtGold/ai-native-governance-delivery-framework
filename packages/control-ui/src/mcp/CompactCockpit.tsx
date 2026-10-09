@@ -1,4 +1,7 @@
-import { useId, useRef, useState, type RefObject } from 'react';
+import { type RefObject } from 'react';
+import { COCKPIT_BACKLOG_SECTIONS, projectCockpitList } from '../../../core/lib/control-inspect/cockpit-list.js';
+import { BacklogCounts, BacklogEmpty, BacklogRow } from '../BacklogRows';
+import type { BacklogView } from '../Overview';
 import { hasExpiredSession, type ReadingState } from '../state';
 import { ReadState, ReadingFeedback, readingStatus } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
@@ -8,40 +11,36 @@ import { WorkStep } from '../WorkStep';
 import { DocumentView } from '../DocumentView';
 import type { Resource } from '../types';
 
-export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onExpand, onOpen, onBack }: {
+export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onExpand, onOpen, onBack, view, onViewChange, returnNotice }: {
   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean;
-  initialRunId?: string;
+  initialRunId?: string; view: BacklogView; onViewChange: (view: BacklogView) => void; returnNotice?: string | null;
   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onExpand?: () => void;
   onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void;
 }) {
-  const entries = state.inventory?.data?.entries ?? [];
-  const [search, setSearch] = useState('');
-  const pickerId = useId(), picker = useRef<HTMLDivElement>(null);
-  const shown = entries.filter(r => `${r.title} ${r.key} ${r.stored_status}`.toLocaleLowerCase('de').includes(search.toLocaleLowerCase('de')));
+  const list = projectCockpitList(state.inventory?.data ?? null, { section: COCKPIT_BACKLOG_SECTIONS[0], query: view.filter });
+  const shown = list.rows.slice(0, 3);
   const data = state.detail?.data, e = data?.evaluation;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
   const expired = hasExpiredSession(state);
   const status = readingStatus(state);
   const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && !state.problem && state.phase === 'ready' && !!state.scope?.data;
   const target = state.scope?.target.display_path;
-  const inventoryHints = !!state.inventory?.data?.diagnostics.length && <details className="compact-inventory"><summary>Backlog-Hinweise · {state.inventory.data.diagnostics.length}</summary><ReadState state={state.inventory.state} code={state.inventory.code}/><ul>{state.inventory.data.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul></details>;
+  const inventoryHints = !!list.diagnostics.length && <details className="compact-inventory"><summary>Backlog-Hinweise · Aktiv · {list.diagnostics.length}</summary><p>Der aktive Bereich ist eingeschränkt lesbar. Zähler und Treffer können unvollständig sein.</p><ul>{list.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul></details>;
   return <section className="compact-cockpit agdf-surface" aria-label="AGDF Cockpit" aria-busy={busy || state.refreshing}>
     <BrandHeader variant="card" projectPath={target} contextTitle={selected?.title} headingRef={headingRef}>
       <RefreshControl state={state} enabled={enabled} onReload={onReload}/>
     </BrandHeader>
-    {state.route.view === 'overview' && state.inventory?.data && <div className="compact-controls" id={pickerId} ref={picker}>
-    <div className="compact-counts"><span><strong>{entries.length}</strong> Backlog-Einträge</span></div>
-    {entries.length > 12 && <label className="compact-search">Vorhaben suchen<input type="search" placeholder="Titel, Schlüssel oder gespeicherter Status" value={search} onChange={event => setSearch(event.target.value)}/></label>}
-    <label className="compact-select">Vorhaben auswählen
-      <select value="" disabled={!usable || !entries.length} onChange={event => { if (event.target.value) onSelect(event.target.value); }}>
-        <option value="">Gespeicherte Vorhaben · bewusst auswählen</option>
-        {shown.map((r, index) => <option key={`${r.section}:${r.key}:${index}`} value={r.key} disabled={!r.selectable}>{r.title} · gespeichert: {r.stored_status} · {r.key}</option>)}
-      </select>
-    </label>
-    {search && <p className="compact-search-result" role="status">{shown.length} Treffer</p>}
+    {state.route.view === 'overview' && state.inventory?.data && <div className="compact-controls">
+      <h2 tabIndex={-1} data-focus-id="backlog-heading">Aktive Vorhaben</h2>
+      {returnNotice && <p role="status">{returnNotice}</p>}
+      <BacklogCounts list={list} displayed={shown.length}/>
+      <label className="compact-search">Vorhaben suchen<input type="search" data-focus-id="backlog-search" placeholder="Titel, Schlüssel oder gespeicherter Status" value={view.filter} onChange={event => onViewChange({ section: COCKPIT_BACKLOG_SECTIONS[0], filter: event.target.value })}/></label>
+      <p className="compact-muted compact-search-hint">Letzter Backlog-Eintrag zuerst · Suche in Titel, Schlüssel und gespeichertem Status.</p>
+      <BacklogEmpty list={list}/>
+      {!!shown.length && <ul className="undertaking-list" aria-label="Aktive Vorhaben">{shown.map(row => <BacklogRow key={row.identity} row={row} current={usable} onSelect={onSelect} compact/>)}</ul>}
     </div>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
-    <ReadingFeedback state={state}/>
+    <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
     <div className={busy ? 'previous-content' : undefined}>
       {state.route.view === 'document' && state.document ? <div className="compact-document">
         <button className="text-link" onClick={onBack} disabled={!usable}>Zurück zum Arbeitsstand</button>
@@ -58,8 +57,7 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
         <details className="compact-identity"><summary>Ziel und Run-ID · Originalangaben</summary><code className="compact-run-id">{data.run_id}</code>
         {data.objective && data.objective !== selected.title && <p className="compact-goal">{data.objective}</p>}</details>
       </div> : state.route.view === 'overview' && state.inventory?.data ? <div className="compact-overview">
-        <p className="compact-muted">Das Masterbacklog zeigt gespeicherte Angaben. Öffne ein Vorhaben für seinen aktuellen Kontrollstand.</p>
-        <button className="primary" disabled={!usable || !onExpand} onClick={onExpand}>Vorhaben-Übersicht <span aria-hidden="true">↗</span></button>
+        <button className="primary" disabled={!usable || !onExpand} onClick={onExpand}>Alle Vorhaben öffnen <span aria-hidden="true">↗</span></button>
       </div> : null}
     </div>
     {inventoryHints}

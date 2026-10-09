@@ -1,0 +1,31 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /UX_INTENT_DEFINITION.md/. Input:
+
+'Die erforderliche UX-Analyse fehlt.\n' +
+  '\n' +
+  'Quelle: .agdf/control/artefacts/prd-authoring-test/UXINTENTDEFINITION.md\n' +
+  'Erwartetes Feld/Wert: - decision: ready\n' +
+  'Gefunden (Originalangabe): missing\n' +
+  "Nächster Schritt: Der UX-Verantwortliche darf diese unfreigegebene Analyse vorbereiten oder korrigieren, prüfen und vor erneuter Auswertung kanonisch erfassen. Prepare or correct only this run's unapproved UX analysis through its existing owner. Preserve approved intent and stop for a material missing choice. Validate the exact decision field, record the analysis with the existing canonical writer, then redispatch gate-check for this same run. One condition-specific correction attempt only; an unchanged failure stops. Do not draft PRD until the input is ready."
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/prd-definition-test.js:81:10
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'Die erforderliche UX-Analyse fehlt.\n' +
+    '\n' +
+    'Quelle: .agdf/control/artefacts/prd-authoring-test/UXINTENTDEFINITION.md\n' +
+    'Erwartetes Feld/Wert: - decision: ready\n' +
+    'Gefunden (Originalangabe): missing\n' +
+    "Nächster Schritt: Der UX-Verantwortliche darf diese unfreigegebene Analyse vorbereiten oder korrigieren, prüfen und vor erneuter Auswertung kanonisch erfassen. Prepare or correct only this run's unapproved UX analysis through its existing owner. Preserve approved intent and stop for a material missing choice. Validate the exact decision field, record the analysis with the existing canonical writer, then redispatch gate-check for this same run. One condition-specific correction attempt only; an unchanged failure stops. Do not draft PRD until the input is ready.",
+  expected: /UX_INTENT_DEFINITION.md/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

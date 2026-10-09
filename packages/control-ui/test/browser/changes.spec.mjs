@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { fixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { startControlServer, evidencePath } from './server-fixture.mjs';
 const content = status => `# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | My undertaking | ${status} | | UR | Check evidence |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n`;
-for (const theme of ['light', 'dark']) test(`actual ${theme} browser updates from a file event and retains the reading context`, async ({ page }) => {
+for (const theme of ['light', 'dark']) test(`actual ${theme} overview waits for deliberate reload after a file event`, async ({ page }) => {
   const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md'); fs.writeFileSync(path, content('Awaiting QA'));
   const service = await startControlServer({ dir: f.root });
   try {
@@ -16,6 +16,11 @@ for (const theme of ['light', 'dark']) test(`actual ${theme} browser updates fro
     const hold = new Promise(resolve => { release = resolve; });
     await page.route('**/api/snapshot*', async route => { await hold; await route.continue(); });
     fs.writeFileSync(path + '.replacement', content('Awaiting UAT')); fs.renameSync(path + '.replacement', path);
+    const deliberate=page.getByRole('button',{name:'Neuer Stand verfügbar · Aktualisieren'});
+    await expect(deliberate).toBeEnabled({timeout:3000});
+    await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting QA')).toBeVisible();
+    await expect(page.getByRole('button',{name:'My undertaking'})).toBeDisabled();
+    await deliberate.click();
     const refresh = page.getByRole('button', { name: 'Stand wird aktualisiert …' });
     await expect(refresh).toBeDisabled({ timeout: 3000 });
     await expect(refresh.locator('.refresh-update-dot')).toBeVisible();
@@ -31,7 +36,7 @@ for (const theme of ['light', 'dark']) test(`actual ${theme} browser updates fro
     await expect(page.getByText('Gespeicherter Stand laut Backlog: Awaiting UAT')).toBeVisible({ timeout: 3000 });
     await expect(page.locator('.refresh-update-dot')).toHaveCount(0);
     await expect(page.getByRole('searchbox')).toHaveValue('My undertaking');
-    await expect(page.locator('.row-source')).toHaveAttribute('open', '');
+    await expect(page.locator('.row-source')).not.toHaveAttribute('open', '');
     await expect(page.getByText('Veraltet', { exact: true })).toHaveCount(0);
   } finally { await service.close(); f.close(); }
 });

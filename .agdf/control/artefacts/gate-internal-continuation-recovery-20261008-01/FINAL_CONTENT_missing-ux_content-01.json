@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-08T19:26:44.914Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/missing-ux",
+  "run": "final-missing-ux",
+  "revision": "ce215bfd-05b9-41b3-816d-dc2e9c850de4",
+  "observations": {
+    "readiness": {
+      "ready": true,
+      "required_heading": "AGDF Approval Summary (de; source=en)",
+      "reason": null
+    },
+    "scope": "Complete explicit synthetic scenario reflected in six proposed criteria; pending human decision, no approval"
+  },
+  "commands": [
+    {
+      "args": [
+        "run-step",
+        "--revision",
+        "26eb29b1-3c92-42dc-99e8-9859c1112995",
+        "--step",
+        "artefact",
+        "--gate",
+        "PRD",
+        "--evidence",
+        ".agdf/control/artefacts/final-missing-ux/recording-65ad29b5-3c13-4009-ad74-06c76849fb10.json"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "final-missing-ux",
+        "step": "artefact",
+        "previous_revision_id": "26eb29b1-3c92-42dc-99e8-9859c1112995",
+        "revision": "7",
+        "revision_id": "ce215bfd-05b9-41b3-816d-dc2e9c850de4",
+        "current_gate": "PRD",
+        "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "backlog": "updated"
+      },
+      "stderr": ""
+    }
+  ],
+  "approved_sources_unchanged": true
+}

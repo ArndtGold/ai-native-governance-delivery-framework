@@ -1,0 +1,20 @@
+// Synthetic test preparation only. Never a production requirement or approval.
+import {readFileSync,writeFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {upsertTableRow} from '../../../../packages/core/lib/control-state/run-state-edits.js';
+const out='.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/';
+const root='/private/tmp/agdf-gate-qualification-414UKY/missing-ux',run='native-missing-ux';
+const prefix=`.agdf/control/artefacts/${run}/`,state=`${root}/.agdf/control/runs/${run}/RUN_STATE.md`;
+const before=readFileSync(state,'utf8'),revision=before.match(/^- revision_id: (.+)$/m)[1];
+if(revision!=='7d4aebed-63c9-4778-8754-316d9ab516e4')throw Error('Changed fixture');
+const facts={scope:'Synthetic native-test preparation facts, never production product decisions',persona:'One operator using their own immediately effective filter editor',baseline:{currentFilter:{status:'active'},savedFilter:null,visibleState:'No saved filter',authority:'Current editor values are the effective filter',presentationOwner:'Existing filter editor'},scenario:{save:'The operator names and saves the current values in the one personal slot. A later save replaces that slot; it does not change current values.',restore:'The operator deliberately restores the personal slot. Current values are replaced by the saved values and immediately effective.',activation:'Save requires a nonempty name and current values. Restore requires an existing saved slot.',failure:'Failed save preserves previous slot and current values. Failed restore preserves current values. The editor displays the error and a visible retry of the same operation.',deactivation:'Closing the editor ends the active view; reopening restores access to the same personal slot without automatically applying it.',visibleStates:['No saved filter','Saved <name>','Restored <name>','Save failed; retry','Restore failed; retry'],ownership:'Same operator only; no sharing or permissions change'},openChoices:[],evidenceBoundary:'Explicit test-input specification. Baseline JSON is test data; it is not a claim that production UI was observed.'};
+writeFileSync(root+'/'+prefix+'TEST_SCENARIO-02.json',JSON.stringify(facts,null,2)+'\n');
+writeFileSync(out+'NATIVE_UX_BLOCKED-01.md',readFileSync(root+'/'+prefix+'UX_INTENT_DEFINITION.md'));
+const bfr=root+'/'+prefix+'BROWNFIELD_REVIEW.md';
+writeFileSync(bfr,readFileSync(bfr,'utf8')+'\n## Completed synthetic native-test input\n\n- delivery_context: brownfield\n- ui_ux_impact: medium\n- ui_ux_impact_reason: Saving and restoring introduces explicit personal saved-state actions in the existing filter-editor scenario.\n- test_input: TEST_SCENARIO-02.json is the preparation owner\'s explicit simulated baseline, product-state and failure/recovery specification. It is synthetic test data, not an inferred production decision.\n- existing_owner: Existing filter editor; current values are effective and it presents the state.\n- boundaries: One named personal slot, no sharing, unchanged permissions; no source approval transferred.\n');
+let content=upsertTableRow(before,'Artefacts',0,'Native scenario',['Native scenario',prefix+'TEST_SCENARIO-02.json','done','Explicit synthetic fixture inputs; no production choice']);
+writeFileSync(state,content);
+const r=spawnSync(process.execPath,['/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-0ad3b168da8e/runtime/agdf-local.js','run-update','--dir',root,'--run',run,'--revision',revision,'--json'],{encoding:'utf8'});
+writeFileSync(out+'NATIVE_SETUP_REPAIR-01.json',r.stdout);
+if(r.status!==0)throw Error(r.stdout+r.stderr);
+console.log(r.stdout);

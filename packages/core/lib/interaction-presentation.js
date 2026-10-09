@@ -107,7 +107,7 @@ function validateReadLocaleRegistry(registry) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("sourceRevision.") ? budgets.description
         : key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("skillDispatch.sourceInput.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -182,6 +182,15 @@ export function renderSkillDispatchRecovery({ code } = {}, {
   }
   const action = pack?.[code];
   return typeof action === "string" && action.trim() ? action : null;
+}
+
+// Paths and observed source words are diagnostic data, never instructions or authority.
+export function renderDefinitionSourceRecovery(issue, { registry, requestedLocale } = {}) {
+  let pack;
+  try { pack = localePack(registry, requestedLocale)?.skillDispatch?.sourceInput; } catch { return null; }
+  if (!pack?.conditions?.[issue?.code]) return null;
+  const safe = value => String(value ?? '').slice(0, 1024).replace(/[\r\n\u2028\u2029]/gu, ' ').replace(/[`\\<>|]/gu, '');
+  return `${pack.conditions[issue.code]}\n\n${pack.source}: \`${safe(issue.path)}\`\n${pack.expected}: \`${safe(issue.expected)}\`\n${pack.observed}: \`${safe(issue.observed)}\`\n${pack.next}: ${issue.repairable ? pack.prepare : pack.stop}`;
 }
 
 export function gateTitle(registry, requestedLocale, gate) {
@@ -475,7 +484,7 @@ export function validateOperationalStatusCardPreconditions(statusCard, {
     if (!locale) errors.push("locale_unresolved");
     if (locale) {
       const labels = localePack(registry, locale).statusCard;
-      for (const key of ["waitingOn", "userTurn", "userInputNeeded", "agentWorking", "noReply"])
+      for (const key of ["waitingOn", "userTurn", "userInputNeeded", "agentWorking", "agentNext", "noReply"])
         if (!String(labels?.[key] ?? "").trim()) errors.push(`status_card_${key}_missing`);
       const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
       if (locale !== fallbackLocale) {
@@ -497,6 +506,8 @@ export function renderOperationalStatusCard(statusCard, {
   registry,
   humanPresentation,
   revisionId = "",
+  executionDisposition = "inspect",
+  qaFollowUp = null,
 } = {}) {
   if (!validateOperationalStatusCardPreconditions(statusCard, { registry, humanPresentation: humanPresentation ?? null }).valid) return null;
   const runId = String(statusCard.run_id ?? "").trim();
@@ -534,7 +545,7 @@ export function renderOperationalStatusCard(statusCard, {
     : userMustAct
       ? [labels.userTurn, statusCard.next_user_gate !== "none" ? statusCard.next_user_gate : nextStep]
       : agentMustAct
-        ? [labels.agentWorking, nextStep]
+        ? [executionDisposition === "continue" && statusCard.status === "open" ? labels.agentWorking : labels.agentNext, nextStep]
         : [labels.noReply, nextStep];
   const prdReadinessItems = Array.isArray(statusCard.prd_readiness_items) ? statusCard.prd_readiness_items : [];
   const sdReadinessItems = Array.isArray(statusCard.sd_readiness_items) ? statusCard.sd_readiness_items : [];
@@ -565,6 +576,7 @@ export function renderOperationalStatusCard(statusCard, {
     [labels.forbidden, forbiddenNow],
     ...(hasBlocker ? [[labels.blocked, blockingCondition]] : []),
     ...blockingDetails,
+    ...(qaFollowUp?.reason ? [[labels.qaFollowUp, `${qaFollowUp.reason} (${labels.sourceWording})`]] : []),
     ...(prdReadinessItems.length ? [[labels.prdReadinessItems, prdReadinessItems.join("\n")]] : []),
     ...(sdReadinessItems.length ? [[labels.sdReadinessItems, sdReadinessItems.join("\n")]] : []),
     ...(traceabilityGaps.length ? [[labels.traceabilityGaps, traceabilityGaps.join("\n")]] : []),

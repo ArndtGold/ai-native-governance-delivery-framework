@@ -1,0 +1,82 @@
+{
+  "at": "2026-10-08T19:25:19.816Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/malformed-ux",
+  "run": "final-malformed-ux",
+  "revision_before": "fc8b428c-d2fe-454d-995e-87ed890cbd3d",
+  "revision_after": "cba5bdbf-b815-43d7-a497-5431d6f6d507",
+  "before": {
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/final-malformed-ux/UR.md",
+        "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/final-malformed-ux/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2305d4549606f82a9c576a51839383608e2126c5ecc174482e604768fde81d08"
+      }
+    ],
+    "issue": {
+      "code": "ux_decision_malformed",
+      "path": ".agdf/control/artefacts/final-malformed-ux/UX_INTENT_DEFINITION.md",
+      "expected": "- decision: ready",
+      "observed": "exact field absent",
+      "repairable": true
+    }
+  },
+  "validated": {
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/final-malformed-ux/UR.md",
+        "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/final-malformed-ux/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2305d4549606f82a9c576a51839383608e2126c5ecc174482e604768fde81d08"
+      }
+    ],
+    "issue": {
+      "code": "ux_source_unrecorded",
+      "path": ".agdf/control/artefacts/final-malformed-ux/UX_INTENT_DEFINITION.md",
+      "expected": "UX Intent Definition: done at this path",
+      "observed": "unrecorded",
+      "repairable": true
+    }
+  },
+  "after": {
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/final-malformed-ux/UR.md",
+        "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/final-malformed-ux/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2305d4549606f82a9c576a51839383608e2126c5ecc174482e604768fde81d08"
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/final-malformed-ux/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:180fabaa413c70fcee591aaca0f076ec7a127f81886e6c7e20aba04678e2af1c"
+      }
+    ],
+    "issue": null
+  },
+  "canonical": [
+    {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "final-malformed-ux",
+      "previous_revision_id": "fc8b428c-d2fe-454d-995e-87ed890cbd3d",
+      "revision": "6",
+      "revision_id": "cba5bdbf-b815-43d7-a497-5431d6f6d507"
+    }
+  ],
+  "checkpoint": "stop before reevaluation; next actual tool must bind current revision",
+  "UR_unchanged": true,
+  "lane": "actual same-agent desktop execution; not independent fresh model interruption"
+}

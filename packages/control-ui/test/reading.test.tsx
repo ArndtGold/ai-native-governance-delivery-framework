@@ -57,7 +57,7 @@ describe('read state and passive documents', () => {
     }
     expect(label('unknown_core_value')).toBe('Nicht verfügbar · Original: unknown_core_value');
   });
-  it('SCN-014: returning to visibility quietly refreshes the stored overview', async () => {
+  it('SCN-014: returning to visibility marks overview stale until deliberate reload', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async path => {
       if (String(path).startsWith('/api/changes')) return new Promise(() => {});
       if (String(path).startsWith('/api/freshness')) return new Response(JSON.stringify({ ...snapshot, state: 'stale', code: 'source_changed', data: null }));
@@ -69,7 +69,9 @@ describe('read state and passive documents', () => {
     try {
       Object.defineProperty(document, 'hidden', { configurable: true, value: true }); fireEvent(document, new Event('visibilitychange')); expect(fetch.mock.calls.filter(c => !String(c[0]).startsWith('/api/changes'))).toHaveLength(1);
       Object.defineProperty(document, 'hidden', { configurable: true, value: false }); fireEvent(document, new Event('visibilitychange'));
-      await waitFor(() => expect(fetch.mock.calls.filter(c => !String(c[0]).startsWith('/api/changes'))).toHaveLength(3)); expect(screen.getByRole('button', { name: 'Original title' })).toBeTruthy(); expect(screen.queryByText('Veraltet')).toBeNull();
+      await waitFor(() => expect(fetch.mock.calls.filter(c => !String(c[0]).startsWith('/api/changes'))).toHaveLength(2)); expect((screen.getByRole('button', { name: 'Original title' }) as HTMLButtonElement).disabled).toBe(true);
+      fireEvent.click(screen.getByRole('button',{name:'Neuer Stand verfügbar · Aktualisieren'}));
+      await waitFor(()=>expect((screen.getByRole('button',{name:'Original title'}) as HTMLButtonElement).disabled).toBe(false));
     } finally { if (descriptor) Object.defineProperty(document, 'hidden', descriptor); else Reflect.deleteProperty(document, 'hidden'); }
   });
 });

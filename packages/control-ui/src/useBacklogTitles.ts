@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { BacklogEntry, Envelope, Inventory, TitleObservation } from './types';
+import { backlogRowKey } from '../../core/lib/control-inspect/cockpit-list.js';
 
 export type TitleLoader = (ids: string[], signal: AbortSignal) => Promise<Envelope<Inventory> | null>;
 // Stable across capture replacements; opaque row selectors themselves are never cached.
-export const backlogRowKey = (entry: BacklogEntry, index: number) => `${entry.section}:${index}:${entry.key}`;
 export class BacklogTitleCache {
   private values = new Map<string, TitleObservation>();
   private bytes = 0;
@@ -64,7 +64,7 @@ export function useBacklogTitles(inventory: Inventory | null, enabled: boolean, 
       const last = ordered.indexOf(demand.at(-1)!);
       if (last >= 0 && ordered[last + 1]) demand.push(ordered[last + 1]);
       const keys = demand.map(el => el.dataset.backlogRow!).filter(key => !attempted.current.has(key)).slice(0, 12);
-      const selected = keys.map(key => rows.find((row, index) => backlogRowKey(row, index) === key)).filter((row): row is BacklogEntry => !!row?.row_id);
+      const selected = keys.map(key => rows.find((row, index) => backlogRowKey(row, index, state.inventory!.content_digest) === key)).filter((row): row is BacklogEntry => !!row?.row_id);
       if (!selected.length) return;
       const controller = new AbortController(), epoch = generation.current;
       active.current = controller; activeKeys.current = keys; keys.forEach(key => attempted.current.add(key)); setLoading(true);
@@ -72,7 +72,7 @@ export function useBacklogTitles(inventory: Inventory | null, enabled: boolean, 
         const result = await state.load(selected.map(row => row.row_id!), controller.signal);
         if (controller.signal.aborted || generation.current !== epoch || !result?.data || result.data.content_digest !== digest) return;
         result.data.entries.forEach((row, index) => {
-          if (row.title_observation) cache.current.put(backlogRowKey(row, index), row.title_observation);
+          if (row.title_observation) cache.current.put(backlogRowKey(row, index, result.data!.content_digest), row.title_observation);
         });
         update(v => v + 1);
       } finally {

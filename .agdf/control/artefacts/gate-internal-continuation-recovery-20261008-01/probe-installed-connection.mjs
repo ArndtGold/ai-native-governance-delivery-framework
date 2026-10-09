@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {createHash} from 'node:crypto';
+import {withStdioClient} from '../../../../packages/mcp-server/test/helpers.js';
+import {digestPluginMcpDispatcherSource} from '../../../../packages/core/lib/runtime/plugin-provenance.js';
+const root=process.cwd(),base=join(root,'.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01');
+const candidate=JSON.parse(readFileSync(join(base,'CANDIDATE-01.json'))),installation=JSON.parse(readFileSync(join(base,'INSTALLATION-01.json')));
+const plugin=installation.pluginRoot,server=JSON.parse(readFileSync(join(plugin,'mcp.json'))).mcpServers.agdf;
+const expectedMcpDigest=digestPluginMcpDispatcherSource(join(candidate.candidate.plugin_root,'runtime/create-agdf'),'0.14.5');
+const sha=p=>'sha256:'+createHash('sha256').update(readFileSync(p)).digest('hex');
+await withStdioClient({command:process.execPath,args:server.args,cwd:root},async client=>{
+ const tools=await client.listTools();
+ assert.ok(tools.tools.some(x=>x.name==='agdf_dispatch'));
+ const result=await client.callTool({name:'agdf_dispatch',arguments:{skill_id:'qa-gate',presentation_language:'de',working_directory:root,primary_target:root,target_source:'continued_target',run_id:'gate-internal-continuation-recovery-20261008-01'}});
+ const report=result.structuredContent;
+ const evidence={at:new Date().toISOString(),server,negotiated_protocol:client.getNegotiatedProtocolVersion(),expected_plugin_runtime_digest:candidate.candidate.runtime_digest,expected_mcp_dispatcher_digest:expectedMcpDigest,result:report,evidence_boundary:'Fresh real stdio connection; no native model or desktop visual behavior'};
+ writeFileSync(join(base,'FRESH_CONNECTION-01.json'),JSON.stringify(evidence,null,2)+'\n');
+ assert.equal(report.terminal,false);assert.equal(report.runtime.runtime_digest,expectedMcpDigest);assert.equal(report.runtime.provenance_status,'matched');
+ const source=join(report.runtime.plugin_root,'runtime/core/lib/control-evaluation/qa-follow-up.js');
+ assert.equal(sha(source),candidate.source_files['packages/core/lib/control-evaluation/qa-follow-up.js']);
+ console.log(JSON.stringify({connection:'matched',protocol:evidence.negotiated_protocol,plugin_version:installation.installedVersion,bundled_runtime_digest:candidate.candidate.runtime_digest,mcp_dispatcher_digest:expectedMcpDigest,qa:report.control.current_gate,revision:report.control.revision_id}));
+});

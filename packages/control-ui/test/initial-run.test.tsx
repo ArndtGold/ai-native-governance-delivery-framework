@@ -57,24 +57,24 @@ it('a validated initial Run hides discovery; explicitly returning to backlog ena
   await screen.findByRole('heading',{name:'run-a'});
   expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
-  const search=await screen.findByRole('searchbox',{name:'Vorhaben suchen'}),select=screen.getByRole('combobox',{name:'Vorhaben auswählen'});
-  expect((select as HTMLSelectElement).value).toBe('');
+  const search=await screen.findByRole('searchbox',{name:'Vorhaben suchen'});
+  expect(screen.queryByRole('combobox')).toBeNull();
   fireEvent.change(search,{target:{value:'other-7'}});
-  expect(screen.getAllByRole('option')).toHaveLength(2);
-  fireEvent.change(select,{target:{value:'other-7'}});
+  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button',{name:'Other 7'}));
   await screen.findByRole('heading',{name:'other-7'});
   expect(screen.queryByRole('combobox')).toBeNull();
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot','/api/runs/other-7?snapshot=snapshot']);
 });
 it('a formerly inspected initial Run returns to confirmed removal backlog without choosing another',async()=>{
   let removed=false;
-  const read=vi.fn(async()=>removed?{...inventory,snapshot_id:'next',data:{...inventory.data!,removed_run_id:'run-a',entries:[pointer('run-b')]}}:detail('run-a')) as unknown as ReadTransport;
+  const read=vi.fn(async()=>removed?{...inventory,snapshot_id:'next',data:{...backlog([pointer('run-b')]).data!,removed_run_id:'run-a'}}:detail('run-a')) as unknown as ReadTransport;
   render(<App compact initialRunId="run-a" transport={read}/>);
   await screen.findByRole('heading',{name:'run-a'});expect(screen.queryByRole('combobox')).toBeNull();
   removed=true;fireEvent.click(screen.getByRole('button',{name:'Neu laden'}));
   await screen.findByText(/nicht mehr vorhanden. Kein anderer Run/);
-  await waitFor(()=>expect((screen.getByRole('combobox') as HTMLSelectElement).disabled).toBe(false));
-  expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('');
+  await waitFor(()=>expect((screen.getByRole('button',{name:'run-b'}) as HTMLButtonElement).disabled).toBe(false));
+  expect(screen.queryByRole('combobox')).toBeNull();
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
 });
 it('SCN-039/043: named opening uses one exact request and resizing or prop changes preserve manual selection',async()=>{
@@ -82,8 +82,8 @@ it('SCN-039/043: named opening uses one exact request and resizing or prop chang
   await screen.findByRole('heading',{name:'run-a'});
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a']);
   fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
-  const select=await screen.findByRole('combobox');
-  fireEvent.change(select,{target:{value:'run-b'}});await screen.findByRole('heading',{name:'run-b'});
+  const row=await screen.findByRole('button',{name:'run-b'});
+  fireEvent.click(row);await screen.findByRole('heading',{name:'run-b'});
   view.rerender(<App initialRunId="run-a" transport={read}/>);
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(screen.getByText('run-b',{selector:'code'})).toBeTruthy();
   expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/snapshot'))).toHaveLength(2);

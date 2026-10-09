@@ -19,6 +19,7 @@ it('background Run refresh retains source focus after opaque resource IDs are re
   }));
   render(<App transport={read} initialRunId="run-a"/>);
   const button = await screen.findByRole('button', { name: 'Stand des Vorhabens öffnen' }); button.focus();
+  await waitFor(() => expect(deliver).toBeTypeOf('function'));
   changed = true; await act(async () => deliver());
   await waitFor(() => expect(screen.getByRole('button', { name: 'Stand des Vorhabens öffnen' }).getAttribute('data-focus-id')).toContain('new-source'));
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Stand des Vorhabens öffnen' }));
@@ -40,6 +41,7 @@ it('an open original stays readable after a change and requires a deliberate rel
   fireEvent.click(await screen.findByText('Originaldokument lesen', { exact: true }));
   await screen.findByRole('heading', { name: 'Original stays here' });
   const before = vi.mocked(read).mock.calls.filter(c => c[0].startsWith('/api/snapshot')).length;
+  await waitFor(() => expect(deliver).toBeTypeOf('function'));
   await act(async () => deliver());
   const reload = await screen.findByRole('button', { name: 'Quelle geändert · Neu laden' });
   expect(reload.querySelector('.refresh-update-dot')).toBeTruthy();
@@ -52,7 +54,7 @@ it('an open original stays readable after a change and requires a deliberate rel
   expect(document.querySelector('main footer')?.textContent).not.toContain('Vorheriger Datenstand');
   expect(vi.mocked(read).mock.calls.filter(c => c[0].startsWith('/api/snapshot'))).toHaveLength(before + 1);
 });
-it('change signal refreshes before polling and retains filter, disclosure and scroll', async () => {
+it('SCN-017: overview change signal waits for deliberate reload and retains query', async () => {
   let changed = false, deliver!: () => void;
   const read = vi.fn(async (path: string) => path.startsWith('/api/freshness')
     ? { ...backlog([]), data: null, state: 'stale', code: 'source_changed' }
@@ -66,11 +68,16 @@ it('change signal refreshes before polling and retains filter, disclosure and sc
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'My undertaking' } });
   screen.getByText('Gespeicherte Angaben und Quellen').closest('details')!.open = true;
   const workspace = document.querySelector('.workspace')!; workspace.scrollTop = 180;
+  await waitFor(() => expect(deliver).toBeTypeOf('function'));
   changed = true; await act(async () => deliver());
+  const reload=await screen.findByRole('button',{name:'Neuer Stand verfügbar · Aktualisieren'});
+  expect(screen.getByText('Gespeicherter Stand laut Backlog: Awaiting QA')).toBeTruthy();
+  expect((screen.getByRole('button',{name:'My undertaking'}) as HTMLButtonElement).disabled).toBe(true);
+  expect(read).toHaveBeenCalledTimes(2);fireEvent.click(reload);
   await screen.findByText('Gespeicherter Stand laut Backlog: Awaiting UAT');
   expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('My undertaking');
-  expect(screen.getByText('Gespeicherte Angaben und Quellen').closest('details')?.open).toBe(true);
-  expect(document.activeElement).toBe(screen.getByRole('searchbox')); expect(workspace.scrollTop).toBe(180); expect(screen.queryByText('Veraltet')).toBeNull(); expect(read).toHaveBeenCalledTimes(3);
+  expect(screen.getByText('Gespeicherte Angaben und Quellen')).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'})); expect(workspace.scrollTop).toBe(180); expect(screen.queryByText('Veraltet')).toBeNull(); expect(read).toHaveBeenCalledTimes(3);
 });
 it('hidden view cancels its waiting request and rechecks on return', async () => {
   const read = vi.fn(async (path: string) => path.startsWith('/api/freshness') ? { ...backlog([]), data: { unchanged: true } } : backlog([pointer('run-a', 'My undertaking')])) as ReadTransport;

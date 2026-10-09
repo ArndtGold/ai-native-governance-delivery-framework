@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
 import { startControlServer, evidencePath } from './server-fixture.mjs';
 
-test('SCN-084/085/092/093/094/095/100: real visible UR titles, reversed order, scope replacement and unchanged sources in light/dark', async ({page}) => {
+test('SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR details, reversed order, scope replacement and unchanged sources in light/dark', async ({page}) => {
   const f=fixture();
   const rows=Array.from({length:40},(_,i)=>{
     const key=i===39?'fixture-a':'stored-'+i;
@@ -20,39 +20,43 @@ test('SCN-084/085/092/093/094/095/100: real visible UR titles, reversed order, s
   page.on('response',async r=>{if(new URL(r.url()).pathname==='/api/backlog-titles')bodies.push(await r.json());});
   try {
     await page.setViewportSize({width:800,height:750}); await page.goto(service.startupURL);
-    await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Technischer Backlog 39',exact:true})).toBeVisible();
     await expect(page.getByRole('button',{name:'Aktiv 40'})).toBeVisible();
-    expect(await page.locator('.undertaking-list li h3').first().textContent()).toBe('Verständliches Vorhaben 39');
+    expect(await page.locator('.undertaking-list li h3').first().textContent()).toBe('Technischer Backlog 39');
+    await expect(page.getByText('UR: Verständliches Vorhaben 39',{exact:true})).toBeAttached();
     expect(batches.flat().length).toBeLessThan(12); expect(maxActive).toBe(1);
     expect(bodies.every(b=>b.data.file_count<=batches[bodies.indexOf(b)].length+1)).toBe(true);
     await expect(page.getByRole('button',{name:'Technischer Backlog 0',exact:true})).toBeAttached();
     await expect(page.locator('.row-source[open]')).toHaveCount(0);
     await expect(page.locator('.undertaking-list li').first().getByText('Gespeicherter Stand laut Backlog: In progress', {exact:true})).toBeVisible();
-    await expect(page.locator('.undertaking-list li').first().getByText('Beobachtete UR-Überschrift', {exact:true})).not.toBeVisible();
+    await expect(page.locator('.undertaking-list li').first().getByText('UR: Verständliches Vorhaben 39', {exact:true})).not.toBeVisible();
     await page.locator('.undertaking-list li').first().getByText('Gespeicherte Angaben und Quellen', {exact:true}).click();
-    await expect(page.locator('.undertaking-list li').first().getByText('Beobachtete UR-Überschrift', {exact:true})).toBeVisible();
+    await expect(page.locator('.undertaking-list li').first().getByText('UR: Verständliches Vorhaben 39', {exact:true})).toBeVisible();
     await page.locator('.undertaking-list li').first().getByText('Gespeicherte Angaben und Quellen', {exact:true}).click();
     for(const theme of ['light','dark']) {
       await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
       await expect(page.locator('.backlog-overview')).toHaveCSS('background-color',theme==='light'?'rgb(252, 252, 252)':'rgb(15, 23, 42)');
       await expect(page.getByRole('button',{name:'Geplant 0'})).toHaveCSS('background-color',theme==='light'?'rgb(246, 246, 246)':'rgb(15, 23, 42)');
-      await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toHaveCSS('color',theme==='light'?'rgb(60, 62, 64)':'rgb(153, 246, 228)');
+      await expect(page.getByRole('button',{name:'Technischer Backlog 39',exact:true})).toHaveCSS('color',theme==='light'?'rgb(60, 62, 64)':'rgb(153, 246, 228)');
       await page.screenshot({path:evidencePath(`agdf-backlog-ur-titles-${theme}-22.png`),fullPage:false});
     }
     await page.getByRole('searchbox').fill('Verständliches Vorhaben 39');
+    await expect(page.locator('.undertaking-list li')).toHaveCount(0);
+    await page.getByRole('searchbox').fill('Technischer Backlog 39');
     await expect(page.locator('.undertaking-list li')).toHaveCount(1);
-    await page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true}).focus();
+    await page.getByRole('button',{name:'Technischer Backlog 39',exact:true}).focus();
     await page.waitForTimeout(200);
-    await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toBeFocused();
-    await page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Technischer Backlog 39',exact:true})).toBeFocused();
+    await page.getByRole('button',{name:'Technischer Backlog 39',exact:true}).click();
     await expect(page.locator('.page-title h1')).toHaveText('Verständliches Vorhaben 39');
     await page.getByRole('button',{name:'Alle Vorhaben',exact:true}).first().click();
-    await expect(page.getByRole('searchbox')).toHaveValue('Verständliches Vorhaben 39');
-    await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toBeFocused();
+    await expect(page.getByRole('searchbox')).toHaveValue('Technischer Backlog 39');
+    await expect(page.getByRole('button',{name:'Technischer Backlog 39',exact:true})).toBeFocused();
     await page.getByRole('searchbox').fill('');
-    await expect(page.getByRole('button',{name:'Verständliches Vorhaben 39',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Technischer Backlog 39',exact:true})).toBeVisible();
     await page.getByRole('button',{name:'Technischer Backlog 0',exact:true}).scrollIntoViewIfNeeded();
-    await expect(page.getByRole('button',{name:'Verständliches Vorhaben 0',exact:true})).toBeVisible();
+    await page.locator('.undertaking-list li').last().getByText('Gespeicherte Angaben und Quellen',{exact:true}).click();
+    await expect(page.locator('.undertaking-list li').last().getByText('UR: Verständliches Vorhaben 0',{exact:true})).toBeVisible();
     expect(maxActive).toBe(1); expect(batches.every(ids=>ids.length>=1&&ids.length<=12)).toBe(true);
   } finally { await service.close(); expect(treeBytes(f.root)).toEqual(before);f.close(); }
 });

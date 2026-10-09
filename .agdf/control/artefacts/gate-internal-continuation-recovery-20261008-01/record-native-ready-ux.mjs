@@ -1,0 +1,13 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {upsertTableRow} from '../../../../packages/core/lib/control-state/run-state-edits.js';
+const root='/private/tmp/agdf-gate-qualification-414UKY/missing-ux',run='native-missing-ux',expected='9cdb0a48-8952-46bd-bd9e-6f4c92477f01';
+const prefix=`.agdf/control/artefacts/${run}/`,state=`${root}/.agdf/control/runs/${run}/RUN_STATE.md`;
+const before=readFileSync(state,'utf8');if(!before.includes(`- revision_id: ${expected}\n`))throw Error('Changed fixture revision');
+const analysis=readFileSync(root+'/'+prefix+'UX_INTENT_DEFINITION.md','utf8');
+if((analysis.match(/^- decision: ready$/gm)||[]).length!==1)throw Error('Exact unique readiness field absent');
+writeFileSync(state,upsertTableRow(before,'Artefacts',0,'UX Intent Definition',['UX Intent Definition',prefix+'UX_INTENT_DEFINITION.md','done','Ready from explicit synthetic scenario; actual UI unclaimed']));
+const r=spawnSync(process.execPath,['/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-0ad3b168da8e/runtime/agdf-local.js','run-update','--dir',root,'--run',run,'--revision',expected,'--json'],{encoding:'utf8'});
+writeFileSync('.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/NATIVE_READY_UX_RECORDING-01.json',r.stdout);
+if(r.status!==0)throw Error(r.stdout+r.stderr);
+console.log(r.stdout);

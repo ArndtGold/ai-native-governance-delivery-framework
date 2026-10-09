@@ -37,7 +37,7 @@ function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck)
   const text = artefactPresentation?.markdown;
   if (report.status !== "open" && report.blocking_reason && report.blocking_reason !== "none") {
     const error = new Error(report.blocking_reason);
-    error.recovery = report.next_allowed_action;
+    error.recovery = [report.next_allowed_action, ...(report.prd_readiness?.open_decisions ?? [])].filter(Boolean).join("\n\n");
     throw error;
   }
   if (report.status === "open" && report.current_gate === gate && report.missing_approval === `Approval: ${gate}`

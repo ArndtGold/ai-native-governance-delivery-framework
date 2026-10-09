@@ -1,0 +1,89 @@
+{
+  "thread_id": "01a11d02-cb5a-7a82-89ea-d6129505fcfa",
+  "turn_id": "01a11d0f-ce33-7ad1-87e7-64f531061171",
+  "case": "qa-invalid",
+  "actual_dispatch": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "control_result",
+    "terminal": true,
+    "authorizes": false,
+    "skill": {
+      "skill_id": "gate-check",
+      "dispatch_mode": "deterministic_control",
+      "deterministic_command": "gate-check",
+      "requires_control_snapshot": true,
+      "contract_version": 1
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "31cdf187b33826ea9bb70cfb12f477c522c836a598a0acc8b1fdb8d350c66002",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/tmp/agdf-independent-observations-YnLVr8/qa-invalid",
+      "evidence_sources": [],
+      "working_directory": "/private/tmp/agdf-independent-observations-YnLVr8/qa-invalid",
+      "governance_target": "/private/tmp/agdf-independent-observations-YnLVr8/qa-invalid",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "QA",
+      "gate_route": {
+        "gate": "QA",
+        "skills": [
+          "qa-gate"
+        ]
+      },
+      "blocking_reason": "qa_revise_required",
+      "missing_approval": "none",
+      "next_operation": null,
+      "next_allowed_action": "Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report.",
+      "run_id": "independent-qa-invalid",
+      "revision_id": "eb4c7ed5-60a2-432d-838f-e0239fec7b8f",
+      "doctor_status": "warn",
+      "candidate_runs": []
+    },
+    "presentation": {
+      "schema_version": "1",
+      "semantic_block": "run_status_card",
+      "run_id": "independent-qa-invalid",
+      "revision_id": "eb4c7ed5-60a2-432d-838f-e0239fec7b8f",
+      "current_gate": "QA",
+      "presentation_language": "de",
+      "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgew\u00e4hlter Run | Synthetic QA current obligation \u00b7 `independent-qa-invalid` |\n| Pfad | \u2713 UR \u00b7 \u2713 PRD \u00b7 \u2713 SD \u00b7 \u2713 TP \u00b7 \u25cf QA \u00b7 \u25cb UAT |\n| Status | offen |\n| Aktuelles Gate | Qualit\u00e4tssicherung (`QA`) |\n| Jetzt erlaubt | die blockierenden QA-Befunde an ihren zust\u00e4ndigen Owner leiten<br>die n\u00e4chste erlaubte Behebung oder vorgelagerte Entscheidung erfassen |\n| Aktuell verboten | die QA-Freigabe anfordern<br>die UAT-Freigabe anfordern<br>ver\u00f6ffentlichen<br>Lieferbereitschaft behaupten<br>Code implementieren |\n| QA-Nacharbeit | Invalid or contradictory normalized finding: QA/F-001. (Originalwortlaut) |\n| N\u00e4chster erlaubter Agentenschritt | Kl\u00e4re QA-Revise-Befunde beim zust\u00e4ndigen Verantwortlichen vor abh\u00e4ngiger Arbeit. Aus Revise keine Approval: QA anfordern. |\n| Fehlende Freigabe | keine |",
+      "authorizes": false
+    },
+    "continuation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "transmit_presentation_verbatim_and_stop",
+      "source": "presentation.markdown",
+      "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgew\u00e4hlter Run | Synthetic QA current obligation \u00b7 `independent-qa-invalid` |\n| Pfad | \u2713 UR \u00b7 \u2713 PRD \u00b7 \u2713 SD \u00b7 \u2713 TP \u00b7 \u25cf QA \u00b7 \u25cb UAT |\n| Status | offen |\n| Aktuelles Gate | Qualit\u00e4tssicherung (`QA`) |\n| Jetzt erlaubt | die blockierenden QA-Befunde an ihren zust\u00e4ndigen Owner leiten<br>die n\u00e4chste erlaubte Behebung oder vorgelagerte Entscheidung erfassen |\n| Aktuell verboten | die QA-Freigabe anfordern<br>die UAT-Freigabe anfordern<br>ver\u00f6ffentlichen<br>Lieferbereitschaft behaupten<br>Code implementieren |\n| QA-Nacharbeit | Invalid or contradictory normalized finding: QA/F-001. (Originalwortlaut) |\n| N\u00e4chster erlaubter Agentenschritt | Kl\u00e4re QA-Revise-Befunde beim zust\u00e4ndigen Verantwortlichen vor abh\u00e4ngiger Arbeit. Aus Revise keine Approval: QA anfordern. |\n| Fehlende Freigabe | keine |",
+      "allow_surrounding_text": false,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 7.333,
+      "target_ms": 1.543,
+      "control_ms": 134.356,
+      "render_ms": 10.085,
+      "total_ms": 154.112
+    },
+    "diagnostics": []
+  },
+  "actual_final_text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgew\u00e4hlter Run | Synthetic QA current obligation \u00b7 `independent-qa-invalid` |\n| Pfad | \u2713 UR \u00b7 \u2713 PRD \u00b7 \u2713 SD \u00b7 \u2713 TP \u00b7 \u25cf QA \u00b7 \u25cb UAT |\n| Status | offen |\n| Aktuelles Gate | Qualit\u00e4tssicherung (`QA`) |\n| Jetzt erlaubt | die blockierenden QA-Befunde an ihren zust\u00e4ndigen Owner leiten<br>die n\u00e4chste erlaubte Behebung oder vorgelagerte Entscheidung erfassen |\n| Aktuell verboten | die QA-Freigabe anfordern<br>die UAT-Freigabe anfordern<br>ver\u00f6ffentlichen<br>Lieferbereitschaft behaupten<br>Code implementieren |\n| QA-Nacharbeit | Invalid or contradictory normalized finding: QA/F-001. (Originalwortlaut) |\n| N\u00e4chster erlaubter Agentenschritt | Kl\u00e4re QA-Revise-Befunde beim zust\u00e4ndigen Verantwortlichen vor abh\u00e4ngiger Arbeit. Aus Revise keine Approval: QA anfordern. |\n| Fehlende Freigabe | keine |",
+  "exact_host_text_equal": true,
+  "later_tool_calls": [],
+  "source": "Actual named local Codex response_items, inspected after completed isolated test turn"
+}

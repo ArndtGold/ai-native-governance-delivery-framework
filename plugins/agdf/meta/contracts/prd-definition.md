@@ -44,13 +44,19 @@ to its existing revision owner before a changed product draft can be presented.
 
 Gate-check alone evaluates readiness. Permission to finish clarification under
 AGDF_PRD_DECISIONS_OPEN does not remove the blocker or permit approval. Missing required UX input
-and unrelated integrity/source blockers are not clarification permission.
+and unrelated integrity/source blockers are not PRD clarification permission. Use the interaction
+contract Bounded internal recovery route for eligible UX preparation; do not author PRD first.
 
 ## Explicit revision and recording
 
 Before recording, use the continuation's resolved language and summary fields with
 gate-artifact-preparation's Language and approval summary preparation. A translated summary
 must be part of the draft before presentation, not deferred until a renderer failure.
+Use the shared canonical summary validator and separate recognized goal, scope and decisions
+labels. A required malformed summary is an unready authoring input, not a missing user choice.
+On an eligible own unapproved formatting diagnosis, correct once, validate and replace through
+the same typed writer, then reevaluate without a restart question. An unchanged failure stops;
+this does not permit editing a ready or approved draft without its existing authority.
 
 For a registered ready unapproved draft, require an actual human drafting/revision request;
 loading or selecting this skill is insufficient. The shared explicit route is gate-check with

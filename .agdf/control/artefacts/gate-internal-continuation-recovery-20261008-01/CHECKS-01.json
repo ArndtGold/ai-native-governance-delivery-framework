@@ -1,0 +1,133 @@
+{
+  "observed_at": "2026-10-08 18:27:47 UTC",
+  "node_executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+  "checks": [
+    {
+      "id": "C002",
+      "command": "packages/cli/scripts/prd-definition-test.js",
+      "exit_code": 0,
+      "log": "check-C002.log"
+    },
+    {
+      "id": "C003",
+      "command": "packages/cli/scripts/sd-definition-test.js",
+      "exit_code": 0,
+      "log": "check-C003.log"
+    },
+    {
+      "id": "C004",
+      "command": "packages/cli/scripts/skill-dispatch-function-contract-test.js",
+      "exit_code": 0,
+      "log": "check-C004.log"
+    },
+    {
+      "id": "C005",
+      "command": "packages/cli/scripts/skill-dispatch-binding-test.js",
+      "exit_code": 0,
+      "log": "check-C005.log"
+    },
+    {
+      "id": "C006",
+      "command": "packages/cli/scripts/skill-dispatch-test.js",
+      "exit_code": 0,
+      "log": "check-C006.log"
+    },
+    {
+      "id": "C007",
+      "command": "packages/cli/scripts/cli-gate-scenarios-test.js --case qa-follow-up",
+      "exit_code": 0,
+      "log": "check-C007.log"
+    },
+    {
+      "id": "C008",
+      "command": "packages/core/test/interaction-presentation-test.js",
+      "exit_code": 0,
+      "log": "check-C008.log"
+    },
+    {
+      "id": "C009",
+      "command": "packages/cli/scripts/operational-localization-test.js",
+      "exit_code": 0,
+      "log": "check-C009.log"
+    },
+    {
+      "id": "C010",
+      "command": "packages/cli/scripts/interaction-catalog-test.js",
+      "exit_code": 0,
+      "log": "check-C010.log"
+    },
+    {
+      "id": "C011",
+      "command": "packages/cli/scripts/control-inspect-test.js",
+      "exit_code": 0,
+      "log": "check-C011.log"
+    },
+    {
+      "id": "C012",
+      "command": "packages/cli/scripts/late-source-revision-test.js",
+      "exit_code": 0,
+      "log": "check-C012.log"
+    },
+    {
+      "id": "C013",
+      "command": "packages/core/test/control-state-test.js",
+      "exit_code": 0,
+      "log": "check-C013.log"
+    },
+    {
+      "id": "C014",
+      "command": "packages/core/test/next-action-test.js",
+      "exit_code": 0,
+      "log": "check-C014.log"
+    },
+    {
+      "id": "C016",
+      "command": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "exit_code": 0,
+      "log": "check-C016.log"
+    },
+    {
+      "id": "BUILD",
+      "command": "scripts/assemble-npm.mjs",
+      "exit_code": 0,
+      "log": "check-BUILD.log"
+    },
+    {
+      "id": "BASELINE",
+      "command": ".agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/compare-baseline.mjs",
+      "exit_code": 0,
+      "log": "check-BASELINE.log"
+    },
+    {
+      "id": "C001",
+      "command": "scripts/sync-package-assets.js",
+      "exit_code": 0,
+      "log": "check-C001.log"
+    },
+    {
+      "id": "C015",
+      "command": "packages/cli/scripts/instruction-footprint-test.js",
+      "exit_code": 0,
+      "log": "check-C015.log"
+    },
+    {
+      "id": "C017",
+      "command": "packages/cli/scripts/package-contents-test.js",
+      "exit_code": 0,
+      "log": "check-C017.log"
+    },
+    {
+      "id": "C018",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log": "check-C018.log"
+    },
+    {
+      "id": "C019",
+      "command": "packages/core/test/control-read-provider-test.js",
+      "exit_code": 0,
+      "log": "check-C019.log"
+    }
+  ],
+  "evidence_limit": "Completion statuses observed from tool results. Exact per-test start/end timings were not collected. Unaffected checks retained for unchanged inputs; affected QA/read-provider/build/contents/prepared fixture probes rerun for final candidate. C007 all existing cases passed before last QA-only changes; final affected QA case rerun."
+}

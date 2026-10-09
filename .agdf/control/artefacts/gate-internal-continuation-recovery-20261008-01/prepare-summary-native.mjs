@@ -1,0 +1,21 @@
+// Isolated synthetic setup; these receipts never authorize production work.
+import {cpSync,mkdirSync,mkdtempSync,readFileSync,writeFileSync,appendFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {join} from 'node:path';
+import {createPrdDefinitionTestRun,syntheticPrd} from '../../../../packages/cli/scripts/fixtures/prd-definition.js';
+const repo=process.cwd(),out=join(repo,'.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01');
+const candidate=JSON.parse(readFileSync(join(out,'SUMMARY_CANDIDATE-01.json')));
+const bundle=mkdtempSync('/private/tmp/agdf-summary-native-'),plugin=join(bundle,'plugins/agdf'),root=join(bundle,'case');
+cpSync(candidate.plugin_root,plugin,{recursive:true});
+mkdirSync(join(bundle,'.agents/plugins'),{recursive:true});
+cpSync(join(repo,'packages/cli/generated/.agents/plugins/marketplace.json'),join(bundle,'.agents/plugins/marketplace.json'));
+mkdirSync(root);execFileSync('git',['init','-q',root]);
+execFileSync(process.execPath,[join(repo,'packages/cli/bin/create-agdf.js'),'init','--dir',root,'--language','en']);
+const validator=join(plugin,'runtime/agdf-local.js'),env={...process.env,PLUGIN_ROOT:plugin,AGDF_SURFACE:'codex'};delete env.AGDF_RUN_ID;
+const f=createPrdDefinitionTestRun(root,validator,'native-summary-recovery',env);
+const bad=syntheticPrd().replace('- Ziel:','- Ziel und Umfang:').replace('- Entscheidungen:','- Entscheidungskontext:');
+writeFileSync(f.file('PRD.md'),bad);const recorded=f.record();if(recorded.code!==0)throw Error(recorded.text);
+const manifest={at:new Date().toISOString(),target:root,run_id:f.runId,revision_id:f.revision(),prefix:f.prefix,candidate,validator,lane:'explicit isolated saved-filter scenario and synthetic setup receipts; no production authority',setup_commands:f.log};
+writeFileSync(join(out,'SUMMARY_NATIVE_FIXTURE-01.json'),JSON.stringify(manifest,null,2)+'\n');
+appendFileSync(join(out,'QUALIFICATION_PLAN-02.md'),`\nPrepared exact native case: ${root}, run ${f.runId}, revision ${f.revision()}. One personal named saved filter, no sharing or permission change. Existing helper supplies complete resolved product scope and explicit no-UX synthetic route; no missing product choice is supplied by the implementation. Registered own PRD has combined goal label and unrecognized decisions label. Native steps use de presentation, preserve substantive body and approved UR, validate one editorial correction, record through typed owner, then stop at pending presentation.\n`);
+console.log(JSON.stringify({target:root,run:f.runId,revision:f.revision()}));

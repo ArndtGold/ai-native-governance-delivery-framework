@@ -1,0 +1,45 @@
+{
+  "observed_at": "2026-10-09T12:37:15.179Z",
+  "authorization": "ja: local install and subsequent native Cockpit verification",
+  "standard_npm_command": {
+    "command": "npm run install:codex",
+    "outcome": "failed_verification",
+    "cause": "execFileSync default output buffer; native codex plugin list returns status 0 but 1051978 captured stdout bytes cause ENOBUFS"
+  },
+  "executed_installation": {
+    "owner": "packages/cli/scripts/install-local-plugin.js installLocalPlugin",
+    "surface": "codex",
+    "same_pipeline": true,
+    "max_output_bytes": 16777216,
+    "output_result": "success",
+    "plugin_verification": "healthy",
+    "plugin_mcp": "prepared",
+    "activation": "pending_restart",
+    "repository_control": "compatible",
+    "control_mutation": "none"
+  },
+  "verification": {
+    "status": "healthy",
+    "surface": "codex",
+    "version": "0.14.5+codex.local-fa21bc1cf681",
+    "expected_version": "0.14.5",
+    "evidence": [
+      "codex plugin list",
+      "canonical_version:0.14.5",
+      "local_install_version:0.14.5+codex.local-fa21bc1cf681"
+    ]
+  },
+  "pluginRoot": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+  "provenance": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-fa21bc1cf681",
+    "source_digest": "fa21bc1cf68173d4cdc8693b8ff3e7111d39090d16bc428d71d7d007d7b93263",
+    "runtime_digest": "74e73af8871aa506963163f9d10e192e9e4ec12577d0dedb3bff6d9c4005cc69"
+  },
+  "native_rendering_verified": false,
+  "authorizes": false
+}

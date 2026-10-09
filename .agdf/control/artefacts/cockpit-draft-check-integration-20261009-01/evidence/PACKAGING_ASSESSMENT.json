@@ -1,0 +1,31 @@
+{
+  "run_id": "cockpit-draft-check-integration-20261009-01",
+  "before": {
+    "files": 215,
+    "bytes": 1792849
+  },
+  "after": {
+    "files": 215,
+    "bytes": 1794066
+  },
+  "growth_bytes": 1217,
+  "source_changes": [
+    {
+      "source": "packages/mcp-server/README.md",
+      "before_bytes": 3546,
+      "after_bytes": 4816,
+      "delta_bytes": 1270
+    },
+    {
+      "source": "packages/core/lib/control-inspect/artifact-readiness.js",
+      "before_bytes": 7325,
+      "after_bytes": 7272,
+      "delta_bytes": -53
+    }
+  ],
+  "no_speculative_headroom": true,
+  "ui_included": false,
+  "review": "Exact included runtime delta: MCP server README +1270 bytes and shared authoring extraction -53 bytes, net +1217. Cockpit-specific modules, private UI and dependencies remain excluded. No cap discrepancy or speculative headroom.",
+  "incremental_source_bytes": 1217,
+  "preexisting_cap_difference_bytes": 0
+}

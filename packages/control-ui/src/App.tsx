@@ -13,6 +13,8 @@ import { RefreshControl } from './RefreshControl';
 import { useCardVisibility } from './useCardVisibility';
 import { documentName } from './presentation';
 import { Icon } from './mcp/Icon';
+import { useDraftCheck } from './useDraftCheck';
+import { DraftCheck } from './DraftCheck';
 import { ContextPanel } from './ContextPanel';
 import type { HandoffController } from './mcp/handoff';
 import { createBacklogTitleStore, type TitleLoader } from './useBacklogTitles';
@@ -27,6 +29,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const [titleEpoch, setTitleEpoch] = useState(0);
   const titleStore = useRef(createBacklogTitleStore());
   const titlePending = useRef<AbortController | null>(null), freshnessPending = useRef<AbortController | null>(null);
+  const draftPending = useRef<AbortController | null>(null);
   const workspace = useRef<HTMLDivElement>(null);
   const [wideReader, setWideReader] = useState(true);
   useLayoutEffect(() => {
@@ -65,18 +68,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   }, [compact, backlogView.section]);
   const read = useRef(transport ?? createApi(secret)).current;
   const initialRoute = useRef<Route>(initialRunId ? { view: 'detail', runId: initialRunId } : { view: 'overview' }).current;
-  const navigate = useCallback(async (requested: Route, reload = false, background = false) => {
-    if (hasExpiredSession(live.current)) return;
-    void handoff?.invalidate();
-    // A cancelled title response may already have replaced the server capture.
-    // Start a named capture instead of sending selectors from the previous one.
-    const replacingTitles = !!titlePending.current;
-    titlePending.current?.abort(); freshnessPending.current?.abort();
-    if (reload || live.current.stale) { titleStore.current.cache.clear(); titleStore.current.attempted.clear(); setTitleEpoch(value => value + 1); }
-    if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
-    pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
-    const generation = ++sequence.current;
-    if (background) {
+  const capturePosition = (generation: number) => {
       const root = workspace.current ?? heading.current?.closest('.compact-cockpit');
       const elements = root ? [root, ...root.querySelectorAll('*')] : [];
       for (let parent = root?.parentElement; parent; parent = parent.parentElement) elements.push(parent);
@@ -86,7 +78,20 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         scroll: elements.filter(e => e.scrollTop || e.scrollLeft).map(element => ({ element, top: element.scrollTop, left: element.scrollLeft })),
         x: window.scrollX, y: window.scrollY, focus,
         ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
-    } else readingPosition.current = null;
+  };
+  const navigate = useCallback(async (requested: Route, reload = false, background = false) => {
+    if (hasExpiredSession(live.current)) return;
+    draftPending.current?.abort();
+    void handoff?.invalidate();
+    // A cancelled title response may already have replaced the server capture.
+    // Start a named capture instead of sending selectors from the previous one.
+    const replacingTitles = !!titlePending.current;
+    titlePending.current?.abort(); freshnessPending.current?.abort();
+    if (reload || live.current.stale) { titleStore.current.cache.clear(); titleStore.current.attempted.clear(); setTitleEpoch(value => value + 1); }
+    if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
+    pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
+    const generation = ++sequence.current;
+    if (background) capturePosition(generation); else readingPosition.current = null;
     focusAfterRead.current = !background;
     dispatch({ type: 'begin', generation, route: requested, background });
     try {
@@ -140,6 +145,16 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
     } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
   }, [read, handoff]);
+  const draftAction = useDraftCheck({ live, read, visible: cardVisible, pending: draftPending, handoff,
+    before: () => { freshnessPending.current?.abort(); titlePending.current?.abort(); },
+    commit: (scope, original) => {
+      if (!scope.data || scope.data.kind !== 'run' || !scope.data.run || !original.scope?.snapshot_id) return;
+      capturePosition(original.generation); focusAfterRead.current = false;
+      const action = { type: 'draft-check' as const, generation: original.generation, snapshot: original.scope.snapshot_id,
+        scope, detail: { ...scope, data: scope.data.run } as Envelope<Detail> };
+      live.current = readingReducer(live.current, action); dispatch(action);
+    },
+  });
   const loadTitles = useCallback<TitleLoader>(async (ids, signal) => {
     const current = live.current, scope = current.scope;
     if (current.phase !== 'ready' || current.stale || current.route.view !== 'overview' || scope?.data?.kind !== 'backlog' || !scope.snapshot_id) return null;
@@ -156,7 +171,8 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       if (result.data.kind !== 'backlog' || result.data.content_digest !== scope.data.content_digest) throw Error('source_changed');
       const fields = ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'priority', 'stored_next_step', 'source_links', 'current_spec', 'selectable'] as const;
       const originalRows = scope.data.entries;
-      if (result.data.entries.length !== originalRows.length || result.data.entries.some((row, index) => fields.some(field => row[field] !== originalRows[index][field]))) throw Error('dto_invalid');
+      if (result.data.entries.length !== originalRows.length || result.data.entries.some((row, index) => fields.some(field => row[field] !== originalRows[index][field])
+        || JSON.stringify(row.saved_summary) !== JSON.stringify(originalRows[index].saved_summary))) throw Error('dto_invalid');
       live.current = { ...live.current, inventory: result, scope: result };
       dispatch({ type: 'titles', generation, inventory: result });
       return result;
@@ -205,14 +221,14 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       if (parent instanceof HTMLDetailsElement) parent.open = true;
     }
     (control ?? fallback ?? heading.current)?.focus();
-  }, [state.phase, state.route, state.refreshing, state.generation]);
+  }, [state.phase, state.route, state.refreshing, state.generation, state.scope]);
   useEffect(() => {
     const justShown = cardVisible && !wasCardVisible.current; wasCardVisible.current = cardVisible;
     const snapshot = state.scope?.snapshot_id;
-    if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible) return;
+    if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible || draftAction.busy) return;
     let checking = false; const controller = new AbortController();
     const check = async () => {
-      if (document.hidden || checking || titlePending.current) return; checking = true;
+      if (document.hidden || checking || titlePending.current || draftPending.current) return; checking = true;
       const generation = sequence.current;
       try {
         const request = new AbortController(); freshnessPending.current = request;
@@ -253,7 +269,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (justShown) void check();
     void listen();
     return () => { window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
-  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff]);
+  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff, draftAction.busy]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
   const open = (resource: Resource, origin = resource.resource_id) => {
     documentOrigin.current = origin;
@@ -293,16 +309,16 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
       {(state.phase === 'error' || state.scope?.retryable && !state.scope.data) && enabled && !expired && <button className="retry" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
       <div className={`reading-results${state.phase === 'loading' ? ' previous-content' : ''}`} aria-busy={state.phase === 'loading'}>
         {state.inventory?.data && state.route.view === 'overview' && <Overview key={titleEpoch} result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setBacklogView} loadTitles={loadTitles} titleStore={titleStore.current} resetTitles={state.stale} titlesEnabled={state.phase === 'ready' && !state.stale && cardVisible} onSelect={id => void navigate({ view: 'detail', runId: id })}/>}
-        {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
+        {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftCheck={<DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
       {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} onScope={value => {
-        if (renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
+        if (draftPending.current || state.scope?.snapshot_id !== live.current.scope?.snapshot_id || renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
         const parent = { ...value, data: value.data.run } as Envelope<Detail>;
         const doc = value.data.document ? { ...value, data: value.data.document } as Envelope<DocumentData> : null;
         dispatch({ type: 'ready', generation: sequence.current, route: { ...live.current.route, resourceId: doc?.data?.resource.resource_id }, scope: value, inventory: null, detail: parent, document: doc });
-      }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready'} handoff={handoff}/>}
+      }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready' || draftAction.busy} handoff={handoff}/>}
   </>;
-  if (compact) return <CompactCockpit state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
+  if (compact) return <CompactCockpit draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
     onSelect={id => void navigate({ view: 'detail', runId: id })}
     view={backlogView} onViewChange={setBacklogView} returnNotice={backlogReturnNotice}
     onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview}

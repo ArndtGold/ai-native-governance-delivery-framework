@@ -1,9 +1,18 @@
 import type { Envelope } from './types';
 import { hasConsistentBacklogCounts } from '../../core/lib/control-inspect/cockpit-list.js';
+import { validBacklogSummary, validWorkSummary } from '../../core/lib/control-state/backlog-summary-shape.js';
 const states = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const text = (v: unknown) => typeof v === 'string';
 const nullableText = (v: unknown) => v === null || text(v);
+const savedSummary = (v: unknown, key: unknown, section: unknown) => object(v)
+  && ['recorded', 'unverified', 'invalid'].includes(String(v.provenance_state)) && nullableText(v.code)
+  && nullableText(v.label_de) && text(v.limitation_de) && v.authorizes === false
+  && (v.provenance_state === 'recorded' ? validBacklogSummary(v.record)
+    && object(v.record) && v.record.run_id === key && v.record.section === section
+    && new TextEncoder().encode(JSON.stringify(v.record)).length <= 65536 : v.record === null);
+const workSummary = (v: unknown, runId: string) => object(v) && validWorkSummary(v, runId)
+  && new TextEncoder().encode(JSON.stringify(v)).length <= 65536;
 const titleObservation = (v: unknown) => object(v) && ['available', 'unavailable'].includes(String(v.state))
   && ['code', 'path', 'heading', 'title', 'content_digest'].every(k => nullableText(v[k]))
   && text(v.observed_as_of) && text(v.backlog_digest)
@@ -12,6 +21,29 @@ const titleObservation = (v: unknown) => object(v) && ['available', 'unavailable
     && /^[a-f0-9]{64}$/.test(String(v.content_digest)));
 const resources = (v: unknown) => Array.isArray(v) && v.every(r => object(r) && text(r.resource_id) && text(r.run_id) && text(r.type) && text(r.registered_reference) && nullableText(r.path) && text(r.status));
 const diagnostics = (v: unknown) => Array.isArray(v) && v.every(d => object(d) && text(d.code) && ['message', 'path', 'next_step', 'severity', 'section'].every(k => d[k] === undefined || text(d[k])) && (d.key === undefined || nullableText(d.key)));
+const sha = (v: unknown) => typeof v === 'string' && /^sha256:[a-f0-9]{64}$/.test(v);
+const uuid = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(v);
+export function validDraftCheck(v: unknown, runId: string, revision: unknown): boolean {
+  if (!object(v) || !object(v.source) || !object(v.display)) return false;
+  const s = v.source, d = v.display, r = v.result;
+  const supported = ['UR', 'PRD', 'SD', 'TP'].includes(String(s.gate));
+  if (s.run_id !== runId || !uuid(s.revision_id) || s.revision_id !== revision || !text(s.gate)
+    || typeof s.available !== 'boolean' || !nullableText(s.reason)
+    || s.artifact_path !== (supported ? `.agdf/control/artefacts/${runId}/${s.gate}.md` : null)
+    || !(s.artifact_digest === null || sha(s.artifact_digest))
+    || s.available && (!supported || !sha(s.artifact_digest) || s.reason !== null)
+    || !['unchecked', 'passed', 'corrections_required', 'unavailable'].includes(String(d.state))
+    || !nullableText(d.reason) || !['check', 'authoring', 'reload'].includes(String(d.recovery))) return false;
+  if (r === null) return d.state === (s.available ? 'unchecked' : 'unavailable');
+  return s.available && object(r) && r.run_id === runId && r.gate === s.gate && r.expected_revision_id === revision && r.revision_id === revision
+    && r.artifact_path === s.artifact_path && (r.artifact_digest === s.artifact_digest || r.artifact_digest === null && d.state === 'unavailable')
+    && typeof r.ready === 'boolean' && r.readiness_scope === 'authoring_checks' && r.authorizes === false
+    && r.semantic_review_required === true && r.registration_required === true && r.presentation_required === true
+    && Array.isArray(r.checks) && r.checks.every(c => object(c) && text(c.name) && typeof c.ready === 'boolean')
+    && Array.isArray(r.diagnostics) && diagnostics(r.diagnostics) && text(r.next_action) && (r.readiness_details === undefined || object(r.readiness_details))
+    && (r.ready ? d.state === 'passed' && r.artifact_digest === s.artifact_digest && r.diagnostics.length === 0 && r.checks.length > 0 && r.checks.every(c => c.ready)
+      : ['corrections_required', 'unavailable'].includes(String(d.state)) && r.diagnostics.length > 0);
+}
 export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 64 && v.every(r => object(r)
   && ['resource_id', 'run_id', 'origin', 'path'].every(k => text(r[k]))
   && ['node_id', 'graph_digest', 'content_digest', 'content', 'code'].every(k => nullableText(r[k]))
@@ -20,7 +52,12 @@ export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 6
 const detailData = (data: unknown, allowInvalid = false): boolean => {
   if (!object(data) || !text(data.run_id) || !nullableText(data.revision_id) || !nullableText(data.lifecycle)
     || !Array.isArray(data.resources) || !resources(data.resources) || data.resources.some((r: unknown) => !object(r) || r.run_id !== data.run_id)
-    || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)) return false;
+    || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)
+    || data.work_summary !== undefined && data.work_summary !== null && !workSummary(data.work_summary, data.run_id)
+    || data.draft_check !== undefined && !validDraftCheck(data.draft_check, data.run_id, data.revision_id)
+    || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
+      && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
+      && text(data.backlog_comparison.reason) && nullableText(data.backlog_comparison.saved_revision_id) && data.backlog_comparison.authorizes === false)) return false;
   if (data.evaluation === undefined) return allowInvalid && diagnostics(data.diagnostics);
   const e = data.evaluation, p = data.persisted;
   return object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
@@ -45,6 +82,8 @@ export function validateData(path: string, value: Envelope<unknown>) {
         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
+        && (r.saved_summary === undefined || savedSummary(r.saved_summary, r.key, r.section)
+          && object(r.saved_summary) && (r.saved_summary.record === null || object(r.saved_summary.record) && r.saved_summary.record.target_id === value.target.target_id))
         && (r.title_observation === undefined || titleObservation(r.title_observation)
           && object(r.title_observation) && r.title_observation.backlog_digest === data.content_digest))
         && diagnostics(data.diagnostics) && text(data.source_path) && text(data.content_digest) && object(data.counts)
@@ -76,6 +115,13 @@ export function validateData(path: string, value: Envelope<unknown>) {
     }
   }
   if (!valid) throw Error('dto_invalid');
+  if (path.startsWith('/api/draft-check/') && value.state === 'available') {
+    const url = new URL(path, 'https://local.invalid');
+    if (!object(data) || !object(data.run) || !object(data.run.draft_check) || !object(data.run.draft_check.source)
+      || data.kind !== 'run' || data.run.run_id !== url.pathname.slice(17)
+      || data.run.draft_check.result === null || data.run.draft_check.source.gate !== url.searchParams.get('gate')
+      || data.run.revision_id !== url.searchParams.get('expected_revision')) throw Error('dto_invalid');
+  }
 }
 export function validateEnvelope(value: unknown, expected?: { target: string; snapshot: string; replacement?: boolean }): asserts value is Envelope<unknown> {
   if (!object(value) || value.schema_version !== '1' || !object(value.target)

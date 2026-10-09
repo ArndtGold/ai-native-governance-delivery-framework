@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import type { Envelope, Detail, Resource } from './types';
 import { WorkStep } from './WorkStep';
 import { ReadState, label } from './feedback';
-import { documentName, documentPurpose } from './presentation';
-export function RunDetail({ result, onOpen, summaryOnly = false, current = true }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean }) {
+import { documentName, documentPurpose, reportFindingsLabel } from './presentation';
+export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode }) {
   const data = result.data, e = data?.evaluation, p = data?.persisted;
   return <>
     {result.code && <ReadState code={result.code} state={result.state}/>}
@@ -10,6 +11,15 @@ export function RunDetail({ result, onOpen, summaryOnly = false, current = true 
     {!summaryOnly && <><div className="context-line"><code>{data?.run_id}</code><span>{label(data?.lifecycle)}</span></div>
       {data?.objective && <p className="objective">{data.objective}</p>}</>}
     {data && <WorkStep data={data} onOpen={onOpen} condensed={summaryOnly} current={current && result.state === 'available' && !(e && p && (p.current_gate !== e.current_gate || p.next_allowed_action !== e.next_allowed_action))}/>}
+    {draftCheck}
+    {data?.work_summary && <section className="work-summary panel agdf-surface" aria-label="Offene Aufgabe"><h2>{data.work_summary.phase} · Offene Aufgabe und nächster Schritt</h2>
+      <p>{data.work_summary.display_action}</p>{data.work_summary.open_obligation_count > 0 && <p>{reportFindingsLabel(data.work_summary.open_obligation_count)} in den registrierten Berichten.</p>}
+      {!!data.work_summary.limitations.length && <p className="muted">Quellenbezug eingeschränkt: {data.work_summary.limitations.join(' · ')}</p>}
+    </section>}
+    {data?.backlog_comparison && <p className="muted" role="status">{data.backlog_comparison.state === 'matching'
+      ? 'Backlog-Beobachtung stimmt mit dieser Run-Revision und ihren Quellen überein.' : data.backlog_comparison.state === 'different'
+        ? 'Die gespeicherte Backlog-Beobachtung weicht vom aktuell gelesenen Run ab. Eine gezielte Synchronisierung ist erforderlich.'
+        : 'Gespeicherte Backlog-Beobachtung und aktueller Run können nicht verlässlich verglichen werden.'}</p>}
     {summaryOnly && <details className="run-goal"><summary>Ziel und Run-ID · Originalangaben</summary><code>{data?.run_id}</code><p className="objective">{data?.objective || 'Kein Zieltext verfügbar.'}</p></details>}
     {!summaryOnly && e && <details className="control-details"><summary>Kontrollstatus und Quellen</summary><div className="detail-columns"><section className="panel agdf-surface"><div className="eyebrow">Bestehende Core-Auswertung</div><h2>{current ? 'Aktueller Kontrollstatus' : 'Zuletzt beobachteter Kontrollstatus'}</h2><dl className="status-fields">
       <dt>Gate</dt><dd>{e.current_gate}</dd><dt>Auswertung</dt><dd>{label(e.status)}</dd><dt>Blocker</dt><dd>{label(e.blocking_reason)}</dd><dt>Fehlende Freigabe</dt><dd>{label(e.missing_approval)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd></dl>

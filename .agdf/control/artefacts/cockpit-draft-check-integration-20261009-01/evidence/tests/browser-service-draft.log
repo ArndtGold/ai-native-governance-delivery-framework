@@ -1,0 +1,25 @@
+TAP version 13
+# Subtest: SCN-008/010: authenticated exact-query draft route uses actual Core and does not write
+not ok 1 - SCN-008/010: authenticated exact-query draft route uses actual Core and does not write
+  ---
+  duration_ms: 856.927861
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/draft-service.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1229.876339

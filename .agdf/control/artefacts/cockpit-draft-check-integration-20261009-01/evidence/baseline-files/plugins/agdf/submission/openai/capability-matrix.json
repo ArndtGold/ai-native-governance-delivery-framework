@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "releaseVersion": "0.14.5",
+  "evidenceStates": [
+    "common",
+    "codex-specific",
+    "chatgpt-specific",
+    "advisory",
+    "unavailable",
+    "unverified"
+  ],
+  "capabilities": [
+    {
+      "id": "proportional-fit",
+      "state": "common",
+      "description": "Assess whether AGDF is proportionate and recommend the lightest safe path.",
+      "evidenceClass": "repository",
+      "evidenceRef": "skills/gate-check/SKILL.md"
+    },
+    {
+      "id": "governed-repository-delivery",
+      "state": "codex-specific",
+      "description": "Use repository files, durable control state and local validation where the Codex host grants the required access.",
+      "evidenceClass": "unverified",
+      "evidenceRef": "PPD-L02"
+    },
+    {
+      "id": "codex-hooks",
+      "state": "codex-specific",
+      "description": "Lifecycle hooks are a Codex-specific enhancement and remain host-trust-dependent.",
+      "evidenceClass": "unverified",
+      "evidenceRef": "PPD-L02"
+    },
+    {
+      "id": "chatgpt-portable-skills",
+      "state": "advisory",
+      "description": "Fit assessment, explanation, planning and review use skills whose checked bundle satisfies AGDF's reviewed core-format profile and resolves declared shared resources within the plugin; standalone installation and host behavior remain unverified.",
+      "evidenceClass": "unverified",
+      "evidenceRef": "PPD-L03"
+    },
+    {
+      "id": "automatic-runtime-checks",
+      "state": "unavailable",
+      "description": "The public Skills-only profile contains no runtime or hooks. Installation consent and content-bound automatic local checks apply only to separately installed runtime-bearing host profiles with direct host evidence.",
+      "evidenceClass": "bundle",
+      "evidenceRef": "candidate inventory"
+    },
+    {
+      "id": "agdf-mcp-service",
+      "state": "unavailable",
+      "description": "The initial release provides no AGDF-operated MCP server, hosted account or service authentication.",
+      "evidenceClass": "bundle",
+      "evidenceRef": "candidate inventory"
+    }
+  ]
+}

@@ -11,6 +11,11 @@ import { localePack, resolveHumanRunTitle } from '../interaction-presentation.js
 import { interactionLocales } from '../resources/context.js';
 import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
 import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.js';
+import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
+import { runSealState } from '../control-state/run-seal.js';
+import { canonicalJson } from '../control-state/approval-command-contract.js';
+import { ARTIFACT_READINESS_GATES, projectArtifactReadiness } from './artifact-readiness.js';
+import { artefactFileDigest } from '../control-state/run-seal.js';
 
 const CONTROL = '.agdf/control/';
 const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
@@ -98,7 +103,22 @@ export function createCockpitReader(root, options = {}) {
     const resources = manifest(run.run_id, state);
     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
+    const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
+    const savedRows = projectCockpitBacklog(root).data?.entries.filter(row => row.key === run.run_id) ?? [];
+    const saved = savedRows.length === 1 ? savedRows[0].saved_summary?.record : null;
+    let comparison = 'unavailable', comparison_reason = 'saved_observation_unverified';
+    if (outside.length) comparison_reason = 'evaluation_out_of_scope';
+    else if (runSealState(root, run.content).status !== 'valid') comparison_reason = 'run_source_unconfirmed';
+    else if (work_summary?.limitations.length) comparison_reason = 'summary_source_unconfirmed';
+    else if (saved && work_summary) {
+      const keys = ['kind', 'phase', 'qa_outcome', 'lifecycle', 'recorded_approvals', 'decisive_obligation',
+        'open_obligation_count', 'display_action', 'sources', 'limitations', 'authorizes'];
+      comparison = saved.revision_id === run.meta.revision_id && keys.every(key => canonicalJson(saved[key]) === canonicalJson(work_summary[key])) ? 'matching' : 'different';
+      comparison_reason = comparison === 'matching' ? 'same_revision_and_sources' : 'saved_observation_differs';
+    }
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
+      work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
+        saved_revision_id: saved?.revision_id ?? null, authorizes: false },
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       objective: objective(run.content), title: resolveHumanRunTitle({
         urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
@@ -106,7 +126,24 @@ export function createCockpitReader(root, options = {}) {
       }),
       evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
-      context_graph: { refs: state.context_graph.refs }, resources };
+      context_graph: { refs: state.context_graph.refs }, resources,
+      draft_check: draftDescriptor(run, state, report) };
+  }
+  function draftDescriptor(run, state, report) {
+    const gate = report?.current_gate ?? state.current_gate;
+    const source = { run_id: run.run_id, gate, revision_id: run.meta.revision_id,
+      artifact_path: ARTIFACT_READINESS_GATES.includes(gate) ? `.agdf/control/artefacts/${run.run_id}/${gate}.md` : null,
+      artifact_digest: null, available: false, reason: 'artifact_gate_invalid' };
+    if (!source.artifact_path) return { source, result: null, display: { state: 'unavailable', reason: source.reason, recovery: 'authoring' } };
+    // An optional denied source is observed but never traversed. Absence is a real dependency.
+    const file = view.readOptionalFileSync(join(root, source.artifact_path), READ_LIMITS.file);
+    source.reason = file.code ?? (run.meta.lifecycle !== 'active' ? 'artifact_run_inactive'
+      : state.approvals.get(gate)?.status === 'approved' ? 'artifact_already_approved'
+      : state.artefacts.get(gate)?.path && state.artefacts.get(gate).path !== source.artifact_path ? 'artifact_path_conflict'
+      : !report ? 'evaluation_out_of_scope' : runSealState(root, run.content).status !== 'valid' ? 'artifact_run_integrity' : null);
+    if (file.bytes) source.artifact_digest = artefactFileDigest(root, source.artifact_path);
+    source.available = source.reason === null;
+    return { source, result: null, display: { state: source.available ? 'unchecked' : 'unavailable', reason: source.reason, recovery: source.available ? 'check' : 'authoring' } };
   }
   function assertSnapshot(id) {
     if (!view || id !== view.snapshot_id) fail('resource_denied');
@@ -208,6 +245,24 @@ export function createCockpitReader(root, options = {}) {
       assertSnapshot(id);
       const wasInspected = details.get(runId)?.state === 'available';
       return replaceScope(() => reopenRun(runId, wasInspected));
+    },
+    artifactReadiness(runId, id, gate, revision) {
+      const previous = details.get(runId)?.data?.draft_check?.source;
+      if (!previous || !previous.available || previous.gate !== gate || previous.revision_id !== revision) fail('resource_denied');
+      assertSnapshot(id);
+      return replaceScope(() => {
+        const selected = selectedRun(runId);
+        const current = selected.data?.run?.draft_check?.source;
+        if (!current?.available || current.gate !== gate || current.revision_id !== revision
+          || current.artifact_digest !== previous.artifact_digest || current.artifact_path !== previous.artifact_path) fail('source_changed');
+        const result = projectArtifactReadiness(root, { runId, gate, expectedRevisionId: revision, presentationLanguage: 'de' });
+        if (result.revision_id !== revision || result.artifact_digest && result.artifact_digest !== current.artifact_digest) fail('source_changed');
+        const contentOnly = result.diagnostics.every(row => ['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability'].some(name => row.code.startsWith(name)));
+        const display = { state: result.ready ? 'passed' : contentOnly ? 'corrections_required' : 'unavailable',
+          reason: result.diagnostics[0]?.code ?? null, recovery: result.ready ? 'authoring' : contentOnly ? 'authoring' : 'reload' };
+        selected.data.run.draft_check = { source: current, result, display };
+        return selected;
+      });
     },
     backlogTitles(rowIds, id) {
       if (!Array.isArray(rowIds) || !rowIds.length || rowIds.length > 12 || new Set(rowIds).size !== rowIds.length

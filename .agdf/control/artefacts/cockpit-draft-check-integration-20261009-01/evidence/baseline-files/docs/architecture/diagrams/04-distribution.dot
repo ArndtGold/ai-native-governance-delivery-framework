@@ -1,0 +1,48 @@
+digraph distribution {
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.6, fontname="Helvetica", label="04  /  LIEFERPFADE FÜR PLUGIN UND MCP", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.19,0.13", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
+
+  source [label="Kanonische Repository-Quellen", fillcolor="#FFF2CF", color="#BF9840"];
+
+  plugin_payload [label="Erzeugtes Plugin-Payload\nSkills · Verträge · Hooks\nClaude/Codex: zusätzlich mcp/"];
+  plugin_package [label="Host-Plugin oder Skill-Paket"];
+  plugin_install [label="Plugin-Installation\nHost-Registry · Cache · Aktivierung", fillcolor="#EEE9FF", color="#8270AE"];
+
+  plugin_mcp [label="Plugin-MCP (Claude Code, Codex)\nLauncher startet gebündelten Server", fillcolor="#E5F0FC", color="#5284AD"];
+  npm [label="npm-Registry\n@modelcontextprotocol/server@2.0.0", fillcolor="#F1F3F5", color="#7A8794"];
+  plugin_data [label="Hosteigenes Datenverzeichnis\nClaude: CLAUDE_PLUGIN_DATA · Codex: --data", fillcolor="#E5F0FC", color="#5284AD"];
+
+  mcp_package [label="@agdf/mcp-server\nSDK v2 · stdio"];
+  runtime [label="Gemeinsame exakte MCP-Laufzeit\nServer · Dispatcher · Herkunft", fillcolor="#E5F0FC", color="#5284AD"];
+  registration [label="Native MCP-Registrierung\nOpenCode", fillcolor="#EEE9FF", color="#8270AE"];
+
+  restart [label="Host vollständig neu starten"];
+  loaded [label="Frische geladene Sitzung\nSkills und/oder MCP-Werkzeug", fillcolor="#EEE9FF", color="#8270AE"];
+  observed [label="Direkte Host-Beobachtung\nIdentität · Discovery · Aufruf · Fehler · Cleanup", fillcolor="#E5F0FC", color="#5284AD"];
+  note [label="Claude Code, Codex und Copilot: Plugin-Installation aktiviert auch MCP;\nSDK-Bezug von npm bei Vorbereitung oder erstem Start.\nOpenCode: Plugin-Installation aktiviert MCP nicht,\nMCP-Registrierung installiert kein Plugin.\nErst die frische Sitzung zeigt geladenes Verhalten.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
+
+  source -> plugin_payload [label="generieren"];
+  plugin_payload -> plugin_package [label="packen"];
+  plugin_package -> plugin_install [label="installieren"];
+
+  plugin_install -> plugin_mcp [label="Claude/Codex"];
+  npm -> plugin_data [label="SDK einmalig\ninstallieren", style=dashed];
+  plugin_mcp -> plugin_data [label="vorbereiten oder\nerster Start"];
+
+  source -> mcp_package [label="bauen"];
+  mcp_package -> runtime [label="exakt vorbereiten"];
+  runtime -> registration [label="mcp enable"];
+
+  plugin_data -> restart;
+  plugin_install -> restart;
+  registration -> restart;
+  restart -> loaded;
+  loaded -> observed;
+  observed -> note [style=invis];
+
+  {rank=same; plugin_payload; mcp_package;}
+  {rank=same; plugin_package; runtime;}
+  {rank=same; plugin_install; registration;}
+  {rank=same; plugin_mcp; npm;}
+}

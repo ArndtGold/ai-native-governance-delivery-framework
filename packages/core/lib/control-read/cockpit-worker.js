@@ -14,6 +14,7 @@ parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
   try {
     const result = operation === 'snapshot' ? reader.snapshot(input?.run_id)
       : operation === 'run' ? reader.run(selector, snapshot)
+      : operation === 'artifact_readiness' ? reader.artifactReadiness(input.run_id, snapshot, input.gate, input.expected_revision_id)
       : operation === 'backlog_titles' ? reader.backlogTitles(input?.row_ids, snapshot)
       : operation === 'document' ? reader.document(selector, snapshot, input?.run_id)
       : operation === 'freshness' ? reader.freshness(snapshot)
@@ -22,7 +23,7 @@ parentPort.on('message', ({ id, operation, selector, snapshot, input }) => {
       : operation === 'validate_context' ? reader.validateContext(input.context_id, input.generation)
       : operation === 'invalidate_context' ? reader.invalidateContext()
       : (() => { throw Object.assign(Error('resource_denied'), { code: 'resource_denied' }); })();
-    if (result.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context'].includes(operation)) {
+    if (result.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context', 'artifact_readiness'].includes(operation)) {
       current = result.snapshot_id; changes.bind(reader.dependencies());
     }
     parentPort.postMessage({ id, result });

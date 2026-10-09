@@ -1,0 +1,1478 @@
+--- baseline/docs/architecture/06-agdf-cockpit.md
++++ current/docs/architecture/06-agdf-cockpit.md
+@@ -90,7 +90,8 @@
+ Es gibt keinen zweiten identischen Öffnen-Button pro Zeile.
+ 
+ Die Chat-Vorschau zeigt höchstens drei Treffer ohne internen Scrollbereich. Titel und gespeicherter
+-Stand bleiben sichtbar; der vollständige nächste Schritt steht in den aufklappbaren Quellenangaben.
++Stand, Phase/offene Aufgabe, vollständiger nächster Schritt und Einschränkung bleiben direkt sichtbar
++und umbrechen ohne Zeilenbegrenzung. Originalangaben und Quellen sind zusätzlich aufklappbar.
+ „Alle Vorhaben öffnen“ vergrößert die Ansicht unter Beibehaltung der Suche. Hinweise zur Lesbarkeit
+ beziehen sich hier auf den aktiven Bereich; ein Fehler in Geplant oder Archiv erzeugt keine
+ pauschale Warnung über den aktiven Bestand. Die große Übersicht zeigt alle Treffer in einem eigenen, per Tastatur bedienbaren Scrollbereich.
+@@ -115,7 +116,8 @@
+ Gesucht wird unabhängig von Großschreibung nach getrimmter Zeichenfolge getrennt in Originaltitel,
+ Schlüssel und gespeichertem Status. UR-Überschriften verändern weder primären Titel noch Treffer.
+ Bekannte Scope-Präfixe entfallen nur in der Anzeige. Gemeinsame passive Zeilen umbrechen Titel und
+-zeigen Originalangaben, Herkunft und vollständigen nächsten Schritt aufklappbar. Bereich, Treffer
++zeigen den vollständigen nächsten Schritt und Quellenbeschränkungen direkt. Originalangaben und
++Herkunft bleiben zusätzlich aufklappbar. Bereich, Treffer
+ und kompakter Ausschnitt haben getrennte Zähler. Teilbestände behaupten keine vollständigen
+ Nulltreffer; nicht verfügbare Bereiche besitzen keine numerische Anzahl.
+ 
+@@ -151,7 +153,7 @@
+ 
+ Die regulären Core-Schreibwege (`run-approve`, `control approve`, `run-update`,
+ `run-step` einschließlich Nachweiserfassung sowie PRD-Wiederöffnung) führen Status und
+-nächsten Schritt des zugeordneten aktiven Backlog-Eintrags aus derselben Run-Policy nach.
++nächsten Schritt des zugeordneten aktiven Backlog-Eintrags aus der gemeinsamen Core-Zusammenfassung nach.
+ Run- und Backlog-Sperre werden in dieser Reihenfolge gehalten. Bei Änderungen beider Dateien
+ ist die versiegelte Run-Revision der Commit-Punkt; das vorhandene Transaktionsjournal hält
+ den Backlog-Schritt nachholbar. Die Wiederholung einer Freigabe schließt zunächst eine
+@@ -169,8 +171,8 @@
+ Backlog-Journal teilen.
+ 
+ Ein ausdrückliches `run-update` kann einen veralteten Backlog-Zeiger eines gültig versiegelten
+-Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert nur
+-Status und nächsten Schritt der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
++Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert
++Status, nächsten Schritt und Prüfvermerk der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
+ und andere Vorhaben bleiben erhalten. Kompakte und bestehende ältere 13-spaltige Tabellen werden
+ bei dieser Zeigerkorrektur unterstützt; veraltete Revisionen und ausstehende fremde
+ Transaktionen verhindern den Schreibzugriff.
+@@ -182,6 +184,76 @@
+ Andere nicht unterstützte Layouts lehnt `run-step` weiterhin mit `backlog_layout_unsupported` ab.
+ Dies ist keine Migration historischer Einträge und verschiebt keine Vorhaben ins Archiv.
+ Direkte Dateiänderungen außerhalb der Core-Writer umgehen weiterhin deren Schreibvertrag.
++
++
++### Arbeitsstand, Quellen und Aktualisierung
++
++`control-evaluation/run-work-summary.js` verfeinert die bestehende Run-Policy und den
++Next-Action-Owner ausschließlich für die Beschreibung. QA-Follow-up validiert dieselben
++registrierten Berichte und normalisierten Findings wie bisher; seine Berechtigungsprüfung
++bleibt unverändert. React und HTTP/MCP werten keine Gates oder Findings selbst aus.
++
++| Gespeicherte Bedeutung | Aussage und Folge |
++|---|---|
++| Phase work pending / Awaiting PRD, SD, TP | Arbeit in der benannten Phase; der Prüfvermerk unterscheidet Entwurf und offene menschliche Freigabe. |
++| QA report pending | Der einschlägige QA-Bericht fehlt noch. |
++| QA evidence open | QA verlangt konkrete Nachweise und danach erneute QA. |
++| QA correction open | QA verlangt eine Korrektur innerhalb der freigegebenen Umsetzung und danach erneute QA. |
++| QA source decision required | Zuerst muss der benannte vorgelagerte Owner entscheiden; mehrere Findings folgen der bestehenden restriktiven Route. |
++| QA blocked / Source unconfirmed | Blockiert oder Bericht/Quellenbezug nicht verlässlich; keine positive Qualitätsaussage. |
++| Awaiting QA / Awaiting UAT / Awaiting OR | QA-pass, menschliche Freigabe, UAT und formaler Abschluss bleiben getrennt. |
++| Completed | Der ausdrücklich abgeschlossene Lifecycle; ein vorhandener QA-Bericht allein reicht nicht. |
++
++Eine Tabellenzeile bleibt sieben- beziehungsweise dreizehnspaltig. Ihr privater Prüfvermerk steht
++als eigene Kommentarzeile **nach** der zusammenhängenden Markdown-Tabelle, mit Leerzeile davor:
++`<!-- agdf-backlog-summary-v1 BASE64 -->`. BASE64 ist Standard-Base64 von kanonischem UTF-8-JSON.
++Version 1 enthält genau `schema_version`, `target_id`, `run_id`, `section`, `row_digest`,
++`revision_id`, `observed_at`, `kind`, `phase`, `qa_outcome`, `lifecycle`, `recorded_approvals`,
++`decisive_obligation`, `open_obligation_count`, `display_action`, `sources`, `limitations`
++und `authorizes: false`. Die optionale entscheidende Aufgabe enthält `id`, `routing_target`,
++`action`, `source_path`; jede Quelle enthält `path`, `digest`, `state: available`.
++
++`control-state/backlog-summary-shape.js` besitzt die gemeinsame reine Formprüfung für Core und
++UI; `backlog-summary.js` besitzt Kodierung und Zeilenbindung. Der Row-Digest umfasst Bereich
++und tatsächlich serialisierte Zellen. Target, Run, resultierende Revision, Beobachtungszeit und
++beobachtete run-lokale Quelldigests bleiben prüfbar. Der Vermerk ist keine kryptografische
++Beglaubigung, Freigabe oder Behauptung aktueller Vollständigkeit. Grenzen: 64 KiB JSON pro
++Vermerk, 64 Quellen/offene Aufgaben, 256 KiB je Reviewquelle und 2 MiB Backlog. Zu große
++Zusammenfassungen werden ausdrücklich eingeschränkt; entscheidende Aktionen werden nicht
++still gekürzt. Ungültige/mehrdeutige/fremde Vermerke erhalten die ursprüngliche Zeile mit
++sichtbarer Einschränkung. Alte Zeilen bleiben lesbar und unbestätigt; es gibt keine Migration.
++Ein nicht zuordenbarer beschädigter Kommentar wird nicht durch einen Writer gelöscht.
++
++Normale Writer wählen die tatsächliche neue Run-Revision einmal vor der Planung. Zeile und
++Prüfvermerk bilden einen gemeinsamen Backlog-Schritt im bestehenden Journal; die versiegelte
++Run-Revision bleibt Commit-Punkt. Bereits konsumierte QA-/Reviewquellen werden vor Commit
++gegen ihre Digests geprüft. Recovery übernimmt die erfassten Journalbytes, statt spätere
++Quellen mit einem älteren Run zu mischen. Identisches gezieltes Nachführen eines unveränderten
++Runs erhält Revision, Beobachtungszeit und sämtliche Dateibytes; eine echte neue Revision
++aktualisiert den Vermerk auch bei identischem sichtbarem Wortlaut.
++
++Relationship Correction und Run Recovery behalten ihre eigenen Run-/Journal-Owner. Ihr
++Ergebnis meldet den ausstehenden Backlog-Abgleich und nennt ausdrücklich ein auf genau diesen
++Run und dessen aktuelle Revision gebundenes `run-update`. Ein solcher Sonderweg behauptet
++keinen bereits synchronisierten Backlog. Unsupported/ambiguous/path-invalid bleibt bei den
++bereits dokumentierten erlaubten Writer-Operationen ein begründetes `skipped`; die strikten
++run-step-Wege behalten ihre Fehlergrenzen. Historische Freigaben werden nicht wiederholt.
++
++Die Übersicht liest weiterhin ausschließlich den gespeicherten Backlog. `saved_summary` ist
++ein optionales DTO-Feld; alte DTOs bleiben gültig, vorhandene ungültige neue Felder werden
++abgewiesen. Quellen im Vermerk werden niemals als Dateiselektoren verfolgt. Erst bewusstes
++Öffnen des einzelnen Runs erfasst dessen aktuelle registrierte Quellen im selben unveränderlichen
++Read-Snapshot und liefert `work_summary` sowie `backlog_comparison`: `matching`, `different`
++oder `unavailable`. Übereinstimmung benötigt gültige Run-Versiegelung, eindeutigen gültigen
++Prüfvermerk, dieselbe Revision und dieselbe Quellen-/Arbeitsbeschreibung. Fehlende oder
++ungeprüfte Quellen erlauben keine positive Übereinstimmung. Lesen verändert weder Zeile noch
++Run; abweichende Beobachtungen verlangen bewussten Abgleich, keine automatische Freigabe.
++
++Browser-/Quellen-/Protokollprüfungen und native Hostbeobachtung sind getrennte Evidenz. Die
++Quellfassung vom 9. Oktober 2026 besitzt Browsernachweise; die noch offene native Beobachtung
++mit frischer Resource-/Runtime-/UI-Identität ist in
++`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/NATIVE_OBSERVATION.md`
++gebunden. Ein alter offener App-Stand qualifiziert diese neue Fassung nicht.
+ 
+ Jede gültige Anfrage verwirft den vorherigen Quelldatenstand und erfasst Backlog plus angefragte
+ URs erneut als unveränderliche Beobachtung. Die Backlog-Grundlage muss übereinstimmen; andernfalls
+--- baseline/packages/cli/package.json
++++ current/packages/cli/package.json
+@@ -41,7 +41,7 @@
+     "test:release-version-coherence": "node scripts/release-version-coherence-test.js",
+     "test:release-registry-state": "node scripts/release-registry-state-test.js",
+     "test:release-workflows": "node scripts/release-workflow-contract-test.js",
+-    "test:run-step-transaction": "node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js",
++    "test:run-step-transaction": "node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js && node ../core/test/backlog-work-summary-test.js && node ../core/test/backlog-summary-codec-test.js",
+     "test:run-recovery": "node scripts/run-recovery-test.js",
+     "test:control-command": "node scripts/control-command-test.js",
+     "test:control-command-process": "node scripts/control-command-process-test.js",
+--- baseline/packages/cli/scripts/cockpit-scoped-mcp-test.js
++++ current/packages/cli/scripts/cockpit-scoped-mcp-test.js
+@@ -4,10 +4,16 @@
+ import { withStdioClient } from '../../mcp-server/test/helpers.js';
+ import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
+ import { COCKPIT_UI_URI } from '../../core/lib/control-inspect/cockpit-contract.js';
++import { recordBacklogSummary } from '../../core/lib/control-state/backlog-summary.js';
++import { runWorkSummary } from '../../core/lib/control-evaluation/run-work-summary.js';
++import { parseRunState } from '../../core/lib/control-state/run-state-parser.js';
+ const preparation = JSON.parse(readFileSync(process.env.AGDF_COCKPIT_TEST_PREPARATION, 'utf8'));
+ for (const modern of [false, true]) {
+   const f = fixture();
+   writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), '# Master Backlog\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Stored fixture title | In progress | [UR](artefacts/fixture-a/UR.md) | [UR](artefacts/fixture-a/UR.md) | next |\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
++  const backlogPath = join(f.root, '.agdf/control/MASTER_BACKLOG.md'), runContent = readFileSync(f.runPath, 'utf8');
++  writeFileSync(backlogPath, recordBacklogSummary(f.root, readFileSync(backlogPath, 'utf8'), 'fixture-a', 'Active Backlog',
++    runWorkSummary(f.root, runContent, f.runPath), parseRunState(runContent).meta.revision_id));
+   const before = treeBytes(f.root);
+   try {
+     await withStdioClient({ modern, command: preparation.node, args: [preparation.entrypoint, '--surface', 'codex', '--cockpit-dir', f.root] }, async client => {
+@@ -20,6 +26,9 @@
+       const call = async (session_id, args) => (await client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } })).structuredContent;
+       const first = await call(a, { operation: 'snapshot', run_id: 'fixture-a' }); assert.equal(first.data.run.run_id, 'fixture-a');
+       let overview = await call(b, { operation: 'snapshot' }); assert.equal(overview.data.kind, 'backlog'); assert.equal(overview.data.file_count, 1);
++      assert.equal(overview.data.entries[0].saved_summary.provenance_state, 'recorded');
++      assert.equal(overview.data.entries[0].saved_summary.authorizes, false);
++      assert.equal(first.data.run.backlog_comparison.state, 'matching');
+       const titleBranch = tools.tools[1].inputSchema.oneOf.find(row => row.properties.operation.const === 'backlog_titles');
+       assert.equal(titleBranch.properties.row_ids.maxItems, 12); assert.equal(titleBranch.additionalProperties, false);
+       const row = overview.data.entries.find(row => row.source_links.includes('[UR]'));
+--- baseline/packages/cli/scripts/run-recovery-test.js
++++ current/packages/cli/scripts/run-recovery-test.js
+@@ -101,6 +101,8 @@
+ 
+   const result = applyRunRecovery(root, { runId, previewId: preview.preview_id, confirmation: preview.confirmation });
+   assert.equal(result.outcome, "recovered");
++  assert.equal(result.backlog, "pending"); assert.equal(result.backlog_reason, "run_only_recovery");
++  assert.ok(result.backlog_next_action.includes(`--run ${runId} --revision ${result.revision_id}`));
+   assert.equal(result.revision, "2");
+   assert.equal(result.seal_status, "valid");
+   assert.equal(result.next_gate, "UR");
+--- baseline/packages/control-ui/src/App.tsx
++++ current/packages/control-ui/src/App.tsx
+@@ -156,7 +156,8 @@
+       if (result.data.kind !== 'backlog' || result.data.content_digest !== scope.data.content_digest) throw Error('source_changed');
+       const fields = ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'priority', 'stored_next_step', 'source_links', 'current_spec', 'selectable'] as const;
+       const originalRows = scope.data.entries;
+-      if (result.data.entries.length !== originalRows.length || result.data.entries.some((row, index) => fields.some(field => row[field] !== originalRows[index][field]))) throw Error('dto_invalid');
++      if (result.data.entries.length !== originalRows.length || result.data.entries.some((row, index) => fields.some(field => row[field] !== originalRows[index][field])
++        || JSON.stringify(row.saved_summary) !== JSON.stringify(originalRows[index].saved_summary))) throw Error('dto_invalid');
+       live.current = { ...live.current, inventory: result, scope: result };
+       dispatch({ type: 'titles', generation, inventory: result });
+       return result;
+--- baseline/packages/control-ui/src/BacklogRows.tsx
++++ current/packages/control-ui/src/BacklogRows.tsx
+@@ -17,18 +17,28 @@
+     : list.query ? 'Keine gespeicherten Vorhaben für diese Suche.' : 'In diesem Bereich sind keine Vorhaben gespeichert.'}</p>;
+ }
+ // Presentation only: membership/order/identity/provenance are supplied by Core.
+-export function BacklogRow({ row, current, onSelect, observation, compact = false }: { row: CockpitListRow<BacklogEntry>; current: boolean; onSelect: (id: string) => void; observation?: TitleObservation; compact?: boolean }) {
++export function BacklogRow({ row, current, onSelect, observation }: { row: CockpitListRow<BacklogEntry>; current: boolean; onSelect: (id: string) => void; observation?: TitleObservation; compact?: boolean }) {
+   const r = row.entry, archived = r.section === 'Completed / Superseded Pointers';
++  const summary = r.saved_summary, record = summary?.record;
+   return <li data-backlog-row={row.identity}>
+     <h3><button className="run-link" disabled={!current || !row.selectable} data-focus-id={r.key} onClick={() => onSelect(r.key)}>{row.displayTitle}</button></h3>
+     <span className="status">Gespeicherter Stand laut Backlog: {r.stored_status || 'Nicht angegeben'}</span>
+-    {!compact && <p className="row-step">{archived ? 'Ergebnis laut Backlog' : 'Nächster Schritt laut Backlog'}: {r.stored_next_step || 'Nicht angegeben'}</p>}
++    {record && <p className="row-phase">{record.phase} · {summary?.label_de}{record.open_obligation_count > 1 && ` · ${record.open_obligation_count} offene Aufgaben`}</p>}
++    <p className="row-step">{archived ? 'Ergebnis laut Backlog' : 'Nächster Schritt laut Backlog'}: {record?.display_action || r.stored_next_step || 'Nicht angegeben'}</p>
++    <p className="muted row-limitation">{summary?.limitation_de ?? 'Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.'}</p>
+     {!row.selectable && <p className="muted">Dieser Eintrag ist nicht eindeutig zugeordnet und kann nicht geöffnet werden.</p>}
+     <details className="row-source"><summary>Gespeicherte Angaben und Quellen</summary>
+       <dl><dt>Titelherkunft</dt><dd>Gespeicherter Backlog-Titel</dd>
+         <dt>Originaltitel</dt><dd>{row.provenance.originalTitle}</dd><dt>Schlüssel</dt><dd><code>{r.original_key}</code></dd>
+         <dt>Backlog-Quelle</dt><dd><code>{row.provenance.path}</code></dd>
+         <dt>Backlog-Digest</dt><dd><code>{row.provenance.digest}</code></dd>
++        {record && <><dt>Gespeicherte Run-Revision</dt><dd><code>{record.revision_id}</code></dd>
++          <dt>Synchronisiert</dt><dd>{new Date(record.observed_at).toLocaleString('de-DE')}</dd>
++          {record.decisive_obligation && <><dt>Offene Aufgabe</dt><dd>{record.decisive_obligation.id} · {record.decisive_obligation.routing_target}</dd>
++            <dt>Originalaktion</dt><dd>{record.decisive_obligation.action}</dd></>}
++          <dt>Beobachtete Quellen</dt><dd>{record.sources.map(s => <p key={s.path}><code>{s.path}</code><br/><code>{s.digest}</code></p>)}</dd>
++          {!!record.limitations.length && <><dt>Einschränkungen</dt><dd>{record.limitations.join(' · ')}</dd></>}
++        </>}
+         {observation && <><dt>Ergänzende UR-Überschrift</dt><dd>{observation.heading ?? 'Nicht verfügbar'}{observation.code && <code> · {observation.code}</code>}</dd>
+           <dt>Beobachtet</dt><dd>{new Date(observation.observed_as_of).toLocaleString('de-DE')}</dd>
+           {observation.path && <><dt>UR-Quelle</dt><dd><code>{observation.path}</code></dd></>}
+--- baseline/packages/control-ui/src/RunDetail.tsx
++++ current/packages/control-ui/src/RunDetail.tsx
+@@ -10,6 +10,14 @@
+     {!summaryOnly && <><div className="context-line"><code>{data?.run_id}</code><span>{label(data?.lifecycle)}</span></div>
+       {data?.objective && <p className="objective">{data.objective}</p>}</>}
+     {data && <WorkStep data={data} onOpen={onOpen} condensed={summaryOnly} current={current && result.state === 'available' && !(e && p && (p.current_gate !== e.current_gate || p.next_allowed_action !== e.next_allowed_action))}/>}
++    {data?.work_summary && <section className="work-summary panel agdf-surface" aria-label="Offene Aufgabe"><h2>{data.work_summary.phase} · Offene Aufgabe und nächster Schritt</h2>
++      <p>{data.work_summary.display_action}</p>{data.work_summary.open_obligation_count > 1 && <p>{data.work_summary.open_obligation_count} offene Aufgaben in den registrierten Berichten.</p>}
++      {!!data.work_summary.limitations.length && <p className="muted">Quellenbezug eingeschränkt: {data.work_summary.limitations.join(' · ')}</p>}
++    </section>}
++    {data?.backlog_comparison && <p className="muted" role="status">{data.backlog_comparison.state === 'matching'
++      ? 'Backlog-Beobachtung stimmt mit dieser Run-Revision und ihren Quellen überein.' : data.backlog_comparison.state === 'different'
++        ? 'Die gespeicherte Backlog-Beobachtung weicht vom aktuell gelesenen Run ab. Eine gezielte Synchronisierung ist erforderlich.'
++        : 'Gespeicherte Backlog-Beobachtung und aktueller Run können nicht verlässlich verglichen werden.'}</p>}
+     {summaryOnly && <details className="run-goal"><summary>Ziel und Run-ID · Originalangaben</summary><code>{data?.run_id}</code><p className="objective">{data?.objective || 'Kein Zieltext verfügbar.'}</p></details>}
+     {!summaryOnly && e && <details className="control-details"><summary>Kontrollstatus und Quellen</summary><div className="detail-columns"><section className="panel agdf-surface"><div className="eyebrow">Bestehende Core-Auswertung</div><h2>{current ? 'Aktueller Kontrollstatus' : 'Zuletzt beobachteter Kontrollstatus'}</h2><dl className="status-fields">
+       <dt>Gate</dt><dd>{e.current_gate}</dd><dt>Auswertung</dt><dd>{label(e.status)}</dd><dt>Blocker</dt><dd>{label(e.blocking_reason)}</dd><dt>Fehlende Freigabe</dt><dd>{label(e.missing_approval)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd></dl>
+--- baseline/packages/control-ui/src/api.ts
++++ current/packages/control-ui/src/api.ts
+@@ -1,9 +1,18 @@
+ import type { Envelope } from './types';
+ import { hasConsistentBacklogCounts } from '../../core/lib/control-inspect/cockpit-list.js';
++import { validBacklogSummary, validWorkSummary } from '../../core/lib/control-state/backlog-summary-shape.js';
+ const states = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
+ const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+ const text = (v: unknown) => typeof v === 'string';
+ const nullableText = (v: unknown) => v === null || text(v);
++const savedSummary = (v: unknown, key: unknown, section: unknown) => object(v)
++  && ['recorded', 'unverified', 'invalid'].includes(String(v.provenance_state)) && nullableText(v.code)
++  && nullableText(v.label_de) && text(v.limitation_de) && v.authorizes === false
++  && (v.provenance_state === 'recorded' ? validBacklogSummary(v.record)
++    && object(v.record) && v.record.run_id === key && v.record.section === section
++    && new TextEncoder().encode(JSON.stringify(v.record)).length <= 65536 : v.record === null);
++const workSummary = (v: unknown, runId: string) => object(v) && validWorkSummary(v, runId)
++  && new TextEncoder().encode(JSON.stringify(v)).length <= 65536;
+ const titleObservation = (v: unknown) => object(v) && ['available', 'unavailable'].includes(String(v.state))
+   && ['code', 'path', 'heading', 'title', 'content_digest'].every(k => nullableText(v[k]))
+   && text(v.observed_as_of) && text(v.backlog_digest)
+@@ -20,7 +29,11 @@
+ const detailData = (data: unknown, allowInvalid = false): boolean => {
+   if (!object(data) || !text(data.run_id) || !nullableText(data.revision_id) || !nullableText(data.lifecycle)
+     || !Array.isArray(data.resources) || !resources(data.resources) || data.resources.some((r: unknown) => !object(r) || r.run_id !== data.run_id)
+-    || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)) return false;
++    || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)
++    || data.work_summary !== undefined && data.work_summary !== null && !workSummary(data.work_summary, data.run_id)
++    || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
++      && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
++      && text(data.backlog_comparison.reason) && nullableText(data.backlog_comparison.saved_revision_id) && data.backlog_comparison.authorizes === false)) return false;
+   if (data.evaluation === undefined) return allowInvalid && diagnostics(data.diagnostics);
+   const e = data.evaluation, p = data.persisted;
+   return object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
+@@ -45,6 +58,8 @@
+         && ['section', 'key', 'original_key', 'title', 'stored_status', 'scope', 'stored_next_step', 'source_links'].every(k => text(r[k]))
+         && nullableText(r.priority) && nullableText(r.current_spec) && typeof r.selectable === 'boolean'
+         && (r.row_id === undefined || text(r.row_id) && /^[a-f0-9-]{36}$/.test(r.row_id))
++        && (r.saved_summary === undefined || savedSummary(r.saved_summary, r.key, r.section)
++          && object(r.saved_summary) && (r.saved_summary.record === null || object(r.saved_summary.record) && r.saved_summary.record.target_id === value.target.target_id))
+         && (r.title_observation === undefined || titleObservation(r.title_observation)
+           && object(r.title_observation) && r.title_observation.backlog_digest === data.content_digest))
+         && diagnostics(data.diagnostics) && text(data.source_path) && text(data.content_digest) && object(data.counts)
+--- baseline/packages/control-ui/src/style.css
++++ current/packages/control-ui/src/style.css
+@@ -189,7 +189,7 @@
+ .undertaking-list > li { padding: var(--agdf-space-5) 0; border-top: 1px solid var(--cockpit-line); overflow-wrap: anywhere; }
+ .undertaking-list h3 { margin: 0 0 var(--agdf-space-2); }
+ .undertaking-list .run-link { min-height: 44px; min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+-.undertaking-list .row-step { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
++.undertaking-list .row-step, .row-phase, .row-limitation, .work-summary { display: block; overflow-wrap: anywhere; white-space: pre-wrap; }
+ .undertaking-list .row-source { border-bottom: 0; padding-bottom: 0; }
+ .undertaking-list summary { min-height: 44px; padding-block: var(--agdf-space-2); }
+ .undertaking-list dl { margin: var(--agdf-space-2) 0; }
+--- baseline/packages/control-ui/src/types.ts
++++ current/packages/control-ui/src/types.ts
+@@ -4,7 +4,15 @@
+ export interface Run { run_id: string; valid: boolean; lifecycle: string | null; revision_id: string | null; objective: string | null; title: string; source_path: string; status: string | null; current_gate: string | null; code: string | null;
+   attention?: { blocking_reason: string; missing_approval: string; missing_evidence_count: number } }
+ export interface BacklogEntry { section: string; key: string; original_key: string; title: string; stored_status: string; scope: string;
+-  priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string; title_observation?: TitleObservation }
++  priority: string | null; stored_next_step: string; source_links: string; current_spec: string | null; selectable: boolean; row_id?: string; title_observation?: TitleObservation; saved_summary?: SavedSummary }
++export interface WorkSummary { kind: string; phase: string; qa_outcome: string; lifecycle: string; recorded_approvals: string[];
++  decisive_obligation: null | { id: string; routing_target: string; action: string; source_path: string };
++  open_obligation_count: number; display_action: string; sources: { path: string; digest: string; state: string }[];
++  limitations: string[]; authorizes: false }
++export interface SummaryRecord extends WorkSummary { schema_version: 1; target_id: string; run_id: string; section: string;
++  row_digest: string; revision_id: string; observed_at: string }
++export interface SavedSummary { provenance_state: 'recorded' | 'unverified' | 'invalid'; code: string | null; record: SummaryRecord | null;
++  label_de: string | null; limitation_de: string; authorizes: false }
+ export interface TitleObservation { state: 'available' | 'unavailable'; code: string | null; path: string | null;
+   heading: string | null; title: string | null; content_digest: string | null; observed_as_of: string; backlog_digest: string }
+ export interface Inventory { kind: 'backlog'; entries: BacklogEntry[]; diagnostics: Diagnostic[]; source_path: string; content_digest: string;
+@@ -14,6 +22,7 @@
+   | { kind: 'context'; run: Detail; document: DocumentData | null; context: GraphData };
+ export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
+ export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
++  work_summary?: WorkSummary | null; backlog_comparison?: { state: 'matching' | 'different' | 'unavailable'; reason: string; saved_revision_id: string | null; authorizes: false };
+   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
+     control_assessment?: { state: 'open' | 'blocked' | 'unconfirmed' | 'completed'; authorizes: false };
+     diagnostics: Diagnostic[]; approvals: { gate: string; status: string; evidence: string }[]; missing_evidence: unknown[]; git_evidence: string };
+--- baseline/packages/control-ui/test/backlog-summary.test.tsx
++++ current/packages/control-ui/test/backlog-summary.test.tsx
+@@ -0,0 +1,48 @@
++import { afterEach, expect, it, vi } from 'vitest';
++import { cleanup, render, screen } from '@testing-library/react';
++import { BacklogRow } from '../src/BacklogRows';
++import { validateData } from '../src/api';
++import { projectCockpitList } from '../../core/lib/control-inspect/cockpit-list.js';
++import { backlog, pointer, runData, runScope } from './scoped-fixtures';
++import { RunDetail } from '../src/RunDetail';
++import type { SavedSummary } from '../src/types';
++const target = 'sha256:' + 'a'.repeat(64);
++const summary: SavedSummary = { provenance_state: 'recorded', code: null, label_de: 'QA-Nachweis offen',
++  limitation_de: 'Gespeicherte Beobachtung; aktueller Run noch nicht verglichen.', authorizes: false,
++  record: { schema_version: 1, target_id: target, run_id: 'run-a', section: 'Active Backlog', row_digest: 'sha256:' + 'b'.repeat(64),
++    revision_id: '11111111-1111-4111-8111-111111111111', observed_at: '2026-10-09T12:00:00Z', kind: 'qa_evidence_open', phase: 'QA',
++    qa_outcome: 'revise', lifecycle: 'active', recorded_approvals: ['UR', 'PRD', 'SD', 'TP'],
++    decisive_obligation: { id: 'QF-001', routing_target: 'evidence_obligation', action: 'Capture the full visible native observation sequence', source_path: '.agdf/control/artefacts/run-a/QA_REPORT.md' },
++    open_obligation_count: 2, display_action: 'Capture the full visible native observation sequence. Then rerun QA with refreshed evidence.',
++    sources: [{ path: '.agdf/control/artefacts/run-a/QA_REPORT.md', digest: 'sha256:' + 'c'.repeat(64), state: 'available' }], limitations: [], authorizes: false } };
++const entry = { ...pointer('run-a', 'Clear undertaking'), saved_summary: summary };
++const inventory = { ...backlog([entry]), target: { target_id: target, display_path: '/fixture' } };
++afterEach(cleanup);
++it.each([true, false])('concrete obligation, source limitation and next step are direct in compact=%s', compact => {
++  const row = projectCockpitList(inventory.data!).rows[0]; render(<ul><BacklogRow row={row} current onSelect={vi.fn()} compact={compact}/></ul>);
++  expect(screen.getByText('QA · QA-Nachweis offen · 2 offene Aufgaben').closest('details')).toBeNull();
++  expect(screen.getByText(/^Nächster Schritt laut Backlog: Capture the full/).closest('details')).toBeNull();
++  expect(screen.getByText(summary.limitation_de).closest('details')).toBeNull();
++  expect(screen.getByText('QF-001 · evidence_obligation').closest('details')?.open).toBe(false);
++  expect(screen.getByText('Stored next step')).toBeTruthy();
++});
++it('selected comparison and original concrete action are visible; malformed current summary is rejected', () => {
++  const data = { ...runData('run-a'), work_summary: summary.record!, backlog_comparison: { state: 'different' as const,
++    reason: 'saved_observation_differs', saved_revision_id: summary.record!.revision_id, authorizes: false as const } };
++  render(<RunDetail result={{ ...inventory, data }} onOpen={vi.fn()}/>);
++  expect(screen.getByText(/^Die gespeicherte Backlog-Beobachtung weicht/)).toBeTruthy();
++  expect(screen.getByText(summary.record!.display_action)).toBeTruthy();
++  expect(() => validateData('/api/runs/run-a', runScope(data))).not.toThrow();
++  for (const modified of [{ ...data.work_summary, qa_outcome: 'probably_pass' }, { ...data.work_summary, sources: [{ path: '.agdf/control/artefacts/foreign/QA.md', digest: 'sha256:' + 'c'.repeat(64), state: 'available' }] }]) {
++    expect(() => validateData('/api/runs/run-a', runScope({ ...data, work_summary: modified }))).toThrow('dto_invalid');
++  }
++});
++it('optional DTO is backwards compatible but malformed present provenance never reaches rendering', () => {
++  expect(() => validateData('/api/snapshot', backlog())).not.toThrow();
++  expect(() => validateData('/api/snapshot', inventory)).not.toThrow();
++  for (const invalid of [null, { ...summary, authorizes: true }, { ...summary, record: { ...summary.record!, schema_version: 2 } },
++    { ...summary, record: { ...summary.record!, run_id: 'foreign' } }, { ...summary, record: { ...summary.record!, target_id: 'sha256:' + '0'.repeat(64) } },
++    { ...summary, record: { ...summary.record!, sources: [{ path: '../../secret', digest: 'bad', state: 'available' }] } }]) {
++    expect(() => validateData('/api/snapshot', { ...inventory, data: { ...inventory.data!, entries: [{ ...entry, saved_summary: invalid }] } } as never)).toThrow('dto_invalid');
++  }
++});
+--- baseline/packages/control-ui/test/browser/backlog-summary.spec.mjs
++++ current/packages/control-ui/test/browser/backlog-summary.spec.mjs
+@@ -0,0 +1,41 @@
++import { test, expect } from '@playwright/test';
++import { readFileSync, writeFileSync } from 'node:fs';
++import { join } from 'node:path';
++import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
++import { runWorkSummary } from '../../../core/lib/control-evaluation/run-work-summary.js';
++import { recordBacklogSummary } from '../../../core/lib/control-state/backlog-summary.js';
++import { parseRunState } from '../../../core/lib/control-state/run-state-parser.js';
++import { startControlServer, evidencePath } from './server-fixture.mjs';
++
++test('saved action and evidence limitation wrap without clipping in compact and expanded views', async ({ page }) => {
++  const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
++  const action = 'Capture the complete current native observation, including a narrow view, visible source identity and the required keyboard sequence. '.repeat(4) + 'FINAL REQUIRED OBSERVATION';
++  let source = readFileSync(path, 'utf8').replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n| P1 | fixture-a | Saved evidence undertaking | QA evidence open | | | ' + action + ' |');
++  const run = readFileSync(f.runPath, 'utf8'), base = runWorkSummary(f.root, run, f.runPath);
++  source = recordBacklogSummary(f.root, source, 'fixture-a', 'Active Backlog', { ...base, kind: 'qa_evidence_open', phase: 'QA', display_action: action }, parseRunState(run).meta.revision_id);
++  writeFileSync(path, source); const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
++  try {
++    await page.addInitScript(({ secret, origin }) => { if (location.origin === origin) history.replaceState(null, '', location.pathname + '#' + secret); }, { secret: service.secret, origin: service.origin });
++    for (const route of ['/card.html', '/']) {
++      await page.goto(service.origin + route);
++      await expect(page.getByRole('button', { name: 'Saved evidence undertaking' })).toBeVisible();
++      await page.evaluate(() => document.fonts.ready);
++      for (const width of [390, 1000]) {
++        await page.setViewportSize({ width, height: 1000 });
++        const result = await page.locator('.undertaking-list .row-step').evaluate(e => {
++          const s = getComputedStyle(e), range = document.createRange(); range.selectNodeContents(e);
++          return { height: e.getBoundingClientRect().height, textHeight: range.getBoundingClientRect().height,
++            scrollHeight: e.scrollHeight, clientHeight: e.clientHeight, clamp: s.webkitLineClamp,
++            horizontalOverflow: document.documentElement.scrollWidth > innerWidth };
++        });
++        expect(result.clamp).toBe('none'); expect(result.height).toBeGreaterThanOrEqual(result.textHeight);
++        expect(result.scrollHeight).toBeLessThanOrEqual(result.clientHeight + 1); expect(result.horizontalOverflow).toBe(false);
++        await expect(page.getByText('Gespeicherte Beobachtung; aktueller Run noch nicht verglichen.')).toBeVisible();
++        expect(await page.locator('.undertaking-list .row-step').textContent()).toContain('FINAL REQUIRED OBSERVATION');
++        await page.screenshot({ path: evidencePath(`backlog-summary-${route.includes('card') ? 'compact' : 'expanded'}-${width}.png`), fullPage: true });
++      }
++      await page.locator('.row-source summary').focus(); await page.keyboard.press('Enter');
++      await expect(page.getByText('Gespeicherte Run-Revision')).toBeVisible();
++    }
++  } finally { await page.close(); await service.close(); expect(treeBytes(f.root)).toEqual(before); f.close(); }
++});
+--- baseline/packages/control-ui/test/browser/backlog.spec.mjs
++++ current/packages/control-ui/test/browser/backlog.spec.mjs
+@@ -139,7 +139,8 @@
+   expect(await page.locator('.undertaking-list h3').first().textContent()).toBe(title+' 7');
+   await expect(page.getByText('Gespeicherter Stand laut Backlog: Completed',{exact:true})).toBeVisible();
+   await expect(page.getByRole('combobox')).toHaveCount(0);await expect(page.getByRole('button',{name:'Beratung vorbereiten'})).toHaveCount(0);
+-  await expect(page.locator('.compact-controls .row-step')).toHaveCount(0);
++  await expect(page.locator('.compact-controls .row-step')).toHaveCount(3);
++  await expect(page.locator('.compact-controls .row-step').first()).toContainText('ENTSCHEIDENDER SCHLUSS');
+   await expect(page.locator('.compact-controls .undertaking-list')).toHaveCSS('overflow-y','visible');
+   await expect(page.locator('.compact-controls .undertaking-list')).toHaveCSS('max-height','none');
+   for(const theme of ['light','dark'])for(const width of [320,560,800,1280]){
+--- baseline/packages/control-ui/test/compact.test.tsx
++++ current/packages/control-ui/test/compact.test.tsx
+@@ -23,7 +23,7 @@
+   expect(document.querySelector('.compact-controls > p')?.textContent).toBe('fixture');
+   expect(screen.getByText('13 Einträge · 3 angezeigt')).toBeTruthy();
+   expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(3);
+-  expect(document.querySelector('.undertaking-list .row-step')).toBeNull();
++  expect(document.querySelector('.undertaking-list .row-step')?.textContent).toContain('Stored next step');
+   expect(document.querySelector('.row-source dd')?.closest('details')?.open).toBe(false);
+   fireEvent.change(screen.getByRole('searchbox',{name:'Vorhaben suchen'}),{target:{value:'other-7'}});
+   expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(screen.getByText('13 Einträge · 1 Treffer · 1 angezeigt')).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
+--- baseline/packages/control-ui/test/service.test.mjs
++++ current/packages/control-ui/test/service.test.mjs
+@@ -8,6 +8,9 @@
+ import { ReadWorkerPool } from '../server/pool.mjs';
+ import { fixture, treeBytes, symlinkOrSkip } from '../../core/test/control-cockpit-fixtures.js';
+ import { READ_LIMITS } from '../../core/lib/control-read/snapshot.js';
++import { recordBacklogSummary } from '../../core/lib/control-state/backlog-summary.js';
++import { runWorkSummary } from '../../core/lib/control-evaluation/run-work-summary.js';
++import { parseRunState } from '../../core/lib/control-state/run-state-parser.js';
+ 
+ function request(service, path, { headers = {}, method = 'GET' } = {}) {
+   return new Promise((resolve, reject) => {
+@@ -17,6 +20,22 @@
+     }); req.on('error', reject); req.end();
+   });
+ }
++test('saved work summary and explicit current comparison survive HTTP with one-file overview and no writes', async () => {
++  const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
++  const run = fs.readFileSync(f.runPath, 'utf8');
++  const backlog = fs.readFileSync(path, 'utf8').replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n| P1 | fixture-a | Stored undertaking | Needs UR | | | Read the requirement |');
++  fs.writeFileSync(path, recordBacklogSummary(f.root, backlog, 'fixture-a', 'Active Backlog', runWorkSummary(f.root, run, f.runPath), parseRunState(run).meta.revision_id));
++  const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
++  try {
++    const overview = (await request(service, '/api/snapshot')).body;
++    assert.equal(overview.data.file_count, 1); assert.equal(overview.data.entries[0].saved_summary.provenance_state, 'recorded');
++    assert.equal(overview.data.entries[0].saved_summary.authorizes, false);
++    const selected = (await request(service, '/api/runs/fixture-a?snapshot=' + overview.snapshot_id)).body;
++    assert.equal(selected.data.run.backlog_comparison.state, 'matching'); assert.equal(selected.data.run.work_summary.authorizes, false);
++    assert.equal(selected.data.run.work_summary.display_action, overview.data.entries[0].saved_summary.record.display_action);
++    assert.deepEqual(treeBytes(f.root), before);
++  } finally { await service.close(); f.close(); }
++});
+ test('SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree', async () => {
+   const f = fixture(), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
+   try {
+--- baseline/packages/core/lib/control-evaluation/backlog-vocabulary.d.ts
++++ current/packages/core/lib/control-evaluation/backlog-vocabulary.d.ts
+@@ -0,0 +1,3 @@
++export const SUMMARY_KINDS: readonly string[];
++export const SUMMARY_LABELS: Readonly<Record<string, readonly string[]>>;
++export function summaryLabel(kind: string, language?: string): string;
+--- baseline/packages/core/lib/control-evaluation/backlog-vocabulary.js
++++ current/packages/core/lib/control-evaluation/backlog-vocabulary.js
+@@ -0,0 +1,15 @@
++// Descriptive saved labels only. Gate policy and QA remain the decision owners.
++export const SUMMARY_KINDS = Object.freeze(['work_pending', 'approval_pending', 'qa_report_pending',
++  'qa_evidence_open', 'qa_correction_open', 'qa_source_decision', 'qa_blocked', 'source_unconfirmed',
++  'closeout_pending', 'completed', 'unconfirmed']);
++export const SUMMARY_LABELS = Object.freeze({
++  work_pending: ['Work pending', 'Arbeit offen'], approval_pending: ['Approval pending', 'Freigabe ausstehend'],
++  qa_report_pending: ['QA report pending', 'QA-Bericht ausstehend'],
++  qa_evidence_open: ['QA evidence open', 'QA-Nachweis offen'],
++  qa_correction_open: ['QA correction open', 'QA-Korrektur offen'],
++  qa_source_decision: ['QA source decision required', 'QA: vorgelagerte Entscheidung erforderlich'],
++  qa_blocked: ['QA blocked', 'QA blockiert'], source_unconfirmed: ['Source unconfirmed', 'Quelle nicht bestätigt'],
++  closeout_pending: ['Closeout pending', 'Abschluss offen'], completed: ['Completed', 'Abgeschlossen'],
++  unconfirmed: ['Unconfirmed', 'Nicht bestätigt'],
++});
++export const summaryLabel = (kind, language = 'en') => SUMMARY_LABELS[kind]?.[language === 'de' ? 1 : 0] ?? SUMMARY_LABELS.unconfirmed[language === 'de' ? 1 : 0];
+--- baseline/packages/core/lib/control-evaluation/qa-follow-up.js
++++ current/packages/core/lib/control-evaluation/qa-follow-up.js
+@@ -6,6 +6,7 @@
+ import { cleanStatusCell } from './shared.js';
+ import { isGateSatisfied } from './gate-policy.js';
+ import { isInternalStepSatisfied } from './run-state.js';
++import { createHash } from 'node:crypto';
+ 
+ const columns = ['finding_id', 'gap_type', 'routing_target', 'gap_status', 'evidence', 'required_next_step'];
+ // Consume the sole normative route table rather than introduce a second type-to-route map.
+@@ -24,12 +25,20 @@
+   return routes;
+ }
+ 
+-export function evaluateQaFollowUp(root, state, runId) {
+-  const stop = reason => ({ kind: 'blocked', reason, findings: [] });
++export function evaluateQaFollowUp(root, state, runId, maxSources = Infinity, strictUtf8 = false) {
++  const stop = reason => ({ kind: 'blocked', reason, findings: [], sources: [] });
+   if (!['UR', 'PRD', 'SD', 'TP'].every(gate => isGateSatisfied(state, gate))
+       || !['Brownfield Analysis', 'CD+Tests', 'CR'].every(step => isInternalStepSatisfied(state, step))) return stop('Current approved sources and completed implementation/reviews are required.');
+   const qa = state.artefacts.get('QA');
+   if (qa?.status !== 'revise') return stop('Only the current revise report permits this follow-up.');
++  return inspectQaReports(root, state, runId, 'revise', maxSources, strictUtf8);
++}
++
++// Shared registered-source and normalized-finding validation. Only the wrapper above routes
++// corrective work; pass/block observations here cannot approve or revoke a gate.
++export function inspectQaReports(root, state, runId, expectedDecision, maxSources = Infinity, strictUtf8 = false) {
++  const observations = [];
++  const stop = reason => ({ kind: 'blocked', reason, findings: [], sources: observations });
+   const routes = declaredRoutes();
+   if (routes.size !== 6) return stop('Normalized review-gap contract is unavailable.');
+   const findings = [], reports = new Set();
+@@ -38,15 +47,23 @@
+     const { type } = artefact;
+     const path = String(artefact.path ?? '').replace(/^`|`$/gu, '');
+     if (!path) { if (type === 'QA') return stop('Current QA report is missing.'); else continue; }
+-    if (posix.normalize(path) !== path || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
++    if (posix.normalize(path) !== path || strictUtf8 && /[%?#]/u.test(path)
++        || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
+     const file = containedRegularFile(root, path);
+     if (file.status !== 'valid') return stop(`Review source unavailable: ${type}.`);
+     if (reports.has(path)) continue;
++    if (reports.size >= maxSources) return stop('Review source limit exceeded.');
+     reports.add(path);
+-    const content = readFileSync(file.path, 'utf8');
++    const bytes = readFileSync(file.path);
++    observations.push({ path, digest: 'sha256:' + createHash('sha256').update(bytes).digest('hex'), state: 'available' });
++    if (strictUtf8 && bytes.length > 262144) return stop(`Review source exceeds the bounded input size: ${type}.`);
++    let content;
++    try { content = strictUtf8 ? new TextDecoder('utf-8', { fatal: true }).decode(bytes) : bytes.toString('utf8'); }
++    catch { return stop(`Review source encoding unsupported: ${type}.`); }
+     if (content.length > 262144) return stop(`Review source exceeds the bounded input size: ${type}.`);
+     if (type === 'QA') {
+-      if ([...content.matchAll(/^- decision:[ \t]*(.*)$/gmu)].length !== 1 || extractField(content, 'decision') !== 'revise') return stop('QA report decision contradicts its current revise recording.');
++      if ([...content.matchAll(/^- decision:[ \t]*(.*)$/gmu)].length !== 1
++          || extractField(content, 'decision').replace(/^passed$/u, 'pass') !== expectedDecision) return stop('QA report decision contradicts its current recording.');
+       // Explicit QA references are inputs too; missing or unsafe references cannot be ignored.
+       const refs = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/gu)].filter(m => /review|\bCR\b/iu.test(m[1] + ' ' + m[2]) && /\.md(?:#.*)?$/iu.test(m[2])).map(m => [m[1], m[2].split('#')[0]]);
+       for (const m of content.matchAll(/^- (tp_review|clean_implementation_review|code_review):[ \t]*`?([^`\r\n]+)`?[ \t]*$/gmu)) refs.push([m[1], m[2].trim()]);
+@@ -74,10 +91,11 @@
+       if (status === 'open' && findings.length >= 64) return stop('Too many open findings for a bounded follow-up; consolidate the authoritative review first.');
+       if (status === 'open') findings.push({ id, target, evidence, action, path });
+     }
+-    if ((!headerFound || !seen.size) && (type === 'QA' || ['revise', 'block'].includes(artefact.status) || ['revise', 'block'].includes(extractField(content, 'decision')))) return stop(`Normalized findings are missing: ${type}.`);
++    if ((!headerFound || !seen.size) && (type === 'QA' && expectedDecision !== 'pass' || ['revise', 'block'].includes(artefact.status) || ['revise', 'block'].includes(extractField(content, 'decision')))) return stop(`Normalized findings are missing: ${type}.`);
+   }
++  if (!findings.length && expectedDecision === 'pass') return { kind: 'none', findings, reason: '', sources: observations };
+   if (!findings.length) return stop('QA revise has no valid open normalized finding; inspect its decisive obligation before corrective work.');
+   const upstreamTargets = [...new Set(findings.map(f => f.target).filter(target => !['CD+Tests', 'evidence_obligation'].includes(target)))];
+-  if (upstreamTargets.length) return { kind: 'upstream', findings, reason: `Resolve the earliest source-owner decision (${upstreamTargets.join(', ')}) before dependent implementation.` };
+-  return { kind: findings.some(f => f.target === 'CD+Tests') ? 'implementation' : 'evidence', findings, reason: '' };
++  if (upstreamTargets.length) return { kind: 'upstream', findings, reason: `Resolve the earliest source-owner decision (${upstreamTargets.join(', ')}) before dependent implementation.`, sources: observations };
++  return { kind: findings.some(f => f.target === 'CD+Tests') ? 'implementation' : 'evidence', findings, reason: '', sources: observations };
+ }
+--- baseline/packages/core/lib/control-evaluation/run-work-summary.js
++++ current/packages/core/lib/control-evaluation/run-work-summary.js
+@@ -0,0 +1,90 @@
++import { createHash } from 'node:crypto';
++import { readFileSync } from '../control-read/fs.js';
++import { parseControlState } from '../control-state/run-state-parser.js';
++import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from '../control-state/contained-file.js';
++import { policyForRunContent } from './run-step-policy.js';
++import { effectiveNextAllowedAction } from './next-action.js';
++import { evaluateQaFollowUp, inspectQaReports } from './qa-follow-up.js';
++import { userGateOrder, internalStepArtefacts, closeoutArtefacts, modeSliceDecision } from './run-state.js';
++import { extractField } from './verified-change.js';
++import { summaryLabel } from './backlog-vocabulary.js';
++
++// Shared projection; never invokes gate-check, changes control or grants permission.
++export function runWorkSummary(root, content, runPath = '', decision = policyForRunContent(root, content, runPath)) {
++  const state = { content, ...parseControlState(content, { userGates: userGateOrder,
++    internalSteps: [...internalStepArtefacts], closeoutArtefacts: [...closeoutArtefacts] }) };
++  const runId = extractField(content, 'run_id'), lifecycle = extractField(content, 'lifecycle');
++  const policyOnly = modeSliceDecision(state) === 'verified_change' || /## Source Revisions\b/u.test(content);
++  const summary = { kind: 'work_pending', phase: decision.current_gate, qa_outcome: 'not_applicable', lifecycle,
++    recorded_approvals: [...state.approvals].filter(([, row]) => row.status === 'approved').map(([gate]) => gate),
++    decisive_obligation: null, open_obligation_count: 0,
++    display_action: policyOnly ? decision.next_allowed_action : effectiveNextAllowedAction(state, decision),
++    sources: [], limitations: [], authorizes: false };
++  if (lifecycle === 'completed') summary.kind = 'completed';
++  else if (decision.status === 'blocked') summary.kind = 'unconfirmed';
++  else if (decision.current_gate === 'OR') summary.kind = 'closeout_pending';
++  else if (decision.missing_approval !== 'none') summary.kind = 'approval_pending';
++  const qa = state.artefacts.get('QA');
++  const structured = ['structured_slice', 'structured_delivery'].includes(modeSliceDecision(state));
++  const qaRelevant = structured && (qa?.path || ['QA', 'UAT', 'OR'].includes(decision.current_gate));
++  const unconfirmed = reason => { summary.kind = 'source_unconfirmed'; summary.limitations.push(reason);
++    summary.display_action = decision.next_allowed_action; };
++  if (qaRelevant) {
++    summary.qa_outcome = 'unconfirmed';
++    const path = String(qa?.path ?? '').replace(/^`|`$/gu, '');
++    if (!path) { summary.kind = 'qa_report_pending'; summary.qa_outcome = 'missing'; }
++    else if (!isSafeControlRelativePath(path) || /[%?#]/u.test(path) || !path.startsWith(`.agdf/control/artefacts/${runId}/`)
++        || hasSymlinkComponent(root, path)) unconfirmed('qa_source_unsafe');
++    else {
++      const file = containedRegularFile(root, path);
++      if (file.status !== 'valid') unconfirmed('qa_source_unavailable');
++      else {
++        const bytes = readFileSync(file.path);
++        let text = '';
++        try { if (bytes.length > 262144) throw Error(); text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
++        catch { unconfirmed('qa_source_unsupported'); }
++        const decisions = [...text.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|passed|revise|block)[ \t]*$/gmu)];
++        summary.sources.push({ path, digest: 'sha256:' + createHash('sha256').update(bytes).digest('hex'), state: 'available' });
++        const normalized = value => value === 'passed' ? 'pass' : value;
++        if (bytes.length > 262144 || decisions.length !== 1 || normalized(decisions[0][1]) !== normalized(qa.status)) unconfirmed('qa_decision_unconfirmed');
++        else {
++          summary.qa_outcome = normalized(qa.status);
++          if (qa.status === 'revise') {
++            const followUp = evaluateQaFollowUp(root, state, runId, 64, true);
++            summary.sources = followUp.sources;
++            if (followUp.kind === 'blocked') unconfirmed(followUp.reason);
++            else {
++              summary.kind = { evidence: 'qa_evidence_open', implementation: 'qa_correction_open', upstream: 'qa_source_decision' }[followUp.kind];
++              const decisive = followUp.findings.find(f => followUp.kind === 'upstream' ? !['CD+Tests', 'evidence_obligation'].includes(f.target)
++                : followUp.kind === 'implementation' ? f.target === 'CD+Tests' : true);
++              summary.decisive_obligation = { id: decisive.id, routing_target: decisive.target, action: decisive.action, source_path: decisive.path };
++              summary.open_obligation_count = followUp.findings.length;
++              summary.display_action = decisive.action + (followUp.kind === 'upstream' ? ' Resolve the source-owner decision before dependent work.' : ' Then rerun QA with refreshed evidence.');
++            }
++          } else {
++            const observation = inspectQaReports(root, state, runId, normalized(qa.status), 64, true);
++            summary.sources = observation.sources;
++            if (observation.kind === 'blocked' || qa.status !== 'block' && observation.findings.length) unconfirmed(observation.reason || 'open_review_findings_contradict_pass');
++            else if (qa.status === 'block') { summary.kind = 'qa_blocked'; summary.display_action = decision.next_allowed_action; }
++          }
++        }
++      }
++    }
++  }
++  if (summary.sources.length > 64) { summary.sources = summary.sources.slice(0, 64); unconfirmed('source_limit'); }
++  if (Buffer.byteLength(JSON.stringify(summary)) > 60000) {
++    summary.decisive_obligation = null; summary.open_obligation_count = 0; summary.sources = [];
++    summary.limitations = ['summary_size_limit']; summary.kind = 'source_unconfirmed';
++    summary.display_action = 'Inspect the current Run and its registered sources before recording a bounded backlog summary.';
++  }
++  return Object.freeze({ ...summary, status_label: summaryLabel(summary.kind) });
++}
++
++// Recheck only already consumed safe sources at the existing mutation precommit boundary.
++export function assertSummarySources(root, summary) {
++  for (const source of summary.sources) {
++    const file = containedRegularFile(root, source.path);
++    if (file.status !== 'valid' || hasSymlinkComponent(root, source.path)
++      || 'sha256:' + createHash('sha256').update(readFileSync(file.path)).digest('hex') !== source.digest) throw Error('AGDF_STALE_RUN_REVISION');
++  }
++}
+--- baseline/packages/core/lib/control-evaluation/shared.js
++++ current/packages/core/lib/control-evaluation/shared.js
+@@ -1,5 +1,6 @@
+ import { existsSync, readFileSync } from "../control-read/fs.js";
+ import { join, posix } from "node:path";
++import { SUMMARY_LABELS } from "./backlog-vocabulary.js";
+ 
+ export function cleanStatusCell(value) {
+   return (value ?? "").replace(/\x60/g, "").trim();
+@@ -44,6 +45,9 @@
+ const compactBacklogHeaders = ["priority", "key", "work item", "status", "artefacts", "current spec", "next step"];
+ const legacyBacklogHeaders = ["prio", "key", "title", "status", "ur", "brownfield review", "prd", "sd", "tp", "qa", "or", "current spec", "notes"];
+ const backlogStatusLabels = new Map([
++  ...Object.entries(SUMMARY_LABELS).map(([code, labels]) => [labels[0].toLowerCase(), code]),
++  ...["Brownfield Analysis", "CD+Tests", "CR", "Quick Task Execution", "Verified Change Execution", "Mode/Slice Decision"]
++    .map(phase => [`${phase.toLowerCase()} work pending`, "work_pending"]),
+   ["needs ur", "needs_ur"],
+   ["awaiting brownfield review", "awaiting_brownfield_review"],
+   ["awaiting prd", "awaiting_prd"],
+@@ -342,4 +346,3 @@
+   }
+   return parsed;
+ }
+-
+--- baseline/packages/core/lib/control-inspect/cockpit-backlog.js
++++ current/packages/core/lib/control-inspect/cockpit-backlog.js
+@@ -5,6 +5,7 @@
+ import { isSafeControlRelativePath } from '../control-state/contained-file.js';
+ import { READ_LIMITS, fail } from '../control-read/snapshot.js';
+ import { COCKPIT_BACKLOG_SECTIONS } from './cockpit-list.js';
++import { decodeBacklogMarker, savedBacklogSummary } from '../control-state/backlog-summary.js';
+ 
+ const SOURCE = '.agdf/control/MASTER_BACKLOG.md';
+ const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
+@@ -22,6 +23,7 @@
+   try { source = decoder.decode(bytes); if (source.includes('\0')) throw Error(); }
+   catch { return { state: 'unsupported', code: 'backlog_unsupported', data: null }; }
+   const entries = [], diagnostics = [], counts = {};
++  const markers = source.split('\n').map(decodeBacklogMarker).filter(Boolean);
+   const diagnostic = (code, section, key = null) => diagnostics.push({ code, path: SOURCE, section, key });
+   for (const section of headings) {
+     const content = markdownSection(source, section), rows = tableRows(content);
+@@ -50,13 +52,15 @@
+       const key = cleanStatusCell(cells[completed ? 0 : 1] ?? '');
+       const malformed = cells.length !== width || !key || !(cells[completed ? 1 : 2] ?? '').trim();
+       if (malformed) diagnostic('backlog_row_malformed', section, key);
++      const saved_summary = savedBacklogSummary(root, section, cells, markers);
++      if (saved_summary.code) diagnostic(saved_summary.code, section, key);
+       entries.push({ section, key, original_key: cells[completed ? 0 : 1] ?? '',
+         title: cells[completed ? 1 : 2] ?? '', stored_status: cells[completed ? 2 : 3] ?? '',
+         scope: pointer?.scope ?? '', priority: completed ? null : cells[0] ?? '',
+         stored_next_step: completed ? cells[4] ?? '' : cells[compact ? 6 : 12] ?? '',
+         source_links: completed ? cells[3] ?? '' : compact ? cells[4] ?? '' : cells.slice(4, 11).join(' · '),
+         current_spec: completed ? null : cells[compact ? 5 : 11] ?? '',
+-        normalized_pointer: pointer,
++        normalized_pointer: pointer, saved_summary,
+         selectable: !malformed && /^[A-Za-z0-9_-]{1,128}$/.test(key) });
+     }
+     counts[section] = entries.filter(row => row.section === section).length;
+--- baseline/packages/core/lib/control-inspect/cockpit.js
++++ current/packages/core/lib/control-inspect/cockpit.js
+@@ -11,6 +11,9 @@
+ import { interactionLocales } from '../resources/context.js';
+ import { projectCockpitContext, composeCockpitPacket } from './cockpit-context.js';
+ import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.js';
++import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
++import { runSealState } from '../control-state/run-seal.js';
++import { canonicalJson } from '../control-state/approval-command-contract.js';
+ 
+ const CONTROL = '.agdf/control/';
+ const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
+@@ -98,7 +101,22 @@
+     const resources = manifest(run.run_id, state);
+     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
+     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
++    const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
++    const savedRows = projectCockpitBacklog(root).data?.entries.filter(row => row.key === run.run_id) ?? [];
++    const saved = savedRows.length === 1 ? savedRows[0].saved_summary?.record : null;
++    let comparison = 'unavailable', comparison_reason = 'saved_observation_unverified';
++    if (outside.length) comparison_reason = 'evaluation_out_of_scope';
++    else if (runSealState(root, run.content).status !== 'valid') comparison_reason = 'run_source_unconfirmed';
++    else if (work_summary?.limitations.length) comparison_reason = 'summary_source_unconfirmed';
++    else if (saved && work_summary) {
++      const keys = ['kind', 'phase', 'qa_outcome', 'lifecycle', 'recorded_approvals', 'decisive_obligation',
++        'open_obligation_count', 'display_action', 'sources', 'limitations', 'authorizes'];
++      comparison = saved.revision_id === run.meta.revision_id && keys.every(key => canonicalJson(saved[key]) === canonicalJson(work_summary[key])) ? 'matching' : 'different';
++      comparison_reason = comparison === 'matching' ? 'same_revision_and_sources' : 'saved_observation_differs';
++    }
+     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
++      work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
++        saved_revision_id: saved?.revision_id ?? null, authorizes: false },
+       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
+       objective: objective(run.content), title: resolveHumanRunTitle({
+         urHeading: readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, ''),
+--- baseline/packages/core/lib/control-state/backlog-summary-shape.d.ts
++++ current/packages/core/lib/control-state/backlog-summary-shape.d.ts
+@@ -0,0 +1,4 @@
++export const BACKLOG_SUMMARY_FIELDS: readonly string[];
++export function validBacklogSummary(value: unknown): boolean;
++
++export function validWorkSummary(value: unknown, runId: string): boolean;
+--- baseline/packages/core/lib/control-state/backlog-summary-shape.js
++++ current/packages/core/lib/control-state/backlog-summary-shape.js
+@@ -0,0 +1,40 @@
++import { SUMMARY_KINDS } from '../control-evaluation/backlog-vocabulary.js';
++const exactObject = (v, keys) => !!v && typeof v === 'object' && !Array.isArray(v)
++  && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
++export const BACKLOG_SUMMARY_FIELDS = ['schema_version', 'target_id', 'run_id', 'section', 'row_digest', 'revision_id', 'observed_at',
++  'kind', 'phase', 'qa_outcome', 'lifecycle', 'recorded_approvals', 'decisive_obligation', 'open_obligation_count',
++  'display_action', 'sources', 'limitations', 'authorizes'];
++const id = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/u.test(value);
++const hash = value => typeof value === 'string' && /^sha256:[a-f0-9]{64}$/u.test(value);
++const text = value => typeof value === 'string' && !value.includes('\0');
++const list = value => Array.isArray(value) && value.every(text);
++const sourcePath = value => typeof value === 'string' && value.startsWith('.agdf/control/artefacts/')
++  && !/[\\:%?#\0]/u.test(value) && value.split('/').every(part => part && part !== '.' && part !== '..');
++const sections = ['Active Backlog', 'Planned / Parking Lot', 'Completed / Superseded Pointers'];
++
++export function validBacklogSummary(row) {
++  return exactObject(row, BACKLOG_SUMMARY_FIELDS) && row.schema_version === 1 && hash(row.target_id) && id(row.run_id)
++    && sections.includes(row.section) && hash(row.row_digest)
++    && typeof row.revision_id === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/u.test(row.revision_id)
++    && text(row.observed_at) && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/u.test(row.observed_at) && Number.isFinite(Date.parse(row.observed_at))
++    && validWorkSummary(row, row.run_id);
++}
++
++export function validWorkSummary(row, runId) {
++  if (!row || !id(runId)) return false;
++  return SUMMARY_KINDS.includes(row.kind) && text(row.phase)
++    && ['not_applicable', 'missing', 'unconfirmed', 'pass', 'revise', 'block'].includes(row.qa_outcome)
++    && ['active', 'completed', 'superseded', 'abandoned'].includes(row.lifecycle)
++    && list(row.recorded_approvals) && row.recorded_approvals.length <= 6
++    && row.recorded_approvals.every(g => ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'].includes(g))
++    && (row.decisive_obligation === null || exactObject(row.decisive_obligation, ['id', 'routing_target', 'action', 'source_path'])
++      && text(row.decisive_obligation.id) && row.decisive_obligation.id.length <= 128
++      && ['UR', 'PRD', 'SD', 'TP', 'CD+Tests', 'evidence_obligation'].includes(row.decisive_obligation.routing_target)
++      && text(row.decisive_obligation.action) && sourcePath(row.decisive_obligation.source_path)
++      && row.decisive_obligation.source_path.startsWith(`.agdf/control/artefacts/${runId}/`))
++    && Number.isSafeInteger(row.open_obligation_count) && row.open_obligation_count >= 0 && row.open_obligation_count <= 64
++    && text(row.display_action) && Array.isArray(row.sources) && row.sources.length <= 64
++    && row.sources.every(s => exactObject(s, ['path', 'digest', 'state']) && sourcePath(s.path)
++      && s.path.startsWith(`.agdf/control/artefacts/${runId}/`) && hash(s.digest) && s.state === 'available')
++    && list(row.limitations) && row.authorizes === false;
++}
+--- baseline/packages/core/lib/control-state/backlog-summary.js
++++ current/packages/core/lib/control-state/backlog-summary.js
+@@ -0,0 +1,67 @@
++import { BACKLOG_SUMMARY_FIELDS, validBacklogSummary } from './backlog-summary-shape.js';
++import { createHash } from 'node:crypto';
++import { canonicalJson, resolveControlCommandTarget } from './approval-command-contract.js';
++import { firstSection, tableCells, tableLineIndexes } from './run-state-edits.js';
++import { summaryLabel } from '../control-evaluation/backlog-vocabulary.js';
++
++export const BACKLOG_SUMMARY_LIMIT = 65536;
++const prefix = '<!-- agdf-backlog-summary-v1 ';
++const fields = BACKLOG_SUMMARY_FIELDS;
++const digest = bytes => 'sha256:' + createHash('sha256').update(bytes).digest('hex');
++const sections = ['Active Backlog', 'Planned / Parking Lot', 'Completed / Superseded Pointers'];
++export const backlogRowDigest = (section, cells) => digest(canonicalJson({ section, cells }));
++export { validBacklogSummary } from './backlog-summary-shape.js';
++
++export function decodeBacklogMarker(line) {
++  if (!line.startsWith('<!-- agdf-backlog-summary-')) return null;
++  const match = line.match(/^<!-- agdf-backlog-summary-v1 ([A-Za-z0-9+/]+={0,2}) -->$/u);
++  if (!match || match[1].length > Math.ceil(BACKLOG_SUMMARY_LIMIT / 3) * 4) return { code: 'backlog_summary_invalid', record: null };
++  try {
++    const bytes = Buffer.from(match[1], 'base64');
++    if (bytes.length > BACKLOG_SUMMARY_LIMIT || bytes.toString('base64') !== match[1]) throw Error();
++    const value = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
++    const record = JSON.parse(value);
++    if (!validBacklogSummary(record) || canonicalJson(record) !== value) throw Error();
++    return { code: null, record };
++  } catch { return { code: 'backlog_summary_invalid', record: null }; }
++}
++export function savedBacklogSummary(root, section, cells, markers) {
++  const key = cells[section === sections[2] ? 0 : 1]?.replaceAll('`', '').trim();
++  const candidates = markers.filter(m => m.record?.run_id === key);
++  const fallback = code => ({ provenance_state: code ? 'invalid' : 'unverified', code, record: null,
++    label_de: null, limitation_de: code ? 'Gespeicherter Quellenbezug ungültig; aktueller Stand nicht geprüft.' : 'Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.', authorizes: false });
++  if (!candidates.length) return fallback(markers.some(m => m.code) ? 'backlog_summary_invalid' : null);
++  const row = candidates[0].record;
++  if (markers.some(m => m.code) || candidates.length !== 1 || row.target_id !== resolveControlCommandTarget(root).target_id
++      || row.section !== section || row.row_digest !== backlogRowDigest(section, cells)) return fallback('backlog_summary_mismatch');
++  return { provenance_state: 'recorded', code: null, record: row, label_de: summaryLabel(row.kind, 'de'),
++    limitation_de: row.limitations.length ? 'Quellenbezug eingeschränkt; aktueller Stand nicht bestätigt.'
++      : 'Gespeicherte Beobachtung; aktueller Run noch nicht verglichen.', authorizes: false };
++}
++
++// Called by existing writers under their locks. Only the addressed marker is replaced.
++export function recordBacklogSummary(root, content, runId, section, summary, revisionId) {
++  if (Buffer.byteLength(content) > 2097152) throw Error('AGDF_BACKLOG_LAYOUT_UNSUPPORTED');
++  const bounded = next => { if (Buffer.byteLength(next) > 2097152) throw Error('AGDF_BACKLOG_LAYOUT_UNSUPPORTED'); return next; };
++  const lines = content.split('\n'), scope = firstSection(lines, section);
++  if (!scope) throw Error('AGDF_BACKLOG_LAYOUT_UNSUPPORTED');
++  const indexes = tableLineIndexes(lines, scope), column = section === sections[2] ? 0 : 1;
++  const matches = indexes.slice(2).filter(i => tableCells(lines[i])[column]?.replaceAll('`', '').trim() === runId);
++  if (matches.length !== 1) throw Error('AGDF_BACKLOG_IDENTITY_AMBIGUOUS');
++  const row = { schema_version: 1, target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
++    section, row_digest: backlogRowDigest(section, tableCells(lines[matches[0]])), revision_id: revisionId,
++    observed_at: new Date().toISOString(), ...Object.fromEntries(fields.slice(7).map(k => [k, summary[k]])) };
++  const previous = lines.map(decodeBacklogMarker).filter(m => m?.record?.run_id === runId);
++  if (previous.length === 1 && canonicalJson({ ...previous[0].record, observed_at: row.observed_at }) === canonicalJson(row)) row.observed_at = previous[0].record.observed_at;
++  const encoded = canonicalJson(row);
++  if (!validBacklogSummary(row) || Buffer.byteLength(encoded) > BACKLOG_SUMMARY_LIMIT) throw Error('AGDF_BACKLOG_SUMMARY_INVALID');
++  // An identical explicit synchronization preserves all bytes, including whitespace and time.
++  if (previous.length === 1 && canonicalJson(previous[0].record) === encoded) return content;
++  if (previous.length === 1 && previous[0].record.section === section) return bounded(lines.map(line =>
++    decodeBacklogMarker(line)?.record?.run_id === runId ? prefix + Buffer.from(encoded).toString('base64') + ' -->' : line).join('\n'));
++  const filtered = lines.filter(line => decodeBacklogMarker(line)?.record?.run_id !== runId);
++  const target = firstSection(filtered, section), table = tableLineIndexes(filtered, target);
++  const afterTable = table.at(-1) + 1;
++  filtered.splice(afterTable, 0, '', prefix + Buffer.from(encoded).toString('base64') + ' -->');
++  return bounded(filtered.join('\n'));
++}
+--- baseline/packages/core/lib/control-state/run-backlog-writer.js
++++ current/packages/core/lib/control-state/run-backlog-writer.js
+@@ -7,6 +7,8 @@
+ import { pendingRunStepIds } from "./run-step-pending.js";
+ import { BACKLOG_RELATIVE_PATH, prepareRunBacklogOrSkip } from "./run-backlog.js";
+ import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
++import { randomUUID } from "node:crypto";
++import { assertSummarySources } from "../control-evaluation/run-work-summary.js";
+ 
+ export function withRunBacklogLock(root, path, work, options = {}) {
+   const relativePath = relative(root, path).split(sep).join("/");
+@@ -31,16 +33,19 @@
+   const old = readFileSync(path, "utf8"), run = parseRunState(old);
+   if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
+   if (run.meta.revision_id !== revisionId || options.expectedContent !== undefined && old !== options.expectedContent) throw Error("AGDF_STALE_RUN_REVISION");
+-  const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path);
++  const nextRevisionId = options.nextRevisionId ?? randomUUID();
++  const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path, nextRevisionId);
+   const withBacklog = state => ({ ...state, backlog: plan.status, backlog_reason: plan.reason ?? null });
+-  if (!plan.update) return withBacklog(writeRunLocked(path, content, revisionId, options));
++  const guard = () => { if (plan.summary) assertSummarySources(root, plan.summary); };
++  if (!plan.update) return withBacklog(writeRunLocked(path, content, revisionId, { ...options, nextRevisionId,
++    validateBeforeWrite: () => { options.validateBeforeWrite?.(); guard(); } }));
+   // Full gate/presentation evaluation still sees the original sealed Run, under both
+   // locks. The journal then rechecks its captured source digests and envelope at commit.
+   options.validateBeforeWrite?.();
+   return withBacklog(commitRunStepLocked(root, { runId: run.meta.run_id, runPath: path, content,
+     revisionId, expectedContent: old, backlog: plan.update, or: null,
+-    nextRevisionId: options.nextRevisionId,
+-    writeOptions: { ...options, validateBeforeWrite: options.validateDuringTransaction }, afterWrite: options.afterWrite }));
++    nextRevisionId,
++    writeOptions: { ...options, validateBeforeWrite: () => { options.validateDuringTransaction?.(); guard(); } }, afterWrite: options.afterWrite }));
+ }
+ 
+ export function writeRunWithBacklog(root, path, content, revisionId, options = {}) {
+@@ -55,8 +60,9 @@
+     if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
+     if (run.meta.revision_id !== revisionId) throw Error("AGDF_STALE_RUN_REVISION");
+     if (runSealState(root, content).status !== "valid") throw Error("AGDF_RUN_SEAL_INVALID");
+-    const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path);
++    const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path, revisionId);
+     if (plan.update) {
++      assertSummarySources(root, plan.summary);
+       if (readFileSync(path, "utf8") !== content || runSealState(root, content).status !== "valid"
+           || readFileSync(join(root, BACKLOG_RELATIVE_PATH), "utf8") !== plan.update.old) throw Error("AGDF_STALE_RUN_REVISION");
+       atomicWrite(join(root, BACKLOG_RELATIVE_PATH), plan.update.next);
+--- baseline/packages/core/lib/control-state/run-backlog.js
++++ current/packages/core/lib/control-state/run-backlog.js
+@@ -3,6 +3,9 @@
+ import { firstSection, tableCells, tableLine, tableLineIndexes } from "./run-state-edits.js";
+ import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
+ import { policyForRunContent } from "../control-evaluation/run-step-policy.js";
++import { runWorkSummary } from "../control-evaluation/run-work-summary.js";
++import { recordBacklogSummary } from "./backlog-summary.js";
++import { parseRunState } from "./run-state-parser.js";
+ 
+ export const BACKLOG_RELATIVE_PATH = ".agdf/control/MASTER_BACKLOG.md";
+ const compactHeaders = ["priority", "key", "work item", "status", "artefacts", "current spec", "next step"];
+@@ -27,8 +30,12 @@
+   if (["PRD", "SD", "TP"].includes(after.current_gate)) return `Awaiting ${after.current_gate}`;
+   if (["QA", "UAT"].includes(after.current_gate) && after.missing_approval === `Approval: ${after.current_gate}`) return `Awaiting ${after.current_gate}`;
+   if (after.current_gate === "OR") return "Awaiting OR";
++  if (["Brownfield Analysis", "CD+Tests", "CR", "Quick Task Execution", "Verified Change Execution", "Mode/Slice Decision"].includes(after.current_gate)) return `${after.current_gate} work pending`;
+   return "In Progress";
+ }
++export const backlogStatusForSummary = (summary, after) =>
++  ["work_pending", "approval_pending", "closeout_pending"].includes(summary.kind)
++    ? backlogStatusForPolicy(after) : summary.status_label;
+ 
+ export function assertBacklogPath(root) {
+   if (hasSymlinkComponent(root, BACKLOG_RELATIVE_PATH)
+@@ -39,11 +46,12 @@
+ 
+ // Change only the addressed existing Active row. Keep title, links, order, other rows and
+ // archive/planning placement intact. Unsupported layouts and ambiguous identities fail closed.
+-export function prepareRunBacklog(root, runId, content, runPath) {
++export function prepareRunBacklog(root, runId, content, runPath, revisionId = parseRunState(content).meta.revision_id) {
+   assertBacklogPath(root);
+   const path = join(root, BACKLOG_RELATIVE_PATH);
+   if (!existsSync(path)) return { status: "missing", update: null };
+   const old = readFileSync(path, "utf8"), lines = old.split("\n");
++  if (Buffer.byteLength(old) > 2097152) throw Error("AGDF_BACKLOG_LAYOUT_UNSUPPORTED");
+   const section = firstSection(lines, "Active Backlog");
+   if (!section) throw Error("AGDF_BACKLOG_LAYOUT_UNSUPPORTED");
+   const indexes = tableLineIndexes(lines, section), layout = backlogTableLayout(tableCells(lines[indexes[0]] ?? ""));
+@@ -60,17 +68,19 @@
+   const index = matches[0], cells = tableCells(lines[index]);
+   if (cells.length !== width) throw Error("AGDF_BACKLOG_LAYOUT_UNSUPPORTED");
+   const after = policyForRunContent(root, content, runPath);
+-  const status = backlogStatusForPolicy(after), next = after.next_allowed_action;
+-  if (cells[3] === status && cells.at(-1) === next) return { status: "unchanged", update: null };
++  const summary = runWorkSummary(root, content, runPath, after);
++  const status = backlogStatusForSummary(summary, after);
++  const next = summary.display_action;
+   cells[3] = status; cells[width - 1] = next;
+   lines[index] = tableLine(cells);
+-  return { status: "updated", update: { old, next: lines.join("\n") } };
++  const updated = recordBacklogSummary(root, lines.join("\n"), runId, "Active Backlog", summary, revisionId);
++  return { status: old === updated ? "unchanged" : "updated", summary, update: old === updated ? null : { old, next: updated } };
+ }
+ 
+ // Approvals and run-update stay valid when the saved pointer cannot be synchronized. The
+ // pointer is left untouched and the result names why; the doctor reports the backlog itself.
+-export function prepareRunBacklogOrSkip(root, runId, content, runPath) {
+-  try { return prepareRunBacklog(root, runId, content, runPath); }
++export function prepareRunBacklogOrSkip(root, runId, content, runPath, revisionId) {
++  try { return prepareRunBacklog(root, runId, content, runPath, revisionId); }
+   catch (error) {
+     const reason = SKIPPABLE_BACKLOG_ERRORS.get(error?.message);
+     if (!reason) throw error;
+--- baseline/packages/core/lib/control-state/run-recording.js
++++ current/packages/core/lib/control-state/run-recording.js
+@@ -134,6 +134,7 @@
+     previous_revision_id: revisionId,
+     revision: written.state.meta.revision,
+     revision_id: written.state.meta.revision_id,
++    backlog: written.state.backlog,
+     ...backlogSkip({ status: written.state.backlog, reason: written.state.backlog_reason }),
+   });
+ }
+--- baseline/packages/core/lib/control-state/run-recovery.js
++++ current/packages/core/lib/control-state/run-recovery.js
+@@ -259,7 +259,9 @@
+       if (currentDigest !== preview.result_digest || runSealState(root, current).status !== "valid"
+           || !committed.valid || committed.meta.revision_id !== preview.next_revision_id
+           || preview.result_revision_id !== preview.next_revision_id) throw new Error("AGDF_RECOVERY_JOURNAL_CONFLICT");
+-      return Object.freeze({ schema_version: "1", outcome: "already_recovered", run_id: runId, preview_id: previewId, revision_id: preview.result_revision_id });
++      return Object.freeze({ schema_version: "1", outcome: "already_recovered", run_id: runId, preview_id: previewId, revision_id: preview.result_revision_id,
++        backlog: "pending", backlog_reason: "run_only_recovery",
++        backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${preview.result_revision_id}.` });
+     }
+     if (preview.phase !== "prepared" && preview.phase !== "applying") throw new Error("AGDF_RECOVERY_JOURNAL_PHASE_INVALID");
+     if (preview.phase === "prepared" && (currentDigest !== preview.source_content_digest
+@@ -294,6 +296,8 @@
+     hooks.beforeJournalCommit?.();
+     atomicWrite(journalPath, `${JSON.stringify(completed, null, 2)}\n`);
+     return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
++      backlog: "pending", backlog_reason: "run_only_recovery",
++      backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${written.meta.revision_id}.`,
+       preview_id: previewId, revision: written.meta.revision, revision_id: written.meta.revision_id,
+       seal_status: runSealState(root, resultContent).status, next_gate: deriveNextGate(root, resultContent, path) });
+   });
+--- baseline/packages/core/lib/control-state/run-relationship-correction.js
++++ current/packages/core/lib/control-state/run-relationship-correction.js
+@@ -65,6 +65,8 @@
+       written = { meta: actual.meta }; recoveredCommit = true;
+     }
+     return { schema_version: "1", outcome: "corrected", run_id: runId, binding_id: receipt.binding_id,
++      backlog: "pending", backlog_reason: "run_only_relationship_correction",
++      backlog_next_action: `Synchronize this Run with run-update --run ${runId} --revision ${written.meta.revision_id}.`,
+       relationship: receipt.relationship, previous_revision_id: revisionId, revision_id: written.meta.revision_id, revision: written.meta.revision,
+       ...(recoveredCommit ? { recovered_commit: true } : {}) };
+   }));
+--- baseline/packages/core/lib/control-state/run-revision.js
++++ current/packages/core/lib/control-state/run-revision.js
+@@ -4,7 +4,9 @@
+ import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
+ import { withOwnedFileLock } from "./run-state-writer.js";
+ import { writeRunWithBacklog } from "./run-backlog-writer.js";
+-import { backlogStatusForPolicy } from "./run-backlog.js";
++import { backlogStatusForSummary } from "./run-backlog.js";
++import { runWorkSummary, assertSummarySources } from "../control-evaluation/run-work-summary.js";
++import { recordBacklogSummary } from "./backlog-summary.js";
+ import { canonicalJson, digest, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
+ import { randomUUID } from "node:crypto";
+ import { existsSync, readFileSync } from "node:fs";
+@@ -196,14 +198,16 @@
+     const oldBacklog = readFileSync(backlogPath, "utf8");
+     const lines = oldBacklog.split("\n"), section = firstSection(lines, "Active Backlog");
+     const priorRow = section && tableLineIndexes(lines, section).slice(2).map(i => tableCells(lines[i])).find(cells => cells[1]?.replaceAll("`", "").trim() === runId);
+-    const nextBacklog = upsertTableRow(oldBacklog, "Active Backlog", 1, priorRow?.[1] ?? runId, [priorRow?.[0] || "P1", priorRow?.[1] ?? runId, priorRow?.[2] || runId, backlogStatusForPolicy(after),
++    const summary = runWorkSummary(root, next, run.path, after);
++    let nextBacklog = upsertTableRow(oldBacklog, "Active Backlog", 1, priorRow?.[1] ?? runId, [priorRow?.[0] || "P1", priorRow?.[1] ?? runId, priorRow?.[2] || runId, backlogStatusForSummary(summary, after),
+       SOURCE_GATES.filter(type => work.preview.impact.retained.includes(type)).map(type => `[${type}](artefacts/${runId}/${type}.md)`).join(" · "),
+-      `[Revision history](${receipt.archive.path.slice(".agdf/control/".length)})`, after.next_allowed_action]);
++      `[Revision history](${receipt.archive.path.slice(".agdf/control/".length)})`, summary.display_action]);
+     if (!nextBacklog) throw revisionError("backlog_layout_unsupported");
++    nextBacklog = recordBacklogSummary(root, nextBacklog, runId, "Active Backlog", summary, receipt.resulting_revision_id);
+     const written = commitRunStepLocked(root, { runId, runPath: run.path, content: next, revisionId, expectedContent: run.content,
+       backlog: { old: oldBacklog, next: nextBacklog }, or: null, history: work.history, afterWrite,
+       nextRevisionId: receipt.resulting_revision_id, writeOptions: { allowApprovalChange: true, appendedRevision: receipt,
+-        validateBeforeWrite: () => { const checked = prepareLateRevisionIgnoringPending(root, input); if (checked.previewDigest !== work.previewDigest) throw Error("AGDF_STALE_RUN_REVISION"); } } });
++        validateBeforeWrite: () => { assertSummarySources(root, summary); const checked = prepareLateRevisionIgnoringPending(root, input); if (checked.previewDigest !== work.previewDigest) throw Error("AGDF_STALE_RUN_REVISION"); } } });
+     return { outcome: "reopened", authorizes: false, run_id: runId, operation_id: operationId, gate: after.current_gate,
+       revision_id: written.meta.revision_id, revision: written.meta.revision, impact: work.preview.impact, next_action: after.next_allowed_action };
+   }));
+--- baseline/packages/core/lib/control-state/run-steps.js
++++ current/packages/core/lib/control-state/run-steps.js
+@@ -20,7 +20,10 @@
+ import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
+ import { pendingRunStepIds } from "./run-step-pending.js";
+ import { prepareArtefactRecording } from "./run-artefact-recording.js";
+-import { backlogStatusForPolicy, assertBacklogPath, prepareRunBacklog, backlogTableLayout } from "./run-backlog.js";
++import { backlogStatusForSummary, assertBacklogPath, prepareRunBacklog, backlogTableLayout } from "./run-backlog.js";
++import { randomUUID } from "node:crypto";
++import { runWorkSummary, assertSummarySources } from "../control-evaluation/run-work-summary.js";
++import { recordBacklogSummary } from "./backlog-summary.js";
+ 
+ // run-step records one standard transition of the small path in a single sealed revision. The agent
+ // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
+@@ -256,23 +259,29 @@
+     if (failed) return failed;
+   }
+ 
++  const nextRevisionId = recording?.nextRevisionId ?? randomUUID();
++  const summary = runWorkSummary(root, text, run.path, after);
++  const statusLabel = backlogStatusForSummary(summary, after);
+   let backlogPlan = backlog
+-    ? prepareBacklog(root, key, { ...backlog, status: backlogStatusForPolicy(after), links: backlogLinks(text), next: after.next_allowed_action })
+-    : prepareRunBacklog(root, key, text, run.path);
++    ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })
++    : prepareRunBacklog(root, key, text, run.path, nextRevisionId);
+   // Legacy rows keep their title and per-gate link columns. Status and next step still follow
+   // the Run where the row exists; a closeout move is left to the maintainer.
+   if (backlogPlan.status === "layout_legacy") backlogPlan = { ...(backlog.closeout ? { status: "skipped", update: null }
+-    : prepareRunBacklog(root, key, text, run.path)), reason: "backlog_layout_legacy" };
++    : prepareRunBacklog(root, key, text, run.path, nextRevisionId)), reason: "backlog_layout_legacy" };
+   if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
++  if (backlog && backlogPlan.update) backlogPlan.update.next = recordBacklogSummary(root, backlogPlan.update.next, key,
++    backlog.closeout ? "Completed / Superseded Pointers" : "Active Backlog", summary, nextRevisionId);
+   const written = guardedWrite(runId, () => (recording || orContent || backlogPlan.update)
+     ? commitRunStepLocked(root, {
+       runId, runPath: run.path, content: text, revisionId, expectedContent: run.content,
+       backlog: backlogPlan.update, or: orContent, afterWrite,
+-      nextRevisionId: recording?.nextRevisionId,
+-      writeOptions: recording ? { appendedBinding: recording.receipt, allowContentChange: recording.allowContentChange, validateBeforeWrite: recording.validateBeforeWrite } : {},
++      nextRevisionId,
++      writeOptions: { ...(recording ? { appendedBinding: recording.receipt, allowContentChange: recording.allowContentChange } : {}),
++        validateBeforeWrite: () => { recording?.validateBeforeWrite(); assertSummarySources(root, summary); } },
+     })
+-    : writeRunLocked(run.path, text, revisionId, { expectedContent: run.content,
+-      ...(recording ? { nextRevisionId: recording.nextRevisionId, appendedBinding: recording.receipt, allowContentChange: recording.allowContentChange, validateBeforeWrite: recording.validateBeforeWrite } : {}) }));
++    : writeRunLocked(run.path, text, revisionId, { expectedContent: run.content, nextRevisionId,
++      validateBeforeWrite: () => assertSummarySources(root, summary) }));
+   if (written.rejection) return written.rejection;
+   return Object.freeze({
+     schema_version: "1",
+--- baseline/packages/core/test/artefact-recording-test.js
++++ current/packages/core/test/artefact-recording-test.js
+@@ -94,6 +94,8 @@
+     assert.equal(readFileSync(f.state, "utf8"), stateBeforeRead);
+     const repaired = correctRunRelationship(f.root, { runId, revisionId: f.revision() }, { evaluateGateCheck });
+     assert.equal(repaired.outcome, "corrected", JSON.stringify(repaired));
++    assert.equal(repaired.backlog, "pending"); assert.equal(repaired.backlog_reason, "run_only_relationship_correction");
++    assert.ok(repaired.backlog_next_action.includes(`--run ${runId} --revision ${repaired.revision_id}`));
+     assert.equal(approvalSeal(readFileSync(f.state, "utf8")), approvals);
+     assert.match(readFileSync(f.state, "utf8"), new RegExp(repaired.revision_id));
+     const snapshot = readFileSync(f.state, "utf8");
+--- baseline/packages/core/test/backlog-summary-codec-test.js
++++ current/packages/core/test/backlog-summary-codec-test.js
+@@ -0,0 +1,73 @@
++import assert from 'node:assert/strict';
++import { readFileSync, writeFileSync } from 'node:fs';
++import { join } from 'node:path';
++import { fixture } from './control-cockpit-fixtures.js';
++import { recordBacklogSummary, decodeBacklogMarker } from '../lib/control-state/backlog-summary.js';
++import { runWorkSummary } from '../lib/control-evaluation/run-work-summary.js';
++import { parseRunState } from '../lib/control-state/run-state-parser.js';
++import { projectCockpitBacklog } from '../lib/control-inspect/cockpit-backlog.js';
++import { canonicalJson } from '../lib/control-state/approval-command-contract.js';
++import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
++
++const f = fixture(), path = join(f.root, '.agdf/control/MASTER_BACKLOG.md'), section = 'Active Backlog';
++let checks = 0; const pass = label => { checks++; console.log('PASS ' + label); };
++try {
++  const original = readFileSync(path, 'utf8');
++  const row = '| P1 | fixture-a | Original title | Needs UR | [UR](artefacts/fixture-a/UR.md) | | A stored next action |';
++  const other = '| P2 | foreign | Protected foreign title | In Progress | | | Protected foreign action |';
++  const initial = original.replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n' + row + '\n' + other);
++  const run = readFileSync(f.runPath, 'utf8'), revision = parseRunState(run).meta.revision_id;
++  const summary = runWorkSummary(f.root, run, f.runPath);
++  const saved = recordBacklogSummary(f.root, initial, 'fixture-a', section, summary, revision);
++  assert.ok(saved.includes(row)); assert.ok(saved.includes(other));
++  const marker = saved.split('\n').find(line => line.startsWith('<!-- agdf-backlog-summary-'));
++  assert.ok(saved.includes(other + '\n\n<!--'));
++  assert.equal(recordBacklogSummary(f.root, saved, 'fixture-a', section, summary, revision), saved);
++  assert.throws(() => recordBacklogSummary(f.root, initial + 'x'.repeat(2097152), 'fixture-a', section, summary, revision), /AGDF_BACKLOG_LAYOUT_UNSUPPORTED/);
++  assert.throws(() => recordBacklogSummary(f.root, initial, 'fixture-a', section, { ...summary, display_action: 'x'.repeat(65536) }, revision), /AGDF_BACKLOG_SUMMARY_INVALID/);
++  const nearLimit = initial + 'x'.repeat(2097152 - Buffer.byteLength(initial) - 10);
++  assert.throws(() => recordBacklogSummary(f.root, nearLimit, 'fixture-a', section, summary, revision), /AGDF_BACKLOG_LAYOUT_UNSUPPORTED/);
++  writeFileSync(path, saved); const projected = projectCockpitBacklog(f.root);
++  assert.equal(projected.data.entries[0].saved_summary.provenance_state, 'recorded');
++  assert.equal(projected.data.entries[1].saved_summary.provenance_state, 'unverified');
++  assert.equal(projected.data.entries[0].title, 'Original title');
++  pass('bounded saved roundtrip outside table preserves title, foreign row and exact repeat bytes');
++
++  for (const replacement of [marker.replace('-v1 ', '-v2 '), '<!-- agdf-backlog-summary-v1 !!!! -->',
++    '<!-- agdf-backlog-summary-v1 ' + 'A'.repeat(90000) + ' -->']) {
++    writeFileSync(path, saved.replace(marker, replacement));
++    assert.equal(projectCockpitBacklog(f.root).data.entries[0].saved_summary.provenance_state, 'invalid');
++    assert.equal(projectCockpitBacklog(f.root).data.entries[0].stored_next_step, 'A stored next action');
++  }
++  for (const modify of [r => ({ ...r, authorizes: true }), r => ({ ...r, target_id: 'sha256:' + '0'.repeat(64) }),
++    r => ({ ...r, sources: [{ path: '../../secret', digest: 'sha256:' + '0'.repeat(64), state: 'available' }] }),
++    r => ({ ...r, unknown: 'not accepted' }), r => ({ ...r, schema_version: 2 })]) {
++    const record = modify(decodeBacklogMarker(marker).record);
++    const modified = '<!-- agdf-backlog-summary-v1 ' + Buffer.from(canonicalJson(record)).toString('base64') + ' -->';
++    writeFileSync(path, saved.replace(marker, modified));
++    assert.equal(projectCockpitBacklog(f.root).data.entries[0].saved_summary.provenance_state, 'invalid');
++  }
++  for (const content of [saved + '\n' + marker, saved.replace('Original title', 'Edited title'), saved.replace(row, row.replace('Needs UR', 'Edited status')),
++    saved.replace('A stored next action', 'Other next action')]) {
++    writeFileSync(path, content); assert.equal(projectCockpitBacklog(f.root).data.entries[0].saved_summary.provenance_state, 'invalid');
++  }
++  pass('unknown versions, malformed/oversized/foreign/path/prototype-like fields and row mutations fail closed');
++
++  writeFileSync(path, initial); assert.equal(projectCockpitBacklog(f.root).data.entries[0].saved_summary.provenance_state, 'unverified');
++  const legacy = initial.replace('| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |',
++    '| Prio | Key | Title | Status | UR | Brownfield Review | PRD | SD | TP | QA | OR | Current spec | Notes |')
++    .replace('|---:|---|---|---|---|---|---|', '|---|---|---|---|---|---|---|---|---|---|---|---|---|')
++    .replace(row, '| P1 | fixture-a | Original title | In Progress | [UR](artefacts/fixture-a/UR.md) | | | | | | | retained | Old raw notes |')
++    .replace(other, '| P2 | foreign | Protected foreign title | In Progress | | | | | | | | | Protected foreign action |');
++  writeFileSync(path, legacy); assert.equal(projectCockpitBacklog(f.root).data.entries[0].stored_next_step, 'Old raw notes');
++  assert.equal(projectCockpitBacklog(f.root).data.entries[0].saved_summary.provenance_state, 'unverified');
++  pass('old seven/thirteen-column rows retain stored text without migration');
++
++  writeFileSync(path, saved);
++  const before = readFileSync(path); const reader = createCockpitReader(f.root); const snapshot = reader.snapshot();
++  assert.equal(snapshot.data.file_count, 1, 'saved summary list does not resolve a Run or QA report');
++  assert.equal(snapshot.data.entries[0].saved_summary.provenance_state, 'recorded');
++  assert.deepEqual(readFileSync(path), before, 'read is never synchronization');
++  pass('saved-only immutable scope reads exactly the Backlog and never writes');
++} finally { f.close(); }
++console.log(`${checks} codec checks passed`);
+--- baseline/packages/core/test/backlog-work-summary-test.js
++++ current/packages/core/test/backlog-work-summary-test.js
+@@ -0,0 +1,134 @@
++import assert from 'node:assert/strict';
++import { readFileSync, writeFileSync } from 'node:fs';
++import { join } from 'node:path';
++import { randomUUID } from 'node:crypto';
++import { fixture } from './control-cockpit-fixtures.js';
++import { upsertTableRow, replaceFirstScalar, replaceSectionScalar } from '../lib/control-state/run-state-edits.js';
++import { runWorkSummary } from '../lib/control-evaluation/run-work-summary.js';
++import { policyForRunContent } from '../lib/control-evaluation/run-step-policy.js';
++import { sealRunState } from '../lib/control-state/run-seal.js';
++import { parseRunState } from '../lib/control-state/run-state-parser.js';
++import { writeRunWithBacklog } from '../lib/control-state/run-backlog-writer.js';
++import { recordRunRevision } from '../lib/control-state/run-recording.js';
++import { decodeBacklogMarker } from '../lib/control-state/backlog-summary.js';
++import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
++
++const f = fixture(), prefix = '.agdf/control/artefacts/fixture-a/', qa = join(f.root, prefix, 'QA_REPORT.md');
++const row = (id, gap, target, action = 'Capture the exact current native evidence') => `| ${id} | ${gap} | ${target} | open | Current supported observation missing | ${action} |`;
++const report = (decision, rows = []) => `- decision: ${decision}\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n${rows.join('\n')}\n`;
++let source = readFileSync(f.runPath, 'utf8');
++for (const gate of ['UR', 'PRD', 'SD', 'TP']) {
++  writeFileSync(join(f.root, prefix, gate + '.md'), '# ' + gate + '\n');
++  source = upsertTableRow(source, 'Approvals', 0, gate, [gate, 'approved', 'isolated test fixture']);
++  source = upsertTableRow(source, 'Artefacts', 0, gate, [gate, prefix + gate + '.md', 'approved', '']);
++}
++for (const step of ['Brownfield Review', 'Brownfield Analysis', 'CD+Tests', 'CR']) {
++  const path = prefix + step.replaceAll('+', '').replaceAll(' ', '_') + '.md';
++  writeFileSync(join(f.root, path), '# Evidence\n- decision: pass\n');
++  source = upsertTableRow(source, 'Artefacts', 0, step, [step, path, 'done', '']);
++}
++source = replaceSectionScalar(source, 'Mode/Slice Decision', 'decision', 'structured_delivery');
++source = replaceSectionScalar(source, 'Mode/Slice Decision', 'scope_reason', 'Isolated summary regression');
++source = replaceSectionScalar(source, 'Mode/Slice Decision', 'evidence', 'test fixture');
++source = replaceFirstScalar(source, 'current_gate', 'QA');
++source = replaceFirstScalar(source, 'next_allowed_action', 'An old custom implementation step');
++const candidate = status => upsertTableRow(source, 'Artefacts', 0, 'QA', ['QA', prefix + 'QA_REPORT.md', status, '']);
++let checks = 0;
++const pass = message => { checks++; console.log('PASS ' + message); };
++try {
++  for (const [rows, kind] of [
++    [[row('F1', 'evidence_gap', 'evidence_obligation')], 'qa_evidence_open'],
++    [[row('F1', 'implementation_gap', 'CD+Tests', 'Correct approved implementation')], 'qa_correction_open'],
++    [[row('F1', 'design_gap', 'SD', 'Resolve the approved design owner')], 'qa_source_decision'],
++    [[row('F1', 'evidence_gap', 'evidence_obligation'), row('F2', 'implementation_gap', 'CD+Tests', 'Repair implementation')], 'qa_correction_open'],
++    [[row('F1', 'evidence_gap', 'evidence_obligation'), row('F2', 'design_gap', 'SD', 'Resolve design owner before dependent work')], 'qa_source_decision'],
++  ]) {
++    writeFileSync(qa, report('revise', rows)); const content = candidate('revise');
++    const policy = policyForRunContent(f.root, content, f.runPath), before = JSON.stringify(policy);
++    const summary = runWorkSummary(f.root, content, f.runPath);
++    assert.equal(summary.kind, kind); assert.equal(summary.open_obligation_count, rows.length);
++    assert.ok(summary.display_action.includes(summary.decisive_obligation.action));
++    assert.notEqual(summary.display_action, 'An old custom implementation step');
++    assert.equal(JSON.stringify(policyForRunContent(f.root, content, f.runPath)), before);
++    assert.equal(summary.authorizes, false); assert.equal(summary.sources[0].path, prefix + 'QA_REPORT.md');
++    pass('specific ' + kind + ', mixed-route precedence and unchanged permission envelope');
++  }
++  for (const [body, kind] of [[report('pass'), 'source_unconfirmed'], [report('revise'), 'source_unconfirmed'],
++    [report('revise', [row('F1', 'evidence_gap', 'CD+Tests')]), 'source_unconfirmed'],
++    [report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]) + '- tp_review: ../../foreign/REVIEW.md\n', 'source_unconfirmed']]) {
++    writeFileSync(qa, body); assert.equal(runWorkSummary(f.root, candidate('revise'), f.runPath).kind, kind);
++  }
++  pass('contradictory/missing/invalid/foreign normalized sources remain unconfirmed');
++  writeFileSync(join(f.root, prefix, '%51A_REVIEW.md'), '# Review\n- decision: pass\n');
++  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]) + '- tp_review: %51A_REVIEW.md\n');
++  assert.equal(runWorkSummary(f.root, candidate('revise'), f.runPath).kind, 'source_unconfirmed');
++  assert.equal(runWorkSummary(f.root, upsertTableRow(source, 'Artefacts', 0, 'QA', ['QA', '', 'missing', '']), f.runPath).kind, 'qa_report_pending');
++  for (const bytes of [Buffer.from('x'.repeat(262145)), Buffer.concat([Buffer.from(report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')])), Buffer.from([0xff])])]) {
++    writeFileSync(qa, bytes); assert.equal(runWorkSummary(f.root, candidate('revise'), f.runPath).kind, 'source_unconfirmed');
++  }
++  const refs = Array.from({ length: 65 }, (_, i) => `REVIEW_${i}.md`);
++  for (const ref of refs) writeFileSync(join(f.root, prefix, ref), '# Registered review\n- decision: pass\n');
++  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]) + refs.map(ref => `- tp_review: ${ref}\n`).join(''));
++  const bounded = runWorkSummary(f.root, candidate('revise'), f.runPath);
++  assert.equal(bounded.kind, 'source_unconfirmed'); assert.equal(bounded.sources.length, 64);
++  pass('missing QA registration, invalid UTF-8, oversized report and bounded reference set stay explicit');
++  writeFileSync(qa, report('pass'));
++  assert.equal(runWorkSummary(f.root, candidate('pass'), f.runPath).kind, 'approval_pending');
++  let approvedQa = upsertTableRow(candidate('pass'), 'Approvals', 0, 'QA', ['QA', 'approved', 'isolated fixture']);
++  assert.equal(runWorkSummary(f.root, approvedQa, f.runPath).phase, 'UAT');
++  approvedQa = upsertTableRow(approvedQa, 'Approvals', 0, 'UAT', ['UAT', 'approved', 'isolated fixture']);
++  assert.equal(runWorkSummary(f.root, approvedQa, f.runPath).kind, 'closeout_pending');
++  assert.equal(runWorkSummary(f.root, replaceFirstScalar(approvedQa, 'lifecycle', 'completed'), f.runPath).kind, 'completed');
++  writeFileSync(qa, report('block', [row('F1', 'evidence_gap', 'evidence_obligation')]));
++  assert.equal(runWorkSummary(f.root, candidate('block'), f.runPath).kind, 'qa_blocked');
++  pass('pass awaiting approval, approved QA/UAT, closeout and completed are distinct from block');
++
++  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]));
++  const backlog = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
++  writeFileSync(backlog, readFileSync(backlog, 'utf8').replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n| P1 | fixture-a | Test undertaking | In Progress | | | old |'));
++  writeFileSync(f.runPath, sealRunState(f.root, candidate('revise')));
++  const oldRun = readFileSync(f.runPath, 'utf8'), revision = parseRunState(oldRun).meta.revision_id;
++  const nextRevisionId = randomUUID();
++  const committed = writeRunWithBacklog(f.root, f.runPath, oldRun, revision, { nextRevisionId });
++  let saved = readFileSync(backlog, 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record)?.record;
++  assert.equal(saved.revision_id, committed.meta.revision_id); assert.equal(saved.revision_id, nextRevisionId);
++  assert.equal(saved.kind, 'qa_evidence_open');
++  const bytes = readFileSync(backlog, 'utf8');
++  assert.equal(recordRunRevision(f.root, { runId: 'fixture-a', revisionId: nextRevisionId }).outcome, 'unchanged');
++  assert.equal(readFileSync(backlog, 'utf8'), bytes);
++  const session = createCockpitReader(f.root); const selection = session.snapshot('fixture-a');
++  assert.equal(selection.data.run.backlog_comparison.state, 'matching');
++  const currentRunBytes = readFileSync(f.runPath, 'utf8');
++  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation', 'Capture a newly required visible sequence')]));
++  assert.equal(session.snapshot('fixture-a').data.run.backlog_comparison.state, 'unavailable', 'moved registered source invalidates the seal');
++  writeFileSync(f.runPath, sealRunState(f.root, currentRunBytes));
++  assert.equal(session.snapshot('fixture-a').data.run.backlog_comparison.state, 'different');
++  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]));
++  writeFileSync(f.runPath, currentRunBytes);
++  writeFileSync(backlog, bytes.split('\n').filter(line => !line.startsWith('<!-- agdf-backlog-summary-')).join('\n'));
++  assert.equal(session.snapshot('fixture-a').data.run.backlog_comparison.state, 'unavailable');
++  writeFileSync(backlog, bytes);
++  // A source revision with unchanged visible words is still a different saved observation.
++  writeRunWithBacklog(f.root, f.runPath, readFileSync(f.runPath, 'utf8'), nextRevisionId);
++  assert.notEqual(readFileSync(backlog, 'utf8'), bytes);
++  pass('actual resulting revision, exact repeat timestamp/bytes and selected current comparison');
++
++  const before = readFileSync(f.runPath, 'utf8'), currentRevision = parseRunState(before).meta.revision_id;
++  const beforeBacklog = readFileSync(backlog, 'utf8');
++  assert.throws(() => writeRunWithBacklog(f.root, f.runPath, before, currentRevision, {
++    afterWrite(stage) { if (stage === 'intent') writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation', 'Different evidence action')])); }
++  }), /AGDF_STALE_RUN_REVISION/);
++  assert.equal(readFileSync(f.runPath, 'utf8'), before); assert.equal(readFileSync(backlog, 'utf8'), beforeBacklog);
++  pass('consumed QA source movement before commit cannot mix Run and pointer evidence');
++
++  const review = join(f.root, prefix, 'TP_REVIEW.md');
++  writeFileSync(review, '# Referenced review\n- decision: pass\n');
++  writeFileSync(qa, report('revise', [row('F1', 'evidence_gap', 'evidence_obligation')]) + '- tp_review: TP_REVIEW.md\n');
++  const referencedBefore = sealRunState(f.root, before); writeFileSync(f.runPath, referencedBefore);
++  assert.throws(() => writeRunWithBacklog(f.root, f.runPath, referencedBefore, currentRevision, {
++    afterWrite(stage) { if (stage === 'intent') writeFileSync(review, '# Changed referenced review\n- decision: pass\n'); }
++  }), /AGDF_STALE_RUN_REVISION/);
++  assert.equal(readFileSync(f.runPath, 'utf8'), referencedBefore); assert.equal(readFileSync(backlog, 'utf8'), beforeBacklog);
++  pass('explicit referenced review movement also prevents a mixed commit');
++} finally { f.close(); }
++console.log(`${checks} work-summary checks passed`);
+--- baseline/packages/core/test/control-state-test.js
++++ current/packages/core/test/control-state-test.js
+@@ -1180,7 +1180,7 @@
+       assert.equal(approveRunGate(stepRoot, { runId: "step", gate: "UR", revisionId: revision(), response: "Approval: UR", presentationId: prepareRunPresentation(stepRoot, { runId: "step", gate: "UR", revisionId: revision() }, { evaluateGateCheck }).presentation_id, date: "2026-01-03" }, { evaluateGateCheck }).outcome, "approved");
+       assert.equal(evaluateGateCheck(stepRoot, { runId: "step" }).current_gate, "Quick Task Execution", "the recorded route is applied immediately after UR approval");
+       assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "code_review_missing");
+-      assert.match(backlog(), /\| In Progress \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/);
++      assert.match(backlog(), /\| Quick Task Execution work pending \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/);
+ 
+       assert.equal(step("evidence").reason, "evidence_missing");
+       assert.equal(step("evidence", { evidence: "npm test: 2 pass", source: "npm test" }).outcome, "recorded");
+--- baseline/packages/core/test/run-backlog-writer-test.js
++++ current/packages/core/test/run-backlog-writer-test.js
+@@ -11,6 +11,7 @@
+ import { runSealState } from "../lib/control-state/run-seal.js";
+ import { readApprovalOperations } from "../lib/control-state/approval-operations.js";
+ import { parseRunState } from "../lib/control-state/run-state-parser.js";
++import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
+ 
+ const dependencies = { evaluateGateCheck, packageVersion: "0.14.5" };
+ let checks = 0;
+@@ -35,6 +36,9 @@
+     const retry = executeApprovalCommand(f.root, f.command, dependencies);
+     assert.equal(retry.outcome, phase === "intent" ? "accepted" : "already_applied");
+     const committed = bytes(f);
++    const recorded = committed.backlog.split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === f.runId).record;
++    assert.equal(recorded.revision_id, parseRunState(committed.run).meta.revision_id);
++    assert.equal(recorded.authorizes, false);
+     assert.match(row(f), /Awaiting Brownfield Review/);
+     assert.ok(row(f).includes(evaluateGateCheck(f.root, { runId: f.runId }).next_allowed_action));
+     assert.equal(runSealState(f.root, committed.run).status, "valid");
+@@ -113,6 +117,8 @@
+   writeFileSync(path, stale(valid));
+   const evidence = recordRunStep(f.root, { runId: f.runId, revisionId, step: "evidence", evidence: "Synthetic check" }, { policy: policyForRunContent });
+   assert.equal(evidence.outcome, "recorded"); assert.match(row(f), /Awaiting Brownfield Review/);
++  assert.equal(bytes(f).backlog.split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === f.runId).record.revision_id,
++    parseRunState(bytes(f).run).meta.revision_id);
+   assert.equal(runSealState(f.root, bytes(f).run).status, "valid");
+   pass("evidence recording also synchronizes status and next action");
+ } finally { f.cleanup(); }
+@@ -148,7 +154,7 @@
+       reason: "isolated legacy fixture", evidence: "test" }, { policy: policyForRunContent });
+     assert.equal(step.outcome, "recorded", JSON.stringify(step)); assert.equal(step.backlog_reason, "backlog_layout_legacy");
+     assert.equal(row(g).split("|").length, 15); assert.ok(row(g).includes("Legacy title")); assert.ok(row(g).includes("retained spec"));
+-    assert.match(row(g), /\| In Progress \|/u); assert.ok(row(g).includes(step.next_allowed_action));
++    assert.match(row(g), /\| Quick Task Execution work pending \|/u); assert.ok(row(g).includes(step.next_allowed_action));
+     pass("run-step keeps a legacy row's title and links, updates its status and reports the layout");
+   } finally { g.cleanup(); }
+ }
+--- baseline/packages/core/test/run-source-revisions-test.js
++++ current/packages/core/test/run-source-revisions-test.js
+@@ -19,6 +19,7 @@
+ import { upsertTableRow } from "../lib/control-state/run-state-edits.js";
+ import { createCoreServices } from "../lib/index.js";
+ import { correctRunRelationship } from "../lib/control-state/run-relationship-correction.js";
++import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
+ 
+ const temporary = mkdtempSync(join(tmpdir(), "agdf-source-revisions-")), root = join(temporary, "project");
+ const cli = resolve(import.meta.dirname, "../../cli/bin/create-agdf.js");
+@@ -43,8 +44,9 @@
+ cpSync(join(root, ".agdf"), seed, { recursive: true });
+ const originalRevision = f.revision(), evidence = [], observations = [], gates = ["UR", "PRD", "SD", "TP"];
+ const structuredBacklogRow = readFileSync(join(root, ".agdf/control/MASTER_BACKLOG.md"), "utf8").split("\n").find(line => line.includes(`| ${f.runId} |`));
+-assert.match(structuredBacklogRow, /\| In Progress \|/u, "persisted TP approval updates Backlog beyond Awaiting TP");
++assert.match(structuredBacklogRow, /\| CD\+Tests work pending \|/u, "persisted TP approval updates Backlog beyond Awaiting TP");
+ assert.ok(structuredBacklogRow.includes("Implement the approved TP scope"), "Backlog next action follows the approved TP transition");
++assert.equal(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === f.runId).record.revision_id, f.revision());
+ const reset = () => { rmSync(join(root, ".agdf"), { recursive: true }); cpSync(seed, join(root, ".agdf"), { recursive: true }); };
+ const tree = () => {
+   const result = {};
+@@ -97,6 +99,8 @@
+     assert.deepEqual(previewSourceRevision(root, p.input), p.preview); assert.deepEqual(tree(), before);
+     const oldApproval = readApprovalOperations(old).receipts, oldBindings = readArtefactBindings(old).receipts;
+     const result = applySourceRevision(root, p.input); assert.equal(result.outcome, "reopened", JSON.stringify(result)); assert.equal(result.gate, gate);
++    const recorded = readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === f.runId).record;
++    assert.equal(recorded.revision_id, result.revision_id); assert.equal(recorded.phase, gate); assert.equal(recorded.authorizes, false);
+     const current = f.readState().content, history = readSourceRevisions(current);
+     assert.equal(history.valid, true); assert.equal(validateRevisionHistory(root, history.receipts[0]), true);
+     assert.equal(runSealState(root, current).status, "valid");
+--- baseline/packages/core/test/run-step-transaction-test.js
++++ current/packages/core/test/run-step-transaction-test.js
+@@ -16,6 +16,7 @@
+ import { runSealState } from "../lib/control-state/run-seal.js";
+ import { readRun } from "../lib/control-state/run-state-edits.js";
+ import { recoverPendingRunStep } from "../lib/control-state/run-step-transaction.js";
++import { decodeBacklogMarker } from "../lib/control-state/backlog-summary.js";
+ 
+ const digest = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+ const closeout = { result: "delivered", evidence: "test evidence", risk: "none", next: "done" };
+@@ -61,11 +62,15 @@
+       assert.equal(existsSync(join(root, ".agdf", "control", "runs", "first", "RUN_STEP_PENDING.json")), false);
+       assert.equal(run.step("closeout", closeout).outcome, "recorded");
+     } else {
++      const captured = JSON.parse(readFileSync(join(root, '.agdf/control/runs/first/RUN_STEP_PENDING.json'), 'utf8')).backlog.next;
+       assert.equal(run.step("closeout", closeout).outcome, "recovered", boundary);
++      assert.equal(readFileSync(backlog, 'utf8'), captured, 'recovery preserves captured row and marker bytes');
+     }
+     assert.equal(runSealState(root, readFileSync(run.state, "utf8")).status, "valid", boundary);
+     assert.match(readFileSync(run.or, "utf8"), /delivered/);
+     assert.notEqual(digest(backlog), prior.backlog);
++    const marker = readFileSync(backlog, 'utf8').split('\n').map(decodeBacklogMarker).find(m => m?.record?.run_id === 'first').record;
++    assert.equal(marker.revision_id, run.revision()); assert.equal(marker.section, 'Completed / Superseded Pointers'); assert.equal(marker.kind, 'completed');
+     assert.equal(existsSync(join(root, ".agdf", "control", "runs", "first", "RUN_STEP_PENDING.json")), false);
+   } finally { rmSync(root, { recursive: true, force: true }); }
+ }
+@@ -107,6 +112,9 @@
+   const backlog = readFileSync(join(concurrentRoot, ".agdf", "control", "MASTER_BACKLOG.md"), "utf8");
+   for (const runId of ["alpha", "beta"]) {
+     assert.equal(backlog.split("\n").filter((line) => line.startsWith(`| P1 | ${runId} |`)).length, 1);
++    const markers = backlog.split('\n').map(decodeBacklogMarker).filter(m => m?.record?.run_id === runId);
++    assert.equal(markers.length, 1); assert.equal(markers[0].record.revision_id,
++      parseRunState(readFileSync(join(concurrentRoot, '.agdf/control/runs', runId, 'RUN_STATE.md'), 'utf8')).meta.revision_id);
+   }
+ } finally { rmSync(concurrentRoot, { recursive: true, force: true }); }
+ 
+--- baseline/plugins/agdf/control/templates/MASTER_BACKLOG.md
++++ current/plugins/agdf/control/templates/MASTER_BACKLOG.md
+@@ -15,11 +15,13 @@
+ 9. Historical artefacts remain linkable but do not override the current pointer.
+ 10. If an item is superseded, mark the replacement.
+ 11. If active work grows beyond roughly ten items, triage the backlog.
+-12. `Status` must be one of the human-readable labels normalized by `packages/core/lib/control-evaluation/shared.js`: Needs UR, Awaiting Brownfield Review, Awaiting PRD, Awaiting PRD Approval, Awaiting SD, Awaiting SD Approval, Awaiting TP, Awaiting TP Approval, In Progress, Blocked, Awaiting QA, Awaiting UAT, Awaiting OR, Completed, Superseded, Abandoned. The parser module is authoritative; this list only mirrors it for readability.
++12. `Status` must be one of the human-readable labels normalized by `packages/core/lib/control-evaluation/shared.js`: Needs UR, Awaiting Brownfield Review, Awaiting PRD, Awaiting PRD Approval, Awaiting SD, Awaiting SD Approval, Awaiting TP, Awaiting TP Approval, In Progress, Blocked, Awaiting QA, Awaiting UAT, Awaiting OR, Completed, Superseded, Abandoned. Generated observations also use Work pending, Approval pending, QA report pending, QA evidence open, QA correction open, QA source decision required, QA blocked, Source unconfirmed, Closeout pending, Unconfirmed, and phase-specific Brownfield Analysis/CD+Tests/CR/Quick Task Execution/Verified Change Execution/Mode/Slice Decision work pending. The parser module is authoritative; this list only mirrors it for readability.
+ 13. `Artefacts` link labels must be one of the labels normalized by the same parser module: `ur`, `brownfield`, `prd`, `sd`, `tp`, `qa`, `or` (case-insensitive). Do not invent other labels such as a raw artefact filename.
+ 14. After writing or updating this file, run `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before treating the edit as done.
+ 15. A `Work item` cell may optionally start with a bracketed scope tag, one of `[framework-maintenance]` or `[external-delivery]`, so the split between AGDF's own maintenance work and external product delivery stays visible at a glance. The tag is never required retroactively on `Completed / Superseded Pointers` rows. `packages/core/lib/control-evaluation/shared.js` is authoritative for the accepted values.
+ 16. After writing or updating this file, also resolve any `AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN` finding, which fires only for a present-but-unrecognized bracketed tag, never for an absent one.
++
++17. Core writers may place a bounded `agdf-backlog-summary-v1` comment after a complete table, separated by a blank line. It records the addressed row, target, actual Run revision, observation time and consumed source digests; it never authorizes. Preserve it with its row. Older rows remain readable without it. Invalid/foreign/ambiguous observations remain visibly unconfirmed; reading does not synchronize or scan all Runs.
+ 
+ ## Active Backlog
+ 
+--- baseline/plugins/agdf/meta/copilot-payload-baseline.json
++++ current/plugins/agdf/meta/copilot-payload-baseline.json
+@@ -1,7 +1,7 @@
+ {
+   "schema_version": 1,
+   "profile_id": "copilot-runtime-plugin",
+-  "max_files": 208,
+-  "max_bytes": 1758215,
+-  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3959 bytes of Core control code (forward-only generated next-step precedence preserving hand-authored instructions, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom. Run gate-internal-continuation-recovery-20261008-01: two shared Core read owners, bounded dispatcher follow-up, bilingual source/status diagnostics and existing-owner recovery instructions. Exact verified generated inventory; no speculative headroom or new host/UI payload. Summary-recovery follow-up: reuse canonical summary validation before PRD ready routing, precise bilingual diagnosis and bounded existing author correction; exact generated 208-file inventory, no additional host/UI or speculative headroom. QF-003: include the validated unique upstream source-owner targets in the existing Core follow-up reason; +120 bytes in the same file, no new route map, UI asset or unused headroom."
++  "max_files": 214,
++  "max_bytes": 1779480,
++  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3959 bytes of Core control code (forward-only generated next-step precedence preserving hand-authored instructions, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom. Run gate-internal-continuation-recovery-20261008-01: two shared Core read owners, bounded dispatcher follow-up, bilingual source/status diagnostics and existing-owner recovery instructions. Exact verified generated inventory; no speculative headroom or new host/UI payload. Summary-recovery follow-up: reuse canonical summary validation before PRD ready routing, precise bilingual diagnosis and bounded existing author correction; exact generated 208-file inventory, no additional host/UI or speculative headroom. QF-003: include the validated unique upstream source-owner targets in the existing Core follow-up reason; +120 bytes in the same file, no new route map, UI asset or unused headroom. Run backlog-status-flow-clarity-20261009-01: 6 shared Core summary/vocabulary/codec/shape files (including 2 declarations), existing writer/read integrations and template documentation; exact generated 214-file/1779412-byte inventory. No private React UI, host dependency, new gate authority or speculative headroom. Evidence: this Run PACKAGING_ASSESSMENT.json. Final descriptive encoded-path guards add 68 bytes in the same two Core owners; exact 214-file/1779480-byte inventory remains the enforced cap."
+ }

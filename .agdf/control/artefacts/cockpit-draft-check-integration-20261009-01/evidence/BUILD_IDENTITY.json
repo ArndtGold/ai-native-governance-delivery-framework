@@ -1,0 +1,60 @@
+{
+  "captured_at": "2026-10-09T17:28:24.739278+00:00",
+  "node": "v22.22.3",
+  "delivery_run": "cockpit-draft-check-integration-20261009-01",
+  "delivery_revision": "5893fffb-6f28-4b67-b894-4c206a98ac2f",
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1072355,
+    "digest": "sha256:859039c09e4c0ebc02cecc02b4954936538afb6749e42981b053a4ca0f687828"
+  },
+  "prepared_runtime": {
+    "schema_version": "1",
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/cockpit-draft-check-evidence-final/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "version": "0.14.5",
+    "server_digest": "6e4bc36bad2e46c17ce35f73a7be72a61a2b410fc4bb695f20cd2f29ed30ae21",
+    "dispatcher_digest": "6d8c17a7bd3442d0b511bf7c0526abab666a93d36a877b96120d19e39883e92e",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1072355,
+      "digest": "sha256:859039c09e4c0ebc02cecc02b4954936538afb6749e42981b053a4ca0f687828"
+    },
+    "activated": false,
+    "authorizes": false,
+    "profile": "isolated-evidence-runtime"
+  },
+  "sources": {
+    "docs/architecture/06-agdf-cockpit.md": "3f4d60310e0a776641adf74a5398c14855ea2c09677160fc90e80acc52c7182d",
+    "packages/cli/scripts/cockpit-scoped-mcp-test.js": "953620aa4208eac4475b5ca166ba0ed937ba594e1c114ecba593e65cadab26d8",
+    "packages/control-ui/server/service.mjs": "2e11b8df0fb259a5b4f84a4906ccbe8f1bcc63a61b25fa417fdf6112968ec6e6",
+    "packages/control-ui/src/App.tsx": "4782a41d25202308058d9ea5633b8d3ab3e25ca2b2c4ab9c336022f0636c314c",
+    "packages/control-ui/src/DraftCheck.tsx": "7e2e584817fc50e5161539d2b0ffc355e5ac275eaae9171b3c9debe40aaf6e13",
+    "packages/control-ui/src/RunDetail.tsx": "2a01ed11f10c172d3c826e8324a72f32b97244133e4d6ddb382eff74ca478700",
+    "packages/control-ui/src/api.ts": "69c68bbeca4dae334da392a1f5234108c70fc150c88e4bc0f52fd81ed2c0807c",
+    "packages/control-ui/src/mcp/CompactCockpit.tsx": "b29bad1855cf4779a0e39b2309e4b0819f05942835d39f420f1cb537e5657f39",
+    "packages/control-ui/src/mcp/style.css": "1eb376e368115986bc3cd6de35900d97fe4a10ca6262e632860f73a9e08a95d4",
+    "packages/control-ui/src/mcp/transport.ts": "dd9b62db6fde68c611cd6a0f429a66a3cffb00713b47b3b0a54fb2242d101cb5",
+    "packages/control-ui/src/state.ts": "2e512e6662d6f9e1ccb970442794db80d9675e6bfe5c031bab33c03786649509",
+    "packages/control-ui/src/style.css": "5480e4c4f63ae06e77db05cbfdee3dec2df4615dd54d617c77eca8638ce344d1",
+    "packages/control-ui/src/types.ts": "bf4225ee1081c5b8a6d89f00607115c9784c2592de8940801d9b27140789007f",
+    "packages/control-ui/src/useDraftCheck.ts": "1e9b935b5ea929ce753f79f13a58563390b01e50f9157cac03f641b0332f24d7",
+    "packages/control-ui/test/browser/draft-check.spec.mjs": "3838b96d1b82c11ed440a64bce95314f842632b8783d431a3e9b026ede11442a",
+    "packages/control-ui/test/draft-check.test.tsx": "2d6e6d0b147e448b88cdc48eaa39b6057b8211de59f7ea840c9a88eb1316aabd",
+    "packages/control-ui/test/draft-service.test.mjs": "41ddb70405c0c9eec53e0a8e53b3b8b2eb9744b3220082324816d12b24100115",
+    "packages/core/lib/control-inspect/artifact-readiness.js": "5102fe6da5249f409de2f0b0f83173239fc44f24e04530be2b42573e9993a956",
+    "packages/core/lib/control-inspect/cockpit-contract.js": "bcd3c8c57649fdfa48879eb2a516dd23f1188bafae20928b8a44b6af2923bfc5",
+    "packages/core/lib/control-inspect/cockpit-session.js": "5268af42e4ad2f8289336c1b05acc4a609751b1cee7514c554fc7653922c529c",
+    "packages/core/lib/control-inspect/cockpit.js": "d3a0b4f80499befe89afe4bc2679f5c5f8cdcc169931d54b8e299e3dc71a6d87",
+    "packages/core/lib/control-read/cockpit-pool.js": "81dcebb90d55fbf446fc0a3077208f13f95076286a3aa2aa7d0594c28ac8a670",
+    "packages/core/lib/control-read/cockpit-worker.js": "f12c062542098dd46c96e3b3477198f853a775dad3758c4e1e47e273464b8653",
+    "packages/core/test/cockpit-draft-check-test.js": "11a710b9f2b9657e14180f34f60b63370663d59b2c8ad3018acf87c32738daae",
+    "packages/mcp-server/README.md": "7daa1f6fcfb1bbbfa2a44014574c9962880ef308f226c3250722c919844ee90a",
+    "plugins/agdf/meta/copilot-payload-baseline.json": "90e43e0994ee17dbd2c90d012cd7bc5cde733de83012f4a7bdb6624d6d9b56a8"
+  }
+}

@@ -1,0 +1,24 @@
+npm notice run agdf-control-ui@0.0.0 npx
+npm notice run 'playwright' test test/browser/backlog-summary.spec.mjs test/browser/journeys.spec.mjs --grep open normalized|saved action and evidence|work action leads
+
+Running 3 tests using 1 worker
+
+(node:55075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty (3.3s)
+(node:55100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/backlog-summary.spec.mjs:62:1 › saved action and evidence limitation wrap without clipping in compact and expanded views (2.3s)
+(node:55102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55075) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 test/browser/journeys.spec.mjs:505:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (3.0s)
+
+  3 passed (11.4s)

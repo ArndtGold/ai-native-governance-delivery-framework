@@ -1,0 +1,27 @@
+{
+  "run_id": "backlog-status-flow-clarity-20261009-01",
+  "observed_at": "2026-10-09T12:05:32.833962+00:00",
+  "authorizes": false,
+  "scenarios": [
+    "SCN-010",
+    "SCN-011",
+    "SCN-012",
+    "SCN-014",
+    "SCN-030",
+    "SCN-031"
+  ],
+  "results": [
+    "tests/final-core-results.json",
+    "tests/metadata-boundary-results.json",
+    "tests/summary-final-bounds.json"
+  ],
+  "cases": [
+    "QA bytes and newly referenced review moving after intent abort before commit",
+    "intent/OR/Run/Backlog faults roll back or recover at existing Run commit point",
+    "recovery uses exact captured row plus marker bytes; actual revision remains bound",
+    "concurrent alpha/beta workers preserve exactly one row/marker each with their own actual revision",
+    "foreign Backlog edit/other pending journal stops writes",
+    "relationship correction and Run recovery report pending and exact addressed run-update instruction"
+  ],
+  "limitation": "Existing journals and their seal/foreign-state checks remain authoritative; changed registered sources can stop committed recovery, never cause fresh mixed-source recomputation."
+}

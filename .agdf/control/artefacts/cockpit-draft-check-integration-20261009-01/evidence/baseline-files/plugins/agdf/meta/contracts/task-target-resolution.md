@@ -1,0 +1,156 @@
+# AGDF Runtime Contract — Task Target Resolution
+
+## Purpose And Ordering
+
+After positive Request Activation, resolve the user's primary work target before repository
+activation, Scope Classification, mode selection or gate evaluation for routes that require a
+target. Repository governance is downstream of the task target; the current working directory, an
+inspected repository or a source mentioned as evidence must never become the work target by
+accident. Silent Request Activation abstention and targetless catalog routes do not invoke this
+contract.
+
+The canonical order after Request Activation selected a target-bound route is:
+
+1. resolve or revalidate the task target;
+2. derive the governance target from that resolved target;
+3. activate repository-local AGDF control only for that governance target;
+4. then apply read-only orientation, Scope Classification, mode selection and gate evaluation.
+
+If task-target resolution is unresolved, steps 2–4 and every mutation are forbidden. The unresolved
+result is terminal for the current response and overrides continuation, missing-control, fresh-UR
+and approval branches. Prior chat artefacts, runs and approvals remain candidate context only; they
+must not produce a conditional gate result until one target is resolved.
+
+## Direct Skill Invocation Preflight
+
+After the already-loaded Request Activation guard has positively selected a direct, target-bound
+skill route, every canonical AGDF skill invocation starts with this preflight before skill-specific
+input discovery, repository inspection, run selection, gate evaluation, quality evaluation or
+mutation. This applies equally when a user invokes a skill explicitly and when the agent router
+selected it. Automatic selection alone is not positive activation; on silent abstention this
+preflight is not run.
+
+1. Determine the current conversation language for presentation. A German user turn or an ongoing
+   German conversation uses `de`; an unsupported language falls back to the complete English locale
+   pack through the Interaction Contract.
+2. Resolve or revalidate the primary target under Target Authority Precedence. When an exact-version
+   surface-local validator is available, use one of the existing `target-check --json` forms below.
+3. Validate the normalized Resolution Result. Do not infer missing fields from cwd, chat storage,
+   an inspected repository, a prior run or evidence sources.
+4. If `resolution_state` is `unresolved`, consume `task_target_orientation.markdown` verbatim from
+   the Interaction Contract, request only the normalized `next_action` in the same presentation
+   language and stop the current skill invocation. This is a terminal pre-decision outcome: do not
+   inspect repository control state, select a run, evaluate a gate or quality decision, produce the
+   skill's normal output, or mutate files.
+5. If `resolution_state` is `resolved`, use only its `governance_target` for downstream repository,
+   run, gate and evidence access. Revalidate after an explicit target change and before every
+   mutation or gate decision.
+
+The resolved `presentation_language` remains binding for the complete user-facing interaction:
+target orientation, clarification and subsequent skill-owned chat output must not mix locale packs.
+Durable artefacts, machine fields, task identifiers and exact approval values retain their canonical
+language as defined by the Interaction Contract.
+
+Context-only form when no reliable target is selected:
+
+```bash
+node <surface-local-agdf> target-check --json --language <current-chat-language> --working-directory <absolute-path>
+```
+
+Selected-target form:
+
+```bash
+node <surface-local-agdf> target-check --json --language <current-chat-language> --target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path> --working-directory <absolute-path>
+```
+
+The two forms are validation paths, not permission to invent a target or contact a registry. If no
+exact-version surface-local validator exists, continue agent-natively only as far as the observable
+evidence permits and report machine validation as unavailable. Do not install or resolve a remote
+runtime during ordinary skill invocation.
+
+## Resolution Result
+
+Use one normalized result:
+
+- `resolution_state`: `resolved | unresolved`
+- `reason_code`: `explicit_target | continued_target | multiple_plausible_targets |
+  target_content_mismatch | target_unavailable | no_reliable_target | target_source_invalid`
+- `primary_target`: exactly one requested work object when resolved, otherwise empty
+- `evidence_sources`: zero or more mentioned or inspected sources that do not gain mutation authority
+- `working_directory`: execution context only, never target authority by itself
+- `governance_target`: the repository whose control state applies to the primary target, otherwise empty
+- `target_changed`: whether an explicit new target replaced the previously confirmed target
+- `next_action`: required clarification, supply or retry action when unresolved
+- `input_error`: present only for invalid target-selection input; contains the canonical `field` and
+  `allowed_values` without echoing the rejected value
+
+A resolved result requires a non-empty `primary_target` and a reason code of `explicit_target` or
+`continued_target`. An unresolved result requires an empty `primary_target`, an empty
+`governance_target`, one of the five unresolved reason codes and a non-empty `next_action`.
+Contradictory or incomplete results fail closed.
+
+## Target Authority Precedence
+
+Resolve in this order:
+
+1. an explicit file, artefact or repository named as the work target in the current user turn;
+2. a previously confirmed target only when the current turn unambiguously continues the same action,
+   object and scope;
+3. the current repository or working directory only when the request explicitly or deictically asks
+   for work on "this project", "this repository" or an equivalent current-scope reference;
+4. otherwise `no_reliable_target`.
+
+An explicit current-turn target always replaces an inherited target. Make the change visible when
+the previous target could otherwise remain plausible.
+
+Do not fall back to the working directory, a neighboring file or an evidence source when the
+explicit target is unavailable or its content does not support the requested change.
+
+## Evidence And Mutation Boundary
+
+Reading, inspecting, mentioning or relying on a repository or artefact makes it an evidence source,
+not a mutation target. Evidence access never grants mutation authority and never activates that
+repository's AGDF control state.
+
+Derive `governance_target` only from:
+
+- the repository containing the resolved `primary_target`; or
+- an explicit user statement that a named repository governs the target.
+
+An external standalone artefact may have no repository governance target. In that case the router
+continues with the applicable non-repository path; it must not borrow governance from the current
+working directory.
+
+## Continuation And Target Change
+
+A confirmed target may continue across related turns only when the current request remains
+unambiguous. Revalidate it before every mutation or gate decision. New explicit target evidence wins.
+New ambiguity ends the inherited binding and produces `multiple_plausible_targets`.
+
+When a durable AGDF run exists, its Source And Scope State may record the confirmed target as
+evidence. It does not override a newer explicit user target. Outside a run, continuation remains
+transient conversation state; do not create a global target store or a second run-state owner.
+
+## Fail-Closed States
+
+- `multiple_plausible_targets`: more than one work target remains plausible; list the candidates and
+  request the smallest clarification.
+- `target_content_mismatch`: the requested content change is not supported by the explicit target's
+  observable content; name the mismatch and ask whether the target or requested change should change.
+- `target_unavailable`: the named file, attachment or artefact cannot be inspected; request supply or
+  access and offer a visible retry.
+- `no_reliable_target`: neither an explicit target nor an unambiguous continuation exists; request a
+  target.
+
+These states forbid repository activation, Scope Classification, gate evaluation and mutation.
+Never silently expand scope to make the request fit a different project.
+
+## Presentation Boundary
+
+`contracts/interaction.md` owns the visible, non-authorizing Task Target Orientation.
+`packages/core/lib/interaction-presentation.js` owns its rendering. The renderer projects a normalized
+result; it must not resolve targets, derive governance or become a state store.
+
+Show orientation when target/context separation is material, when the target changes, or when the
+result is unresolved. Avoid redundant presentation for an obvious unchanged target. Presentation
+never grants mutation or gate authority.

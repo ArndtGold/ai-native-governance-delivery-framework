@@ -1,0 +1,17 @@
+PASS approval + Backlog transaction recovers intent, identical replay has one effect
+PASS approval + Backlog transaction recovers run, identical replay has one effect
+PASS approval + Backlog transaction recovers backlog, identical replay has one effect
+PASS nonexact reply changes neither Run nor Backlog
+PASS presentation tampered after journal intent is rejected before commit
+PASS backlog-only repair preserves exact sealed Run bytes and is idempotent
+PASS backtick key is matched once, title and links retained
+PASS unsupported header is reported as skipped with zero mutation
+PASS duplicate identity is reported as skipped with zero mutation
+PASS stale caller cannot repair pointer
+PASS legacy pointer repair retains its thirteen columns and existing links
+PASS symlink Backlog is skipped without changing foreign file or Run
+PASS symlink Run cannot authorize a Backlog-only repair
+PASS evidence recording also synchronizes status and next action
+PASS approval is accepted when the Backlog cannot be synchronized and reports why
+PASS run-step keeps a legacy row's title and links, updates its status and reports the layout
+16 Backlog writer scenarios passed.

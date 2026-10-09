@@ -1,0 +1,23 @@
+# Authorized native follow-up: installation complete, host observation pending
+
+- run_id: backlog-status-flow-clarity-20261009-01
+- observed_revision_id: e1f31de3-9808-43a4-ba6f-04787431bde2
+- authorization: User replied `ja` to the concrete local Codex installation and subsequent native Cockpit verification request. This extends the operational scope previously excluded by TP; it is not Approval: QA/UAT and does not edit the approved TP.
+- installation: Complete; local version 0.14.5+codex.local-fa21bc1cf681, verified healthy, plugin MCP prepared. evidence/LOCAL_INSTALLATION_20261009.json records exact provenance and operational execution.
+- installation_limit: The standard npm route failed when unrestricted Codex plugin-list catalog output exceeded execFileSync's default capture buffer (ENOBUFS, native command status 0, captured bytes 1051978). The same existing installLocalPlugin pipeline succeeded with its existing exec adapter using a finite 16 MiB output bound. No installation/ownership/version check was disabled, no source correction or new control policy was introduced. Failed installer rollback reported restored registration/filesystem. The output-buffer defect is an operational installer limitation, not repaired source or a new accepted fallback for product behavior.
+- connection: The existing project agdf-cockpit-local connection was pinned to the old scroll-stability test runtime. Only its entrypoint was switched to the independently prepared current verified runtime. Node, name, target, cwd, timeouts and every other config byte remain unchanged. The previous connection is backed up. evidence/CODEX_CONNECTION_UPDATE_20261009.json binds before/after bytes and exact paths.
+- fresh_served_resource: Independently reopened owned MCP stdio connection serves ui://agdf/cockpit/v1.html, 1061875 bytes, sha256:b3d0dbb42dae141815bca1272f0a4e9030a74ab21f51dd2415f6857595ec91da; exact server/dispatcher/SDK identity matches the prepared source, with this Run explicitly selected. evidence/FRESH_CONNECTION_20261009.json records this protocol observation. It is not a native rendering claim.
+- native_observation: After installation and connection update, CUA's MCP Apps inventory still exposes only tab 1 / initId e72b6d1d-d8d0-43a8-b022-f10dd9575836 / sandboxId source-b74a278f7bf713ee. DOM observation identifies Stand 9.10.2026 12:07:45, 59 active entries and `Sitzung abgelaufen`, with disabled interaction and the prior data state. The reopened tool result did not supply a new side-panel tab to this automation surface. No current candidate native screenshots, narrow/wide, keyboard, scroll or retry proof is claimed.
+- missing_evidence: BSC-NATIVE-001 / T-007 / SCN-026 / AC-007 remains open. Installation and served-resource identity do not satisfy the native observation sequence in evidence/NATIVE_OBSERVATION.md.
+- required_next_step: Fully restart Codex and open a fresh session for this exact repository/Run, open and expand a new native Cockpit view, then collect the prepared identity-bound observation sequence and refresh reviews/QA.
+- quality_effect: Existing QA revise and review finding remain unchanged. Do not rerun QA as pass or request Approval: QA until the applicable native sequence is evidenced. The previous session can retain old tools/skills/resources; this agent cannot restart the desktop through its enabled UI capabilities.
+- protected_scope: Implementation/approved source/foreign artefact digest checks remain unchanged. No other Run's findings, approval, status or archive are modified; no VCS/release or global user MCP registration was added.
+- memory_target: scope_artifact
+- memory_reason: local operational evidence and exact restart handoff
+- memory_refs: this report; evidence/LOCAL_INSTALLATION_20261009.json; evidence/CODEX_CONNECTION_UPDATE_20261009.json; evidence/FRESH_CONNECTION_20261009.json
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- authorizes: false

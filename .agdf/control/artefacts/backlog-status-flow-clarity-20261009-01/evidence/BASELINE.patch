@@ -1,0 +1,231 @@
+diff --git a/.agdf/control/MASTER_BACKLOG.md b/.agdf/control/MASTER_BACKLOG.md
+index 05497cc..d1c2421 100644
+--- a/.agdf/control/MASTER_BACKLOG.md
++++ b/.agdf/control/MASTER_BACKLOG.md
+@@ -71,6 +71,7 @@
+ | P1 | status-card-stale-next-action-20261008-01 | Stale next step after internal step recording | In Progress | [UR](artefacts/status-card-stale-next-action-20261008-01/UR.md) · [Brownfield](artefacts/status-card-stale-next-action-20261008-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/status-card-stale-next-action-20261008-01/PRD.md) · [SD](artefacts/status-card-stale-next-action-20261008-01/SD.md) · [TP](artefacts/status-card-stale-next-action-20261008-01/TP.md) | [UR](artefacts/status-card-stale-next-action-20261008-01/UR.md) | Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR. |
+ | P1 | cockpit-active-backlog-core-ui-20261008-01 | Shared Core reading and readable active-backlog selection | In Progress | [UR](artefacts/cockpit-active-backlog-core-ui-20261008-01/UR.md) · [Brownfield](artefacts/cockpit-active-backlog-core-ui-20261008-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/cockpit-active-backlog-core-ui-20261008-01/PRD.md) · [SD](artefacts/cockpit-active-backlog-core-ui-20261008-01/SD.md) · [TP](artefacts/cockpit-active-backlog-core-ui-20261008-01/TP.md) · [QA](artefacts/cockpit-active-backlog-core-ui-20261008-01/QA_REPORT.md) | [UR](artefacts/cockpit-active-backlog-core-ui-20261008-01/UR.md) | Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report. |
+ | P1 | gate-internal-continuation-recovery-20261008-01 | Reliable internal gate continuation and actionable recovery | In Progress | [UR](artefacts/gate-internal-continuation-recovery-20261008-01/UR.md) · [Brownfield](artefacts/gate-internal-continuation-recovery-20261008-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/gate-internal-continuation-recovery-20261008-01/PRD.md) · [SD](artefacts/gate-internal-continuation-recovery-20261008-01/SD.md) · [TP](artefacts/gate-internal-continuation-recovery-20261008-01/TP.md) · [QA](artefacts/gate-internal-continuation-recovery-20261008-01/QA_REPORT.md) | [UR](artefacts/gate-internal-continuation-recovery-20261008-01/UR.md) | Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report. |
++| P1 | backlog-status-flow-clarity-20261009-01 | Clear backlog status and reliable update flow | In Progress | [UR](artefacts/backlog-status-flow-clarity-20261009-01/UR.md) · [Brownfield](artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/backlog-status-flow-clarity-20261009-01/PRD.md) · [SD](artefacts/backlog-status-flow-clarity-20261009-01/SD.md) · [TP](artefacts/backlog-status-flow-clarity-20261009-01/TP.md) | [UR](artefacts/backlog-status-flow-clarity-20261009-01/UR.md) | Run Brownfield Analysis for the approved TP scope before CD+Tests. |
+ 
+ ## Planned / Parking Lot
+ 
+diff --git a/packages/control-ui/src/BacklogRows.tsx b/packages/control-ui/src/BacklogRows.tsx
+index ec19527..6c2ebce 100644
+--- a/packages/control-ui/src/BacklogRows.tsx
++++ b/packages/control-ui/src/BacklogRows.tsx
+@@ -4,8 +4,8 @@ import type { BacklogEntry, Diagnostic, TitleObservation } from './types';
+ export function BacklogCounts({ list, displayed }: { list: CockpitList<BacklogEntry, Diagnostic>; displayed?: number }) {
+   if (list.coverage === 'unavailable') return <p className="muted" role="status">Bereich nicht verfügbar · Anzahl nicht bestimmbar</p>;
+   return <p className="backlog-counts" role="status">
+-    {list.sectionCount} {list.coverage === 'partial' ? 'lesbare Einträge · Eingeschränkt' : 'Einträge im Bereich'}
+-    {' · '}{list.matchCount} {list.coverage === 'partial' ? 'lesbare Treffer' : 'Treffer'}
++    {list.sectionCount} {list.coverage === 'partial' ? 'lesbare Einträge · Eingeschränkt' : list.sectionCount === 1 ? 'Eintrag' : 'Einträge'}
++    {list.query && <> · {list.matchCount} {list.coverage === 'partial' ? 'lesbare Treffer' : 'Treffer'}</>}
+     {displayed !== undefined && <> · {displayed} angezeigt</>}
+   </p>;
+ }
+diff --git a/packages/control-ui/src/Overview.tsx b/packages/control-ui/src/Overview.tsx
+index 2fcfc70..602a2f8 100644
+--- a/packages/control-ui/src/Overview.tsx
++++ b/packages/control-ui/src/Overview.tsx
+@@ -34,12 +34,12 @@ export function Overview({ result, onSelect, view, onViewChange, loadTitles, tit
+       <ul>{list.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.key && <code> · {d.key}</code>}{d.message && <p>{d.message}</p>}</li>)}</ul>
+     </details>}
+     <p className="muted">Letzter gespeicherter Eintrag zuerst. Die Suche umfasst gespeicherten Backlog-Titel, Schlüssel und Status.</p>
+-    {titles.loading && <p className="muted" role="status">Ergänzende Überschriften sichtbarer Vorhaben werden geladen.</p>}
++    <p className="backlog-title-announcement" role="status">{titles.loading ? 'Ergänzende Überschriften sichtbarer Vorhaben werden geladen.' : ''}</p>
+     <div className="backlog-heading">
+       <h2 tabIndex={-1} data-focus-id="backlog-heading">{headings[areaIndex]}</h2><BacklogCounts list={list}/>
+     </div>
+     </div>
+-    <div id="backlog-list" role="region" aria-label={`Vorhaben · ${labels[areaIndex]}`} tabIndex={0}>
++    <div id="backlog-list" role="region" aria-label={`Vorhaben · ${labels[areaIndex]}`} aria-busy={titles.loading} tabIndex={0}>
+       {!inventory ? <ReadState state={result.state} code={result.code}/> : <BacklogEmpty list={list}/>}
+       {!!list.rows.length && <ul className="undertaking-list" ref={titles.list}>{list.rows.map(row => <BacklogRow key={row.identity} row={row} current={current} onSelect={onSelect} observation={titles.cache.get(row.identity)}/>)}</ul>}
+     </div>
+diff --git a/packages/control-ui/src/mcp/CompactCockpit.tsx b/packages/control-ui/src/mcp/CompactCockpit.tsx
+index 7a174c0..9490e90 100644
+--- a/packages/control-ui/src/mcp/CompactCockpit.tsx
++++ b/packages/control-ui/src/mcp/CompactCockpit.tsx
+@@ -25,13 +25,15 @@ export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSel
+   const status = readingStatus(state);
+   const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && !state.problem && state.phase === 'ready' && !!state.scope?.data;
+   const target = state.scope?.target.display_path;
++  const repository = target?.split(/[\\/]/).filter(Boolean).at(-1) ?? 'Lokales Projekt';
+   const inventoryHints = !!list.diagnostics.length && <details className="compact-inventory"><summary>Backlog-Hinweise · Aktiv · {list.diagnostics.length}</summary><p>Der aktive Bereich ist eingeschränkt lesbar. Zähler und Treffer können unvollständig sein.</p><ul>{list.diagnostics.map((d, i) => <li key={i}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul></details>;
+   return <section className="compact-cockpit agdf-surface" aria-label="AGDF Cockpit" aria-busy={busy || state.refreshing}>
+     <BrandHeader variant="card" projectPath={target} contextTitle={selected?.title} headingRef={headingRef}>
+       <RefreshControl state={state} enabled={enabled} onReload={onReload}/>
+     </BrandHeader>
+     {state.route.view === 'overview' && state.inventory?.data && <div className="compact-controls">
+-      <h2 tabIndex={-1} data-focus-id="backlog-heading">Aktive Vorhaben</h2>
++      <h2 tabIndex={-1} data-focus-id="backlog-heading">Aktive Vorhaben im Repository</h2>
++      <p className="compact-muted compact-repository" title={target}>{repository}</p>
+       {returnNotice && <p role="status">{returnNotice}</p>}
+       <BacklogCounts list={list} displayed={shown.length}/>
+       <label className="compact-search">Vorhaben suchen<input type="search" data-focus-id="backlog-search" placeholder="Titel, Schlüssel oder gespeicherter Status" value={view.filter} onChange={event => onViewChange({ section: COCKPIT_BACKLOG_SECTIONS[0], filter: event.target.value })}/></label>
+diff --git a/packages/control-ui/src/mcp/style.css b/packages/control-ui/src/mcp/style.css
+index 2f26988..996ba25 100644
+--- a/packages/control-ui/src/mcp/style.css
++++ b/packages/control-ui/src/mcp/style.css
+@@ -22,6 +22,7 @@
+ .compact-run h2 { margin: 0 0 var(--agdf-space-2); font-size: var(--agdf-text-xl); line-height: var(--agdf-text-leading-xl); letter-spacing: var(--agdf-tracking-tight); overflow-wrap: anywhere; }
+ .compact-run-id { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); overflow-wrap: anywhere; }
+ .compact-muted { color: var(--cockpit-muted); }
++.compact-repository { overflow-wrap: anywhere; }
+ .compact-run-followup { margin-top: var(--agdf-space-4); }
+ .compact-inventory { font-size: var(--agdf-text-xs); }
+ .compact-inventory { margin-top: var(--agdf-space-3); padding: var(--agdf-space-3); border: 1px solid var(--cockpit-risk-line); border-radius: var(--agdf-radius-lg); background: var(--cockpit-risk-bg); }
+diff --git a/packages/control-ui/src/style.css b/packages/control-ui/src/style.css
+index e99fa3a..e51fcdf 100644
+--- a/packages/control-ui/src/style.css
++++ b/packages/control-ui/src/style.css
+@@ -170,6 +170,11 @@ footer { padding: var(--agdf-space-6) 0 var(--agdf-space-2); font-size: var(--ag
+ .workspace--overview .reading-results { flex: 1; min-height: min-content; display: flex; }
+ .workspace--overview .backlog-overview { flex: 1; min-width: 0; min-height: min-content; display: grid; grid-template-rows: auto minmax(120px, 1fr); margin-block: var(--agdf-space-3); }
+ .backlog-controls { min-width: 0; }
++/* Automatic metadata reads must not resize the controls or the scroll viewport. */
++.backlog-title-announcement {
++  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
++  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
++}
+ .backlog-heading h2, .backlog-heading p { margin-block: var(--agdf-space-2); }
+ /* The scroll viewport must not inherit the full list's intrinsic height. */
+ #backlog-list { min-height: 0; contain: size; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+diff --git a/packages/control-ui/test/browser/backlog.spec.mjs b/packages/control-ui/test/browser/backlog.spec.mjs
+index 6cd8a7a..7813ae8 100644
+--- a/packages/control-ui/test/browser/backlog.spec.mjs
++++ b/packages/control-ui/test/browser/backlog.spec.mjs
+@@ -11,6 +11,51 @@ async function overview(page, service) {
+   await page.goto(service.startupURL);
+   await expect(page.getByRole('button', { name: 'Aktiv 1', exact: true })).toBeVisible();
+ }
++test('supplementary title batches keep the expanded list and controls still while scrolling', async ({ page }) => {
++  const f = fixture();
++  const rows = Array.from({ length: 40 }, (_, i) => `| 1 | scroll-${i} | Vorhaben ${i} | In progress | | UR | Quellen prüfen. |`);
++  fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), storedBacklog().replace(/\| 1 \| fixture-a[^\n]+/, rows.join('\n')));
++  const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
++  const held = [];
++  let hold = false, batches = 0;
++  await page.route('**/api/backlog-titles?**', async route => {
++    batches++;
++    if (hold) await new Promise(resolve => held.push(resolve));
++    await route.continue();
++  });
++  const geometry = () => page.locator('#backlog-list').evaluate(list => {
++    const controls = list.parentElement.querySelector('.backlog-controls');
++    const heading = controls.querySelector('h2').getBoundingClientRect();
++    const rect = list.getBoundingClientRect();
++    return { controls: controls.getBoundingClientRect().height, heading: heading.top, top: rect.top, height: rect.height, scroll: list.scrollTop };
++  });
++  try {
++    await page.setViewportSize({ width: 800, height: 1000 });
++    await page.goto(service.startupURL);
++    await expect(page.locator('.undertaking-list > li')).toHaveCount(40);
++    await expect.poll(() => batches).toBeGreaterThan(0);
++    await expect(page.getByText('Ergänzende Überschriften sichtbarer Vorhaben werden geladen.')).toHaveCount(0);
++    await page.evaluate(() => document.fonts.ready);
++    const baseline = await geometry();
++    hold = true;
++    await page.locator('#backlog-list').evaluate(list => { list.scrollTop = 1800; });
++    await expect.poll(() => held.length).toBeGreaterThan(0);
++    const loading = await geometry();
++    expect(loading.controls).toBe(baseline.controls);
++    expect(loading.heading).toBe(baseline.heading);
++    expect(loading.top).toBe(baseline.top);
++    expect(loading.height).toBe(baseline.height);
++    const scroll = loading.scroll;
++    hold = false; held.splice(0).forEach(resolve => resolve());
++    await expect(page.getByText('Ergänzende Überschriften sichtbarer Vorhaben werden geladen.')).toHaveCount(0);
++    expect(await geometry()).toEqual({ ...baseline, scroll });
++    await page.screenshot({ path: evidencePath('cockpit-scroll-stable.png'), fullPage: false });
++  } finally {
++    hold = false; held.splice(0).forEach(resolve => resolve());
++    await page.close();
++    await service.close(); expect(treeBytes(f.root)).toEqual(before); f.close();
++  }
++});
+ test('backlog areas filter stored entries locally, keep search on return, and match Pages in light/dark at four widths', async ({ page }) => {
+   const f = fixture(); fs.writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), storedBacklog());
+   const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
+@@ -88,7 +133,9 @@ test('SCN-008/009/011/012/013: compact active three-preview, full search, long w
+   await page.addInitScript(({secret,origin})=>{if(location.origin===origin)history.replaceState(null,'','/card.html#'+secret);},{secret:service.secret,origin:service.origin});
+   await page.goto(service.origin+'/card.html');
+   await expect(page.locator('.undertaking-list > li')).toHaveCount(3);
+-  await expect(page.getByText('8 Einträge im Bereich · 8 Treffer · 3 angezeigt')).toBeVisible();
++  await expect(page.getByRole('heading',{name:'Aktive Vorhaben im Repository'})).toBeVisible();
++  await expect(page.locator('.compact-controls > p').first()).toHaveText(f.root.split(/[\\/]/).at(-1));
++  await expect(page.getByText('8 Einträge · 3 angezeigt')).toBeVisible();
+   expect(await page.locator('.undertaking-list h3').first().textContent()).toBe(title+' 7');
+   await expect(page.getByText('Gespeicherter Stand laut Backlog: Completed',{exact:true})).toBeVisible();
+   await expect(page.getByRole('combobox')).toHaveCount(0);await expect(page.getByRole('button',{name:'Beratung vorbereiten'})).toHaveCount(0);
+diff --git a/packages/control-ui/test/compact.test.tsx b/packages/control-ui/test/compact.test.tsx
+index 55c629b..62f32ab 100644
+--- a/packages/control-ui/test/compact.test.tsx
++++ b/packages/control-ui/test/compact.test.tsx
+@@ -19,11 +19,14 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
+   const many=backlog([pointer('run-a','Deliver cockpit'),...Array.from({length:12},(_,i)=>pointer(`other-${i}`,`Other project ${i}`))]);
+   const read=vi.fn(async(path:string)=>named(path)?detail:many) as unknown as ReadTransport;
+   render(<App compact transport={read}/>);await screen.findByRole('searchbox');
++  expect(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'})).toBeTruthy();
++  expect(document.querySelector('.compact-controls > p')?.textContent).toBe('fixture');
++  expect(screen.getByText('13 Einträge · 3 angezeigt')).toBeTruthy();
+   expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(3);
+   expect(document.querySelector('.undertaking-list .row-step')).toBeNull();
+   expect(document.querySelector('.row-source dd')?.closest('details')?.open).toBe(false);
+   fireEvent.change(screen.getByRole('searchbox',{name:'Vorhaben suchen'}),{target:{value:'other-7'}});
+-  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(read).toHaveBeenCalledTimes(1);
++  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(screen.getByText('13 Einträge · 1 Treffer · 1 angezeigt')).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
+   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'run-a'}});fireEvent.click(await readySelection());
+   await screen.findByText('Freigegebenen Umfang umsetzen.');expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
+   expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
+@@ -44,7 +47,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
+   await readySelection();
+   expect(screen.queryByText(/Backlog-Hinweise/)).toBeNull();
+   expect(screen.queryByText(/Einige gespeicherte Vorhaben oder Tabellen/)).toBeNull();
+-  expect(screen.getByText('1 Einträge im Bereich · 1 Treffer · 1 angezeigt')).toBeTruthy();
++  expect(screen.getByText('1 Eintrag · 1 angezeigt')).toBeTruthy();
+   expect((screen.getByRole('button',{name:'Alle Vorhaben öffnen'}) as HTMLButtonElement).disabled).toBe(false);
+  });
+  it('summary and details remain in the expanded reader without resetting or re-reading the Run',async()=>{
+@@ -183,7 +186,7 @@ it('SCN-003/008/009: compact active preview and expanded projection share query/
+  expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice(5).reverse().map(r=>r.title));
+  expect(screen.queryByRole('button',{name:'Planned only'})).toBeNull();expect(screen.queryByRole('button',{name:'Archive only'})).toBeNull();
+  fireEvent.change(screen.getByRole('searchbox'),{target:{value:' Gemeinsames '}});
+- expect(screen.getByText('8 Einträge im Bereich · 8 Treffer · 3 angezeigt')).toBeTruthy();
++ expect(screen.getByText('8 Einträge · 8 Treffer · 3 angezeigt')).toBeTruthy();
+  view.rerender(<App transport={read}/>);
+  expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe(' Gemeinsames ');
+  expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice().reverse().map(r=>r.title));
+@@ -201,7 +204,7 @@ it('SCN-020: exact row return focus; source addition hiding it in compact previe
+  fireEvent.click(await readySelection());await screen.findByText('Freigegebenen Umfang umsetzen.');
+  rows=[...rows,...Array.from({length:5},(_,i)=>pointer('new'+i,'New '+i))];
+  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
+- await screen.findByText(/außerhalb des aktuellen Ausschnitts/);expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'}));
++ await screen.findByText(/außerhalb des aktuellen Ausschnitts/);expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'}));
+  expect(screen.queryByText(/nicht mehr im Backlog/)).toBeNull();
+  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'run-a'}});await readySelection();
+  expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/runs/')).map(c=>c[0])).toEqual(['/api/runs/run-a?snapshot=snapshot','/api/runs/run-a?snapshot=snapshot']);
+@@ -211,7 +214,7 @@ it('SCN-020: removed originating row has explicit removal feedback without a sub
+  const read=vi.fn(async(path:string)=>named(path)?detail:backlog([pointer(removed?'run-b':'run-a')])) as unknown as ReadTransport;
+  render(<App compact transport={read}/>);fireEvent.click(await readySelection());await screen.findByText('Freigegebenen Umfang umsetzen.');removed=true;
+  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));await screen.findByText('Das zuvor geöffnete Vorhaben ist nicht mehr im Backlog enthalten.');
+- expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'}));expect(vi.mocked(read).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
++ expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'}));expect(vi.mocked(read).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
+ });
+ it('SCN-020: a valid run key matching a view control still restores the exact row focus',async()=>{
+  const key='backlog-search';
+diff --git a/packages/control-ui/test/scoped-reading.test.tsx b/packages/control-ui/test/scoped-reading.test.tsx
+index 04a5567..4a749ae 100644
+--- a/packages/control-ui/test/scoped-reading.test.tsx
++++ b/packages/control-ui/test/scoped-reading.test.tsx
+@@ -82,7 +82,7 @@ it('SCN-092: selecting during a committed title replacement captures the named R
+     expect(vi.mocked(read).mock.calls.find(call => call[0].startsWith('/api/backlog-titles'))?.[1].aborted).toBe(true);
+     await act(async () => completeTitles({ ...initial, snapshot_id: 'late-title-snapshot' }));
+     expect(screen.getByRole('heading', { name: run.title, level: 1 })).toBeTruthy();
+-    expect(screen.queryByRole('heading', { name: 'Aktive Vorhaben' })).toBeNull();
++    expect(screen.queryByRole('heading', { name: 'Aktive Vorhaben im Repository' })).toBeNull();
+   } finally { vi.unstubAllGlobals(); }
+ });
+ 

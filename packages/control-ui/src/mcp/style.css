@@ -22,6 +22,7 @@
 .compact-run h2 { margin: 0 0 var(--agdf-space-2); font-size: var(--agdf-text-xl); line-height: var(--agdf-text-leading-xl); letter-spacing: var(--agdf-tracking-tight); overflow-wrap: anywhere; }
 .compact-run-id { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); overflow-wrap: anywhere; }
 .compact-muted { color: var(--cockpit-muted); }
+.compact-repository { overflow-wrap: anywhere; }
 .compact-run-followup { margin-top: var(--agdf-space-4); }
 .compact-inventory { font-size: var(--agdf-text-xs); }
 .compact-inventory { margin-top: var(--agdf-space-3); padding: var(--agdf-space-3); border: 1px solid var(--cockpit-risk-line); border-radius: var(--agdf-radius-lg); background: var(--cockpit-risk-bg); }
@@ -57,3 +58,9 @@
 .compact-controls .row-source > summary { font-size: var(--agdf-text-xs); }
 /* Content determines the inline height; the host/chat owns scrolling. */
 .compact-controls .undertaking-list { overflow: visible; max-height: none; }
+
+.draft-check { min-width: 0; margin-block: 1rem; }
+.draft-check :is(code, pre, dd, p, li) { overflow-wrap: anywhere; white-space: pre-wrap; }
+.draft-check dd { margin-inline-start: 0; }
+.draft-check pre { max-width: 100%; }
+.draft-check [aria-disabled="true"] { opacity: .7; cursor: progress; }

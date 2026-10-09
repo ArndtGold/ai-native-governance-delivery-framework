@@ -1,0 +1,394 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: ai-native-governance-delivery-framework
+  - generic: Nur Lesen
+  - button "Neu laden":
+  - status
+- main:
+  - generic: Dein Repository · Deine Vorhaben
+  - heading "Gespeicherte Vorhaben" [level=1]
+  - paragraph: Orientierung aus dem Masterbacklog. Öffne ein Vorhaben für die aktuelle Prüfung.
+  - generic "Stand 9.10.2026, 15:45:03 · Datenstand und Herkunft"
+  - region "Vorhaben nach Backlog-Bereich":
+    - group "Backlog-Bereich":
+      - button "Aktiv 60" [pressed]:
+        - generic: Aktiv
+        - strong: "60"
+      - button "Geplant 2 Eingeschränkt":
+        - generic: Geplant
+        - strong: "2"
+        - generic: Eingeschränkt
+      - button "Archiv 87":
+        - generic: Archiv
+        - strong: "87"
+    - text: "Aktiv: Vorhaben suchen"
+    - 'searchbox "Aktiv: Vorhaben suchen"'
+    - paragraph: Letzter gespeicherter Eintrag zuerst. Die Suche umfasst gespeicherten Backlog-Titel, Schlüssel und Status.
+    - status
+    - heading "Aktive Vorhaben" [level=2]
+    - status: 60 Einträge
+    - region "Vorhaben · Aktiv":
+      - list:
+        - heading "Clear backlog status and reliable update flow" [level=3]:
+          - button "Clear backlog status and reliable update flow" [active]
+        - generic: "Gespeicherter Stand laut Backlog: QA evidence open"
+        - paragraph: QA · QA-Nachweis offen · 2 offene Berichtsbefunde
+        - paragraph: "Nächster Schritt laut Backlog: Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate. Then rerun QA with refreshed evidence."
+        - paragraph: Gespeicherte Beobachtung; aktueller Run noch nicht verglichen.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Reliable internal gate continuation and actionable recovery" [level=3]:
+          - button "Reliable internal gate continuation and actionable recovery"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Shared Core reading and readable active-backlog selection" [level=3]:
+          - button "Shared Core reading and readable active-backlog selection"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Stale next step after internal step recording" [level=3]:
+          - button "Stale next step after internal step recording"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Payload budget CLI resolves the repository root" [level=3]:
+          - button "Payload budget CLI resolves the repository root"
+        - generic: "Gespeicherter Stand laut Backlog: Needs UR"
+        - paragraph: "Nächster Schritt laut Backlog: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "AGDF Cockpit MCP App in Claude Code" [level=3]:
+          - button "AGDF Cockpit MCP App in Claude Code"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Embedded AGDF Cockpit for Codex" [level=3]:
+          - button "Embedded AGDF Cockpit for Codex"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting UAT"
+        - paragraph: "Nächster Schritt laut Backlog: Request exact approval: Approval: UAT before delivery handoff."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Separate Solution Design authoring from gate-check" [level=3]:
+          - button "Separate Solution Design authoring from gate-check"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "PRD-Erstellung von gate-check trennen" [level=3]:
+          - button "PRD-Erstellung von gate-check trennen"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "UR-Erstellung von gate-check trennen" [level=3]:
+          - button "UR-Erstellung von gate-check trennen"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Reproduzierbare Builds und gültige Kompatibilitätsnachweise" [level=3]:
+          - button "Reproduzierbare Builds und gültige Kompatibilitätsnachweise"
+        - generic: "Gespeicherter Stand laut Backlog: Needs UR"
+        - paragraph: "Nächster Schritt laut Backlog: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Weniger Zwischenstatuskarten bei unveränderter Kontrolle" [level=3]:
+          - button "Weniger Zwischenstatuskarten bei unveränderter Kontrolle"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Copilot-Skillnamen zuverlässig auf AGDF-IDs abbilden" [level=3]:
+          - button "Copilot-Skillnamen zuverlässig auf AGDF-IDs abbilden"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Joint Coding-Agent Control Concept for Dispatcher and MCP" [level=3]:
+          - button "Joint Coding-Agent Control Concept for Dispatcher and MCP"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Draft or refine the PRD; do not implement before PRD, SD and TP are approved."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Pinned and verified plugin MCP SDK acquisition" [level=3]:
+          - button "Pinned and verified plugin MCP SDK acquisition"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Truthful quick-task closeout status" [level=3]:
+          - button "Truthful quick-task closeout status"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Proceed as a Quick Task within the Brownfield Review scope and record verification evidence."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Physische Core-/CLI-/MCP-Paketstruktur" [level=3]:
+          - button "Physische Core-/CLI-/MCP-Paketstruktur"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Portable AGDF Plugin- und Paketstruktur" [level=3]:
+          - button "Portable AGDF Plugin- und Paketstruktur"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting QA"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Migration und Reparatur pro Repository anbieten" [level=3]:
+          - button "Migration und Reparatur pro Repository anbieten"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "MCP-Zielarchitektur Diskussionsdokument" [level=3]:
+          - button "MCP-Zielarchitektur Diskussionsdokument"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Review-Befunde zu Schreibintegrität und Auslieferung beheben" [level=3]:
+          - button "Review-Befunde zu Schreibintegrität und Auslieferung beheben"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Lesende AGDF-Operationen über MCP statt Shell" [level=3]:
+          - button "Lesende AGDF-Operationen über MCP statt Shell"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Klare nächste Schritte in AGDF-Karten" [level=3]:
+          - button "Klare nächste Schritte in AGDF-Karten"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Prevent Architecture Debt Before Implementation" [level=3]:
+          - button "Prevent Architecture Debt Before Implementation"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Draft or refine the PRD; do not implement before PRD, SD and TP are approved."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Verlässlicher Delivery-Intake und Fortsetzung nach Freigaben" [level=3]:
+          - button "Verlässlicher Delivery-Intake und Fortsetzung nach Freigaben"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Build plugin runtime during package publication instead of tracking it in the source plugin" [level=3]:
+          - button "Build plugin runtime during package publication instead of tracking it in the source plugin"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: Continue the separate approved OpenCode QA revision; VCS delivery remains explicit"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Add canonical `awaiting_or` backlog status label" [level=3]':
+          - 'button "Add canonical `awaiting_or` backlog status label"'
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: VCS actions require separate explicit user instruction"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make OpenCode hook degradation observable, align the plugin SDK safely during install and add a preflight-gated executable Delivery Path Search evaluator" [level=3]:
+          - button "Make OpenCode hook degradation observable, align the plugin SDK safely during install and add a preflight-gated executable Delivery Path Search evaluator"
+        - generic: "Gespeicherter Stand laut Backlog: Blocked"
+        - paragraph: "Nächster Schritt laut Backlog: Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation, then rerun QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Remove three false-confidence sources in the OpenCode plugin surface: document the subagent enforcement bypass, surface inactive-repo warnings in the TUI, and report plugin/validator version drift at load time" [level=3]':
+          - 'button "Remove three false-confidence sources in the OpenCode plugin surface: document the subagent enforcement bypass, surface inactive-repo warnings in the TUI, and report plugin/validator version drift at load time"'
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: VCS actions require separate explicit user instruction"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Establish a project-appropriate GitHub Community Health and maintainer-governance surface" [level=3]:
+          - button "Establish a project-appropriate GitHub Community Health and maintainer-governance surface"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Sign in to GitHub in the in-app browser, execute T17 with read-back, then rerun QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Separate current permissible stage from eventual delivery path in the proportionality benchmark without weakening fail-closed governance" [level=3]:
+          - button "Separate current permissible stage from eventual delivery path in the proportionality benchmark without weakening fail-closed governance"
+        - generic: "Gespeicherter Stand laut Backlog: Blocked"
+        - paragraph: "Nächster Schritt laut Backlog: Keep r3 unchanged; wait for canonical Structured Depth decision before Benchmark v3"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Measure expected versus actual AGDF delivery paths across a versioned 40-case real-task baseline without weakening gate protection" [level=3]:
+          - button "Measure expected versus actual AGDF delivery paths across a versioned 40-case real-task baseline without weakening gate protection"
+        - generic: "Gespeicherter Stand laut Backlog: Blocked"
+        - paragraph: "Nächster Schritt laut Backlog: Keep this run unchanged; remediate only in a new separately approved child"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Version the staged proportionality baseline and observation protocol against complete canonical facts without rewriting historical evidence" [level=3]:
+          - button "Version the staged proportionality baseline and observation protocol against complete canonical facts without rewriting historical evidence"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: Optional `delivery-closeout` only on explicit VCS instruction; authenticated live evidence remains separate"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make explicit Child-to-Parent reconciliation visible at closeout without coupling independent Child completion" [level=3]:
+          - button "Make explicit Child-to-Parent reconciliation visible at closeout without coupling independent Child completion"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: No governance work remains; use delivery-closeout only after an explicit VCS request"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Reduce visible ceremony, classify enforcement honestly, verify live hosts, improve proportional routing and simplify the user journey" [level=3]:
+          - button "Reduce visible ceremony, classify enforcement honestly, verify live hosts, improve proportional routing and simplify the user journey"
+        - generic: "Gespeicherter Stand laut Backlog: Blocked"
+        - paragraph: "Nächster Schritt laut Backlog: Resume the PMR-6 protocol when at least four independent participants are available; keep RMP-12 closed"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Prepare AGDF for public distribution through OpenAI's shared ChatGPT and Codex plugin directory" [level=3]:
+          - button "Prepare AGDF for public distribution through OpenAI's shared ChatGPT and Codex plugin directory"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting QA"
+        - paragraph: "Nächster Schritt laut Backlog: Review QA Report Revision 10 and provide exact `Approval: QA`, request revision or decline"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Establish a deterministic Agent Skills conformance baseline and explicit plugin-scoped portability boundary" [level=3]:
+          - button "Establish a deterministic Agent Skills conformance baseline and explicit plugin-scoped portability boundary"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: Use delivery closeout only when an operative commit, push or pull-request handoff is explicitly requested"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Run the existing Pages landing regression in the standard GitHub Actions guardrail job" [level=3]:
+          - button "Run the existing Pages landing regression in the standard GitHub Actions guardrail job"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: Use delivery closeout only when commit, push or pull-request handoff is explicitly requested"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Establish a bounded Codex harness conformance boundary without weakening AGDF authority or cross-host portability" [level=3]:
+          - button "Establish a bounded Codex harness conformance boundary without weakening AGDF authority or cross-host portability"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Review the UR and provide exact `Approval: UR`, request revision or decline"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Add simple source-checkout npm scripts for safe AGDF plugin installation and update across supported coding-agent surfaces" [level=3]:
+          - button "Add simple source-checkout npm scripts for safe AGDF plugin installation and update across supported coding-agent surfaces"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: Use delivery closeout only when commit, push or pull request handoff is explicitly requested"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Establish one visible AGDF plugin-family language while preserving lowercase technical identifiers and distinct product roles" [level=3]:
+          - button "Establish one visible AGDF plugin-family language while preserving lowercase technical identifiers and distinct product roles"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Capture one direct rendered Plugins-screen observation without reinstalling or changing code"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Prevent runtime-free plugin sources from shadowing complete AGDF installations and prove one shared validator across supported host adapters" [level=3]:
+          - button "Prevent runtime-free plugin sources from shadowing complete AGDF installations and prove one shared validator across supported host adapters"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Run the complete local-marketplace and rebuild transaction probe on native Windows, attach evidence, then rerun TP Review and QA"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Fix fresh-checkout crash of `npm run install:<surface>` caused by eager loading of gitignored generated plugin definition" [level=3]':
+          - 'button "Fix fresh-checkout crash of `npm run install:<surface>` caused by eager loading of gitignored generated plugin definition"'
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: VCS actions require separate explicit user instruction"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Make the local install chain viable on native Windows: probe-gated symlink fixture skip and bounded `EPERM` rename retry for owned-root swaps" [level=3]':
+          - 'button "Make the local install chain viable on native Windows: probe-gated symlink fixture skip and bounded `EPERM` rename retry for owned-root swaps"'
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: VCS actions require separate explicit user instruction"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make the local Claude install deliver current source content deterministically and verify the real installed version" [level=3]:
+          - button "Make the local Claude install deliver current source content deterministically and verify the real installed version"
+        - generic: "Gespeicherter Stand laut Backlog: Completed"
+        - paragraph: "Nächster Schritt laut Backlog: VCS actions require separate explicit user instruction"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Observe the 12 Claude conformance cases (HC-01–HC-12) on the freshly restarted local host to replace the standing `host_unavailable` evidence gap" [level=3]':
+          - 'button "Observe the 12 Claude conformance cases (HC-01–HC-12) on the freshly restarted local host to replace the standing `host_unavailable` evidence gap"'
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Restart Claude Code, then execute the Observation Protocol in the first fresh session"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Add informed installation consent for narrow automatic AGDF runtime checks across supported coding-agent hosts" [level=3]:
+          - button "Add informed installation consent for narrow automatic AGDF runtime checks across supported coding-agent hosts"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Collect separately authorized direct-host evidence without inferred parity; do not request QA approval yet"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Publish a runtime-complete `create-agdf` npm payload without generated submission, review or temporary build artefacts" [level=3]':
+          - 'button "Publish a runtime-complete `create-agdf` npm payload without generated submission, review or temporary build artefacts"'
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Review PRD revision 1 and provide exact `Approval: PRD`, request revision or decline"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make the installable plugin the only supported GitHub Copilot integration while preserving repository-owned governance and exact approval authority" [level=3]:
+          - button "Make the installable plugin the only supported GitHub Copilot integration while preserving repository-owned governance and exact approval authority"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Fully restart Copilot and capture the complete German `qa-gate` target card without translation"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make Delivery Path Search consume canonical gate actions and distinguish missing or empty input from an evaluated no-safe recommendation" [level=3]:
+          - button "Make Delivery Path Search consume canonical gate actions and distinguish missing or empty input from an evaluated no-safe recommendation"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting UAT"
+        - paragraph: "Nächster Schritt laut Backlog: Restart Codex and exercise Delivery Path Search in a fresh task before UAT approval"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - 'heading "Bring doctor to parity with presentation-layer identity validation (`run_id` format, `revision_id`) and surface renderer validation errors instead of silent null cards" [level=3]':
+          - 'button "Bring doctor to parity with presentation-layer identity validation (`run_id` format, `revision_id`) and surface renderer validation errors instead of silent null cards"'
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting UAT"
+        - paragraph: "Nächster Schritt laut Backlog: Review QA report revision 1 and provide exact `Approval: QA`, request revision or decline"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Offer or render the full operational Run Status Card before every ready-gate approval request so users decide with complete authority context" [level=3]:
+          - button "Offer or render the full operational Run Status Card before every ready-gate approval request so users decide with complete authority context"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting UAT"
+        - paragraph: "Nächster Schritt laut Backlog: Prepare UAT and obtain explicit instruction before refreshing either host installation"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make historical profile upgrades systematic through an exact release-owned compatibility catalogue and retain bounded Windows Claude recovery" [level=3]:
+          - button "Make historical profile upgrades systematic through an exact release-owned compatibility catalogue and retain bounded Windows Claude recovery"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting QA"
+        - paragraph: "Nächster Schritt laut Backlog: Reconcile the aggregate baseline, rerun complete smoke and remote CI; do not request QA approval"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make plugin deactivation and removal explicit, safe and verifiable across supported AGDF surfaces" [level=3]:
+          - button "Make plugin deactivation and removal explicit, safe and verifiable across supported AGDF surfaces"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting QA"
+        - paragraph: "Nächster Schritt laut Backlog: Reconcile the foreign baseline in its owning run, then rerun smoke and skill evaluations; do not request QA approval"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Bind direct evidence-dependent skill invocations to the canonical task target across supported hosts" [level=3]:
+          - button "Bind direct evidence-dependent skill invocations to the canonical task target across supported hosts"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting UAT"
+        - paragraph: "Nächster Schritt laut Backlog: Review UAT Revision 1 with disclosed limitations and provide exact `Approval: UAT`, request revision or decline"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Replace repeated general shell confirmation for bounded OpenCode AGDF dispatch with a narrow native capability" [level=3]:
+          - button "Replace repeated general shell confirmation for bounded OpenCode AGDF dispatch with a narrow native capability"
+        - generic: "Gespeicherter Stand laut Backlog: Needs UR"
+        - paragraph: "Nächster Schritt laut Backlog: Review UR Revision 1 and provide exact `Approval: UR`, request revision or decline"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Offer deliberate project- or user-scoped MCP activation within the AGDF installation journey" [level=3]:
+          - button "Offer deliberate project- or user-scoped MCP activation within the AGDF installation journey"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Implement the approved delta, run the planned tests and renew reviews plus QA evidence"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Execute canonical AGDF skill preflight deterministically across supported hosts" [level=3]:
+          - button "Execute canonical AGDF skill preflight deterministically across supported hosts"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Open a new Codex task and repeat the reported QA and root-selection paths, then continue the remaining separately authorized host matrix. No QA approval, commit or release"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Activate AGDF only for delivery intent, explicit AGDF operations or active-run continuation" [level=3]:
+          - button "Activate AGDF only for delivery intent, explicit AGDF operations or active-run continuation"
+        - generic: "Gespeicherter Stand laut Backlog: In progress"
+        - paragraph: "Nächster Schritt laut Backlog: Obtain separate authorization for `RAB-TPR-02` external transfer and for `RAB-TPR-01` lifecycle changes per host, then collect both evidence sets and rerun QA; do not request QA approval yet"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Make core and host-adapter boundaries consistent and support claims evidence-based" [level=3]:
+          - button "Make core and host-adapter boundaries consistent and support claims evidence-based"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting UAT"
+        - paragraph: "Nächster Schritt laut Backlog: Review UAT_PREPARATION.md and the compatibility report, then decide on Approval: UAT"
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+  - generic: Lokale Beobachtung · Teilweise verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

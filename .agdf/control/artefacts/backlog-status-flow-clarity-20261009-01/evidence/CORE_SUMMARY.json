@@ -1,0 +1,30 @@
+{
+  "run_id": "backlog-status-flow-clarity-20261009-01",
+  "observed_at": "2026-10-09T12:05:32.833962+00:00",
+  "authorizes": false,
+  "scenarios": [
+    "SCN-001",
+    "SCN-004",
+    "SCN-005",
+    "SCN-006",
+    "SCN-028"
+  ],
+  "commands": [
+    "node packages/core/test/backlog-work-summary-test.js",
+    "node packages/core/test/next-action-test.js",
+    "node packages/core/test/control-state-test.js"
+  ],
+  "results": [
+    "tests/summary-final-bounds.json",
+    "tests/final-core-results.json",
+    "tests/control-state-retry.json"
+  ],
+  "cases": [
+    "evidence/correction/upstream/mixed restrictive QA routes",
+    "missing registration/invalid route/decision contradiction/foreign/encoded referenced source",
+    "invalid UTF-8, 256KiB report and 64-source boundaries",
+    "QA-pass before approval, approved QA, UAT, OR, completed, block",
+    "existing policy unchanged by descriptive refinement; legitimate custom/generated action through existing next-action tests"
+  ],
+  "limitation": "These are isolated production-owner fixtures. No real Run is approved by test setup."
+}

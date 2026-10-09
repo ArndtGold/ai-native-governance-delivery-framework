@@ -1,0 +1,477 @@
+{
+  "schema_version": "1",
+  "status": "open",
+  "current_gate": "QA",
+  "blocking_reason": "none",
+  "missing_approval": "Approval: QA",
+  "next_gate_after_approval": "UAT",
+  "allowed_after_approval": "Request UAT when QA has passed; release remains gated.",
+  "allowed": [
+    "run QA gate",
+    "persist or refine the QA report",
+    "request exact QA approval"
+  ],
+  "forbidden": [
+    "request UAT approval",
+    "release",
+    "claim delivery readiness before QA approval and report evidence"
+  ],
+  "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+  "doctor_status": "pass",
+  "doctor_summary": {
+    "findings": 0,
+    "block": 0,
+    "revise": 0,
+    "warn": 0
+  },
+  "evidence_refs": [
+    {
+      "evidence": "Run creation",
+      "source": "run-create",
+      "covers": "Control initialization",
+      "strength": "direct"
+    },
+    {
+      "evidence": "UR draft",
+      "source": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md`",
+      "covers": "problem, goal, scope and acceptance signals",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Brownfield Review",
+      "source": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md`",
+      "covers": "Mode/Slice Decision `structured_delivery`",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD_MAPPING_REV6.json",
+      "covers": "PRD derived_from UR; binding 1f42bec9-60a4-400d-aab2-f5c18bac1abf; operation 689f78a3-5ae3-4b11-8447-a3048b812d12; 2bd6d4e8-c117-4caa-858c-a131e3a0cecf -> bd856f52-6af1-4728-b698-0e1c31385e87",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD_MAPPING_REV8.json",
+      "covers": "SD derived_from PRD; binding 79abef3b-59c5-4885-91de-ec8a89b9f465; operation 5b25dc0f-c674-41ee-a723-1f687beb27f2; 64dbef8e-d2d5-45ab-8555-3b9ce94dd76f -> abd67847-4bc3-4955-bebf-c93020153e7c",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP_MAPPING_REV10.json",
+      "covers": "TP derived_from SD; binding 50850d16-3bd4-4e7a-957b-08def9d963fd; operation b75ecbf1-0bf1-4b2d-89ae-e4d2f811d054; 8dc8a36c-c7a6-4c12-b2a9-8ca979ae1b13 -> f763f2b3-e483-4f04-af45-18fb26095b38",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Code Review",
+      "source": "code-review",
+      "covers": "decision pass: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_REV16.json",
+      "covers": "QA_REPORT tests TP; binding fbd9e337-af8f-4c39-8841-d8ae2a0340c3; operation 46050e29-a5c2-4874-bc16-2b868fe1a02b; 28ab1248-fdbb-4f00-9993-78a9da9d6027 -> e1f31de3-9808-43a4-ba6f-04787431bde2",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_ZERO_REV19.json",
+      "covers": "QA_REPORT tests TP; binding 8fa45de0-1b39-4b88-9a7e-07a3231f4eef; operation ca5646b0-14f4-4a6e-b533-0657fb39bc89; a7a6f5c9-199e-4c18-b430-ef2acbb0b79b -> e9f26ae6-fd30-44e9-88bc-f24e1e8af421",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_ZERO_REV21.json",
+      "covers": "QA_REPORT tests TP; binding 8ad0a605-29d6-4fcf-809c-802657c2aea3; operation 6095c970-ec3f-45b6-b433-d860cb19240e; bf1ff732-5424-47bb-8fe9-88c43226d3bc -> 689a410f-49a3-40fe-8c62-be9cf1b6c09d",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Code Review",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+      "covers": "decision pass: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/REPORT_FINDINGS_CORRECTION.md",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_CORRECTION_REV25.json",
+      "covers": "QA_REPORT tests TP; binding 2765dbaf-53d2-4b09-93e7-32c365a53095; operation f2ab86fa-e77a-423c-9b41-3d45e578c36b; 7bf91a47-15a2-43a7-a276-a071f506a458 -> ff806546-2432-474a-8609-ca8dc51f9e04",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_WRITER_REV27.json",
+      "covers": "QA_REPORT tests TP; binding 3cd9cade-dacc-4506-81e6-014d2a10dc0d; operation c59b816f-67aa-4a63-9aa5-45e43bcb41c2; 1ef97547-9d12-4055-963c-24d6a7fed6b2 -> f2588fed-8803-4f8e-963d-b66f5d764a86",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Code Review",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+      "covers": "decision pass: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/SAME_TEXT_WRITER_CORRECTION.md",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_FINAL_REV31.json",
+      "covers": "QA_REPORT tests TP; binding 72b8c87b-c3b2-43d1-8887-0ddc34a68f1e; operation 0258edb4-b7e9-4745-b110-9374a8d95795; 2aa05f5a-a481-46ea-a9ae-caad2fc0c5f9 -> 5e3cf847-10ec-48a8-95e0-6634700c25dd",
+      "strength": "reviewed cooperative mapping"
+    },
+    {
+      "evidence": "Artefact source binding",
+      "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_NATIVE_REV33.json",
+      "covers": "QA_REPORT tests TP; binding c8b9890e-38ae-4ae5-b2b9-af090b499c9a; operation 9d38fa6c-e81d-4ed9-8ebf-7f0b0f7aa9b1; 35c5cb25-50e2-4c60-9df9-9c52842d687d -> 54ddccde-907b-4137-91db-f3fcf4716899",
+      "strength": "reviewed cooperative mapping"
+    }
+  ],
+  "quality_outlook": "No additional quality follow-up identified from the current control state.",
+  "interaction_kind": "gate_approval",
+  "native_attempt_required": false,
+  "candidate_runs": [],
+  "status_card": {
+    "run_id": "backlog-status-flow-clarity-20261009-01",
+    "presentation_language": "de",
+    "mode": "structured_delivery",
+    "lifecycle": "active",
+    "delivery_state": "active",
+    "status": "open",
+    "current_gate": "QA",
+    "mode_slice_decision": "structured_delivery",
+    "breadcrumb": [
+      {
+        "gate": "UR",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "PRD",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "SD",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "TP",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "QA",
+        "status": "current"
+      },
+      {
+        "gate": "UAT",
+        "status": "open"
+      }
+    ],
+    "allowed_now": [
+      "run QA gate",
+      "persist or refine the QA report",
+      "request exact QA approval"
+    ],
+    "forbidden_now": [
+      "request UAT approval",
+      "release",
+      "claim delivery readiness before QA approval and report evidence"
+    ],
+    "blocking_condition": "none",
+    "missing_approval": "Approval: QA",
+    "next_gate_after_approval": "UAT",
+    "allowed_after_approval": "Request UAT when QA has passed; release remains gated.",
+    "user_visible_outcome_after_approval": "Request UAT when QA has passed; release remains gated.",
+    "internal_next_step": "prepare UAT evidence",
+    "next_user_gate": "UAT",
+    "user_action_required": "yes",
+    "prd_readiness_items": [],
+    "sd_readiness_items": [],
+    "traceability_gaps": [],
+    "blocking_details": [],
+    "evidence": [
+      {
+        "evidence": "Run creation",
+        "source": "run-create",
+        "covers": "Control initialization",
+        "strength": "direct"
+      },
+      {
+        "evidence": "UR draft",
+        "source": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md`",
+        "covers": "problem, goal, scope and acceptance signals",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Brownfield Review",
+        "source": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md`",
+        "covers": "Mode/Slice Decision `structured_delivery`",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD_MAPPING_REV6.json",
+        "covers": "PRD derived_from UR; binding 1f42bec9-60a4-400d-aab2-f5c18bac1abf; operation 689f78a3-5ae3-4b11-8447-a3048b812d12; 2bd6d4e8-c117-4caa-858c-a131e3a0cecf -> bd856f52-6af1-4728-b698-0e1c31385e87",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD_MAPPING_REV8.json",
+        "covers": "SD derived_from PRD; binding 79abef3b-59c5-4885-91de-ec8a89b9f465; operation 5b25dc0f-c674-41ee-a723-1f687beb27f2; 64dbef8e-d2d5-45ab-8555-3b9ce94dd76f -> abd67847-4bc3-4955-bebf-c93020153e7c",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP_MAPPING_REV10.json",
+        "covers": "TP derived_from SD; binding 50850d16-3bd4-4e7a-957b-08def9d963fd; operation b75ecbf1-0bf1-4b2d-89ae-e4d2f811d054; 8dc8a36c-c7a6-4c12-b2a9-8ca979ae1b13 -> f763f2b3-e483-4f04-af45-18fb26095b38",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Code Review",
+        "source": "code-review",
+        "covers": "decision pass: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_REV16.json",
+        "covers": "QA_REPORT tests TP; binding fbd9e337-af8f-4c39-8841-d8ae2a0340c3; operation 46050e29-a5c2-4874-bc16-2b868fe1a02b; 28ab1248-fdbb-4f00-9993-78a9da9d6027 -> e1f31de3-9808-43a4-ba6f-04787431bde2",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_ZERO_REV19.json",
+        "covers": "QA_REPORT tests TP; binding 8fa45de0-1b39-4b88-9a7e-07a3231f4eef; operation ca5646b0-14f4-4a6e-b533-0657fb39bc89; a7a6f5c9-199e-4c18-b430-ef2acbb0b79b -> e9f26ae6-fd30-44e9-88bc-f24e1e8af421",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_ZERO_REV21.json",
+        "covers": "QA_REPORT tests TP; binding 8ad0a605-29d6-4fcf-809c-802657c2aea3; operation 6095c970-ec3f-45b6-b433-d860cb19240e; bf1ff732-5424-47bb-8fe9-88c43226d3bc -> 689a410f-49a3-40fe-8c62-be9cf1b6c09d",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Code Review",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+        "covers": "decision pass: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/REPORT_FINDINGS_CORRECTION.md",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_CORRECTION_REV25.json",
+        "covers": "QA_REPORT tests TP; binding 2765dbaf-53d2-4b09-93e7-32c365a53095; operation f2ab86fa-e77a-423c-9b41-3d45e578c36b; 7bf91a47-15a2-43a7-a276-a071f506a458 -> ff806546-2432-474a-8609-ca8dc51f9e04",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_WRITER_REV27.json",
+        "covers": "QA_REPORT tests TP; binding 3cd9cade-dacc-4506-81e6-014d2a10dc0d; operation c59b816f-67aa-4a63-9aa5-45e43bcb41c2; 1ef97547-9d12-4055-963c-24d6a7fed6b2 -> f2588fed-8803-4f8e-963d-b66f5d764a86",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Code Review",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+        "covers": "decision pass: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/SAME_TEXT_WRITER_CORRECTION.md",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_FINAL_REV31.json",
+        "covers": "QA_REPORT tests TP; binding 72b8c87b-c3b2-43d1-8887-0ddc34a68f1e; operation 0258edb4-b7e9-4745-b110-9374a8d95795; 2aa05f5a-a481-46ea-a9ae-caad2fc0c5f9 -> 5e3cf847-10ec-48a8-95e0-6634700c25dd",
+        "strength": "reviewed cooperative mapping"
+      },
+      {
+        "evidence": "Artefact source binding",
+        "source": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_NATIVE_REV33.json",
+        "covers": "QA_REPORT tests TP; binding c8b9890e-38ae-4ae5-b2b9-af090b499c9a; operation 9d38fa6c-e81d-4ed9-8ebf-7f0b0f7aa9b1; 35c5cb25-50e2-4c60-9df9-9c52842d687d -> 54ddccde-907b-4137-91db-f3fcf4716899",
+        "strength": "reviewed cooperative mapping"
+      }
+    ],
+    "next_skill": "qa-gate",
+    "next_step": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
+    "quality_outlook": "No additional quality follow-up identified from the current control state.",
+    "interaction_kind": "gate_approval",
+    "native_attempt_required": false,
+    "native_preflight_outcome": "unavailable_before_invocation",
+    "native_preflight_reason": "capability_missing"
+  },
+  "status_presentation": {
+    "schema_version": "1",
+    "semantic_block": "run_status_card",
+    "run_id": "backlog-status-flow-clarity-20261009-01",
+    "revision_id": "54ddccde-907b-4137-91db-f3fcf4716899",
+    "current_gate": "QA",
+    "presentation_language": "de",
+    "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | QA Gate · `backlog-status-flow-clarity-20261009-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ● QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Qualitätssicherung (`QA`) |\n| Deine Entscheidung | Approval: QA · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | das QA-Gate durchführen<br>den QA-Bericht dauerhaft festhalten oder überarbeiten<br>die exakte QA-Freigabe anfordern |\n| Aktuell verboten | die UAT-Freigabe anfordern<br>veröffentlichen<br>Lieferbereitschaft vor QA-Freigabe und Berichtsnachweis behaupten |\n| Wartet auf | Approval: QA |",
+    "authorizes": false
+  },
+  "approval_presentation": {
+    "schema_version": "1",
+    "run_id": "backlog-status-flow-clarity-20261009-01",
+    "revision_id": "54ddccde-907b-4137-91db-f3fcf4716899",
+    "current_gate": "QA",
+    "presentation_language": "de",
+    "sequence": [
+      "run_status_card",
+      "gate_transition_card",
+      "approval_interaction"
+    ],
+    "blocks": {
+      "run_status_card": {
+        "markdown": "## Qualitätssicherung prüfen und entscheiden\nAusgewählter Run: QA Gate · `backlog-status-flow-clarity-20261009-01`\nAGDF-Statuskarte: Bereit für deine Entscheidung\nAktuelles Gate: Qualitätssicherung (`QA`)\nErforderliche Entscheidung: Freigabe der Qualitätssicherung\nNächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option."
+      },
+      "gate_transition_card": {
+        "markdown": "Qualitätssicherung · QA Gate · `backlog-status-flow-clarity-20261009-01`\n[UR](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md) · [PRD](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md) · [SD](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md) · [TP](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md)\nBereit für deine Entscheidung\n\nJetzt freigeben\n`Approval: QA` Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.\n\nDanach\nAgent bereitet die Nutzerabnahme vor. Nutzerabnahme als Nächstes."
+      }
+    },
+    "approval_interaction": {
+      "semantic_block": "approval_interaction",
+      "prompt": "Für Qualitätssicherung im Run backlog-status-flow-clarity-20261009-01: freigeben, Überarbeitung anfordern oder ablehnen.",
+      "expected_approval": "Approval: QA",
+      "options": [
+        {
+          "outcome": "approve",
+          "label": "Approval: QA",
+          "description": "Dieses Gate mit dem exakten Freigabewert autorisieren.",
+          "value": "Approval: QA",
+          "authorizes": true
+        },
+        {
+          "outcome": "revise",
+          "label": "Überarbeiten",
+          "description": "Das Gate offen lassen und Änderungen anfordern.",
+          "value": "revise",
+          "authorizes": false
+        },
+        {
+          "outcome": "decline",
+          "label": "Ablehnen",
+          "description": "Dieses Gate bewusst ablehnen; die Berechtigung bleibt unverändert.",
+          "value": "decline",
+          "authorizes": false
+        }
+      ],
+      "exact_text_fallback": "Zur Freigabe exakt mit `Approval: QA` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+      "authorizes": false
+    },
+    "authorizes": false,
+    "markdown": "## Qualitätssicherung prüfen und entscheiden\nAusgewählter Run: QA Gate · `backlog-status-flow-clarity-20261009-01`\nAGDF-Statuskarte: Bereit für deine Entscheidung\nAktuelles Gate: Qualitätssicherung (`QA`)\nErforderliche Entscheidung: Freigabe der Qualitätssicherung\nNächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option.\n\n## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | QA Gate · `backlog-status-flow-clarity-20261009-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ● QA · ○ UAT |\n| Status | offen |\n| Aktuelles Gate | Qualitätssicherung (`QA`) |\n| Deine Entscheidung | Approval: QA · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | das QA-Gate durchführen<br>den QA-Bericht dauerhaft festhalten oder überarbeiten<br>die exakte QA-Freigabe anfordern |\n| Aktuell verboten | die UAT-Freigabe anfordern<br>veröffentlichen<br>Lieferbereitschaft vor QA-Freigabe und Berichtsnachweis behaupten |\n| Wartet auf | Approval: QA |\n\n## Kurzfassung · QA\n\nRun: `backlog-status-flow-clarity-20261009-01` · Gate: `QA` · Revision: `54ddccde-907b-4137-91db-f3fcf4716899`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ergebnis: QA bestanden für dieses Vorhaben. Alle neun Aufgaben und acht einschlägigen UX-Kriterien sind innerhalb der dokumentierten Prüfumfänge nachgewiesen; alle drei Befunde dieses Runs sind behoben beziehungsweise belegt.\n- Verhalten: Das Cockpit zeigt Phase, offene Berichtsbefunde und nächsten Schritt nachvollziehbar. Die irreführende Null ist korrigiert; eine Berichtszählung behauptet keine Zahl verschiedener Aufgaben. Backlog und ausgewählter Run stimmen in Revision und Quellen überein, auch nach einer neuen Revision bei unverändertem sichtbarem Zeilentext.\n- Nachweise: Core-/Writer-/Recovery-/Leseprüfungen, Komponenten- und Chromium-Tests sowie frische native Build-Identität und sichtbare Darstellung liegen vor. Du hast Größenwechsel, Tab/Enter, Quellenöffnung, Scrollen und Neuladen in der aktuellen Ansicht als stabil bestätigt. Dieser manuelle Nachweis bleibt ausdrücklich von automatisierten Prüfungen getrennt.\n- Grenzen: Negative Lade-/Retry- und kontrollierte Verzögerungsfälle sind im Browser geprüft; solche Fehler wurden nicht in deiner nativen App künstlich erzeugt. Keine allgemeine Plattformgarantie oder unabhängige Abnahme. Die bestehende lokale Installation wurde separat autorisiert und gesund verifiziert. Fremde Runs und freigegebene UR/PRD/SD/TP bleiben unverändert.\n- Freigabe: QA-pass ist die fachliche Prüfentscheidung, noch keine menschliche QA-Freigabe. Erst eine neue bewusste Approval: QA für diese gebundene Präsentation erlaubt den nächsten Schritt UAT. Commit, PR, Push oder Release werden dadurch nicht automatisch ausgeführt.\n\n## Prüfartefakt · QA\n\nRun: `backlog-status-flow-clarity-20261009-01` · Gate: `QA` · Revision: `54ddccde-907b-4137-91db-f3fcf4716899`\n\nArtefakt: [QA_REPORT.md](</Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md>)\n\nSHA-256: `sha256:1d6d080c7ab698395233c5256424f2e4c84b2dad1be464f88ad199a458d9bb22`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.\n\nQualitätssicherung · QA Gate · `backlog-status-flow-clarity-20261009-01`\n[UR](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md) · [PRD](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md) · [SD](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md) · [TP](.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md)\nBereit für deine Entscheidung\n\nJetzt freigeben\n`Approval: QA` Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.\n\nDanach\nAgent bereitet die Nutzerabnahme vor. Nutzerabnahme als Nächstes.\n\nZur Freigabe exakt mit `Approval: QA` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+    "preview_markdown": "## Kurzfassung · QA\n\nRun: `backlog-status-flow-clarity-20261009-01` · Gate: `QA` · Revision: `54ddccde-907b-4137-91db-f3fcf4716899`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ergebnis: QA bestanden für dieses Vorhaben. Alle neun Aufgaben und acht einschlägigen UX-Kriterien sind innerhalb der dokumentierten Prüfumfänge nachgewiesen; alle drei Befunde dieses Runs sind behoben beziehungsweise belegt.\n- Verhalten: Das Cockpit zeigt Phase, offene Berichtsbefunde und nächsten Schritt nachvollziehbar. Die irreführende Null ist korrigiert; eine Berichtszählung behauptet keine Zahl verschiedener Aufgaben. Backlog und ausgewählter Run stimmen in Revision und Quellen überein, auch nach einer neuen Revision bei unverändertem sichtbarem Zeilentext.\n- Nachweise: Core-/Writer-/Recovery-/Leseprüfungen, Komponenten- und Chromium-Tests sowie frische native Build-Identität und sichtbare Darstellung liegen vor. Du hast Größenwechsel, Tab/Enter, Quellenöffnung, Scrollen und Neuladen in der aktuellen Ansicht als stabil bestätigt. Dieser manuelle Nachweis bleibt ausdrücklich von automatisierten Prüfungen getrennt.\n- Grenzen: Negative Lade-/Retry- und kontrollierte Verzögerungsfälle sind im Browser geprüft; solche Fehler wurden nicht in deiner nativen App künstlich erzeugt. Keine allgemeine Plattformgarantie oder unabhängige Abnahme. Die bestehende lokale Installation wurde separat autorisiert und gesund verifiziert. Fremde Runs und freigegebene UR/PRD/SD/TP bleiben unverändert.\n- Freigabe: QA-pass ist die fachliche Prüfentscheidung, noch keine menschliche QA-Freigabe. Erst eine neue bewusste Approval: QA für diese gebundene Präsentation erlaubt den nächsten Schritt UAT. Commit, PR, Push oder Release werden dadurch nicht automatisch ausgeführt.\n\n## Prüfartefakt · QA\n\nRun: `backlog-status-flow-clarity-20261009-01` · Gate: `QA` · Revision: `54ddccde-907b-4137-91db-f3fcf4716899`\n\nArtefakt: [QA_REPORT.md](</Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md>)\n\nSHA-256: `sha256:1d6d080c7ab698395233c5256424f2e4c84b2dad1be464f88ad199a458d9bb22`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+    "artefact_digest": "sha256:1d6d080c7ab698395233c5256424f2e4c84b2dad1be464f88ad199a458d9bb22",
+    "summary_digest": "sha256:f2896b5a79674c1fbc3efab6dad51fffa6cea935b9dfa5e0f4f090c2ab8adfda"
+  },
+  "next_operation": null,
+  "delivery_map": {
+    "relationships": [
+      {
+        "from": "UR",
+        "relationship": "approved_by",
+        "to": "Approval: UR",
+        "required": true,
+        "status": "pass",
+        "evidence": "`Approval: UR` · 2026-10-09 · revision 3 · `.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md` sha256:1cbf34c54697c5be · presentation ab0c90c0-a44a-4181-9d43-2de70847579a sha256:6176a6933a932dbfe2580412ad47a8dd1e8fa4ce93d43af10944ba83869c5da3"
+      },
+      {
+        "from": "PRD",
+        "relationship": "derived_from",
+        "to": "UR",
+        "required": true,
+        "status": "pass",
+        "evidence": "binding 1f42bec9-60a4-400d-aab2-f5c18bac1abf; reviewed by Codex agent; cooperative semantic/source review, not independent human proof; .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD_MAPPING_REV6.json"
+      },
+      {
+        "from": "SD",
+        "relationship": "derived_from",
+        "to": "PRD",
+        "required": true,
+        "status": "pass",
+        "evidence": "binding 79abef3b-59c5-4885-91de-ec8a89b9f465; reviewed by Codex agent; cooperative semantic/source derivation review, not independent human proof; .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD_MAPPING_REV8.json"
+      },
+      {
+        "from": "TP",
+        "relationship": "derived_from",
+        "to": "SD",
+        "required": true,
+        "status": "pass",
+        "evidence": "binding 50850d16-3bd4-4e7a-957b-08def9d963fd; reviewed by Codex agent; cooperative semantic/source planning review, not independent human proof; .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP_MAPPING_REV10.json"
+      },
+      {
+        "from": "QA_REPORT",
+        "relationship": "tests",
+        "to": "TP",
+        "required": true,
+        "status": "pass",
+        "evidence": "binding c8b9890e-38ae-4ae5-b2b9-af090b499c9a; reviewed by Codex agent; cooperative QA/TP mapping; human native confirmation is evidence, not gate approval; .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_MAPPING_NATIVE_REV33.json"
+      }
+    ],
+    "mode_slice_decision": {
+      "decision": "structured_delivery",
+      "required_next_gate": "PRD",
+      "scope_reason": "persistence_migration_depth: saved backlog status meaning and evidence binding require a compatibility strategy; external_contract_depth: consumed Markdown file contract. Reject structured_slice because those full-depth effects are evidenced, and compact routes exclude them.",
+      "evidence": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md: Observed Architecture And Flow, BF-01 to BF-06 and complete Structured Depth Evidence; approved UR acceptance 1-7."
+    },
+    "context_graph": {
+      "impact": "",
+      "refs": "",
+      "required_action": "",
+      "gate_effect": "",
+      "evidence": ""
+    },
+    "source_scope": {
+      "normative_instruction_source": "",
+      "multi_scope_state": "",
+      "active_scope_evidence": "",
+      "competing_scope_lines": "",
+      "branch_workspace_evidence": "",
+      "branch_workspace_scope_effect": ""
+    },
+    "memory": {
+      "target": "",
+      "reason": "",
+      "refs": ""
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": []
+  },
+  "verified_change": null,
+  "doctor_report": {
+    "schema_version": "1",
+    "status": "pass",
+    "checked_at": "2026-10-09T13:52:35.940Z",
+    "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": []
+  }
+}

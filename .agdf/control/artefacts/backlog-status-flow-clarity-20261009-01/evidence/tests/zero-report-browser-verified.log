@@ -1,0 +1,40 @@
+npm notice run agdf-control-ui@0.0.0 npx
+npm notice run 'playwright' test test/browser/backlog-summary.spec.mjs
+
+Running 2 tests using 1 worker
+
+(node:53552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty (1.5s)
+(node:53569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/backlog-summary.spec.mjs:60:1 › saved action and evidence limitation wrap without clipping in compact and expanded views (3.2s)
+
+
+  1) test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 0
+
+      31 |   }
+      32 |   writeFileSync(f.runPath, sealRunState(f.root, run));
+    > 33 |   expect(runWorkSummary(f.root, run, f.runPath).open_obligation_count).toBe(2);
+         |                                                                        ^
+      34 |   const path = join(f.root, '.agdf/control/MASTER_BACKLOG.md');
+      35 |   writeFileSync(path, readFileSync(path, 'utf8').replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n| P1 | fixture-a | Report findings fixture | QA evidence open | | | Capture native observation |'));
+      36 |   const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/backlog-summary.spec.mjs:33:72
+
+    Error Context: test-results/backlog-summary-open-norma-940fd-ment-evidence-list-is-empty/error-context.md
+
+  1 failed
+    test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty 
+  1 passed (8.3s)

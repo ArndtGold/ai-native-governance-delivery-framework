@@ -43,6 +43,12 @@ export class CockpitBridge {
     else if (url.pathname === '/api/backlog-titles') argumentsValue = { operation: 'backlog_titles', snapshot_id, row_ids: url.searchParams.get('rows')?.split(',') };
     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };
+    else if (/^\/api\/draft-check\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) {
+      const keys = [...url.searchParams.keys()];
+      if (keys.length !== 3 || new Set(keys).size !== 3 || !['snapshot', 'gate', 'expected_revision'].every(key => keys.includes(key))) throw Error('resource_denied');
+      argumentsValue = { operation: 'artifact_readiness', snapshot_id, run_id: url.pathname.slice(17),
+        gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') };
+    }
     else if (url.pathname.startsWith('/api/documents/')) {
       const resource_id = url.pathname.slice(15), run_id = resourceRuns.get(resource_id);
       if (!run_id) throw Error('resource_denied');
@@ -50,7 +56,7 @@ export class CockpitBridge {
     } else throw Error('resource_denied');
     const value = await this.operation(argumentsValue, signal, session);
     validateEnvelope(value, expected); validateData(path, value);
-    if (['snapshot', 'backlog_titles', 'run', 'document', 'context'].includes(String(argumentsValue.operation))) {
+    if (['snapshot', 'backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(String(argumentsValue.operation))) {
       resourceRuns.clear();
       const data = value.data as { run?: { run_id: string; resources: { resource_id: string }[] } } | null;
       if (data?.run) for (const resource of data.run.resources) resourceRuns.set(resource.resource_id, data.run.run_id);

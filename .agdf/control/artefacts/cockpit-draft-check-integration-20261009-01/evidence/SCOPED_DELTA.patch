@@ -1,0 +1,1186 @@
+--- baseline/docs/architecture/06-agdf-cockpit.md
++++ current/docs/architecture/06-agdf-cockpit.md
+@@ -558,3 +558,15 @@
+ Der tatsächliche Rückbau und die unveränderte Wiederherstellung stammen aus Checkpoint 29. Zwei unabhängige Ansichten, Kontextbesitz und Modellzustellung sind datierte Nachweise aus 27/28; ihre unveränderten angrenzenden Quellbereiche wurden erneut abgeglichen. Es wurden keine angenommenen Quellenfragen wiederholt. Der neue Nachweis bestätigt Wiederverbindung und Dokumentnavigation im finalen Modul, keine neue Kontextpublikation oder Claude-Unterstützung.
+ 
+ Nachweise: `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-30.md`, `native-reconnection-evidence-30/verification.json` und `TASK_PLAN_REVIEW-30.md`. Planerfüllung und Code-/Strukturreviews sind Evidenzdimensionen; QA entscheidet die Qualitätsbereitschaft. Menschliche QA/UAT-Freigaben, OR und Release bleiben eigenständige Schritte.
++
++## Gebundene Entwurfsprüfung
++
++Im ausgewählten Vorhaben bietet das Cockpit eine bewusst ausgelöste Autorenprüfung für den aktuellen unterstützten UR-, PRD-, SD- oder TP-Entwurf an. Auch noch unregistrierte kanonische Entwürfe erhalten einen beobachteten Quellenbezug; daraus entsteht keine Dokumentregistrierung. Bestanden bezeichnet ausschließlich die bestehenden Autorenregeln. Semantische Ableitung, Registrierung, Präsentation, menschliche Freigabe und QA bleiben im bestehenden Ablauf.
++
++Der additive `agdf_cockpit_read`-Aufruf `artifact_readiness` akzeptiert ausschließlich Sitzung, Snapshot, Run, Gate und erwartete Revision. Der authentifizierte Browser-Adapter `/api/draft-check/<run>` verlangt jeweils genau einen `snapshot`-, `gate`- und `expected_revision`-Parameter. Ziel und Dateipfad werden intern abgeleitet; allgemeine Inspect-/Datei-/Writer-Aufrufe sind ausgeschlossen. Beide Wege nutzen denselben Autorenprüfkern aus `artifact-readiness.js` im bestehenden Quellen-Snapshot.
++
++Die Entwurfsdatei beziehungsweise ihre Abwesenheit wird bereits bei Auswahl erfasst. Der Prüfaufruf validiert die alte Auswahl, erstellt über den bestehenden Leser einen neuen Lesestand und prüft vor Veröffentlichung erneut Revision, Gate, Dateiidentität und Quellenfrische. Sitzung, Worker, Pool, Ressourcen und Beobachter übernehmen diesen Stand gemeinsam; bestehende Kontextbereinigung und Quarantäne bleiben wirksam. Dateiänderungen bei gleicher Run-Revision entwerten Ergebnisse ebenfalls.
++
++Eine gemeinsame App-Komponente zeigt ungeprüft, laufend, bestanden, Korrekturen und begrenzte Nichtverfügbarkeit an. Originalbefunde und Quellenbezug bleiben aufklappbar. Eine kurzlebige Anfrage koordiniert Abbruch, Frische und Kontextbereinigung; ausschließlich der zentrale Lesezustand übernimmt eine aktuelle Antwort. Navigation, Neuladen oder eine verspätete Antwort dürfen keine frühere Prüfung als aktuell installieren. Ressourcenwechsel erhalten logischen Fokus, Quellenklappen und Leseposition. Neuladen prüft nicht automatisch.
++
++Alte Leseoperationen bleiben kompatibel. Ein alter Server ohne Quellenbeschreibung zeigt die Nichtverfügbarkeit der Prüfung, während Lesen weiterhin möglich ist. Core-/Protokoll-/Browserprüfungen und ein Paket-Build belegen keine neue native MCP-App-Beobachtung; diese benötigt den exakt gebauten und tatsächlich geladenen Host-Stand.
+--- baseline/packages/cli/scripts/cockpit-scoped-mcp-test.js
++++ current/packages/cli/scripts/cockpit-scoped-mcp-test.js
+@@ -1,5 +1,5 @@
+ import assert from 'node:assert/strict';
+-import { readFileSync, writeFileSync } from 'node:fs';
++import { readFileSync, writeFileSync, realpathSync, rmSync } from 'node:fs';
+ import { join } from 'node:path';
+ import { withStdioClient } from '../../mcp-server/test/helpers.js';
+ import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
+@@ -7,7 +7,28 @@
+ import { recordBacklogSummary } from '../../core/lib/control-state/backlog-summary.js';
+ import { runWorkSummary } from '../../core/lib/control-evaluation/run-work-summary.js';
+ import { parseRunState } from '../../core/lib/control-state/run-state-parser.js';
++import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
+ const preparation = JSON.parse(readFileSync(process.env.AGDF_COCKPIT_TEST_PREPARATION, 'utf8'));
++for (const modern of [false, true]) {
++  const f = artifactReadinessFixture(); f.root = realpathSync(f.root); writeFileSync(f.path, readyPrd);
++  const before = treeBytes(f.root);
++  try {
++    await withStdioClient({ modern, command: preparation.node, args: [preparation.entrypoint, '--surface', 'codex', '--cockpit-dir', f.root] }, async client => {
++      const definition = (await client.listTools()).tools.find(row => row.name === 'agdf_cockpit_read');
++      const branch = definition.inputSchema.oneOf.find(row => row.properties.operation.const === 'artifact_readiness');
++      assert.equal(branch.additionalProperties, false); assert.deepEqual(branch.properties.gate.enum, ['UR', 'PRD', 'SD', 'TP']);
++      const session_id = (await client.callTool({ name: 'agdf_cockpit', arguments: { run_id: f.runId } }))._meta.agdf_cockpit.session_id;
++      const call = async args => (await client.callTool({ name: 'agdf_cockpit_read', arguments: { session_id, ...args } })).structuredContent;
++      const selected = await call({ operation: 'snapshot', run_id: f.runId });
++      const checked = await call({ operation: 'artifact_readiness', snapshot_id: selected.snapshot_id, run_id: f.runId, gate: 'PRD', expected_revision_id: f.revision });
++      assert.equal(checked.data.run.draft_check.display.state, 'passed'); assert.equal(checked.data.run.draft_check.result.authorizes, false);
++      assert.equal((await call({ operation: 'freshness', snapshot_id: selected.snapshot_id })).code, 'resource_denied');
++      await call({ operation: 'close' });
++      console.log(JSON.stringify({ modern, operation: 'artifact_readiness', actual_authoring_pass: true, ui_digest: preparation.ui.digest, native_ui_observation: false }));
++    });
++    assert.deepEqual(treeBytes(f.root), before);
++  } finally { rmSync(f.root, { recursive: true, force: true }); }
++}
+ for (const modern of [false, true]) {
+   const f = fixture();
+   writeFileSync(join(f.root, '.agdf/control/MASTER_BACKLOG.md'), '# Master Backlog\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Stored fixture title | In progress | [UR](artefacts/fixture-a/UR.md) | [UR](artefacts/fixture-a/UR.md) | next |\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
+--- baseline/packages/control-ui/server/service.mjs
++++ current/packages/control-ui/server/service.mjs
+@@ -93,6 +93,7 @@
+     else if (url.pathname === '/api/changes') operation = 'changes';
+     else if (/^\/api\/runs\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'run'; selector = url.pathname.slice(10); }
+     else if (/^\/api\/context\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'context'; selector = url.pathname.slice(13); }
++    else if (/^\/api\/draft-check\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) { operation = 'artifact_readiness'; selector = url.pathname.slice(17); }
+     else if (/^\/api\/documents\/[a-f0-9-]{36}$/.test(url.pathname)) { operation = 'document'; selector = url.pathname.slice(15); }
+     else return send(403, error('resource_denied'));
+     const params = [...url.searchParams.keys()];
+@@ -101,14 +102,19 @@
+       && params.includes('snapshot') && params.includes('rows') && /^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')
+       && rowIds?.length >= 1 && rowIds.length <= 12 && new Set(rowIds).size === rowIds.length
+       && rowIds.every(id => /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id));
+-    if (operation === 'backlog_titles' ? !titleParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && (params[0] !== 'run_id'
++    const draftParams = operation === 'artifact_readiness' && params.length === 3 && new Set(params).size === 3
++      && ['snapshot', 'gate', 'expected_revision'].every(key => params.includes(key))
++      && ['UR', 'PRD', 'SD', 'TP'].includes(url.searchParams.get('gate'))
++      && ['snapshot', 'expected_revision'].every(key => /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(url.searchParams.get(key) ?? ''));
++    if (operation === 'artifact_readiness' ? !draftParams : operation === 'backlog_titles' ? !titleParams : operation === 'snapshot' ? params.length > 1 || params.length === 1 && (params[0] !== 'run_id'
+         || !/^[A-Za-z0-9_-]{1,128}$/.test(url.searchParams.get('run_id') ?? '')) : params.length !== 1 || params[0] !== 'snapshot'
+       || !/^[a-f0-9-]{36}$/.test(url.searchParams.get('snapshot') ?? '')) return send(403, error('resource_denied'));
+     const cancellation = new AbortController();
+     res.once('close', () => { if (!res.writableEnded) cancellation.abort(); });
+     try {
+       const result = operation === 'changes' ? await pool.waitForChange(url.searchParams.get('snapshot'), cancellation.signal) : await pool.request({ operation, selector, snapshot: url.searchParams.get('snapshot'),
+-        input: operation === 'backlog_titles' ? { row_ids: rowIds } : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
++        input: operation === 'artifact_readiness' ? { run_id: selector, gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') }
++          : operation === 'backlog_titles' ? { row_ids: rowIds } : operation === 'snapshot' && url.searchParams.has('run_id') ? { run_id: url.searchParams.get('run_id') } : undefined }, cancellation.signal);
+       send(200, result);
+     } catch (e) { send(e.code === 'busy' ? 429 : e.code === 'timeout' ? 504 : 409, error(['resource_denied', 'source_changed', 'read_failed', 'resource_limit', 'busy', 'timeout', 'cancelled'].includes(e.code) ? e.code : 'read_failed')); }
+   });
+--- baseline/packages/control-ui/src/App.tsx
++++ current/packages/control-ui/src/App.tsx
+@@ -13,6 +13,8 @@
+ import { useCardVisibility } from './useCardVisibility';
+ import { documentName } from './presentation';
+ import { Icon } from './mcp/Icon';
++import { useDraftCheck } from './useDraftCheck';
++import { DraftCheck } from './DraftCheck';
+ import { ContextPanel } from './ContextPanel';
+ import type { HandoffController } from './mcp/handoff';
+ import { createBacklogTitleStore, type TitleLoader } from './useBacklogTitles';
+@@ -27,6 +29,7 @@
+   const [titleEpoch, setTitleEpoch] = useState(0);
+   const titleStore = useRef(createBacklogTitleStore());
+   const titlePending = useRef<AbortController | null>(null), freshnessPending = useRef<AbortController | null>(null);
++  const draftPending = useRef<AbortController | null>(null);
+   const workspace = useRef<HTMLDivElement>(null);
+   const [wideReader, setWideReader] = useState(true);
+   useLayoutEffect(() => {
+@@ -65,8 +68,20 @@
+   }, [compact, backlogView.section]);
+   const read = useRef(transport ?? createApi(secret)).current;
+   const initialRoute = useRef<Route>(initialRunId ? { view: 'detail', runId: initialRunId } : { view: 'overview' }).current;
++  const capturePosition = (generation: number) => {
++      const root = workspace.current ?? heading.current?.closest('.compact-cockpit');
++      const elements = root ? [root, ...root.querySelectorAll('*')] : [];
++      for (let parent = root?.parentElement; parent; parent = parent.parentElement) elements.push(parent);
++      const focus = document.activeElement?.getAttribute('data-focus-id') ?? null;
++      const resource = live.current.detail?.data?.resources.find(r => focus?.endsWith(r.resource_id));
++      readingPosition.current = { generation, open: root ? [...root.querySelectorAll('details[open]')].map(disclosureKey) : [],
++        scroll: elements.filter(e => e.scrollTop || e.scrollLeft).map(element => ({ element, top: element.scrollTop, left: element.scrollLeft })),
++        x: window.scrollX, y: window.scrollY, focus,
++        ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
++  };
+   const navigate = useCallback(async (requested: Route, reload = false, background = false) => {
+     if (hasExpiredSession(live.current)) return;
++    draftPending.current?.abort();
+     void handoff?.invalidate();
+     // A cancelled title response may already have replaced the server capture.
+     // Start a named capture instead of sending selectors from the previous one.
+@@ -76,17 +91,7 @@
+     if (!reload && !background && (requested.view === 'overview' || requested.runId !== live.current.route.runId)) setReaderMode('summary');
+     pending.current?.abort(); const controller = new AbortController(); pending.current = controller;
+     const generation = ++sequence.current;
+-    if (background) {
+-      const root = workspace.current ?? heading.current?.closest('.compact-cockpit');
+-      const elements = root ? [root, ...root.querySelectorAll('*')] : [];
+-      for (let parent = root?.parentElement; parent; parent = parent.parentElement) elements.push(parent);
+-      const focus = document.activeElement?.getAttribute('data-focus-id') ?? null;
+-      const resource = live.current.detail?.data?.resources.find(r => focus?.endsWith(r.resource_id));
+-      readingPosition.current = { generation, open: root ? [...root.querySelectorAll('details[open]')].map(disclosureKey) : [],
+-        scroll: elements.filter(e => e.scrollTop || e.scrollLeft).map(element => ({ element, top: element.scrollTop, left: element.scrollLeft })),
+-        x: window.scrollX, y: window.scrollY, focus,
+-        ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
+-    } else readingPosition.current = null;
++    if (background) capturePosition(generation); else readingPosition.current = null;
+     focusAfterRead.current = !background;
+     dispatch({ type: 'begin', generation, route: requested, background });
+     try {
+@@ -140,6 +145,16 @@
+       dispatch({ type: 'ready', generation, route, scope, inventory, detail, document, removed });
+     } catch (error) { if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed' }); }
+   }, [read, handoff]);
++  const draftAction = useDraftCheck({ live, read, visible: cardVisible, pending: draftPending, handoff,
++    before: () => { freshnessPending.current?.abort(); titlePending.current?.abort(); },
++    commit: (scope, original) => {
++      if (!scope.data || scope.data.kind !== 'run' || !scope.data.run || !original.scope?.snapshot_id) return;
++      capturePosition(original.generation); focusAfterRead.current = false;
++      const action = { type: 'draft-check' as const, generation: original.generation, snapshot: original.scope.snapshot_id,
++        scope, detail: { ...scope, data: scope.data.run } as Envelope<Detail> };
++      live.current = readingReducer(live.current, action); dispatch(action);
++    },
++  });
+   const loadTitles = useCallback<TitleLoader>(async (ids, signal) => {
+     const current = live.current, scope = current.scope;
+     if (current.phase !== 'ready' || current.stale || current.route.view !== 'overview' || scope?.data?.kind !== 'backlog' || !scope.snapshot_id) return null;
+@@ -206,14 +221,14 @@
+       if (parent instanceof HTMLDetailsElement) parent.open = true;
+     }
+     (control ?? fallback ?? heading.current)?.focus();
+-  }, [state.phase, state.route, state.refreshing, state.generation]);
++  }, [state.phase, state.route, state.refreshing, state.generation, state.scope]);
+   useEffect(() => {
+     const justShown = cardVisible && !wasCardVisible.current; wasCardVisible.current = cardVisible;
+     const snapshot = state.scope?.snapshot_id;
+-    if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible) return;
++    if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible || draftAction.busy) return;
+     let checking = false; const controller = new AbortController();
+     const check = async () => {
+-      if (document.hidden || checking || titlePending.current) return; checking = true;
++      if (document.hidden || checking || titlePending.current || draftPending.current) return; checking = true;
+       const generation = sequence.current;
+       try {
+         const request = new AbortController(); freshnessPending.current = request;
+@@ -254,7 +269,7 @@
+     if (justShown) void check();
+     void listen();
+     return () => { window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
+-  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff]);
++  }, [state.scope, state.stale, state.phase, read, navigate, compact, cardVisible, handoff, draftAction.busy]);
+   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
+   const open = (resource: Resource, origin = resource.resource_id) => {
+     documentOrigin.current = origin;
+@@ -294,16 +309,16 @@
+       {(state.phase === 'error' || state.scope?.retryable && !state.scope.data) && enabled && !expired && <button className="retry" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
+       <div className={`reading-results${state.phase === 'loading' ? ' previous-content' : ''}`} aria-busy={state.phase === 'loading'}>
+         {state.inventory?.data && state.route.view === 'overview' && <Overview key={titleEpoch} result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setBacklogView} loadTitles={loadTitles} titleStore={titleStore.current} resetTitles={state.stale} titlesEnabled={state.phase === 'ready' && !state.stale && cardVisible} onSelect={id => void navigate({ view: 'detail', runId: id })}/>}
+-        {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
++        {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftCheck={<DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
+         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
+       {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} onScope={value => {
+-        if (renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
++        if (draftPending.current || state.scope?.snapshot_id !== live.current.scope?.snapshot_id || renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
+         const parent = { ...value, data: value.data.run } as Envelope<Detail>;
+         const doc = value.data.document ? { ...value, data: value.data.document } as Envelope<DocumentData> : null;
+         dispatch({ type: 'ready', generation: sequence.current, route: { ...live.current.route, resourceId: doc?.data?.resource.resource_id }, scope: value, inventory: null, detail: parent, document: doc });
+-      }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready'} handoff={handoff}/>}
++      }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready' || draftAction.busy} handoff={handoff}/>}
+   </>;
+-  if (compact) return <CompactCockpit state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
++  if (compact) return <CompactCockpit draftCheck={state.detail && <DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} state={state} headingRef={heading} enabled={enabled} initialRunId={initialRoute.runId}
+     onSelect={id => void navigate({ view: 'detail', runId: id })}
+     view={backlogView} onViewChange={setBacklogView} returnNotice={backlogReturnNotice}
+     onReload={() => void navigate(reloadRoute, true)} onOverview={showOverview}
+--- baseline/packages/control-ui/src/DraftCheck.tsx
++++ current/packages/control-ui/src/DraftCheck.tsx
+@@ -0,0 +1,36 @@
++import type { Envelope, Detail } from './types';
++
++export interface DraftCheckAction { busy: boolean; problem: string | null; check: () => Promise<void> }
++export function DraftCheck({ result, action, current, onReload }: {
++  result: Envelope<Detail>; action: DraftCheckAction; current: boolean; onReload: () => void;
++}) {
++  const data = result.data, draft = data?.draft_check;
++  const state = !current ? 'stale' : action.busy ? 'checking' : action.problem ? 'unavailable' : draft?.display.state ?? 'unavailable';
++  const title = { stale: 'Prüfstand nicht aktuell', checking: 'Prüfung läuft', unavailable: 'Prüfung nicht verfügbar',
++    unchecked: 'Noch nicht geprüft', passed: 'Entwurfsprüfung bestanden', corrections_required: 'Korrekturen erforderlich' }[state];
++  const retry = action.problem === 'busy';
++  const reopen = ['session_expired', 'session_invalid'].includes(action.problem ?? '');
++  return <section className="draft-check panel agdf-surface" aria-label="Entwurfsprüfung" aria-busy={action.busy}>
++    <h2>Entwurfsprüfung{draft?.source.gate && ['UR', 'PRD', 'SD', 'TP'].includes(draft.source.gate) ? ` · ${draft.source.gate}` : ''}</h2>
++    <p role="status" aria-live="polite"><strong>{title}</strong></p>
++    <p className="muted">Prüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.</p>
++    {draft?.source.available && <button type="button" data-focus-id={`draft-check:${data?.run_id}`}
++      aria-disabled={!current || action.busy || !!action.problem && !retry}
++      onClick={() => { if (current && !action.busy && (!action.problem || retry)) void action.check(); }}>{action.busy ? 'Prüfung läuft …' : retry ? 'Prüfung wiederholen' : 'Entwurf prüfen'}</button>}
++    {action.problem && <p>{retry ? 'Der Lesedienst ist beschäftigt. Du kannst die Prüfung wiederholen.' : reopen
++      ? 'Die Sitzung ist abgelaufen oder nicht verfügbar. Öffne das Cockpit erneut.' : 'Die Prüfung konnte nicht zuverlässig abgeschlossen werden. Lade den Stand neu und prüfe danach ausdrücklich erneut.'}</p>}
++    {(!current || action.problem && !retry && !reopen || draft?.display.recovery === 'reload') && <button type="button" onClick={onReload}>Stand neu laden</button>}
++    {current && !action.problem && !draft?.source.available && <p>Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.</p>}
++    {current && !action.problem && draft?.result && <>
++      {!!draft.result.diagnostics.length && <ul>{draft.result.diagnostics.map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>}
++      <p className="source-text">Nächster Schritt · Core-Original: {draft.result.next_action}</p>
++    </>}
++    <details><summary>Prüfquelle und Originalbefunde</summary>
++      <dl><dt>Gate</dt><dd>{draft?.source.gate ?? 'Nicht verfügbar'}</dd><dt>Revision</dt><dd><code>{draft?.source.revision_id ?? 'Nicht verfügbar'}</code></dd>
++        <dt>Quelle</dt><dd><code>{draft?.source.artifact_path ?? 'Nicht verfügbar'}</code></dd><dt>SHA-256</dt><dd><code>{draft?.source.artifact_digest ?? 'Nicht verfügbar'}</code></dd>
++        <dt>Beobachtet</dt><dd>{result.observed_as_of ?? 'Nicht verfügbar'}</dd></dl>
++      {(action.problem ?? draft?.source.reason) && <p>Originalgrund: <code>{action.problem ?? draft?.source.reason}</code></p>}
++      {current && !action.problem && draft?.result && <pre>{JSON.stringify(draft.result, null, 2)}</pre>}
++    </details>
++  </section>;
++}
+--- baseline/packages/control-ui/src/RunDetail.tsx
++++ current/packages/control-ui/src/RunDetail.tsx
+@@ -1,8 +1,9 @@
++import type { ReactNode } from 'react';
+ import type { Envelope, Detail, Resource } from './types';
+ import { WorkStep } from './WorkStep';
+ import { ReadState, label } from './feedback';
+ import { documentName, documentPurpose, reportFindingsLabel } from './presentation';
+-export function RunDetail({ result, onOpen, summaryOnly = false, current = true }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean }) {
++export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode }) {
+   const data = result.data, e = data?.evaluation, p = data?.persisted;
+   return <>
+     {result.code && <ReadState code={result.code} state={result.state}/>}
+@@ -10,6 +11,7 @@
+     {!summaryOnly && <><div className="context-line"><code>{data?.run_id}</code><span>{label(data?.lifecycle)}</span></div>
+       {data?.objective && <p className="objective">{data.objective}</p>}</>}
+     {data && <WorkStep data={data} onOpen={onOpen} condensed={summaryOnly} current={current && result.state === 'available' && !(e && p && (p.current_gate !== e.current_gate || p.next_allowed_action !== e.next_allowed_action))}/>}
++    {draftCheck}
+     {data?.work_summary && <section className="work-summary panel agdf-surface" aria-label="Offene Aufgabe"><h2>{data.work_summary.phase} · Offene Aufgabe und nächster Schritt</h2>
+       <p>{data.work_summary.display_action}</p>{data.work_summary.open_obligation_count > 0 && <p>{reportFindingsLabel(data.work_summary.open_obligation_count)} in den registrierten Berichten.</p>}
+       {!!data.work_summary.limitations.length && <p className="muted">Quellenbezug eingeschränkt: {data.work_summary.limitations.join(' · ')}</p>}
+--- baseline/packages/control-ui/src/api.ts
++++ current/packages/control-ui/src/api.ts
+@@ -21,6 +21,29 @@
+     && /^[a-f0-9]{64}$/.test(String(v.content_digest)));
+ const resources = (v: unknown) => Array.isArray(v) && v.every(r => object(r) && text(r.resource_id) && text(r.run_id) && text(r.type) && text(r.registered_reference) && nullableText(r.path) && text(r.status));
+ const diagnostics = (v: unknown) => Array.isArray(v) && v.every(d => object(d) && text(d.code) && ['message', 'path', 'next_step', 'severity', 'section'].every(k => d[k] === undefined || text(d[k])) && (d.key === undefined || nullableText(d.key)));
++const sha = (v: unknown) => typeof v === 'string' && /^sha256:[a-f0-9]{64}$/.test(v);
++const uuid = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(v);
++export function validDraftCheck(v: unknown, runId: string, revision: unknown): boolean {
++  if (!object(v) || !object(v.source) || !object(v.display)) return false;
++  const s = v.source, d = v.display, r = v.result;
++  const supported = ['UR', 'PRD', 'SD', 'TP'].includes(String(s.gate));
++  if (s.run_id !== runId || !uuid(s.revision_id) || s.revision_id !== revision || !text(s.gate)
++    || typeof s.available !== 'boolean' || !nullableText(s.reason)
++    || s.artifact_path !== (supported ? `.agdf/control/artefacts/${runId}/${s.gate}.md` : null)
++    || !(s.artifact_digest === null || sha(s.artifact_digest))
++    || s.available && (!supported || !sha(s.artifact_digest) || s.reason !== null)
++    || !['unchecked', 'passed', 'corrections_required', 'unavailable'].includes(String(d.state))
++    || !nullableText(d.reason) || !['check', 'authoring', 'reload'].includes(String(d.recovery))) return false;
++  if (r === null) return d.state === (s.available ? 'unchecked' : 'unavailable');
++  return s.available && object(r) && r.run_id === runId && r.gate === s.gate && r.expected_revision_id === revision && r.revision_id === revision
++    && r.artifact_path === s.artifact_path && (r.artifact_digest === s.artifact_digest || r.artifact_digest === null && d.state === 'unavailable')
++    && typeof r.ready === 'boolean' && r.readiness_scope === 'authoring_checks' && r.authorizes === false
++    && r.semantic_review_required === true && r.registration_required === true && r.presentation_required === true
++    && Array.isArray(r.checks) && r.checks.every(c => object(c) && text(c.name) && typeof c.ready === 'boolean')
++    && Array.isArray(r.diagnostics) && diagnostics(r.diagnostics) && text(r.next_action) && (r.readiness_details === undefined || object(r.readiness_details))
++    && (r.ready ? d.state === 'passed' && r.artifact_digest === s.artifact_digest && r.diagnostics.length === 0 && r.checks.length > 0 && r.checks.every(c => c.ready)
++      : ['corrections_required', 'unavailable'].includes(String(d.state)) && r.diagnostics.length > 0);
++}
+ export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 64 && v.every(r => object(r)
+   && ['resource_id', 'run_id', 'origin', 'path'].every(k => text(r[k]))
+   && ['node_id', 'graph_digest', 'content_digest', 'content', 'code'].every(k => nullableText(r[k]))
+@@ -31,6 +54,7 @@
+     || !Array.isArray(data.resources) || !resources(data.resources) || data.resources.some((r: unknown) => !object(r) || r.run_id !== data.run_id)
+     || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)
+     || data.work_summary !== undefined && data.work_summary !== null && !workSummary(data.work_summary, data.run_id)
++    || data.draft_check !== undefined && !validDraftCheck(data.draft_check, data.run_id, data.revision_id)
+     || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
+       && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
+       && text(data.backlog_comparison.reason) && nullableText(data.backlog_comparison.saved_revision_id) && data.backlog_comparison.authorizes === false)) return false;
+@@ -91,6 +115,13 @@
+     }
+   }
+   if (!valid) throw Error('dto_invalid');
++  if (path.startsWith('/api/draft-check/') && value.state === 'available') {
++    const url = new URL(path, 'https://local.invalid');
++    if (!object(data) || !object(data.run) || !object(data.run.draft_check) || !object(data.run.draft_check.source)
++      || data.kind !== 'run' || data.run.run_id !== url.pathname.slice(17)
++      || data.run.draft_check.result === null || data.run.draft_check.source.gate !== url.searchParams.get('gate')
++      || data.run.revision_id !== url.searchParams.get('expected_revision')) throw Error('dto_invalid');
++  }
+ }
+ export function validateEnvelope(value: unknown, expected?: { target: string; snapshot: string; replacement?: boolean }): asserts value is Envelope<unknown> {
+   if (!object(value) || value.schema_version !== '1' || !object(value.target)
+--- baseline/packages/control-ui/src/mcp/CompactCockpit.tsx
++++ current/packages/control-ui/src/mcp/CompactCockpit.tsx
+@@ -1,4 +1,4 @@
+-import { type RefObject } from 'react';
++import { type ReactNode, type RefObject } from 'react';
+ import { COCKPIT_BACKLOG_SECTIONS, projectCockpitList } from '../../../core/lib/control-inspect/cockpit-list.js';
+ import { BacklogCounts, BacklogEmpty, BacklogRow } from '../BacklogRows';
+ import type { BacklogView } from '../Overview';
+@@ -11,11 +11,11 @@
+ import { DocumentView } from '../DocumentView';
+ import type { Resource } from '../types';
+ 
+-export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onExpand, onOpen, onBack, view, onViewChange, returnNotice }: {
++export function CompactCockpit({ state, headingRef, enabled, initialRunId, onSelect, onReload, onOverview, onExpand, onOpen, onBack, view, onViewChange, returnNotice, draftCheck }: {
+   state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean;
+   initialRunId?: string; view: BacklogView; onViewChange: (view: BacklogView) => void; returnNotice?: string | null;
+   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onExpand?: () => void;
+-  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void;
++  onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode;
+ }) {
+   const list = projectCockpitList(state.inventory?.data ?? null, { section: COCKPIT_BACKLOG_SECTIONS[0], query: view.filter });
+   const shown = list.rows.slice(0, 3);
+@@ -55,7 +55,7 @@
+         </div><div className="compact-run-followup">
+         <WorkStep data={data} compact onOpen={onOpen} sourceDisabled={!usable} current={usable && state.detail?.state === 'available' && !(e && data.persisted && (data.persisted.current_gate !== e.current_gate || data.persisted.next_allowed_action !== e.next_allowed_action))}>
+         <div className="compact-actions"><button className="text-link" disabled={!usable || !onExpand} onClick={onExpand}>Run ansehen <Icon name="expand"/></button><button className="text-link" disabled={expired || busy} onClick={onOverview}>Alle Vorhaben</button></div>
+-        </WorkStep></div>
++        </WorkStep></div>{draftCheck}
+         <details className="compact-identity"><summary>Ziel und Run-ID · Originalangaben</summary><code className="compact-run-id">{data.run_id}</code>
+         {data.objective && data.objective !== selected.title && <p className="compact-goal">{data.objective}</p>}</details>
+       </div> : state.route.view === 'overview' && state.inventory?.data ? <div className="compact-overview">
+--- baseline/packages/control-ui/src/mcp/style.css
++++ current/packages/control-ui/src/mcp/style.css
+@@ -58,3 +58,9 @@
+ .compact-controls .row-source > summary { font-size: var(--agdf-text-xs); }
+ /* Content determines the inline height; the host/chat owns scrolling. */
+ .compact-controls .undertaking-list { overflow: visible; max-height: none; }
++
++.draft-check { min-width: 0; margin-block: 1rem; }
++.draft-check :is(code, pre, dd, p, li) { overflow-wrap: anywhere; white-space: pre-wrap; }
++.draft-check dd { margin-inline-start: 0; }
++.draft-check pre { max-width: 100%; }
++.draft-check [aria-disabled="true"] { opacity: .7; cursor: progress; }
+--- baseline/packages/control-ui/src/mcp/transport.ts
++++ current/packages/control-ui/src/mcp/transport.ts
+@@ -43,6 +43,12 @@
+     else if (url.pathname === '/api/backlog-titles') argumentsValue = { operation: 'backlog_titles', snapshot_id, row_ids: url.searchParams.get('rows')?.split(',') };
+     else if (url.pathname.startsWith('/api/runs/')) argumentsValue = { operation: 'run', snapshot_id, run_id: url.pathname.slice(10) };
+     else if (url.pathname.startsWith('/api/context/')) argumentsValue = { operation: 'context', snapshot_id, run_id: url.pathname.slice(13) };
++    else if (/^\/api\/draft-check\/[A-Za-z0-9_-]{1,128}$/.test(url.pathname)) {
++      const keys = [...url.searchParams.keys()];
++      if (keys.length !== 3 || new Set(keys).size !== 3 || !['snapshot', 'gate', 'expected_revision'].every(key => keys.includes(key))) throw Error('resource_denied');
++      argumentsValue = { operation: 'artifact_readiness', snapshot_id, run_id: url.pathname.slice(17),
++        gate: url.searchParams.get('gate'), expected_revision_id: url.searchParams.get('expected_revision') };
++    }
+     else if (url.pathname.startsWith('/api/documents/')) {
+       const resource_id = url.pathname.slice(15), run_id = resourceRuns.get(resource_id);
+       if (!run_id) throw Error('resource_denied');
+@@ -50,7 +56,7 @@
+     } else throw Error('resource_denied');
+     const value = await this.operation(argumentsValue, signal, session);
+     validateEnvelope(value, expected); validateData(path, value);
+-    if (['snapshot', 'backlog_titles', 'run', 'document', 'context'].includes(String(argumentsValue.operation))) {
++    if (['snapshot', 'backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(String(argumentsValue.operation))) {
+       resourceRuns.clear();
+       const data = value.data as { run?: { run_id: string; resources: { resource_id: string }[] } } | null;
+       if (data?.run) for (const resource of data.run.resources) resourceRuns.set(resource.resource_id, data.run.run_id);
+--- baseline/packages/control-ui/src/state.ts
++++ current/packages/control-ui/src/state.ts
+@@ -7,6 +7,7 @@
+ export type ReadingAction = { type: 'begin'; generation: number; route: Route; background?: boolean } | { type: 'ready'; generation: number; route: Route;
+   scope: Envelope<ReadingScope>; inventory: Envelope<Inventory> | null; detail: Envelope<Detail> | null; document: Envelope<DocumentData> | null; removed?: boolean }
+   | { type: 'titles'; generation: number; inventory: Envelope<Inventory> }
++  | { type: 'draft-check'; generation: number; snapshot: string; scope: Envelope<ReadingScope>; detail: Envelope<Detail> }
+   | { type: 'error'; generation: number; code: string } | { type: 'stale'; snapshot: string; code: string };
+ export function readingReducer(state: ReadingState, action: ReadingAction): ReadingState {
+   if (action.type === 'stale') return state.scope?.snapshot_id === action.snapshot ? { ...state, stale: true, sourceChanged: state.sourceChanged || action.code === 'source_changed', problem: action.code } : state;
+@@ -15,6 +16,11 @@
+   if (action.type === 'titles') return state.phase === 'ready' && state.route.view === 'overview'
+     && !state.stale && state.inventory?.data?.content_digest === action.inventory.data?.content_digest
+     ? { ...state, inventory: action.inventory, scope: action.inventory } : state;
++  if (action.type === 'draft-check') return state.phase === 'ready' && !state.stale && !state.problem && state.route.view === 'detail'
++    && state.scope?.snapshot_id === action.snapshot && action.scope.target.target_id === state.scope.target.target_id
++    && !!action.detail.data && action.detail.data.run_id === state.route.runId && action.detail.data.revision_id === state.detail?.data?.revision_id
++    && action.detail.data.draft_check?.source.artifact_digest === state.detail?.data?.draft_check?.source.artifact_digest
++    ? { ...state, scope: action.scope, detail: action.detail, inventory: null, document: null } : state;
+   if (action.type === 'error') return { ...state, phase: 'error', refreshing: false, problem: action.code, stale: !!state.scope };
+   return { ...state, ...action, requestedRoute: action.scope.data ? null : state.requestedRoute, phase: 'ready', refreshing: false, stale: false, sourceChanged: false, problem: null, removed: !!action.removed };
+ }
+--- baseline/packages/control-ui/src/style.css
++++ current/packages/control-ui/src/style.css
+@@ -293,3 +293,9 @@
+   .data-observation { flex-wrap: wrap; }
+   .data-observation .provenance-details { flex-basis: 100%; }
+ }
++
++.draft-check { min-width: 0; margin-block: 1rem; }
++.draft-check :is(code, pre, dd, p, li) { overflow-wrap: anywhere; white-space: pre-wrap; }
++.draft-check dd { margin-inline-start: 0; }
++.draft-check pre { max-width: 100%; }
++.draft-check [aria-disabled="true"] { opacity: .7; cursor: progress; }
+--- baseline/packages/control-ui/src/types.ts
++++ current/packages/control-ui/src/types.ts
+@@ -22,12 +22,20 @@
+   | { kind: 'context'; run: Detail; document: DocumentData | null; context: GraphData };
+ export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
+ export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
++  draft_check?: DraftCheckData;
+   work_summary?: WorkSummary | null; backlog_comparison?: { state: 'matching' | 'different' | 'unavailable'; reason: string; saved_revision_id: string | null; authorizes: false };
+   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
+     control_assessment?: { state: 'open' | 'blocked' | 'unconfirmed' | 'completed'; authorizes: false };
+     diagnostics: Diagnostic[]; approvals: { gate: string; status: string; evidence: string }[]; missing_evidence: unknown[]; git_evidence: string };
+   persisted?: { current_gate: string; next_allowed_action: string; decision: string; artefacts: unknown[] } }
+ export interface Diagnostic { code: string; message?: string; path?: string; next_step?: string; severity?: string; section?: string; key?: string | null }
++export interface DraftCheckData {
++  source: { run_id: string; gate: string; revision_id: string; artifact_path: string | null; artifact_digest: string | null; available: boolean; reason: string | null };
++  display: { state: 'unchecked' | 'passed' | 'corrections_required' | 'unavailable'; reason: string | null; recovery: 'check' | 'authoring' | 'reload' };
++  result: null | { run_id: string; gate: string; expected_revision_id: string; revision_id: string | null; artifact_path: string; artifact_digest: string | null;
++    ready: boolean; readiness_scope: 'authoring_checks'; authorizes: false; semantic_review_required: true; registration_required: true; presentation_required: true;
++    checks: { name: string; ready: boolean; [key: string]: unknown }[]; diagnostics: Diagnostic[]; next_action: string; readiness_details?: Record<string, unknown> };
++}
+ export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string }
+ export interface Route { view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
+ export interface GraphReference { resource_id: string; run_id: string; origin: string; path: string; node_id: string | null;
+--- baseline/packages/control-ui/src/useDraftCheck.ts
++++ current/packages/control-ui/src/useDraftCheck.ts
+@@ -0,0 +1,58 @@
++import { useEffect, useRef, useState } from 'react';
++import type { ReadTransport } from './api';
++import { validateData, validateEnvelope } from './api';
++import type { Envelope, ReadingScope } from './types';
++import type { ReadingState } from './state';
++import type { HandoffController } from './mcp/handoff';
++
++export function useDraftCheck({ live, read, visible, pending, before, commit, handoff }: {
++  live: { current: ReadingState }; read: ReadTransport; visible: boolean;
++  pending: { current: AbortController | null }; before: () => void;
++  commit: (result: Envelope<ReadingScope>, original: ReadingState) => void; handoff?: HandoffController;
++}) {
++  const [invalidated, setInvalidated] = useState(false);
++  const [busy, setBusy] = useState(false), [problem, setProblem] = useState<string | null>(null);
++  const epoch = useRef(0), mounted = useRef(true);
++  const state = live.current, identity = `${state.scope?.snapshot_id}:${state.generation}:${state.route.view}:${state.stale}`;
++  useEffect(() => {
++    ++epoch.current; pending.current?.abort(); pending.current = null; setBusy(false); setProblem(null); setInvalidated(false);
++  }, [identity, pending]);
++  useEffect(() => { if (!visible) { ++epoch.current; pending.current?.abort(); pending.current = null; setBusy(false); setInvalidated(true); } }, [visible, pending]);
++  useEffect(() => {
++    mounted.current = true;
++    const hidden = () => { if (document.hidden) { ++epoch.current; pending.current?.abort(); pending.current = null; setBusy(false); setProblem(null); setInvalidated(true); } };
++    document.addEventListener('visibilitychange', hidden);
++    return () => { mounted.current = false; ++epoch.current; pending.current?.abort(); pending.current = null; document.removeEventListener('visibilitychange', hidden); };
++  }, [pending]);
++  const check = async () => {
++    const original = live.current, source = original.detail?.data?.draft_check?.source, scope = original.scope;
++    if (invalidated || pending.current || !visible || document.hidden || original.phase !== 'ready' || original.stale || original.problem
++      || original.route.view !== 'detail' || !source?.available || !scope?.snapshot_id) return;
++    const controller = new AbortController(), token = ++epoch.current;
++    pending.current = controller; setBusy(true); setProblem(null); before();
++    const current = () => mounted.current && !controller.signal.aborted && epoch.current === token
++      && live.current.scope === scope && live.current.generation === original.generation && !live.current.stale
++      && live.current.phase === 'ready' && live.current.route.runId === original.route.runId && !document.hidden;
++    const timer = setTimeout(() => { controller.abort(); if (mounted.current && epoch.current === token) { ++epoch.current; pending.current = null; setBusy(false); setProblem('timeout'); } }, 12_000);
++    try {
++      await handoff?.invalidate();
++      if (!current()) return;
++      if (handoff?.state.phase === 'uncertain') throw Error('context_cleanup_uncertain');
++      const path = `/api/draft-check/${source.run_id}?snapshot=${scope.snapshot_id}&gate=${source.gate}&expected_revision=${source.revision_id}`;
++      const expected = { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true };
++      const result = await read<ReadingScope>(path, controller.signal, expected);
++      if (!current()) return;
++      validateEnvelope(result, expected); validateData(path, result);
++      if (!result.data || result.data.kind !== 'run' || !result.data.run?.draft_check?.result) throw Error(result.code ?? 'dto_invalid');
++      if (result.data.run.draft_check.source.artifact_digest !== source.artifact_digest) throw Error('source_changed');
++      commit(result, original);
++    } catch (error) {
++      if (current()) setProblem(error instanceof Error ? error.message : 'read_failed');
++    } finally {
++      clearTimeout(timer);
++      if (pending.current === controller) pending.current = null;
++      if (mounted.current && epoch.current === token) setBusy(false);
++    }
++  };
++  return { busy, problem, check, invalidated };
++}
+--- baseline/packages/control-ui/test/browser/draft-check.spec.mjs
++++ current/packages/control-ui/test/browser/draft-check.spec.mjs
+@@ -0,0 +1,57 @@
++import { test, expect } from '@playwright/test';
++import * as fs from 'node:fs';
++import { artifactReadinessFixture, readyPrd } from '../../../core/test/fixtures/artifact-readiness.js';
++import { treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
++import { startControlServer, evidencePath } from './server-fixture.mjs';
++
++test('SCN-015/016/018: built compact/expanded checks use actual Core, preserve keyboard/disclosure/position and wrap long findings', async ({ page }) => {
++  const f = artifactReadinessFixture(); f.root = fs.realpathSync(f.root);
++  fs.writeFileSync(f.path, readyPrd);
++  const before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
++  const requests = [];
++  page.on('request', req => { if (req.url().includes('/api/draft-check/')) requests.push(req.url()); });
++  try {
++    await page.addInitScript(({ secret, origin }) => { if (location.origin === origin) history.replaceState(null, '', location.pathname + '#' + secret); }, { secret: service.secret, origin: service.origin });
++    for (const route of ['/card.html', '/']) {
++      await page.goto(`${service.origin}${route}?run_id=${f.runId}`);
++      // Entry supports initial Run only through the existing transport snapshot selector.
++      await page.evaluate(async ({ secret, run }) => {
++        const response = await fetch('/api/snapshot?run_id=' + run, { headers: { 'x-agdf-session': secret } });
++        if (!(await response.json()).data?.run) throw Error('Fixture selected run unavailable');
++      }, { secret: service.secret, run: f.runId });
++      // Existing browser entry starts with overview: add a real stored pointer in this isolated target.
++      const backlog = `${f.root}/.agdf/control/MASTER_BACKLOG.md`;
++      if (!fs.readFileSync(backlog, 'utf8').includes('| synthetic-draft |')) {
++        fs.writeFileSync(backlog, fs.readFileSync(backlog, 'utf8').replace('|---:|---|---|---|---|---|---|', '|---:|---|---|---|---|---|---|\n| P1 | synthetic-draft | Draft check fixture | In Progress | | | Check draft |'));
++      }
++      await page.reload();
++      await page.getByRole('button', { name: 'Draft check fixture', exact: true }).click();
++      const action = page.getByRole('button', { name: 'Entwurf prüfen', exact: true });
++      await expect(action).toBeVisible();
++      const count = requests.length;
++      await page.locator('.draft-check summary').click();
++      await expect(action).toBeVisible(); expect(requests.length).toBe(count);
++      await action.focus(); await page.keyboard.press('Enter');
++      await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');
++      await expect(action).toBeFocused(); await expect(page.locator('.draft-check details')).toHaveAttribute('open');
++      expect(requests.length).toBe(count + 1);
++      await expect(page.locator('.work-step-approvals .draft-check')).toHaveCount(0);
++      for (const width of [390, 1100]) {
++        await page.setViewportSize({ width, height: 900 });
++        await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
++        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
++        await page.evaluate(() => window.scrollTo(0, 0));
++        await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');
++        await page.screenshot({ path: evidencePath(`draft-check-${route === '/' ? 'expanded' : 'compact'}-${width}.png`), fullPage: true });
++      }
++      expect(treeBytes(f.root)).toEqual({ ...before, '/.agdf/control/MASTER_BACKLOG.md': fs.readFileSync(backlog).toString('base64') });
++      fs.writeFileSync(f.path, readyPrd.replace('before_prd | resolved', 'before_prd | open').replace('| Scope |', '| ' + 'Long concrete authoring finding '.repeat(12) + '|'));
++      await page.getByRole('button', { name: /Neu laden|Aktualisieren/ }).click();
++      await expect(page.locator('.draft-check')).toContainText('Noch nicht geprüft');
++      await action.click(); await expect(page.locator('.draft-check')).toContainText('Korrekturen erforderlich');
++      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
++      await page.screenshot({ path: evidencePath(`draft-check-${route === '/' ? 'expanded' : 'compact'}-long-findings.png`), fullPage: true });
++      fs.writeFileSync(f.path, readyPrd);
++    }
++  } finally { await page.close(); await service.close(); fs.rmSync(f.root, { recursive: true, force: true }); }
++});
+--- baseline/packages/control-ui/test/draft-check.test.tsx
++++ current/packages/control-ui/test/draft-check.test.tsx
+@@ -0,0 +1,99 @@
++import { afterEach, describe, expect, it, vi } from 'vitest';
++import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
++import { App } from '../src/App';
++import { validDraftCheck, validateData, type ReadTransport } from '../src/api';
++import { readingReducer, initialState } from '../src/state';
++import { runData, runScope } from './scoped-fixtures';
++import type { DraftCheckData, Envelope, ReadingScope } from '../src/types';
++const revision = '11111111-1111-4111-8111-111111111111';
++const snapshot = '22222222-2222-4222-8222-222222222222';
++const replacement = '33333333-3333-4333-8333-333333333333';
++function source(id = 'run-a'): DraftCheckData {
++  return { source: { run_id: id, revision_id: revision, gate: 'PRD', artifact_path: `.agdf/control/artefacts/${id}/PRD.md`, artifact_digest: 'sha256:' + 'a'.repeat(64), available: true, reason: null },
++    display: { state: 'unchecked', reason: null, recovery: 'check' }, result: null };
++}
++function selected(id = 'run-a', checked = false): Envelope<ReadingScope> {
++  const draft = source(id);
++  if (checked) {
++    draft.display = { state: 'passed', reason: null, recovery: 'authoring' };
++    draft.result = { run_id: id, gate: 'PRD', revision_id: revision, expected_revision_id: revision,
++      artifact_path: draft.source.artifact_path!, artifact_digest: draft.source.artifact_digest,
++      ready: true, readiness_scope: 'authoring_checks', authorizes: false, semantic_review_required: true,
++      registration_required: true, presentation_required: true, checks: [{ name: 'approval_summary', ready: true }], diagnostics: [], next_action: 'Review through the existing owner.' };
++  }
++  return runScope({ ...runData(id), revision_id: revision, draft_check: draft }, checked ? replacement : snapshot);
++}
++afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); });
++describe('Bound draft check', () => {
++  it('SCN-001/014/016/017: explicit action only, duplicate prevention, atomic current result and stable focus', async () => {
++    let resolve!: (v: Envelope<ReadingScope>) => void;
++    const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; }) : selected());
++    render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
++    const button = await screen.findByRole('button', { name: 'Entwurf prüfen' });
++    expect(read).toHaveBeenCalledTimes(1); button.focus();
++    fireEvent.click(button); fireEvent.click(button);
++    await screen.findByText('Prüfung läuft');
++    expect(read.mock.calls.filter(([path]) => path.startsWith('/api/draft-check/'))).toHaveLength(1);
++    await act(async () => resolve(selected('run-a', true)));
++    await screen.findByText('Entwurfsprüfung bestanden');
++    expect(document.activeElement).toBe(button);
++    expect(screen.getByText(/Freigabe, semantische Prüfung und QA/)).toBeTruthy();
++    expect(screen.getByRole('region', { name: 'Entwurfsprüfung' }).querySelector('[data-approval]')).toBeNull();
++  });
++  it('SCN-013: response after overview navigation never installs the obsolete result', async () => {
++    let resolve!: (v: Envelope<ReadingScope>) => void;
++    const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; })
++      : selected());
++    render(<App compact transport={read as ReadTransport} initialRunId="run-a"/>);
++    fireEvent.click(await screen.findByRole('button', { name: 'Entwurf prüfen' }));
++    await screen.findByText('Prüfung läuft');
++    fireEvent.click(screen.getByRole('button', { name: 'Alle Vorhaben' }));
++    await act(async () => resolve(selected('run-a', true)));
++    expect(screen.queryByText('Entwurfsprüfung bestanden')).toBeNull();
++  });
++  it('SCN-012: busy offers deliberate retry, reload leaves the new observation unchecked', async () => {
++    let checks = 0;
++    const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/')
++      ? ++checks === 1 ? { ...selected(), state: 'blocked', code: 'busy', data: null } : selected('run-a', true) : selected());
++    render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
++    fireEvent.click(await screen.findByRole('button', { name: 'Entwurf prüfen' }));
++    fireEvent.click(await screen.findByRole('button', { name: 'Prüfung wiederholen' }));
++    await screen.findByText('Entwurfsprüfung bestanden');
++    fireEvent.click(screen.getByRole('button', { name: /Neu laden|Aktualisieren/ }));
++    await screen.findByText('Noch nicht geprüft'); expect(checks).toBe(2);
++  });
++  it('SCN-011/019/020: rejects inconsistent, partial, authority-changing and empty synthetic success; old detail stays readable', () => {
++    const passed = selected('run-a', true);
++    expect(() => validateData(`/api/draft-check/run-a?snapshot=${snapshot}&gate=PRD&expected_revision=${revision}`, passed)).not.toThrow();
++    const draft = (passed.data as { run: { draft_check: DraftCheckData } }).run.draft_check;
++    for (const alter of [(v: DraftCheckData) => { v.result!.authorizes = true as false; }, (v: DraftCheckData) => { v.result!.checks = []; },
++      (v: DraftCheckData) => { v.source.artifact_digest = 'sha256:' + 'b'.repeat(64); }, (v: DraftCheckData) => { v.result!.run_id = 'foreign'; },
++      (v: DraftCheckData) => { delete (v as Partial<DraftCheckData>).result; }, (v: DraftCheckData) => { v.result!.ready = false; }]) {
++      const malformed = structuredClone(draft); alter(malformed); expect(validDraftCheck(malformed, 'run-a', revision)).toBe(false);
++    }
++    expect(() => validateData('/api/runs/run-a?snapshot=' + snapshot, runScope(runData('run-a')))).not.toThrow();
++  });
++  it('SCN-009/014: an unresponsive transport leaves finite explained state and cannot later publish success', async () => {
++    let resolve!: (v: Envelope<ReadingScope>) => void;
++    const read = vi.fn(async (path: string) => path.startsWith('/api/draft-check/') ? new Promise<Envelope<ReadingScope>>(r => { resolve = r; }) : selected());
++    render(<App transport={read as ReadTransport} initialRunId="run-a"/>);
++    const button = await screen.findByRole('button', { name: 'Entwurf prüfen' }); vi.useFakeTimers();
++    fireEvent.click(button); await act(async () => {});
++    await act(async () => { vi.advanceTimersByTime(12_000); });
++    expect(screen.queryByText('Prüfung läuft')).toBeNull();
++    expect(screen.getByRole('button', { name: 'Stand neu laden' })).toBeTruthy();
++    await act(async () => resolve(selected('run-a', true)));
++    expect(screen.queryByText('Entwurfsprüfung bestanden')).toBeNull();
++  });
++  it('SCN-013/015: central commit rejects stale snapshot, foreign target and replaced source', () => {
++    const scope = selected(), detail = { ...scope, data: (scope.data as { run: ReturnType<typeof runData> }).run };
++    const current = readingReducer(readingReducer(initialState, { type: 'begin', generation: 1, route: { view: 'detail', runId: 'run-a' } }),
++      { type: 'ready', generation: 1, route: { view: 'detail', runId: 'run-a' }, scope, detail, inventory: null, document: null });
++    const checked = selected('run-a', true), result = { ...checked, data: (checked.data as { run: ReturnType<typeof runData> }).run };
++    const action = { type: 'draft-check' as const, generation: 1, snapshot, scope: checked, detail: result };
++    expect(readingReducer(current, action).detail).toBe(result);
++    expect(readingReducer(current, { ...action, snapshot: 'foreign' })).toBe(current);
++    expect(readingReducer({ ...current, stale: true }, action)).toBeDefined();
++    expect(readingReducer(current, { ...action, scope: { ...checked, target: { ...checked.target, target_id: 'foreign' } } })).toBe(current);
++  });
++});
+--- baseline/packages/control-ui/test/draft-service.test.mjs
++++ current/packages/control-ui/test/draft-service.test.mjs
+@@ -0,0 +1,24 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import * as fs from 'node:fs';
++import { startControlServer } from '../server/service.mjs';
++import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
++import { treeBytes } from '../../core/test/control-cockpit-fixtures.js';
++test('SCN-008/010: authenticated exact-query draft route uses actual Core and does not write', async () => {
++  const f = artifactReadinessFixture(); fs.writeFileSync(f.path, readyPrd);
++  const before = treeBytes(fs.realpathSync(f.root)), service = await startControlServer({ dir: f.root });
++  const request = (path, options = {}) => fetch(service.origin + path, { headers: { 'x-agdf-session': service.secret, ...options.headers }, method: options.method });
++  try {
++    const selected = await (await request('/api/snapshot?run_id=' + f.runId)).json();
++    const path = `/api/draft-check/${f.runId}?snapshot=${selected.snapshot_id}&gate=PRD&expected_revision=${f.revision}`;
++    for (const [url, options] of [[path + '&gate=PRD', {}], [path + '&path=UR.md', {}], [path.replace('gate=PRD', 'gate=QA'), {}],
++      [path, { headers: { 'x-agdf-session': '' } }], [path, { headers: { Origin: 'https://foreign.invalid' } }], [path, { method: 'POST' }]]) {
++      assert.ok([401, 403].includes((await request(url, options)).status));
++    }
++    const response = await request(path), checked = await response.json();
++    assert.equal(response.status, 200); assert.equal(checked.data.run.draft_check.display.state, 'passed');
++    assert.equal(checked.data.run.draft_check.result.authorizes, false);
++    assert.equal(response.headers.get('cache-control'), 'no-store');
++    assert.deepEqual(treeBytes(fs.realpathSync(f.root)), before);
++  } finally { await service.close(); fs.rmSync(f.root, { recursive: true, force: true }); }
++});
+--- baseline/packages/core/lib/control-inspect/artifact-readiness.js
++++ current/packages/core/lib/control-inspect/artifact-readiness.js
+@@ -14,73 +14,76 @@
+ 
+ export const ARTIFACT_READINESS_GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP']);
+ 
+-// Authoring preflight, not registration or approval readiness. All reads share a bounded,
+-// revalidated snapshot; the same content validators remain owned by the gate/presentation code.
+-export function inspectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage }) {
++// Runs only inside the caller's bounded captured view. Both consumers use these same validators.
++export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage }) {
++  const path = `.agdf/control/artefacts/${runId}/${gate}.md`;
++  const targetRoot = root;
++  const diagnostics = [], checks = [];
++  let state, revision = null, digest = null;
++  const report = () => ({
++    run_id: runId, gate, expected_revision_id: expectedRevisionId, revision_id: revision,
++    artifact_path: path, artifact_digest: digest, ready: diagnostics.length === 0,
++    readiness_scope: 'authoring_checks', authorizes: false, semantic_review_required: true,
++    registration_required: true, presentation_required: true, checks, diagnostics,
++    next_action: diagnostics.length ? 'Correct the reported issue through its existing owner, then recheck this run and revision.'
++      : 'Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval.',
++  });
++  const fail = (code, message) => { diagnostics.push({ code, message }); return report(); };
++  if (!ARTIFACT_READINESS_GATES.includes(gate)) return fail('artifact_gate_invalid', 'This gate has no supported draft artifact.');
++  state = readRunState(targetRoot, { runId, ignoreRunIdEnv: true });
++  if (!state.content || state.resolution_error || state.identity_findings.length
++      || state.path !== `.agdf/control/runs/${runId}/RUN_STATE.md`
++      || extractField(state.content, 'run_id') !== runId)
++    return fail('artifact_run_invalid', 'The explicitly selected canonical run is unavailable or invalid.');
++  revision = extractField(state.content, 'revision_id');
++  if (revision !== expectedRevisionId) return fail('artifact_revision_stale', 'Use a fresh selected-run revision; this check cannot adopt a newer revision.');
++  if (extractField(state.content, 'lifecycle') !== 'active') return fail('artifact_run_inactive', 'Only an active selected run can be checked.');
++  if (runSealState(targetRoot, state.content).status !== 'valid') return fail('artifact_run_integrity', 'Resolve the existing run/source integrity issue before draft checks.');
++  if (state.approvals.get(gate)?.status === 'approved') return fail('artifact_already_approved', 'An approved source is outside draft authoring checks.');
++  const evaluated = evaluateGateCheck(targetRoot, { runId, ignoreRunIdEnv: true, presentationLanguage });
++  if (evaluated.status !== 'open' || evaluated.current_gate !== gate) {
++    const blocked = fail('artifact_gate_not_ready', 'Resolve the current canonical gate or blocker before checking this draft.');
++    return { ...blocked, current_gate: evaluated.current_gate, blocking_reason: evaluated.blocking_reason,
++      readiness_details: {
++        ur: evaluated.ur_readiness ?? null, prd: evaluated.prd_readiness ?? null,
++        sd: evaluated.sd_readiness ?? null, traceability: evaluated.traceability_readiness ?? null,
++      },
++      next_action: evaluated.next_allowed_action };
++  }
++  const registered = state.artefacts.get(gate)?.path;
++  if (registered && registered !== path) return fail('artifact_path_conflict', 'The existing registered source differs from the canonical draft path.');
++  const file = containedRegularFile(targetRoot, path);
++  if (hasSymlinkComponent(targetRoot, path) || file.status !== 'valid') return fail('artifact_source_unavailable', 'The contained canonical draft is missing or unsafe.');
++  const content = readFileSync(file.path, 'utf8');
++  digest = artefactFileDigest(targetRoot, path);
++  const languages = resolveArtifactPresentationLanguages(targetRoot, presentationLanguage);
++  const summary = evaluateApprovalSummaryReadiness(gate, content, languages);
++  checks.push({ name: 'approval_summary', ...summary });
++  if (!summary.ready) diagnostics.push({ code: summary.reason, message: `Prepare ${summary.required_heading} using the existing summary rules.` });
++  // Supply only an in-memory draft pointer; no Run, approval or binding is written.
++  const candidate = { ...state, artefacts: new Map(state.artefacts) };
++  candidate.artefacts.set(gate, { path, status: 'draft' });
++  const add = (name, result) => {
++    checks.push({ name, ...result });
++    if (!result.ready && !(result.open_decisions ?? result.open_items ?? []).length) diagnostics.push({ code: name, message: 'The existing content validator reports an unready draft.' });
++    for (const message of result.open_decisions ?? result.open_items ?? []) diagnostics.push({ code: name, message });
++  };
++  if (gate === 'UR') add('ur_readiness', evaluateUrReadiness(targetRoot, candidate, { presentationLanguage }));
++  if (gate === 'PRD') add('prd_readiness', evaluatePrdReadiness(targetRoot, candidate, { presentationLanguage }));
++  if (gate === 'SD') {
++    add('sd_decisions', evaluateSdReadiness(targetRoot, candidate));
++    add('sd_traceability', evaluateSdTraceability(targetRoot, candidate));
++  }
++  if (gate === 'TP') add('tp_traceability', evaluateTpTraceability(targetRoot, candidate));
++  return report();
++}
++
++// Standalone authoring preflight retains its original captured/read-only report contract.
++export function inspectArtifactReadiness(root, input) {
++  const { runId, gate, expectedRevisionId } = input;
+   const path = `.agdf/control/artefacts/${runId}/${gate}.md`;
+   try {
+-    const { data } = captureControlScope(root, view => {
+-      const targetRoot = view.root;
+-      const diagnostics = [], checks = [];
+-      let state, revision = null, digest = null;
+-      const report = () => ({
+-        run_id: runId, gate, expected_revision_id: expectedRevisionId, revision_id: revision,
+-        artifact_path: path, artifact_digest: digest, ready: diagnostics.length === 0,
+-        readiness_scope: 'authoring_checks', authorizes: false, semantic_review_required: true,
+-        registration_required: true, presentation_required: true, checks, diagnostics,
+-        next_action: diagnostics.length ? 'Correct the reported issue through its existing owner, then recheck this run and revision.'
+-          : 'Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval.',
+-      });
+-      const fail = (code, message) => { diagnostics.push({ code, message }); return report(); };
+-      if (!ARTIFACT_READINESS_GATES.includes(gate)) return fail('artifact_gate_invalid', 'This gate has no supported draft artifact.');
+-      state = readRunState(targetRoot, { runId, ignoreRunIdEnv: true });
+-      if (!state.content || state.resolution_error || state.identity_findings.length
+-          || state.path !== `.agdf/control/runs/${runId}/RUN_STATE.md`
+-          || extractField(state.content, 'run_id') !== runId)
+-        return fail('artifact_run_invalid', 'The explicitly selected canonical run is unavailable or invalid.');
+-      revision = extractField(state.content, 'revision_id');
+-      if (revision !== expectedRevisionId) return fail('artifact_revision_stale', 'Use a fresh selected-run revision; this check cannot adopt a newer revision.');
+-      if (extractField(state.content, 'lifecycle') !== 'active') return fail('artifact_run_inactive', 'Only an active selected run can be checked.');
+-      if (runSealState(targetRoot, state.content).status !== 'valid') return fail('artifact_run_integrity', 'Resolve the existing run/source integrity issue before draft checks.');
+-      if (state.approvals.get(gate)?.status === 'approved') return fail('artifact_already_approved', 'An approved source is outside draft authoring checks.');
+-      const evaluated = evaluateGateCheck(targetRoot, { runId, ignoreRunIdEnv: true, presentationLanguage });
+-      if (evaluated.status !== 'open' || evaluated.current_gate !== gate) {
+-        const blocked = fail('artifact_gate_not_ready', 'Resolve the current canonical gate or blocker before checking this draft.');
+-        return { ...blocked, current_gate: evaluated.current_gate, blocking_reason: evaluated.blocking_reason,
+-          readiness_details: {
+-            ur: evaluated.ur_readiness ?? null, prd: evaluated.prd_readiness ?? null,
+-            sd: evaluated.sd_readiness ?? null, traceability: evaluated.traceability_readiness ?? null,
+-          },
+-          next_action: evaluated.next_allowed_action };
+-      }
+-      const registered = state.artefacts.get(gate)?.path;
+-      if (registered && registered !== path) return fail('artifact_path_conflict', 'The existing registered source differs from the canonical draft path.');
+-      const file = containedRegularFile(targetRoot, path);
+-      if (hasSymlinkComponent(targetRoot, path) || file.status !== 'valid') return fail('artifact_source_unavailable', 'The contained canonical draft is missing or unsafe.');
+-      const content = readFileSync(file.path, 'utf8');
+-      digest = artefactFileDigest(targetRoot, path);
+-      const languages = resolveArtifactPresentationLanguages(targetRoot, presentationLanguage);
+-      const summary = evaluateApprovalSummaryReadiness(gate, content, languages);
+-      checks.push({ name: 'approval_summary', ...summary });
+-      if (!summary.ready) diagnostics.push({ code: summary.reason, message: `Prepare ${summary.required_heading} using the existing summary rules.` });
+-      // Supply only an in-memory draft pointer; no Run, approval or binding is written.
+-      const candidate = { ...state, artefacts: new Map(state.artefacts) };
+-      candidate.artefacts.set(gate, { path, status: 'draft' });
+-      const add = (name, result) => {
+-        checks.push({ name, ...result });
+-        if (!result.ready && !(result.open_decisions ?? result.open_items ?? []).length) diagnostics.push({ code: name, message: 'The existing content validator reports an unready draft.' });
+-        for (const message of result.open_decisions ?? result.open_items ?? []) diagnostics.push({ code: name, message });
+-      };
+-      if (gate === 'UR') add('ur_readiness', evaluateUrReadiness(targetRoot, candidate, { presentationLanguage }));
+-      if (gate === 'PRD') add('prd_readiness', evaluatePrdReadiness(targetRoot, candidate, { presentationLanguage }));
+-      if (gate === 'SD') {
+-        add('sd_decisions', evaluateSdReadiness(targetRoot, candidate));
+-        add('sd_traceability', evaluateSdTraceability(targetRoot, candidate));
+-      }
+-      if (gate === 'TP') add('tp_traceability', evaluateTpTraceability(targetRoot, candidate));
+-      return report();
+-    });
+-    return data;
++    return captureControlScope(root, view => projectArtifactReadiness(view.root, input)).data;
+   } catch (error) {
+     if (!['resource_denied', 'source_changed', 'resource_limit', 'timeout', 'read_failed'].includes(error.code)) throw error;
+     return { run_id: runId, gate, expected_revision_id: expectedRevisionId, revision_id: null,
+--- baseline/packages/core/lib/control-inspect/cockpit-contract.js
++++ current/packages/core/lib/control-inspect/cockpit-contract.js
+@@ -13,6 +13,7 @@
+   operation('snapshot', { run_id: run }, ['run_id']),
+   operation('backlog_titles', { snapshot_id: id, row_ids: { type: 'array', minItems: 1, maxItems: 12, uniqueItems: true, items: id } }),
+   operation('run', { snapshot_id: id, run_id: run }),
++  operation('artifact_readiness', { snapshot_id: id, run_id: run, gate: { type: 'string', enum: ['UR', 'PRD', 'SD', 'TP'] }, expected_revision_id: id }),
+   operation('document', { snapshot_id: id, run_id: run, resource_id: id }),
+   operation('freshness', { snapshot_id: id }),
+   operation('changes', { snapshot_id: id }),
+@@ -32,7 +33,7 @@
+   annotations, inputSchema: { type: 'object', properties: { run_id: run }, additionalProperties: false },
+   _meta: { ui: { resourceUri: COCKPIT_UI_URI, visibility: ['model', 'app'] } } });
+ export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read',
+-  description: 'Read registered sources from the explicitly bound local AGDF project using scoped cockpit selectors.',
++  description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Draft checks are read-only authoring checks and never approve or authorize delivery.',
+   annotations, inputSchema: COCKPIT_READ_SCHEMA,
+   _meta: { ui: { visibility: ['model', 'app'] } } });
+ 
+@@ -51,7 +52,7 @@
+     if (rule.const !== undefined) return item === rule.const;
+     if (rule.type === 'string') return typeof item === 'string'
+       && (!rule.format || /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(item))
+-      && (!rule.pattern || new RegExp(rule.pattern).test(item));
++      && (!rule.pattern || new RegExp(rule.pattern).test(item)) && (!rule.enum || rule.enum.includes(item));
+     if (rule.type === 'integer') return Number.isSafeInteger(item) && item >= rule.minimum;
+     if (rule.type === 'array') return Array.isArray(item) && item.length >= (rule.minItems ?? 0) && item.length <= rule.maxItems
+       && new Set(item).size === item.length && item.every(entry => valid(entry, rule.items));
+--- baseline/packages/core/lib/control-inspect/cockpit-session.js
++++ current/packages/core/lib/control-inspect/cockpit-session.js
+@@ -31,7 +31,7 @@
+     if (session.retirement) return session.retirement;
+     session.retired = true; ++session.generation;
+     losePublication(session);
+-    clearTimeout(session.timer); session.documents.clear(); session.rows.clear(); session.snapshot = null;
++    clearTimeout(session.timer); session.documents.clear(); session.rows.clear(); session.snapshot = null; session.draft = null;
+     session.retirement = Promise.resolve().then(() => session.pool.close()).then(() => {
+       if (sessions.get(session.id) === session) sessions.delete(session.id);
+     });
+@@ -66,7 +66,7 @@
+       if (sessions.size >= COCKPIT_LIMITS.sessions) return failure('resource_limit');
+       // No await between capacity check and ownership publication.
+       const session = { id: randomUUID(), created: now(), touched: now(), pool: poolFactory(),
+-        documents: new Map(), rows: new Set(), snapshot: null, run_id: null, generation: 0, retired: false, retirement: null, timer: null,
++        documents: new Map(), rows: new Set(), snapshot: null, run_id: null, draft: null, generation: 0, retired: false, retirement: null, timer: null,
+         completion: null };
+       sessions.set(session.id, session); schedule(session);
+       return { schema_version: '1', authorizes: false, target,
+@@ -116,7 +116,7 @@
+           touch(session);
+           return accepted({ invalidated: true, host_publication_required: true, invalidation_id: pending.invalidation_id });
+         }
+-        if (input.operation === 'snapshot') { discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; }
++        if (input.operation === 'snapshot') { discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null; }
+         else if (input.snapshot_id && session.snapshot !== input.snapshot_id) return failure('resource_denied');
+         if (input.operation === 'changes') {
+           const result = await session.pool.waitForChange(input.snapshot_id, signal);
+@@ -126,7 +126,9 @@
+         if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return failure('resource_denied');
+         if (['document', 'prepare_context'].includes(input.operation)
+           && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return failure('resource_denied');
+-        if (input.operation === 'context' && input.run_id !== session.run_id) return failure('resource_denied');
++        if (['context', 'artifact_readiness'].includes(input.operation) && input.run_id !== session.run_id) return failure('resource_denied');
++        if (input.operation === 'artifact_readiness' && (!session.draft?.available || session.draft.gate !== input.gate
++          || session.draft.revision_id !== input.expected_revision_id)) return failure('resource_denied');
+         if (input.operation === 'prepare_context') {
+           if (publication) return failure(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
+           reservation = { session_id: session.id, phase: 'preparing', packet: null, invalidation_id: null, begin: null };
+@@ -138,9 +140,10 @@
+           if (publication.packet.context_id !== input.context_id || publication.packet.generation !== input.generation) return failure('resource_denied');
+           if (publication.phase !== 'prepared') return failure('context_superseded');
+         }
+-        const replacement = ['snapshot', 'backlog_titles', 'run', 'document', 'context'].includes(input.operation);
+-        if (['backlog_titles', 'run', 'document', 'context'].includes(input.operation)) {
+-          discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null;
++        if (input.operation === 'artifact_readiness' && publication) return failure(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
++        const replacement = ['snapshot', 'backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation);
++        if (['backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation)) {
++          discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null;
+         }
+         generation = session.generation;
+         if (replacement) session.rows.clear();
+@@ -158,7 +161,7 @@
+         if (!['resource_denied', 'context_superseded', 'busy', 'context_cleanup_uncertain'].includes(result.code)) touch(session);
+         if (replacement && result.snapshot_id) session.snapshot = result.snapshot_id;
+         if (replacement && result.data?.kind === 'backlog') for (const row of result.data.entries) session.rows.add(row.row_id);
+-        if (replacement) session.run_id = result.data?.run?.run_id ?? null;
++        if (replacement) { session.run_id = result.data?.run?.run_id ?? null; session.draft = result.data?.run?.draft_check?.source ?? null; }
+         if (replacement && result.data?.run?.resources) for (const resource of result.data.run.resources) {
+           session.documents.set(resource.resource_id, `${result.snapshot_id}:${result.data.run.run_id}`);
+         }
+@@ -170,7 +173,7 @@
+         else if (session && code === 'source_changed') discardPacket(session);
+         if (session && !session.retired && generation === session.generation
+           && ['timeout', 'read_failed', 'source_changed'].includes(code)) {
+-          ++session.generation; session.documents.clear(); session.snapshot = null;
++          ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null;
+         }
+         return failure(code);
+       }
+--- baseline/packages/core/lib/control-inspect/cockpit.js
++++ current/packages/core/lib/control-inspect/cockpit.js
+@@ -14,6 +14,8 @@
+ import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
+ import { runSealState } from '../control-state/run-seal.js';
+ import { canonicalJson } from '../control-state/approval-command-contract.js';
++import { ARTIFACT_READINESS_GATES, projectArtifactReadiness } from './artifact-readiness.js';
++import { artefactFileDigest } from '../control-state/run-seal.js';
+ 
+ const CONTROL = '.agdf/control/';
+ const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
+@@ -124,7 +126,24 @@
+       }),
+       evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
+         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
+-      context_graph: { refs: state.context_graph.refs }, resources };
++      context_graph: { refs: state.context_graph.refs }, resources,
++      draft_check: draftDescriptor(run, state, report) };
++  }
++  function draftDescriptor(run, state, report) {
++    const gate = report?.current_gate ?? state.current_gate;
++    const source = { run_id: run.run_id, gate, revision_id: run.meta.revision_id,
++      artifact_path: ARTIFACT_READINESS_GATES.includes(gate) ? `.agdf/control/artefacts/${run.run_id}/${gate}.md` : null,
++      artifact_digest: null, available: false, reason: 'artifact_gate_invalid' };
++    if (!source.artifact_path) return { source, result: null, display: { state: 'unavailable', reason: source.reason, recovery: 'authoring' } };
++    // An optional denied source is observed but never traversed. Absence is a real dependency.
++    const file = view.readOptionalFileSync(join(root, source.artifact_path), READ_LIMITS.file);
++    source.reason = file.code ?? (run.meta.lifecycle !== 'active' ? 'artifact_run_inactive'
++      : state.approvals.get(gate)?.status === 'approved' ? 'artifact_already_approved'
++      : state.artefacts.get(gate)?.path && state.artefacts.get(gate).path !== source.artifact_path ? 'artifact_path_conflict'
++      : !report ? 'evaluation_out_of_scope' : runSealState(root, run.content).status !== 'valid' ? 'artifact_run_integrity' : null);
++    if (file.bytes) source.artifact_digest = artefactFileDigest(root, source.artifact_path);
++    source.available = source.reason === null;
++    return { source, result: null, display: { state: source.available ? 'unchecked' : 'unavailable', reason: source.reason, recovery: source.available ? 'check' : 'authoring' } };
+   }
+   function assertSnapshot(id) {
+     if (!view || id !== view.snapshot_id) fail('resource_denied');
+@@ -227,6 +246,24 @@
+       const wasInspected = details.get(runId)?.state === 'available';
+       return replaceScope(() => reopenRun(runId, wasInspected));
+     },
++    artifactReadiness(runId, id, gate, revision) {
++      const previous = details.get(runId)?.data?.draft_check?.source;
++      if (!previous || !previous.available || previous.gate !== gate || previous.revision_id !== revision) fail('resource_denied');
++      assertSnapshot(id);
++      return replaceScope(() => {
++        const selected = selectedRun(runId);
++        const current = selected.data?.run?.draft_check?.source;
++        if (!current?.available || current.gate !== gate || current.revision_id !== revision
++          || current.artifact_digest !== previous.artifact_digest || current.artifact_path !== previous.artifact_path) fail('source_changed');
++        const result = projectArtifactReadiness(root, { runId, gate, expectedRevisionId: revision, presentationLanguage: 'de' });
++        if (result.revision_id !== revision || result.artifact_digest && result.artifact_digest !== current.artifact_digest) fail('source_changed');
++        const contentOnly = result.diagnostics.every(row => ['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability'].some(name => row.code.startsWith(name)));
++        const display = { state: result.ready ? 'passed' : contentOnly ? 'corrections_required' : 'unavailable',
++          reason: result.diagnostics[0]?.code ?? null, recovery: result.ready ? 'authoring' : contentOnly ? 'authoring' : 'reload' };
++        selected.data.run.draft_check = { source: current, result, display };
++        return selected;
++      });
++    },
+     backlogTitles(rowIds, id) {
+       if (!Array.isArray(rowIds) || !rowIds.length || rowIds.length > 12 || new Set(rowIds).size !== rowIds.length
+         || rowIds.some(row => !backlogRows.has(row))) fail('resource_denied');
+--- baseline/packages/core/lib/control-read/cockpit-pool.js
++++ current/packages/core/lib/control-read/cockpit-pool.js
+@@ -21,7 +21,7 @@
+         return;
+       }
+       if (this.worker !== worker || this.active?.id !== id) return;
+-      if (!error && result?.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context'].includes(this.active.request.operation)) {
++      if (!error && result?.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context', 'artifact_readiness'].includes(this.active.request.operation)) {
+         this.scope = { ...result, data: null }; this.changed = null;
+         this.changeWaiter?.reject(new ControlReadError('cancelled'));
+       }
+--- baseline/packages/core/lib/control-read/cockpit-worker.js
++++ current/packages/core/lib/control-read/cockpit-worker.js
+@@ -14,6 +14,7 @@
+   try {
+     const result = operation === 'snapshot' ? reader.snapshot(input?.run_id)
+       : operation === 'run' ? reader.run(selector, snapshot)
++      : operation === 'artifact_readiness' ? reader.artifactReadiness(input.run_id, snapshot, input.gate, input.expected_revision_id)
+       : operation === 'backlog_titles' ? reader.backlogTitles(input?.row_ids, snapshot)
+       : operation === 'document' ? reader.document(selector, snapshot, input?.run_id)
+       : operation === 'freshness' ? reader.freshness(snapshot)
+@@ -22,7 +23,7 @@
+       : operation === 'validate_context' ? reader.validateContext(input.context_id, input.generation)
+       : operation === 'invalidate_context' ? reader.invalidateContext()
+       : (() => { throw Object.assign(Error('resource_denied'), { code: 'resource_denied' }); })();
+-    if (result.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context'].includes(operation)) {
++    if (result.snapshot_id && ['snapshot', 'run', 'backlog_titles', 'document', 'context', 'artifact_readiness'].includes(operation)) {
+       current = result.snapshot_id; changes.bind(reader.dependencies());
+     }
+     parentPort.postMessage({ id, result });
+--- baseline/packages/core/test/cockpit-draft-check-test.js
++++ current/packages/core/test/cockpit-draft-check-test.js
+@@ -0,0 +1,122 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import * as fs from 'node:fs';
++import { join } from 'node:path';
++import { randomUUID } from 'node:crypto';
++import { artifactReadinessFixture, readyPrd } from './fixtures/artifact-readiness.js';
++import { treeBytes } from './control-cockpit-fixtures.js';
++import { inspectArtifactReadiness } from '../lib/control-inspect/artifact-readiness.js';
++import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
++import { createCockpitSessionService } from '../lib/control-inspect/cockpit-session.js';
++import { parseCockpitArguments } from '../lib/control-inspect/cockpit-contract.js';
++const fixture = gate => { const f = artifactReadinessFixture(gate); f.root = fs.realpathSync(f.root); if (!gate || gate === 'PRD') fs.writeFileSync(f.path, readyPrd); return f; };
++const input = f => ({ runId: f.runId, gate: f.gate, expectedRevisionId: f.revision, presentationLanguage: 'de' });
++
++test('SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes', () => {
++  for (const gate of ['UR', 'PRD', 'SD', 'TP']) {
++    const f = fixture(gate);
++    try {
++      const reader = createCockpitReader(f.root), before = treeBytes(f.root), selected = reader.snapshot(f.runId);
++      assert.equal(selected.state, 'available'); assert.equal(selected.data.run.draft_check.result, null);
++      assert.equal(selected.data.run.draft_check.source.available, true);
++      assert.equal(selected.data.run.resources.some(r => r.type === gate), false, 'Canonical unregistered draft is not a fabricated resource');
++      const checked = reader.artifactReadiness(f.runId, selected.snapshot_id, gate, f.revision);
++      assert.equal(checked.state, 'available'); assert.notEqual(checked.snapshot_id, selected.snapshot_id);
++      assert.deepEqual(checked.data.run.draft_check.result, inspectArtifactReadiness(f.root, input(f)));
++      assert.equal(checked.data.run.draft_check.result.authorizes, false);
++      if (gate === 'PRD') assert.equal(checked.data.run.draft_check.display.state, 'passed');
++      assert.deepEqual(treeBytes(f.root), before);
++      for (const content of [readyPrd.replace('before_prd | resolved', 'before_prd | open'), readyPrd.replace('- AC-001: Die gewählte Quelle bleibt lesbar.\n', '')]) {
++        if (gate !== 'PRD') continue;
++        fs.writeFileSync(f.path, content);
++        const fresh = reader.snapshot(f.runId), r = reader.artifactReadiness(f.runId, fresh.snapshot_id, gate, f.revision);
++        assert.equal(r.data.run.draft_check.display.state, 'corrections_required');
++        assert.deepEqual(r.data.run.draft_check.result, inspectArtifactReadiness(f.root, input(f)));
++      }
++    } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
++  }
++});
++
++test('SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies', () => {
++  const f = fixture();
++  try {
++    const reader = createCockpitReader(f.root); let selected = reader.snapshot(f.runId);
++    for (const [run, gate, rev] of [['foreign', 'PRD', f.revision], [f.runId, 'SD', f.revision], [f.runId, 'PRD', randomUUID()]]) {
++      assert.throws(() => reader.artifactReadiness(run, selected.snapshot_id, gate, rev), /resource_denied/);
++      assert.equal(reader.freshness(selected.snapshot_id).data.unchanged, true);
++    }
++    for (const mutation of [() => fs.writeFileSync(f.path, readyPrd.replace('Synthetic readiness', 'Synthetic readyness')),
++      () => { fs.writeFileSync(f.path + '.tmp', readyPrd); fs.renameSync(f.path + '.tmp', f.path); },
++      () => fs.rmSync(f.path)]) {
++      selected = reader.snapshot(f.runId); mutation();
++      assert.throws(() => reader.freshness(selected.snapshot_id), /source_changed/);
++      fs.writeFileSync(f.path, readyPrd);
++    }
++    fs.rmSync(f.path); selected = reader.snapshot(f.runId);
++    assert.equal(selected.data.run.draft_check.source.available, false);
++    fs.writeFileSync(f.path, readyPrd); assert.throws(() => reader.freshness(selected.snapshot_id), /source_changed/);
++    fs.rmSync(f.path); fs.symlinkSync(join(f.root, `${f.prefix}UR.md`), f.path);
++    selected = reader.snapshot(f.runId); assert.equal(selected.data.run.draft_check.source.available, false);
++    fs.rmSync(f.path); fs.writeFileSync(f.path, readyPrd); assert.throws(() => reader.freshness(selected.snapshot_id), /source_changed/);
++  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
++});
++
++test('SCN-006: changes during captured/replay/published check never publish success', () => {
++  for (const boundary of ['captured', 'replay', 'published']) {
++    const f = fixture();
++    try {
++      let armed = false, changed = false;
++      const reader = createCockpitReader(f.root, { checkpoint(stage) { if (armed && !changed && stage === boundary) { changed = true; fs.writeFileSync(f.path, readyPrd + '\nChanged during check.\n'); } } });
++      const selected = reader.snapshot(f.runId); armed = true;
++      const result = reader.artifactReadiness(f.runId, selected.snapshot_id, 'PRD', f.revision);
++      assert.equal(result.code, 'source_changed'); assert.equal(result.data, null);
++    } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
++  }
++});
++
++test('SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras', async () => {
++  const f = fixture(), service = createCockpitSessionService(f.root);
++  try {
++    const session_id = (await service.render())._meta.agdf_cockpit.session_id;
++    const selected = await service.read({ operation: 'snapshot', session_id, run_id: f.runId });
++    const request = { operation: 'artifact_readiness', session_id, snapshot_id: selected.snapshot_id, run_id: f.runId, gate: 'PRD', expected_revision_id: f.revision };
++    for (const wrong of [{ ...request, run_id: 'foreign' }, { ...request, gate: 'SD' }, { ...request, expected_revision_id: randomUUID() }]) {
++      assert.equal((await service.read(wrong)).code, 'resource_denied');
++      assert.equal((await service.read({ operation: 'freshness', session_id, snapshot_id: selected.snapshot_id })).data.unchanged, true);
++    }
++    for (const bad of [{ ...request, path: f.path }, { ...request, gate: 'QA' }, { ...request, expected_revision_id: 'bad' }]) assert.throws(() => parseCockpitArguments(bad), /resource_denied/);
++    const before = treeBytes(f.root), checked = await service.read(request);
++    assert.equal(checked.data.run.draft_check.display.state, 'passed'); assert.equal(checked.authorizes, false);
++    assert.equal((await service.read({ operation: 'freshness', session_id, snapshot_id: selected.snapshot_id })).code, 'resource_denied');
++    const oldUr = selected.data.run.resources.find(r => r.type === 'UR');
++    assert.equal((await service.read({ operation: 'document', session_id, snapshot_id: checked.snapshot_id, run_id: f.runId, resource_id: oldUr.resource_id })).code, 'resource_denied');
++    assert.deepEqual(treeBytes(f.root), before);
++    const waiting = service.read({ operation: 'changes', session_id, snapshot_id: checked.snapshot_id });
++    fs.writeFileSync(f.path, readyPrd + '\nNew bytes at unchanged revision.\n');
++    assert.equal((await waiting).data.changed, true);
++    assert.equal((await service.read({ operation: 'freshness', session_id, snapshot_id: checked.snapshot_id })).code, 'source_changed');
++    await service.read({ operation: 'close', session_id }); assert.equal((await service.read(request)).code, 'session_expired');
++  } finally { await service.close(); fs.rmSync(f.root, { recursive: true, force: true }); }
++});
++
++test('SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup', async () => {
++  const f = fixture(), service = createCockpitSessionService(f.root);
++  try {
++    const a = (await service.render())._meta.agdf_cockpit.session_id;
++    const b = (await service.render())._meta.agdf_cockpit.session_id;
++    const call = (session_id, args) => service.read({ session_id, ...args });
++    let selected = await call(a, { operation: 'snapshot', run_id: f.runId });
++    const ur = selected.data.run.resources.find(r => r.type === 'UR');
++    selected = await call(a, { operation: 'document', run_id: f.runId, snapshot_id: selected.snapshot_id, resource_id: ur.resource_id });
++    const prepared = await call(a, { operation: 'prepare_context', run_id: f.runId, snapshot_id: selected.snapshot_id,
++      resource_id: selected.data.document.resource.resource_id, revision_id: f.revision, graph_ids: [], excluded_ids: [], generation: 1 });
++    assert.equal(prepared.state, 'available');
++    const check = { operation: 'artifact_readiness', run_id: f.runId, snapshot_id: selected.snapshot_id, gate: 'PRD', expected_revision_id: f.revision };
++    assert.equal((await call(a, check)).code, 'busy');
++    assert.equal((await call(a, { operation: 'validate_context', context_id: prepared.data.packet.context_id, generation: 1 })).data.current, true);
++    const other = await call(b, { operation: 'snapshot', run_id: f.runId });
++    await call(a, { operation: 'close' });
++    assert.equal((await call(b, { ...check, snapshot_id: other.snapshot_id })).code, 'context_cleanup_uncertain');
++    assert.equal((await call(b, { operation: 'freshness', snapshot_id: other.snapshot_id })).data.unchanged, true);
++  } finally { await service.close(); fs.rmSync(f.root, { recursive: true, force: true }); }
++});
+--- baseline/packages/mcp-server/README.md
++++ current/packages/mcp-server/README.md
+@@ -58,3 +58,11 @@
+ rejected by the MCP schema before governance evaluation. A valid unsupported tag is accepted and
+ renders through the complete English locale pack. The production tests exercise this contract
+ separately for protocol versions `2025-11-25` and `2026-07-28`.
++
++### Selected Cockpit draft authoring check
++
++`agdf_cockpit_read` additionally supports `artifact_readiness` with exactly `session_id`, `snapshot_id`, `run_id`, `gate` (`UR | PRD | SD | TP`) and `expected_revision_id`. It checks the currently observed, supported unapproved canonical draft, including an unregistered draft where supported. It accepts no target/path/writer/general-inspect override.
++
++The same Core authoring projection serves standalone inspection and the scoped reader. The selected descriptor captures the draft file or absence before the snapshot freezes. The check validates the old binding, replaces the read scope with a same-Run capture, revalidates revision/gate/source before publication, and reissues resource selectors. Session/worker/pool and source observers adopt that capture together; context cleanup quarantine and existing bounds remain enforced.
++
++The optional selected-detail `draft_check` contains source metadata, the unchanged authoring report and a Core-derived display/recovery state. A passed report never grants semantic review, registration, approval, implementation permission or QA. Old operations remain compatible; a client against a server lacking this descriptor shows bounded unavailable without a general-tool fallback.
+--- baseline/plugins/agdf/meta/copilot-payload-baseline.json
++++ current/plugins/agdf/meta/copilot-payload-baseline.json
+@@ -2,6 +2,6 @@
+   "schema_version": 1,
+   "profile_id": "copilot-runtime-plugin",
+   "max_files": 215,
+-  "max_bytes": 1792849,
+-  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3959 bytes of Core control code (forward-only generated next-step precedence preserving hand-authored instructions, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom. Run gate-internal-continuation-recovery-20261008-01: two shared Core read owners, bounded dispatcher follow-up, bilingual source/status diagnostics and existing-owner recovery instructions. Exact verified generated inventory; no speculative headroom or new host/UI payload. Summary-recovery follow-up: reuse canonical summary validation before PRD ready routing, precise bilingual diagnosis and bounded existing author correction; exact generated 208-file inventory, no additional host/UI or speculative headroom. QF-003: include the validated unique upstream source-owner targets in the existing Core follow-up reason; +120 bytes in the same file, no new route map, UI asset or unused headroom. Run backlog-status-flow-clarity-20261009-01: 6 shared Core summary/vocabulary/codec/shape files (including 2 declarations), existing writer/read integrations and template documentation; exact generated 214-file/1779412-byte inventory. No private React UI, host dependency, new gate authority or speculative headroom. Evidence: this Run PACKAGING_ASSESSMENT.json. Final descriptive encoded-path guards add 68 bytes in the same two Core owners; exact 214-file/1779480-byte inventory remains the enforced cap. Direct user-authorized artifact-readiness correction outside the AGDF delivery workflow: one shared Core read-only preflight owner, existing inspect binding/schema/service and explicit authoring contract. Exact reviewed 215-file/1792849-byte generated inventory; bounded descriptor reads, no UI payload, writer or speculative headroom. The inspect definition remains below its unchanged 5000-byte cap."
++  "max_bytes": 1794066,
++  "rationale": "Reviewed exact runtime growth from immutable control capture, scoped read provider and Core cockpit projection, plus the shared Run/Backlog writer that keeps approval and run-update pointers synchronized and reports skipped synchronization instead of rejecting the approval. Private React UI, dependencies and build remain excluded; no speculative headroom. Run agdf-cockpit-claude-host-20261008-01 adds 1 file/4678 bytes of shared MCP server and launcher code (Claude cockpit surface, capability gating module, cockpit launcher form, atomic runtime retirement with bounded concurrent-replacement retry); the Copilot profile carries no cockpit UI and runs no cockpit mode; no speculative headroom. Run status-card-stale-next-action-20261008-01 adds 1 file/3959 bytes of Core control code (forward-only generated next-step precedence preserving hand-authored instructions, run-update derived-field refresh and the shared CD+Tests next-step constant); no speculative headroom. Run gate-internal-continuation-recovery-20261008-01: two shared Core read owners, bounded dispatcher follow-up, bilingual source/status diagnostics and existing-owner recovery instructions. Exact verified generated inventory; no speculative headroom or new host/UI payload. Summary-recovery follow-up: reuse canonical summary validation before PRD ready routing, precise bilingual diagnosis and bounded existing author correction; exact generated 208-file inventory, no additional host/UI or speculative headroom. QF-003: include the validated unique upstream source-owner targets in the existing Core follow-up reason; +120 bytes in the same file, no new route map, UI asset or unused headroom. Run backlog-status-flow-clarity-20261009-01: 6 shared Core summary/vocabulary/codec/shape files (including 2 declarations), existing writer/read integrations and template documentation; exact generated 214-file/1779412-byte inventory. No private React UI, host dependency, new gate authority or speculative headroom. Evidence: this Run PACKAGING_ASSESSMENT.json. Final descriptive encoded-path guards add 68 bytes in the same two Core owners; exact 214-file/1779480-byte inventory remains the enforced cap. Direct user-authorized artifact-readiness correction outside the AGDF delivery workflow: one shared Core read-only preflight owner, existing inspect binding/schema/service and explicit authoring contract. Exact reviewed 215-file/1792849-byte generated inventory; bounded descriptor reads, no UI payload, writer or speculative headroom. The inspect definition remains below its unchanged 5000-byte cap. Run cockpit-draft-check-integration-20261009-01: exact generated 215-file/1794066-byte inventory. MCP server README +1270 bytes and shared authoring extraction -53 bytes; net +1217. Cockpit-specific modules, private UI and dependencies remain excluded; no speculative headroom. Evidence: this Run evidence/PACKAGING_ASSESSMENT.json."
+ }

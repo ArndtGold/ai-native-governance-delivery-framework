@@ -1,0 +1,97 @@
+artefact recording/correction tests passed (210 assertions)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /\| In Progress \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/. Input:
+
+'# AGDF Master Backlog\n' +
+  '\n' +
+  'This file is the living control pointer for active AGDF delivery work. Detailed UR, Brownfield Review, PRD, SD, TP, QA and OR artefacts should live in stable paths and be linked from here.\n' +
+  '\n' +
+  '## Rules\n' +
+  '\n' +
+  '1. New product semantics, functional change or user-visible behaviour change starts as a new UR draft in a stable local artefact path, for example `.agdf/control/artefacts/<key>/UR.md`, unless an authoritative repository SoT already exists and is linked here.\n' +
+  '2. `Approval: UR` adds or updates exactly one steering row with a document-relative Markdown link to the UR.\n' +
+  '3. Brownfield Review is created for the same work item after UR approval when existing-system impact must be sized before PRD depth or Quick Task execution.\n' +
+  '4. PRD, SD, TP and QA report artefacts are created for the same work item after the previous gate is approved and persisted or linked.\n' +
+  '5. `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA` require the corresponding durable artefact or linked repository SoT before the next gate can open.\n' +
+  '6. Generic consent such as "ok", "go ahead", "do it", "continue", "leg los" or "approved" does not update a gate. Only `Approval: <GateName>` does.\n' +
+  '7. Keep only steering-relevant work in `Active Backlog`.\n' +
+  '8. Every active item has exactly one linked current spec and a visible linked artefact chain.\n' +
+  '9. Historical artefacts remain linkable but do not override the current pointer.\n' +
+  '10. If an item is superseded, mark the replacement.\n' +
+  '11. If active work grows beyond roughly ten items, triage the backlog.\n' +
+  '12. `Status` must be one of the human-readable labels normalized by `packages/core/lib/control-evaluation/shared.js`: Needs UR, Awaiting Brownfield Review, Awaiting PRD, Awaiting PRD Approval, Awaiting SD, Awaiting SD Approval, Awaiting TP, Awaiting TP Approval, In Progress, Blocked, Awaiting QA, Awaiting UAT, Awaiting OR, Completed, Superseded, Abandoned. The parser module is authoritative; this list only mirrors it for readability.\n' +
+  '13. `Artefacts` link labels must be one of the labels normalized by the same parser module: `ur`, `brownfield`, `prd`, `sd`, `tp`, `qa`, `or` (case-insensitive). Do not invent other labels such as a raw artefact filename.\n' +
+  '14. After writing or updating this file, run `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before treating the edit as done.\n' +
+  "15. A `Work item` cell may optionally start with a bracketed scope tag, one of `[framework-maintenance]` or `[external-delivery]`, so the split between AGDF's own maintenance work and external product delivery stays visible at a glance. The tag is never required retroactively on `Completed / Superseded Pointers` rows. `packages/core/lib/control-evaluation/shared.js` is authoritative for the accepted values.\n" +
+  '16. After writing or updating this file, also resolve any `AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN` finding, which fires only for a present-but-unrecognized bracketed tag, never for an absent one.\n' +
+  '\n' +
+  '## Active Backlog\n' +
+  '\n' +
+  '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n' +
+  '|---:|---|---|---|---|---|---|\n' +
+  '| P1 | step | subtract / with test | Quick Task Execution work pending | [UR](artefacts/step/UR.md) · [Brownfield](artefacts/step/BROWNFIELD_REVIEW.md) | [UR](artefacts/step/UR.md) | Proceed as a Quick Task within the Brownfield Review scope and record verification evidence. |\n' +
+  '\n' +
+  '<!-- agdf-backlog-summary-v1 eyJhdXRob3JpemVzIjpmYWxzZSwiZGVjaXNpdmVfb2JsaWdhdGlvbiI6bnVsbCwiZGlzcGxheV9hY3Rpb24iOiJQcm9jZWVkIGFzIGEgUXVpY2sgVGFzayB3aXRoaW4gdGhlIEJyb3duZmllbGQgUmV2aWV3IHNjb3BlIGFuZCByZWNvcmQgdmVyaWZpY2F0aW9uIGV2aWRlbmNlLiIsImtpbmQiOiJ3b3JrX3BlbmRpbmciLCJsaWZlY3ljbGUiOiJhY3RpdmUiLCJsaW1pdGF0aW9ucyI6W10sIm9ic2VydmVkX2F0IjoiMjAyNi0xMC0wOVQxMTo1MjozNy43NDFaIiwib3Blbl9vYmxpZ2F0aW9uX2NvdW50IjowLCJwaGFzZSI6IlF1aWNrIFRhc2sgRXhlY3V0aW9uIiwicWFfb3V0Y29tZSI6Im5vdF9hcHBsaWNhYmxlIiwicmVjb3JkZWRfYXBwcm92YWxzIjpbIlVSIl0sInJldmlzaW9uX2lkIjoiOWViZmE1MTAtMzg4NS00YmNmLThjNjEtY2U0Yzg3ZWNhZDU1Iiwicm93X2RpZ2VzdCI6InNoYTI1Njo1YjljY2Y3Mzg5MWJiNWJlMDE0MzE2ZDExOGM4OTMxZjFjNDI4OTdiZTA3NmZkZGY0ZDhiNDY5YzZkMzhiZjM2IiwicnVuX2lkIjoic3RlcCIsInNjaGVtYV92ZXJzaW9uIjoxLCJzZWN0aW9uIjoiQWN0aXZlIEJhY2tsb2ciLCJzb3VyY2VzIjpbXSwidGFyZ2V0X2lkIjoic2hhMjU2OmJmNWFhZmQ1Nzc3YjYwZjdiZWUyMzllMmNhMTEyODc5MTdiMjgxN2NhZDM4ZTUyNmRhOTI5YTM4NDI4MWJiZGEifQ== -->\n' +
+  '\n' +
+  '## Planned / Parking Lot\n' +
+  '\n' +
+  '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n' +
+  '|---:|---|---|---|---|---|---|\n' +
+  '\n' +
+  '## Completed / Superseded Pointers\n' +
+  '\n' +
+  '| Key | Work item | Final status | Historical record | Outcome |\n' +
+  '|---|---|---|---|---|\n'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/control-state-test.js:1183:14 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '# AGDF Master Backlog\n' +
+    '\n' +
+    'This file is the living control pointer for active AGDF delivery work. Detailed UR, Brownfield Review, PRD, SD, TP, QA and OR artefacts should live in stable paths and be linked from here.\n' +
+    '\n' +
+    '## Rules\n' +
+    '\n' +
+    '1. New product semantics, functional change or user-visible behaviour change starts as a new UR draft in a stable local artefact path, for example `.agdf/control/artefacts/<key>/UR.md`, unless an authoritative repository SoT already exists and is linked here.\n' +
+    '2. `Approval: UR` adds or updates exactly one steering row with a document-relative Markdown link to the UR.\n' +
+    '3. Brownfield Review is created for the same work item after UR approval when existing-system impact must be sized before PRD depth or Quick Task execution.\n' +
+    '4. PRD, SD, TP and QA report artefacts are created for the same work item after the previous gate is approved and persisted or linked.\n' +
+    '5. `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA` require the corresponding durable artefact or linked repository SoT before the next gate can open.\n' +
+    '6. Generic consent such as "ok", "go ahead", "do it", "continue", "leg los" or "approved" does not update a gate. Only `Approval: <GateName>` does.\n' +
+    '7. Keep only steering-relevant work in `Active Backlog`.\n' +
+    '8. Every active item has exactly one linked current spec and a visible linked artefact chain.\n' +
+    '9. Historical artefacts remain linkable but do not override the current pointer.\n' +
+    '10. If an item is superseded, mark the replacement.\n' +
+    '11. If active work grows beyond roughly ten items, triage the backlog.\n' +
+    '12. `Status` must be one of the human-readable labels normalized by `packages/core/lib/control-evaluation/shared.js`: Needs UR, Awaiting Brownfield Review, Awaiting PRD, Awaiting PRD Approval, Awaiting SD, Awaiting SD Approval, Awaiting TP, Awaiting TP Approval, In Progress, Blocked, Awaiting QA, Awaiting UAT, Awaiting OR, Completed, Superseded, Abandoned. The parser module is authoritative; this list only mirrors it for readability.\n' +
+    '13. `Artefacts` link labels must be one of the labels normalized by the same parser module: `ur`, `brownfield`, `prd`, `sd`, `tp`, `qa`, `or` (case-insensitive). Do not invent other labels such as a raw artefact filename.\n' +
+    '14. After writing or updating this file, run `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before treating the edit as done.\n' +
+    "15. A `Work item` cell may optionally start with a bracketed scope tag, one of `[framework-maintenance]` or `[external-delivery]`, so the split between AGDF's own maintenance work and external product delivery stays visible at a glance. The tag is never required retroactively on `Completed / Superseded Pointers` rows. `packages/core/lib/control-evaluation/shared.js` is authoritative for the accepted values.\n" +
+    '16. After writing or updating this file, also resolve any `AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN` finding, which fires only for a present-but-unrecognized bracketed tag, never for an absent one.\n' +
+    '\n' +
+    '## Active Backlog\n' +
+    '\n' +
+    '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n' +
+    '|---:|---|---|---|---|---|---|\n' +
+    '| P1 | step | subtract / with test | Quick Task Execution work pending | [UR](artefacts/step/UR.md) · [Brownfield](artefacts/step/BROWNFIELD_REVIEW.md) | [UR](artefacts/step/UR.md) | Proceed as a Quick Task within the Brownfield Review scope and record verification evidence. |\n' +
+    '\n' +
+    '<!-- agdf-backlog-summary-v1 eyJhdXRob3JpemVzIjpmYWxzZSwiZGVjaXNpdmVfb2JsaWdhdGlvbiI6bnVsbCwiZGlzcGxheV9hY3Rpb24iOiJQcm9jZWVkIGFzIGEgUXVpY2sgVGFzayB3aXRoaW4gdGhlIEJyb3duZmllbGQgUmV2aWV3IHNjb3BlIGFuZCByZWNvcmQgdmVyaWZpY2F0aW9uIGV2aWRlbmNlLiIsImtpbmQiOiJ3b3JrX3BlbmRpbmciLCJsaWZlY3ljbGUiOiJhY3RpdmUiLCJsaW1pdGF0aW9ucyI6W10sIm9ic2VydmVkX2F0IjoiMjAyNi0xMC0wOVQxMTo1MjozNy43NDFaIiwib3Blbl9vYmxpZ2F0aW9uX2NvdW50IjowLCJwaGFzZSI6IlF1aWNrIFRhc2sgRXhlY3V0aW9uIiwicWFfb3V0Y29tZSI6Im5vdF9hcHBsaWNhYmxlIiwicmVjb3JkZWRfYXBwcm92YWxzIjpbIlVSIl0sInJldmlzaW9uX2lkIjoiOWViZmE1MTAtMzg4NS00YmNmLThjNjEtY2U0Yzg3ZWNhZDU1Iiwicm93X2RpZ2VzdCI6InNoYTI1Njo1YjljY2Y3Mzg5MWJiNWJlMDE0MzE2ZDExOGM4OTMxZjFjNDI4OTdiZTA3NmZkZGY0ZDhiNDY5YzZkMzhiZjM2IiwicnVuX2lkIjoic3RlcCIsInNjaGVtYV92ZXJzaW9uIjoxLCJzZWN0aW9uIjoiQWN0aXZlIEJhY2tsb2ciLCJzb3VyY2VzIjpbXSwidGFyZ2V0X2lkIjoic2hhMjU2OmJmNWFhZmQ1Nzc3YjYwZjdiZWUyMzllMmNhMTEyODc5MTdiMjgxN2NhZDM4ZTUyNmRhOTI5YTM4NDI4MWJiZGEifQ== -->\n' +
+    '\n' +
+    '## Planned / Parking Lot\n' +
+    '\n' +
+    '| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n' +
+    '|---:|---|---|---|---|---|---|\n' +
+    '\n' +
+    '## Completed / Superseded Pointers\n' +
+    '\n' +
+    '| Key | Work item | Final status | Historical record | Outcome |\n' +
+    '|---|---|---|---|---|\n',
+  expected: /\| In Progress \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

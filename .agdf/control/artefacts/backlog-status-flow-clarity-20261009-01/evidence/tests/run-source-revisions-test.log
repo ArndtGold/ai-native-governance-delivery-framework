@@ -1,0 +1,18 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: persisted TP approval updates Backlog beyond Awaiting TP
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/run-source-revisions-test.js:46:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '| P1 | late-source-test | Synthetic saved filter | CD+Tests work pending | [UR](artefacts/late-source-test/UR.md) · [Brownfield](artefacts/late-source-test/BROWNFIELD_REVIEW.md) · [PRD](artefacts/late-source-test/PRD.md) · [SD](artefacts/late-source-test/SD.md) · [TP](artefacts/late-source-test/TP.md) | [UR](artefacts/late-source-test/UR.md) | Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR. |',
+  expected: /\| In Progress \|/u,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

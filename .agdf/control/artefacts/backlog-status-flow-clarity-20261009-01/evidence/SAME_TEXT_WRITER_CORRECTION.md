@@ -1,0 +1,13 @@
+# Same-text Run-step observation correction
+
+- run_id: backlog-status-flow-clarity-20261009-01
+- basis_revision_id: f2588fed-8803-4f8e-963d-b66f5d764a86
+- finding_id: BSC-WRITER-003
+- approved_basis: PRD AC-004, SD SDD-003, TP T-004/SCN-008/SCN-009
+- implementation_status: done
+
+Fresh MCP selected-state verification found the actual revision-26 Run compared against a saved revision-25 marker (SAME_TEXT_WRITER_REPRO.json). run-step prepareBacklog returned update:null for identical visible row cells, preventing the caller from adding the new revision-bound marker. The existing planner now retains the candidate bytes; the existing caller writes its one already computed summary and actual allocated receipt revision into the same existing transaction. No second read/evaluator, journal, lock, phase, field, permission or fallback is introduced. Metadata changes are correctly reported as updated although rendered cells are unchanged. Missing/unsupported/legacy layout paths preserve their existing behavior.
+
+A regression through actual typed PRD/SD/TP/QA recording failed before correction on the stale marker (tests/same-text-typed-red.log), then passed after correction (same-text-typed-green.log, 210 assertions). It asserts unchanged visible row cells, a new typed resulting revision, and a saved marker matching it. The Run-step transaction case adds repeated review and committed-Run interruption with exact captured marker bytes on recovery (same-text-transaction-green.log). Complete control-state/typed recording tests pass (same-text-control-state.log); 11 summary groups pass (same-text-summary.log), and 16 surrounding Backlog writer/legacy/skip cases pass (same-text-backlog-writer.log). The UI resource is unchanged by this Core correction; its 137 component tests, final affected 48 retests and 3 browser cases remain applicable. The fresh candidate incorporates the Core fix through the existing assembler/package/owned runtime owner: dist/local/backlog-summary-complete-20261009/preparation.json, dispatcher 368e45579616d2b28471aeba6ea390ea98e07e1614b995d68f775cf9c141f59c and UI sha256:86061b0cdd12613d4bed1dc16956cb031d6f718620b04374c20ab289fe10967e.
+
+New code was inspected for strict layout behavior, single summary/source guarding, result status truthfulness and journal capture/recovery. It keeps the original canonical Run-then-Backlog lock order and commit/source preconditions. Final canonical records use this validated corrected writer; fresh selected state/resource observation must confirm matching after the last typed record. Native qualification remains open under BSC-NATIVE-001. No source approval, QA pass, UAT or VCS action is inferred.

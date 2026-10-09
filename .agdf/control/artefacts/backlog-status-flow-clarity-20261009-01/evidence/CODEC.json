@@ -1,0 +1,26 @@
+{
+  "run_id": "backlog-status-flow-clarity-20261009-01",
+  "observed_at": "2026-10-09T12:05:32.833962+00:00",
+  "authorizes": false,
+  "scenarios": [
+    "SCN-002",
+    "SCN-015",
+    "SCN-016",
+    "SCN-019",
+    "SCN-029"
+  ],
+  "commands": [
+    "node packages/core/test/backlog-summary-codec-test.js"
+  ],
+  "results": [
+    "tests/metadata-boundary-results.json"
+  ],
+  "cases": [
+    "canonical UTF-8 JSON/standard Base64 exact fields, table separated comment",
+    "unknown version, malformed/oversized marker, target/path/authorizes/extra field and row changes",
+    "2MiB input/output Backlog and 64KiB decoded/writer metadata boundaries",
+    "old seven/thirteen-column raw fields and unverified fallback",
+    "exact unchanged record preserves bytes/time; list file_count=1; no reader writes"
+  ],
+  "limitation": "Unassignable corrupt comments are preserved and diagnosed; automatic deletion/repair is not claimed."
+}

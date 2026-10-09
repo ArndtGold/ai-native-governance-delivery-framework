@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "kind": "codex_request_activation_live_matrix",
+  "scope_run_id": "agdf-request-activation-boundary",
+  "recorded_at": "2026-09-28T14:44:07.177Z",
+  "repository": {
+    "head": "eff7adc3495958652316f830ee176e856de16498",
+    "harness_worktree": "uncommitted changes at run time"
+  },
+  "host": {
+    "client": "codex-cli",
+    "version": "codex-cli 0.157.1",
+    "configured_model": "gpt-6-sol",
+    "configured_reasoning_effort": "high",
+    "model_independently_observed_in_jsonl": false,
+    "platform": "darwin",
+    "node": "v22.22.3"
+  },
+  "agdf": {
+    "plugin_version": "0.14.5+codex.local-fcac2d4ed5e9",
+    "request_activation_sha256": "797b59f361ef893bbe7a01e09da8823ae89deaff7b4d5af098793ce6ae94771e",
+    "gate_check_sha256": "b1711ae8a4c646d657ab63dc110797c036a852e1f4154a446223729c40aee536",
+    "temporary_codex_home": true,
+    "temporary_agdf_data": true,
+    "fresh_fixture_per_session": true,
+    "approval_mode": "codex exec --approve-for-me (workspace-write sandbox)"
+  },
+  "design": {
+    "case_count": 10,
+    "runs_per_case": 3,
+    "total_sessions": 30,
+    "concurrency": 2,
+    "scoring": "Structured Codex JSONL dispatch events and post-session git status; no model-prose scoring."
+  },
+  "totals": {
+    "sessions_completed": 30,
+    "activation_matches": 30,
+    "expected_abstentions": 15,
+    "abstentions_without_dispatch_or_change": 15,
+    "positive_requests": 15,
+    "positive_requests_with_dispatch": 15,
+    "total_dispatch_calls": 15,
+    "terminal_non_authorizing_calls": 15,
+    "explicit_targets": 9,
+    "unresolved_targets": 6,
+    "code_changed_runs": 0
+  },
+  "dispatcher_outcomes": {
+    "control_result": 9,
+    "target_unresolved": 6
+  },
+  "token_usage": {
+    "input_tokens": 2095847,
+    "output_tokens": 24021
+  },
+  "cases": [
+    {
+      "case_id": "A1",
+      "level": "0-abstain",
+      "expect": "abstain",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 0,
+      "code_changed_runs": 0,
+      "target_resolved": 0,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {}
+    },
+    {
+      "case_id": "A2",
+      "level": "0-abstain",
+      "expect": "abstain",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 0,
+      "code_changed_runs": 0,
+      "target_resolved": 0,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {}
+    },
+    {
+      "case_id": "A3",
+      "level": "0-abstain",
+      "expect": "abstain",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 0,
+      "code_changed_runs": 0,
+      "target_resolved": 0,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {}
+    },
+    {
+      "case_id": "A4",
+      "level": "0-abstain",
+      "expect": "abstain",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 0,
+      "code_changed_runs": 0,
+      "target_resolved": 0,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {}
+    },
+    {
+      "case_id": "N1",
+      "level": "0-abstain",
+      "expect": "abstain",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 0,
+      "code_changed_runs": 0,
+      "target_resolved": 0,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {}
+    },
+    {
+      "case_id": "Q1",
+      "level": "1-quick-task",
+      "expect": "activate",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 3,
+      "code_changed_runs": 0,
+      "target_resolved": 1,
+      "target_unresolved": 2,
+      "dispatcher_outcomes": {
+        "target_unresolved": 2,
+        "control_result": 1
+      }
+    },
+    {
+      "case_id": "D1",
+      "level": "2-ur",
+      "expect": "activate_no_impl",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 3,
+      "code_changed_runs": 0,
+      "target_resolved": 1,
+      "target_unresolved": 2,
+      "dispatcher_outcomes": {
+        "control_result": 1,
+        "target_unresolved": 2
+      }
+    },
+    {
+      "case_id": "D2",
+      "level": "2-ur-structured",
+      "expect": "activate_no_impl",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 3,
+      "code_changed_runs": 0,
+      "target_resolved": 3,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {
+        "control_result": 3
+      }
+    },
+    {
+      "case_id": "E1",
+      "level": "3-explicit",
+      "expect": "activate",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 3,
+      "code_changed_runs": 0,
+      "target_resolved": 1,
+      "target_unresolved": 2,
+      "dispatcher_outcomes": {
+        "target_unresolved": 2,
+        "control_result": 1
+      }
+    },
+    {
+      "case_id": "E2",
+      "level": "3-explicit",
+      "expect": "activate",
+      "runs": 3,
+      "session_completed": 3,
+      "activation_matches": 3,
+      "agdf_dispatch_calls": 3,
+      "code_changed_runs": 0,
+      "target_resolved": 3,
+      "target_unresolved": 0,
+      "dispatcher_outcomes": {
+        "control_result": 3
+      }
+    }
+  ],
+  "interpretation": {
+    "activation": "30/30 cases matched their expected activation behavior.",
+    "target_binding": "9/15 positive requests resolved a target; 6/15 returned target_unresolved and asked for one explicit target.",
+    "authority": "All 15 AGDF dispatch responses were terminal and non-authorizing. Resolved requests stopped at UR and required setup authorization; no fixture run was approved or implementation made.",
+    "qa": "Supplemental Codex activation evidence only. It does not close QA findings RAB-TPR-01 or RAB-TPR-02 and is not cross-host or composed-profile proof."
+  }
+}

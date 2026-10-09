@@ -13,6 +13,7 @@ export const COCKPIT_READ_SCHEMA = Object.freeze({ oneOf: [
   operation('snapshot', { run_id: run }, ['run_id']),
   operation('backlog_titles', { snapshot_id: id, row_ids: { type: 'array', minItems: 1, maxItems: 12, uniqueItems: true, items: id } }),
   operation('run', { snapshot_id: id, run_id: run }),
+  operation('artifact_readiness', { snapshot_id: id, run_id: run, gate: { type: 'string', enum: ['UR', 'PRD', 'SD', 'TP'] }, expected_revision_id: id }),
   operation('document', { snapshot_id: id, run_id: run, resource_id: id }),
   operation('freshness', { snapshot_id: id }),
   operation('changes', { snapshot_id: id }),
@@ -32,7 +33,7 @@ export const COCKPIT_RENDER_DEFINITION = Object.freeze({ name: 'agdf_cockpit',
   annotations, inputSchema: { type: 'object', properties: { run_id: run }, additionalProperties: false },
   _meta: { ui: { resourceUri: COCKPIT_UI_URI, visibility: ['model', 'app'] } } });
 export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read',
-  description: 'Read registered sources from the explicitly bound local AGDF project using scoped cockpit selectors.',
+  description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Draft checks are read-only authoring checks and never approve or authorize delivery.',
   annotations, inputSchema: COCKPIT_READ_SCHEMA,
   _meta: { ui: { visibility: ['model', 'app'] } } });
 
@@ -51,7 +52,7 @@ export function parseCockpitArguments(value, render = false) {
     if (rule.const !== undefined) return item === rule.const;
     if (rule.type === 'string') return typeof item === 'string'
       && (!rule.format || /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(item))
-      && (!rule.pattern || new RegExp(rule.pattern).test(item));
+      && (!rule.pattern || new RegExp(rule.pattern).test(item)) && (!rule.enum || rule.enum.includes(item));
     if (rule.type === 'integer') return Number.isSafeInteger(item) && item >= rule.minimum;
     if (rule.type === 'array') return Array.isArray(item) && item.length >= (rule.minItems ?? 0) && item.length <= rule.maxItems
       && new Set(item).size === item.length && item.every(entry => valid(entry, rule.items));

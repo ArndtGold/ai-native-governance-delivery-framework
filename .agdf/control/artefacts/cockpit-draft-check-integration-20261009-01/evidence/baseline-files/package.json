@@ -1,0 +1,43 @@
+{
+  "name": "agdf-repository",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:maintenance-contracts": "npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
+    "check:community-health": "node scripts/check-community-health.mjs",
+    "install:claude": "npm --prefix packages/cli run install:claude",
+    "install:codex": "npm --prefix packages/cli run install:codex",
+    "install:copilot": "npm --prefix packages/cli run install:copilot",
+    "install:opencode": "npm --prefix packages/cli run install:opencode",
+    "test:community-health": "node scripts/community-health-test.mjs",
+    "set-version": "node scripts/set-version.mjs",
+    "test:host-compatibility": "node packages/cli/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
+    "compatibility:record": "node scripts/host-compatibility/run.mjs record",
+    "compatibility:check": "node scripts/host-compatibility/run.mjs check",
+    "native:codex-activation-matrix": "node scripts/native-probes/codex-activation-matrix.mjs",
+    "native:claude-e2e": "node scripts/native-probes/claude-host-e2e.mjs",
+    "native:claude-activation-matrix": "node scripts/native-probes/claude-activation-matrix.mjs",
+    "native:codex-e2e": "node scripts/native-probes/codex-host-e2e.mjs",
+    "native:codex-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
+    "native:codex-hook-check": "bash scripts/native-probes/codex-macos-hook-check.sh",
+    "native:codex-hook-probe": "bash scripts/native-probes/codex-hook-probe-plugin.sh",
+    "native:codex-mcp-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
+    "build": "node scripts/verify-ci.mjs --profile build",
+    "build:prepare": "node scripts/verify-ci.mjs --profile prepare",
+    "sync-package-assets": "node scripts/sync-package-assets.js",
+    "pack": "npm run build && node scripts/pack-npm.mjs",
+    "mcp:sdk-digest": "node scripts/write-mcp-sdk-digest.mjs",
+    "verify:ci": "node scripts/verify-ci.mjs",
+    "verify:commit": "node scripts/verify-commit.mjs",
+    "test:verification": "node --test scripts/verification-test.mjs"
+  },
+  "devDependencies": {
+    "acorn": "8.17.0",
+    "ajv": "8.20.0",
+    "yaml": "2.9.0"
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/cli"
+  ]
+}

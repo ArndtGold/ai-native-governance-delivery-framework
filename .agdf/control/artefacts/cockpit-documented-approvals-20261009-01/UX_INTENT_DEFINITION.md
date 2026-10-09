@@ -1,0 +1,22 @@
+# UX Intent: Compact documented approvals
+
+- decision: ready
+- blocking_reason: none
+- primary_user_intent: Compare documented approvals, inspect original evidence and understand which document version the action opens.
+- success_signal: Scan one comparable row per approval; distinguish evidence, current document and current control state without opening every detail.
+- primary_decision_or_action: Disclose recorded evidence or read the available document version; neither action approves anything.
+- working_modes: wide overview; narrow overview; evidence disclosure; document reading; unavailable/stale reading.
+- effective_state_by_mode: Wide/narrow display identical selected-Run approval facts; disclosure adds evidence only; document reading opens its selected registered source; unavailable/stale mode retains existing guarded reading and recovery.
+- visible_state_types: documented approval; current version available; exact approved version unavailable or unconfirmed; current source missing or blocked; no documented approvals; independent current control assessment.
+- effective_state_authority_by_mode: Core Run approvals own documented evidence, existing registered scoped readers own source availability/freshness, and Core evaluation owns current control state in all modes.
+- primary_state_presentation_owner_by_mode: The selected undertaking's approval overview presents evidence and version actions; the document view presents opened content; existing availability feedback presents blockers. These are presentation roles, not approval authority.
+- activation_paths: Expand Dokumentierte Freigaben, activate Dokumentiert for original evidence, activate the truthfully labelled available document action, close the document to return to its initiating action.
+- blockers: Missing/blocked/stale source actions remain guarded; an unconfirmed approved version is explained without labelling today's file approved. Absent provenance fields remain explicitly unavailable. No recorded approvals yields a clear empty state.
+- recovery_paths: Close evidence to return to its row; close document to restore initiating focus; use existing reload/retry after recoverable reading failure. Limitations never ask for fabricated proof or create approval.
+- relevant_state_transitions: overview closed/open; evidence closed/open; row/document/return; available/stale-disabled; reload/fresh selected state. Width changes arrangement only. Selection, focus and scroll semantics are preserved.
+- proposed_prd_acceptance_criteria: Compact rows and actual count; truthful version actions; deliberate original-evidence disclosure and explicit absent fields; equivalent wide/narrow keyboard actions; selected-source/freshness/read-only guards; meaningful proof with browser/native limits.
+- open_product_questions: none; the approved UR accepts the current-version fallback. No archive or new version-certification capability is added to remove this accepted limitation.
+- affected_outputs: The PRD draft; downstream design and plan derive only from approved product criteria.
+- evidence: Approved UR acceptance signals 1–6; BROWNFIELD_REVIEW.md; user's Ist/Soll screenshots and fix request; current WorkStep/registered-source actions.
+- missing_evidence: Fresh visible/keyboard results remain future implementation evidence, not a blocker to this analytical input.
+- required_next_step: Draft and canonically record the bounded PRD from approved UR and ready analyses, evaluate readiness and present for deliberate approval.

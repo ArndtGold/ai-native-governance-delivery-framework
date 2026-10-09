@@ -116,6 +116,17 @@ The repository install covers the Core/CLI workspace. The separate MCP lock supp
 also copied by host-compatibility fixtures and used by the CLI smoke suite. Its development
 lock packs `file:../cli`, which must already contain the generated plugin payload at installation.
 
+`npm run build` generates all profiles, checks source and generated gate-contract references,
+runs the 14 late-gate transition scenarios and deterministic skill evals, and verifies the stored
+host-compatibility snapshot before assembling the npm packages. Any failure returns a nonzero
+exit code and stops before assembly. Guardrails uses these same commands before its installer,
+archive and full smoke suites. The build never records or refreshes evidence automatically.
+
+If a source change invalidates evidence, use `npm run build:prepare` to produce the candidate
+without claiming verification, then follow the existing evidence-recording procedure below.
+This preparation profile is also used by the compatibility-evidence workflow. It is not a
+successful checked build; finish with `npm run build` after reviewing the refreshed evidence.
+
 ### Updating the MCP SDK
 
 `packages/mcp-server/package-lock.json` is the reviewed SDK tree that the Claude Code and Codex
@@ -145,7 +156,9 @@ This exports the Git index into a disposable repository and runs the same ordere
 plan as Guardrails. Unstaged edits, untracked files, existing dependencies and generated assets
 cannot repair the snapshot. Your working copy and index remain unchanged. A missing new script
 must be staged along with its callers; rerunning a test against the working copy is insufficient.
-To verify an existing commit instead, use `npm run verify:commit -- --ref HEAD`.
+After committing and before pushing, use `npm run verify:commit -- --ref HEAD` to check the
+actual commit being pushed. Any change or new commit after verification requires another check.
+These commands do not install Git hooks or change your Git configuration.
 
 The full plan installs locked repository dependencies, prepares all payloads before installing
 the MCP `file:` dependency, verifies contracts and current compatibility evidence, packs and

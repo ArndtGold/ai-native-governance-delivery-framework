@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { verificationPlan, runVerification } from './verify-ci.mjs';
 import { exportSnapshot, verifyCommit } from './verify-commit.mjs';
+import { npmInvocation } from '../packages/cli/lib/npm-invocation.js';
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 
 test('full plan preserves dependency ordering and mandatory package consumers in both lanes', () => {
@@ -13,15 +14,83 @@ test('full plan preserves dependency ordering and mandatory package consumers in
     const plan = verificationPlan({ lane });
     const ids = plan.map(item => item.id);
     assert.ok(ids.indexOf('dependencies') < ids.indexOf('prepare'));
+    for (const early of ['build-contracts', 'evals']) {
+      assert.ok(ids.indexOf('generate') < ids.indexOf(early));
+      assert.ok(ids.indexOf(early) < ids.indexOf('assemble'));
+      assert.ok(ids.indexOf(early) < ids.indexOf('mcp-dependencies'));
+    }
     assert.ok(ids.indexOf('prepare') < ids.indexOf('mcp-dependencies'));
     assert.ok(ids.indexOf('mcp-dependencies') < ids.indexOf('archives'));
     assert.ok(ids.indexOf('archives') < ids.indexOf('cli-smoke'));
     assert.ok(ids.includes('wrapper-smoke') && ids.includes('transactions') && ids.includes('evals'));
     assert.equal(ids.includes('host-compatibility'), lane === 'repository');
+    assert.equal(ids.includes('compatibility-freshness'), lane === 'repository');
     assert.equal(ids.includes('pages'), lane === 'repository');
   }
   assert.throws(() => verificationPlan({ lane: 'skip-tests' }), /Unknown/);
   assert.throws(() => verificationPlan({ stage: 'missing' }), /Unknown/);
+});
+
+test('build shares CI checks without recursive builds; evidence preparation remains possible', () => {
+  const build = verificationPlan({ profile: 'build' });
+  assert.deepEqual(build.map(item => item.id), ['generate', 'build-contracts', 'evals', 'compatibility-freshness', 'assemble']);
+  for (const item of build) assert.deepEqual(item, verificationPlan({ stage: item.id })[0]);
+  assert.deepEqual(verificationPlan({ profile: 'prepare' }).map(item => item.id), ['generate', 'assemble', 'prepare']);
+  assert.ok(verificationPlan().every(item => item.commands.every(command => !command.args.includes('build'))));
+  assert.throws(() => verificationPlan({ profile: 'unchecked' }), /Unknown/);
+  assert.throws(() => verificationPlan({ profile: 'build', stage: 'assemble' }), /no stage/);
+  assert.throws(() => verificationPlan({ profile: 'build', lane: 'runtime' }), /no stage/);
+});
+
+test('real npm build failures prevent assembly and preserve stored evidence', () => {
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf early build '));
+  try {
+    for (const folder of ['scripts', 'packages/cli/scripts', 'packages/cli/lib']) mkdirSync(join(temporary, folder), { recursive: true });
+    cpSync(new URL('./verify-ci.mjs', import.meta.url), join(temporary, 'scripts/verify-ci.mjs'));
+    cpSync(new URL('../packages/cli/lib/npm-invocation.js', import.meta.url), join(temporary, 'packages/cli/lib/npm-invocation.js'));
+    const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+    writeFileSync(join(temporary, 'package.json'), JSON.stringify({ type: 'module', scripts: {
+      build: manifest.scripts.build,
+      'compatibility:check': 'node scripts/evidence-check.mjs',
+    } }));
+    writeFileSync(join(temporary, 'packages/cli/package.json'), JSON.stringify({ scripts: { 'eval:skills': 'node ../../scripts/eval-check.mjs' } }));
+    const scripts = {
+      generate: 'scripts/sync-package-assets.js',
+      'build-contracts': 'packages/cli/scripts/build-contract-test.js',
+      evals: 'scripts/eval-check.mjs',
+      'compatibility-freshness': 'scripts/evidence-check.mjs',
+      assemble: 'scripts/assemble-npm.mjs',
+    };
+    const trace = join(temporary, 'trace.jsonl');
+    const failure = join(temporary, 'failure');
+    const artifact = join(temporary, 'assembled');
+    const evidence = join(temporary, 'evidence.json');
+    writeFileSync(evidence, '{"snapshot":"reviewed, stale fixture"}\n');
+    const before = readFileSync(evidence);
+    for (const [id, path] of Object.entries(scripts)) {
+      writeFileSync(join(temporary, path), `import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+appendFileSync(${JSON.stringify(trace)}, ${JSON.stringify(id + '\n')});
+if (readFileSync(${JSON.stringify(failure)}, 'utf8') === ${JSON.stringify(id)}) throw Error('fixture: ${id} failed');
+${id === 'assemble' ? `writeFileSync(${JSON.stringify(artifact)}, 'assembled');` : ''}\n`);
+    }
+    const npm = npmInvocation(['run', 'build']);
+    const ids = Object.keys(scripts);
+    for (const id of ['build-contracts', 'evals', 'compatibility-freshness']) {
+      writeFileSync(failure, id); writeFileSync(trace, '');
+      const result = spawnSync(npm.executable, npm.args, { cwd: temporary, encoding: 'utf8', shell: false });
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.match(result.stderr, new RegExp(`failed at ${id}`));
+      assert.deepEqual(readFileSync(trace, 'utf8').trim().split('\n'), ids.slice(0, ids.indexOf(id) + 1));
+      assert.equal(existsSync(artifact), false, 'a failed early check must not assemble packages');
+      assert.deepEqual(readFileSync(evidence), before, 'checking must not refresh evidence');
+    }
+    writeFileSync(failure, ''); writeFileSync(trace, '');
+    const success = spawnSync(npm.executable, npm.args, { cwd: temporary, encoding: 'utf8', shell: false });
+    assert.equal(success.status, 0, success.stdout + success.stderr);
+    assert.deepEqual(readFileSync(trace, 'utf8').trim().split('\n'), ids);
+    assert.equal(readFileSync(artifact, 'utf8'), 'assembled');
+    assert.deepEqual(readFileSync(evidence), before);
+  } finally { rmSync(temporary, { recursive: true, force: true }); }
 });
 
 test('a failed command stops before later commands and stages', () => {

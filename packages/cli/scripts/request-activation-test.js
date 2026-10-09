@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { checkFocusedGateContracts } from "./gate-contract-reference-check.js";
 import { createHash } from "node:crypto";
 import {
   cpSync,
@@ -232,31 +233,7 @@ assert.deepEqual(gateCheckSkill.match(/^## .+$/gm), [
   "## Executable Dispatch",
   "## Declared `instruction_only` Fallback",
 ]);
-const focusedContracts = [
-  "task-target-resolution.md",
-  "gate-transition.md",
-  "gate-artifact-preparation.md",
-  "interaction.md",
-  "control-scaffold.md",
-  "modes.md",
-  "quality.md",
-];
-function assertFocusedContracts(content) {
-  for (const focusedContract of focusedContracts) {
-    const reference = `\`../../meta/contracts/${focusedContract}\``;
-    assert.equal(content.split(reference).length - 1, 1, `${reference} must be declared exactly once`);
-  }
-}
-assertFocusedContracts(gateCheckSkill);
-for (const focusedContract of focusedContracts) {
-  const reference = `\`../../meta/contracts/${focusedContract}\``;
-  assert.throws(() => assertFocusedContracts(`${gateCheckSkill}\n- ${reference}\n`), /must be declared exactly once/);
-  assert.throws(() => assertFocusedContracts(gateCheckSkill.replace(reference, "")), /must be declared exactly once/);
-  assert.throws(
-    () => assertFocusedContracts(gateCheckSkill.replace(reference, `\`../other/${focusedContract}\``)),
-    /must be declared exactly once/,
-  );
-}
+checkFocusedGateContracts(gateCheckSkill);
 assert.ok(
   !/## Native Interaction Path|## Repository Activation Diagnosis|## OpenCode Passive Hook Boundary|\| State \| Current gate or step \|/u.test(gateCheckSkill),
   "gate-check must keep detailed fallback handbooks out of the selected skill",

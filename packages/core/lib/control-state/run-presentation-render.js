@@ -174,6 +174,22 @@ export function evaluateApprovalSummaryReadiness(gate, markdown, languages) {
   }
 }
 
+// Diagnosis shares the validator's owner. It describes a failed constraint, never relaxes it.
+export function renderApprovalSummaryIssue(summary, { path, presentationLanguage }) {
+  const locale = resolvePresentationLocale(interactionLocales, presentationLanguage);
+  const pack = localePack(interactionLocales, locale), german = locale.split("-")[0] === "de";
+  const expected = {
+    approval_summary_user_goal_missing: german ? "- Ziel:" : "- Goal:",
+    approval_summary_scope_missing: german ? "- Umfang:" : "- Scope:",
+    approval_summary_decisions_missing: german ? "- Entscheidungen:" : "- Decisions:",
+  }[summary.reason] ?? summary.required_heading;
+  return [
+    `${pack.statusCard.summaryRecovery}: \`${path}\``,
+    `${pack.statusCard.summaryReason}: \`${summary.reason}\``,
+    `${pack.statusCard.summaryExpected}: \`${expected}\`${expected !== summary.required_heading ? ` · \`${summary.required_heading}\`` : ""}`,
+  ].join("\n");
+}
+
 function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
   const lines = markdown.replace(/\r\n?/gu, "\n").split("\n");
   for (let index = 0; index < lines.length; index += 1) {
@@ -302,6 +318,9 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
         error.recovery = [
           `## ${pack.statusCard.summaryRecovery}`,
           `Run: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\``,
+          renderApprovalSummaryIssue({ reason: error.message, required_heading: requiredHeading }, {
+            path, presentationLanguage: p.presentation_language,
+          }),
           pack.operationalValues.approvalSummaryRecovery.replace("{language}", languageName),
           `${german ? "Erforderlicher Abschnitt" : "Required section"}: \`${requiredHeading}\``,
           `${artifactLabel}: [${basename(path)}](<${path}>)`,

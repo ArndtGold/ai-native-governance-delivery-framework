@@ -1,0 +1,21 @@
+Prepared missing-ux
+Prepared malformed-ux
+Prepared unchanged-ux
+Prepared resume-ux
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/prepare-native.mjs:43
+  u=f.run('run-step','--revision',f.revision(),'--step','artefact','--gate','QA','--evidence',evidence);if(u.code!==0)throw Error(u.text);
+                                                                                                                            ^
+
+Error: {
+  "schema_version": "1",
+  "outcome": "rejected",
+  "run_id": "native-qa-implementation",
+  "reason": "artefact_binding_proof_invalid"
+}
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/prepare-native.mjs:43:125
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

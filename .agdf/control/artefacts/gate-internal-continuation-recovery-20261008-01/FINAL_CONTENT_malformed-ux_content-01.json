@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-08T19:26:52.242Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/malformed-ux",
+  "run": "final-malformed-ux",
+  "revision": "5ed8257e-e8e0-4574-85a6-3c1b3008cbdd",
+  "observations": {
+    "readiness": {
+      "ready": true,
+      "required_heading": "AGDF Approval Summary (de; source=en)",
+      "reason": null
+    },
+    "scope": "Complete explicit synthetic scenario reflected in six proposed criteria; pending human decision, no approval"
+  },
+  "commands": [
+    {
+      "args": [
+        "run-step",
+        "--revision",
+        "cba5bdbf-b815-43d7-a497-5431d6f6d507",
+        "--step",
+        "artefact",
+        "--gate",
+        "PRD",
+        "--evidence",
+        ".agdf/control/artefacts/final-malformed-ux/recording-465eb22e-6daa-4c68-b67a-c9dd45d83179.json"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "final-malformed-ux",
+        "step": "artefact",
+        "previous_revision_id": "cba5bdbf-b815-43d7-a497-5431d6f6d507",
+        "revision": "7",
+        "revision_id": "5ed8257e-e8e0-4574-85a6-3c1b3008cbdd",
+        "current_gate": "PRD",
+        "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "backlog": "updated"
+      },
+      "stderr": ""
+    }
+  ],
+  "approved_sources_unchanged": true
+}

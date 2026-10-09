@@ -1,0 +1,102 @@
+[
+  {
+    "args": [
+      "run-update",
+      "--revision",
+      "f265f6c1-aa58-4f76-8917-a794c51114d8"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "previous_revision_id": "f265f6c1-aa58-4f76-8917-a794c51114d8",
+      "revision": "39",
+      "revision_id": "43328c4e-2996-4a5f-9966-32db745fa40b"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "run-step",
+      "--step",
+      "review",
+      "--decision",
+      "pass",
+      "--source",
+      ".agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/CODE_REVIEW.md",
+      "--evidence",
+      ".agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/CODE_REVIEW.md",
+      "--revision",
+      "43328c4e-2996-4a5f-9966-32db745fa40b"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "step": "review",
+      "previous_revision_id": "43328c4e-2996-4a5f-9966-32db745fa40b",
+      "revision": "40",
+      "revision_id": "b92e7c3d-191d-47e1-bcce-1c623393f5b6",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "unchanged"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "run-update",
+      "--revision",
+      "b92e7c3d-191d-47e1-bcce-1c623393f5b6"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "previous_revision_id": "b92e7c3d-191d-47e1-bcce-1c623393f5b6",
+      "revision": "41",
+      "revision_id": "e117dc45-74aa-436f-b5ae-5ea48c12673c"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "doctor"
+    ],
+    "exit_code": 0,
+    "value": {
+      "schema_version": "1",
+      "status": "pass",
+      "checked_at": "2026-10-09T06:57:30.176Z",
+      "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "summary": {
+        "findings": 0,
+        "block": 0,
+        "revise": 0,
+        "warn": 0
+      },
+      "parent_reconciliation": {
+        "outcome": "not_applicable",
+        "target_run_id": "",
+        "disposition": "not_applicable",
+        "evidence": "",
+        "missing_evidence": "none",
+        "next_action": "none"
+      },
+      "programme_aggregation": {
+        "applicable": false,
+        "startable": false,
+        "final_ready": false,
+        "acceptance_ref": "",
+        "evidence": [],
+        "missing_evidence": [],
+        "next_action": "none"
+      },
+      "findings": []
+    },
+    "stderr": ""
+  }
+]

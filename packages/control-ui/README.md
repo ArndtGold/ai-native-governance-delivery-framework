@@ -56,15 +56,13 @@ adaptive. The font assets stay local or embedded, without additional font-domain
 `Neu laden` obtains a new source view. Navigation keeps valid selection in memory; a removed run
 returns to overview with an explanation. The service checks source membership/identity/digests before
 related reads, and the browser checks every five seconds while visible and on returning to visibility.
-The visible compact MCP card automatically re-reads a changed source view and its explicitly selected
-run together. Gate, revision, approvals and next step therefore come from the same new view. It preserves
-selection and keyboard focus; a removed run returns to overview without choosing another. Checks pause
-when the document is hidden or the card leaves the viewport, and resume with a check on visibility return.
-Without IntersectionObserver, document visibility is the fallback. Detection uses polling, not push,
-so the normal delay is up to five seconds plus read latency. During refresh the previous data is labelled;
-on failure it remains stale until deliberate reload/retry. Expanded run/document views retain deliberate
-reload after change detection. Refresh never grants approval, continues delivery, publishes model context
-or sends a message.
+A changed overview stays explicitly previous until deliberate reload through RefreshControl;
+search can inspect it, but run selection remains disabled. This also applies to title-read source
+changes. Selected Run views keep their existing coherent background refresh and exact identity;
+documents retain deliberate reload. Checks pause while hidden/outside the viewport and resume
+on visibility return. Change waiting and the five-second freshness fallback share the existing
+read-state owner. Transient failure retains stale data and the requested route until retry; expired
+MCP sessions require reopening. Refresh grants no approval, continues no delivery and sends no message.
 An observation does not lock external writers or promise future freshness.
 
 ## Read boundary
@@ -115,16 +113,27 @@ and measured payload budget. `dist`, browser reports and local dependencies are 
 
 ## Embedded Codex reader and context handoff
 
-The compact reader fills its available container. At widths of at least 640px it arranges
-selection and run information in two columns; narrower cards remain stacked. Large inventories
-offer temporary search by title, Run ID or gate without changing the inspected selection.
-Collapsed inventory hints list the exact affected Runs and their registered source paths.
-The browser card uses the same layout with a centered 1100px ceiling.
-All reading views lead with the undertaking and source-backed orientation. The overview uses
-the canonical human title as its selection link, retains the Run ID underneath and shows goal,
-readable phase/status and reported open points. Its optional attention projection copies blocker,
-missing approval and evidence count from the already captured Core evaluation; it adds no reads
-or policy evaluation. Older snapshots without that projection show an explicit detail-check hint.
+The compact reader fills its available container and renders only Active Backlog, last stored
+row first. It shows at most three matches after searching the full readable active area. Section,
+match and displayed counts stay distinct. Planned/Archive remain available in the expanded view.
+Inline rows lead with title and stored status; the full next step stays in source disclosure.
+The inline list has no internal scroll or height cap. Expanded lists expose every match and use
+two columns when the reading container is at least 1000px wide; a keyboard-focusable list region owns vertical scrolling. Its height fills the space left by
+the header, area/search controls and footer; those controls stay visible while the list scrolls.
+Very short viewports retain outer scrolling so controls remain reachable.
+Diagnostics in the inline overview describe only the active area, as in the expanded area view.
+Active means stored section membership; even a stored Completed status is preserved in Active.
+Search is always available for a readable list and matches the stored original title, key or status
+as separate case-insensitive substrings after trimming the query. Observed UR headings and document
+full text are outside this corpus. Expansion keeps the active query; changing area clears it, and
+returning from another area to compact resets Active with an empty query.
+
+Both views import the pure Core `control-inspect/cockpit-list.js` implementation. Core owns section,
+order, search, stored display-title provenance, source-bound presentation identity and completeness.
+Raw transport entries keep their original order and opaque selectors. The shared passive React row
+renders wrapping title actions, secondary stored status and complete original/source/next-step details.
+Known scope prefixes are omitted only in display. Partial coverage reports readable counts; unavailable
+areas have no numeric count and partial no-match is explicitly limited. No native select is used.
 Run detail presents the title, objective, open evidence and reported next allowed action before
 the original control/source disclosure. A persisted/Core discrepancy remains visible outside it.
 Document views explain the registered document type and identify its undertaking while keeping
@@ -132,11 +141,10 @@ the original source content/language. Shared UI wording is owned by `src/present
 grants no authority or inferred business progress. Generic or unclear canonical titles are shown
 as sourced; this presentation never rewrites approved requirements or invents a project-specific
 next action. Narrow lists become stacked entries instead of forcing horizontal table scrolling.
-When an explicit initial Run is successfully loaded and valid, the compact card hides the
-inventory counts, search and selector. It shows the Run title/ID, gate, status and next step
-directly. “Anderen Run wählen” reveals the existing picker and focuses its search or selector;
-the inspected Run stays selected until the user chooses another. Closing the picker performs
-no read. Overview opening retains the picker, as do missing, invalid or unavailable Run states.
+An explicit initial Run opens directly and hides discovery. “Alle Vorhaben” deliberately reads
+the overview. Returning retains the applicable query/area and restores the originating visible row;
+a removed row gets explicit removal feedback, while a row outside the compact preview gets a view
+limitation and search/expansion access. Neither case selects a replacement.
 
 The minimal actual-host feasibility checkpoint is recorded separately from final product
 qualification. The source implementation now reads exact run-owned graph references and prepares
@@ -331,7 +339,7 @@ interactive keyboard focus retains the Pages recipe. Approval labels and source 
 Expanded document views group their heading, read feedback, source orientation, disclosures and context access on one neutral Pages surface. The centered reading surface is bounded to 80ch including padding, with symmetric gutters and a shared inner text edge. The context access remains a keyboard-accessible 44px text action; its content expands within the reading surface. Exact originals have no additional card frame or shadow inside that surface. The branded header is unchanged.
 
 
-## Lazy linked-UR list titles
+## Supplementary linked-UR observations
 
 The overview starts with Master Backlog only. Each area displays its original rows in reverse
 stored order, without inventing creation dates. A separate `backlog_titles` operation takes the
@@ -352,8 +360,8 @@ Intersection demand is coalesced for visible rows and at most one neighbour, wit
 batch per view and no new requests while hidden. Ephemeral metadata uses a 128-record/256-KiB
 UTF-8 LRU; it keeps path/digest/time/backlog provenance, never document bodies or old selectors.
 Navigation retains observations for the same backlog digest and restores search/focus; refresh,
-changed/unavailable freshness and session replacement clear them. Search includes backlog facts
-and already observed UR titles only. Missing/denied/unsupported/oversize individual titles keep
+changed/unavailable freshness and session replacement clear them. Observations appear only in
+source details; primary titles and search membership always use stored Backlog fields. Missing/denied/unsupported/oversize individual titles keep
 rows and counts. Whole-capture failures require refresh and cannot restore the discarded capture.
 
 Focused verification: `cockpit-backlog-title-test.js`, `cockpit-scoped-read-test.js`,

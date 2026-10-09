@@ -1,0 +1,37 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: ai-native-governance-delivery-framework
+  - generic: Nur Lesen
+  - button "Neu laden":
+  - status
+- main:
+  - generic: Dein Repository · Deine Vorhaben
+  - heading "Gespeicherte Vorhaben" [level=1]
+  - paragraph: Orientierung aus dem Masterbacklog. Öffne ein Vorhaben für die aktuelle Prüfung.
+  - generic "Stand 8.10.2026, 17:59:12 · Datenstand und Herkunft"
+  - region "Vorhaben nach Backlog-Bereich":
+    - group "Backlog-Bereich":
+      - button "Aktiv 58" [pressed]:
+        - generic: Aktiv
+        - strong: "58"
+      - button "Geplant 2 Eingeschränkt":
+        - generic: Geplant
+        - strong: "2"
+        - generic: Eingeschränkt
+      - button "Archiv 87":
+        - generic: Archiv
+        - strong: "87"
+    - text: "Aktiv: Vorhaben suchen"
+    - 'searchbox "Aktiv: Vorhaben suchen"': Separate Solution Design
+    - paragraph: Letzter gespeicherter Eintrag zuerst. Die Suche umfasst gespeicherten Backlog-Titel, Schlüssel und Status.
+    - region "Vorhaben · Aktiv":
+      - heading "Aktive Vorhaben" [active] [level=2]
+      - status: 58 Einträge im Bereich · 1 Treffer
+      - list:
+        - heading "Separate Solution Design authoring from gate-check" [level=3]:
+          - button "Separate Solution Design authoring from gate-check"
+        - generic: "Gespeicherter Stand laut Backlog: Awaiting PRD"
+        - paragraph: "Nächster Schritt laut Backlog: Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        - generic "Gespeicherte Angaben und Quellen"
+  - generic: Lokale Beobachtung · Teilweise verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

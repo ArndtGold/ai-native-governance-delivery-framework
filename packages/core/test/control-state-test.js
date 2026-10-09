@@ -284,9 +284,11 @@ try {
   assert.equal(qaReviseReport.missing_approval, "none");
   assert.ok(qaReviseReport.allowed.every((action) => !action.includes("approval")));
   assert.ok(qaReviseReport.forbidden.includes("request QA approval"));
-  // QA revise gives the agent an explicit remediation action and does not request a user gate approval.
+  // Unclassified QA revise stays non-approvable and cannot grant blanket implementation.
   assert.equal(qaReviseReport.status_card.user_action_required, "no");
-  assert.equal(qaReviseReport.status_card.internal_next_step, "Resolve QA findings.");
+  assert.match(qaReviseReport.status_card.internal_next_step, /through their authoritative owner before dependent work/);
+  assert.ok(qaReviseReport.forbidden.includes("implement code"));
+  assert.ok(!qaReviseReport.allowed.includes("revise the implementation against the QA findings"));
   assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
   assert.equal(Object.hasOwn(qaReviseReport.status_card, "approvalOrientation"), false, "approval orientation must not change public JSON keys");
 
@@ -496,7 +498,7 @@ ${approvals}
           assert.ok(invalidRevision, `${expectedCode}: copied run has a revision`);
           assert.equal(recordRunRevision(invalidRoot, { runId, revisionId: invalidRevision }).outcome, "updated");
           const invalidReport = evaluateGateCheck(invalidRoot, { runId, presentationLanguage: "de" });
-          assert.ok(invalidReport.presentation_diagnostics?.approval_presentation_errors?.includes(expectedCode),
+          assert.ok(invalidReport.prd_readiness?.open_decisions?.some(item => item.includes(expectedCode)),
             `${expectedCode}: ${JSON.stringify(invalidReport.presentation_diagnostics)}`);
           assert.equal(invalidReport.approval_presentation, null, `${expectedCode} never prepares a partial approval`);
           const recoveryLines = [];
@@ -509,7 +511,8 @@ ${approvals}
             runId, gate, revisionId: invalidReport.status_presentation.revision_id, language: "de",
           }, { evaluateGateCheck });
           assert.equal(rejectedPresentation.outcome, "rejected");
-          assert.equal(rejectedPresentation.reason, expectedCode);
+          assert.equal(rejectedPresentation.reason, "AGDF_PRD_DECISIONS_OPEN");
+          assert.ok(rejectedPresentation.recovery.includes(expectedCode), "the early refusal preserves its exact validator reason");
           assert.ok(rejectedPresentation.recovery.includes(invalidPrdPath));
         } finally {
           rmSync(invalidRoot, { recursive: true, force: true });

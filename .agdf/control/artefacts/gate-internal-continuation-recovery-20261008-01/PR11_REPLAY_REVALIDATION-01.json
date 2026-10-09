@@ -1,0 +1,874 @@
+{
+  "at": "2026-10-09T06:04:51.292Z",
+  "source_delta": [
+    {
+      "path": "packages/core/lib/skill-dispatch/prd-definition.js",
+      "before_sha256": "2ca82b406737aa2f385826f97794d08690b16ddf615c321526f2a83151e23dac",
+      "after_sha256": "95c2a131e820f522047269a430bb90cbcd6186d6ce6952f4d1a96e5894d59987",
+      "cases_using_source": 3
+    },
+    {
+      "path": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+      "before_sha256": "9b05cf3a5a0d9d0a42c5dc9a1785aa50f44ca774b41776885a1e7190e05a74f4",
+      "after_sha256": "bf5c0c3a4ee621c0bc8d9ff1943c52ecc49f0cb1e4dda637d2bd32727b72e1ac",
+      "cases_using_source": 6
+    },
+    {
+      "path": "plugins/agdf/meta/contracts/interaction.md",
+      "before_sha256": "1693a5edaac71acf4b4138641c42b1c444a23c046e4402e63d4f717958f90897",
+      "after_sha256": "dc0d02f7491ec980ce488f80d0801e1553ba7014a32212adc8e25f9e9da5601f",
+      "cases_using_source": 20
+    },
+    {
+      "path": "plugins/agdf/meta/contracts/prd-definition.md",
+      "before_sha256": "3f7b33e227669cf0948ebf4521d4b640cb8582b135306728a2b778ac6a68cdee",
+      "after_sha256": "9af80775eb10aa14a31a77e6cc4edccdd203954841946d4759529ef75cb374a6",
+      "cases_using_source": 4
+    },
+    {
+      "path": "plugins/agdf/skills/gate-check/SKILL.md",
+      "before_sha256": "f279e4082c54ca870dbf429f749376492dd6a6174ab71789eb6f903155ac9198",
+      "after_sha256": "03cff718d5386eed2351cb398ebad4a881d67a60a762d952a2e8e0bdaf0e4011",
+      "cases_using_source": 24
+    },
+    {
+      "path": "plugins/agdf/skills/qa-gate/SKILL.md",
+      "before_sha256": "664cfe47c816612c8a27cd6d36a84bae659f40971a27677c729c249d251bdfd0",
+      "after_sha256": "86cbde6bb1651e936acef5bf612d7ca586698b7fd601934a06abe621bd099cbd",
+      "cases_using_source": 8
+    },
+    {
+      "path": "plugins/agdf/skills/ux-intent-definition/SKILL.md",
+      "before_sha256": "bd04da06efc5499414611bba24aa42b6d3f48543d5b0ae0d0f3c6f247db4286c",
+      "after_sha256": "62d8ece02080a22714b6a117118a39f81a8901b6c3add03a8e6d7b20bbde61e4",
+      "cases_using_source": 4
+    }
+  ],
+  "method": "same-agent semantic review of all case assertions and seven changed current source owners; retained static replay revalidation, not live observations",
+  "cases": [
+    {
+      "case_id": "brownfield-normal",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-boundary",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-adversarial",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-bounded-multi-owner",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-single-owner-policy",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-broad-migration",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-missing-facts",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-conflicting-facts",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-numeric-proxy",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-architecture-runtime",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-external-contract",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-release-cross-host",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-depth-unbounded-coordination",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-direct-target-unresolved",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-owner-boundary",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-retained-tradeoff",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-complete-tradeoff",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-incomplete-debt",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-decisive-evidence-missing",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-local-not-applicable",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "brownfield-architecture-focused-diagram",
+      "target_skill": "brownfield-analysis",
+      "previous_fingerprint": "54d9f1329912dc9d9acb8ed8f67cef75651dc9fd50eabe20e00c6053ef785c0b",
+      "current_fingerprint": "8c6664426812f51fddb005477f886241fb996711b6efd80ed5d659bf303fe7f7",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "clean-review-normal",
+      "target_skill": "clean-implementation-review",
+      "previous_fingerprint": "5d419f744041d3c55c3c4f0f792accc864b54215164593b1771d6c548a7af48e",
+      "current_fingerprint": "accecc194071dbf3f1aa45dfc44f73bb803b1571f875db5d795a9d3c96caa663",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "clean-review-boundary",
+      "target_skill": "clean-implementation-review",
+      "previous_fingerprint": "5d419f744041d3c55c3c4f0f792accc864b54215164593b1771d6c548a7af48e",
+      "current_fingerprint": "accecc194071dbf3f1aa45dfc44f73bb803b1571f875db5d795a9d3c96caa663",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "clean-review-adversarial",
+      "target_skill": "clean-implementation-review",
+      "previous_fingerprint": "5d419f744041d3c55c3c4f0f792accc864b54215164593b1771d6c548a7af48e",
+      "current_fingerprint": "accecc194071dbf3f1aa45dfc44f73bb803b1571f875db5d795a9d3c96caa663",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "clean-review-direct-target-unresolved",
+      "target_skill": "clean-implementation-review",
+      "previous_fingerprint": "5d419f744041d3c55c3c4f0f792accc864b54215164593b1771d6c548a7af48e",
+      "current_fingerprint": "accecc194071dbf3f1aa45dfc44f73bb803b1571f875db5d795a9d3c96caa663",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "code-review-normal",
+      "target_skill": "code-review",
+      "previous_fingerprint": "39efc0bc4b85a23038218a04cd1aaecb8badac8a110ee83553e8c9e3108bef7b",
+      "current_fingerprint": "7c9a2831d42f34de57809a35a8e6f3de9eead296bc5b80a4685598c2637fc5db",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "code-review-boundary",
+      "target_skill": "code-review",
+      "previous_fingerprint": "39efc0bc4b85a23038218a04cd1aaecb8badac8a110ee83553e8c9e3108bef7b",
+      "current_fingerprint": "7c9a2831d42f34de57809a35a8e6f3de9eead296bc5b80a4685598c2637fc5db",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "code-review-adversarial",
+      "target_skill": "code-review",
+      "previous_fingerprint": "39efc0bc4b85a23038218a04cd1aaecb8badac8a110ee83553e8c9e3108bef7b",
+      "current_fingerprint": "7c9a2831d42f34de57809a35a8e6f3de9eead296bc5b80a4685598c2637fc5db",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "code-review-direct-target-unresolved",
+      "target_skill": "code-review",
+      "previous_fingerprint": "39efc0bc4b85a23038218a04cd1aaecb8badac8a110ee83553e8c9e3108bef7b",
+      "current_fingerprint": "7c9a2831d42f34de57809a35a8e6f3de9eead296bc5b80a4685598c2637fc5db",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-normal",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-boundary",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-adversarial",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-parent-open",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-parent-accepted-open",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-parent-rediscovery",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-parent-resolved",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-closeout-direct-target-unresolved",
+      "target_skill": "delivery-closeout",
+      "previous_fingerprint": "90e7cfa25bcee06e7ce6fd3a3a751033f0512d588cbd16e74319ecaff69eec35",
+      "current_fingerprint": "30826873b42d4dfcdc42fdf9a67e5b8cf40314dc12c1cd424c1233a77c75249b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-path-search-normal",
+      "target_skill": "delivery-path-search",
+      "previous_fingerprint": "e947bec23c10bbf72386aa589d047b7e841e2f902a25544e5008a9d238564f40",
+      "current_fingerprint": "4f15a718c7d216818035c87ba74d130a3f38abb4905538ca00671d20b15c695b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-path-search-boundary",
+      "target_skill": "delivery-path-search",
+      "previous_fingerprint": "e947bec23c10bbf72386aa589d047b7e841e2f902a25544e5008a9d238564f40",
+      "current_fingerprint": "4f15a718c7d216818035c87ba74d130a3f38abb4905538ca00671d20b15c695b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-path-search-adversarial",
+      "target_skill": "delivery-path-search",
+      "previous_fingerprint": "e947bec23c10bbf72386aa589d047b7e841e2f902a25544e5008a9d238564f40",
+      "current_fingerprint": "4f15a718c7d216818035c87ba74d130a3f38abb4905538ca00671d20b15c695b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-path-search-cross-scope",
+      "target_skill": "delivery-path-search",
+      "previous_fingerprint": "e947bec23c10bbf72386aa589d047b7e841e2f902a25544e5008a9d238564f40",
+      "current_fingerprint": "4f15a718c7d216818035c87ba74d130a3f38abb4905538ca00671d20b15c695b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "delivery-path-search-direct-target-unresolved",
+      "target_skill": "delivery-path-search",
+      "previous_fingerprint": "e947bec23c10bbf72386aa589d047b7e841e2f902a25544e5008a9d238564f40",
+      "current_fingerprint": "4f15a718c7d216818035c87ba74d130a3f38abb4905538ca00671d20b15c695b",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-normal",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-boundary",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-adversarial",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-approval-without-artefact",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-prd-approved",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-tp-approved",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-unevidenced-mode-slice",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-implicit-consent",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-legacy-freigabe",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-scope-classification-ungated",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-scope-classification-verified-change",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-scope-classification-ambiguous",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-scope-classification-gated",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-explicit-file-over-cwd",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-evidence-not-mutation",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-governance-after-resolution",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-multiple-plausible",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-content-mismatch",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-unavailable-retry",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-continued-turn",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-target-explicit-change",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-copilot-repoless-generalchat",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-copilot-repoless-prior-ur-bait",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "gate-check-ungoverned-without-intent",
+      "target_skill": "gate-check",
+      "previous_fingerprint": "17e418b9fe36e5c19848bd8c24a1039769105d1f74427368d64ee4e65c35a775",
+      "current_fingerprint": "f9ba4cd72f71f9178152646ca0f20e40efff2abfbaedc60067900a31b9249e18",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "prd-definition-normal",
+      "target_skill": "prd-definition",
+      "previous_fingerprint": "fc8c642869309b40218650b9a4dab9e723684f8a9ff1699857cf3c7327eb967e",
+      "current_fingerprint": "0b851f5d711c5e9749294e31f46d67c22b42820c78bc0dd8d0cdd6ab0ca9b0e5",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "prd-definition-boundary",
+      "target_skill": "prd-definition",
+      "previous_fingerprint": "fc8c642869309b40218650b9a4dab9e723684f8a9ff1699857cf3c7327eb967e",
+      "current_fingerprint": "0b851f5d711c5e9749294e31f46d67c22b42820c78bc0dd8d0cdd6ab0ca9b0e5",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "prd-definition-adversarial",
+      "target_skill": "prd-definition",
+      "previous_fingerprint": "fc8c642869309b40218650b9a4dab9e723684f8a9ff1699857cf3c7327eb967e",
+      "current_fingerprint": "0b851f5d711c5e9749294e31f46d67c22b42820c78bc0dd8d0cdd6ab0ca9b0e5",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "prd-definition-direct-target-unresolved",
+      "target_skill": "prd-definition",
+      "previous_fingerprint": "fc8c642869309b40218650b9a4dab9e723684f8a9ff1699857cf3c7327eb967e",
+      "current_fingerprint": "0b851f5d711c5e9749294e31f46d67c22b42820c78bc0dd8d0cdd6ab0ca9b0e5",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-normal",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-boundary",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-adversarial",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-direct-target-unresolved",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-resolved-unique-run",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-resolved-run-ambiguous",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-resolved-missing-review",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "qa-gate-card-approval-bait",
+      "target_skill": "qa-gate",
+      "previous_fingerprint": "7fa113e75b814df9cf25429fdd9e7d772d9a998cea429127dfe74f5cf80edbbc",
+      "current_fingerprint": "a331dbe0ac313b3ecc748cc51687269156fac7e6b38ab36fd8b62a353d1558a2",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-normal",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-boundary",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-adversarial",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-parent-resolved",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-parent-open",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-parent-accepted-open",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-programme-readiness",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "release-or-direct-target-unresolved",
+      "target_skill": "release-or",
+      "previous_fingerprint": "43efd1700d703bee2300f5b22856592e93ef7ac24f37c616ddf2e69b661a09c7",
+      "current_fingerprint": "da05893de837e8a708d95ef47a6c263994f5e8bee0ab74a51976f1293930c006",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "sd-definition-normal",
+      "target_skill": "sd-definition",
+      "previous_fingerprint": "3047a79283671fbb01783f20ef40c5f927f4dcf0d3c14d79e2c24a18297e23ca",
+      "current_fingerprint": "0f59d7b6ea23fc857d58bc99eebd0c3a37355d75aa3eb828521de50e82c22034",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "sd-definition-boundary",
+      "target_skill": "sd-definition",
+      "previous_fingerprint": "3047a79283671fbb01783f20ef40c5f927f4dcf0d3c14d79e2c24a18297e23ca",
+      "current_fingerprint": "0f59d7b6ea23fc857d58bc99eebd0c3a37355d75aa3eb828521de50e82c22034",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "sd-definition-adversarial",
+      "target_skill": "sd-definition",
+      "previous_fingerprint": "3047a79283671fbb01783f20ef40c5f927f4dcf0d3c14d79e2c24a18297e23ca",
+      "current_fingerprint": "0f59d7b6ea23fc857d58bc99eebd0c3a37355d75aa3eb828521de50e82c22034",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "sd-definition-direct-target-unresolved",
+      "target_skill": "sd-definition",
+      "previous_fingerprint": "3047a79283671fbb01783f20ef40c5f927f4dcf0d3c14d79e2c24a18297e23ca",
+      "current_fingerprint": "0f59d7b6ea23fc857d58bc99eebd0c3a37355d75aa3eb828521de50e82c22034",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "task-plan-review-normal",
+      "target_skill": "task-plan-review",
+      "previous_fingerprint": "3f8a93330200b49608cf88b753c73e0f192e06aff71771d01e23e00de8b79ff9",
+      "current_fingerprint": "026c9766c1799ca4cfeb2da692fa0b93ee5a9fe8440bdd7b867f2d642a13d5a3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "task-plan-review-boundary",
+      "target_skill": "task-plan-review",
+      "previous_fingerprint": "3f8a93330200b49608cf88b753c73e0f192e06aff71771d01e23e00de8b79ff9",
+      "current_fingerprint": "026c9766c1799ca4cfeb2da692fa0b93ee5a9fe8440bdd7b867f2d642a13d5a3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "task-plan-review-adversarial",
+      "target_skill": "task-plan-review",
+      "previous_fingerprint": "3f8a93330200b49608cf88b753c73e0f192e06aff71771d01e23e00de8b79ff9",
+      "current_fingerprint": "026c9766c1799ca4cfeb2da692fa0b93ee5a9fe8440bdd7b867f2d642a13d5a3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "task-plan-review-direct-target-unresolved",
+      "target_skill": "task-plan-review",
+      "previous_fingerprint": "3f8a93330200b49608cf88b753c73e0f192e06aff71771d01e23e00de8b79ff9",
+      "current_fingerprint": "026c9766c1799ca4cfeb2da692fa0b93ee5a9fe8440bdd7b867f2d642a13d5a3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ur-definition-normal",
+      "target_skill": "ur-definition",
+      "previous_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "current_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ur-definition-boundary",
+      "target_skill": "ur-definition",
+      "previous_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "current_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ur-definition-adversarial",
+      "target_skill": "ur-definition",
+      "previous_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "current_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ur-definition-direct-target-unresolved",
+      "target_skill": "ur-definition",
+      "previous_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "current_fingerprint": "d26eaedf0d0a17a17d15a79986f317fd1903567b71044454a0b51ab78a93d87c",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ux-intent-definition-normal",
+      "target_skill": "ux-intent-definition",
+      "previous_fingerprint": "69fde0fbcd0b283e854416ed8d2ba12d85ddc2e5154cf575cc6c045d3923cfad",
+      "current_fingerprint": "a19e5a4ba4de78f10e55508ed5215db9ca5e12b0af6f2c54452aa5739dd02ee3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ux-intent-definition-boundary",
+      "target_skill": "ux-intent-definition",
+      "previous_fingerprint": "69fde0fbcd0b283e854416ed8d2ba12d85ddc2e5154cf575cc6c045d3923cfad",
+      "current_fingerprint": "a19e5a4ba4de78f10e55508ed5215db9ca5e12b0af6f2c54452aa5739dd02ee3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ux-intent-definition-adversarial",
+      "target_skill": "ux-intent-definition",
+      "previous_fingerprint": "69fde0fbcd0b283e854416ed8d2ba12d85ddc2e5154cf575cc6c045d3923cfad",
+      "current_fingerprint": "a19e5a4ba4de78f10e55508ed5215db9ca5e12b0af6f2c54452aa5739dd02ee3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    },
+    {
+      "case_id": "ux-intent-direct-target-unresolved",
+      "target_skill": "ux-intent-definition",
+      "previous_fingerprint": "69fde0fbcd0b283e854416ed8d2ba12d85ddc2e5154cf575cc6c045d3923cfad",
+      "current_fingerprint": "a19e5a4ba4de78f10e55508ed5215db9ca5e12b0af6f2c54452aa5739dd02ee3",
+      "expected_and_observed_values_preserved": true,
+      "applicability": "Reviewed current owner delta: bounded existing UX/PRD/QA recovery changes no case source authority, route, gate, approval, forbidden action, mutation scope or artefact requirement. The existing static replay outcome remains applicable. This is not a new native/model execution."
+    }
+  ],
+  "thresholds_preserved": {
+    "coverage": 1,
+    "routing": 1,
+    "gate": 1,
+    "actions": 1,
+    "mutation": 1,
+    "artefact_quality": 1
+  }
+}

@@ -29,7 +29,7 @@ const evidence = YAML.parse(evidenceText);
 // Expand shared plan steps for the same ordering assertions as direct workflow commands.
 function expandVerificationSteps(steps) {
   return steps.flatMap(step => {
-    const invocation = /^node scripts\/verify-ci\.mjs --(stage|lane) ([\w-]+)$/u.exec(step.run ?? '');
+    const invocation = /^node scripts\/verify-ci\.mjs --(stage|lane|profile) ([\w-]+)$/u.exec(step.run ?? '');
     if (!invocation) return [step];
     return verificationPlan({ [invocation[1]]: invocation[2] }).flatMap(stage => stage.commands.map(command => ({
       run: `${command.tool} ${command.args.join(' ')}`, ...(command.cwd ? { 'working-directory': command.cwd } : {}),

@@ -1,0 +1,11 @@
+--- packages/core/lib/control-evaluation/qa-follow-up.js:before
++++ packages/core/lib/control-evaluation/qa-follow-up.js:after
+@@ -77,6 +77,7 @@
+     if ((!headerFound || !seen.size) && (type === 'QA' || ['revise', 'block'].includes(artefact.status) || ['revise', 'block'].includes(extractField(content, 'decision')))) return stop(`Normalized findings are missing: ${type}.`);
+   }
+   if (!findings.length) return stop('QA revise has no valid open normalized finding; inspect its decisive obligation before corrective work.');
+-  if (findings.some(f => !['CD+Tests', 'evidence_obligation'].includes(f.target))) return { kind: 'upstream', findings, reason: 'Resolve the earliest source-owner decision before dependent implementation.' };
++  const upstreamTargets = [...new Set(findings.map(f => f.target).filter(target => !['CD+Tests', 'evidence_obligation'].includes(target)))];
++  if (upstreamTargets.length) return { kind: 'upstream', findings, reason: `Resolve the earliest source-owner decision (${upstreamTargets.join(', ')}) before dependent implementation.` };
+   return { kind: findings.some(f => f.target === 'CD+Tests') ? 'implementation' : 'evidence', findings, reason: '' };
+ }

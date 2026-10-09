@@ -1,0 +1,104 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "intake_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "2b1319f6d057d62a5dc341dd28e2596f5ab773ef194cc165b8a60affffbf9bf0",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/tmp/agdf-gate-qualification-414UKY/missing-ux",
+    "evidence_sources": [],
+    "working_directory": "/private/tmp/agdf-gate-qualification-414UKY/missing-ux",
+    "governance_target": "/private/tmp/agdf-gate-qualification-414UKY/missing-ux",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "PRD",
+    "gate_route": {
+      "gate": "PRD",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: PRD",
+    "next_operation": null,
+    "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+    "run_id": "native-missing-ux",
+    "revision_id": "47715e0c-37d7-4561-b08f-e1117a057932",
+    "doctor_status": "warn"
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "approval_preview",
+    "run_id": "native-missing-ux",
+    "revision_id": "47715e0c-37d7-4561-b08f-e1117a057932",
+    "current_gate": "PRD",
+    "presentation_language": "de",
+    "markdown": "## Kurzfassung · PRD\n\nRun: `native-missing-ux` · Gate: `PRD` · Revision: `47715e0c-37d7-4561-b08f-e1117a057932`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Einen benannten persönlichen Filter speichern und bewusst wiederherstellen; keine Freigabe, Mehrfachablage oder Rechteänderung. Dies ist ein isoliertes Testartefakt.\n- Umfang: Ein benannter persönlicher Filter ohne Freigabe, Mehrfachablage oder Rechteänderung.\n- AC-001: Bewusstes Wiederherstellen setzt die gespeicherten Werte desselben Nutzers wirksam und zeigt den Erfolg; fehlender Eintrag sperrt die Aktion, Fehler erhält die aktuellen Werte und bietet Wiederholung.\n- AC-002: Speichern ersetzt den einen persönlichen Eintrag, zeigt den Namen und lässt aktuelle Werte unverändert; ein Fehler erhält den bisherigen Eintrag.\n- AC-003: Name und aktuelle Werte sind Voraussetzung zum Speichern, ein gespeicherter Eintrag zum Wiederherstellen; Grund und nächster Schritt sind sichtbar.\n- AC-004: Fehler erhalten den jeweiligen Zustand, zeigen die Ursache und bieten die Wiederholung derselben Aktion; eine erfolgreiche Wiederholung zeigt den Folgezustand.\n- AC-005: Editor zeigt fehlenden, gespeicherten, wiederhergestellten und beide Fehlerzustände eindeutig; aktuelle Werte bleiben wirksam, bis bewusst wiederhergestellt wird.\n- AC-006: Erneutes Öffnen macht den persönlichen Eintrag zugänglich und löst keine automatische Wiederherstellung aus.\n- Entscheidungen: Zustände und Fehlerbehandlung stammen aus expliziten synthetischen Testdaten. Keine echte Nutzerfreigabe, Implementierung oder Produktionsanforderung wird behauptet.\n\n## Prüfartefakt · PRD\n\nRun: `native-missing-ux` · Gate: `PRD` · Revision: `47715e0c-37d7-4561-b08f-e1117a057932`\n\nArtefakt: [PRD.md](</private/tmp/agdf-gate-qualification-414UKY/missing-ux/.agdf/control/artefacts/native-missing-ux/PRD.md>)\n\nSHA-256: `sha256:b85b02c7095b67627fdbc52b8c798754b34c9fec4cad1d2353b6ec0cf46a34cf`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+    "artefact_digest": "sha256:b85b02c7095b67627fdbc52b8c798754b34c9fec4cad1d2353b6ec0cf46a34cf",
+    "summary_digest": "sha256:968b14a457efa28f3381089a5f440bb36a32a39983e4133137d3f11208150373",
+    "authorizes": false
+  },
+  "continuation": {
+    "instruction": "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
+    "phase": "presentation_required",
+    "governance_target": "/private/tmp/agdf-gate-qualification-414UKY/missing-ux",
+    "run_id": "native-missing-ux",
+    "revision_id": "47715e0c-37d7-4561-b08f-e1117a057932",
+    "steps": [
+      {
+        "id": "prepare_presentation",
+        "argv": [
+          "run-present",
+          "--dir",
+          "/private/tmp/agdf-gate-qualification-414UKY/missing-ux",
+          "--run",
+          "native-missing-ux",
+          "--gate",
+          "PRD",
+          "--revision",
+          "47715e0c-37d7-4561-b08f-e1117a057932",
+          "--language",
+          "de"
+        ],
+        "command": "run-present --dir '/private/tmp/agdf-gate-qualification-414UKY/missing-ux' --run native-missing-ux --gate PRD --revision 47715e0c-37d7-4561-b08f-e1117a057932 --language de"
+      }
+    ]
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_delivery_intake",
+    "source": "continuation.steps",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 7.659,
+    "target_ms": 0.985,
+    "control_ms": 171.804,
+    "render_ms": 12.278,
+    "total_ms": 193.448
+  },
+  "diagnostics": []
+}

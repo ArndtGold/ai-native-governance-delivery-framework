@@ -1,0 +1,1989 @@
+{
+  "at": "2026-10-08T19:23:27.168Z",
+  "candidate": {
+    "at": "2026-10-08T19:10:13.903Z",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-8f578728e735",
+    "source_digest": "8f578728e735dbb72f1b05a708ec2b4db30f894b01460a907ea198855fda2ba6",
+    "plugin_digest": "099214aae578ec224126701a13138b2f1e402ae07c94ac4a386e9e64d10c6e4a",
+    "runtime_digest": "668cf476a06c93027cead7615eed2c47ef5414500eb93d002cb6aaba41bfa8c9",
+    "mcp_dispatcher_digest": "31cdf187b33826ea9bb70cfb12f477c522c836a598a0acc8b1fdb8d350c66002",
+    "plugin_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/summary-recovery-qualification/marketplaces/agdf/plugins/agdf",
+    "marketplace": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/summary-recovery-qualification/marketplaces/agdf",
+    "generated_manifest": {
+      "schema_version": "1",
+      "generated": true,
+      "source": "create-agdf/cli",
+      "version": "0.14.5",
+      "entrypoint": "create-agdf/bin/agdf-validator.js",
+      "digest": "668cf476a06c93027cead7615eed2c47ef5414500eb93d002cb6aaba41bfa8c9"
+    },
+    "scope": "QF-002 summary prevalidation, exact diagnosis and existing authoring recovery; no public schema, phase, gate or installer change",
+    "activated": false
+  },
+  "bundle": "/private/tmp/agdf-final-observations-Lrpg2S",
+  "plugin": "/private/tmp/agdf-final-observations-Lrpg2S/plugins/agdf",
+  "validator": "/private/tmp/agdf-final-observations-Lrpg2S/plugins/agdf/runtime/agdf-local.js",
+  "entries": [
+    {
+      "name": "missing-ux",
+      "target": "/private/tmp/agdf-final-observations-Lrpg2S/missing-ux",
+      "run_id": "final-missing-ux",
+      "revision_id": "53ba3e33-156e-4288-82e7-8b303a11dcf5",
+      "prefix": ".agdf/control/artefacts/final-missing-ux/",
+      "setup": [
+        {
+          "command": "run-create",
+          "args": [
+            "--run",
+            "final-missing-ux"
+          ],
+          "code": 0,
+          "value": null,
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-missing-ux",
+            "--revision",
+            "dcf748b8-511c-45f0-b22b-42db75fedc5e",
+            "--step",
+            "ur",
+            "--title",
+            "Synthetic saved filter"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-missing-ux",
+            "step": "ur",
+            "previous_revision_id": "dcf748b8-511c-45f0-b22b-42db75fedc5e",
+            "revision": "2",
+            "revision_id": "ea5b4814-219b-4ef4-a01e-3dcf0a8462ec",
+            "current_gate": "UR",
+            "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-missing-ux",
+            "--revision",
+            "ea5b4814-219b-4ef4-a01e-3dcf0a8462ec",
+            "--gate",
+            "UR",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "c7d3f349-94e3-48af-b6e9-f632f7c9bfd6",
+            "created_at": "2026-10-08T19:22:37.006Z",
+            "run_id": "final-missing-ux",
+            "gate": "UR",
+            "revision_id": "ea5b4814-219b-4ef4-a01e-3dcf0a8462ec",
+            "content_digest": "sha256:6d9c846e725b5aefee13122750fa531d1652e693a10ab184674d2e6174f42bca",
+            "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "summary_digest": "sha256:880b9590057ae77806748cbeaafb821da667e73b110887a56194c4904c1fe16c",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:2cc039e859d1f91b81e9f1189d960f1e4183057f0f2f848ba9815ad6dbef283a",
+            "outcome": "prepared",
+            "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `final-missing-ux`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `final-missing-ux` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `final-missing-ux` · Gate: `UR` · Revision: `ea5b4814-219b-4ef4-a01e-3dcf0a8462ec`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `final-missing-ux` · Gate: `UR` · Revision: `ea5b4814-219b-4ef4-a01e-3dcf0a8462ec`\n\nArtefact: [UR.md](</private/tmp/agdf-final-observations-Lrpg2S/missing-ux/.agdf/control/artefacts/final-missing-ux/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `final-missing-ux`\n[UR](.agdf/control/artefacts/final-missing-ux/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+            "record_digest": "sha256:e8665c55c18322c4100b07f55bf4511e606b9f1bf64a939543175a5ac8bd6305",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-missing-ux",
+            "--revision",
+            "ea5b4814-219b-4ef4-a01e-3dcf0a8462ec",
+            "--gate",
+            "UR",
+            "--presentation",
+            "c7d3f349-94e3-48af-b6e9-f632f7c9bfd6",
+            "--response",
+            "Approval: UR"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "approved",
+            "run_id": "final-missing-ux",
+            "gate": "UR",
+            "approval": "Approval: UR",
+            "previous_revision_id": "ea5b4814-219b-4ef4-a01e-3dcf0a8462ec",
+            "revision": "3",
+            "revision_id": "bed9bde7-6545-4b8a-91dd-8b5c8d9b2478",
+            "next_gate_after_approval": "Brownfield Review",
+            "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            }
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-missing-ux",
+            "--revision",
+            "bed9bde7-6545-4b8a-91dd-8b5c8d9b2478",
+            "--step",
+            "route",
+            "--route",
+            "structured_delivery",
+            "--reason",
+            "Synthetic public-contract test route, never live authorization",
+            "--evidence",
+            ".agdf/control/artefacts/final-missing-ux/BROWNFIELD_REVIEW.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-missing-ux",
+            "step": "route",
+            "previous_revision_id": "bed9bde7-6545-4b8a-91dd-8b5c8d9b2478",
+            "revision": "4",
+            "revision_id": "1cc3330b-21f7-496e-a421-45d051f09f2e",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-missing-ux",
+            "--revision",
+            "1cc3330b-21f7-496e-a421-45d051f09f2e"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-missing-ux",
+            "previous_revision_id": "1cc3330b-21f7-496e-a421-45d051f09f2e",
+            "revision": "5",
+            "revision_id": "53ba3e33-156e-4288-82e7-8b303a11dcf5"
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "malformed-ux",
+      "target": "/private/tmp/agdf-final-observations-Lrpg2S/malformed-ux",
+      "run_id": "final-malformed-ux",
+      "revision_id": "fc8b428c-d2fe-454d-995e-87ed890cbd3d",
+      "prefix": ".agdf/control/artefacts/final-malformed-ux/",
+      "setup": [
+        {
+          "command": "run-create",
+          "args": [
+            "--run",
+            "final-malformed-ux"
+          ],
+          "code": 0,
+          "value": null,
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-malformed-ux",
+            "--revision",
+            "4f2b3ccd-9ce9-4607-b6a4-99c242401aa5",
+            "--step",
+            "ur",
+            "--title",
+            "Synthetic saved filter"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-malformed-ux",
+            "step": "ur",
+            "previous_revision_id": "4f2b3ccd-9ce9-4607-b6a4-99c242401aa5",
+            "revision": "2",
+            "revision_id": "2df1f691-4995-417e-b50d-2af5e0ef475e",
+            "current_gate": "UR",
+            "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-malformed-ux",
+            "--revision",
+            "2df1f691-4995-417e-b50d-2af5e0ef475e",
+            "--gate",
+            "UR",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "ecaeac01-8f52-4377-aa41-8ae7c82bcd3d",
+            "created_at": "2026-10-08T19:22:42.387Z",
+            "run_id": "final-malformed-ux",
+            "gate": "UR",
+            "revision_id": "2df1f691-4995-417e-b50d-2af5e0ef475e",
+            "content_digest": "sha256:f6d14d254e3d63a8142ee8d732bfa6cbb452347f389438ec67447be741461006",
+            "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "summary_digest": "sha256:d61b1b0ef89301dc570ac01c02f1a02749ace0ee424ed6d449d56f811f3606c3",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:f651c52cdc61dde593e578afb109c879dc4bb9b7db519073d6675bad00ce73fe",
+            "outcome": "prepared",
+            "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `final-malformed-ux`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `final-malformed-ux` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `final-malformed-ux` · Gate: `UR` · Revision: `2df1f691-4995-417e-b50d-2af5e0ef475e`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `final-malformed-ux` · Gate: `UR` · Revision: `2df1f691-4995-417e-b50d-2af5e0ef475e`\n\nArtefact: [UR.md](</private/tmp/agdf-final-observations-Lrpg2S/malformed-ux/.agdf/control/artefacts/final-malformed-ux/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `final-malformed-ux`\n[UR](.agdf/control/artefacts/final-malformed-ux/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+            "record_digest": "sha256:045f029bd962adf69029e641605602b6c182a0a8ada4193c582c4f3425c11d8f",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-malformed-ux",
+            "--revision",
+            "2df1f691-4995-417e-b50d-2af5e0ef475e",
+            "--gate",
+            "UR",
+            "--presentation",
+            "ecaeac01-8f52-4377-aa41-8ae7c82bcd3d",
+            "--response",
+            "Approval: UR"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "approved",
+            "run_id": "final-malformed-ux",
+            "gate": "UR",
+            "approval": "Approval: UR",
+            "previous_revision_id": "2df1f691-4995-417e-b50d-2af5e0ef475e",
+            "revision": "3",
+            "revision_id": "e998c74b-ce24-42f4-9803-62916c6efa56",
+            "next_gate_after_approval": "Brownfield Review",
+            "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            }
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-malformed-ux",
+            "--revision",
+            "e998c74b-ce24-42f4-9803-62916c6efa56",
+            "--step",
+            "route",
+            "--route",
+            "structured_delivery",
+            "--reason",
+            "Synthetic public-contract test route, never live authorization",
+            "--evidence",
+            ".agdf/control/artefacts/final-malformed-ux/BROWNFIELD_REVIEW.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-malformed-ux",
+            "step": "route",
+            "previous_revision_id": "e998c74b-ce24-42f4-9803-62916c6efa56",
+            "revision": "4",
+            "revision_id": "d7638bf2-5116-4bfa-a8e2-cf24da59ab82",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-malformed-ux",
+            "--revision",
+            "d7638bf2-5116-4bfa-a8e2-cf24da59ab82"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-malformed-ux",
+            "previous_revision_id": "d7638bf2-5116-4bfa-a8e2-cf24da59ab82",
+            "revision": "5",
+            "revision_id": "fc8b428c-d2fe-454d-995e-87ed890cbd3d"
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "unchanged-ux",
+      "target": "/private/tmp/agdf-final-observations-Lrpg2S/unchanged-ux",
+      "run_id": "final-unchanged-ux",
+      "revision_id": "d4c39618-07d7-4ee9-9a27-e8ba8c60496a",
+      "prefix": ".agdf/control/artefacts/final-unchanged-ux/",
+      "setup": [
+        {
+          "command": "run-create",
+          "args": [
+            "--run",
+            "final-unchanged-ux"
+          ],
+          "code": 0,
+          "value": null,
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-unchanged-ux",
+            "--revision",
+            "ca1e7a15-294f-492a-9c18-b1a52e24bb82",
+            "--step",
+            "ur",
+            "--title",
+            "Synthetic saved filter"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-unchanged-ux",
+            "step": "ur",
+            "previous_revision_id": "ca1e7a15-294f-492a-9c18-b1a52e24bb82",
+            "revision": "2",
+            "revision_id": "161be07b-d4a3-4a23-bf74-9ecb2fea2073",
+            "current_gate": "UR",
+            "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-unchanged-ux",
+            "--revision",
+            "161be07b-d4a3-4a23-bf74-9ecb2fea2073",
+            "--gate",
+            "UR",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "c61c880c-0509-4300-b143-2811a2e9da79",
+            "created_at": "2026-10-08T19:22:47.626Z",
+            "run_id": "final-unchanged-ux",
+            "gate": "UR",
+            "revision_id": "161be07b-d4a3-4a23-bf74-9ecb2fea2073",
+            "content_digest": "sha256:d71da8089789499a28ba880eb4d9eb2d9b25e6ffedb05d5ed5d6dd729658833b",
+            "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "summary_digest": "sha256:930c816af63a4e8fd96827ed90f5ce4a2c605fa44558773898c40ac3914fc7c4",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:a7fc00a7cafd5909e3bbc7c88d49041a3038e21b686403cb1f086c9b10ae9a90",
+            "outcome": "prepared",
+            "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `final-unchanged-ux`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `final-unchanged-ux` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `final-unchanged-ux` · Gate: `UR` · Revision: `161be07b-d4a3-4a23-bf74-9ecb2fea2073`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `final-unchanged-ux` · Gate: `UR` · Revision: `161be07b-d4a3-4a23-bf74-9ecb2fea2073`\n\nArtefact: [UR.md](</private/tmp/agdf-final-observations-Lrpg2S/unchanged-ux/.agdf/control/artefacts/final-unchanged-ux/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `final-unchanged-ux`\n[UR](.agdf/control/artefacts/final-unchanged-ux/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+            "record_digest": "sha256:2aa042d2ada3404fd5f4167c6e71c25d61ac1a5c8ac9bdd3bfef29a86f117aec",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-unchanged-ux",
+            "--revision",
+            "161be07b-d4a3-4a23-bf74-9ecb2fea2073",
+            "--gate",
+            "UR",
+            "--presentation",
+            "c61c880c-0509-4300-b143-2811a2e9da79",
+            "--response",
+            "Approval: UR"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "approved",
+            "run_id": "final-unchanged-ux",
+            "gate": "UR",
+            "approval": "Approval: UR",
+            "previous_revision_id": "161be07b-d4a3-4a23-bf74-9ecb2fea2073",
+            "revision": "3",
+            "revision_id": "a298d844-9bdc-4235-b2be-d42ea98f24a9",
+            "next_gate_after_approval": "Brownfield Review",
+            "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            }
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-unchanged-ux",
+            "--revision",
+            "a298d844-9bdc-4235-b2be-d42ea98f24a9",
+            "--step",
+            "route",
+            "--route",
+            "structured_delivery",
+            "--reason",
+            "Synthetic public-contract test route, never live authorization",
+            "--evidence",
+            ".agdf/control/artefacts/final-unchanged-ux/BROWNFIELD_REVIEW.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-unchanged-ux",
+            "step": "route",
+            "previous_revision_id": "a298d844-9bdc-4235-b2be-d42ea98f24a9",
+            "revision": "4",
+            "revision_id": "9bc5d2a3-7631-4aa6-b3d4-20ea97d44a3b",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-unchanged-ux",
+            "--revision",
+            "9bc5d2a3-7631-4aa6-b3d4-20ea97d44a3b"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-unchanged-ux",
+            "previous_revision_id": "9bc5d2a3-7631-4aa6-b3d4-20ea97d44a3b",
+            "revision": "5",
+            "revision_id": "d4c39618-07d7-4ee9-9a27-e8ba8c60496a"
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "resume-ux",
+      "target": "/private/tmp/agdf-final-observations-Lrpg2S/resume-ux",
+      "run_id": "final-resume-ux",
+      "revision_id": "2197e5d8-cbf3-4974-b540-31e07fcbcd87",
+      "prefix": ".agdf/control/artefacts/final-resume-ux/",
+      "setup": [
+        {
+          "command": "run-create",
+          "args": [
+            "--run",
+            "final-resume-ux"
+          ],
+          "code": 0,
+          "value": null,
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-resume-ux",
+            "--revision",
+            "3793f1ac-bed3-408d-b79c-ce4cea5d2ec2",
+            "--step",
+            "ur",
+            "--title",
+            "Synthetic saved filter"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-resume-ux",
+            "step": "ur",
+            "previous_revision_id": "3793f1ac-bed3-408d-b79c-ce4cea5d2ec2",
+            "revision": "2",
+            "revision_id": "94056f3a-307c-4707-be2b-c60b0a0dfea1",
+            "current_gate": "UR",
+            "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-resume-ux",
+            "--revision",
+            "94056f3a-307c-4707-be2b-c60b0a0dfea1",
+            "--gate",
+            "UR",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "6d123520-370a-42b7-8e31-27df61ba3cd6",
+            "created_at": "2026-10-08T19:22:52.831Z",
+            "run_id": "final-resume-ux",
+            "gate": "UR",
+            "revision_id": "94056f3a-307c-4707-be2b-c60b0a0dfea1",
+            "content_digest": "sha256:cd640c9a63541c1ad809c88c2e6a166f4f082fcc267a6916cef3cbdf3bf16f26",
+            "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "summary_digest": "sha256:95514256c5120cde6681aff5d8b82e511c5d1f76e13d1441860273ac2d0d3cd4",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:5e60d3a1cb1392a09cb6afeecce5d2ae6e28a5fd9d577ee7bddebf352fa0c278",
+            "outcome": "prepared",
+            "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `final-resume-ux`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `final-resume-ux` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `final-resume-ux` · Gate: `UR` · Revision: `94056f3a-307c-4707-be2b-c60b0a0dfea1`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `final-resume-ux` · Gate: `UR` · Revision: `94056f3a-307c-4707-be2b-c60b0a0dfea1`\n\nArtefact: [UR.md](</private/tmp/agdf-final-observations-Lrpg2S/resume-ux/.agdf/control/artefacts/final-resume-ux/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `final-resume-ux`\n[UR](.agdf/control/artefacts/final-resume-ux/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+            "record_digest": "sha256:ba922eac1198ea4bd2801151abc7357c24e180e9eab82f92f2a92d9e35cb6cec",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-resume-ux",
+            "--revision",
+            "94056f3a-307c-4707-be2b-c60b0a0dfea1",
+            "--gate",
+            "UR",
+            "--presentation",
+            "6d123520-370a-42b7-8e31-27df61ba3cd6",
+            "--response",
+            "Approval: UR"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "approved",
+            "run_id": "final-resume-ux",
+            "gate": "UR",
+            "approval": "Approval: UR",
+            "previous_revision_id": "94056f3a-307c-4707-be2b-c60b0a0dfea1",
+            "revision": "3",
+            "revision_id": "b80d2d24-eda0-4aa5-ae99-7007bfa92361",
+            "next_gate_after_approval": "Brownfield Review",
+            "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            }
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-resume-ux",
+            "--revision",
+            "b80d2d24-eda0-4aa5-ae99-7007bfa92361",
+            "--step",
+            "route",
+            "--route",
+            "structured_delivery",
+            "--reason",
+            "Synthetic public-contract test route, never live authorization",
+            "--evidence",
+            ".agdf/control/artefacts/final-resume-ux/BROWNFIELD_REVIEW.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-resume-ux",
+            "step": "route",
+            "previous_revision_id": "b80d2d24-eda0-4aa5-ae99-7007bfa92361",
+            "revision": "4",
+            "revision_id": "f401e33b-6a44-4839-b539-c37ff8579608",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-resume-ux",
+            "--revision",
+            "f401e33b-6a44-4839-b539-c37ff8579608"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-resume-ux",
+            "previous_revision_id": "f401e33b-6a44-4839-b539-c37ff8579608",
+            "revision": "5",
+            "revision_id": "2197e5d8-cbf3-4974-b540-31e07fcbcd87"
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "qa-implementation",
+      "target": "/private/tmp/agdf-final-observations-Lrpg2S/qa-implementation",
+      "run_id": "final-qa-implementation",
+      "revision_id": "4fac3ce8-3e7e-4c23-a03d-e90097c378cd",
+      "prefix": ".agdf/control/artefacts/final-qa-implementation/",
+      "setup": [
+        {
+          "command": "run-create",
+          "args": [
+            "--run",
+            "final-qa-implementation"
+          ],
+          "code": 0,
+          "value": null,
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "cd2fb4be-ef16-4211-a12d-59e228ff5fb7",
+            "--step",
+            "ur",
+            "--title",
+            "Synthetic saved filter"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "ur",
+            "previous_revision_id": "cd2fb4be-ef16-4211-a12d-59e228ff5fb7",
+            "revision": "2",
+            "revision_id": "d281feb3-7cb0-49e5-adff-5c6feb740653",
+            "current_gate": "UR",
+            "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "d281feb3-7cb0-49e5-adff-5c6feb740653",
+            "--gate",
+            "UR",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "9f7dbd54-cf85-4457-82c1-3f6659bbccc4",
+            "created_at": "2026-10-08T19:22:58.044Z",
+            "run_id": "final-qa-implementation",
+            "gate": "UR",
+            "revision_id": "d281feb3-7cb0-49e5-adff-5c6feb740653",
+            "content_digest": "sha256:6cdbb627312348f5d0495057c540d92e61a8831bae86359e4a7020259b510afd",
+            "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "summary_digest": "sha256:abf524a310a114a4b9773a71d6e2e3ee5a80601bbba742aa87a7edb989f2eae2",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:3f8352b20c30179a57bc0c1c9a0590a83a0af33e3188a3e09b18bf76f4b7a58e",
+            "outcome": "prepared",
+            "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `final-qa-implementation`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `final-qa-implementation` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `final-qa-implementation` · Gate: `UR` · Revision: `d281feb3-7cb0-49e5-adff-5c6feb740653`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `final-qa-implementation` · Gate: `UR` · Revision: `d281feb3-7cb0-49e5-adff-5c6feb740653`\n\nArtefact: [UR.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-implementation/.agdf/control/artefacts/final-qa-implementation/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `final-qa-implementation`\n[UR](.agdf/control/artefacts/final-qa-implementation/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+            "record_digest": "sha256:113e43da4539745ecd651149c28241228751ffe1428be1393aa7b89599247bc3",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "d281feb3-7cb0-49e5-adff-5c6feb740653",
+            "--gate",
+            "UR",
+            "--presentation",
+            "9f7dbd54-cf85-4457-82c1-3f6659bbccc4",
+            "--response",
+            "Approval: UR",
+            "--operation",
+            "2932ce84-c445-45c3-9d47-8e4a5af39212"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "2932ce84-c445-45c3-9d47-8e4a5af39212",
+            "request_digest": "sha256:63db9495c6365cda198430003368785db5a6ff339801d1a300bf41fceca63a5a",
+            "binding": {
+              "target_id": "sha256:3227cfd5c0dfae266744bbb28eccc6814bd441c9e8f30b2beef38859334b8484",
+              "run_id": "final-qa-implementation",
+              "gate": "UR",
+              "expected_revision_id": "d281feb3-7cb0-49e5-adff-5c6feb740653",
+              "presentation_id": "9f7dbd54-cf85-4457-82c1-3f6659bbccc4"
+            },
+            "effect": {
+              "previous_revision_id": "d281feb3-7cb0-49e5-adff-5c6feb740653",
+              "resulting_revision_id": "6797dcad-499f-4345-b1f6-55d4b600befb",
+              "revision": 3,
+              "gate": "UR",
+              "approval": "Approval: UR",
+              "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "presentation_digest": "sha256:113e43da4539745ecd651149c28241228751ffe1428be1393aa7b89599247bc3",
+              "next_gate_after_approval": "Brownfield Review",
+              "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 3,
+              "revision_id": "6797dcad-499f-4345-b1f6-55d4b600befb",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "Brownfield Review",
+              "status": "open",
+              "missing_approval": "none",
+              "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "6797dcad-499f-4345-b1f6-55d4b600befb",
+            "--step",
+            "route",
+            "--route",
+            "structured_delivery",
+            "--reason",
+            "Synthetic public-contract test route, never live authorization",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-implementation/BROWNFIELD_REVIEW.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "route",
+            "previous_revision_id": "6797dcad-499f-4345-b1f6-55d4b600befb",
+            "revision": "4",
+            "revision_id": "2a31908f-764f-499f-b25c-53503641bcf5",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "2a31908f-764f-499f-b25c-53503641bcf5",
+            "--step",
+            "artefact",
+            "--gate",
+            "PRD",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-implementation/recording-db45c69c-e652-4e26-ba59-5be10f2cb81a.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "artefact",
+            "previous_revision_id": "2a31908f-764f-499f-b25c-53503641bcf5",
+            "revision": "5",
+            "revision_id": "84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb",
+            "--gate",
+            "PRD",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "1bb0a304-b278-4c74-b8ac-7e8dfbf5a365",
+            "created_at": "2026-10-08T19:23:01.465Z",
+            "run_id": "final-qa-implementation",
+            "gate": "PRD",
+            "revision_id": "84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb",
+            "content_digest": "sha256:3bcf63544ae07f9d1c6ce6127632aaced21fa0a6b76aad0644d8fbebd981cb28",
+            "artefact_digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "summary_digest": "sha256:76c51d571c1381c68c0b3071a90505aaf19f7a2c7e4821fc6dcfef43850ef89f",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:b93dd721502365bf7907b5044c94429b8da9d1b22a6b9a4034cc1cc491a71e68",
+            "outcome": "prepared",
+            "text": "## Review and decide on product requirements\nSelected run: PRD: Synthetic saved filter · `final-qa-implementation`\nAGDF status-card: Ready for your decision\nCurrent gate: Product requirements (`PRD`)\nRequired decision: Product Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | PRD: Synthetic saved filter · `final-qa-implementation` |\n| Path | ✓ UR · ● PRD · ○ SD · ○ TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Product requirements (`PRD`) |\n| Your decision | Approval: PRD · Revise · Decline |\n| Agent may work on now | draft or refine PRD<br>define scope<br>define acceptance criteria<br>define non-goals<br>request exact PRD approval |\n| Forbidden now | create SD<br>create TP<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: PRD |\n\n## Review summary · PRD\n\nRun: `final-qa-implementation` · Gate: `PRD` · Revision: `84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb`\n\n- Product scope: Save and restore one named user-owned filter. No sharing or permissions change.\n- Acceptance criteria:\n  - AC-001: The restored filter values equal the saved values.\n- Decisions:\n  - Saved-filter ownership (resolved): Only the saving user owns the filter\n\n## Review artefact · PRD\n\nRun: `final-qa-implementation` · Gate: `PRD` · Revision: `84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb`\n\nArtefact: [PRD.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-implementation/.agdf/control/artefacts/final-qa-implementation/PRD.md>)\n\nSHA-256: `sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2`\n\nOpen the linked version before deciding.\n\nProduct requirements · PRD: Synthetic saved filter · `final-qa-implementation`\n[UR](.agdf/control/artefacts/final-qa-implementation/UR.md) · [PRD](.agdf/control/artefacts/final-qa-implementation/PRD.md) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: PRD` Draft the solution design; implementation remains blocked.\n\nNext\nAfter your PRD approval, the agent drafts the Solution Design. Once the draft is ready, you will review and decide on the Solution Design.\n\nTo approve, reply exactly with `Approval: PRD`; otherwise request revision or decline.",
+            "record_digest": "sha256:bbcccead42496d6e082ab897b64cd5dc7ff9693be652be21dc2b1cec6caad07e",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb",
+            "--gate",
+            "PRD",
+            "--presentation",
+            "1bb0a304-b278-4c74-b8ac-7e8dfbf5a365",
+            "--response",
+            "Approval: PRD",
+            "--operation",
+            "78696cf0-e1db-427c-b0c9-a9223ea68db4"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "78696cf0-e1db-427c-b0c9-a9223ea68db4",
+            "request_digest": "sha256:4691df517781d4411b343cbfd72fca14685ad168f1535a4d883af9ed5f7b8851",
+            "binding": {
+              "target_id": "sha256:3227cfd5c0dfae266744bbb28eccc6814bd441c9e8f30b2beef38859334b8484",
+              "run_id": "final-qa-implementation",
+              "gate": "PRD",
+              "expected_revision_id": "84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb",
+              "presentation_id": "1bb0a304-b278-4c74-b8ac-7e8dfbf5a365"
+            },
+            "effect": {
+              "previous_revision_id": "84c395a4-f7d8-4e26-ba8b-0c5e4533d0fb",
+              "resulting_revision_id": "c9145866-d390-4dbd-ba3a-58ca2e07b76c",
+              "revision": 6,
+              "gate": "PRD",
+              "approval": "Approval: PRD",
+              "artefact_digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "presentation_digest": "sha256:bbcccead42496d6e082ab897b64cd5dc7ff9693be652be21dc2b1cec6caad07e",
+              "next_gate_after_approval": "SD",
+              "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 6,
+              "revision_id": "c9145866-d390-4dbd-ba3a-58ca2e07b76c",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "SD",
+              "status": "open",
+              "missing_approval": "Approval: SD",
+              "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "c9145866-d390-4dbd-ba3a-58ca2e07b76c",
+            "--step",
+            "artefact",
+            "--gate",
+            "SD",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-implementation/record-3729bdf2-b1bd-4603-a3f2-f9e53e101a4c.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "artefact",
+            "previous_revision_id": "c9145866-d390-4dbd-ba3a-58ca2e07b76c",
+            "revision": "7",
+            "revision_id": "48c3d234-45cd-4a8c-b789-c3da7561cf2d",
+            "current_gate": "SD",
+            "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "48c3d234-45cd-4a8c-b789-c3da7561cf2d",
+            "--gate",
+            "SD",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "0c5a7c03-fec1-424e-af05-5dc368ec5bab",
+            "created_at": "2026-10-08T19:23:04.277Z",
+            "run_id": "final-qa-implementation",
+            "gate": "SD",
+            "revision_id": "48c3d234-45cd-4a8c-b789-c3da7561cf2d",
+            "content_digest": "sha256:cc1cff01186609db7e5dff7bc4d14fe47b29fecdc0bcdba539352c307ccf17ec",
+            "artefact_digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189",
+            "summary_digest": "sha256:a7c8c624ceaa1a6045312263fa160734aafef731f555d543f346d41729e80951",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:2438cad01b8989d9687451142b4a9ae72ab544e60ee81bace9c3c5f4cc0572f5",
+            "outcome": "prepared",
+            "text": "## Review and decide on solution design\nSelected run: SD: Synthetic saved filter · `final-qa-implementation`\nAGDF status-card: Ready for your decision\nCurrent gate: Solution design (`SD`)\nRequired decision: Solution Design approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | SD: Synthetic saved filter · `final-qa-implementation` |\n| Path | ✓ UR · ✓ PRD · ● SD · ○ TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Solution design (`SD`) |\n| Your decision | Approval: SD · Revise · Decline |\n| Agent may work on now | draft or refine Solution Design<br>define architecture<br>define ownership<br>request exact SD approval |\n| Forbidden now | create TP<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: SD |\n\n## Review summary · SD\n\nRun: `final-qa-implementation` · Gate: `SD` · Revision: `48c3d234-45cd-4a8c-b789-c3da7561cf2d`\n\n- Solution: Reuse the existing user-owned filter store.\n- Ownership: Existing filter service retains ownership; the approved PRD remains product authority.\n- Design decisions: SDD-001: Reuse the existing filter service; rationale: retain user ownership; consequence: no shared filters.\n\n## Review artefact · SD\n\nRun: `final-qa-implementation` · Gate: `SD` · Revision: `48c3d234-45cd-4a8c-b789-c3da7561cf2d`\n\nArtefact: [SD.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-implementation/.agdf/control/artefacts/final-qa-implementation/SD.md>)\n\nSHA-256: `sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189`\n\nOpen the linked version before deciding.\n\nSolution design · SD: Synthetic saved filter · `final-qa-implementation`\n[UR](.agdf/control/artefacts/final-qa-implementation/UR.md) · [PRD](.agdf/control/artefacts/final-qa-implementation/PRD.md) · [SD](.agdf/control/artefacts/final-qa-implementation/SD.md) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: SD` Draft the task and test plan; implementation remains blocked.\n\nNext\nAgent drafts the Task and Test Plan next. Task and test plan will be the next user decision.\n\nTo approve, reply exactly with `Approval: SD`; otherwise request revision or decline.",
+            "record_digest": "sha256:4a6b6bed191d096c2856e29b5c4a11cf80a5ad0bbb785a197d142c021debb09f",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "48c3d234-45cd-4a8c-b789-c3da7561cf2d",
+            "--gate",
+            "SD",
+            "--presentation",
+            "0c5a7c03-fec1-424e-af05-5dc368ec5bab",
+            "--response",
+            "Approval: SD",
+            "--operation",
+            "29168ce8-ea99-44d5-9d8f-ed4459d469fa"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "29168ce8-ea99-44d5-9d8f-ed4459d469fa",
+            "request_digest": "sha256:0f29db65a1c8b5496786a35ddd0e135a2825c26e7dd03a68bc795ac35e6ebd86",
+            "binding": {
+              "target_id": "sha256:3227cfd5c0dfae266744bbb28eccc6814bd441c9e8f30b2beef38859334b8484",
+              "run_id": "final-qa-implementation",
+              "gate": "SD",
+              "expected_revision_id": "48c3d234-45cd-4a8c-b789-c3da7561cf2d",
+              "presentation_id": "0c5a7c03-fec1-424e-af05-5dc368ec5bab"
+            },
+            "effect": {
+              "previous_revision_id": "48c3d234-45cd-4a8c-b789-c3da7561cf2d",
+              "resulting_revision_id": "b521e73b-fa09-437f-8255-7284c2b58a65",
+              "revision": 8,
+              "gate": "SD",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189",
+              "presentation_digest": "sha256:4a6b6bed191d096c2856e29b5c4a11cf80a5ad0bbb785a197d142c021debb09f",
+              "next_gate_after_approval": "TP",
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 8,
+              "revision_id": "b521e73b-fa09-437f-8255-7284c2b58a65",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "TP",
+              "status": "open",
+              "missing_approval": "Approval: TP",
+              "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "b521e73b-fa09-437f-8255-7284c2b58a65",
+            "--step",
+            "artefact",
+            "--gate",
+            "TP",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-implementation/record-4afdeeae-2b66-4cb6-91f3-a10efeff82cc.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "artefact",
+            "previous_revision_id": "b521e73b-fa09-437f-8255-7284c2b58a65",
+            "revision": "9",
+            "revision_id": "d286fbc5-ce8b-4bcc-952e-3d2c1296d73e",
+            "current_gate": "TP",
+            "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "d286fbc5-ce8b-4bcc-952e-3d2c1296d73e",
+            "--gate",
+            "TP",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "58873a18-6bf8-46fd-b20f-5ecc93894407",
+            "created_at": "2026-10-08T19:23:07.102Z",
+            "run_id": "final-qa-implementation",
+            "gate": "TP",
+            "revision_id": "d286fbc5-ce8b-4bcc-952e-3d2c1296d73e",
+            "content_digest": "sha256:452581659614b78f89b3efd2ee57b7e3a2db1e43156b4de1b5817665f3b7afa9",
+            "artefact_digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32",
+            "summary_digest": "sha256:adf4c1485d0f7aff91702077e7dda67f48bcdca5e9b0fda231995c2ec6a63207",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:753d501f3c13b6835d85806003416e772d30fb576cce41fdf59cbcbc8dd4690e",
+            "outcome": "prepared",
+            "text": "## Review and decide on task and test plan\nSelected run: TP: Synthetic saved filter · `final-qa-implementation`\nAGDF status-card: Ready for your decision\nCurrent gate: Task and test plan (`TP`)\nRequired decision: Task and Test Plan approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | TP: Synthetic saved filter · `final-qa-implementation` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Task and test plan (`TP`) |\n| Your decision | Approval: TP · Revise · Decline |\n| Agent may work on now | draft or refine Task/Test Plan<br>define task IDs<br>define test evidence<br>request exact TP approval |\n| Forbidden now | implement code<br>claim QA or release readiness |\n| Waiting for | Approval: TP |\n\n## Review summary · TP\n\nRun: `final-qa-implementation` · Gate: `TP` · Revision: `d286fbc5-ce8b-4bcc-952e-3d2c1296d73e`\n\n- Tasks: T-001 — Save and restore the user-owned filter using the existing store.\n\n## Review artefact · TP\n\nRun: `final-qa-implementation` · Gate: `TP` · Revision: `d286fbc5-ce8b-4bcc-952e-3d2c1296d73e`\n\nArtefact: [TP.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-implementation/.agdf/control/artefacts/final-qa-implementation/TP.md>)\n\nSHA-256: `sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32`\n\nOpen the linked version before deciding.\n\nTask and test plan · TP: Synthetic saved filter · `final-qa-implementation`\n[UR](.agdf/control/artefacts/final-qa-implementation/UR.md) · [PRD](.agdf/control/artefacts/final-qa-implementation/PRD.md) · [SD](.agdf/control/artefacts/final-qa-implementation/SD.md) · [TP](.agdf/control/artefacts/final-qa-implementation/TP.md)\nReady for your decision\n\nApprove now\n`Approval: TP` Run pre-implementation Brownfield Analysis; implementation starts only if it passes.\n\nNext\nAgent runs pre-implementation Brownfield Analysis next. No user action required now.\n\nTo approve, reply exactly with `Approval: TP`; otherwise request revision or decline.",
+            "record_digest": "sha256:774e2a0fc3ed945502fbc0f450d38aa119a4513930b0d1e16c55c32f55d725c9",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "d286fbc5-ce8b-4bcc-952e-3d2c1296d73e",
+            "--gate",
+            "TP",
+            "--presentation",
+            "58873a18-6bf8-46fd-b20f-5ecc93894407",
+            "--response",
+            "Approval: TP",
+            "--operation",
+            "a22bbe23-30df-4041-87e0-b295dd8e7d5a"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "a22bbe23-30df-4041-87e0-b295dd8e7d5a",
+            "request_digest": "sha256:16208be608ff7cd72178988be923346e729ac2819a90b4e94087d5e5821912b1",
+            "binding": {
+              "target_id": "sha256:3227cfd5c0dfae266744bbb28eccc6814bd441c9e8f30b2beef38859334b8484",
+              "run_id": "final-qa-implementation",
+              "gate": "TP",
+              "expected_revision_id": "d286fbc5-ce8b-4bcc-952e-3d2c1296d73e",
+              "presentation_id": "58873a18-6bf8-46fd-b20f-5ecc93894407"
+            },
+            "effect": {
+              "previous_revision_id": "d286fbc5-ce8b-4bcc-952e-3d2c1296d73e",
+              "resulting_revision_id": "b423d07f-5654-4eb1-a717-c9a248986a51",
+              "revision": 10,
+              "gate": "TP",
+              "approval": "Approval: TP",
+              "artefact_digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32",
+              "presentation_digest": "sha256:774e2a0fc3ed945502fbc0f450d38aa119a4513930b0d1e16c55c32f55d725c9",
+              "next_gate_after_approval": "Brownfield Analysis",
+              "allowed_after_approval": "Run Brownfield Analysis for the approved TP scope before CD+Tests."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 10,
+              "revision_id": "b423d07f-5654-4eb1-a717-c9a248986a51",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "Brownfield Analysis",
+              "status": "open",
+              "missing_approval": "none",
+              "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "b423d07f-5654-4eb1-a717-c9a248986a51"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-qa-implementation",
+            "previous_revision_id": "b423d07f-5654-4eb1-a717-c9a248986a51",
+            "revision": "11",
+            "revision_id": "a12824a5-4c2d-4d9b-8584-d29c17f5ba2e"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "a12824a5-4c2d-4d9b-8584-d29c17f5ba2e",
+            "--step",
+            "evidence",
+            "--evidence",
+            "Synthetic current preparation observed",
+            "--source",
+            ".agdf/control/artefacts/final-qa-implementation/BROWNFIELD_ANALYSIS.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "evidence",
+            "previous_revision_id": "a12824a5-4c2d-4d9b-8584-d29c17f5ba2e",
+            "revision": "12",
+            "revision_id": "9702d799-2fd7-470f-87ba-d110eb7898cc",
+            "current_gate": "CD+Tests",
+            "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+            "backlog": "unchanged"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "9702d799-2fd7-470f-87ba-d110eb7898cc"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-qa-implementation",
+            "previous_revision_id": "9702d799-2fd7-470f-87ba-d110eb7898cc",
+            "revision": "13",
+            "revision_id": "0eccb8e8-dda6-4f32-9a8b-d2e8d78e5560"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-implementation",
+            "--revision",
+            "0eccb8e8-dda6-4f32-9a8b-d2e8d78e5560",
+            "--step",
+            "artefact",
+            "--gate",
+            "QA",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-implementation/initial-qa-recording.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-implementation",
+            "step": "artefact",
+            "previous_revision_id": "0eccb8e8-dda6-4f32-9a8b-d2e8d78e5560",
+            "revision": "14",
+            "revision_id": "4fac3ce8-3e7e-4c23-a03d-e90097c378cd",
+            "current_gate": "QA",
+            "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "qa-evidence",
+      "target": "/private/tmp/agdf-final-observations-Lrpg2S/qa-evidence",
+      "run_id": "final-qa-evidence",
+      "revision_id": "837aaf3d-8b00-430d-b4fe-4a8f9fa71697",
+      "prefix": ".agdf/control/artefacts/final-qa-evidence/",
+      "setup": [
+        {
+          "command": "run-create",
+          "args": [
+            "--run",
+            "final-qa-evidence"
+          ],
+          "code": 0,
+          "value": null,
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "24ec2994-10f3-4751-910f-384a996abf56",
+            "--step",
+            "ur",
+            "--title",
+            "Synthetic saved filter"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "ur",
+            "previous_revision_id": "24ec2994-10f3-4751-910f-384a996abf56",
+            "revision": "2",
+            "revision_id": "50d0a3c2-2587-4a1b-ac83-18fa4774f46d",
+            "current_gate": "UR",
+            "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "50d0a3c2-2587-4a1b-ac83-18fa4774f46d",
+            "--gate",
+            "UR",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "bf15b78b-7ecd-46f9-8a30-3419156dd1ca",
+            "created_at": "2026-10-08T19:23:13.981Z",
+            "run_id": "final-qa-evidence",
+            "gate": "UR",
+            "revision_id": "50d0a3c2-2587-4a1b-ac83-18fa4774f46d",
+            "content_digest": "sha256:153a12cc503f9e08af7606945db7d8ebe5beafbadd59ac9c004cf3f1895b01bd",
+            "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "summary_digest": "sha256:cf85f84bb338f5c2fe2b48b7302c403e8abc076c8dd9baad406e4ae4cdf7b021",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:56f5a59030a87295b1c067ec5e247d281302d58b621e6efebd280180bb7ef978",
+            "outcome": "prepared",
+            "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `final-qa-evidence`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `final-qa-evidence` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `final-qa-evidence` · Gate: `UR` · Revision: `50d0a3c2-2587-4a1b-ac83-18fa4774f46d`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `final-qa-evidence` · Gate: `UR` · Revision: `50d0a3c2-2587-4a1b-ac83-18fa4774f46d`\n\nArtefact: [UR.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-evidence/.agdf/control/artefacts/final-qa-evidence/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `final-qa-evidence`\n[UR](.agdf/control/artefacts/final-qa-evidence/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+            "record_digest": "sha256:68cc1d9ac6f56b1c6c8dfb779f99c1a62241e5d8bd1bacbd8e95e0e0d624f634",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "50d0a3c2-2587-4a1b-ac83-18fa4774f46d",
+            "--gate",
+            "UR",
+            "--presentation",
+            "bf15b78b-7ecd-46f9-8a30-3419156dd1ca",
+            "--response",
+            "Approval: UR",
+            "--operation",
+            "681d194b-73d3-41e0-a8ab-2bf8f875de95"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "681d194b-73d3-41e0-a8ab-2bf8f875de95",
+            "request_digest": "sha256:e2c68f43c5a3a36612ac34d08bc66029d00e13d3868fc9e84c02000731a18ebe",
+            "binding": {
+              "target_id": "sha256:778e3c3ac07114367cfae6bda556f1801db3e9ac254d6166ee6d7c88a1e5511a",
+              "run_id": "final-qa-evidence",
+              "gate": "UR",
+              "expected_revision_id": "50d0a3c2-2587-4a1b-ac83-18fa4774f46d",
+              "presentation_id": "bf15b78b-7ecd-46f9-8a30-3419156dd1ca"
+            },
+            "effect": {
+              "previous_revision_id": "50d0a3c2-2587-4a1b-ac83-18fa4774f46d",
+              "resulting_revision_id": "57bfc3dc-4cdb-4e83-890f-87e4f0884394",
+              "revision": 3,
+              "gate": "UR",
+              "approval": "Approval: UR",
+              "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "presentation_digest": "sha256:68cc1d9ac6f56b1c6c8dfb779f99c1a62241e5d8bd1bacbd8e95e0e0d624f634",
+              "next_gate_after_approval": "Brownfield Review",
+              "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 3,
+              "revision_id": "57bfc3dc-4cdb-4e83-890f-87e4f0884394",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "Brownfield Review",
+              "status": "open",
+              "missing_approval": "none",
+              "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "57bfc3dc-4cdb-4e83-890f-87e4f0884394",
+            "--step",
+            "route",
+            "--route",
+            "structured_delivery",
+            "--reason",
+            "Synthetic public-contract test route, never live authorization",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-evidence/BROWNFIELD_REVIEW.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "route",
+            "previous_revision_id": "57bfc3dc-4cdb-4e83-890f-87e4f0884394",
+            "revision": "4",
+            "revision_id": "3cb05d31-45d6-47b0-a821-22986d943c0e",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "3cb05d31-45d6-47b0-a821-22986d943c0e",
+            "--step",
+            "artefact",
+            "--gate",
+            "PRD",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-evidence/recording-8d25ca88-76d3-4808-bb10-fa852e78331b.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "artefact",
+            "previous_revision_id": "3cb05d31-45d6-47b0-a821-22986d943c0e",
+            "revision": "5",
+            "revision_id": "1fe992fd-3794-41aa-a414-c744a22d09a8",
+            "current_gate": "PRD",
+            "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "1fe992fd-3794-41aa-a414-c744a22d09a8",
+            "--gate",
+            "PRD",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "5a9fbc3e-b2e9-4a5b-8e1a-50e5dcd1b092",
+            "created_at": "2026-10-08T19:23:17.387Z",
+            "run_id": "final-qa-evidence",
+            "gate": "PRD",
+            "revision_id": "1fe992fd-3794-41aa-a414-c744a22d09a8",
+            "content_digest": "sha256:6e2690d974265287da6a56b954bc24afc69188e808e062253cafb58c292c6db3",
+            "artefact_digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "summary_digest": "sha256:54af2f99ae941cbf3fa8792f52169cb6984a58a4f416270ad7926572d28d63f5",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:da53941fe882d4b0ea4831eed99c5b06c2b7bc02f1658da20fb7a3ba0a4681dc",
+            "outcome": "prepared",
+            "text": "## Review and decide on product requirements\nSelected run: PRD: Synthetic saved filter · `final-qa-evidence`\nAGDF status-card: Ready for your decision\nCurrent gate: Product requirements (`PRD`)\nRequired decision: Product Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | PRD: Synthetic saved filter · `final-qa-evidence` |\n| Path | ✓ UR · ● PRD · ○ SD · ○ TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Product requirements (`PRD`) |\n| Your decision | Approval: PRD · Revise · Decline |\n| Agent may work on now | draft or refine PRD<br>define scope<br>define acceptance criteria<br>define non-goals<br>request exact PRD approval |\n| Forbidden now | create SD<br>create TP<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: PRD |\n\n## Review summary · PRD\n\nRun: `final-qa-evidence` · Gate: `PRD` · Revision: `1fe992fd-3794-41aa-a414-c744a22d09a8`\n\n- Product scope: Save and restore one named user-owned filter. No sharing or permissions change.\n- Acceptance criteria:\n  - AC-001: The restored filter values equal the saved values.\n- Decisions:\n  - Saved-filter ownership (resolved): Only the saving user owns the filter\n\n## Review artefact · PRD\n\nRun: `final-qa-evidence` · Gate: `PRD` · Revision: `1fe992fd-3794-41aa-a414-c744a22d09a8`\n\nArtefact: [PRD.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-evidence/.agdf/control/artefacts/final-qa-evidence/PRD.md>)\n\nSHA-256: `sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2`\n\nOpen the linked version before deciding.\n\nProduct requirements · PRD: Synthetic saved filter · `final-qa-evidence`\n[UR](.agdf/control/artefacts/final-qa-evidence/UR.md) · [PRD](.agdf/control/artefacts/final-qa-evidence/PRD.md) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: PRD` Draft the solution design; implementation remains blocked.\n\nNext\nAfter your PRD approval, the agent drafts the Solution Design. Once the draft is ready, you will review and decide on the Solution Design.\n\nTo approve, reply exactly with `Approval: PRD`; otherwise request revision or decline.",
+            "record_digest": "sha256:ac7034ced673ad8125d8780e3cac37c3dc5a02643d9f65ce553f16ecc38c08e1",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "1fe992fd-3794-41aa-a414-c744a22d09a8",
+            "--gate",
+            "PRD",
+            "--presentation",
+            "5a9fbc3e-b2e9-4a5b-8e1a-50e5dcd1b092",
+            "--response",
+            "Approval: PRD",
+            "--operation",
+            "13218af7-2510-40bf-971b-50d5e29bf44e"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "13218af7-2510-40bf-971b-50d5e29bf44e",
+            "request_digest": "sha256:3c43a731c2ce4cb987c249eba1d682d05393f50bc63667497d77534d7e1fa680",
+            "binding": {
+              "target_id": "sha256:778e3c3ac07114367cfae6bda556f1801db3e9ac254d6166ee6d7c88a1e5511a",
+              "run_id": "final-qa-evidence",
+              "gate": "PRD",
+              "expected_revision_id": "1fe992fd-3794-41aa-a414-c744a22d09a8",
+              "presentation_id": "5a9fbc3e-b2e9-4a5b-8e1a-50e5dcd1b092"
+            },
+            "effect": {
+              "previous_revision_id": "1fe992fd-3794-41aa-a414-c744a22d09a8",
+              "resulting_revision_id": "d77ce83e-2377-49ff-a0a7-b85778435731",
+              "revision": 6,
+              "gate": "PRD",
+              "approval": "Approval: PRD",
+              "artefact_digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "presentation_digest": "sha256:ac7034ced673ad8125d8780e3cac37c3dc5a02643d9f65ce553f16ecc38c08e1",
+              "next_gate_after_approval": "SD",
+              "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 6,
+              "revision_id": "d77ce83e-2377-49ff-a0a7-b85778435731",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "SD",
+              "status": "open",
+              "missing_approval": "Approval: SD",
+              "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "d77ce83e-2377-49ff-a0a7-b85778435731",
+            "--step",
+            "artefact",
+            "--gate",
+            "SD",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-evidence/record-87dc8905-8596-4697-a473-42f8f1461870.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "artefact",
+            "previous_revision_id": "d77ce83e-2377-49ff-a0a7-b85778435731",
+            "revision": "7",
+            "revision_id": "5869f9e6-c0a0-4860-97ca-488fef60056c",
+            "current_gate": "SD",
+            "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "5869f9e6-c0a0-4860-97ca-488fef60056c",
+            "--gate",
+            "SD",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "c487316e-6bf8-4026-97ea-be4e15920f88",
+            "created_at": "2026-10-08T19:23:20.178Z",
+            "run_id": "final-qa-evidence",
+            "gate": "SD",
+            "revision_id": "5869f9e6-c0a0-4860-97ca-488fef60056c",
+            "content_digest": "sha256:783f54128eaa42f395b84606eff1da862393619256fc6e3e02e592d0dde392dc",
+            "artefact_digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189",
+            "summary_digest": "sha256:4f7019cfd57bd67766cd81019923d593d63e518f0c0f706df38befe932986d13",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:a31abfa8c637d918fd71c3f647959ffa3079ca6a22503641e61feafdb011502f",
+            "outcome": "prepared",
+            "text": "## Review and decide on solution design\nSelected run: SD: Synthetic saved filter · `final-qa-evidence`\nAGDF status-card: Ready for your decision\nCurrent gate: Solution design (`SD`)\nRequired decision: Solution Design approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | SD: Synthetic saved filter · `final-qa-evidence` |\n| Path | ✓ UR · ✓ PRD · ● SD · ○ TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Solution design (`SD`) |\n| Your decision | Approval: SD · Revise · Decline |\n| Agent may work on now | draft or refine Solution Design<br>define architecture<br>define ownership<br>request exact SD approval |\n| Forbidden now | create TP<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: SD |\n\n## Review summary · SD\n\nRun: `final-qa-evidence` · Gate: `SD` · Revision: `5869f9e6-c0a0-4860-97ca-488fef60056c`\n\n- Solution: Reuse the existing user-owned filter store.\n- Ownership: Existing filter service retains ownership; the approved PRD remains product authority.\n- Design decisions: SDD-001: Reuse the existing filter service; rationale: retain user ownership; consequence: no shared filters.\n\n## Review artefact · SD\n\nRun: `final-qa-evidence` · Gate: `SD` · Revision: `5869f9e6-c0a0-4860-97ca-488fef60056c`\n\nArtefact: [SD.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-evidence/.agdf/control/artefacts/final-qa-evidence/SD.md>)\n\nSHA-256: `sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189`\n\nOpen the linked version before deciding.\n\nSolution design · SD: Synthetic saved filter · `final-qa-evidence`\n[UR](.agdf/control/artefacts/final-qa-evidence/UR.md) · [PRD](.agdf/control/artefacts/final-qa-evidence/PRD.md) · [SD](.agdf/control/artefacts/final-qa-evidence/SD.md) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: SD` Draft the task and test plan; implementation remains blocked.\n\nNext\nAgent drafts the Task and Test Plan next. Task and test plan will be the next user decision.\n\nTo approve, reply exactly with `Approval: SD`; otherwise request revision or decline.",
+            "record_digest": "sha256:39b2b8c188a255065b91317f3e6dd8f908c0aed6d94b482100b2636a9f3483a1",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "5869f9e6-c0a0-4860-97ca-488fef60056c",
+            "--gate",
+            "SD",
+            "--presentation",
+            "c487316e-6bf8-4026-97ea-be4e15920f88",
+            "--response",
+            "Approval: SD",
+            "--operation",
+            "4ed338fa-9e94-4d6f-aa93-8e422cb520e2"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "4ed338fa-9e94-4d6f-aa93-8e422cb520e2",
+            "request_digest": "sha256:eec0c5f51c9269396a7aed440b614e9cfb24feedb45f98a640df830ee78b4c20",
+            "binding": {
+              "target_id": "sha256:778e3c3ac07114367cfae6bda556f1801db3e9ac254d6166ee6d7c88a1e5511a",
+              "run_id": "final-qa-evidence",
+              "gate": "SD",
+              "expected_revision_id": "5869f9e6-c0a0-4860-97ca-488fef60056c",
+              "presentation_id": "c487316e-6bf8-4026-97ea-be4e15920f88"
+            },
+            "effect": {
+              "previous_revision_id": "5869f9e6-c0a0-4860-97ca-488fef60056c",
+              "resulting_revision_id": "62aef348-a8e2-412d-824c-f81d6514d128",
+              "revision": 8,
+              "gate": "SD",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189",
+              "presentation_digest": "sha256:39b2b8c188a255065b91317f3e6dd8f908c0aed6d94b482100b2636a9f3483a1",
+              "next_gate_after_approval": "TP",
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 8,
+              "revision_id": "62aef348-a8e2-412d-824c-f81d6514d128",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "TP",
+              "status": "open",
+              "missing_approval": "Approval: TP",
+              "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "62aef348-a8e2-412d-824c-f81d6514d128",
+            "--step",
+            "artefact",
+            "--gate",
+            "TP",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-evidence/record-ec336bfe-841d-4b27-b9e4-44e0930acd3f.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "artefact",
+            "previous_revision_id": "62aef348-a8e2-412d-824c-f81d6514d128",
+            "revision": "9",
+            "revision_id": "e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1",
+            "current_gate": "TP",
+            "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-present",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1",
+            "--gate",
+            "TP",
+            "--language",
+            "en"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "presentation_id": "93fcb01c-0b56-4551-82e4-9f5b01b33b20",
+            "created_at": "2026-10-08T19:23:22.994Z",
+            "run_id": "final-qa-evidence",
+            "gate": "TP",
+            "revision_id": "e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1",
+            "content_digest": "sha256:bc50da09b5231ddb28b69e6835ded7c8d85d61be5ae0b561c0edaac3ddf4cfc9",
+            "artefact_digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32",
+            "summary_digest": "sha256:9519d4d633a555008b2af7ca24e44e8d27ea3452cc3f30cd5ebf67beb9d4851f",
+            "presentation_language": "en",
+            "presentation_digest": "sha256:ad45052efc828288e9f58db049b862a3e1d915fbe783dcff068d1a9fcc9d7984",
+            "outcome": "prepared",
+            "text": "## Review and decide on task and test plan\nSelected run: TP: Synthetic saved filter · `final-qa-evidence`\nAGDF status-card: Ready for your decision\nCurrent gate: Task and test plan (`TP`)\nRequired decision: Task and Test Plan approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | TP: Synthetic saved filter · `final-qa-evidence` |\n| Path | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT |\n| Status | open |\n| Current gate | Task and test plan (`TP`) |\n| Your decision | Approval: TP · Revise · Decline |\n| Agent may work on now | draft or refine Task/Test Plan<br>define task IDs<br>define test evidence<br>request exact TP approval |\n| Forbidden now | implement code<br>claim QA or release readiness |\n| Waiting for | Approval: TP |\n\n## Review summary · TP\n\nRun: `final-qa-evidence` · Gate: `TP` · Revision: `e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1`\n\n- Tasks: T-001 — Save and restore the user-owned filter using the existing store.\n\n## Review artefact · TP\n\nRun: `final-qa-evidence` · Gate: `TP` · Revision: `e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1`\n\nArtefact: [TP.md](</private/tmp/agdf-final-observations-Lrpg2S/qa-evidence/.agdf/control/artefacts/final-qa-evidence/TP.md>)\n\nSHA-256: `sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32`\n\nOpen the linked version before deciding.\n\nTask and test plan · TP: Synthetic saved filter · `final-qa-evidence`\n[UR](.agdf/control/artefacts/final-qa-evidence/UR.md) · [PRD](.agdf/control/artefacts/final-qa-evidence/PRD.md) · [SD](.agdf/control/artefacts/final-qa-evidence/SD.md) · [TP](.agdf/control/artefacts/final-qa-evidence/TP.md)\nReady for your decision\n\nApprove now\n`Approval: TP` Run pre-implementation Brownfield Analysis; implementation starts only if it passes.\n\nNext\nAgent runs pre-implementation Brownfield Analysis next. No user action required now.\n\nTo approve, reply exactly with `Approval: TP`; otherwise request revision or decline.",
+            "record_digest": "sha256:e0f4ad97e6d805fa4c1dc218a47fcc65000466cd8ea6cd4cba2dfdcca9e5e90a",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-approve",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1",
+            "--gate",
+            "TP",
+            "--presentation",
+            "93fcb01c-0b56-4551-82e4-9f5b01b33b20",
+            "--response",
+            "Approval: TP",
+            "--operation",
+            "c631ec0a-f15b-42f1-b444-1dcb110a4f20"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "accepted",
+            "reason": null,
+            "operation_id": "c631ec0a-f15b-42f1-b444-1dcb110a4f20",
+            "request_digest": "sha256:6ed3df1c9c5821540937610a850b06bfe8f031481eaccf6d28a7ed573f827ed9",
+            "binding": {
+              "target_id": "sha256:778e3c3ac07114367cfae6bda556f1801db3e9ac254d6166ee6d7c88a1e5511a",
+              "run_id": "final-qa-evidence",
+              "gate": "TP",
+              "expected_revision_id": "e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1",
+              "presentation_id": "93fcb01c-0b56-4551-82e4-9f5b01b33b20"
+            },
+            "effect": {
+              "previous_revision_id": "e8eb8a81-ad65-4fcf-b0bd-e81f230a1bf1",
+              "resulting_revision_id": "2dedf9a3-f870-4b72-8638-20cf1e68d31c",
+              "revision": 10,
+              "gate": "TP",
+              "approval": "Approval: TP",
+              "artefact_digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32",
+              "presentation_digest": "sha256:e0f4ad97e6d805fa4c1dc218a47fcc65000466cd8ea6cd4cba2dfdcca9e5e90a",
+              "next_gate_after_approval": "Brownfield Analysis",
+              "allowed_after_approval": "Run Brownfield Analysis for the approved TP scope before CD+Tests."
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "current": {
+              "available": true,
+              "revision": 10,
+              "revision_id": "2dedf9a3-f870-4b72-8638-20cf1e68d31c",
+              "approval_status": "approved",
+              "lifecycle": "active",
+              "gate": "Brownfield Analysis",
+              "status": "open",
+              "missing_approval": "none",
+              "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+              "blocking_reason": "none"
+            },
+            "observations": {
+              "commit": "canonical_receipt_observed",
+              "durability": "file_and_directory_sync_completed",
+              "independent_human_proof": "unavailable"
+            },
+            "recovery": null
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "2dedf9a3-f870-4b72-8638-20cf1e68d31c"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-qa-evidence",
+            "previous_revision_id": "2dedf9a3-f870-4b72-8638-20cf1e68d31c",
+            "revision": "11",
+            "revision_id": "a3443c9a-06f6-4c65-b3d3-9739ccf68880"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "a3443c9a-06f6-4c65-b3d3-9739ccf68880",
+            "--step",
+            "evidence",
+            "--evidence",
+            "Synthetic current preparation observed",
+            "--source",
+            ".agdf/control/artefacts/final-qa-evidence/BROWNFIELD_ANALYSIS.md"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "evidence",
+            "previous_revision_id": "a3443c9a-06f6-4c65-b3d3-9739ccf68880",
+            "revision": "12",
+            "revision_id": "b412a974-58c1-4c82-857d-ead833692319",
+            "current_gate": "CD+Tests",
+            "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+            "backlog": "unchanged"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-update",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "b412a974-58c1-4c82-857d-ead833692319"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "updated",
+            "run_id": "final-qa-evidence",
+            "previous_revision_id": "b412a974-58c1-4c82-857d-ead833692319",
+            "revision": "13",
+            "revision_id": "21afc646-cae2-46db-8268-f7b06e520172"
+          },
+          "stderr": ""
+        },
+        {
+          "command": "run-step",
+          "args": [
+            "--run",
+            "final-qa-evidence",
+            "--revision",
+            "21afc646-cae2-46db-8268-f7b06e520172",
+            "--step",
+            "artefact",
+            "--gate",
+            "QA",
+            "--evidence",
+            ".agdf/control/artefacts/final-qa-evidence/initial-qa-recording.json"
+          ],
+          "code": 0,
+          "value": {
+            "schema_version": "1",
+            "outcome": "recorded",
+            "run_id": "final-qa-evidence",
+            "step": "artefact",
+            "previous_revision_id": "21afc646-cae2-46db-8268-f7b06e520172",
+            "revision": "14",
+            "revision_id": "837aaf3d-8b00-430d-b4fe-4a8f9fa71697",
+            "current_gate": "QA",
+            "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+            "backlog": "updated"
+          },
+          "stderr": ""
+        }
+      ]
+    }
+  ]
+}

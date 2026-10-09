@@ -1,0 +1,24 @@
+// Evidence collection only in the explicitly prepared isolated test target.
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {upsertTableRow} from '../../../../packages/core/lib/control-state/run-state-edits.js';
+const root='/private/tmp/agdf-gate-qualification-414UKY/qa-internal-evidence';
+const run='native-qa-internal-evidence',expected='c5524ce5-9556-4b7c-9b6b-a0e07161071b';
+const prefix=`.agdf/control/artefacts/${run}/`,state=`${root}/.agdf/control/runs/${run}/RUN_STATE.md`;
+const before=readFileSync(state,'utf8');if(!before.includes(`- revision_id: ${expected}\n`))throw Error('Changed fixture revision');
+const digest=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
+const test=spawnSync(process.execPath,['filter.test.mjs'],{cwd:root,encoding:'utf8'});
+if(test.error)throw test.error;
+const evidence={recorded_at:new Date().toISOString(),scope:'isolated synthetic fixture, restore assertion only',command:[process.execPath,'filter.test.mjs'],cwd:root,exit_code:test.status,stdout:test.stdout,stderr:test.stderr,files:Object.fromEntries(['filter.mjs','filter.test.mjs'].map(f=>[f,digest(root+'/'+f)])),claim:'restore copies the supplied active-status filter object; no persistent save or full product proof'};
+writeFileSync(root+'/'+prefix+'RESTORE_TEST-01.json',JSON.stringify(evidence,null,2)+'\n');
+writeFileSync(root+'/'+prefix+'QA_OBSERVATION-01.md',`# Actual native evidence follow-up\n\n- decision: revise\n- evidence: RESTORE_TEST-01.json, actual installed MCP continuation and actual Node 22 execution, exit ${test.status}.\n- fulfilled_obligation: Q-001 local restore assertion is now directly observed.\n- missing_evidence: Approved synthetic TP T-001 includes save and restore through an existing store, but the fixture contains only a restore function. The prepared pass reviews are setup placeholders, not actual evidence of full TP completion, ownership or persistence.\n- risks: A green restore assertion cannot establish the full saved-filter capability or replace the required reviews.\n- required_next_step: Native-test preparation owner supplies a complete isolated product fixture and real reviewable evidence before a full QA reassessment.\n\nThis supporting observation retains the original synthetic QA report as history. It does not approve QA or claim a production defect. No approved source or product code was edited.\n`);
+let content=upsertTableRow(before,'Artefacts',0,'Native restore test',['Native restore test',prefix+'RESTORE_TEST-01.json','done','Actual local evidence acquired; narrowly scoped assertion']);
+content=upsertTableRow(content,'Artefacts',0,'Native QA observation',['Native QA observation',prefix+'QA_OBSERVATION-01.md','done','Partial local evidence; full TP remains unverified']);
+writeFileSync(state,content);
+const result=spawnSync(process.execPath,['/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-0ad3b168da8e/runtime/agdf-local.js','run-update','--dir',root,'--run',run,'--revision',expected,'--json'],{encoding:'utf8'});
+const out='.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/';
+writeFileSync(out+'NATIVE_LOCAL_TEST-01.json',JSON.stringify(evidence,null,2)+'\n');
+writeFileSync(out+'NATIVE_LOCAL_RECORDING-01.json',result.stdout);
+if(result.status!==0)throw Error(result.stdout+result.stderr);
+console.log(JSON.stringify({test_exit_code:test.status,recording:JSON.parse(result.stdout)}));

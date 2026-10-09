@@ -1,10 +1,12 @@
 import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
 import { evaluatePrdCriteriaReadiness } from "./traceability-readiness.js";
+import { resolveArtifactPresentationLanguages } from "../resources/context.js";
+import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from "../control-state/run-presentation-render.js";
 
 // PRD product decisions are explicit data. Free-form risk prose cannot safely establish
 // whether a decision was resolved before the user saw an approval card.
-export function evaluatePrdReadiness(targetDir, runState) {
+export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage } = {}) {
   const path = resolvedArtefactFile(targetDir, runState.artefacts.get("PRD")?.path);
   if (!path) return { ready: false, open_decisions: ["PRD artefact is missing"] };
   const content = readFileSync(path, "utf8");
@@ -33,5 +35,12 @@ export function evaluatePrdReadiness(targetDir, runState) {
   if (incomplete(owner) || /\bto confirm\b|named individual/iu.test(owner)) open.unshift("Named PRD owner");
   const criteria = evaluatePrdCriteriaReadiness(content);
   open.push(...criteria.open_items);
+  // Use the presentation owner's validator before a registered draft can take the ready route.
+  // This keeps an own, unapproved formatting correction with the existing PRD authoring owner.
+  const languages = resolveArtifactPresentationLanguages(targetDir, presentationLanguage);
+  const summary = evaluateApprovalSummaryReadiness("PRD", content, languages);
+  if (!summary.ready) open.push(renderApprovalSummaryIssue(summary, {
+    path, presentationLanguage: languages.presentation_language,
+  }));
   return { ready: open.length === 0, open_decisions: open };
 }

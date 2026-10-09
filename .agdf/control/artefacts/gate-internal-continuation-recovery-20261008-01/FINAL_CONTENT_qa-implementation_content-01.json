@@ -1,0 +1,102 @@
+{
+  "at": "2026-10-08T19:26:56.483Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/qa-implementation",
+  "run": "final-qa-implementation",
+  "revision": "36106e19-b87f-4759-9ede-a2b554c35eda",
+  "observations": {
+    "tests": {
+      "baseline": {
+        "command": [
+          "/usr/local/Cellar/node@22/22.22.3/bin/node",
+          "filter.test.mjs"
+        ],
+        "cwd": "/private/tmp/agdf-final-observations-Lrpg2S/qa-implementation",
+        "at": "2026-10-08T19:26:54.068Z",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "node:internal/modules/run_main:123\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ {}\n- {\n-   nested: {\n-     limit: 3\n-   },\n-   status: 'active'\n- }\n\n    at file:///private/tmp/agdf-final-observations-Lrpg2S/qa-implementation/filter.test.mjs:4:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: {},\n  expected: { status: 'active', nested: { limit: 3 } },\n  operator: 'deepStrictEqual',\n  diff: 'simple'\n}\n\nNode.js v22.22.3\n"
+      },
+      "final": {
+        "command": [
+          "/usr/local/Cellar/node@22/22.22.3/bin/node",
+          "filter.test.mjs"
+        ],
+        "cwd": "/private/tmp/agdf-final-observations-Lrpg2S/qa-implementation",
+        "at": "2026-10-08T19:26:54.275Z",
+        "exit_code": 0,
+        "stdout": "Full synthetic approved saved-filter scope passed: existing store, save/restore, value copies, personal ownership, replace and rejected save preservation.\n",
+        "stderr": ""
+      },
+      "code_before": "036c8207cf1b39d4fa1954d35f71ce0677f0505c5fdef068d536d103bae93fd2",
+      "code_after": "e79518d90ad681d2770fb68b1d66c20e49efa6435df4939b8580499595dfbfdb",
+      "test_digest": "833f54a0919d7864020d0a51262bc92e8a3738df72722d10d1ad03b9a36ad507"
+    },
+    "review": "Three actual same-agent review dimensions pass; QA remains revise until separate owner assessment"
+  },
+  "commands": [
+    {
+      "args": [
+        "run-update",
+        "--revision",
+        "4fac3ce8-3e7e-4c23-a03d-e90097c378cd"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "updated",
+        "run_id": "final-qa-implementation",
+        "previous_revision_id": "4fac3ce8-3e7e-4c23-a03d-e90097c378cd",
+        "revision": "15",
+        "revision_id": "d098d825-a02e-46e9-91ac-dcebd1892c99"
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "run-step",
+        "--revision",
+        "d098d825-a02e-46e9-91ac-dcebd1892c99",
+        "--step",
+        "review",
+        "--decision",
+        "pass",
+        "--source",
+        ".agdf/control/artefacts/final-qa-implementation/CODE_REVIEW.md",
+        "--evidence",
+        ".agdf/control/artefacts/final-qa-implementation/CODE_REVIEW.md"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "final-qa-implementation",
+        "step": "review",
+        "previous_revision_id": "d098d825-a02e-46e9-91ac-dcebd1892c99",
+        "revision": "16",
+        "revision_id": "6b30907e-66d4-4a0c-bf3a-76574cb389ac",
+        "current_gate": "QA",
+        "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+        "backlog": "unchanged"
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "run-update",
+        "--revision",
+        "6b30907e-66d4-4a0c-bf3a-76574cb389ac"
+      ],
+      "exit_code": 0,
+      "value": {
+        "schema_version": "1",
+        "outcome": "updated",
+        "run_id": "final-qa-implementation",
+        "previous_revision_id": "6b30907e-66d4-4a0c-bf3a-76574cb389ac",
+        "revision": "17",
+        "revision_id": "36106e19-b87f-4759-9ede-a2b554c35eda"
+      },
+      "stderr": ""
+    }
+  ],
+  "approved_sources_unchanged": true
+}

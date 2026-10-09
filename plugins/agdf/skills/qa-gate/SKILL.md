@@ -194,3 +194,5 @@ This skill must not:
 - treat missing reviews as completed
 - downgrade SoT drift to harmless warning
 - silently repair, normalize or reroute a review finding
+
+Apply interaction.md Bounded internal recovery and prepared observation for eligible bound follow-up. It adds no gate or approval authority.

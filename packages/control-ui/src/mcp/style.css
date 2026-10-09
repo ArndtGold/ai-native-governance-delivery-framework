@@ -13,11 +13,9 @@
 .compact-goal { margin: var(--agdf-space-2) 0 var(--agdf-space-3); color: var(--cockpit-muted); font-size: var(--agdf-text-sm); white-space: pre-line; overflow-wrap: anywhere; }
 .compact-identity { font-size: var(--agdf-text-xs); }
 .compact-document { margin-top: var(--agdf-space-4); }
-.compact-select { display: block; font-size: var(--agdf-text-xs); font-weight: var(--agdf-weight-semibold); }
 .compact-search { font-size: var(--agdf-text-xs); font-weight: var(--agdf-weight-semibold); }
 .compact-search input { display: block; width: 100%; min-width: 0; margin-top: var(--agdf-space-2); padding: var(--agdf-space-3); border: 1px solid var(--cockpit-line); border-radius: var(--agdf-radius-lg); background: var(--cockpit-bg); font-size: var(--agdf-text-sm); }
 .compact-search-result { margin: 0; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
-.compact-select select { display: block; width: 100%; min-width: 0; margin-top: var(--agdf-space-2); padding: var(--agdf-space-3); border: 1px solid var(--cockpit-line); border-radius: var(--agdf-radius-lg); background: var(--cockpit-bg); color: inherit; font-size: var(--agdf-text-sm); text-overflow: ellipsis; }
 .compact-run, .compact-overview { margin-top: var(--agdf-space-4); }
 .compact-run-summary, .compact-run-followup { min-width: 0; }
 .compact-overview p { margin: 0 0 var(--agdf-space-3); max-width: 65ch; }
@@ -42,12 +40,20 @@
 .mcp-entry .workspace { margin-left: 0; width: 100%; }
 .mcp-entry .workspace > main { padding: var(--agdf-space-6) var(--agdf-space-5); }
 @container (min-width: 640px) {
-  .compact-controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); align-items: end; }
-  .compact-counts, .compact-search-result { grid-column: 1 / -1; }
-  .compact-controls > .compact-select:only-of-type { grid-column: 1 / -1; }
   .mcp-entry .detail-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 @container (max-width: 639px) {
   .mcp-entry .detail-columns { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 380px) { .compact-cockpit { padding: var(--agdf-space-4); } }
+
+.compact-controls > h2 { margin: 0; font-size: var(--agdf-text-base); }
+.compact-controls .undertaking-list { margin-top: 0; }
+.compact-controls > p { margin: 0; }
+.compact-search-hint { font-size: var(--agdf-text-xs); }
+.compact-controls .undertaking-list > li { padding-block: var(--agdf-space-3); }
+.compact-controls .undertaking-list h3 { margin-bottom: 0; }
+.compact-controls .row-source { margin-block: var(--agdf-space-1) 0; padding: 0; }
+.compact-controls .row-source > summary { font-size: var(--agdf-text-xs); }
+/* Content determines the inline height; the host/chat owns scrolling. */
+.compact-controls .undertaking-list { overflow: visible; max-height: none; }

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { checkFocusedGateContracts } from "./gate-contract-reference-check.js";
 import { createHash } from "node:crypto";
 import {
   cpSync,
@@ -232,14 +233,7 @@ assert.deepEqual(gateCheckSkill.match(/^## .+$/gm), [
   "## Executable Dispatch",
   "## Declared `instruction_only` Fallback",
 ]);
-for (const focusedContract of [
-  "task-target-resolution.md",
-  "gate-transition.md",
-  "interaction.md",
-  "control-scaffold.md",
-  "modes.md",
-  "quality.md",
-]) assert.equal((gateCheckSkill.match(new RegExp(focusedContract.replace(".", "\\."), "g")) ?? []).length, 1);
+checkFocusedGateContracts(gateCheckSkill);
 assert.ok(
   !/## Native Interaction Path|## Repository Activation Diagnosis|## OpenCode Passive Hook Boundary|\| State \| Current gate or step \|/u.test(gateCheckSkill),
   "gate-check must keep detailed fallback handbooks out of the selected skill",

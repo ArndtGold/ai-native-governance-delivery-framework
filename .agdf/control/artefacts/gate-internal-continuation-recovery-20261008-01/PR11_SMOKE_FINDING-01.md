@@ -1,0 +1,5 @@
+# PR11 smoke assertion regression
+
+Clean candidate shared cli-smoke stage fails at packages/cli/scripts/request-activation-test.js:242 with 2 !== 1. The current gate-check skill intentionally names interaction.md in Route Boundary prose and declares its sole contained runtime-contract path in the instruction-only fallback. The assertion counts every textual mention instead of the declared reference. This is not two dispatcher calls or a product recovery failure. The added PR11 prose triggers the pre-existing overly broad assertion.
+
+Classification: QF-005 implementation_gap, CD+Tests, bounded approved T004/T006/T007 correction. Keep canonical skill/runtime/payload unchanged. Test the exactly-one declared module reference boundary using escaped exact Markdown paths; add direct duplicate, missing and substituted contract countercases. Retain existing top-level compactness, guard, runtime policy, eval and negative authority checks. Then rerun cli-smoke and all remaining canonical stages. No threshold or test is disabled.

@@ -1,0 +1,48 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "evaluator_error",
+  "terminal": true,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "2b1319f6d057d62a5dc341dd28e2596f5ab773ef194cc165b8a60affffbf9bf0",
+    "provenance_status": "matched"
+  },
+  "target": null,
+  "control": null,
+  "presentation": null,
+  "continuation": null,
+  "recovery": {
+    "action": "Gate-Darstellung reparieren und einmal erneut versuchen.\n\n## Freigabezusammenfassung fehlt\n\nRun: `native-missing-ux` · Gate: `PRD` · Revision: `ff3246b0-ff8c-48f4-af4e-bb884fe3709b`\n\nEs wird keine Freigabe angefragt. Ergänze in diesem Artefakt genau eine vollständige, ungekürzte Zusammenfassung auf Deutsch.\n\nErforderlicher Abschnitt: `AGDF Approval Summary (de; source=en)`\n\nArtefakt: [PRD.md](</private/tmp/agdf-gate-qualification-414UKY/missing-ux/.agdf/control/artefacts/native-missing-ux/PRD.md>)\n\nErgänze die vollständige lokalisierte Zusammenfassung im verlinkten Artefakt, erfasse eine neue Revision und erstelle eine neue Freigabepräsentation."
+  },
+  "host_action": {
+    "mode": "transmit_recovery_verbatim_and_stop",
+    "source": "recovery.action",
+    "text": "Gate-Darstellung reparieren und einmal erneut versuchen.\n\n## Freigabezusammenfassung fehlt\n\nRun: `native-missing-ux` · Gate: `PRD` · Revision: `ff3246b0-ff8c-48f4-af4e-bb884fe3709b`\n\nEs wird keine Freigabe angefragt. Ergänze in diesem Artefakt genau eine vollständige, ungekürzte Zusammenfassung auf Deutsch.\n\nErforderlicher Abschnitt: `AGDF Approval Summary (de; source=en)`\n\nArtefakt: [PRD.md](</private/tmp/agdf-gate-qualification-414UKY/missing-ux/.agdf/control/artefacts/native-missing-ux/PRD.md>)\n\nErgänze die vollständige lokalisierte Zusammenfassung im verlinkten Artefakt, erfasse eine neue Revision und erstelle eine neue Freigabepräsentation.",
+    "allow_surrounding_text": false,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.066,
+    "target_ms": 0.922,
+    "control_ms": 171.701,
+    "render_ms": 17.74,
+    "total_ms": 199.029
+  },
+  "diagnostics": [
+    {
+      "code": "dispatch_control_presentation_failed"
+    }
+  ]
+}

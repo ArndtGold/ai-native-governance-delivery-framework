@@ -31,6 +31,13 @@ it('stored pointer fields are validated and the previous broad inventory DTO is 
   for(const value of [undefined,12,null])expect(()=>validateData('/api/snapshot',{...inventory,data:{...inventory.data!,entries:[{...stored,stored_status:value}]}} as unknown as Envelope<unknown>)).toThrow('dto_invalid');
   expect(()=>validateData('/api/snapshot',{...inventory,data:{runs:[run],file_count:1,byte_count:1}} as unknown as Envelope<unknown>)).toThrow('dto_invalid');
 });
+it('SCN-016: read adapters reject contradictory section counts before presentation',()=>{
+  for (const counts of [{ 'Active Backlog': 0 }, { 'Active Backlog': 2 }, {}, { 'Active Backlog': 1.5 }, { 'Active Backlog': 1, Unknown: 0 }]) {
+    expect(()=>validateData('/api/snapshot',{...inventory,data:{...inventory.data!,counts}})).toThrow('dto_invalid');
+    expect(()=>validateData('/api/backlog-titles?snapshot=previous&rows=row',{...inventory,data:{...inventory.data!,counts}})).toThrow('dto_invalid');
+  }
+  expect(()=>validateData('/api/snapshot',inventory)).not.toThrow();
+});
 it('run detail makes evidence readable, preserves mismatch warnings and keeps original controls behind disclosure',()=>{
   const resource={resource_id:'source',run_id:run.run_id,type:'UR',path:'UR.md',registered_reference:'UR.md',status:'registered'};
   const data:Detail={...run,resources:[resource],persisted:{current_gate:'SD',next_allowed_action:'old source action',decision:'in_progress',artefacts:[]},evaluation:{status:'open',current_gate:'TP',blocking_reason:'none',missing_approval:'Approval: TP',next_allowed_action:'Plan the work',next_action_de:'Die Umsetzung planen.',doctor_status:'pass',quality_outlook:'',git_evidence:'unavailable',diagnostics:[],approvals:[],missing_evidence:[{missing_evidence:'Abstimmung der Unterlagen fehlt.'}]}};
@@ -74,8 +81,8 @@ it('unreadable sections have unavailable counts; readable sections and bad rows 
   expect(screen.getByRole('button',{name:'Aktiv 1 Eingeschränkt'})).toBeTruthy();
   expect(screen.getByRole('button',{name:'Geplant Nicht verfügbar'})).toBeTruthy();
   expect(screen.getByRole('button',{name:'Archiv 0'})).toBeTruthy();
-  expect(screen.getByText('Teilweise verfügbar · Aktiv, Geplant')).toBeTruthy();
-  expect(screen.getByText('Teilweise verfügbar · Aktiv, Geplant').closest('details')?.open).toBe(false);
+  expect(screen.getByText('Teilweise verfügbar · Aktiv · 1 Lesehinweis')).toBeTruthy();
+  expect(screen.getByText('Teilweise verfügbar · Aktiv · 1 Lesehinweis').closest('details')?.open).toBe(false);
   fireEvent.click(screen.getByRole('button',{name:'Geplant Nicht verfügbar'}));
   expect(screen.getByText(/Dieser Bereich ist nicht auswertbar/)).toBeTruthy();
   expect(screen.queryByText('In diesem Bereich sind keine Vorhaben gespeichert.')).toBeNull();

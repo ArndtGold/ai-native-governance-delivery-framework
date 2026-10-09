@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,7 @@ const scenarios = new Map([
   ["duplicate-prd", duplicatePrdRow],
   ["bound-ur", boundUrApproval],
   ["stale-next-step", staleNextStep],
+  ["qa-follow-up", qaFollowUp],
 ]);
 
 function invoke(args, expectedExit = 0) {
@@ -326,6 +328,105 @@ function staleNextStep() {
     assert.equal(report.status, "blocked");
     assert.notEqual(report.next_allowed_action, CD_TESTS_NEXT, "a blocker's recovery wins over the evaluated next step");
     assert.notEqual(report.next_allowed_action, BROWNFIELD_NEXT);
+  });
+}
+
+// Canonical read-only dispatch and recording in isolated synthetic approved-scope runs.
+function qaFollowUp() {
+  const table = '| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n';
+  const rows = {
+    implementation: '| F-01 | implementation_gap | CD+Tests | open | Approved AC-001 assertion fails | Correct the declared assertion and refresh its tests/reviews |',
+    internalEvidence: '| F-01 | evidence_gap | evidence_obligation | open | Required local test output is missing | Run the declared local test and retain its output |',
+    requirements: '| F-01 | requirements_gap | PRD | open | Approved acceptance behavior is contradictory | Request PRD source revision |',
+    changedIntent: '| F-01 | requirements_gap | UR | open | Observed changed user intent in scope | Request UR source revision |',
+    plan: '| F-01 | plan_gap | TP | open | Acceptance test has no task | Request TP source revision |',
+    emergent: '| F-01 | emergent_risk | SD | open | Explicit earliest-owner assessment identifies missing SD policy | Request assessed source revision |',
+    missing: '',
+    decisionConflict: '| F-01 | implementation_gap | CD+Tests | open | Test fails | Correct code |',
+    blocked: '| F-01 | implementation_gap | CD+Tests | open | Test fails | Correct code |',
+    reference: '| F-01 | implementation_gap | CD+Tests | open | Test fails | Correct code |',
+    foreign: '| F-01 | implementation_gap | CD+Tests | open | Test fails | Correct code |',
+    evidence: '| F-01 | evidence_gap | evidence_obligation | open | Native model observation is missing | Prepare the exact candidate and full observation sequence |',
+    upstream: '| F-01 | design_gap | SD | open | Existing owner was not decided | Request the existing SD revision decision |',
+    multipleOwners: '| F-01 | design_gap | SD | open | Missing owner | Request SD revision |\n| F-02 | requirements_gap | PRD | open | Acceptance contradicts scope | Request PRD revision |\n| F-03 | design_gap | SD | open | Missing failure policy | Request SD revision |',
+    secondHeader: '| F-01 | implementation_gap | CD+Tests | open | Test fails | Correct code |\n\n| finding-id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| F-02 | design_gap | SD | open | Missing ownership | Request source revision |',
+    malformed: '| F-01 | implementation_gap | SD | open | Test fails | Correct code |',
+    unknown: '| F-01 | unknown_gap | CD+Tests | open | Test fails | Correct code |',
+    incomplete: '| F-01 | implementation_gap | CD+Tests | open | Test fails |',
+    resolved: '| F-01 | implementation_gap | CD+Tests | resolved | Test now passes | Refresh affected review |',
+    conflict: '| F-01 | implementation_gap | CD+Tests | open | Test fails | Correct code |',
+  };
+  for (const [name, row] of Object.entries(rows)) withFixture('qa-follow-up', `qa-${name}`, context => {
+    const { root, runId } = context, prefix = `.agdf/control/artefacts/${runId}/`;
+    mkdirSync(join(root, prefix), { recursive: true });
+    writeFileSync(join(root, prefix, 'QA_REPORT.md'), `# QA\n- decision: ${name === 'decisionConflict' ? 'pass' : name === 'blocked' ? 'block' : 'revise'}\n\n` + table + row + (name === 'foreign' ? '\n[Code Review](../foreign/CR.md)\n' : name === 'reference' ? '\n[Plan coverage](TASK_PLAN_REVIEW.md)\n' : '\n'));
+    writeFileSync(join(root, prefix, 'CR.md'), '# Code Review\n- decision: pass\n' + (name === 'conflict' ? '\n' + table + rows.upstream : ''));
+    if (name === 'reference') writeFileSync(join(root, prefix, 'TASK_PLAN_REVIEW.md'), '# Review\n- decision: revise\n\n' + table + rows.plan + '\n');
+    const path = join(root, `.agdf/control/runs/${runId}/RUN_STATE.md`);
+    let content = internalStepRunState(runId, { storedGate: 'QA', storedNext: 'Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.' });
+    content = content.replace('| CD+Tests |  | missing | |', '| CD+Tests |  | done | synthetic implementation complete |')
+      .replace('| CR |  | missing | |', `| CR | ${prefix}CR.md | done | synthetic review |`)
+      .replace('| QA |  | missing | |', `| QA | ${prefix}QA_REPORT.md | ${name === 'blocked' ? 'block' : 'revise'} | synthetic decision |`);
+    writeFileSync(path, sealRunState(root, content));
+    const bytes = () => {
+      const inventory = [], hash = createHash('sha256');
+      const scan = folder => { for (const e of readdirSync(folder, { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name))) {
+        const p = join(folder,e.name); inventory.push(p.slice(root.length));
+        if (e.isDirectory()) scan(p); else hash.update(p.slice(root.length)).update(readFileSync(p));
+      }}; scan(join(root, '.agdf/control')); return JSON.stringify({ inventory, digest: hash.digest('hex') });
+    };
+    if (name === 'implementation') writeFileSync(join(root, 'filter.mjs'), 'export const restore = saved => ({});\n');
+    const checkFilter = () => spawnSync(process.execPath, ['--input-type=module', '-e', `import assert from 'node:assert/strict'; import {restore} from './filter.mjs'; assert.deepEqual(restore({status:'active'}),{status:'active'});`], {cwd:root,encoding:'utf8'});
+    if (name === 'implementation') assert.notEqual(checkFilter().status, 0, 'synthetic approved AC is initially violated');
+    const before = bytes(), status = dispatch(context), continued = dispatch(context, '--continue-delivery');
+    assert.equal(bytes(), before, 'status and continuation dispatch preserve complete control paths/bytes');
+    assert.equal(status.terminal, true);
+    assert.doesNotMatch(status.host_action.text, /Ich arbeite weiter|I am continuing/);
+    if (name === 'upstream' || name === 'multipleOwners') {
+      const expected = name === 'upstream' ? /source-owner decision \(SD\)/u : /source-owner decision \(SD, PRD\)/u;
+      for (const language of ['en', 'de']) {
+        const rendered = json(['skill-dispatch', '--json', '--skill', 'gate-check', '--surface', 'codex',
+          '--language', language, '--working-directory', root, '--target-source', 'explicit_target',
+          '--primary-target', root, '--run', runId, '--continue-delivery']);
+        assert.equal(rendered.terminal, true, 'naming the source owner must retain the decision stop');
+        assert.equal(rendered.control.missing_approval, 'none');
+        assert.match(rendered.host_action.text, expected, 'the actual card must identify known upstream owners');
+      }
+      assert.equal(bytes(), before, 'owner diagnosis keeps the entire control inventory and bytes read-only');
+    }
+    if (['implementation','evidence','internalEvidence'].includes(name)) {
+      assert.equal(continued.terminal, false, JSON.stringify(continued));
+      assert.equal(continued.continuation.skill_id, name === 'implementation' ? 'gate-check' : 'qa-gate');
+      assert.equal(continued.continuation.phase, name === 'implementation' ? 'implementation' : undefined);
+      assert.match(continued.continuation.instruction, /F-01/);
+      assert.match(continued.continuation.instruction, /Do not edit approved sources/);
+      assert.equal(continued.control.missing_approval, 'none');
+      // Execute the permitted synthetic work, refresh affected evidence/review, then record.
+      if (name === 'implementation') {
+        writeFileSync(join(root, 'filter.mjs'), 'export const restore = saved => ({...saved});\n');
+        assert.equal(checkFilter().status, 0, 'the same declared acceptance check now passes');
+      }
+      writeFileSync(join(root, prefix, 'CD_TESTS.md'), '# Refreshed CD+Tests\nSynthetic approved filter check observed: pass.\n');
+      writeFileSync(join(root, prefix, 'CR.md'), '# Refreshed Code Review\n- decision: pass\nDeclared synthetic change and affected evidence reviewed.\n');
+      writeFileSync(path, readFileSync(path,'utf8').replace('| CD+Tests |  | done | synthetic implementation complete |', `| CD+Tests | ${prefix}CD_TESTS.md | done | refreshed evidence |`));
+      writeFileSync(join(root, prefix, 'QA_REPORT.md'), '# QA\n- decision: revise\n\n' + table + rows.resolved + '\n');
+      const old = content.match(/^- revision_id: (.+)$/mu)[1];
+      const recorded = json(['run-update', '--dir', root, '--run', runId, '--revision', old, '--json']);
+      assert.notEqual(recorded.revision_id, old);
+      const reevaluated = dispatch(context, '--continue-delivery');
+      assert.equal(reevaluated.terminal, true, 'a revise report with no open obligation cannot grant fresh work or QA approval');
+      assert.equal(reevaluated.control.missing_approval, 'none');
+    } else {
+      assert.equal(continued.terminal, true, JSON.stringify(continued));
+      assert.equal(continued.control.missing_approval, 'none');
+      assert.doesNotMatch(continued.host_action.text, /Ich arbeite weiter/);
+    }
+    if (process.env.AGDF_CHAIN_TEST_LOG) {
+      const logPath = process.env.AGDF_CHAIN_TEST_LOG;
+      let log = []; try { log = JSON.parse(readFileSync(logPath, 'utf8')); } catch {}
+      log.push({ scenario: name, status, continued, control_before: before, control_after_dispatch: before });
+      writeFileSync(logPath, JSON.stringify(log, null, 2));
+    }
   });
 }
 

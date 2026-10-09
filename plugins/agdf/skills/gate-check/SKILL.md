@@ -45,7 +45,7 @@ about genuinely overlapping work, never start with Run IDs. Invalid inventory bl
 Use revisions returned by `run-create`/`run-step`; new scope needs durable UR approval.
 After `run-approve` returns `outcome: approved`, redispatch the same target/run immediately with
 `continue_delivery: true`. `control.gate_route` identifies the current gate and responsible skills;
-Use `continuation.skill_id` per interaction policy; stop at decisions/blockers.
+Use `continuation.skill_id` and interaction.md bounded recovery; stop at decisions/blockers.
 
 ## Executable Dispatch
 

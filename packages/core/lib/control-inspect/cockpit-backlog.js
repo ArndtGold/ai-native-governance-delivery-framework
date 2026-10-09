@@ -4,10 +4,11 @@ import { existsSync, readFileSync } from '../control-read/fs.js';
 import { markdownSection, parseBacklogSection, tableRows, cleanStatusCell, markdownLink, resolvedBacklogLinkTarget } from '../control-evaluation/shared.js';
 import { isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { READ_LIMITS, fail } from '../control-read/snapshot.js';
+import { COCKPIT_BACKLOG_SECTIONS } from './cockpit-list.js';
 
 const SOURCE = '.agdf/control/MASTER_BACKLOG.md';
 const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
-const headings = ['Active Backlog', 'Planned / Parking Lot', 'Completed / Superseded Pointers'];
+const headings = COCKPIT_BACKLOG_SECTIONS;
 const completedHeader = ['key', 'work item', 'status', 'record', 'outcome'];
 const canonicalCompletedHeader = ['key', 'work item', 'final status', 'historical record', 'outcome'];
 

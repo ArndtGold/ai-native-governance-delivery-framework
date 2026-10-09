@@ -1,0 +1,185 @@
+{
+  "name": "missing-ux",
+  "started": "2026-10-08T18:39:14.399Z",
+  "completed": "2026-10-08T18:39:22.563Z",
+  "argv": [
+    "exec",
+    "--json",
+    "--ephemeral",
+    "--approve-for-me",
+    "--color",
+    "never",
+    "--cd",
+    "/private/tmp/agdf-gate-qualification-414UKY/missing-ux"
+  ],
+  "host_version": "codex-cli 0.157.1",
+  "entry": {
+    "name": "missing-ux",
+    "target": "/private/tmp/agdf-gate-qualification-414UKY/missing-ux",
+    "run_id": "native-missing-ux",
+    "revision_id": "d8319095-a754-4942-8bea-996bc3e9cebf",
+    "lane": "isolated synthetic fixture setup; not human gate approval",
+    "commands": [
+      {
+        "command": "run-create",
+        "args": [
+          "--run",
+          "native-missing-ux"
+        ],
+        "code": 0,
+        "value": null,
+        "stderr": ""
+      },
+      {
+        "command": "run-step",
+        "args": [
+          "--run",
+          "native-missing-ux",
+          "--revision",
+          "cb5f24d5-f979-4d41-be17-34b2f1206516",
+          "--step",
+          "ur",
+          "--title",
+          "Synthetic saved filter"
+        ],
+        "code": 0,
+        "value": {
+          "schema_version": "1",
+          "outcome": "recorded",
+          "run_id": "native-missing-ux",
+          "step": "ur",
+          "previous_revision_id": "cb5f24d5-f979-4d41-be17-34b2f1206516",
+          "revision": "2",
+          "revision_id": "c60e11c2-84eb-474d-b30a-414e2c9b265a",
+          "current_gate": "UR",
+          "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+          "backlog": "updated"
+        },
+        "stderr": ""
+      },
+      {
+        "command": "run-present",
+        "args": [
+          "--run",
+          "native-missing-ux",
+          "--revision",
+          "c60e11c2-84eb-474d-b30a-414e2c9b265a",
+          "--gate",
+          "UR",
+          "--language",
+          "en"
+        ],
+        "code": 0,
+        "value": {
+          "schema_version": "1",
+          "presentation_id": "056c052f-95e4-4ba2-bb74-bb03163f175e",
+          "created_at": "2026-10-08T18:09:32.879Z",
+          "run_id": "native-missing-ux",
+          "gate": "UR",
+          "revision_id": "c60e11c2-84eb-474d-b30a-414e2c9b265a",
+          "content_digest": "sha256:dc0714c727e6f5517c02f895321fe64944a1fec51759a160174e56590885fca1",
+          "artefact_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+          "summary_digest": "sha256:e1a7584b0f41d083f5385ff9f50d25be71b066656be83a8002ce474817ec60c4",
+          "presentation_language": "en",
+          "presentation_digest": "sha256:a8f633fdfcc2d29445ea3bbedda873e68d3ab641a2642b83b980befd6026a7c1",
+          "outcome": "prepared",
+          "text": "## Review and decide on user requirements\nSelected run: UR: Synthetic saved-filter need · `native-missing-ux`\nAGDF status-card: Ready for your decision\nCurrent gate: User requirements (`UR`)\nRequired decision: User Requirements approval\nNext step: Review the linked artefact; choose an option below.\n\n## AGDF status-card\n\n| Status field | Value |\n|---|---|\n| Selected run | UR: Synthetic saved-filter need · `native-missing-ux` |\n| Path | ● UR |\n| Status | open |\n| Current gate | User requirements (`UR`) |\n| Your decision | Approval: UR · Revise · Decline |\n| Agent may work on now | clarify user need<br>formulate and persist UR<br>record evidence<br>request exact UR approval |\n| Forbidden now | create later-gate artefacts beyond the current allowed gate<br>run Brownfield Analysis as implementation preparation<br>implement code<br>claim QA or release readiness |\n| Waiting for | Approval: UR |\n\n## Review summary · UR\n\nRun: `native-missing-ux` · Gate: `UR` · Revision: `c60e11c2-84eb-474d-b30a-414e2c9b265a`\n\n- Problem: Operators repeatedly recreate the same filter.\n- Goal: An operator can save and restore one named filter.\n- Scope: One user-owned saved filter, no sharing.\n\n## Review artefact · UR\n\nRun: `native-missing-ux` · Gate: `UR` · Revision: `c60e11c2-84eb-474d-b30a-414e2c9b265a`\n\nArtefact: [UR.md](</private/tmp/agdf-gate-qualification-414UKY/missing-ux/.agdf/control/artefacts/native-missing-ux/UR.md>)\n\nSHA-256: `sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56`\n\nOpen the linked version before deciding.\n\nUser requirements · UR: Synthetic saved-filter need · `native-missing-ux`\n[UR](.agdf/control/artefacts/native-missing-ux/UR.md) · PRD (not yet created) · SD (not yet created) · TP (not yet created)\nReady for your decision\n\nApprove now\n`Approval: UR` Review existing owners and choose the proportionate delivery path; implementation remains blocked.\n\nNext\nAgent runs Brownfield Review next. No user action required now.\n\nTo approve, reply exactly with `Approval: UR`; otherwise request revision or decline.",
+          "record_digest": "sha256:513383f17938855c8115b3ccfc9b678cb4ea5fdea6dbd482b71929bb2f3f8ec0",
+          "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+        },
+        "stderr": ""
+      },
+      {
+        "command": "run-approve",
+        "args": [
+          "--run",
+          "native-missing-ux",
+          "--revision",
+          "c60e11c2-84eb-474d-b30a-414e2c9b265a",
+          "--gate",
+          "UR",
+          "--presentation",
+          "056c052f-95e4-4ba2-bb74-bb03163f175e",
+          "--response",
+          "Approval: UR"
+        ],
+        "code": 0,
+        "value": {
+          "schema_version": "1",
+          "outcome": "approved",
+          "run_id": "native-missing-ux",
+          "gate": "UR",
+          "approval": "Approval: UR",
+          "previous_revision_id": "c60e11c2-84eb-474d-b30a-414e2c9b265a",
+          "revision": "3",
+          "revision_id": "e6672056-5576-4d6b-83d7-6d37629e9129",
+          "next_gate_after_approval": "Brownfield Review",
+          "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "command": "run-step",
+        "args": [
+          "--run",
+          "native-missing-ux",
+          "--revision",
+          "e6672056-5576-4d6b-83d7-6d37629e9129",
+          "--step",
+          "route",
+          "--route",
+          "structured_delivery",
+          "--reason",
+          "Synthetic public-contract test route, never live authorization",
+          "--evidence",
+          ".agdf/control/artefacts/native-missing-ux/BROWNFIELD_REVIEW.md"
+        ],
+        "code": 0,
+        "value": {
+          "schema_version": "1",
+          "outcome": "recorded",
+          "run_id": "native-missing-ux",
+          "step": "route",
+          "previous_revision_id": "e6672056-5576-4d6b-83d7-6d37629e9129",
+          "revision": "4",
+          "revision_id": "6169744f-3403-4abd-ba9e-28ab9f67c55d",
+          "current_gate": "PRD",
+          "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+          "backlog": "updated"
+        },
+        "stderr": ""
+      },
+      {
+        "command": "run-update",
+        "args": [
+          "--run",
+          "native-missing-ux",
+          "--revision",
+          "6169744f-3403-4abd-ba9e-28ab9f67c55d"
+        ],
+        "code": 0,
+        "value": {
+          "schema_version": "1",
+          "outcome": "updated",
+          "run_id": "native-missing-ux",
+          "previous_revision_id": "6169744f-3403-4abd-ba9e-28ab9f67c55d",
+          "revision": "5",
+          "revision_id": "d8319095-a754-4942-8bea-996bc3e9cebf"
+        },
+        "stderr": ""
+      }
+    ]
+  },
+  "status": {
+    "code": 1,
+    "signal": null
+  },
+  "timedOut": false,
+  "model_selection": "Existing user configuration; no model override",
+  "proof_boundary": "Fresh actual native Codex CLI model session; not desktop visual qualification"
+}

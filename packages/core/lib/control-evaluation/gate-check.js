@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderDefinitionSourceRecovery, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
 import { interactionLocales, resolveConfiguredChatLanguage } from "../resources/context.js";
 import { evaluateDoctor } from "./doctor.js";
 import { analyzeDeliveryMap, deriveQualityOutlook } from "./delivery-map.js";
@@ -8,7 +8,9 @@ import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets }
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from "./run-state.js";
 import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
 import { evaluateUrReadiness } from "./ur-readiness.js";
+import { inspectDefinitionSources } from "./definition-sources.js";
 import { evaluatePrdReadiness } from "./prd-readiness.js";
+import { evaluateQaFollowUp } from "./qa-follow-up.js";
 import { evaluateSdReadiness } from "./sd-readiness.js";
 import { evaluateSdTraceability, evaluateTpTraceability } from "./traceability-readiness.js";
 import { readSourceRevisions, sourceRevisionObservation } from "../control-state/run-source-revisions.js";
@@ -382,6 +384,18 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     nextAllowedAction = doctorRevise.next_step;
   }
 
+  const qaFollowUp = status === "open" && currentGate === "QA" && blockingReason === "qa_revise_required"
+    ? evaluateQaFollowUp(targetDir, runState, extractField(runState.content, "run_id")) : null;
+  if (qaFollowUp && ["blocked", "upstream"].includes(qaFollowUp.kind)) {
+    allowed = ["route the blocking QA findings to their authoritative owner", "record the next permitted remediation or upstream decision"];
+    forbidden = [...forbidden, "implement code"];
+    nextAllowedAction = "Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report.";
+  }
+  if (qaFollowUp?.kind === "evidence") {
+    allowed = ["collect the exact QA evidence obligation through its existing owner", "rerun QA with refreshed evidence"];
+    forbidden = [...forbidden, "implement code"];
+    nextAllowedAction = "Collect the exact QA evidence obligation through its existing owner. Prepare a complete observation sequence before necessary external action, then rerun QA.";
+  }
   const approvalArtefactReady = isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
   const presentationLocale = selection.presentationLanguage
     ? resolvePresentationLocale(interactionLocales, selection.presentationLanguage)
@@ -395,8 +409,14 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     forbidden = [...forbidden, "present or approve UR before requirement clarification is complete"];
     nextAllowedAction = "complete the UR requirement clarification, then record the revision with run-update";
   }
-  const prdReadiness = currentGate === "PRD" && approvalArtefactReady
-    ? evaluatePrdReadiness(targetDir, runState) : null;
+  let prdReadiness = currentGate === "PRD" && approvalArtefactReady
+    ? evaluatePrdReadiness(targetDir, runState, { presentationLanguage: presentationLocale }) : null;
+  if (status === "open" && prdReadiness && transitionDecision.next_operation?.type !== "reassess_source_analysis" && isGateSatisfied(runState, "UR") && isInternalStepSatisfied(runState, "Brownfield Review")
+      && ["structured_delivery", "structured_slice"].includes(modeSliceDecision(runState))) {
+    const inputFacts = inspectDefinitionSources(targetDir, runState, extractField(runState.content, "run_id"), "PRD", ["UR", "Brownfield Review"]);
+    if (inputFacts.issue) prdReadiness = { ready: false, open_decisions: [...prdReadiness.open_decisions,
+      renderDefinitionSourceRecovery(inputFacts.issue, { registry: interactionLocales, requestedLocale: presentationLocale })] };
+  }
   if (status === "open" && currentGate === "PRD" && prdReadiness && !prdReadiness.ready) {
     status = "blocked";
     blockingReason = "AGDF_PRD_DECISIONS_OPEN";
@@ -495,6 +515,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     : runResolutionPresentation
       ? runResolutionPresentation
     : renderOperationalStatusCard(statusCard, {
+        qaFollowUp,
         registry: interactionLocales,
         humanPresentation,
         revisionId,
@@ -588,7 +609,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   });
   const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
 
-  return {
+  const report = {
     schema_version: "1",
     status,
     current_gate: currentGate,
@@ -629,6 +650,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     verified_change: verifiedChange,
     doctor_report: doctorReport,
   };
+  Object.defineProperty(report, "qaFollowUp", { value: qaFollowUp });
+  return report;
 }
 
 function canonicalApprovalForReport(report) {

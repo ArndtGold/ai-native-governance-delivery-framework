@@ -1,0 +1,157 @@
+{
+  "schema_version": "1",
+  "case": "qa-external",
+  "status": "prepared_observation_with_unavailable_surface_binding",
+  "finding": {
+    "finding_id": "F-001",
+    "gap_type": "evidence_gap",
+    "routing_target": "evidence_obligation",
+    "gap_status": "open",
+    "source": {
+      "path": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external/.agdf/control/artefacts/independent-qa-external/QA_REPORT.md",
+      "sha256": "cf5b10694ae6638dbb454d61ce7aaa4dbf229661c15f05ff2d27f4bc9515da82"
+    },
+    "exact_obligation": "Fresh supported external display observation absent; source tests cannot supply it"
+  },
+  "candidate": {
+    "at": "2026-10-08T19:10:13.903Z",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-8f578728e735",
+    "source_digest": "8f578728e735dbb72f1b05a708ec2b4db30f894b01460a907ea198855fda2ba6",
+    "plugin_digest": "099214aae578ec224126701a13138b2f1e402ae07c94ac4a386e9e64d10c6e4a",
+    "runtime_digest": "668cf476a06c93027cead7615eed2c47ef5414500eb93d002cb6aaba41bfa8c9",
+    "mcp_dispatcher_digest": "31cdf187b33826ea9bb70cfb12f477c522c836a598a0acc8b1fdb8d350c66002",
+    "plugin_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/summary-recovery-qualification/marketplaces/agdf/plugins/agdf",
+    "marketplace": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/summary-recovery-qualification/marketplaces/agdf",
+    "generated_manifest": {
+      "schema_version": "1",
+      "generated": true,
+      "source": "create-agdf/cli",
+      "version": "0.14.5",
+      "entrypoint": "create-agdf/bin/agdf-validator.js",
+      "digest": "668cf476a06c93027cead7615eed2c47ef5414500eb93d002cb6aaba41bfa8c9"
+    },
+    "scope": "QF-002 summary prevalidation, exact diagnosis and existing authoring recovery; no public schema, phase, gate or installer change",
+    "activated": false
+  },
+  "actual_mcp_identity": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "31cdf187b33826ea9bb70cfb12f477c522c836a598a0acc8b1fdb8d350c66002",
+    "provenance_status": "matched"
+  },
+  "host_model": {
+    "host": "Codex Desktop",
+    "version": "0.162.0-alpha.2",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "current_chat": "01a11d02-cb5a-7a82-89ea-d6129505fcfa"
+  },
+  "binding": {
+    "target": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external",
+    "working_directory": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external",
+    "run_id": "independent-qa-external",
+    "expected_revision_id": "df03edf4-07dc-41eb-8649-59076ac12776",
+    "source_identities": {
+      "UR.md": {
+        "path": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external/.agdf/control/artefacts/independent-qa-external/UR.md",
+        "sha256": "c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      "PRD.md": {
+        "path": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external/.agdf/control/artefacts/independent-qa-external/PRD.md",
+        "sha256": "6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+      },
+      "SD.md": {
+        "path": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external/.agdf/control/artefacts/independent-qa-external/SD.md",
+        "sha256": "b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+      },
+      "TP.md": {
+        "path": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external/.agdf/control/artefacts/independent-qa-external/TP.md",
+        "sha256": "93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32"
+      },
+      "QA_REPORT.md": {
+        "path": "/private/tmp/agdf-independent-observations-YnLVr8/qa-external/.agdf/control/artefacts/independent-qa-external/QA_REPORT.md",
+        "sha256": "cf5b10694ae6638dbb454d61ce7aaa4dbf229661c15f05ff2d27f4bc9515da82"
+      }
+    }
+  },
+  "resource_binding": {
+    "external_display_resource": null,
+    "url": null,
+    "app_id": null,
+    "tab_id": null,
+    "reason": "Fixture names a fresh external display observation but provides no concrete external URL/app/tab/renderer or observation record. Actual CUA inventory exposes no native apps and no existing browser tabs. Native screenshot APIs are disabled; voice-only screen capture is not applicable.",
+    "supported_path_when_bound": "Use an already authorized actual app/tab via documented CUA getTab or supported external observer; verify resource identity before screenshot/AX capture. Do not substitute a generated mock, source renderer or fabricated URL."
+  },
+  "actual_access_probe": {
+    "apps": [],
+    "browsers": [
+      {
+        "id": "1",
+        "metadata": {
+          "codexSessionId": "01a11d02-cb5a-7a82-89ea-d6129505fcfa"
+        },
+        "name": "Codex MCP Apps",
+        "type": "mcpapps",
+        "tabs": []
+      },
+      {
+        "id": "2",
+        "metadata": {
+          "codexSessionId": "01a11d02-cb5a-7a82-89ea-d6129505fcfa"
+        },
+        "name": "Codex In-app Browser",
+        "type": "iab",
+        "tabs": []
+      }
+    ]
+  },
+  "exact_observer_prompt": "Prüfe ausschließlich /private/tmp/agdf-independent-observations-YnLVr8/qa-external, Run independent-qa-external, Revision df03edf4-07dc-41eb-8649-59076ac12776. Beobachte die tatsächlich gebundene externe Anzeige im unterstützten Host. Sichere Ressource, Host/Modell, Zeitpunkt, Screenshot und zugänglichen Text; ordne die Beobachtung ausdrücklich F-001 zu. Kein Code, keine genehmigte Quelle und keine Freigabe dürfen verändert werden. Falls die Anzeige nicht zugänglich oder nicht eindeutig diesem Fixture zugeordnet ist, stoppe mit offener evidence_gap; Quelltests sind kein Ersatz.",
+  "sequence": [
+    {
+      "step": 1,
+      "action": "Recheck exact target/run/revision and protected source hashes from binding; stop on drift.",
+      "expected": "All exact identities match; current QA remains revise with F-001 open."
+    },
+    {
+      "step": 2,
+      "action": "Obtain an explicit actual external resource reference and supported observer access; check inventory and bind only that resource.",
+      "expected": "URL/app/tab or external observer identity is concrete and verifiably maps to this fixture. Currently unavailable; stop here."
+    },
+    {
+      "step": 3,
+      "action": "In an authorized observation context, use exact_observer_prompt; capture fresh screenshot and AX/visible text including resource identity and timestamp.",
+      "expected": "Actual visible surface and exact scoped behavior, not merely source/protocol output. No product acceptance criterion is invented from the generic evidence obligation."
+    },
+    {
+      "step": 4,
+      "action": "Correlate capture with exact candidate digest, host/model, target/run/revision and F-001; record observed facts and unsupported portions separately.",
+      "expected": "Proof applies to this candidate/resource/run; unknown mapping stays open."
+    },
+    {
+      "step": 5,
+      "action": "Existing review/evidence owner assesses sufficiency; canonically record only actually acquired and applicable evidence. Rerun QA only if all obligations including actual mandatory tests/reviews are fulfilled.",
+      "expected": "No QA pass from setup placeholders or a screenshot alone, no human Approval: QA inferred."
+    }
+  ],
+  "expected_current_observation": "The supported-access inventory is empty for actual native apps and existing tabs. This is access-boundary evidence, not the required display observation.",
+  "stop_conditions": [
+    "No exact external resource or supported access",
+    "Candidate, host/model, source digest, run or revision mismatch",
+    "Missing applicable display capture or source-only substitute",
+    "Unchanged failed condition: no redispatch/retry",
+    "Actual MCP terminal:true: exact host_action.text only, no later tool",
+    "Approval, upstream source change, installation/reconnection or security access outside existing authorization"
+  ],
+  "preserved_evidence": [
+    "First-turn native source/protocol/model evidence remains applicable within its stated scope.",
+    "Current turn actual MCP route and read-only surface inventory; full byte-preservation comparisons."
+  ],
+  "unclaimed": [
+    "External screenshot or native foreground app observation",
+    "Abrupt interruption",
+    "QA pass, human approval, production delivery readiness"
+  ],
+  "next_required_input": "Concrete fixture-bound external display resource and a supported observation path; no connection/install request is issued in this qualification turn."
+}

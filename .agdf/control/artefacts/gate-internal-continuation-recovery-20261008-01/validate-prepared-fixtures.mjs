@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import {readFileSync,readdirSync,writeFileSync} from 'node:fs';import {execFileSync} from 'node:child_process';import {join} from 'node:path';import {createHash} from 'node:crypto';
+const out=join(process.cwd(),'.agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01'), data=JSON.parse(readFileSync(join(out,'native-fixtures.json'))), log=[];
+const snapshot=root=>{const paths=[],h=createHash('sha256');const scan=p=>{for(const e of readdirSync(p,{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name))){const file=join(p,e.name);paths.push(file.slice(root.length));if(e.isDirectory())scan(file);else h.update(file.slice(root.length)).update(readFileSync(file));}};scan(join(root,'.agdf/control'));return{paths,digest:h.digest('hex')};};
+for(const c of data.cases){const before=snapshot(c.target), args=[data.validator,'skill-dispatch','--json','--skill','gate-check','--surface','codex','--language','de','--working-directory',c.target,'--target-source','explicit_target','--primary-target',c.target,'--run',c.run_id,'--continue-delivery'];
+ const result=JSON.parse(execFileSync(process.execPath,args,{encoding:'utf8',env:{...process.env,PLUGIN_ROOT:data.plugin,AGDF_SURFACE:'codex'}}));const after=snapshot(c.target);assert.deepEqual(after,before);
+ const stopped=['qa-upstream','qa-invalid'].includes(c.name);assert.equal(result.terminal,stopped,JSON.stringify({name:c.name,result}));
+ if(!stopped)assert.equal(result.continuation.skill_id,c.name.startsWith('qa-')?(c.name==='qa-implementation'?'gate-check':'qa-gate'):'ux-intent-definition');
+ assert.equal(result.control.missing_approval,'none'===result.control.missing_approval?'none':'Approval: PRD');
+ log.push({case:c.name,at:new Date().toISOString(),lane:'local candidate protocol validation, not native model execution',args,result,control_before:before,control_after:after});}
+writeFileSync(join(out,'prepared-fixture-protocol.json'),JSON.stringify(log,null,2));console.log('Nine prepared candidate fixture routes validated; all control paths and bytes unchanged.');

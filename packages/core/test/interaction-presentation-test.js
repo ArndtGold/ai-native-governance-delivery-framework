@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildStatusCard } from "../lib/control-evaluation/gate-check.js";
 import {
@@ -26,6 +26,7 @@ import {
   renderApprovalOrientationSnapshot,
   renderControlSetupOrientation,
   renderOperationalStatusCard,
+  renderDefinitionSourceRecovery,
   renderScopeClassificationCard,
   renderTaskTargetOrientation,
   normalizeReconciliationText,
@@ -463,12 +464,12 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
     forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
     missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
-    next_step: "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
+    next_step: sourceRegistry.locales.en.operationalValues.nextCdTestsAfterTpApproval,
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Implementierung und Tests" } });
   assert.match(germanCdTests.markdown, /TP freigegeben/);
-  assert.match(germanCdTests.markdown, /Ich setze den genehmigten Umfang um/);
-  assert.match(germanCdTests.markdown, /Keine Antwort nötig/);
+  assert.match(germanCdTests.markdown, /im genehmigten Umfang erlaubt/);
+  assert.doesNotMatch(germanCdTests.markdown, /Ich arbeite weiter|Ich setze/);
   assert.doesNotMatch(germanCdTests.markdown, /Implement the approved TP scope/);
 
   const englishCdTests = renderOperationalStatusCard({
@@ -476,11 +477,12 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
     forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
     missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
-    next_step: "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
+    next_step: sourceRegistry.locales.en.operationalValues.nextCdTestsAfterTpApproval,
     quality_outlook: "No additional quality follow-up identified from the current control state.",
   }, { registry, humanPresentation: { gateTitle: "Implementation and tests" } });
   assert.match(englishCdTests.markdown, /TP approved/);
-  assert.match(englishCdTests.markdown, /No reply needed; I am proceeding with the approved implementation/);
+  assert.match(englishCdTests.markdown, /permitted within the approved scope/);
+  assert.doesNotMatch(englishCdTests.markdown, /I am continuing|I am proceeding/);
 
   for (const presentationLanguage of Object.keys(sourceRegistry.locales)) {
     const pack = sourceRegistry.locales[presentationLanguage];
@@ -553,7 +555,7 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     continuePostTpWork: true,
     runState: postTpRunState,
   });
-  assert.equal(postTpStatus.next_step, "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.");
+  assert.equal(postTpStatus.next_step, sourceRegistry.locales.en.operationalValues.nextCdTestsAfterTpApproval);
   assert.equal(postTpStatus.internal_next_step, postTpStatus.next_step, "the canonical internal action agrees with the rendered post-TP action");
   assert.equal(postTpStatus.user_action_required, "no", "approved TP work does not ask the user to respond");
   const hostEvidenceChoice = sourceRegistry.locales.en.operationalValues.hostEvidenceProvisioningChoice;
@@ -1418,3 +1420,42 @@ assert.equal(renderTaskTargetOrientation({
 }, { registry, requestedLocale: "en" }), null);
 
 console.log("task target orientation tests passed");
+
+// Render every affected disposition and diagnostic in every registered pack.
+const localeEvidence = [];
+for (const locale of Object.keys(sourceRegistry.locales)) {
+  const pack = sourceRegistry.locales[locale];
+  for (const [code, observed, repairable] of [
+    ['ux_source_missing', 'missing', true], ['ux_decision_malformed', 'exact field absent', true],
+    ['ux_source_unrecorded', 'unrecorded', true], ['ux_not_ready', 'blocked', false], ['unsafe_ux_source', 'foreign or unsafe source', false],
+    ['unsafe_destination', 'unsafe', false], ['source_unavailable', 'missing', false],
+  ]) {
+    const text = renderDefinitionSourceRecovery({ code, path: '.agdf/control/artefacts/test/UX_INTENT_DEFINITION.md', expected: '- decision: ready', observed, repairable }, { registry: sourceRegistry, requestedLocale: locale });
+    assert.ok(text?.includes(pack.skillDispatch.sourceInput.conditions[code]));
+    assert.match(text, /UX_INTENT_DEFINITION.md/);
+    assert.match(text, /decision: ready/);
+    localeEvidence.push({ locale, state: code, text });
+  }
+  for (const state of ['inspect', 'continue', 'external', 'integrity', 'qa-upstream', 'ready']) {
+    const card = { ...postTpCardForLocale(locale), ...(state === 'ready' ? {current_gate:'TP', missing_approval:'Approval: TP', interaction_kind:'gate_approval'} : {}),
+      ...(state === 'integrity' ? {status:'blocked', blocking_condition:'AGDF_RUN_ID_MISMATCH', allowed_now:[sourceRegistry.locales.en.operationalValues.runDoctorAgain], forbidden_now:['implement code','claim QA pass'], internal_next_step:sourceRegistry.locales.en.operationalValues.runDoctorAgain, next_step:sourceRegistry.locales.en.operationalValues.runDoctorAgain} : {}),
+      ...(state === 'qa-upstream' ? {current_gate:'QA', allowed_now:['route the blocking QA findings to their authoritative owner'], forbidden_now:['implement code','claim QA pass'], internal_next_step:'route the blocking QA findings to their authoritative owner', next_step:sourceRegistry.locales.en.operationalValues.nextResolveReviseQa} : {}),
+      ...(state === 'external' ? {user_action_required:'yes', internal_next_step:'none', next_step:sourceRegistry.locales.en.operationalValues.hostEvidenceProvisioningChoice} : {}) };
+    const rendered = renderOperationalStatusCard(card, { registry: sourceRegistry, humanPresentation: {}, executionDisposition: state === 'continue' ? 'continue' : 'inspect', qaFollowUp: state === 'qa-upstream' ? {kind:'upstream',reason:'SD source-owner decision required.'} : null });
+    assert.ok(rendered, `${locale}/${state}`);
+    if (state === 'continue') assert.ok(rendered.markdown.includes(pack.statusCard.agentWorking));
+    else assert.ok(!rendered.markdown.includes(pack.statusCard.agentWorking));
+    if (state === 'ready') assert.match(rendered.markdown, /Approval: TP/);
+    localeEvidence.push({ locale, state, text: rendered.markdown });
+  }
+}
+function postTpCardForLocale(locale) {
+  return {run_id:'locale-test', presentation_language:locale, status:'open', current_gate:'CD+Tests',
+    allowed_now:['implement the approved TP tasks'], forbidden_now:['claim QA pass'], blocking_condition:'none',
+    missing_approval:'none', next_user_gate:'none', user_action_required:'no', internal_next_step:'implement the approved TP tasks',
+    next_step:sourceRegistry.locales.en.operationalValues.nextCdTestsAfterTpApproval, next_gate_after_approval:'none', allowed_after_approval:'none',
+    quality_outlook:sourceRegistry.locales.en.operationalValues.noAdditionalQualityFollowUp};
+}
+assert.equal(renderDefinitionSourceRecovery({code:'unknown'}, {registry:sourceRegistry,requestedLocale:'de'}), null);
+assert.match(renderDefinitionSourceRecovery({code:'ux_source_missing',repairable:true}, {registry:sourceRegistry,requestedLocale:'fr'}), /UX analysis is missing/);
+if (process.env.AGDF_LOCALE_TEST_LOG) writeFileSync(process.env.AGDF_LOCALE_TEST_LOG, JSON.stringify(localeEvidence,null,2));

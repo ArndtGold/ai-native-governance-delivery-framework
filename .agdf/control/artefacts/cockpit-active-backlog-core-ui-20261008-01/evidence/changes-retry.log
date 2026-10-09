@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: atomic backlog writes notify every dependent view without replacing their private snapshots
+ok 1 - atomic backlog writes notify every dependent view without replacing their private snapshots
+  ---
+  duration_ms: 1142.169313
+  type: 'test'
+  ...
+# Subtest: Run source replacement wakes only dependent views, and pending waits close with their session
+ok 2 - Run source replacement wakes only dependent views, and pending waits close with their session
+  ---
+  duration_ms: 873.453417
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2338.384049

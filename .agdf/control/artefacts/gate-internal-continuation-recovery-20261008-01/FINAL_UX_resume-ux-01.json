@@ -1,0 +1,91 @@
+{
+  "at": "2026-10-08T19:25:22.178Z",
+  "target": "/private/tmp/agdf-final-observations-Lrpg2S/resume-ux",
+  "run": "final-resume-ux",
+  "revision_before": "2197e5d8-cbf3-4974-b540-31e07fcbcd87",
+  "revision_after": "d7b8602e-1d69-4878-ba80-1722e2aa5a91",
+  "before": {
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/final-resume-ux/UR.md",
+        "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/final-resume-ux/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2305d4549606f82a9c576a51839383608e2126c5ecc174482e604768fde81d08"
+      }
+    ],
+    "issue": {
+      "code": "ux_source_missing",
+      "path": ".agdf/control/artefacts/final-resume-ux/UX_INTENT_DEFINITION.md",
+      "expected": "- decision: ready",
+      "observed": "missing",
+      "repairable": true
+    }
+  },
+  "validated": {
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/final-resume-ux/UR.md",
+        "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/final-resume-ux/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2305d4549606f82a9c576a51839383608e2126c5ecc174482e604768fde81d08"
+      }
+    ],
+    "issue": {
+      "code": "ux_source_unrecorded",
+      "path": ".agdf/control/artefacts/final-resume-ux/UX_INTENT_DEFINITION.md",
+      "expected": "UX Intent Definition: done at this path",
+      "observed": "unrecorded",
+      "repairable": true
+    }
+  },
+  "after": {
+    "sources": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/final-resume-ux/UR.md",
+        "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/final-resume-ux/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2305d4549606f82a9c576a51839383608e2126c5ecc174482e604768fde81d08"
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/final-resume-ux/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:180fabaa413c70fcee591aaca0f076ec7a127f81886e6c7e20aba04678e2af1c"
+      }
+    ],
+    "issue": null
+  },
+  "canonical": [
+    {
+      "schema_version": "1",
+      "outcome": "updated",
+      "run_id": "final-resume-ux",
+      "previous_revision_id": "2197e5d8-cbf3-4974-b540-31e07fcbcd87",
+      "revision": "6",
+      "revision_id": "d7b8602e-1d69-4878-ba80-1722e2aa5a91"
+    },
+    {
+      "stale_replay": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "run_id": "final-resume-ux",
+        "reason": "stale_revision"
+      },
+      "exit_code": 2
+    }
+  ],
+  "checkpoint": "stop before reevaluation; next actual tool must bind current revision",
+  "UR_unchanged": true,
+  "lane": "actual same-agent desktop execution; not independent fresh model interruption"
+}

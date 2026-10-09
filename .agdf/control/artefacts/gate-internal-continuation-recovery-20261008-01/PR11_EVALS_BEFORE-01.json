@@ -1,0 +1,1427 @@
+{
+  "schema_version": 1,
+  "corpus_version": "1.14.0",
+  "evidence_boundary": "deterministic replay is not live host execution",
+  "canonical_skills": 13,
+  "cases": 102,
+  "passed": 4,
+  "failed": 99,
+  "status": "block",
+  "results": [
+    {
+      "case_id": "coverage",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_COVERAGE_MISSING",
+          "message": "delivery-path-search:manifest_fingerprint_stale, brownfield-analysis:manifest_fingerprint_stale, ux-intent-definition:manifest_fingerprint_stale, clean-implementation-review:manifest_fingerprint_stale, code-review:manifest_fingerprint_stale, delivery-closeout:manifest_fingerprint_stale, prd-definition:manifest_fingerprint_stale, sd-definition:manifest_fingerprint_stale, gate-check:manifest_fingerprint_stale, qa-gate:manifest_fingerprint_stale, release-or:manifest_fingerprint_stale, task-plan-review:manifest_fingerprint_stale"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-normal",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-boundary",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-adversarial",
+      "target_skill": "brownfield-analysis",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-bounded-multi-owner",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-single-owner-policy",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-broad-migration",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-missing-facts",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-conflicting-facts",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-numeric-proxy",
+      "target_skill": "brownfield-analysis",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-architecture-runtime",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-external-contract",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-release-cross-host",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-depth-unbounded-coordination",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-direct-target-unresolved",
+      "target_skill": "brownfield-analysis",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-owner-boundary",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-retained-tradeoff",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-complete-tradeoff",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-incomplete-debt",
+      "target_skill": "brownfield-analysis",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-decisive-evidence-missing",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-local-not-applicable",
+      "target_skill": "brownfield-analysis",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "brownfield-architecture-focused-diagram",
+      "target_skill": "brownfield-analysis",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "clean-review-normal",
+      "target_skill": "clean-implementation-review",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "clean-review-boundary",
+      "target_skill": "clean-implementation-review",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "clean-review-adversarial",
+      "target_skill": "clean-implementation-review",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "clean-review-direct-target-unresolved",
+      "target_skill": "clean-implementation-review",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "code-review-normal",
+      "target_skill": "code-review",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "code-review-boundary",
+      "target_skill": "code-review",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "code-review-adversarial",
+      "target_skill": "code-review",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "code-review-direct-target-unresolved",
+      "target_skill": "code-review",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-normal",
+      "target_skill": "delivery-closeout",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-boundary",
+      "target_skill": "delivery-closeout",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-adversarial",
+      "target_skill": "delivery-closeout",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-parent-open",
+      "target_skill": "delivery-closeout",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-parent-accepted-open",
+      "target_skill": "delivery-closeout",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-parent-rediscovery",
+      "target_skill": "delivery-closeout",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-parent-resolved",
+      "target_skill": "delivery-closeout",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-closeout-direct-target-unresolved",
+      "target_skill": "delivery-closeout",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-path-search-normal",
+      "target_skill": "delivery-path-search",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-path-search-boundary",
+      "target_skill": "delivery-path-search",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-path-search-adversarial",
+      "target_skill": "delivery-path-search",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-path-search-cross-scope",
+      "target_skill": "delivery-path-search",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "delivery-path-search-direct-target-unresolved",
+      "target_skill": "delivery-path-search",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-normal",
+      "target_skill": "gate-check",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-boundary",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-adversarial",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-approval-without-artefact",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-prd-approved",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-tp-approved",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-unevidenced-mode-slice",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-implicit-consent",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-legacy-freigabe",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-scope-classification-ungated",
+      "target_skill": "gate-check",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-scope-classification-verified-change",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-scope-classification-ambiguous",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-scope-classification-gated",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-explicit-file-over-cwd",
+      "target_skill": "gate-check",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-evidence-not-mutation",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-governance-after-resolution",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-multiple-plausible",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-content-mismatch",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-unavailable-retry",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-continued-turn",
+      "target_skill": "gate-check",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-target-explicit-change",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-copilot-repoless-generalchat",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-copilot-repoless-prior-ur-bait",
+      "target_skill": "gate-check",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "gate-check-ungoverned-without-intent",
+      "target_skill": "gate-check",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "prd-definition-normal",
+      "target_skill": "prd-definition",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "prd-definition-boundary",
+      "target_skill": "prd-definition",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "prd-definition-adversarial",
+      "target_skill": "prd-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "prd-definition-direct-target-unresolved",
+      "target_skill": "prd-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-normal",
+      "target_skill": "qa-gate",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-boundary",
+      "target_skill": "qa-gate",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-adversarial",
+      "target_skill": "qa-gate",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-direct-target-unresolved",
+      "target_skill": "qa-gate",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-resolved-unique-run",
+      "target_skill": "qa-gate",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-resolved-run-ambiguous",
+      "target_skill": "qa-gate",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-resolved-missing-review",
+      "target_skill": "qa-gate",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "qa-gate-card-approval-bait",
+      "target_skill": "qa-gate",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-normal",
+      "target_skill": "release-or",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-boundary",
+      "target_skill": "release-or",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-adversarial",
+      "target_skill": "release-or",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-parent-resolved",
+      "target_skill": "release-or",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-parent-open",
+      "target_skill": "release-or",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-parent-accepted-open",
+      "target_skill": "release-or",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-programme-readiness",
+      "target_skill": "release-or",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "release-or-direct-target-unresolved",
+      "target_skill": "release-or",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "sd-definition-normal",
+      "target_skill": "sd-definition",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "sd-definition-boundary",
+      "target_skill": "sd-definition",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "sd-definition-adversarial",
+      "target_skill": "sd-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "sd-definition-direct-target-unresolved",
+      "target_skill": "sd-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "task-plan-review-normal",
+      "target_skill": "task-plan-review",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "task-plan-review-boundary",
+      "target_skill": "task-plan-review",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "task-plan-review-adversarial",
+      "target_skill": "task-plan-review",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "task-plan-review-direct-target-unresolved",
+      "target_skill": "task-plan-review",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "ur-definition-normal",
+      "target_skill": "ur-definition",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "case_id": "ur-definition-boundary",
+      "target_skill": "ur-definition",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "case_id": "ur-definition-adversarial",
+      "target_skill": "ur-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "case_id": "ur-definition-direct-target-unresolved",
+      "target_skill": "ur-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "pass",
+      "failures": []
+    },
+    {
+      "case_id": "ux-intent-definition-normal",
+      "target_skill": "ux-intent-definition",
+      "case_class": "normal",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "ux-intent-definition-boundary",
+      "target_skill": "ux-intent-definition",
+      "case_class": "boundary",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "ux-intent-definition-adversarial",
+      "target_skill": "ux-intent-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    },
+    {
+      "case_id": "ux-intent-direct-target-unresolved",
+      "target_skill": "ux-intent-definition",
+      "case_class": "adversarial",
+      "evidence_kind": "deterministic_replay",
+      "status": "block",
+      "failures": [
+        {
+          "status": "block",
+          "code": "EVAL_OBSERVATION_STALE",
+          "message": "observation fingerprint does not match current behavior owners"
+        }
+      ]
+    }
+  ]
+}

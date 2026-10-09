@@ -1,4 +1,5 @@
 import type { Envelope } from './types';
+import { hasConsistentBacklogCounts } from '../../core/lib/control-inspect/cockpit-list.js';
 const states = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const text = (v: unknown) => typeof v === 'string';
@@ -48,6 +49,7 @@ export function validateData(path: string, value: Envelope<unknown>) {
           && object(r.title_observation) && r.title_observation.backlog_digest === data.content_digest))
         && diagnostics(data.diagnostics) && text(data.source_path) && text(data.content_digest) && object(data.counts)
         && Object.values(data.counts).every(v => Number.isSafeInteger(v) && (v as number) >= 0)
+        && hasConsistentBacklogCounts(data)
         && Number.isSafeInteger(data.file_count) && (data.file_count as number) >= 0
         && Number.isSafeInteger(data.byte_count) && (data.byte_count as number) >= 0
         && (data.removed_run_id === undefined || text(data.removed_run_id) && /^[A-Za-z0-9_-]{1,128}$/.test(data.removed_run_id));

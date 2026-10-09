@@ -1,0 +1,10 @@
+# Qualification adapter recording correction
+
+Observed in fresh desktop test chat 01a11d02-cb5a-7a82-89ea-d6129505fcfa on candidate 0.14.5+codex.local-8f578728e735. Two rejected QA recording calls preserved the full target snapshot. The original first call used update_draft=false; one attempted correction to true did not change seal_invalid. That fixture stopped, restored its own unrecorded old QA report bytes and preserved the pass draft separately. No third unchanged recording attempt occurred. This is retained negative evidence, not a successful native zero-recovery chain.
+
+Root source inspection confirms prepareArtefactRecording in the installed/unchanged Core permits prior-digest draft reconstruction only when input.gate !== QA and the old artefact status is draft. QA decisions pass/revise/block are not these draft replacements. The QA-evidence case already completed by validating the report, using existing run-update on current revision, then typed source recording at its returned new revision. The original root full QA implementation case independently completed through the same existing path.
+
+The caller correction is to prepare all allowed own report/review edits, verify all approved source bytes, use existing canonical run-update to record the owned current report change, create a new unique cooperative mapping and typed recording input for the exact returned revision, then run-step artefact gate QA and fresh evaluation. This is not a repair of unknown provenance or approval/source content and not a waiver of a rejected writer. Historical proof files stay untouched. A fresh deliberately instructed test turn may resume only after fresh binding and this materially changed canonical condition; no unchanged invocation replay.
+
+No production code, gate, schema or install was changed to disguise this adapter error. Existing successful source/package/native proof remains applicable. The renewed observation must preserve first-attempt failure and count one additional coordinator recovery instruction separately from deliberately staged checkpoint/terminal turns. No universal zero-prompt claim follows from a corrected probe.
+

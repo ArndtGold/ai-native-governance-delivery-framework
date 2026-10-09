@@ -1,0 +1,34 @@
+[cli-gates] START qa-follow-up
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: the actual card must identify known upstream owners
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:393:16
+    at withFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:50:9)
+    at qaFollowUp (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:359:51)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:444:24
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '## AGDF status-card\n' +
+    '\n' +
+    '| Status field | Value |\n' +
+    '|---|---|\n' +
+    '| Selected run | QA · `qa-follow-up` |\n' +
+    '| Path | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ● QA · ○ UAT |\n' +
+    '| Status | open |\n' +
+    '| Current gate | Quality assurance (`QA`) |\n' +
+    '| Allowed now | route the blocking QA findings to their authoritative owner<br>record the next permitted remediation or upstream decision |\n' +
+    '| Forbidden now | request QA approval<br>request UAT approval<br>release<br>claim delivery readiness<br>implement code |\n' +
+    '| QA follow-up | Resolve the earliest source-owner decision before dependent implementation. (original wording) |\n' +
+    '| Next permitted agent action | Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report. |\n' +
+    '| Missing approval | none |',
+  expected: /source-owner decision \(SD\)/u,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

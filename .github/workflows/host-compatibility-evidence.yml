@@ -31,7 +31,7 @@ jobs:
       - name: Install repository dependencies
         run: node scripts/verify-ci.mjs --stage dependencies
       - name: Prepare release payloads
-        run: node scripts/verify-ci.mjs --stage prepare
+        run: node scripts/verify-ci.mjs --profile prepare
       # file:../cli must contain its generated payload before npm packs it.
       - name: Install MCP validation dependencies from checkout
         run: node scripts/verify-ci.mjs --stage mcp-dependencies

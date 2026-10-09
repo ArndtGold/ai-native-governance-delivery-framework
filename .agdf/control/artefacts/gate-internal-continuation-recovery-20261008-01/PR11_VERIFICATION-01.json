@@ -1,0 +1,529 @@
+{
+  "at": "2026-10-09T06:56:15.591Z",
+  "head": "dc2b87351477c0bd950a6b34057d2b2828f772b4",
+  "checkout": "/private/tmp/agdf-pr11-clean-pjag6maw/checkout",
+  "node": "v22.22.3",
+  "platform": "darwin",
+  "source_snapshot": "07f4bb3cce2ae4ef902a392fe11416f6b47e68015e7fd8658522c1b1c3fc07aa",
+  "root_clean_source_deep_equal": true,
+  "changed_candidate_files_byte_equal": true,
+  "checks": [
+    {
+      "stage": "dependencies",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "ci",
+            "--ignore-scripts"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": "Exact root npm ci --ignore-scripts --offline completed in clean clone; same pinned lockfile"
+    },
+    {
+      "stage": "maintenance",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "run",
+            "test:maintenance-contracts"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "maintenance",
+        "started": "2026-10-09T06:08:53.374Z",
+        "finished": "2026-10-09T06:09:21.712Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "shell",
+      "commands": [
+        {
+          "tool": "node",
+          "args": [
+            "scripts/check-shell-syntax.mjs"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "shell",
+        "started": "2026-10-09T06:09:21.713Z",
+        "finished": "2026-10-09T06:09:22.353Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "prepare",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "run",
+            "build"
+          ]
+        },
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli",
+            "run",
+            "release:prepare"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": "/private/tmp/pr11-clean-prepare.log"
+    },
+    {
+      "stage": "mcp-dependencies",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "ci",
+            "--ignore-scripts"
+          ],
+          "cwd": "packages/mcp-server"
+        }
+      ],
+      "result": "pass",
+      "evidence": "/private/tmp/pr11-clean-mcp-dependencies-retry.log"
+    },
+    {
+      "stage": "runtime",
+      "commands": [
+        {
+          "tool": "node",
+          "args": [
+            "plugins/agdf/scripts/check-runtime-integrity.mjs"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "runtime",
+        "started": "2026-10-09T06:10:50.543Z",
+        "finished": "2026-10-09T06:10:52.594Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "community",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "run",
+            "test:community-health"
+          ]
+        },
+        {
+          "tool": "npm",
+          "args": [
+            "run",
+            "check:community-health"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "community",
+        "started": "2026-10-09T06:10:52.595Z",
+        "finished": "2026-10-09T06:10:58.049Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "host-compatibility",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "run",
+            "test:host-compatibility"
+          ]
+        },
+        {
+          "tool": "npm",
+          "args": [
+            "run",
+            "compatibility:check"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "host-compatibility",
+        "started": "2026-10-09T06:10:58.049Z",
+        "finished": "2026-10-09T06:11:53.694Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "built-runtime",
+      "commands": [
+        {
+          "tool": "node",
+          "args": [
+            "packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs"
+          ],
+          "env": {
+            "AGDF_RUNTIME_INTEGRITY_ROOT": "packages/cli/generated/plugins/agdf"
+          }
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "built-runtime",
+        "started": "2026-10-09T06:11:53.695Z",
+        "finished": "2026-10-09T06:11:55.699Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "cli-package",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli",
+            "run",
+            "test:package-contents"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "cli-package",
+        "started": "2026-10-09T06:11:55.699Z",
+        "finished": "2026-10-09T06:11:59.000Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "wrapper-package",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli/distribution/agdf",
+            "run",
+            "test:package"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "wrapper-package",
+        "started": "2026-10-09T06:11:59.001Z",
+        "finished": "2026-10-09T06:12:00.453Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "transactions",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli",
+            "run",
+            "test:run-step-transaction"
+          ]
+        },
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli",
+            "run",
+            "test:run-lock"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "transactions",
+        "started": "2026-10-09T06:12:00.454Z",
+        "finished": "2026-10-09T06:12:28.961Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "delivery-map",
+      "commands": [
+        {
+          "tool": "node",
+          "args": [
+            "packages/cli/bin/create-agdf.js",
+            "delivery-map",
+            "--dir",
+            ".",
+            "--all-active"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "delivery-map",
+        "started": "2026-10-09T06:12:28.962Z",
+        "finished": "2026-10-09T06:12:33.674Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "evals",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli",
+            "run",
+            "eval:skills"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": "/private/tmp/pr11-clean-evals.log"
+    },
+    {
+      "stage": "mcp-package",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/mcp-server",
+            "run",
+            "test:package"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "mcp-package",
+        "started": "2026-10-09T06:12:33.674Z",
+        "finished": "2026-10-09T06:12:35.358Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "archives",
+      "commands": [
+        {
+          "tool": "node",
+          "args": [
+            "scripts/pack-npm.mjs"
+          ]
+        },
+        {
+          "tool": "node",
+          "args": [
+            "scripts/test-package-consumers.mjs"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "archives",
+        "started": "2026-10-09T06:12:35.358Z",
+        "finished": "2026-10-09T06:12:54.744Z",
+        "passed": true
+      }
+    },
+    {
+      "stage": "cli-smoke",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli",
+            "run",
+            "smoke-test"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": "Full canonical ordered && chain passed all components before its final script; retained unchanged components plus successful final script/routing recheck, PR11_RETAINED_CHECKS-01.json"
+    },
+    {
+      "stage": "wrapper-smoke",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "packages/cli/distribution/agdf",
+            "run",
+            "smoke-test"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "wrapper-smoke",
+        "started": "2026-10-09T06:54:20.010Z",
+        "passed": true,
+        "finished": "2026-10-09T06:54:27.872Z"
+      }
+    },
+    {
+      "stage": "pages-install",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "pages",
+            "ci"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "pages-install",
+        "started": "2026-10-09T06:54:27.872Z",
+        "passed": true,
+        "finished": "2026-10-09T06:54:45.475Z"
+      }
+    },
+    {
+      "stage": "pages",
+      "commands": [
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "pages",
+            "run",
+            "check"
+          ]
+        },
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "pages",
+            "run",
+            "test:landing"
+          ]
+        },
+        {
+          "tool": "npm",
+          "args": [
+            "--prefix",
+            "pages",
+            "run",
+            "test:public-documents"
+          ]
+        }
+      ],
+      "result": "pass",
+      "evidence": {
+        "stage": "pages",
+        "started": "2026-10-09T06:54:45.476Z",
+        "passed": true,
+        "finished": "2026-10-09T06:55:03.561Z"
+      }
+    }
+  ],
+  "final_recheck": [
+    {
+      "stage": "cli-smoke-final-script",
+      "started": "2026-10-09T06:51:52.373Z",
+      "passed": true,
+      "finished": "2026-10-09T06:54:19.696Z"
+    },
+    {
+      "stage": "cli-smoke-routing",
+      "started": "2026-10-09T06:54:19.699Z",
+      "passed": true,
+      "finished": "2026-10-09T06:54:20.010Z"
+    },
+    {
+      "stage": "wrapper-smoke",
+      "started": "2026-10-09T06:54:20.010Z",
+      "passed": true,
+      "finished": "2026-10-09T06:54:27.872Z"
+    },
+    {
+      "stage": "pages-install",
+      "started": "2026-10-09T06:54:27.872Z",
+      "passed": true,
+      "finished": "2026-10-09T06:54:45.475Z"
+    },
+    {
+      "stage": "pages",
+      "started": "2026-10-09T06:54:45.476Z",
+      "passed": true,
+      "finished": "2026-10-09T06:55:03.561Z"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/private/tmp/pr11-clean-prepare.log",
+      "sha256": "699268f3b641878ab2150a6b5b7c7578803bb6fe07ccf9447c6d99d8b0028dca",
+      "bytes": 2119
+    },
+    {
+      "path": "/private/tmp/pr11-clean-evals.log",
+      "sha256": "13197617d208c4a65bde4c6ab5263e49148d400baee2a8c1164f734894da05e1",
+      "bytes": 196
+    },
+    {
+      "path": "/private/tmp/pr11-clean-remaining.log",
+      "sha256": "64ea0eba4098b1552e189444944c3316468dcde5eee4a9b57005572bc23a0fc1",
+      "bytes": 3984
+    },
+    {
+      "path": "/private/tmp/pr11-clean-mcp-dependencies-retry.log",
+      "sha256": "1da6c588ce54a942a55cb6604b73937cea0738b767d8e8b8b24ea5fccff59e49",
+      "bytes": 327
+    },
+    {
+      "path": "/private/tmp/pr11-clean-post-refresh.log",
+      "sha256": "100ff4f8f507d00f0c8a123d6d38e94d600063a5bff87cbf73622374f1f076fa",
+      "bytes": 155570
+    },
+    {
+      "path": "/private/tmp/pr11-clean-final-stages.log",
+      "sha256": "8fa2c655fd90edfc30d5e8e57ed5c1ae7c9dc822308bfeb32d8c18b802391c45",
+      "bytes": 75371
+    },
+    {
+      "path": "/private/tmp/pr11-clean-final-recheck.log",
+      "sha256": "7ede76de931747391c295c2e6eb7bda68346b8c5b9186ffae11e519245f69cca",
+      "bytes": 2551
+    },
+    {
+      "path": "/private/tmp/pr11-clean-final-recheck-02.log",
+      "sha256": "e53b6236f72cbc71bd42707ee931046166442cccc560a989890e8b5af46f59db",
+      "bytes": 4753
+    },
+    {
+      "path": "/private/tmp/pr11-request-activation.log",
+      "sha256": "2bcd6903174878c3e8bb3712264083fbfdf8dd431984944cd8ca91014a75f21c",
+      "bytes": 43
+    }
+  ],
+  "retained_failures": [
+    "offline temporary npm cache corruption, corrected by exact dependency acquisition into independent cache",
+    "stale source-fingerprint evidence",
+    "source and generated textual contract occurrence assertions",
+    "legacy QA revise fixture expecting implementation without normalized findings"
+  ],
+  "boundary": "All shared CI stage commands passed locally across bounded staged checks and reviewed retention. Not a single newly executed verify-ci full invocation, a new remote GitHub run, Windows/Linux qualification, or new model observation. Production runtime/skill sources, exact approved sources, evaluator thresholds and native historical records unchanged."
+}

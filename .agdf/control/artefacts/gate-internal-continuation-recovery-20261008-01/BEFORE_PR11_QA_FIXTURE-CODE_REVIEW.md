@@ -1,7 +1,7 @@
 # Code Review
 
-- decision: pass
-- assessed_at: 2026-10-09T06:57:24.754729+00:00
+- decision: revise
+- assessed_at: 2026-10-08T20:10:00.641818+00:00
 - run: gate-internal-continuation-recovery-20261008-01
 - candidate: 0.14.5+codex.local-9816859c8401
 - runtime_digest: 0d6fdea6fc73923d7e76d265bf1325970bbf5647af48b36ab281f75052876b57
@@ -36,8 +36,7 @@ Unrelated dirty cockpit changes listed in BASELINE-01.json were preserved. Share
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| QF-006 | implementation_gap | CD+Tests | resolved | EVIDENCE_PR11_CI-01.md; PR11_VERIFICATION-01.json: missing-findings fixture denies implementation and QA/UAT approval; complete positive/negative QA matrix retained and final smoke passes | Retain the exact local proof; reassess affected obligations if source/candidate changes |
-| QF-005 | implementation_gap | CD+Tests | resolved | EVIDENCE_PR11_CI-01.md; PR11_TEST_BOUNDARY-01.json; PR11_VERIFICATION-01.json: source and generated declarations checked exactly once; 30 invalid reference countercases; final smoke and routing pass | Retain the exact local proof; reassess affected obligations if source/candidate changes |
+| QF-005 | implementation_gap | CD+Tests | open | PR11_SMOKE_FINDING-01.md: request-activation-test.js counts an incidental interaction.md prose mention as a second declared contract | Correct the existing declared-contract assertion and rerun its positive/negative checks plus the remaining canonical CI stages |
 | QF-003 | implementation_gap | CD+Tests | resolved | OWNER_SOURCE_REVIEW-01.md; OWNER_CHECKS-01.json; OWNER_CANDIDATE-01.json; INDEPENDENT_TERMINAL_OWNER_CORRECTED_PROOF-01.json; OWNER_NATIVE_NO_WRITE-01.json: known SD owner appears, terminal and protected bytes retained | Retain the affected proof and reassess if its source path changes |
 
 Native owner diagnosis update: QF-003 is resolved by the scoped source correction, all affected checks and fresh actual installed upstream terminal proof. Existing QA revise is retained for QF-001 display evidence; no approval is inferred.
@@ -48,8 +47,4 @@ EVIDENCE_NATIVE-05.md supersedes earlier blanket native absence statements. QF-0
 
 Current-source review supplement: OWNER_SOURCE_REVIEW-01.md records the exact +120-byte Core delta, existing quality-map validation and preserved terminal authority. All seven affected checks passed. New selected MCP identity is matched in OWNER_FRESH_CONNECTION-01.json and OWNER_ACTUAL_QA_DISPATCH-01.json; fresh independent corrected upstream output names SD exactly and remains read-only. Previous failure, package identity and native evidence are retained as historical/applicable as individually stated.
 
-Current smoke finding: QF-005 and QF-006 are resolved by the exact declaration checks and missing-findings fixture correction; actual final smoke/routing pass with unchanged previous canonical command proof retained by applicability.
-
-## Current PR11 bounded review
-
-EVIDENCE_PR11_CI-01.md and PR11_VERIFICATION-01.json supersede earlier limited-CI-check statements. This same-agent review inspected the actual two test changes, preserved replay values/thresholds and canonical recorder-owned outputs. It found no new runtime/skill/workflow/public-contract or approved-source delta, parallel production owner, check bypass, installation or new host claim. Declaration matching is exact per actual source/projection path; missing, duplicate and substituted references fail. The intentionally absent QA findings now correctly retain owner routing and deny dependent implementation. Positive QA implementation/evidence coverage remains in the existing fully passing matrix. All shared repository stage commands have passing local evidence; exact applicable prior components and failed attempts remain visible. QF-004/QF-005/QF-006 are resolved without reclassification. QF-001 visible observation and existing historical-method limits remain; no final QA/UAT/clean delivery authority is inferred.
+Current smoke finding: QF-005 is a bounded T004/T006/T007 regression-test correction. Existing contract declarations and runtime sources remain unchanged; this finding does not authorize an upstream source or product extension. QF-004 failed paths are now locally passing; full smoke has exposed the exact additional failure recorded in PR11_SMOKE_FINDING-01.md.

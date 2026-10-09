@@ -7,18 +7,18 @@
 | Plan coverage | task-plan-review | revise: 6/9 tasks fully done; remaining native display and historical-method limits explicit |
 | Solution integrity | clean-implementation-review | revise: integrated solution and complete applicable model/protocol chains; current displayed readability remains open |
 | Code quality | code-review | pass: no actionable scoped source defect identified |
-| QA decision | qa-gate — sole decision owner | revise: QF-002/QF-003/QF-004/QF-005/QF-006 resolved; QF-001 current displayed-readability observation open |
+| QA decision | qa-gate — sole decision owner | revise: QF-002/QF-003 resolved; QF-001 current displayed-readability observation open |
 
 ## QA Decision
 
 - decision: revise
-- assessed_at: 2026-10-09T06:58:30.513352+00:00
-- assessed_revision_id: e117dc45-74aa-436f-b5ae-5ea48c12673c
+- assessed_at: 2026-10-08T20:10:53.470533+00:00
+- assessed_revision_id: 46f0a95b-c441-4c6e-8450-82fe515cc683
 - run: gate-internal-continuation-recovery-20261008-01
 - candidate: 0.14.5+codex.local-9816859c8401
 - runtime_digest: 0d6fdea6fc73923d7e76d265bf1325970bbf5647af48b36ab281f75052876b57
 - mcp_dispatcher_digest: 33eb2749996cde05e78e5cef6d2557f4bee0de8d3e8971457da3fa3ba055eddb
-- evidence: EVIDENCE_PR11_CI-01.md and PR11_VERIFICATION-01.json; refreshed CD_TESTS.md, CODE_REVIEW.md, TASK_PLAN_REVIEW.md and CLEAN_IMPLEMENTATION_REVIEW.md; EVIDENCE_NATIVE-05.md; complete retained independent/root native ledgers; OWNER_CHECKS-01.json; exact candidate/install/fresh stdio/actual MCP and corrected upstream terminal proof
+- evidence: Refreshed CD_TESTS.md, CODE_REVIEW.md, TASK_PLAN_REVIEW.md and CLEAN_IMPLEMENTATION_REVIEW.md; EVIDENCE_NATIVE-05.md; complete retained independent/root native ledgers; OWNER_CHECKS-01.json; exact candidate/install/fresh stdio/actual MCP and corrected upstream terminal proof
 - code_review: .agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/CODE_REVIEW.md
 - tp_review: .agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/TASK_PLAN_REVIEW.md
 - clean_implementation_review: .agdf/control/artefacts/gate-internal-continuation-recovery-20261008-01/CLEAN_IMPLEMENTATION_REVIEW.md
@@ -46,10 +46,9 @@ Installation and connection are now evidenced for the current candidate under th
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
 | QF-001 | evidence_gap | evidence_obligation | open | EVIDENCE_NATIVE-05.md and refreshed reviews: model/protocol/QA/terminal/revision and exact corrected candidate proof collected; representative current native displayed readability remains inaccessible | Observe the freshly issued current Cockpit in the expanded accessible MCP App and assess current state, exact diagnosis and readability |
-| QF-006 | implementation_gap | CD+Tests | resolved | EVIDENCE_PR11_CI-01.md; PR11_VERIFICATION-01.json: missing-findings fixture denies dependent implementation and QA/UAT approval; complete applicable positive/negative QA matrix and final smoke pass | Retain the current proof and reassess affected obligations if source/candidate changes |
-| QF-005 | implementation_gap | CD+Tests | resolved | EVIDENCE_PR11_CI-01.md; PR11_TEST_BOUNDARY-01.json; PR11_VERIFICATION-01.json: source/generated declared-reference checks and 30 invalid reference negatives; final smoke/routing pass | Retain the current proof and reassess affected obligations if source/candidate changes |
+| QF-005 | implementation_gap | CD+Tests | open | PR11_SMOKE_FINDING-01.md: request-activation-test.js counts an incidental interaction.md prose mention as a second declared contract | Correct the existing declared-contract assertion and rerun its positive/negative checks plus the remaining canonical CI stages |
 | QF-003 | implementation_gap | CD+Tests | resolved | OWNER_SOURCE_REVIEW-01.md; OWNER_CHECKS-01.json; INDEPENDENT_TERMINAL_OWNER_CORRECTED_PROOF-01.json and OWNER_NATIVE_NO_WRITE-01.json: known SD owner explicitly named, actual terminal and 58 protected fixture files unchanged | Retain affected proof and reassess if source/candidate changes |
-| QF-004 | evidence_gap | evidence_obligation | resolved | EVIDENCE_PR11_CI-01.md; PR11_REPLAY_REVALIDATION-01.json; PR11_COMPATIBILITY_RECORD-01.json; PR11_VERIFICATION-01.json: 102/102 static replay, 56/56 fresh adapter fixtures, exact clean closure and original failed CI paths pass locally | Retain the current proof and reassess affected obligations if source/candidate changes |
+| QF-004 | evidence_gap | evidence_obligation | open | PR11_CI_ANALYSIS-01.md: actual CI and current head reject stale skill replay fingerprints and compatibility source snapshot | Review affected replay applicability, refresh existing evidence owners against the current clean candidate and verify the actual failed CI paths without weakening checks |
 | QF-002 | implementation_gap | CD+Tests | resolved | EVIDENCE_SUMMARY_FIX-01.md, final affected tests and SUMMARY_NATIVE_BEFORE/VALIDATION/RECORDING/AFTER-01.json prove early canonical validation, exact diagnosis and actual installed positive recovery | Retain this proof and reassess if the candidate or affected paths change |
 
 Current gate remains QA. No Approval: QA is ready; UAT/release and clean delivery handoff remain forbidden. This report approves no gate, installation, source revision or VCS action.
@@ -64,12 +63,6 @@ Complete native evidence is consolidated in EVIDENCE_NATIVE-05.md: actual indepe
 
 QF-001 is now a concrete user-visible collection dependency. Current tool-accessible expanded UI is an expired prior card; source text and model output cannot replace required actual displayed readability. No executable local work is deferred merely because QA is revise. The outstanding opening action was requested while other work continued. No Approval: QA, UAT, release or delivery readiness is requested from this revise report.
 
-Current CI update: QF-004 is resolved by reviewed static replay applicability and freshly executed canonical compatibility record/check against an exact clean current candidate. All shared repository command stages pass locally; no remote CI, platform-native or new model run is inferred.
+Current CI update: PR11_CI_ANALYSIS-01.md records QF-004 as an executable internal evidence obligation. Continue its permitted collection before stopping for the separately inaccessible current display. No source correction or QA approval is inferred.
 
-Current smoke finding: QF-005 and QF-006 are resolved with exact declaration checks, explicit missing-findings denial and successful final smoke/routing. Earlier applicable command results and all failed attempts are retained.
-
-## Current PR11 sole-owner QA reassessment
-
-Decision: revise. This assessment consumes the actual updated mandatory reviews, current approved TP, typed source relationship, EVIDENCE_PR11_CI-01.md and all complete local stage/component proof in PR11_VERIFICATION-01.json. Code Review is pass for the actual two test assertions/fixture and canonical evidence outputs; same-agent limitation is explicit. TP remains six of nine fully_done with the existing historical-method/native-display limits; Clean Review remains revise for QF-001. QF-004, QF-005 and QF-006 resolve with actual local proof and their original normalized routes, without lowering freshness, safety, coverage or threshold checks. No runtime/skill/approved source changed, so applicable current native/model evidence is retained and no reconnect is required.
-
-The decisive remaining dimension is visible solution evidence: QF-001 current displayed Cockpit readability is still missing. The single permissible QA next step is its already prepared current expanded-Cockpit observation; no local executable CI work remains deferred. No Approval: QA, UAT, installation or release authority is inferred. The new GitHub Linux/Windows/Node24 run remains pending a separately authorized VCS update; local macOS/Node22 proof is not represented as remote-green or independent host qualification.
+Current smoke finding: QF-005 is a bounded T004/T006/T007 regression-test correction. Existing contract declarations and runtime sources remain unchanged; this finding does not authorize an upstream source or product extension. QF-004 failed paths are now locally passing; full smoke has exposed the exact additional failure recorded in PR11_SMOKE_FINDING-01.md.

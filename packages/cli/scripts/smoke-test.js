@@ -1378,9 +1378,9 @@ smokePhase("status card tp transition");
 
 {
   const transitionSkillPaths = [
-    join(generatedRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md"),
-    join(generatedRoot, "plugins", "copilot", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
-    join(generatedRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"),
+    [join(generatedRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md"), "`../../meta/contracts/interaction.md`"],
+    [join(generatedRoot, "plugins", "copilot", "agdf", "skills", "agdf-gate-check", "SKILL.md"), "`../contracts/interaction.md`"],
+    [join(generatedRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"), "`../../contracts/interaction.md`"],
   ];
   const transitionContractPaths = [
     join(generatedRoot, "plugins", "agdf", "meta", "contracts", "interaction.md"),
@@ -1393,8 +1393,9 @@ smokePhase("status card tp transition");
     join(generatedRoot, ".opencode", "agdf-interaction-locales.json"),
   ];
 
-  for (const path of transitionSkillPaths) {
+  for (const [path, interactionReference] of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
+    const hasSingleInteractionReference = (text) => text.split(interactionReference).length - 1 === 1;
     if (!content.includes("Dispatch is non-authorizing.")
       || !content.includes("`skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.")
       || !content.includes("`delivery.start`: resolve target once; unresolved: orient and stop.")
@@ -1405,12 +1406,21 @@ smokePhase("status card tp transition");
       || !content.includes("Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope")
       || !content.includes("`expected_revision_id`")
       || !content.includes("`continue_delivery: true`")
-      || (content.match(/interaction\.md/g) ?? []).length !== 1
+      || !hasSingleInteractionReference(content)
       || content.includes("Consume the canonical `approval_presentation` verbatim")
       || content.includes("`status_presentation.markdown` verbatim")
       || content.includes("| Run status | Value |")
       || content.includes("Surface behavior:")) {
       throw new Error(`Generated gate-check surface must preserve compact orchestration and single contract ownership: ${path}`);
+    }
+    for (const invalid of [
+      `${content}\n- ${interactionReference}\n`,
+      content.replace(interactionReference, ""),
+      content.replace(interactionReference, interactionReference.replace("contracts/", "other/")),
+    ]) {
+      if (hasSingleInteractionReference(invalid)) {
+        throw new Error(`Generated gate-check reference check must reject duplicate, missing and wrong contract paths: ${path}`);
+      }
     }
   }
 
@@ -1522,7 +1532,7 @@ smokePhase("late gate transition scenarios");
     { name: "brownfield", steps: {}, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
     { name: "cd-tests", steps: { "Brownfield Analysis": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
     { name: "cr", steps: { "Brownfield Analysis": "done", "CD+Tests": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CR", missing: "none", allowed: "run mandatory code review", forbidden: "claim QA pass", next: "Run Code Review for the implemented TP scope and resolve blocking findings before QA." },
-    { name: "qa-revise", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "revise"], uat: "missing", gate: "QA", missing: "none", allowed: "revise the implementation against the QA findings", forbidden: "request QA approval", next: "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.", status: "open" },
+    { name: "qa-revise-missing-findings", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "revise"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", forbiddenExtra: ["implement code", "request UAT approval"], next: "Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report.", status: "open" },
     { name: "qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", next: "Resolve or route the blocking QA findings via their authoritative owner, then rerun the required steps. Do not request Approval: QA from a block report.", status: "blocked" },
     { name: "approved-qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "complete the current control-state fields", forbidden: "create later-gate artefacts beyond the current allowed gate", next: "Update the QA artefact row in the selected RUN_STATE.md to use the gate-specific durable status vocabulary.", status: "blocked" },
     { name: "qa-approval", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "persist or refine the QA report" },
@@ -1627,6 +1637,7 @@ ${internalRows}
         || report.status !== (testCase.status ?? "open")
         || !report.allowed.includes(testCase.allowed)
         || !report.forbidden.includes(testCase.forbidden)
+        || (testCase.forbiddenExtra ?? []).some((action) => !report.forbidden.includes(action))
         || report.next_allowed_action !== testCase.next) {
         throw new Error(`Late-gate ${testCase.name} mismatch: ${JSON.stringify({ status: report.status, gate: report.current_gate, missing: report.missing_approval, allowed: report.allowed, forbidden: report.forbidden, next: report.next_allowed_action, doctor: report.doctor_report?.findings })}`);
       }

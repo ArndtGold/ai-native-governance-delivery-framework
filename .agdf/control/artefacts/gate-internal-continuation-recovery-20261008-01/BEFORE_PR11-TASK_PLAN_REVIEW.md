@@ -1,7 +1,7 @@
 # Task Plan Review
 
 - decision: revise
-- assessed_at: 2026-10-09T06:57:24.754729+00:00
+- assessed_at: 2026-10-08T20:10:00.641818+00:00
 - run: gate-internal-continuation-recovery-20261008-01
 - candidate: 0.14.5+codex.local-9816859c8401
 - runtime_digest: 0d6fdea6fc73923d7e76d265bf1325970bbf5647af48b36ab281f75052876b57
@@ -22,8 +22,8 @@
 | T-003 | fully_done | Existing qa-follow-up owner, retained source negatives and actual full QA implementation/evidence plus external/upstream/invalid native boundaries | none at source/route level | No approval from revise |
 | T-004 | fully_done | Existing contracts, affected instruction checks, actual bounded unchanged stop and three exact terminal/no-later-tool native turns | native displayed readability under T008 | No retry engine or suppressed terminal |
 | T-005 | fully_done | Existing renderer/locales; eight new locale renders and affected checks | displayed readability under T008 | Exact reason and required field inspected |
-| T-006 | fully_done | EVIDENCE_PR11_CI-01.md and all shared CI command stages; retained canonical suites, source before/after comparisons, all registered locale renders, complete current categorized actual ledgers and multi-turn revision/terminal/input/no-write observations | historical full model timing unavailable; no such timing claimed | Actual evidence and limits separated |
-| T-007 | fully_done | EVIDENCE_PR11_CI-01.md exact clean source/payload and comparison record; synced final candidate; OWNER_CANDIDATE-01.json; OWNER_CHECKS-01.json; QUALIFICATION_PLAN-05.md prepared before pinned update and fresh affected native proof | none | Candidate prepared in one sequence |
+| T-006 | fully_done | Retained canonical suites, source before/after comparisons, all registered locale renders, complete current categorized actual ledgers and multi-turn revision/terminal/input/no-write observations | historical full model timing unavailable; no such timing claimed | Actual evidence and limits separated |
+| T-007 | fully_done | Synced final candidate; OWNER_CANDIDATE-01.json; OWNER_CHECKS-01.json; QUALIFICATION_PLAN-05.md prepared before pinned update and fresh affected native proof | none | Candidate prepared in one sequence |
 | T-008 | partially_done | Current installed identity plus independent fresh Desktop/model and complete nine-case observations; typed QA recovery and retained failed attempt | representative current native displayed readability; no abrupt host cancellation claimed | QF-001 remains open |
 | T-009 | partially_done | CD+Tests and mandatory reviews refreshed to concrete actual progress; QA revise retained until required visible proof | final visible observation and subsequent final QA readiness | No Approval: QA |
 
@@ -105,10 +105,7 @@ The following complete criterion/scenario inventory retains the original source 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
 | QF-001 | evidence_gap | evidence_obligation | open | EVIDENCE_NATIVE-05.md and FINAL_INDEPENDENT_INDEX-01.json: actual current desktop positive, stop, multi-turn revision, QA and terminal/input chains observed; representative current native displayed readability remains inaccessible | Open the freshly issued Cockpit in the accessible expanded MCP-App surface and observe current state, exact diagnosis and readability before final QA readiness |
-| QF-006 | implementation_gap | CD+Tests | resolved | EVIDENCE_PR11_CI-01.md; PR11_VERIFICATION-01.json: missing-findings fixture denies implementation and QA/UAT approval; complete positive/negative QA matrix retained and final smoke passes | Retain the exact local proof; reassess affected obligations if source/candidate changes |
-| QF-005 | implementation_gap | CD+Tests | resolved | EVIDENCE_PR11_CI-01.md; PR11_TEST_BOUNDARY-01.json; PR11_VERIFICATION-01.json: source and generated declarations checked exactly once; 30 invalid reference countercases; final smoke and routing pass | Retain the exact local proof; reassess affected obligations if source/candidate changes |
 | QF-003 | implementation_gap | CD+Tests | resolved | OWNER_SOURCE_REVIEW-01.md; OWNER_CHECKS-01.json; OWNER_CANDIDATE-01.json; INDEPENDENT_TERMINAL_OWNER_CORRECTED_PROOF-01.json; OWNER_NATIVE_NO_WRITE-01.json: known SD owner appears, terminal and protected bytes retained | Retain the affected proof and reassess if its source path changes |
-| QF-004 | evidence_gap | evidence_obligation | resolved | EVIDENCE_PR11_CI-01.md; PR11_REPLAY_REVALIDATION-01.json; PR11_COMPATIBILITY_RECORD-01.json; PR11_VERIFICATION-01.json: 102/102 static replay, 56/56 fresh adapter fixtures, exact clean closure and original failed CI paths pass | Retain the exact local proof; reassess affected obligations if source/candidate changes |
 
 Native owner diagnosis update: QF-003 is resolved by the scoped source correction, all affected checks and fresh actual installed upstream terminal proof. Existing QA revise is retained for QF-001 display evidence; no approval is inferred.
 
@@ -117,11 +114,3 @@ Native owner diagnosis update: QF-003 is resolved by the scoped source correctio
 EVIDENCE_NATIVE-05.md supersedes earlier blanket native absence paragraphs above. The candidate changed solely for QF-003; fresh affected proof and explicit retained-evidence applicability are recorded in EVIDENCE_NATIVE-05.md. All executable model/protocol/checkpoint/QA cases are now observed; only representative current native displayed readability remains a live collection dependency. T001 retains its explicit historical baseline-method/timing limitation; no historical model duration or complete original model baseline is invented. The ledger preserves one independent QA caller-order failure and one subsequent coordinator recovery rather than presenting a universal zero-recovery result.
 
 Current-source review supplement: OWNER_SOURCE_REVIEW-01.md records the exact +120-byte Core delta, existing quality-map validation and preserved terminal authority. All seven affected checks passed. New selected MCP identity is matched in OWNER_FRESH_CONNECTION-01.json and OWNER_ACTUAL_QA_DISPATCH-01.json; fresh independent corrected upstream output names SD exactly and remains read-only. Previous failure, package identity and native evidence are retained as historical/applicable as individually stated.
-
-Current CI update: QF-004 is resolved by reviewed replay retention and freshly executed canonical compatibility evidence against an exact clean candidate; original CI paths and all shared command stages pass locally. See EVIDENCE_PR11_CI-01.md.
-
-Current smoke finding: QF-005 and QF-006 are resolved by the exact declaration checks and missing-findings fixture correction; actual final smoke/routing pass with unchanged previous canonical command proof retained by applicability.
-
-## Current PR11 bounded review
-
-EVIDENCE_PR11_CI-01.md and PR11_VERIFICATION-01.json supersede earlier limited-CI-check statements. This same-agent review inspected the actual two test changes, preserved replay values/thresholds and canonical recorder-owned outputs. It found no new runtime/skill/workflow/public-contract or approved-source delta, parallel production owner, check bypass, installation or new host claim. Declaration matching is exact per actual source/projection path; missing, duplicate and substituted references fail. The intentionally absent QA findings now correctly retain owner routing and deny dependent implementation. Positive QA implementation/evidence coverage remains in the existing fully passing matrix. All shared repository stage commands have passing local evidence; exact applicable prior components and failed attempts remain visible. QF-004/QF-005/QF-006 are resolved without reclassification. QF-001 visible observation and existing historical-method limits remain; no final QA/UAT/clean delivery authority is inferred.

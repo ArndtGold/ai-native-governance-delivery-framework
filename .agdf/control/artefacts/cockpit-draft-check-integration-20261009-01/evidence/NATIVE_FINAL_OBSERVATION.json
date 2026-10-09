@@ -1,0 +1,200 @@
+{
+  "schema_version": "1",
+  "status": "native_sequence_observed",
+  "delivery_run": "cockpit-draft-check-integration-20261009-01",
+  "delivery_revision_at_review": "b2c42a95-2063-4ea3-bbbc-be018309defb",
+  "observation_binding": {
+    "observation_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF",
+    "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+    "run_id": "synthetic-draft",
+    "gate": "PRD",
+    "expected_revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+    "artifact_digest": "sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8",
+    "host_surface": "Codex native MCP App",
+    "host_session": "01a11fe7-d85e-7ad2-9820-14d580ec404e"
+  },
+  "ui_digest": "sha256:859039c09e4c0ebc02cecc02b4954936538afb6749e42981b053a4ca0f687828",
+  "probe_invocation": "56efcffd-832e-4658-ab40-4e9e19587388",
+  "native_session": "25860da3-028e-4d60-b020-e5ffe58d17e7",
+  "host_initialization_id": "5e000343-2a60-4979-bd24-8b0e231b9414",
+  "host_initialization_evidence": "NATIVE_FINAL_HOST_PROTOCOL.json",
+  "event_log": "NATIVE_PROBE_EVENTS.jsonl",
+  "busy_event": {
+    "at": "2026-10-09T20:21:25.034Z",
+    "invocation": "56efcffd-832e-4658-ab40-4e9e19587388",
+    "event": "tool",
+    "tool": "agdf_cockpit_read",
+    "input": {
+      "operation": "artifact_readiness",
+      "snapshot_id": "2fb36586-6ba2-471b-971e-2837284ff62d",
+      "run_id": "synthetic-draft",
+      "gate": "PRD",
+      "expected_revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+      "session_id": "25860da3-028e-4d60-b020-e5ffe58d17e7"
+    },
+    "result": {
+      "target": {
+        "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+        "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF"
+      },
+      "snapshot": null,
+      "state": "blocked",
+      "code": "busy",
+      "data": null,
+      "authorizes": false
+    },
+    "actual_core_busy": true
+  },
+  "retry_event": {
+    "at": "2026-10-09T20:21:28.695Z",
+    "invocation": "56efcffd-832e-4658-ab40-4e9e19587388",
+    "event": "tool",
+    "tool": "agdf_cockpit_read",
+    "input": {
+      "operation": "artifact_readiness",
+      "snapshot_id": "2fb36586-6ba2-471b-971e-2837284ff62d",
+      "run_id": "synthetic-draft",
+      "gate": "PRD",
+      "expected_revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+      "session_id": "25860da3-028e-4d60-b020-e5ffe58d17e7"
+    },
+    "result": {
+      "target": {
+        "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+        "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF"
+      },
+      "snapshot": "3bd1efee-52a0-4105-8442-fba4d8f50f8d",
+      "state": "available",
+      "code": null,
+      "data": {
+        "source": {
+          "run_id": "synthetic-draft",
+          "gate": "PRD",
+          "revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+          "artifact_path": ".agdf/control/artefacts/synthetic-draft/PRD.md",
+          "artifact_digest": "sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8",
+          "available": true,
+          "reason": null
+        },
+        "result": {
+          "run_id": "synthetic-draft",
+          "gate": "PRD",
+          "expected_revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+          "revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+          "artifact_path": ".agdf/control/artefacts/synthetic-draft/PRD.md",
+          "artifact_digest": "sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8",
+          "ready": true,
+          "readiness_scope": "authoring_checks",
+          "authorizes": false,
+          "semantic_review_required": true,
+          "registration_required": true,
+          "presentation_required": true,
+          "checks": [
+            {
+              "name": "approval_summary",
+              "ready": true,
+              "required_heading": "AGDF Approval Summary (de; source=en)",
+              "reason": null
+            },
+            {
+              "name": "prd_readiness",
+              "ready": true,
+              "open_decisions": []
+            }
+          ],
+          "diagnostics": [],
+          "next_action": "Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval."
+        },
+        "display": {
+          "state": "passed",
+          "reason": null,
+          "recovery": "authoring"
+        }
+      },
+      "authorizes": false
+    },
+    "actual_core_busy": false
+  },
+  "close_event": {
+    "at": "2026-10-09T20:22:21.259Z",
+    "invocation": "56efcffd-832e-4658-ab40-4e9e19587388",
+    "event": "tool",
+    "tool": "agdf_cockpit_read",
+    "input": {
+      "operation": "close",
+      "session_id": "25860da3-028e-4d60-b020-e5ffe58d17e7"
+    },
+    "result": {
+      "target": {
+        "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+        "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF"
+      },
+      "snapshot": null,
+      "state": "available",
+      "code": null,
+      "data": {
+        "closed": true
+      },
+      "authorizes": false
+    },
+    "actual_core_busy": false
+  },
+  "post_close_event": {
+    "at": "2026-10-09T20:22:21.274Z",
+    "invocation": "56efcffd-832e-4658-ab40-4e9e19587388",
+    "event": "tool",
+    "tool": "agdf_cockpit_read",
+    "input": {
+      "operation": "freshness",
+      "session_id": "25860da3-028e-4d60-b020-e5ffe58d17e7",
+      "snapshot_id": "3bd1efee-52a0-4105-8442-fba4d8f50f8d"
+    },
+    "result": {
+      "target": {
+        "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+        "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF"
+      },
+      "snapshot": null,
+      "state": "blocked",
+      "code": "session_expired",
+      "data": null,
+      "authorizes": false
+    },
+    "actual_core_busy": false
+  },
+  "source_and_expanded_native_sequence": "NATIVE_HOST_INTERACTION.json (same unchanged UI/runtime build)",
+  "protected_final": "PROTECTED_FINAL.json",
+  "rollback": "NATIVE_PROBE_ROLLBACK.json",
+  "manual_observations": [
+    {
+      "sequence": "Prepared exact-build expanded view, narrow/wide sidebar, Tab/Enter, source disclosure, scrolling and focus",
+      "reply": "ohne flackern",
+      "scope": "User manual observation; no automated native keystroke or pixel measurement claimed"
+    },
+    {
+      "sequence": "Prepared compact native card, Tab/Enter deliberate check, once busy and explicit retry, source disclosure/focus",
+      "reply": "erledigt, Entwurfspr\u00fcfung bestanden",
+      "scope": "User reports requested sequence done and explicitly confirms passed; actual Core calls separately logged"
+    },
+    {
+      "sequence": "Collapse compact card and close expanded view if open after actual Core close",
+      "reply": "geschlossen",
+      "scope": "User confirms native view closure; Core close/expired proven separately"
+    }
+  ],
+  "capability_evidence": "Original qualified MCP server enforced io.modelcontextprotocol/ui before accepting native calls; actual host initializeMcpApp completion logged. Raw client capability envelope not saved.",
+  "close_method": "Actual native MCP read close, closed:true, then session_expired; native card closure confirmed by user.",
+  "limits": [
+    "No assertion that a Host SDK teardown callback itself fired; available explicit native reader close used.",
+    "Manual keyboard/resize/focus evidence attributed to user, not invented UI automation.",
+    "Synthetic fixture is not the real delivery control target and creates no real approval."
+  ],
+  "finding": {
+    "finding_id": "NATIVE-001",
+    "gap_type": "evidence_gap",
+    "routing_target": "evidence_obligation",
+    "gap_status": "resolved",
+    "basis": "Approved TP requires exact-build native initialization/capability, action/result/recovery and close evidence. Original Core busy/retry, host initialize acknowledgement, unchanged-build expanded/source/recovery sequence, manual controls and explicit native reader session close satisfy that bounded sequence."
+  },
+  "authorizes": false
+}

@@ -1,0 +1,14 @@
+[mcp_servers.agdf-cockpit-local]
+command = "/usr/local/Cellar/node@22/22.22.3/bin/node"
+args = ["/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/backlog-summary-complete-20261009/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js","--surface","codex","--cockpit-dir","/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"]
+cwd = "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+startup_timeout_sec = 20
+tool_timeout_sec = 15
+
+
+[mcp_servers.agdf-cockpit-draft-check]
+command = "/usr/local/Cellar/node@22/22.22.3/bin/node"
+args = ["/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/cockpit-draft-check-evidence-final/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js","--surface","codex","--cockpit-dir","/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF"]
+cwd = "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+startup_timeout_sec = 20
+tool_timeout_sec = 15

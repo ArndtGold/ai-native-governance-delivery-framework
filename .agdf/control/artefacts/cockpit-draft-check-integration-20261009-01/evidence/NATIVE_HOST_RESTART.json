@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-09T19:59:53.189Z",
+  "host_surface": "Codex desktop native MCP connection",
+  "host_session": "01a11fe7-d85e-7ad2-9820-14d580ec404e",
+  "user_report": "Ich habe Codex neu gestartet",
+  "connection": "agdf-cockpit-draft-check",
+  "tools_available": [
+    "mcp__agdf_cockpit_draft_check__agdf_cockpit",
+    "mcp__agdf_cockpit_draft_check__agdf_cockpit_read"
+  ],
+  "call": {
+    "tool": "agdf_cockpit",
+    "arguments": {
+      "run_id": "synthetic-draft"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schema_version\":\"1\",\"authorizes\":false,\"target\":{\"target_id\":\"sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF\"}}"
+        }
+      ],
+      "structuredContent": {
+        "schema_version": "1",
+        "authorizes": false,
+        "target": {
+          "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+          "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-artifact-check-ZnWNlF"
+        }
+      }
+    }
+  },
+  "ui_inventory": {
+    "browser": "Codex MCP Apps",
+    "tabs": []
+  },
+  "ui_initialization_observed": false,
+  "interaction_observed": false,
+  "teardown_observed": false,
+  "proof_boundary": "Native tool discovery and successful bound cockpit invocation; no rendered UI or initialization exchange observed yet.",
+  "authorizes": false
+}

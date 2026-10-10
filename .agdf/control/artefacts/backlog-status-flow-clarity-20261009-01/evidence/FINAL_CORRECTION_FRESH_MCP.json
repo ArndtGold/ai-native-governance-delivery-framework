@@ -1,0 +1,390 @@
+{
+  "observed_at": "2026-10-09T13:27:57.545Z",
+  "prepared": {
+    "node": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "entrypoint": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/backlog-summary-complete-20261009/runtime/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/cockpit/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 1062823,
+      "digest": "sha256:86061b0cdd12613d4bed1dc16956cb031d6f718620b04374c20ab289fe10967e"
+    },
+    "server_digest": "8bf2dd8dd57c4979de8f3442cf65b7dbc73eb85be293b12c12d876097eef0a06",
+    "dispatcher_digest": "368e45579616d2b28471aeba6ea390ea98e07e1614b995d68f775cf9c141f59c",
+    "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+    "activated": false,
+    "authorizes": false
+  },
+  "served_ui_digest": "sha256:86061b0cdd12613d4bed1dc16956cb031d6f718620b04374c20ab289fe10967e",
+  "source_matches": true,
+  "selected": {
+    "schema_version": "1",
+    "target": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+    },
+    "snapshot_id": "005f3bca-b242-4129-8ee3-33c7b4e8d348",
+    "observed_as_of": "2026-10-09T13:27:57.432Z",
+    "source_digest": "c9206c17a4c12ab87ab2e970a640fb8032f2a873a6cd1f49df1d704cd0265f51",
+    "state": "available",
+    "code": null,
+    "retryable": false,
+    "data": {
+      "kind": "run",
+      "run": {
+        "run_id": "backlog-status-flow-clarity-20261009-01",
+        "revision_id": "5e3cf847-10ec-48a8-95e0-6634700c25dd",
+        "lifecycle": "active",
+        "work_summary": {
+          "kind": "qa_evidence_open",
+          "phase": "QA",
+          "qa_outcome": "revise",
+          "lifecycle": "active",
+          "recorded_approvals": [
+            "UR",
+            "PRD",
+            "SD",
+            "TP"
+          ],
+          "decisive_obligation": {
+            "id": "BSC-NATIVE-001",
+            "routing_target": "evidence_obligation",
+            "action": "Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate.",
+            "source_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md"
+          },
+          "open_obligation_count": 2,
+          "display_action": "Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate. Then rerun QA with refreshed evidence.",
+          "sources": [
+            {
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md",
+              "digest": "sha256:8038997a869f3d8b352b9a5ea9ea4d6d79fd8bf8be3f0225f95b28a806d18698",
+              "state": "available"
+            },
+            {
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TASK_PLAN_REVIEW.md",
+              "digest": "sha256:45730f621f72a5bc730540b5c30de66dd3b9227f27440e9731b799d757afd502",
+              "state": "available"
+            },
+            {
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+              "digest": "sha256:534232a32dfc6a17ae4af1616e06a3200f710926fa87199bd71c5e113259e87d",
+              "state": "available"
+            },
+            {
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+              "digest": "sha256:800b5bf0eb45329b31651d601e8b33a2681c6f0b5225cc5d777a950ab4b3209d",
+              "state": "available"
+            }
+          ],
+          "limitations": [],
+          "authorizes": false,
+          "status_label": "QA evidence open"
+        },
+        "backlog_comparison": {
+          "state": "matching",
+          "reason": "same_revision_and_sources",
+          "saved_revision_id": "5e3cf847-10ec-48a8-95e0-6634700c25dd",
+          "authorizes": false
+        },
+        "objective": "Describe the trustworthy outcome.",
+        "title": "Clear backlog status and reliable update flow",
+        "evaluation": {
+          "status": "open",
+          "current_gate": "QA",
+          "blocking_reason": "qa_revise_required",
+          "missing_approval": "none",
+          "next_allowed_action": "Collect the exact QA evidence obligation through its existing owner. Prepare a complete observation sequence before necessary external action, then rerun QA.",
+          "next_action_de": "Beschaffe den genauen QA-Nachweis beim Verantwortlichen. Bereite die vollständige Beobachtungsfolge vor externen Aktionen vor; danach QA erneut ausführen.",
+          "allowed": [
+            "collect the exact QA evidence obligation through its existing owner",
+            "rerun QA with refreshed evidence"
+          ],
+          "forbidden": [
+            "request QA approval",
+            "request UAT approval",
+            "release",
+            "claim delivery readiness",
+            "implement code"
+          ],
+          "control_assessment": {
+            "state": "blocked",
+            "authorizes": false
+          },
+          "doctor_status": "pass",
+          "quality_outlook": "No additional quality follow-up identified from the current control state.",
+          "diagnostics": [],
+          "approvals": [
+            {
+              "gate": "UR",
+              "status": "approved",
+              "evidence": "`Approval: UR` · 2026-10-09 · revision 3 · `.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md` sha256:1cbf34c54697c5be · presentation ab0c90c0-a44a-4181-9d43-2de70847579a sha256:6176a6933a932dbfe2580412ad47a8dd1e8fa4ce93d43af10944ba83869c5da3"
+            },
+            {
+              "gate": "PRD",
+              "status": "approved",
+              "evidence": "`Approval: PRD` · 2026-10-09 · revision 7 · `.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md` sha256:f2732c83e5732a95 · presentation 4298eda3-0249-404c-8ebe-2a6db57f8db5 sha256:ae7a7353be881f0f6e42fd736c3ddad339f7310839f90c3a00c5831b12b37cbb"
+            },
+            {
+              "gate": "SD",
+              "status": "approved",
+              "evidence": "`Approval: SD` · 2026-10-09 · revision 9 · `.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md` sha256:86b8cb6e06f0765d · presentation c46b92d9-ce99-49fe-9f18-6e3da1ba588c sha256:e83896dcdda342f6eb698432ae39889fe91211d79cf04626f13ea225fe96eab6"
+            },
+            {
+              "gate": "TP",
+              "status": "approved",
+              "evidence": "`Approval: TP` · 2026-10-09 · revision 11 · `.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md` sha256:ce78ae6f23af1805 · presentation 26fadde3-dbee-40e3-b6f2-c5dcbf2da63e sha256:c3a1999e9267edcfe3ade7818c1adc56b5473283a4ef4dee8647db97146bf509"
+            },
+            {
+              "gate": "QA",
+              "status": "missing",
+              "evidence": ""
+            },
+            {
+              "gate": "UAT",
+              "status": "missing",
+              "evidence": ""
+            }
+          ],
+          "missing_evidence": [],
+          "git_evidence": "unavailable"
+        },
+        "persisted": {
+          "current_gate": "QA",
+          "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+          "decision": "in_progress",
+          "artefacts": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md",
+              "status": "approved",
+              "notes": "",
+              "raw_path": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md`",
+              "path_format": "code_span",
+              "path_reason": "none"
+            },
+            {
+              "type": "Brownfield Review",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "notes": "",
+              "raw_path": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md`",
+              "path_format": "code_span",
+              "path_reason": "none"
+            },
+            {
+              "type": "UX Intent Definition",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UX_INTENT_DEFINITION.md",
+              "status": "done",
+              "notes": "decision ready; internal analytical PRD input, not approval",
+              "raw_path": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UX_INTENT_DEFINITION.md`",
+              "path_format": "code_span",
+              "path_reason": "none"
+            },
+            {
+              "type": "Verified Change",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md",
+              "status": "approved",
+              "notes": "Reviewed source binding recorded atomically",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md",
+              "status": "approved",
+              "notes": "Reviewed source binding recorded atomically",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "TP",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md",
+              "status": "approved",
+              "notes": "Reviewed source binding recorded atomically",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "Brownfield Analysis",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_ANALYSIS.md",
+              "status": "done",
+              "notes": "pass; approved TP preparation and captured baseline",
+              "raw_path": "`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_ANALYSIS.md`",
+              "path_format": "code_span",
+              "path_reason": "none"
+            },
+            {
+              "type": "CD+Tests",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CD_TESTS.md",
+              "status": "done",
+              "notes": "Approved implementation and executed tests; native evidence remains open",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CD_TESTS.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "CR",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+              "status": "done",
+              "notes": "Both scoped QA corrections reviewed; canonical CR pass recorded",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "TP Review",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TASK_PLAN_REVIEW.md",
+              "status": "revise",
+              "notes": "SCN-026 native evidence obligation BSC-NATIVE-001 remains open",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TASK_PLAN_REVIEW.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "Clean Implementation Review",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+              "status": "pass",
+              "notes": "Shared Core ownership and bounded compatibility; not final QA",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "QA",
+              "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md",
+              "status": "revise",
+              "notes": "Reviewed source binding recorded atomically",
+              "raw_path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            }
+          ]
+        },
+        "context_graph": {
+          "refs": ""
+        },
+        "resources": [
+          {
+            "resource_id": "5e684c64-eff0-44b1-b964-eaec4ac68c19",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "Run State",
+            "path": ".agdf/control/runs/backlog-status-flow-clarity-20261009-01/RUN_STATE.md",
+            "registered_reference": ".agdf/control/runs/backlog-status-flow-clarity-20261009-01/RUN_STATE.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "f83a32da-323a-4a2c-9c7f-645715a960e7",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "UR",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "d16e8783-d610-481c-be19-793594890630",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "fce9be7f-a371-41f1-bb5a-8be1fe1be69b",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "UX Intent Definition",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UX_INTENT_DEFINITION.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UX_INTENT_DEFINITION.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "aafad69a-1b5e-440c-982b-6c7a0bf96886",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "PRD",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/PRD.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "277e0f0a-12de-48d3-ba50-3f6244db7b0c",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "SD",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/SD.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "80778f10-5e80-468b-b451-e139570e5091",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "TP",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TP.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "58673dc6-84f3-4f25-9f8d-3baf54dbe4d9",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "Brownfield Analysis",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_ANALYSIS.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_ANALYSIS.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "b6d13024-f94b-435f-849e-b03272a8bbc9",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "CD+Tests",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CD_TESTS.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CD_TESTS.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "4e55e2a2-7ab1-4f47-b0a5-c1a3521ac8b5",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "CR",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "5b3c34e2-813f-4a50-84f1-483d4e21bdc2",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "TP Review",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TASK_PLAN_REVIEW.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TASK_PLAN_REVIEW.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "be800f74-bbb0-4315-9819-6427f38cf79a",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "Clean Implementation Review",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "c2a5ffbf-24c9-4c45-b5c4-b652c47e4f25",
+            "run_id": "backlog-status-flow-clarity-20261009-01",
+            "type": "QA",
+            "path": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md",
+            "registered_reference": ".agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md",
+            "status": "registered"
+          }
+        ]
+      }
+    },
+    "authorizes": false
+  },
+  "proof_boundary": "fresh stdio/resource/state; not native rendering"
+}

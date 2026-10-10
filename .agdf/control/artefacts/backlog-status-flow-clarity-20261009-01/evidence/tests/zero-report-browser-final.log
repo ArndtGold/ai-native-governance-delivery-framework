@@ -1,0 +1,51 @@
+npm notice run agdf-control-ui@0.0.0 npx
+npm notice run 'playwright' test test/browser/backlog-summary.spec.mjs
+
+Running 2 tests using 1 worker
+
+(node:52988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty (7.5s)
+(node:53055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/backlog-summary.spec.mjs:57:1 › saved action and evidence limitation wrap without clipping in compact and expanded views (3.3s)
+
+
+  1) test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.work-step-evidence > summary')
+    Expected: "Nachweise und offene Punkte · 2 offene Berichtsbefunde"
+    Received: "Nachweislücken im Run-Dokument · 0"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.work-step-evidence > summary') with timeout 5000ms
+      - waiting for locator('.work-step-evidence > summary')
+        14 × locator resolved to <summary id="_r_1_">Nachweislücken im Run-Dokument · 0</summary>
+           - unexpected value "Nachweislücken im Run-Dokument · 0"
+
+
+      39 |       if (route === '/card.html') await page.getByRole('button', { name: 'Run ansehen', exact: true }).click();
+      40 |       const toggle = page.locator('.work-step-evidence > summary');
+    > 41 |       await expect(toggle).toHaveText('Nachweise und offene Punkte · 2 offene Berichtsbefunde');
+         |                            ^
+      42 |       await toggle.focus(); await page.keyboard.press('Enter');
+      43 |       await expect(page.locator('.work-step-report-findings')).toContainText('Ein Sachverhalt kann in mehreren Berichten geführt sein.');
+      44 |       await expect(page.locator('.work-step-evidence')).toContainText('Im Run-Dokument sind keine Nachweislücken gespeichert.');
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/backlog-summary.spec.mjs:41:28
+
+    Error Context: test-results/backlog-summary-open-norma-940fd-ment-evidence-list-is-empty/error-context.md
+
+  1 failed
+    test/browser/backlog-summary.spec.mjs:12:1 › open normalized report findings stay visible when the Run-document evidence list is empty 
+  1 passed (14.5s)

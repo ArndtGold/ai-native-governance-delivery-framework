@@ -1,0 +1,35 @@
+npm notice run agdf-control-ui@0.0.0 npx
+npm notice run 'vitest' run
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/reading.test.tsx (8 tests | 1 failed) 563ms
+   ❯ read state and passive documents (8)
+     × SCN-014: returning to visibility marks overview stale until deliberate reload 125ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/reading.test.tsx > read state and passive documents > SCN-014: returning to visibility marks overview stale until deliberate reload
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/reading.test.tsx:72:219
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 13 passed (14)
+      Tests  1 failed | 136 passed (137)
+   Start at  14:59:49
+   Duration  18.33s (environment 42%, tests 36%, import 18%, transform 3%)
+
+Environment  jsdom was created 14 times · 19.21s total, 42% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

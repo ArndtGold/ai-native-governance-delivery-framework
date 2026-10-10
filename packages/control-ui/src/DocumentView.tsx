@@ -3,6 +3,8 @@ import remarkGfm from 'remark-gfm';
 import type { Envelope, DocumentData, Detail } from './types';
 import { ReadState, label } from './feedback';
 import { documentPurpose, phaseName, observedAssessment, sourceSummary } from './presentation';
+import { documentPresentation, DocumentStateLabel } from './document-state';
+import { sameJson } from './api';
 export function PassiveMarkdown({ content, links, onOpen }: { content: string; links: Record<string, string>; onOpen: (id: string) => void }) {
   return <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{
     a: ({ href, children }) => href && Object.hasOwn(links, href) ? <button className="text-link" onClick={() => onOpen(links[href])}>{children}</button> : <span>{children}{href ? <span className="muted"> ({href})</span> : null}</span>,
@@ -25,6 +27,10 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true 
   }) : undefined;
   const readable = result.state === 'available' && data?.content !== undefined;
   const confirmed = bound && current && readable && detail?.state === 'available';
+  const state = bound && data?.document_state && data.content_digest === data.document_state.content_digest
+    && sameJson(data.document_state, detail?.data?.document_states?.find(s => s.resource_id === data.resource.resource_id)) ? data.document_state : undefined;
+  const approval = state?.recorded_approval ?? (bound ? detail?.data?.evaluation?.approvals.find(a => a.gate === data?.resource.type && a.status === 'approved') : undefined);
+  const presentation = documentPresentation(state, data?.resource.type ?? '', !!confirmed, !!approval);
   const assessment = bound && detail?.data ? observedAssessment(detail.data, !!confirmed) : 'unconfirmed';
   const assessmentName = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
     : assessment === 'completed' ? 'Vorhaben abgeschlossen' : 'Aktuelle Voraussetzungen nicht bestätigt';
@@ -33,10 +39,16 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true 
     <section className="document-context" aria-label="Einordnung des Dokuments">
       {runTitle && <p>Zum Vorhaben <strong>{runTitle}</strong></p>}
       <h2>Worum es hier geht</h2>
+      <div className="document-state-context"><DocumentStateLabel state={state} type={data?.resource.type ?? ''} current={!!confirmed} recordedApproval={!!approval}/>
+        <p>{presentation.explanation}</p>
+        {confirmed && state?.check?.display.findings?.length ? <ul aria-label="Aktuelle Korrekturen">{state.check.display.findings.map((finding, i) => <li key={`${finding.code}:${i}`}>{finding.message ?? finding.code}</li>)}</ul> : null}
+        {approval && <><h3>Dokumentierte Freigabe</h3><p className="source-text">{approval.evidence.trim() || 'Kein Originalnachweis verfügbar.'}</p></>}
+        {approval && <p className="muted">Freigabezeitpunkt, freigebende Person und Grundlage sind nicht als bestätigte strukturierte Angaben verfügbar.{state?.state !== 'approved' && ' Die genaue freigegebene Fassung ist nicht bestätigt.'}</p>}
+      </div>
       {summary ? <><div className="document-summary"><PassiveMarkdown content={summary} links={data?.links ?? {}} onOpen={onOpen}/></div><p className="muted document-summary-origin">Aus der deutschsprachigen Zusammenfassung dieser Quelle.</p></>
         : <><p>{documentPurpose(data?.resource.type)}</p><p className="muted">Eine deutschsprachige Kurzfassung ist in dieser Quelle nicht verfügbar.</p></>}
       <dl className="document-control">
-        <div><dt>{confirmed ? 'Gespeicherter Dokumentstand' : 'Zuletzt gespeicherter Dokumentstand'}</dt><dd>{row ? label(row.status) : 'Nicht bestätigt'}</dd></div>
+        <div><dt>{confirmed ? 'Gespeicherter Dokumentstand' : 'Zuletzt gespeicherter Dokumentstand'}</dt><dd>{row ? row.status === 'approved' ? 'Als freigegeben gespeichert' : row.status === 'draft' ? 'Entwurf' : label(row.status) : 'Nicht bestätigt'}</dd></div>
         <div><dt>Aktuelle Kontrollauswertung</dt><dd>{assessmentName}</dd></div>
         {confirmed && detail?.data?.evaluation && <div><dt>Aktueller Arbeitsschritt</dt><dd>{phaseName(detail.data.evaluation.current_gate)}</dd></div>}
       </dl>

@@ -1,0 +1,54 @@
+{
+  "schema_version": "1",
+  "method": "Assert treeBytes(root) equal before/after actual fixture operations; no synthetic write counter as sole proof. See executable assertions and logs.",
+  "excluded": "canonical fixture setup/approval/seal/backlog writes and agent Run bookkeeping",
+  "windows": [
+    {
+      "owner": "packages/core/test/cockpit-document-state-test.js",
+      "log": "core-qualified.log",
+      "operations": [
+        "list",
+        "check",
+        "document",
+        "context",
+        "return",
+        "reload",
+        "bounded failure"
+      ],
+      "result": "byte_equal"
+    },
+    {
+      "owner": "packages/control-ui/test/draft-service.test.mjs; test/service.test.mjs",
+      "log": "http-worker-qualified.log",
+      "operations": [
+        "real HTTP snapshot/run/check/document/context/freshness/reload"
+      ],
+      "result": "byte_equal"
+    },
+    {
+      "owner": "packages/cli/scripts/cockpit-scoped-mcp-test.js",
+      "log": "mcp-protocol-quality.log",
+      "operations": [
+        "real STDIO canonical approved bytes and draft check/navigation, snapshot, context, close"
+      ],
+      "protocol_modes": [
+        false,
+        true
+      ],
+      "result": "byte_equal"
+    },
+    {
+      "owner": "packages/control-ui/test/browser/run-documents.spec.mjs",
+      "logs": [
+        "browser-review.log",
+        "browser-consumer-qualified.log",
+        "browser-quality.log"
+      ],
+      "operations": [
+        "real UI list/check/read/return/reload and traced explicit checks"
+      ],
+      "result": "byte_equal",
+      "consumer_only_variant": "multiple references and old-field absence do not claim canonical proof"
+    }
+  ]
+}

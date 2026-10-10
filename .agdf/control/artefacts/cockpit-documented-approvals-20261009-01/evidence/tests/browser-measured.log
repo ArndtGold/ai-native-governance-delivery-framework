@@ -1,0 +1,53 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test test/browser/documented-approvals.spec.mjs
+
+
+Running 3 tests using 1 worker
+
+(node:17900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/documented-approvals.spec.mjs:38:1 › SCN-001/002/005: zero and later-gate counts, deliberate original limitations and unavailable versions render truthfully (6.2s)
+(node:17951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 test/browser/documented-approvals.spec.mjs:63:1 › SCN-007/008/010/011: same built compact/expanded rows preserve keyboard, disclosure, focus, wrapping and scroll across widths (3.2s)
+(node:17967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18001) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 test/browser/documented-approvals.spec.mjs:118:1 › SCN-003/004/009: changed/moved current source retains honest wording, freshness, explicit reload and read-only retry (4.2s)
+
+
+  1) test/browser/documented-approvals.spec.mjs:63:1 › SCN-007/008/010/011: same built compact/expanded rows preserve keyboard, disclosure, focus, wrapping and scroll across widths 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    40
+
+      87 |         const measured = await page.locator('.documented-approvals-list').evaluate(el => ({ width: el.clientWidth, columns: getComputedStyle(el.querySelector('li')).gridTemplateColumns, rows: el.children.length }));
+      88 |         observations.push({ pathname, viewport, requestedContainerWidth: target, ...measured });
+    > 89 |         expect(Math.abs(measured.width - target)).toBeLessThanOrEqual(1);
+         |                                                   ^
+      90 |         expect(measured.rows).toBe(4);
+      91 |         if (width === 1280) expect(measured.columns.split(' ')).toHaveLength(3); else expect(measured.columns.split(' ')).toHaveLength(1);
+      92 |         const controls = await page.locator('.documented-approval-evidence > summary, .documented-approval-source button').evaluateAll(els => els.map(el => el.getBoundingClientRect().height));
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/documented-approvals.spec.mjs:89:51
+
+    Error Context: test-results/documented-approvals-SCN-0-d9bc0-ng-and-scroll-across-widths/error-context.md
+
+  1 failed
+    test/browser/documented-approvals.spec.mjs:63:1 › SCN-007/008/010/011: same built compact/expanded rows preserve keyboard, disclosure, focus, wrapping and scroll across widths 
+  2 passed (16.5s)

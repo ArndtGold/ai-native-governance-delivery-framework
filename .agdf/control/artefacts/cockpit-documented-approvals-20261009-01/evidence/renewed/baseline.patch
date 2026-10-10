@@ -1,0 +1,860 @@
+diff --git a/.agdf/control/MASTER_BACKLOG.md b/.agdf/control/MASTER_BACKLOG.md
+index 6b3de16d..e362aed7 100644
+--- a/.agdf/control/MASTER_BACKLOG.md
++++ b/.agdf/control/MASTER_BACKLOG.md
+@@ -72,11 +72,11 @@
+ | P1 | cockpit-active-backlog-core-ui-20261008-01 | Shared Core reading and readable active-backlog selection | In Progress | [UR](artefacts/cockpit-active-backlog-core-ui-20261008-01/UR.md) · [Brownfield](artefacts/cockpit-active-backlog-core-ui-20261008-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/cockpit-active-backlog-core-ui-20261008-01/PRD.md) · [SD](artefacts/cockpit-active-backlog-core-ui-20261008-01/SD.md) · [TP](artefacts/cockpit-active-backlog-core-ui-20261008-01/TP.md) · [QA](artefacts/cockpit-active-backlog-core-ui-20261008-01/QA_REPORT.md) | [UR](artefacts/cockpit-active-backlog-core-ui-20261008-01/UR.md) | Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report. |
+ | P1 | gate-internal-continuation-recovery-20261008-01 | Reliable internal gate continuation and actionable recovery | In Progress | [UR](artefacts/gate-internal-continuation-recovery-20261008-01/UR.md) · [Brownfield](artefacts/gate-internal-continuation-recovery-20261008-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/gate-internal-continuation-recovery-20261008-01/PRD.md) · [SD](artefacts/gate-internal-continuation-recovery-20261008-01/SD.md) · [TP](artefacts/gate-internal-continuation-recovery-20261008-01/TP.md) · [QA](artefacts/gate-internal-continuation-recovery-20261008-01/QA_REPORT.md) | [UR](artefacts/gate-internal-continuation-recovery-20261008-01/UR.md) | Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report. |
+ | P1 | backlog-status-flow-clarity-20261009-01 | Clear backlog status and reliable update flow | Awaiting QA | [UR](artefacts/backlog-status-flow-clarity-20261009-01/UR.md) · [Brownfield](artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/backlog-status-flow-clarity-20261009-01/PRD.md) · [SD](artefacts/backlog-status-flow-clarity-20261009-01/SD.md) · [TP](artefacts/backlog-status-flow-clarity-20261009-01/TP.md) · [QA](artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md) | [UR](artefacts/backlog-status-flow-clarity-20261009-01/UR.md) | Run the QA gate, persist the QA report, and request exact approval: Approval: QA |
+-| P1 | cockpit-documented-approvals-20261009-01 | Compact documented approvals with truthful version links | Awaiting SD | [UR](artefacts/cockpit-documented-approvals-20261009-01/UR.md) · [Brownfield](artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/cockpit-documented-approvals-20261009-01/PRD.md) | [UR](artefacts/cockpit-documented-approvals-20261009-01/UR.md) | Draft or refine the Solution Design; do not implement before SD and TP are approved. |
++| P1 | cockpit-documented-approvals-20261009-01 | Compact documented approvals with truthful version links | Brownfield Analysis work pending | [UR](artefacts/cockpit-documented-approvals-20261009-01/UR.md) · [Brownfield](artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/cockpit-documented-approvals-20261009-01/PRD.md) · [SD](artefacts/cockpit-documented-approvals-20261009-01/SD.md) · [TP](artefacts/cockpit-documented-approvals-20261009-01/TP.md) | [UR](artefacts/cockpit-documented-approvals-20261009-01/UR.md) | Run Brownfield Analysis for the approved TP scope before CD+Tests. |
+ 
+ <!-- agdf-backlog-summary-v1 eyJhdXRob3JpemVzIjpmYWxzZSwiZGVjaXNpdmVfb2JsaWdhdGlvbiI6bnVsbCwiZGlzcGxheV9hY3Rpb24iOiJQcm9kdWNlIGRlbGl2ZXJ5IGNsb3Nlb3V0IG9yIHJlcXVlc3RlZCBoYW5kb2ZmOyBkbyBub3QgcGVyZm9ybSBWQ1MgYWN0aW9ucyBhdXRvbWF0aWNhbGx5LiIsImtpbmQiOiJjb21wbGV0ZWQiLCJsaWZlY3ljbGUiOiJjb21wbGV0ZWQiLCJsaW1pdGF0aW9ucyI6W10sIm9ic2VydmVkX2F0IjoiMjAyNi0xMC0wOVQyMDozODo1My4wNTFaIiwib3Blbl9vYmxpZ2F0aW9uX2NvdW50IjowLCJwaGFzZSI6Ik9SIiwicWFfb3V0Y29tZSI6InBhc3MiLCJyZWNvcmRlZF9hcHByb3ZhbHMiOlsiVVIiLCJQUkQiLCJTRCIsIlRQIiwiUUEiLCJVQVQiXSwicmV2aXNpb25faWQiOiI3ZWEwOWVjNC03MjlhLTQxMDQtODAxNi0wZTc4MjY5YmU4Y2EiLCJyb3dfZGlnZXN0Ijoic2hhMjU2OjE4ODMxZjA3NWNkMjJlZWU3MGFjMmQ5ZmQzY2YyMjdiZjgyOTE3YzNjYWE3NTNhYTFjNDY3YWMyOWIwYmQ3ZGIiLCJydW5faWQiOiJjb2NrcGl0LWRyYWZ0LWNoZWNrLWludGVncmF0aW9uLTIwMjYxMDA5LTAxIiwic2NoZW1hX3ZlcnNpb24iOjEsInNlY3Rpb24iOiJBY3RpdmUgQmFja2xvZyIsInNvdXJjZXMiOlt7ImRpZ2VzdCI6InNoYTI1NjpkNjg2ZTYwZmVjY2MyOTkzNjkzNDkzMTQyODMwZjNkOTBiOGVmMzkyYmNmMGFhY2VkMmI3ZTk4NWQ2ODZlYzIzIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZHJhZnQtY2hlY2staW50ZWdyYXRpb24tMjAyNjEwMDktMDEvUUFfUkVQT1JULm1kIiwic3RhdGUiOiJhdmFpbGFibGUifSx7ImRpZ2VzdCI6InNoYTI1NjpjMzE4ZGY4NmQ0YmEzYmI1ODFjMDM2OTk3NGFkYjVhMTNiMTFmNGNhYjVmY2JlZmI5ZmQxZjVlNTgyZGFlNWQ2IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZHJhZnQtY2hlY2staW50ZWdyYXRpb24tMjAyNjEwMDktMDEvQ0xFQU5fSU1QTEVNRU5UQVRJT05fUkVWSUVXLm1kIiwic3RhdGUiOiJhdmFpbGFibGUifSx7ImRpZ2VzdCI6InNoYTI1NjoxM2E0OGI1OTkzMWMzNGI3ZDY5NzY0YjMyNmQ2YWUxYjBhM2JiNjRiOTM5Mzk4Yzg3MDgwODA5N2VhNTU2MGFhIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZHJhZnQtY2hlY2staW50ZWdyYXRpb24tMjAyNjEwMDktMDEvQ09ERV9SRVZJRVcubWQiLCJzdGF0ZSI6ImF2YWlsYWJsZSJ9XSwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ== -->
+ 
+-<!-- agdf-backlog-summary-v1 eyJhdXRob3JpemVzIjpmYWxzZSwiZGVjaXNpdmVfb2JsaWdhdGlvbiI6bnVsbCwiZGlzcGxheV9hY3Rpb24iOiJEcmFmdCBvciByZWZpbmUgdGhlIFNvbHV0aW9uIERlc2lnbjsgZG8gbm90IGltcGxlbWVudCBiZWZvcmUgU0QgYW5kIFRQIGFyZSBhcHByb3ZlZC4iLCJraW5kIjoiYXBwcm92YWxfcGVuZGluZyIsImxpZmVjeWNsZSI6ImFjdGl2ZSIsImxpbWl0YXRpb25zIjpbXSwib2JzZXJ2ZWRfYXQiOiIyMDI2LTEwLTA5VDE2OjE5OjIwLjY0OVoiLCJvcGVuX29ibGlnYXRpb25fY291bnQiOjAsInBoYXNlIjoiU0QiLCJxYV9vdXRjb21lIjoibm90X2FwcGxpY2FibGUiLCJyZWNvcmRlZF9hcHByb3ZhbHMiOlsiVVIiLCJQUkQiXSwicmV2aXNpb25faWQiOiJiZTMxNzFjNi01ZDNlLTQ3Y2MtYmVkMS1jY2U2MDcxYjUzZDgiLCJyb3dfZGlnZXN0Ijoic2hhMjU2OmYxNmRjMTFhMzk4ZjUwYmM3ODU2OGYxNjRiMDU5OTI5ZTJiNGIxMTYyZmQwMGY5YzQ5ZTJjNDUzZWQzOTA1YTAiLCJydW5faWQiOiJjb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxIiwic2NoZW1hX3ZlcnNpb24iOjEsInNlY3Rpb24iOiJBY3RpdmUgQmFja2xvZyIsInNvdXJjZXMiOltdLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 -->
++<!-- agdf-backlog-summary-v1 eyJhdXRob3JpemVzIjpmYWxzZSwiZGVjaXNpdmVfb2JsaWdhdGlvbiI6bnVsbCwiZGlzcGxheV9hY3Rpb24iOiJSdW4gQnJvd25maWVsZCBBbmFseXNpcyBmb3IgdGhlIGFwcHJvdmVkIFRQIHNjb3BlIGJlZm9yZSBDRCtUZXN0cy4iLCJraW5kIjoid29ya19wZW5kaW5nIiwibGlmZWN5Y2xlIjoiYWN0aXZlIiwibGltaXRhdGlvbnMiOltdLCJvYnNlcnZlZF9hdCI6IjIwMjYtMTAtMTBUMDc6MzE6MDEuODgyWiIsIm9wZW5fb2JsaWdhdGlvbl9jb3VudCI6MCwicGhhc2UiOiJCcm93bmZpZWxkIEFuYWx5c2lzIiwicWFfb3V0Y29tZSI6Im5vdF9hcHBsaWNhYmxlIiwicmVjb3JkZWRfYXBwcm92YWxzIjpbIlVSIiwiUFJEIiwiU0QiLCJUUCJdLCJyZXZpc2lvbl9pZCI6Ijg0Y2Y1YzNkLTRmNmEtNDZiOC1iYjdiLTViYTAwMDNjMGJjZCIsInJvd19kaWdlc3QiOiJzaGEyNTY6N2U3MjAyYTliYTY1ZjhjNmQxOTE3YWEzOGExMWNjNDhkYzc1ZGIyZGIyMDM2ZmY0NTRkODBjYWNjYTU5NTYxZiIsInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6MSwic2VjdGlvbiI6IkFjdGl2ZSBCYWNrbG9nIiwic291cmNlcyI6W10sInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0= -->
+ 
+ <!-- agdf-backlog-summary-v1 eyJhdXRob3JpemVzIjpmYWxzZSwiZGVjaXNpdmVfb2JsaWdhdGlvbiI6bnVsbCwiZGlzcGxheV9hY3Rpb24iOiJSdW4gdGhlIFFBIGdhdGUsIHBlcnNpc3QgdGhlIFFBIHJlcG9ydCwgYW5kIHJlcXVlc3QgZXhhY3QgYXBwcm92YWw6IEFwcHJvdmFsOiBRQSIsImtpbmQiOiJhcHByb3ZhbF9wZW5kaW5nIiwibGlmZWN5Y2xlIjoiYWN0aXZlIiwibGltaXRhdGlvbnMiOltdLCJvYnNlcnZlZF9hdCI6IjIwMjYtMTAtMDlUMTM6NTI6MDQuOTY1WiIsIm9wZW5fb2JsaWdhdGlvbl9jb3VudCI6MCwicGhhc2UiOiJRQSIsInFhX291dGNvbWUiOiJwYXNzIiwicmVjb3JkZWRfYXBwcm92YWxzIjpbIlVSIiwiUFJEIiwiU0QiLCJUUCJdLCJyZXZpc2lvbl9pZCI6IjU0ZGRjY2RlLTkwN2ItNDEzNy05MWRiLWYzZmNmNDcxNjg5OSIsInJvd19kaWdlc3QiOiJzaGEyNTY6MDc4ZDhjM2UxMzZhNDU0ZDJjODMyZGRlZDYxZjljMTFiODkwNjg3OGRhNmVhY2U0NmQ1MDUzMTE3ZGUzMjRkMiIsInJ1bl9pZCI6ImJhY2tsb2ctc3RhdHVzLWZsb3ctY2xhcml0eS0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoxLCJzZWN0aW9uIjoiQWN0aXZlIEJhY2tsb2ciLCJzb3VyY2VzIjpbeyJkaWdlc3QiOiJzaGEyNTY6MWQ2ZDA4MGM3YWI2OTgzOTUyMzNjNTI1NjQyNGYyZTRjODRiMmRhZDFiZTQ2NGY4OGFkMTk5YTQ1OGQ5YmIyMiIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9iYWNrbG9nLXN0YXR1cy1mbG93LWNsYXJpdHktMjAyNjEwMDktMDEvUUFfUkVQT1JULm1kIiwic3RhdGUiOiJhdmFpbGFibGUifSx7ImRpZ2VzdCI6InNoYTI1NjowOGQ3NDdmYTNiZTc0ZDk2ZTc3MDFiM2JhNmI5ODIyMTRmMjE5ODRlMTE3Nzc0NWJhN2NjMGM0YmE2NzBmMDM3IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2JhY2tsb2ctc3RhdHVzLWZsb3ctY2xhcml0eS0yMDI2MTAwOS0wMS9UQVNLX1BMQU5fUkVWSUVXLm1kIiwic3RhdGUiOiJhdmFpbGFibGUifSx7ImRpZ2VzdCI6InNoYTI1Njo1MzQyMzJhMzJkZmM2YTE3YWU0YWYxNjE2ZTA2YTMyMDBmNzEwOTI2ZmE4NzE5OWJkNzFjNWUxMTMyNTllODdkIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2JhY2tsb2ctc3RhdHVzLWZsb3ctY2xhcml0eS0yMDI2MTAwOS0wMS9DTEVBTl9JTVBMRU1FTlRBVElPTl9SRVZJRVcubWQiLCJzdGF0ZSI6ImF2YWlsYWJsZSJ9LHsiZGlnZXN0Ijoic2hhMjU2OjgwMGI1YmYwZWI0NTMyOWIzMTY1MWQ2MDFlOGIzM2EyNjgxYzZmMGI1MjI1Y2M1ZDc3N2E5NTBhYjRiMzIwOWQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvYmFja2xvZy1zdGF0dXMtZmxvdy1jbGFyaXR5LTIwMjYxMDA5LTAxL0NPREVfUkVWSUVXLm1kIiwic3RhdGUiOiJhdmFpbGFibGUifV0sInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0= -->
+ 
+diff --git a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
+index 98b709a2..78d4e2e0 100644
+--- a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
++++ b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
+@@ -1,68 +1,85 @@
+-# Brownfield Review: Compact documented approvals
++# Brownfield Review: document state and truthful reading links
+ 
+ - mode: post_ur_review
+ - decision: pass
+-- mode_slice_decision: structured_slice
++- mode_slice_decision: structured_delivery
+ - required_next_gate: PRD
+-- scope: The approved UR's compact documented-approval overview and truthful current/approved document actions in the existing read-only Cockpit.
++- artefact: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
++- scope: Approved revised UR db2ce267; two-column document/state overview, canonical approved-version correspondence and applicable draft-check findings in existing reading surfaces.
+ - delivery_context: brownfield
+ - ui_ux_impact: medium
+-- ui_ux_impact_reason: The overview changes the visible approval state from a generic approved label to documented evidence and explicitly distinguishes the document version action. Reading, disclosure and current-control authority remain unchanged.
++- ui_ux_impact_reason: Replaces inline evidence disclosure with a document-reading action and introduces evidenced draft/check/approval states in the overview without changing human approval authority.
+ - ux_intent_definition_required: yes
+-- current_coverage: partially_done; recorded approvals, original evidence, names, registered resource reading, disabled/freshness guards and focus restoration exist. Compact comparable rows and explicit current-version wording are missing.
+-- reuse_strategy: extend existing presentation and styles; reuse registered resource readers and canonical descriptive approval data. No archive, approval writer or parallel evaluator.
+-- architecture_relevance: architecture-not-applicable
+-- architecture_reason: This bounded presentation can fulfil the UR with existing gate/status/evidence and registered resources. Existing readers do not expose a validated exact-approved-version action; use the approved current-version fallback. No new protocol, public DTO, persistence, permission or host boundary is required. An implementation proposal to extend such a boundary requires fresh routing before proceeding.
+-- evidence: packages/control-ui/src/WorkStep.tsx; packages/control-ui/src/types.ts; packages/control-ui/src/api.ts; packages/control-ui/src/style.css; packages/core/lib/control-inspect/cockpit.js; packages/core/lib/control-state/run-recording.js; packages/core/lib/control-state/run-presentation.js; packages/core/lib/control-read/snapshot.js; docs/architecture/06-agdf-cockpit.md.
+-- missing_evidence: No existing Cockpit DTO certifies that a registered resource is the exact approval-bound version. This is the UR's explicit supported fallback, not an implementation prerequisite for an archive. Fresh rendered behaviour is still future implementation evidence; no host claim is made.
+-- context_graph_impact: none
+-- context_graph_reconciliation: not_applicable
+-- context_graph_required_action: none
+-- context_graph_gate_effect: none
+-- memory_target: scope_artifact
+-- memory_reason: This review records run-specific reuse and version-reading limitations; it changes no reusable architecture ownership.
+-- memory_refs: This BROWNFIELD_REVIEW.md and the approved UR.
+-- required_next_step: Prepare the required UX intent analysis, then draft the smallest PRD for the bounded outcome and present it for a new deliberate approval.
++- current_coverage: partially_done
++- reuse_strategy: extend existing Core descriptive projection and presentation/read components; reuse approval proof, authoring checks, snapshot and navigation owners.
++- transparency: Quick Task is ineligible because product state semantics and a consumed MCP/HTTP descriptive result change. Verified Change is ineligible because contract impact and existing dirty in-progress product files fail compact eligibility. Structured Slice is rejected because the returned version/state contract is consumed by model/App MCP and authenticated browser readers and requires explicit compatibility qualification.
++- missing_evidence: Implementation, final output shape, negative/version/check tests, browser and native-host qualification are future SD/TP work; not asserted by this review.
++- required_next_step: Complete required UX intent analysis, then derive the PRD from the approved revised UR.
+ 
+-## Existing Owners And Source Facts
++## G-00 and scope binding
+ 
+-WorkStep.tsx owns the documented approval presentation. It filters evaluation.approvals by approved status and opens resources registered for the same gate through the existing onOpen callback and approval focus identifier. documentName in presentation.ts supplies human labels; style.css supplies layout. Existing WorkStep/component and journeys browser tests cover disabled source actions, disclosure, navigation and focus restoration. RunDetail and App retain selection/navigation and freshness ownership.
++Target is the confirmed repository; selected Run cockpit-documented-approvals-20261009-01, approved UR revision 16 / 50246889-10c2-4f8d-8b1b-d304d2581255. Dispatcher doctor passes. UR digest sha256:db2ce267f9330751e0eb6c27027fba09b0be3e19889dff206423025b7e1a6495. Source revision operation 6cd14441-2dee-4d7f-aac5-e89ea6167506 archived previous approved sources; they are historical only. No implementation authority from this review. Seven old-design source/test changes remain retained work in progress and require reassessment after renewed TP. No repository instruction override is inferred from cwd or historical Run evidence.
+ 
+-Core cockpit.js projects canonical approval rows as gate/status/evidence and manifests current registered artefacts. readDocument returns the current captured bytes and their digest through the selected Run/resource/snapshot. It does not expose an historical approved-version selector or a verified join between the recorded approval and those bytes. run-recording.js saves approval evidence including the then-current revision, partial artefact digest and presentation reference. run-presentation.js validates full bound presentation records for approval operations; the UI DTO does not expose that operation's binding as a readable approved-version resource. The snapshot reader captures only requested bounded dependencies and freezes/revalidates them. Raw evidence text or file-path equality cannot serve as independent version certification.
++## Existing owners and coverage
+ 
+-Consequently the currently supported action is labelled Aktuelle Fassung ansehen. The disclosure retains original evidence, describing unsupported fields as unavailable rather than extracting identity or version authority from prose. If later existing canonical proof becomes available, only its verified matching readable resource can receive Freigegebene Fassung ansehen; inventing new storage or proof is excluded from this slice.
++| Outcome | Existing owner and evidence | Coverage and bounded reuse |
++|---|---|---|
++| Registered documents and saved statuses | packages/core/lib/control-inspect/cockpit.js manifest/detail; persisted.artefacts and evaluation.approvals | Present. Resource.status means registered/blocked, not approved; preserve this meaning. |
++| Exact approved source | packages/core/lib/control-state/artefact-binding-proof.js exactApprovedArtefacts/validateBindingProof; run-seal.js; approval-operations.js; presentations | Canonical proof already checks actual canonical and raw content against presentations/receipts/bindings. Current cockpit resources do not expose a per-document proof result. Extend descriptive reading through these owners rather than accepting prose/partial digests or reimplementing checks in App. |
++| Supported draft checking | packages/core/lib/control-inspect/artifact-readiness.js projectArtifactReadiness; cockpit.js draftDescriptor/artifactReadiness | Existing read-only authoring check, currently supported UR/PRD/SD/TP and selected current gate only. Preserve this boundary; do not pretend all visible resources were checked. |
++| Check identity and visible classification | cockpit.js and packages/control-ui/src/api.ts validDraftCheck; useDraftCheck.ts, DraftCheck.tsx | Snapshot, Run, revision, path and digest are already checked. Missing result is unchecked/unavailable. Preserve distinctions between content diagnostics and technical/gate blockers. Concrete applicable findings can be surfaced without a new validator. |
++| Document reading and return | App.tsx, DocumentView.tsx, mcp/CompactCockpit.tsx | Current opaque-resource read, expansion, close/back and contextual focus path exist. Extend current document view instead of making a separate approval-document target. |
++| Transport and consumer compatibility | core/control-inspect/cockpit-contract.js; mcp-server/src/server.js; control-ui/src/mcp/transport.ts, api.ts; server/service.mjs | Existing MCP model/App-visible run/document operations and authenticated HTTP reader share Core result. Added descriptive state must be qualified through both; old-reader absence remains explicit uncertainty. |
++| Tests | core/test/cockpit-draft-check-test.js, artifact-readiness-test.js, control-cockpit-projection-test.js; MCP protocol/contract tests; UI unit/browser suites | Existing isolated fixture and native proof boundaries reusable. Old inline-design test results are superseded evidence, not revised-state fulfillment. |
+ 
+-## Reuse And Parallel-Structure Risk
++## Architecture Impact
+ 
+-| Finding | Classification | Evidence and treatment | Owner | Exit condition |
+-|---|---|---|---|---|
+-| Current file mistaken for approved version | problem | WorkStep resource action and Core manifest open a current registered path; label it current and explain the unconfirmed approved version. | Existing Cockpit presentation owner | Meaningful changed/missing-source cases prove truthful wording and guarded reading. |
+-| Prose promoted to signature or identity | problem | Approval evidence is stored text; preserve it as original evidence and mark absent structured identity/version fields explicitly. | Existing Core approval owner / Cockpit presentation | No inferred verified identity, approval action or evaluator is introduced. |
+-| Historical archive recreated in UI | problem | No existing approved-version read selector in the current DTO; use the UR's accepted fallback. | Existing read-service owner | No archive, selector or persistent parallel store added. |
+-| Narrow layout and focus regressions | problem | Existing details, resource action and focus identifiers must survive the compact rows. | Existing UI owner | Wide/narrow visible and keyboard checks preserve actions, focus and disabled/stale handling. |
++architecture_relevance: relevant
+ 
+-No debt-accepting trade-off is proposed; missing historical proof remains an explicit product limitation accepted by the UR.
++The affected boundary is the descriptive Core result consumed through existing model/App-visible MCP reads and the HTTP UI adapter. Explicit per-document approval/byte correspondence is currently absent. Check-result applicability must remain with Core/snapshot authority rather than a visual heuristic. No approval-policy, trust, filesystem-selector, writer, persistence or lifecycle boundary is authorized to change. SD must decide additive shape, old-server absence, malformed/foreign proof handling, document/check association and bounded resource use. Scope explicitly forbids new archive/validation authority.
++
++## Reuse And Parallel-Structure Risk
++
++| ID | Classification | Evidence / effect | Existing owner and next action |
++|---|---|---|---|
++| BF-001 | problem | A resource registration or saved approved flag alone does not certify the read bytes; cockpit.js manifest omits that explicit proof. | Core approval proof and cockpit projection owners; SD defines the descriptive proof path using existing checks. |
++| BF-002 | problem | App-only matching or prose parsing would duplicate authority; DocumentView currently explains saved stand separately. | Core owns state; SD preserves presentation as a consumer of bounded facts. |
++| BF-003 | problem | projectArtifactReadiness can return artifact_gate_not_ready with readiness_details before content checks; unsupported/current-gate limitations and transport errors cannot be called document defects. | Existing authoring-check and projection owners; SD handles exact diagnostics/applicability without inventing a second readiness implementation. |
++| BF-004 | problem | Old inline disclosure files/tests are dirty retained work; repeating their successful checks does not verify the new two-column behaviour. | SD/TP assess replacement/reuse and meaningful revised-state cases; preserve protected baseline/history. |
++| BF-005 | trade-off | Not all documents have an applicable check; deliberate current-gate authoring remains bounded and no bulk-checking workflow is added. | Owner: Core authoring-check and PRD document state. Rationale: retain actual checked identity and read-only limits. Mitigation: unchecked/unavailable labels, explicit current check only. Exit condition: renewed TP/QA proves no false passed/defective badge for untested resources. No undocumented technical debt accepted. |
+ 
+ ## Structured Depth Evidence
+ 
+ - depth_policy_version: 1
+ - depth_facts_status: complete
+-- primary_reason_code: bounded_structured_slice
+-- decisive_full_depth_triggers: none
+-- rejected_alternative: quick_task and verified_change; this changes approval-evidence/version presentation semantics and needs observable acceptance across responsive reading states. Verified Change also cannot certify clean candidate paths: WorkStep.tsx, style.css and related tests already contain protected preceding-scope work. structured_delivery is disproportionate because there is no external contract, archive, migration, rollout or authority change.
+-- missing_or_conflicting_facts: none decisive for this bounded current-version-fallback scope
+-- depth_evidence_refs: approved UR; owners and source facts above; current worktree status; packages/control-ui/test/work-step.test.tsx; packages/control-ui/test/browser/journeys.spec.mjs.
++- primary_reason_code: external_contract_depth
++- decisive_full_depth_triggers: External/public contract: new explicit per-document state/version facts change the returned descriptive contract of model/App-visible agdf_cockpit_read and shared browser reads; compatibility and absence semantics require coordinated consumer qualification.
++- rejected_alternative: structured_slice; full_depth_impacts_absent cannot pass because the user requested an explicit canonical returned fact that current consumers lack. File/owner counts do not decide depth.
++- missing_or_conflicting_facts: none for route selection; specific wire-shape and implementation choices belong to SD.
++- depth_evidence_refs: approved UR; cockpit.js detail/manifest/artifactReadiness; cockpit-contract.js COCKPIT_READ_DEFINITION visibility model/app; mcp/transport.ts and api.ts validateData; server/service.mjs; artefact-binding-proof.js.
+ 
+ | Check ID | Result | Evidence |
+ |---|---|---|
+-| coherent_outcome | pass | One compact documented-approval overview with truthful document actions; UR acceptance signals 1–6. |
+-| authority_boundary | pass | Existing Core approval/evaluation and scoped readers remain authoritative; disclosure only reads. |
+-| owner_consumer_coordination | pass | Existing local Cockpit components/read DTO suffice; no external consumer coordination or shared cutover. |
+-| full_depth_impacts_absent | pass | Existing DTO current-version fallback fulfils the UR; no protocol, CLI, persistent schema, gate, security or cross-host/release behaviour changes. |
+-| migration_propagation_bounded | pass | No migration; existing UI build and tests are sufficient. The source increment can be locally reverted without changing approved control records. |
+-| failure_recovery_local | pass | Existing selected Run/resource/snapshot, disabled/stale controls and document open/close/retry remain the recovery owners. |
+-| independently_acceptable | pass | Compact rows, disclosure and truthful current-only/missing actions have independent observable acceptance; no future archive or installer work is a prerequisite. |
++| coherent_outcome | pass | One document overview/read outcome defined in approved UR. |
++| authority_boundary | pass | Existing canonical approval/check owners unchanged; output is descriptive/non-authorizing. |
++| owner_consumer_coordination | pass | Identified Core, MCP and UI/HTTP owners coordinated in same repository; no independent external rollout authorized. |
++| full_depth_impacts_absent | fail | Externally consumed MCP descriptive state result requires additive contract/compatibility qualification. No persistence, approval-policy or new-host expansion. |
++| migration_propagation_bounded | pass | Read-only derived fields, no control migration/archive or mass rewriting; old absence must remain safe. |
++| failure_recovery_local | pass | Existing snapshot/freshness/retry/session boundaries and local source rollback; no writer. |
++| independently_acceptable | pass | Two-column documented states and exact reading labels can be tested as a complete accepted outcome. |
++
++## Risks and next owners
+ 
+-## Transparency And Limits
++PRD must settle state precedence, what counted/listed records represent, old-server uncertainty and document-view feedback within approved intent. SD must settle source-proof reuse, version identity and descriptor/read association, check diagnostic interpretation, resource bounds and consumer compatibility. TP must map version changes, missing/malformed/foreign proofs, concrete authoring failure vs busy/unavailable, check/source invalidation, narrow/wide keyboard/focus and no-control-mutation to actual tests. No deferred product decision is silently moved to implementation.
+ 
+-Structured Slice retains the existing PRD/SD/TP/QA/UAT sequence with depth limited to this coherent outcome. It does not transfer preceding Run approvals. Preserve existing dirty files, the earlier backlog QA and foreign findings; establish the scoped implementation baseline after TP. No implementation, plugin installation, Git action or native-host success has occurred in this review.
++## Knowledge and Context Graph
++
++- memory_target: scope_artifact
++- memory_reason: Run-specific ownership/compatibility evidence and user-directed MCP candidates; no new generic authority or global memory update.
++- memory_refs: BROWNFIELD_REVIEW.md; MCP_CANDIDATES.md
++- context_graph_impact: none
++- context_graph_refs: none
++- context_graph_reconciliation: not_applicable
++- context_graph_required_action: none
++- context_graph_gate_effect: none
++- context_graph_evidence: Existing read/approval authority is preserved; no graph ownership change claimed. Architecture documentation remains an existing documentation owner for any approved implementation update.
+diff --git a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md
+index 4f3b0401..f8cd4eff 100644
+--- a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md
++++ b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md
+@@ -4,147 +4,169 @@ Status: draft
+ Gate: PRD
+ Gate approval: open
+ Owner: Arndt Gold
+-Date: 2026-10-09
++Date: 2026-10-10
+ Run: cockpit-documented-approvals-20261009-01
+ Language: en
+ Traceability contract: criteria-chain-v1
+ 
+ ## Product Scope
+ 
+-Replace the tall stored-approval blocks within the existing selected undertaking's Cockpit with a compact, comparable documented-approval overview. The user sees document, recorded evidence and available document version as distinct information. Broad views use the proposed short columns; narrow views retain equivalent readable per-document rows. The actual recorded count includes supported later approvals, rather than assuming four documents. Original evidence is disclosed deliberately.
++Replace tall stored-approval blocks and inline expanding approval entries with a compact document overview. There are two semantic columns: document with icon and short state text, and one truthfully named document-reading action. Draft and approved documents are visible together where actually registered for the selected undertaking. There is no separate Freigabe ansehen destination. The document opens in the existing large reading view, where applicable findings and original stored approval information explain its state.
+ 
+-The current readers open registered present-day resources and do not certify an exact approved historical version. This slice uses the approved UR's truthful current-version alternative and explains the absent version proof. It adds no historical archive or new version-certification capability. A label claiming a released/approved version is permitted only when the existing canonical evidence/read service demonstrably supports that exact version; the current DTO does not. No later implementation may infer certification from a path, approval status or partial prose digest.
++Canonical Core approval/source proof and authoring checks determine the meaning; the App consumes bounded descriptive results. The current reader needs the smallest compatible addition to explicitly confirm whether the actual readable version matches its documented approval. It must not infer this from an approval flag, a registered path, partial prose digest or headings. This capability describes existing authority and never changes approval policy, authoring rules or permission to work.
+ 
+-Sources: approved UR; completed BROWNFIELD_REVIEW.md selecting structured_slice; ready UX_INTENT_DEFINITION.md. These analyses inform the PRD without becoming competing product authority.
++Derivation: approved revised UR sha256:db2ce267f9330751e0eb6c27027fba09b0be3e19889dff206423025b7e1a6495; completed renewed Brownfield Review selects structured_delivery for externally consumed descriptive contract compatibility; renewed ready UX Intent Definition. These analyses are subordinate inputs. Earlier inline design, approvals and tests are historical and retained for reassessment, not this product authority.
+ 
+ ## UX Intent And Success
+ 
+-- primary_user_intent: Scan documented approvals, inspect evidence and know which version a document action opens.
+-- success_signal: One comparable row per recorded approval; details remain closed until requested, and today's file cannot be mistaken for the approved historical version.
+-- primary_decision_or_action: Open documented evidence or read the available document; neither action is an approval.
+-- ui_ux_impact: medium, bounded to the approval evidence/version presentation.
+-- human_authority: The user retains deliberate gate decisions through the existing control flow; this view only reads.
++- primary_user_intent: Understand each undertaking document's evidenced state and read it with one action.
++- success_signal: Two comparable columns, visible icon plus short text, truthful draft/approved/current-version action and understandable findings in the large reading view.
++- primary_decision_or_action: Open a document; deliberately request the existing current draft check when supported. Neither action approves a gate.
++- human_authority: Deliberate gate decisions remain in the existing control flow; passed authoring checks never mean human approval or QA pass.
++- ui_ux_impact: medium; document-state presentation and navigation change within existing surfaces.
+ 
+ ## Working Modes And Effective State
+ 
+-| Working mode | Effective state and authority | Visible presentation owner |
++| Working mode | Effective state authority | Visible presentation owner |
+ |---|---|---|
+-| Wide overview | Selected Run's documented Core approval facts and registered-source availability; current evaluation is separate. | Existing undertaking approval overview, comparable columns. |
+-| Narrow overview | Same facts and actions, unchanged authority. | Same overview, readable per-document arrangement. |
+-| Evidence disclosure | Original stored evidence plus explicitly available or unavailable provenance; no control change. | Deliberately opened evidence detail within its row. |
+-| Document reading | Current selected registered readable source under existing snapshot/freshness guards. | Existing document reading view with return to initiating action. |
+-| Missing, blocked or stale reading | Existing availability/selection/freshness owners determine readable actions, without creating evidence. | Existing reading feedback and clearly unavailable document action. |
++| Wide document overview | Current bounded Core document registration, source/approval correspondence and applicable check facts. | Two comparable document/state and reading-action columns. |
++| Narrow document overview | Same facts and actions, same authority. | Equivalent readable document rows with usable targets. |
++| Document reading | Exact selected registered readable resource in the current bounded snapshot; matching descriptive state and findings. | Existing large reading view, contextual state and original document. |
++| Deliberate current draft checking | Existing supported current-gate authoring check, bound to exact target/Run/source/revision. | Existing check action/progress/retry area and the matching document row/context. |
++| Unavailable, stale or unconfirmed state | Existing source/freshness/session/check owners; absence never means a positive result or defect. | Existing read feedback plus a specific row limitation and supported next action. |
++
++## State And Action Semantics
++
++| Evidenced condition | Row feedback | Reading action |
++|---|---|---|
++| Exact readable current version positively confirmed by canonical approval/source proof | Check icon plus Freigegeben | Freigegebenes Dokument ansehen, contextualized by existing readable document type, e.g. Freigegebenes Lösungskonzept ansehen or Freigegebenen Taskplan ansehen. |
++| Unapproved current document with no applicable completed check | Neutral icon plus Entwurf; unknown or invalidated previous check is not passed | Entwurf ansehen. |
++| Unapproved current draft and an applicable passed authoring check | Check icon plus Entwurf geprüft; approval still pending | Entwurf ansehen. |
++| Unapproved current draft with concrete applicable authoring defects | Warning icon plus Überarbeitung nötig | Entwurf ansehen; concrete matching findings appear in reading context. |
++| Current draft whose check is unsupported, inconclusive or technically unavailable | Question/neutral icon plus Prüfung nicht verfügbar; retain known draft identity | Entwurf ansehen if still safely readable; explicit retry/check/reopen recovery only where existing owner supports it. |
++| Earlier documented approval but current version correspondence unconfirmed, invalid or changed | Uncertainty icon plus Freigabe dieser Fassung nicht bestätigt; earlier recorded approval remains identifiable | Aktuelle Fassung ansehen if safely readable. |
++| Source/session is missing, blocked, expired or stale | Explicit unavailable/previous-observation feedback; no current confirmed/defective claim | Disable unavailable actions; preserve existing reload/reopen feedback. |
++
++Transient explicit checking may show Prüfung läuft through the existing check owner; it is not a new approval state. An evidenced approved version does not need an authoring check to remain approved; an unsupported check must not override valid approval proof. Only the exact supported draft gets passed/defective check status. For a changed source, a previous result loses applicability. An unapproved readable source can return to Entwurf with an explicit no-current-check note; source uncertainty itself remains Prüfung nicht verfügbar rather than a guessed defect. Original document metadata is shown as original and never overrides the canonical descriptive state.
+ 
+ ## Activation, Blockers, Recovery And Transitions
+ 
+-The user opens Dokumentierte Freigaben, activates Dokumentiert to disclose evidence and activates a truthfully named version action to read the registered document. Closing evidence returns to the compact row; closing a document restores focus to its initiating action. Width changes affect arrangement only. Existing reload/retry handles recoverable transient failures; disabled/stale handling prevents use of an invalid source. Missing approved-version proof is explained in the overview/detail, rather than presented as a permission or recovered version. Missing current resources cannot yield working document actions. No documented approvals has an explicit empty state and count zero.
++Select an undertaking and scan its document rows. Activate the contextual reading action to open that selected document in the existing large view; compact activation uses existing supported expansion. Close/back returns to the initiating document action, or existing fallback if removed. Width changes affect arrangement only, without expanding individual entries, losing focus or changing state meaning.
++
++The document area is labelled Dokumente with its actual displayed entry count, not a count of approvals. Scope includes supported registered user-gate documents, principally UR/PRD/SD/TP and later gate documents when actually registered. Run State, binding proofs and analytical reports remain available through their existing source owners but are not invented as gate-document rows. Each distinct registered document reference has one contextual entry; multiple same-type registrations remain distinguishable. Missing/blocked registered references have explicit feedback and are counted as entries, not working readable documents. Unregistered drafts cannot acquire a document link from filesystem discovery; absent registrations do not become fabricated rows.
++
++Within the large document view the user sees the evidenced document state, relevant concrete current authoring findings and available original stored approval information. Plain explanations precede technical provenance. Missing time/person/exact version/basis is explicitly unavailable; a name/date-like substring is not independently verified identity. No separate approval-reading route, archive or reconstructed historical source is introduced. Existing source/provenance/original-document disclosures may remain inside document reading; the no-expansion requirement concerns the overview entries.
+ 
+-One shared explanatory note says that documented evidence concerns the recorded approval and that the current control evaluation determines today's control status. Repeating this warning for every row is unnecessary. Preserve readable long names/evidence and accessible contextual action names even where the visible repeated action label is short.
++Existing deliberate Entwurf prüfen stays the check action. Opening/rendering/reloading the overview does not silently run checks for every document, write control or approve gates. Busy/timeout/read failure has supported explicit retry; changed source requires reload then deliberate applicable recheck; expired session uses existing reopen path. Unsupported gates/invalid proof/foreign source/missing structured fact remain unavailable or uncertain with no guessed green state. Current document/check state loses applicability on source/revision/selection invalidation even if a previous result exists.
+ 
+ ## Acceptance Criteria
+ 
+-### Compact comparable overview
++### Two-column actual-document overview
+ - criterion_id: AC-001
+-- working_mode: wide and narrow overview
+-- source_state: Zero, four or another supported number of documented approvals, including later supported gates.
+-- action: Open the documented-approval overview.
+-- expected_effective_state: Exactly one comparable row per recorded approved gate; the displayed count reflects those facts without inventing missing approvals.
+-- visible_feedback: Dokumentierte Freigaben with actual count; document, Freigabenachweis and document-version action remain distinct; wide columns and readable narrow rows follow the supplied Soll hierarchy. Four ordinary rows remain a compact scan rather than repeating three vertically separated blocks per document.
+-- blocker_failure_and_recovery: Zero facts yields an explicit empty state; long names remain readable without horizontal overflow or compressed actions. Existing reload refreshes data, not approval.
+-- observable_success_and_evidence: Visible wide/narrow cases with zero, four, additional gates and long names verify equivalent information, actual count and compact hierarchy.
+-
+-### Deliberate truthful evidence disclosure
++- working_mode: wide and narrow document overview
++- source_state: Zero, four or another number of supported registered selected-Run gate documents; draft, approved, missing/blocked and long-name entries.
++- action: Open and scan the document section.
++- expected_effective_state: Exactly one entry per actual distinct registered document reference; no invented missing approvals/documents or duplicate count from evidence rows.
++- visible_feedback: Dokumente with actual entry count; document name with readable icon/state text in the first column, one contextual action or explicit unavailable reading feedback in the second. No expanding overview entries and no separate Freigabe ansehen action. Multiple same-type documents are distinguishable.
++- blocker_failure_and_recovery: Zero entries has explicit empty feedback; missing/blocked references have no working action. Long names/actions wrap without horizontal overflow. Existing reload refreshes the selected observation.
++- observable_success_and_evidence: Built visible narrow/wide zero/four/additional/missing/multiple/long cases demonstrate compact hierarchy, exact count and the same actions.
++
++### Evidenced document and draft-check states
+ - criterion_id: AC-002
+-- working_mode: overview and evidence disclosure
+-- source_state: Complete, partial or absent stored evidence/provenance for a documented approval.
+-- action: Activate Dokumentiert, then close its detail.
+-- expected_effective_state: Original evidence and only actually supported provenance become visible; disclosure changes no approval or current control state.
+-- visible_feedback: The original record remains inspectable. Version, time, approval, scope/source and identity are shown when evidenced; absent structured facts are explicitly unavailable. Stored prose is not an independently verified identity or signature. A shared note distinguishes documented approval from current control evaluation.
+-- blocker_failure_and_recovery: Incomplete evidence has explicit limitations; no guessed fields or invented approval. Closing disclosure restores the comparable row.
+-- observable_success_and_evidence: Keyboard and visible evidence cases inspect original text and absent fields, and confirm that details remain closed until activated.
+-
+-### Truthful document-version action
++- working_mode: document overview, deliberate draft checking and unavailable/stale observation
++- source_state: Canonically confirmed approval, unchecked current draft, applicable passed check, concrete applicable authoring findings, unsupported/inconclusive/technical failure, invalidated result or unconfirmed earlier approval.
++- action: Observe the row and deliberately run/repeat the existing supported current check where available.
++- expected_effective_state: Row state follows Core facts and applicability; authoring pass is not approval/QA, and technical absence/failure is not a document defect.
++- visible_feedback: State/icon/text agrees with the State And Action Semantics table. Overarbeitung is labelled Überarbeitung nötig only for concrete applicable authoring findings; the uncertainty of current approval is explicit without discarding earlier recorded approval. Prüfung läuft can reflect a deliberate pending request.
++- blocker_failure_and_recovery: Invalid/foreign/changed target/Run/revision/source results cannot install a checked or defective badge. Missing support/old-server absence gives uncertainty. Busy uses explicit retry; changed source uses existing reload and deliberate recheck.
++- observable_success_and_evidence: Core projection/authoring cases and visible consumer cases verify every state, concrete failure versus busy/unavailable, no automatic bulk check and invalidation on source changes at unchanged revision.
++
++### Exact version and truthful reading action
+ - criterion_id: AC-003
+-- working_mode: overview, evidence disclosure and document reading
+-- source_state: Current registered document with no certified approved-version relation, changed/moved document, missing/blocked source, or an exact readable source supported by existing canonical proof.
+-- action: Inspect and activate the available document-version action.
+-- expected_effective_state: The opened resource and its wording agree. The currently supported resource uses Aktuelle Fassung ansehen and explains that the exact approved version is unavailable or unconfirmed. Freigegebene Fassung ansehen is allowed only for an existing demonstrably matching readable approval-bound version; no new certification/archive capability is required or authorized.
+-- visible_feedback: A current source never silently inherits the approved-version label from its path, stored status or partial digest. Missing/blocked sources have an explicit unavailable state and no working document action.
+-- blocker_failure_and_recovery: Existing selected-source and stale guards remain decisive; use existing reload/retry for recoverable reading errors. Absent historical proof stays an honest limitation.
+-- observable_success_and_evidence: Meaningful unchanged/changed/missing/blocked/unsupported-proof cases verify action wording and actual opened source; tests must not fabricate certification as current production capability.
+-
+-### Responsive keyboard and focus behaviour
++- working_mode: overview and document reading
++- source_state: Confirmed approval/source correspondence, unapproved draft, changed/moved current document, absent/partial/malformed/foreign proof or missing/blocked registered source.
++- action: Inspect and activate the contextual document action.
++- expected_effective_state: Opened registered resource identity/content and label agree. Approval wording requires explicit canonical confirmation for those readable bytes; uncertainty uses current-version wording and preserves documented earlier approval.
++- visible_feedback: Entwurf ansehen, contextually named approved-document action or Aktuelle Fassung ansehen with Freigabe dieser Fassung nicht bestätigt, according to evidenced state. Registration and prose/partial digest alone never certify a version.
++- blocker_failure_and_recovery: Missing/blocked source disables reading; malformed/unknown proof yields uncertainty instead of approval. Moving/changing a file cannot inherit a certified label without existing canonical proof. Explicit reload/retry uses current registered source.
++- observable_success_and_evidence: Real current-document byte comparison and exact proof/moved/changed/missing/foreign/malformed cases through shared Core and MCP/HTTP readers; visible action wording matches the opened document.
++
++### Understandable large reading view and return
+ - criterion_id: AC-004
+-- working_mode: wide/narrow overview, evidence disclosure and document reading
+-- source_state: Existing Cockpit data with readable long document names and evidence.
+-- action: Change reading width, navigate with Tab, activate disclosure and document actions with Enter, then close document/detail.
+-- expected_effective_state: Same facts and usable actions at every tested width; focus returns to the initiating action and reading does not select another Run.
+-- visible_feedback: Readable labels, clear column/row relationships, contextual accessible names, usable targets and no horizontal overflow, flicker or list/scroll jump caused by this increment.
+-- blocker_failure_and_recovery: Disabled/stale actions remain disabled; ordinary width changes or closed details do not discard selection. Existing close/reload pathways remain usable.
+-- observable_success_and_evidence: Actual rendered browser and keyboard checks at narrow/wide widths, including long content, open/close, focus return, scroll and reload.
+-
+-### Preserve read-only scope and recovery
++- working_mode: document reading from compact or expanded overview
++- source_state: Readable selected document with applicable authoring findings, documented original approval or missing provenance.
++- action: Open document, inspect its state/findings/approval context, then close/back using keyboard.
++- expected_effective_state: Existing large reader opens the document as the only destination; matching findings and supported approval information are visible without invented provenance or separate approval navigation.
++- visible_feedback: Plain state explanation, concrete current findings and available original recorded approval text; absent exact version/time/person/basis explicitly unavailable. Existing source/original disclosures inside reading remain possible.
++- blocker_failure_and_recovery: Long text safe/readable, incomplete evidence honestly limited, source reading failures follow existing retry. Stale current permission is not asserted. Return restores initiating action focus or an existing sensible fallback after removal.
++- observable_success_and_evidence: Built compact/expanded navigation, actual source read, narrow/wide keyboard/close/back/focus, scroll/reload, long/passive text and absent-provenance observations.
++
++### Canonical owner, compatible reads and no mutation
+ - criterion_id: AC-005
+-- working_mode: All approval reading modes and existing surrounding Cockpit areas.
+-- source_state: Bound selected target/Run/resource/snapshot, including expired or changed source.
+-- action: Read/disclose/open/close, then exercise existing freshness and retry behaviour.
+-- expected_effective_state: No control mutation, gate advancement, unrelated Run switch, independent evaluator or persistent archive. Existing freshness, disabled controls, navigation and recoverable-error handling retain their behaviour.
+-- visible_feedback: Existing current-control and source feedback remains visible and consistent; a documented approval is never permission to proceed now.
+-- blocker_failure_and_recovery: The existing owners reject stale or unrelated sources and expose their supported next action; new rows do not bypass them.
+-- observable_success_and_evidence: Relevant existing reader/selection/freshness regressions pass, with scoped state/source checks demonstrating reading adds no writes.
+-
+-### Bounded verification and protection
++- working_mode: Core/MCP/HTTP descriptive reads, document/check lifecycle and uncertain old-server mode
++- source_state: Valid current facts, stale/expired/foreign/malformed response, prior compatible consumer and reader without added descriptive fields.
++- action: Read list/document, explicitly check, navigate/reload/retry.
++- expected_effective_state: Existing canonical approval/source/authoring owners remain sole semantic authority; descriptive read result is tied to target/Run/resource/digest/revision and validated by consumers. No App-side approval evaluator, new writer or parallel validator.
++- visible_feedback: Same state meaning in compact/expanded/MCP/browser views. Missing new facts keep reading compatible where safely possible but cannot produce approval/checked/defect claims. Prior registered/blocked resource semantics remain unchanged.
++- blocker_failure_and_recovery: Strict identity and freshness prevent cross-Run/resource adoption, stale check resurrection or later response overwrites. Supported existing retries/session expiry remain unchanged; unsupported results use uncertainty.
++- observable_success_and_evidence: Core/transport/schema negative and compatibility cases, shared MCP/HTTP meaningful checks and byte-equal control windows verify no approval/control mutation, implicit bulk checks or unrelated selection changes. Adjacent draft-check/reading/context cleanup regressions remain intact.
++
++### Qualified evidence and protected scope
+ - criterion_id: AC-006
+-- working_mode: Acceptance review of this scoped increment.
+-- source_state: Meaningful source/version and rendered scenarios plus a checkout containing earlier protected work.
+-- action: Review the scoped change and its validation evidence.
+-- expected_effective_state: Every applicable criterion is traced to verification; previous approved sources, the preceding backlog QA and unrelated findings/approvals remain protected.
+-- visible_feedback: Evidence identifies actual source/component/browser results and separately identifies any fresh native-host observation with its build identity and limits. Missing native observation is explicit and is not substituted by source tests.
+-- blocker_failure_and_recovery: A failed required check or unsafe scope expansion prevents a clean completion claim and routes to the existing owner. No publication, Git action or global plugin/config change is implicit.
+-- observable_success_and_evidence: Relevant type/build, behavioural/version and visible/browser regression results, scoped diff/protected-source checks and review evidence. No universal host/platform claim.
++- working_mode: preparation, implementation qualification and review
++- source_state: Revised approved sources, retained old-design implementation/tests, protected other-Run/control/history files and new qualified builds.
++- action: Capture scoped baseline, implement only renewed approved TP, execute mapped checks and review actual increment.
++- expected_effective_state: Relevant UI/Core/descriptive-contract work is fully mapped and tested; retained work is reassessed, archived approvals are historical and foreign sources remain unchanged.
++- visible_feedback: Evidence identifies exact approved sources/builds, scenario results and limits; browser/source/protocol observations are distinguished from fresh native-host proof. No transfer of another Run's QA or observations.
++- blocker_failure_and_recovery: Missing mandatory mapped test/compatibility/visible evidence prevents fulfilled criteria/QA. Native observation is reported if actually supported; its absence is explicit and does not authorize installation/config changes or imply native proof. Old inline tests cannot substitute for new-state checks.
++- observable_success_and_evidence: Source/protected hashes, scoped actual incremental diff, approved TP mappings, qualified production builds, passing required automated/protocol/built browser checks and mandatory plan/clean/code review. Browser verification is the mandatory visible baseline; a fresh native-host observation is separately identified when available.
+ 
+ ## Non-Goals
+ 
+-No gate writer, click approval, signature/independent identity proof, archive, new public read protocol/DTO, persistent store, bulk migration, broad dashboard/backlog redesign, foreign finding closure or edits to approved sources. No plugin installation, global configuration change, commit, push, PR, publication or deployment is authorized by this product slice.
++No human approval by click, changed gate/policy, new QA authority, automatic bulk authoring checks, independent signer proof, new archive/storage, recovered historical versions or parallel source/status evaluator. No global backlog/dashboard redesign, mass control migration, unrelated finding closure, new host, deployment/publication, global plugin/config change or Git write. Earlier completed Runs remain protected. Existing gate/check lifecycle and resource registration keep their meanings.
+ 
+ ## Users And Roles
+ 
+-Existing repository owner and agents read the selected undertaking. Arndt Gold owns the PRD's product decision. Existing Core control/approval/read services retain effective-state authority; the Cockpit retains descriptive presentation and registered-document navigation. No new user population or host is introduced.
++Repository owner/agents inspect documents; the user alone makes deliberate gate decisions. Core existing approval/source and authoring owners supply facts; Cockpit descriptive read owner exposes them; App/reader presents them. PRD owner: Arndt Gold. Design and plan owners decide technical implementation and executable evidence without changing this product promise.
+ 
+ ## Constraints
+ 
+-Use existing read-only owners, supported source facts and document names. Retain current selection/resource/freshness/disabled/focus behaviour. Dirty preceding-scope files require a scoped baseline and review, not reset or transferred authority. Technical layout structure, internal organization and test mappings belong to SD/TP. Any unexpected new authority, protocol or persistence requirement requires renewed routing before implementation.
++Use the existing selected target/Run/snapshot and opaque registered resources. No arbitrary path inspection, source discovery registration or App policy duplicate. Returned descriptive version/state facts require additive compatibility for existing model/App MCP and HTTP consumers; absent new fields remain safely uncertain. Concrete content defects require current applicable canonical diagnostics; strict current-gate authoring eligibility stays intact. No changed approval-policy or persistent schema. Restrict transport/UI work to the smallest existing read and navigation paths.
+ 
+ ## Evidence Requirements
+ 
+-Use observable source/version scenarios and real rendered wide/narrow keyboard behaviour with original evidence, count and contextual actions. Verify selected source, read-only and protected-source boundaries. Record exact build identity for any native claim; existing historical installation or another Run's stable reading report is not evidence for this future increment.
++Carry every stable criterion through SD/TP. Include exact approved source correspondence and raw readable content, changed/moved/foreign/missing proof, zero/four/additional documents, unsupported gate/check, concrete authoring diagnostics versus busy/blocked/inconclusive, stale same-revision source and delayed response, old-result compatibility, no mutation, responsive keyboard/focus/scroll and neighboring current-check/retry/navigation. Qualify immutable built assets before browser checks. Preserve the source-revision archive and protected completed Runs. Native proof remains a distinct observed asset/session/interaction boundary, not a result inferred from protocol or browser.
+ 
+ ## Risks And Open Questions
+ 
+-No open product decision blocks this draft. The accepted limitation is that current readers do not expose certified historical versions; retain the current-version fallback. Technical implementation and test detail remain downstream owner decisions. Dense layout and a dirty shared checkout require focused responsive/focus and scope verification.
++No material product question remains open. Core proof currently evaluates approved artefacts through existing canonical receipts/presentations/bindings; SD must expose applicable per-resource facts without adopting a weaker check or making unrelated resource failure silently certify a document. Draft authoring can fail early at gate readiness with readiness_details, so SD must preserve original diagnostics and distinguish actual authoring findings from prerequisite/technical failures. Only the supported current draft is explicitly checked; other entries remain truthfully unchecked/unavailable. Exact descriptive wire shape, finite bounds, consumer validation and ephemeral result association are SD concerns. Required state semantics, absent-fact limits and no-bulk-checking are resolved here.
+ 
+ ## Approval Decisions
+ 
+ | Decision | Timing | Status | Resolution | Owner |
+ |---|---|---|---|---|
+-| Compact evidence/version information hierarchy | before_prd | resolved | Approved UR and supplied Soll require comparable document/evidence/version rows with deliberate details. | Arndt Gold |
+-| Historical proof absent in current reading contract | before_prd | resolved | Use the UR-approved current-version action and explicit limitation; add no archive or new certification contract. | Arndt Gold |
+-| Scope and release acceptance | before_prd | resolved | Bounded existing Cockpit reading change; verify actual evidence and protect prior work. No publication, installation or Git action. | Arndt Gold |
+-| Technical row/disclosure arrangement | later_sd | deferred | Existing SD owner chooses the smallest structure preserving the product criteria, readers and focus. | Codex, SD owner |
+-| Executable scenario and protected-source mapping | later_tp | deferred | Existing TP owner maps every approved criterion to tasks, expected results and concrete evidence. | Codex, TP owner |
++| Two-column list and one reading destination | before_prd | resolved | Document plus icon/text state and one action; no expandable overview entry or separate approval link; existing large document reader. | Arndt Gold / PRD owner |
++| Entries, counts and absence | before_prd | resolved | Actual distinct registered supported gate-document references including drafts; later documents only if registered; count entries, no invented registrations; explicit missing/blocked feedback. | Arndt Gold / PRD owner |
++| Checked, defective, approved and uncertain states | before_prd | resolved | State table and applicability rules; pass is authoring only, defects require concrete current findings, missing/technical failure is uncertainty and earlier approval remains distinguished. | Arndt Gold / PRD owner |
++| Truthful version action | before_prd | resolved | Confirmed exact version permits approved wording; evidenced draft permits draft wording; uncertain earlier approval uses current version and explicit limit. | Arndt Gold / PRD owner |
++| Read/check authority and compatibility | before_prd | resolved | Existing Core proof/authoring authority, smallest descriptive MCP/HTTP result, no App evaluator or bulk check; absent old-server facts cannot certify state. | Arndt Gold / PRD owner |
++| Qualification scope and operational limit | before_prd | resolved | Mandatory meaningful automated/protocol/built browser and protected-source evidence; native observation separately reported if available; no implicit install/config/Git action. | Arndt Gold / PRD owner |
++| Descriptive shape, source proof association and diagnostic treatment | later_sd | open | Define through existing Core/read owners, retaining all PRD state, authority, bounds and compatibility constraints. | SD owner |
++| Executable scenario and evidence mapping | later_tp | open | Map every criterion/SD decision to actual commands, test data and qualified visible evidence, including negative/compatibility cases. | TP owner |
+ 
+ ## Next Step
+ 
+-Present this exact draft for a new deliberate Approval: PRD. Approval permits the bounded Solution Design, not implementation. No preceding Run response supplies this approval.
++Review the revised PRD and give a new deliberate Approval: PRD. Then the existing SD owner defines proof/read/check association and compatibility; renew TP approval and implementation preparation before changing product code. Earlier source approvals are historical only.
+ 
+ ## AGDF Approval Summary (de; source=en)
+ 
+-- Ziel: Dokumentierte Freigaben schnell vergleichen, ihre Nachweise prüfen und die tatsächlich geöffnete Dokumentfassung erkennen.
+-- Umfang: Kompakte Übersicht im bestehenden Cockpit mit Dokument, Freigabenachweis und Fassungsaktion; breite Spalten und gleichwertige schmale Zeilen. Der aktuelle Lesedienst belegt keine exakte historische Fassung: deshalb Aktuelle Fassung ansehen mit ausdrücklichem Hinweis. Kein Archiv, neuer Lesevertrag, Freigabeschreiber oder Eingriff in die frühere Backlog-QA.
+-- AC-001: Tatsächliche Anzahl und eine kompakte vergleichbare Zeile pro dokumentierter Freigabe; leere und längere Listen bleiben verständlich.
+-- AC-002: Dokumentiert öffnet vorhandene Originalnachweise bewusst; belegte Angaben bleiben sichtbar, fehlende Angaben ausdrücklich erkennbar. Ein gemeinsamer Hinweis trennt dokumentierte Freigabe und heutige Kontrollauswertung.
+-- AC-003: Linktext und geöffnete Quelle stimmen überein. Aktuelle Fassung ansehen bei fehlender historischer Bestätigung; Freigegebene Fassung ansehen nur bei bestehendem nachgewiesenem Versionsbezug. Geänderte, fehlende oder gesperrte Quellen erzeugen keine falsche Zusage.
+-- AC-004: Schmale und breite Anzeige mit langen Namen, Tab/Enter, Öffnen/Schließen und Fokusrückkehr bleiben lesbar und stabil; keine neuen Scrollsprünge oder Flackern.
+-- AC-005: Lesen und Aufklappen ändern keinen Kontrollzustand. Ziel-, Vorhaben-, Quellen-, Frische-, Sperr- und Wiederherstellungsregeln bleiben wirksam.
+-- AC-006: Kriterien werden mit passenden Quellen-, Verhaltens- und sichtbaren Browsernachweisen geprüft; native Hostnachweise werden mit tatsächlicher Identität separat benannt. Frühere freigegebene Quellen, Backlog-QA und fremde Befunde bleiben geschützt.
+-- Entscheidungen: Produktumfang und aktuelle-Fassung-Alternative sind aus der freigegebenen UR geklärt. Technische Anordnung folgt im SD, Aufgaben und Szenarien im TP. Keine Veröffentlichung, Installation oder Git-Aktion. Nach PRD-Freigabe entsteht zunächst das Lösungskonzept.
++- Ziel: Dokumente im Cockpit schnell überblicken, ihren belegten Freigabe-/Prüfstand verstehen und mit einer Aktion in der großen Leseansicht öffnen.
++- Umfang: Zwei Spalten: Dokument mit Icon und Statustext sowie ein passender Leselink. Entwürfe und freigegebene Dokumente gehören zur tatsächlichen registrierten Auswahl. Keine aufklappbaren Listeneinträge und kein eigener Link Freigabe ansehen. Originale Freigabeangaben und passende Prüfbefunde stehen in der Dokumentansicht. Core und vorhandene MCP-/Browser-Leser liefern den Zustand; die App bewertet Freigaben nicht selbst.
++- AC-001: Kompakte vergleichbare Dokumentzeilen mit tatsächlicher Anzahl, null/vier/weiteren Einträgen, langen Namen und schmaler/breiter Ansicht. Fehlende oder gesperrte registrierte Quellen erhalten keine funktionierenden Links; mehrere Dokumente desselben Typs bleiben unterscheidbar.
++- AC-002: Icon plus Text unterscheiden Freigegeben, Entwurf, Entwurf geprüft, Überarbeitung nötig und Prüfung nicht verfügbar. Bestanden ist eine Entwurfsprüfung, keine Freigabe oder QA. Überarbeitung nötig setzt konkrete passende Mängel voraus. Technische Fehler, fehlende Prüfung und veraltete Ergebnisse erzeugen keine erfundenen Mängel oder positiven Zustände.
++- AC-003: Freigegebenes Dokument ansehen ist nur erlaubt, wenn der Core die tatsächlich geöffneten Dokumentbytes der Freigabe zuordnet. Entwürfe heißen Entwurf ansehen. Bei unbestätigter heutiger Fassung heißt es Aktuelle Fassung ansehen mit dem Hinweis Freigabe dieser Fassung nicht bestätigt; eine frühere Freigabe bleibt als solche erkennbar.
++- AC-004: Ein Leselink öffnet die bestehende große Dokumentansicht mit verständlichem Zustand, konkreten passenden Prüfbefunden und vorhandenen ursprünglichen Freigabeangaben. Fehlende Fassung, Zeit oder Identität werden benannt. Tastatur, Rückkehr zum auslösenden Link, schmale/breite Ansicht und lange Texte bleiben bedienbar.
++- AC-005: Die bestehenden Core-Prüfer und Quellen-/Sitzungsgrenzen bleiben zuständig. Neue beschreibende Angaben sind mit bisherigen MCP-/Browser-Lesern kompatibel; fehlen sie, entsteht keine Freigabe- oder Prüfbehauptung. Lesen schreibt keinen Kontrollzustand, startet keine Sammelprüfung und übernimmt keine fremden oder verspäteten Ergebnisse.
++- AC-006: Erneuerte Quellen und TP bestimmen die Umsetzung. Verbindlich sind passende automatische/Protokoll- und sichtbare Prüfungen am qualifizierten Browser-Build, Reviews und geschützte fremde Nachweise. Native Host-Beobachtung wird nur bei tatsächlichem Nachweis berichtet; fehlende native Prüfung erlaubt keine Installation und wird nicht als bestanden ausgegeben. Alte Inline-Tests gelten nicht als Erfüllung der neuen Bedienung.
++- Entscheidungen: Bedienung, Dokumentauswahl, Zustandsbedeutung, Versionslinks, Core-Zuständigkeit und Abnahmegrenzen sind vor PRD geklärt. Die konkrete beschreibende Leseprojektion, Befundzuordnung und Kompatibilität gehören dem SD-Owner; ausführbare Test-/Nachweismappings dem TP-Owner. Keine neue Freigabehoheit, Archivablage, Massenmigration, Veröffentlichung oder Git-Aktion.
++- Nächster Schritt: Neue Approval: PRD für diese Fassung; danach SD und TP erneuern. Der Skill [prd-definition](/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-f073a31fcaa1/skills/prd-definition/SKILL.md) verlangt „use its fresh presentation and wait“; die bisherige PRD-Freigabe gehört zur archivierten älteren Bedienung und gilt nicht für dieses geänderte PRD.
+diff --git a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md
+index dab3f3ff..77fb629b 100644
+--- a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md
++++ b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md
+@@ -4,68 +4,72 @@ Status: draft
+ Gate: UR
+ Gate approval: open
+ Requirements clarification: complete
+-Date: 2026-10-09
++Date: 2026-10-10
+ Owner: Arndt Gold
+ Run: cockpit-documented-approvals-20261009-01
+ Language: en
+ 
+ ## 1. Problem
+ 
+-The user supplied an actual Cockpit screenshot and a concrete proposed replacement, then requested implementation. The expanded stored-approvals section uses a tall block per document, repeating a status, document action and disclosure. Four approvals consume substantial reading/scrolling space. The proposed compact overview separates document, recorded approval evidence and document version, keeping details behind an explicit disclosure.
++The existing stored-approval blocks occupy too much space and require users to interpret separate status, evidence and document actions. The initial compact proposal still used inline expanding evidence rows. In the subsequent discussion the user simplified the intended outcome: two columns, one document entry with an understandable state, and one action opening its document in the large reading view. There is no separate approval-evidence action or expanding entry.
+ 
+-Current WorkStep.tsx renders evaluation.approvals with status approved and opens the selected Run's registered gate resource through onOpen. The current DTO provides gate, status and evidence text. Neither that UI row nor the existing generic resource action establishes that the opened bytes are the exact approved version. A link labelled approved version must not imply version identity from a current file path or the presence of an approval record alone. Similarly, evidence text must not be promoted to independently verified approver identity.
++The user also requested a visible indication when a draft check identifies problems. A draft that has not been checked, a checked draft awaiting approval, an unavailable check and a draft requiring revision must not look identical. A passed authoring check is not a human gate approval or final QA.
+ 
+-The preceding backlog-status-flow-clarity Run addresses saved phase, outstanding work and revision/source comparison; its approved scope and QA presentation are not authorization for this new approvals-specific layout and version-link behaviour. The adjacent active-list and embedded-Cockpit Runs provide reusable reading/UI owners, not this product requirement.
++Existing MCP readers already supply registered documents, stored artefact states, gate approvals and Core control evaluation. They do not yet expose an explicit per-document confirmation that the actual readable bytes match the approved version. Approval wording must follow canonical source identity, not an approval flag, filename or document prose alone.
+ 
+ ## 2. Goal
+ 
+-The user can scan documented approvals in a compact, comparable overview, open the stored evidence on demand and understand which document version a link actually opens. The existing read-only Cockpit remains the surface; canonical Core approval/read sources retain authority.
++The user can scan the selected undertaking's documents, understand the evidenced state of each available version and open that document with one clearly named action. Concrete draft problems are visible before opening; their details and supported approval information are understandable inside the large document reading view. The Core owns the meaning and checks; the App presents those results.
+ 
+ ## Affected Users
+ 
+-The repository owner and agents inspecting documented approvals in the existing compact and expanded Cockpit. No new user population or host is introduced.
++The repository owner and agents reading documents of the selected undertaking in the existing compact and expanded AGDF Cockpit. No new host or user population.
+ 
+ ## 3. Scope
+ 
+-- Replace the tall approvals presentation with a compact section labelled Dokumentierte Freigaben and its actual recorded count. At a sufficiently wide reading width use the proposed columns Dokument, Freigabenachweis and document version. At narrow widths retain the same information and actions in readable per-document rows, without horizontal overflow or compressed controls.
+-- State once that evidence refers to the recorded approved version and that the current control evaluation determines current state. Do not confuse historical evidence with permission to continue work now.
+-- Show one row per documented approval, including any supported later gate when recorded; do not hardcode four approvals or create approvals for missing gates. Use readable existing document names.
+-- Offer an explicit evidence disclosure (for example Dokumentiert) in the row. Reveal the stored version/date/approval/source/scope fields only where the existing canonical evidence supports them; retain original evidence and show unavailable information honestly. Display an approver identity only if actually supported by the evidence, without implying independent identity verification.
+-- A link labelled Freigegebene Fassung ansehen must open a readable source demonstrably bound to that recorded approval's exact version. Reuse existing receipt, revision, digest and registered-read owners to establish the match where supported. If that exact approved source is unavailable or unconfirmed, identify the limitation; an available current document link must be labelled Aktuelle Fassung ansehen. Do not hide disagreement or present the current file as a recovered historical version.
+-- Preserve existing document open/close, selection, source/freshness guards and disabled/expired states. Evidence disclosure and document reading remain keyboard accessible and read-only; preserve focus and list/scroll behaviour.
+-- Keep changes confined to this approvals presentation and any smallest necessary canonical descriptive read projection. Review existing owners and version-evidence availability before choosing representation or implementing; do not invent a second approval evaluator, prose authority or archive.
++- Replace the tall approval blocks with a compact document overview containing two semantic columns: document with icon and short state text, and a document-reading action. At narrow widths retain equivalent readable rows and usable controls. No inline expanding document/approval entries and no separate Freigabe ansehen link.
++- Include the selected Run's actually registered supported gate documents, including drafts and any supported later document types. Do not hardcode four approvals, fabricate missing documents or present approval records without readable documents as working document links. Explicitly explain unavailable documents where relevant. The section name/count must describe its actual contents rather than counting drafts as approvals.
++- Use evidenced states: Freigegeben only when the readable version is canonically confirmed as approved; Entwurf for an unapproved document with no applicable completed check; Entwurf geprüft for a matching passed authoring check while approval is still pending; Überarbeitung nötig for a matching check with concrete authoring defects; Prüfung nicht verfügbar for an unavailable/inconclusive check. Icons accompany text and accessible names; color or an icon alone is insufficient.
++- Show a documented earlier approval separately from uncertainty about the current file when needed: Freigabe dieser Fassung nicht bestätigt. A failed source-integrity check, missing approved-version identity, busy read service or transport error must not fabricate draft defects, erase a historical approval or turn an approved document into an unapproved draft merely to simplify its label.
++- Use truthful contextual actions: Entwurf ansehen for an evidenced draft, Freigegebenes Dokument/Lösungskonzept/Taskplan ansehen only for the canonically confirmed approved readable version, otherwise Aktuelle Fassung ansehen. The exact document type may be named using existing readable labels. Missing/blocked sources have explicit unavailable feedback rather than working links.
++- Open the selected registered document through the existing large reading experience, preserving close/back, initiating-action focus, selection, source/freshness guards, retry and expired/disabled behaviour. Compact-card activation uses the existing supported expansion/read path rather than a new host surface.
++- Within document reading, show the corresponding evidence-bounded state, concrete applicable check findings and available documented approval information in understandable language. Keep original stored approval text available there without a separate approval-navigation target. Explain missing version/time/person/basis fields honestly; no guessed identity, signature or historical-version claim.
++- Derive document state and approved-byte correspondence through existing canonical Core owners and expose the smallest necessary descriptive read result through the existing MCP/read path where a field is missing. Reuse artifact-readiness and approval/source-integrity owners; no App-side approval evaluator, internal-function signature discovery as a product dependency, new parallel validator or prose authority.
++- A stored authoring-check result is applicable only to the exact target, Run, document/source digest and relevant revision it checked. A changed source or invalidated check loses the checked/defective claim until an applicable fresh result exists. Merely rendering or opening the list does not approve a document, write control or silently trigger a bulk checking workflow. Preserve existing deliberate Entwurf prüfen and recovery behaviour.
++- Keep the increment limited to this document-state/reading presentation and necessary canonical descriptive projection. Protect unrelated Runs, approved historical sources, surrounding draft-check and backlog behaviours. Continue recording code-discovery/direct-Core-call MCP candidates without implicitly implementing those candidates.
+ 
+ ## 4. Non-Goals
+ 
+-No approval writer or approval by click; no new gate, altered QA/human approval semantics, signature or independent identity proof. No new approval archive/storage service or automatic reconstruction of missing historical documents. No redesign of backlog phases/search, global dashboard, bulk Run migration, other Run's findings or approved sources. No new host, public publication, deployment, Git commit/push/PR or global plugin/configuration changes authorized by this UR. Any actual installed-host claim uses explicit supported current observation and separately authorized operational prerequisites.
++No approval by click, approval writer, new gate, altered human approval or QA semantics. No new archive, historical reconstruction, signature, independent identity proof, automatic document certification or parallel status authority. No global backlog/dashboard redesign, bulk control migration, automatic check of every document, new host, package installation/configuration change, deployment, publication or Git commit/push/PR. No transfer of previous Run approvals or native-host observations.
+ 
+ ## 5. Acceptance Signals
+ 
+-1. The approvals section is a compact, scan-friendly overview matching the proposed information hierarchy, with the real recorded count and one comparable row per approval. Document, evidence and version action are distinct.
+-2. Details appear only on deliberate disclosure. Available provenance fields and original evidence are inspectable; missing date/version/identity/source remains explicit rather than fabricated. Current control evaluation and recorded historical approval are understandable as separate statements.
+-3. Every approved-version action demonstrably opens the version bound to its approval. Current-only or uncertain sources use current-version wording and explain why the approved version is unavailable/unconfirmed. A moved or changed source never silently inherits an approved-version label.
+-4. The same information and actions are usable at narrow/wide widths through the existing Cockpit surfaces. Keyboard disclosure/open/close, readable long names/evidence, focus restoration and disabled/stale handling are verified with meaningful visible evidence.
+-5. Reading or expanding these rows does not mutate control, approve gates or switch an unrelated Run. Existing selected-target/Run/source/freshness checks and other Cockpit areas retain their behaviour.
+-6. Relevant source/version cases, presentation and regression checks are recorded with their actual proof boundaries. Automated/browser/source results are distinguished from any fresh supported native-host observation. Earlier backlog QA and foreign approvals/findings are unchanged by this scope.
++1. The overview has two comparable columns, one understandable document/state entry and one reading action; narrow/wide layouts, zero/four/additional available documents and long names remain usable without expanding entries or a separate approval link.
++2. Icons and short text distinguish evidenced approval, unchecked draft, checked draft pending approval, concrete authoring defects and unavailable checks. Missing/inconclusive/technical failure is never labelled as a defective draft; passed authoring checks never imply human approval or QA pass.
++3. A released/approved-document label opens exactly the version confirmed by canonical approval/source identity. Unconfirmed or changed current bytes use current-version wording and explain the limitation. Drafts use draft wording only when that status is evidenced.
++4. The document opens in the existing large reading view. Supported original approval information and applicable concrete check findings are understandable there; missing provenance remains explicit. Close/back and contextual keyboard focus return work in compact and expanded surfaces.
++5. State and source identity come from the existing Core/MCP read/check authority, tied to target/Run/source/revision. Stale checks lose applicability; disabled/missing/expired reading and explicit retry follow existing owners. Reading does not mutate control, approve gates, switch another Run or silently bulk-check documents.
++6. Relevant state/version/failure cases and surrounding navigation/draft-check regressions have meaningful visible and automated evidence. Test/browser/source observations remain distinct from fresh native-host evidence; foreign artefacts and previously archived approvals remain unchanged.
+ 
+ ## 6. Existing Source Of Truth
+ 
+-The user's two supplied Ist/Soll screenshots and explicit fix request define the intended layout and truthfulness. packages/control-ui/src/WorkStep.tsx owns the current approvals section and resource action; documentName/presentation.ts, existing style sheets and document readers supply reusable presentation/navigation. packages/control-ui/src/types.ts currently describes approval rows as gate/status/evidence. packages/core/lib/control-inspect/cockpit.js projects canonical control approvals and registered resources. Existing control-state approval receipts, presentations, seals and revision readers and the scoped control-read services are the candidate authority for exact version identity; their actual available contract and readable historical source must be established by Brownfield Review. Canonical Run state/registered artefacts and normative AGDF contracts remain authoritative. docs/architecture/06-agdf-cockpit.md describes existing read-only ownership. The prior three Cockpit Runs are adjacent context, not transferred approval authority.
++The user's Ist/Soll screenshots, request to implement and subsequent answered discussion establish the revised two-column intent. packages/control-ui/src/WorkStep.tsx and the in-progress DocumentedApprovals.tsx own the selected undertaking presentation. Existing App/document readers, contextual focus callbacks and presentation labels are reuse candidates. packages/core/lib/control-inspect/cockpit.js currently projects evaluation.approvals, persisted.artefacts and registered resources; agdf_cockpit_read operations run/document read them. artifact_readiness and agdf_inspect artifact-readiness expose canonical authoring checks, not approvals. Existing canonical approval receipts, presentations, artefact bindings, seals and source-integrity readers own approval/version correspondence. Brownfield Review must verify the smallest projection and check-result applicability boundary instead of relying on App inference. docs/architecture/06-agdf-cockpit.md describes the read-only architecture.
+ 
+ ## 7. Risks And Unknowns
+ 
+-A current registered document can differ from the approved source; stored evidence may expose only partial digest or unstructured original text. Brownfield Review must establish which existing verified source facts and historical read capabilities are available. Absence is an accepted explicit limitation, not permission to build a new archive. Product intent and fallback wording are resolved here; PRD/SD refine the bounded behaviour/contract if required by routing. Dense columns must not compromise narrow-width reading, keyboard actions or disclosure semantics. The checkout contains other changes; protect existing implementation, approved sources and unrelated Runs and verify only the scoped increment. Earlier local installation evidence does not become proof that this future UI is installed or rendered.
++The existing run-reader DTO has no explicit per-resource approved-byte confirmation. The current draft-check descriptor is bound to the selected current gate, not an implicit already-performed check for all documents. Brownfield Review and UX analysis must establish exact owner reuse and what findings/state can be exposed without creating competing authority. These are bounded design questions, not uncertainty about the requested outcome. Missing proof is an explicit accepted state. Prior inline-layout work and tests are retained as historical work in progress and must be reassessed against renewed approved sources; they do not fulfill this revised need. Native installation or fresh host proof is not implied by browser evidence.
+ 
+ ## 8. Next Step
+ 
+-Review this concrete UR and provide a new deliberate Approval: UR. Then perform the existing Brownfield Review/Mode Slice decision, choose the smallest justified route and satisfy its implementation prerequisites. No earlier UR/PRD/SD/TP/QA response approves this new scope.
++Present this revised UR and obtain a new deliberate Approval: UR. Reassess Brownfield Review/Mode Slice and UX intent, then draft/approve the required dependent PRD, SD and TP before implementation. No previous response approves this revised document-state/reading behaviour.
+ 
+ ## AGDF Approval Summary (de; source=en)
+ 
+-- Problem und Ziel: Die vier dokumentierten Freigaben nehmen heute viel Platz ein. Dein Soll-Vorschlag wird als kompakte, vergleichbare Übersicht umgesetzt: Dokument, Freigabenachweis und tatsächlich verfügbare Dokumentfassung; Einzelheiten erst beim Aufklappen. Betroffen sind Nutzer und Agenten des bestehenden Cockpits.
+-- Darstellung: Dokumentierte Freigaben mit tatsächlicher Anzahl; breite Ansicht als kurze Tabelle, schmale Ansicht als lesbare Zeilen mit denselben Angaben und Aktionen. Spätere dokumentierte Gates werden ebenso berücksichtigt; vier Einträge werden nicht fest einprogrammiert. Ein gemeinsamer Hinweis erklärt den Bezug zur damaligen Fassung und zur heutigen Kontrollauswertung.
+-- Nachweis und Links: Vorhandene Fassung, Zeitpunkt, Freigabe, Grundlage und belegte Identität bleiben einsehbar; fehlende Angaben werden ausdrücklich benannt. Freigegebene Fassung ansehen öffnet nur eine nachweislich passende Version. Ist nur die heutige Datei verfügbar, heißt der Link Aktuelle Fassung ansehen und die fehlende oder unbestätigte freigegebene Fassung bleibt erkennbar.
+-- Abnahme: Kompakte Übersicht, zutreffende Versionslinks einschließlich geänderter/fehlender Quellen, verständliche aufgeklappte Angaben und schmale/breite Tastaturbedienung mit stabilem Fokus. Lesen und Aufklappen schreiben keinen Kontrollzustand. Quellen-/Browser-/Testnachweise und gegebenenfalls frische native Darstellung werden getrennt benannt.
+-- Grenzen und Verantwortliche: Bestehende UI-, Core-, Freigabe- und Lesedienste bleiben zuständig. Keine neue Freigabehoheit, Identitätsbehauptung, Archivablage, automatische Zustimmung, Massenmigration, fremde Finding-Schließung oder Git-/Veröffentlichungsaktion. Die vorangegangene Backlog-QA bleibt davon getrennt.
+-- Risiken: Die vorhandenen Freigabenachweise und Lesedienste müssen eine exakte historische Fassung tatsächlich belegen und öffnen können; sonst gilt die ausdrückliche aktuelle-Fassung-Alternative. Brownfield Review prüft diese Wiederverwendung und wählt die kleinste passende Route vor Umsetzung.
+-- Nächster Schritt und Freigabegrund: Für den neuen Umfang verlangt der Skill [gate-check](/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-a1f9519ca2ce/skills/gate-check/SKILL.md) ausdrücklich „new scope needs durable UR approval“. Deshalb ist zuerst eine neue bewusste Approval: UR für diesen konkreten Entwurf erforderlich. Danach folgen Brownfield Review und die passend gerouteten Umsetzungsschritte; der UI-Code ist noch nicht geändert.
++- Problem und Ziel: Die Dokumentübersicht soll einfacher werden. Zwei Spalten zeigen das Dokument mit verständlichem Status und genau eine Aktion zum Öffnen. Betroffen sind Nutzer und Agenten im vorhandenen Cockpit; die große Dokumentansicht erklärt Prüfergebnisse und vorhandene Freigabeangaben.
++- Darstellung: Keine aufklappbaren Einträge und kein eigener Link Freigabe ansehen. Entwürfe und freigegebene Dokumente erscheinen als kompakte, vergleichbare Zeilen. Anzahl und Überschrift beziehen sich auf die tatsächlich dargestellten Dokumente; schmale und breite Ansichten behalten dieselben Informationen.
++- Status: Icon plus Text kennzeichnen Freigegeben, Entwurf, Entwurf geprüft, Überarbeitung nötig und Prüfung nicht verfügbar. Entwurf geprüft bedeutet eine passende bestandene Entwurfsprüfung bei noch ausstehender Freigabe. Überarbeitung nötig setzt konkrete Prüfmängel voraus; eine fehlende Prüfung oder ein technischer Fehler zählt nicht als mangelhafter Entwurf. Eine frühere Freigabe wird bei unbestätigter heutiger Fassung als solche erkennbar gehalten.
++- Lesen und Nachweise: Entwurf ansehen öffnet einen belegten Entwurf. Freigegebenes Dokument, Lösungskonzept oder Taskplan ansehen ist nur bei bestätigter Zuordnung der geöffneten Fassung erlaubt. Sonst heißt die Aktion Aktuelle Fassung ansehen mit dem Hinweis Freigabe dieser Fassung nicht bestätigt. Die große Leseansicht enthält passende Prüfhinweise und vorhandenen ursprünglichen Freigabetext; fehlende Fassung, Zeit oder Identität werden nicht erfunden.
++- Abnahme: Zwei kompakte Spalten, zutreffende Status-/Versionsfälle einschließlich fehlender oder geänderter Quellen, verständliche Prüfmängel, schmale/breite Tastaturbedienung und Rückkehr zum auslösenden Link. Veraltete Prüfergebnisse gelten nicht für neue Dokumentbytes. Lesen schreibt keinen Kontrollzustand, bestätigt kein Gate und startet keine Sammelprüfung. Automatische/Browser-Nachweise und native Beobachtung bleiben getrennt.
++- Zuständigkeit und Grenzen: Core und vorhandene MCP-Lese-/Prüffunktionen bestimmen den Zustand; die App zeigt ihn an. Eine fehlende ausdrückliche Bestätigung der freigegebenen Dokumentbytes wird über die kleinste notwendige kanonische Leseprojektion behandelt. Keine neue Freigabehoheit, parallele Auswertung, Archivablage, Massenmigration, Installation, Veröffentlichung oder Git-Aktion; andere Runs und frühere Nachweise bleiben geschützt.
++- Risiken und nächster Schritt: Der aktuelle Leser bestätigt noch nicht ausdrücklich die freigegebenen Bytes pro Dokument und prüft nicht automatisch sämtliche Entwürfe. Brownfield Review und UX klären die vorhandenen Eigentümer und passenden Zustandsgrenzen. Danach werden PRD, SD und TP erneuert; Umsetzung folgt erst nach deren erforderlichen Freigaben.
++- Freigabegrund: Die Bedienung und der Umfang wurden gegenüber der früheren UR geändert. Der Skill [ur-definition](/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-f073a31fcaa1/skills/ur-definition/SKILL.md) verlangt „use its fresh presentation and wait“. Sein geladener UR-Vertrag verlangt eine neue bewusste Approval: UR für den geänderten Entwurf. Die alten Freigaben sind archivierte Historie und gelten nicht für diese neue Fassung.
+diff --git a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md
+index a0f82aa2..36525c26 100644
+--- a/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md
++++ b/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md
+@@ -1,22 +1,36 @@
+-# UX Intent: Compact documented approvals
++# UX Intent: document state and one truthful reading action
+ 
+ - decision: ready
+ - blocking_reason: none
+-- primary_user_intent: Compare documented approvals, inspect original evidence and understand which document version the action opens.
+-- success_signal: Scan one comparable row per approval; distinguish evidence, current document and current control state without opening every detail.
+-- primary_decision_or_action: Disclose recorded evidence or read the available document version; neither action approves anything.
+-- working_modes: wide overview; narrow overview; evidence disclosure; document reading; unavailable/stale reading.
+-- effective_state_by_mode: Wide/narrow display identical selected-Run approval facts; disclosure adds evidence only; document reading opens its selected registered source; unavailable/stale mode retains existing guarded reading and recovery.
+-- visible_state_types: documented approval; current version available; exact approved version unavailable or unconfirmed; current source missing or blocked; no documented approvals; independent current control assessment.
+-- effective_state_authority_by_mode: Core Run approvals own documented evidence, existing registered scoped readers own source availability/freshness, and Core evaluation owns current control state in all modes.
+-- primary_state_presentation_owner_by_mode: The selected undertaking's approval overview presents evidence and version actions; the document view presents opened content; existing availability feedback presents blockers. These are presentation roles, not approval authority.
+-- activation_paths: Expand Dokumentierte Freigaben, activate Dokumentiert for original evidence, activate the truthfully labelled available document action, close the document to return to its initiating action.
+-- blockers: Missing/blocked/stale source actions remain guarded; an unconfirmed approved version is explained without labelling today's file approved. Absent provenance fields remain explicitly unavailable. No recorded approvals yields a clear empty state.
+-- recovery_paths: Close evidence to return to its row; close document to restore initiating focus; use existing reload/retry after recoverable reading failure. Limitations never ask for fabricated proof or create approval.
+-- relevant_state_transitions: overview closed/open; evidence closed/open; row/document/return; available/stale-disabled; reload/fresh selected state. Width changes arrangement only. Selection, focus and scroll semantics are preserved.
+-- proposed_prd_acceptance_criteria: Compact rows and actual count; truthful version actions; deliberate original-evidence disclosure and explicit absent fields; equivalent wide/narrow keyboard actions; selected-source/freshness/read-only guards; meaningful proof with browser/native limits.
+-- open_product_questions: none; the approved UR accepts the current-version fallback. No archive or new version-certification capability is added to remove this accepted limitation.
+-- affected_outputs: The PRD draft; downstream design and plan derive only from approved product criteria.
+-- evidence: Approved UR acceptance signals 1–6; BROWNFIELD_REVIEW.md; user's Ist/Soll screenshots and fix request; current WorkStep/registered-source actions.
+-- missing_evidence: Fresh visible/keyboard results remain future implementation evidence, not a blocker to this analytical input.
+-- required_next_step: Draft and canonically record the bounded PRD from approved UR and ready analyses, evaluate readiness and present for deliberate approval.
++- primary_user_intent: Scan the undertaking's documents, identify approval/check state and read the relevant document with one action.
++- success_signal: Two comparable columns; status icon plus plain text; no expanding document entries or separate approval action; large document view explains relevant findings and available original approval.
++- primary_decision_or_action: Read a document. Approval stays in the deliberate existing human control flow.
++- working_modes: Document overview at wide/narrow widths; document reading; deliberate current draft check; unavailable or stale source/check.
++- effective_state_by_mode: Overview reflects current bounded canonical document/check observations; reading reflects the selected registered source; checking is explicitly initiated and pending; unavailable/stale views retain limits and existing recovery.
++- visible_state_types: Freigegeben; Entwurf; Entwurf geprüft; Überarbeitung nötig; Prüfung nicht verfügbar; Freigabe dieser Fassung nicht bestätigt; transient Prüfung läuft when the deliberate check is active.
++- effective_state_authority_by_mode: Canonical Core approval/source proof and authoring validators, current target/Run/source/revision plus snapshot/freshness authority. Neither user-visible original prose nor a icon/color decides state.
++- primary_state_presentation_owner_by_mode: Document row for scan state; large document reading context for matching original approval/check findings; existing deliberate draft-check area for check action, progress and retry; existing reading feedback for source/session failures.
++- activation_paths: Select undertaking; scan rows; activate contextual document action to read/expand; close/back to initiating row. Explicitly activate supported current Entwurf prüfen; no list-triggered or bulk checks. No separate proof-navigation mode.
++- blockers: Missing/blocked source, unsupported check, invalid proof, unavailable service, expired session, stale source or mismatched check identity. These do not become invented document defects or approval.
++- recovery_paths: Read existing available current source with truthful current-version label when approval identity is unconfirmed. Explicit retry for busy/transient check; reload for changed source; reopen expired session through existing host path. Missing source has unavailable feedback instead of a working link. Revised drafts use a fresh deliberate applicable check.
++- relevant_state_transitions: Unchecked draft -> checking -> passed draft pending approval / concrete corrections / unavailable. Source/revision change invalidates checked/defective claims. Valid human approval plus exact current version proof -> Freigegeben. Earlier approval plus uncertain or changed version -> unconfirmed current version with historical approval preserved. Width changes rearrange only; closing reading restores focus, and reload never automatically checks.
++- proposed_prd_acceptance_criteria: Equivalent two-column narrow/wide rows for actual documents; explicit evidenced state matrix; exact version/action agreement; one large reading destination with supported original approval and current findings; meaningful keyboard/focus/scroll and stale/missing/retry cases; additive reader compatibility and no-control-mutation evidence.
++- open_product_questions: none. Technical descriptive shape, proof reuse and diagnostic association remain SD decisions, not competing product choices.
++- affected_outputs: Existing undertaking document list, document reading context, shared Core descriptive read result and consumer interpretation, existing explicit current draft-check feedback.
++- evidence: Approved revised UR sha256:db2ce267f9330751e0eb6c27027fba09b0be3e19889dff206423025b7e1a6495; current BROWNFIELD_REVIEW.md; original screenshots and subsequent answered intent; current reader/check ownership inspection.
++- missing_evidence: Actual new presentation/interaction/compatibility and native observations remain later TP evidence; no product claim of implementation.
++- required_next_step: Incorporate the resolved state semantics and observable acceptance into the current PRD through its existing authoring owner.
++
++## State meaning and priority for PRD
++
++Freigegeben requires positive canonical approval correspondence for the exact readable current version. A matching passed authoring check on an unapproved draft means Entwurf geprüft, never approved or QA passed. Concrete applicable authoring findings mean Überarbeitung nötig. Unchecked unapproved draft means Entwurf. An unsupported, technical, stale or otherwise inconclusive check cannot create a defect label; show uncertainty with a next action where supported. A previous approval whose current version cannot be confirmed needs its own explanatory limit, not Entwurf as a guessed replacement.
++
++The document name and state form one semantic group; icons are supplementary. Ansehen has an accessible contextual name identifying the document and whether draft/approved/current bytes are opened. Missing data cannot be replaced with green/positive state. Action disablement does not obscure existing evidence and historical approval remains distinguished from current permission.
++
++## Reading context and return
++
++The user reads the registered document in the existing large view and can inspect applicable check findings and the original recorded approval there. User-facing copy explains the result before technical provenance. Unavailable time/identity/version is stated explicitly; there is no invented signer or recovered approved history. Close/back returns to the initiating document action or an existing sensible fallback if the resource disappeared. Compact expansion, keyboard operation, long text and narrow widths preserve equivalent meaning.
++
++## Authority and limits
++
++This is analytical input under the approved UR, not a new gate, design, independent status source or approval. Proposed acceptance becomes authoritative only in the approved PRD. No storage/components/endpoints are prescribed here. No historical QA or native observation is transferred.
+diff --git a/.agdf/control/runs/cockpit-documented-approvals-20261009-01/RUN_STATE.md b/.agdf/control/runs/cockpit-documented-approvals-20261009-01/RUN_STATE.md
+index ab7c8889..de85cbbe 100644
+--- a/.agdf/control/runs/cockpit-documented-approvals-20261009-01/RUN_STATE.md
++++ b/.agdf/control/runs/cockpit-documented-approvals-20261009-01/RUN_STATE.md
+@@ -5,13 +5,13 @@
+ - control_state_version: 2
+ - run_id: cockpit-documented-approvals-20261009-01
+ - lifecycle: active
+-- revision: 7
+-- revision_id: be3171c6-5d3e-47cc-bed1-cce6071b53d8
+-- content_seal: sha256:f195dc85a2f55841fa6b9ae73ee02e0ee02dc29060a5eb61abeb843fe18ea1fc
+-- approval_seal: sha256:1eeaf6ff15f46640ab148a057ad08311a20e24752a8c676445ef30849e9cf2a7
+-- updated_at: 2026-10-09T16:19:20.883Z
+-- mode: structured_slice
+-- current_gate: SD
++- revision: 24
++- revision_id: 84cf5c3d-4f6a-46b8-bb7b-5ba0003c0bcd
++- content_seal: sha256:12376e0b8ef24adbf980a9ade7fa273d2a97cd519403920fdbcc4dfc13bb6bf1
++- approval_seal: sha256:e53b7d49efc763bb1b3a1a50033d2557310a2149d70f3ce359a9e4e729cc9c02
++- updated_at: 2026-10-10T07:31:02.171Z
++- mode: structured_delivery
++- current_gate: PRD
+ - decision: in_progress
+ - owner: agent
+ 
+@@ -23,20 +23,20 @@ Describe the trustworthy outcome.
+ 
+ | Question | Answer |
+ |---|---|
+-| What is known? | Approval recorded for PRD; current gate is SD. |
+-| What is approved? | Approval: UR, Approval: PRD |
+-| What is missing? | Exact Approval: SD. |
+-| What is the next allowed action? | Draft or refine the Solution Design; do not implement before SD and TP are approved. |
+-| What is explicitly forbidden right now? | create TP; implement code; claim QA or release readiness |
++| What is known? | Approval recorded for TP; current gate is PRD. |
++| What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
++| What is missing? | No approval is pending. |
++| What is the next allowed action? | Reassess UX intent under the current approved UR before dependent source authoring. |
++| What is explicitly forbidden right now? | draft or approve a dependent source before analytical reassessment; implement code; claim QA or release readiness |
+ 
+ ## Approvals
+ 
+ | Gate | Status | Evidence |
+ |---|---|---|
+-| UR | approved | `Approval: UR` · 2026-10-09 · revision 2 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:457a950bc4207fd8 · presentation ad5b75c3-7f70-476c-8ab2-cecb89c0a854 sha256:0c20e24d714c420c7abc0780c79cae9881d5cba3fa069a4f343fba9eb8e1b269 |
+-| PRD | approved | `Approval: PRD` · 2026-10-09 · revision 6 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md` sha256:e2f8d2c3e1ca6ef9 · presentation 3ee87263-4704-4ba6-bfb9-2ee04f113eef sha256:fee01d763d5cfa61ef78d1d07a382a628b770659b6e59c7b3136d5fdeef68ae2 |
+-| SD | missing |  |
+-| TP | missing |  |
++| UR | approved | `Approval: UR` · 2026-10-10 · revision 15 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:db2ce267f9330751 · presentation 9c228127-b23f-4f4a-895d-0cd76eaa4534 sha256:030fe385b015b3e805c90b0b331d7e56b688dcd9e1497457379d598465a4ad56 |
++| PRD | approved | `Approval: PRD` · 2026-10-10 · revision 19 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md` sha256:e4e91bc9937182dc · presentation be43cef6-6de5-4736-8247-b1bc58fcea37 sha256:0fa073a5540a1270d7d5f53ebc69b6c2e4e3198833d9e7dc7c89ff8852852f4f |
++| SD | approved | `Approval: SD` · 2026-10-10 · revision 21 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD.md` sha256:430017b29921d6d1 · presentation 202e3ee1-4d7e-45de-80fe-f20d054c1c32 sha256:32a4b0bc51e3325f772b6a3f23eaea94e61224a02dab5858701cad0554c111fe |
++| TP | approved | `Approval: TP` · 2026-10-10 · revision 23 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP.md` sha256:ac12ce007409e7bb · presentation caccb8e9-8ae9-48b4-b3df-bcd72fbced94 sha256:910b54e7c75f6d0d52fd53436ee44b7c1df495d513cb9a38a6c2dea17f79b4c3 |
+ | QA | missing |  |
+ | UAT | missing |  |
+ 
+@@ -44,32 +44,36 @@ Describe the trustworthy outcome.
+ 
+ | Type | Path | Status | Notes |
+ |---|---|---|---|
+-| UR | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | approved |  |
+-| Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | done |  |
+-| UX Intent Definition | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md` | done | Analytical input ready; preserves approved UR. |
++| UR | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | approved | Previous content is historical; fresh recording and approval required |
++| Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | done | Renewed evidence required after source revision |
++| UX Intent Definition | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md | done | Renewed analytical input ready under current approved UR. |
+ | Verified Change |  | missing |  |
+ | PRD | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md | approved | Reviewed source binding recorded atomically |
+-| SD |  | missing |  |
+-| TP |  | missing |  |
+-| Brownfield Analysis |  | missing |  |
+-| CD+Tests |  | missing |  |
+-| CR |  | missing |  |
+-| QA |  | missing |  |
+-| Binding proof 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_93da81fa-b62e-4dbc-91e2-0b28b6ef9611.json | done | Subordinate reviewed mapping evidence |
++| SD | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD.md | approved | Reviewed source binding recorded atomically |
++| TP | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP.md | approved | Reviewed source binding recorded atomically |
++| Brownfield Analysis |  | missing | Renewed evidence required after source revision |
++| CD+Tests |  | missing | Renewed evidence required after source revision |
++| CR |  | missing | Renewed evidence required after source revision |
++| QA |  | missing | Renewed evidence required after source revision |
++| Binding proof 9a15ae49-e9e3-4950-b068-14390a696478 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_5e3be588-79b1-4b1e-8fbb-3834a78dd511.json | done | Subordinate reviewed mapping evidence |
++| Binding proof 81108f9e-5c9b-472b-8071-e36056e5215a | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_cdaaad5f-7383-4e58-a012-334297afa4af.json | done | Subordinate reviewed mapping evidence |
++| Binding proof 18e885cb-8942-48fa-8a9d-b699ca87fbd5 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_13f8e9e8-200a-44e4-aa1e-3907cd3d69e2.json | done | Subordinate reviewed mapping evidence |
+ 
+ ## Mode/Slice Decision
+ 
+-- decision: structured_slice
++- decision: structured_delivery
+ - required_next_gate: PRD
+-- scope_reason: bounded_structured_slice: compact documented approvals with truthful current-version fallback in existing read-only owners; reject quick_task and dirty-baseline verified_change, no full-depth boundary impact.
++- scope_reason: external_contract_depth: expose canonical document state and approved readable-version correspondence through the existing model/App MCP and HTTP descriptive results; qualify compatibility, reject Quick Task/Verified Change and structured_slice; medium UX requires intent analysis.
+ - evidence: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
+ 
+ ## Artefact Chain
+ 
+ | From | Relationship | To | Evidence |
+ |---|---|---|---|
+-| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-09 · revision 2 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:457a950bc4207fd8 · presentation ad5b75c3-7f70-476c-8ab2-cecb89c0a854 sha256:0c20e24d714c420c7abc0780c79cae9881d5cba3fa069a4f343fba9eb8e1b269 |
+-| PRD | derived_from | UR | binding 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88; reviewed by Codex (PRD derivation review); .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_93da81fa-b62e-4dbc-91e2-0b28b6ef9611.json |
++| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-10 · revision 15 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:db2ce267f9330751 · presentation 9c228127-b23f-4f4a-895d-0cd76eaa4534 sha256:030fe385b015b3e805c90b0b331d7e56b688dcd9e1497457379d598465a4ad56 |
++| PRD | derived_from | UR | binding 9a15ae49-e9e3-4950-b068-14390a696478; reviewed by Codex (revised PRD semantic derivation review); .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_5e3be588-79b1-4b1e-8fbb-3834a78dd511.json |
++| SD | derived_from | PRD | binding 81108f9e-5c9b-472b-8071-e36056e5215a; reviewed by Codex (revised SD semantic derivation review); .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_cdaaad5f-7383-4e58-a012-334297afa4af.json |
++| TP | derived_from | SD | binding 18e885cb-8942-48fa-8a9d-b699ca87fbd5; reviewed by Codex / cooperative_local; .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_13f8e9e8-200a-44e4-aa1e-3907cd3d69e2.json |
+ 
+ ## Evidence
+ 
+@@ -79,10 +83,19 @@ Describe the trustworthy outcome.
+ | UR draft | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+ | Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_slice` | direct |
+ | Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_93da81fa-b62e-4dbc-91e2-0b28b6ef9611.json | PRD derived_from UR; binding 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88; operation b07ef0ff-4405-42bf-8400-250de0296427; 2bf91dcf-74a4-4539-b4c8-0385a2308407 -> 7bb8a871-c696-4940-9356-eb601255ba93 | reviewed cooperative mapping |
++| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_58feb50a-f2f0-427c-90e4-ab7a01c4509b.json | SD derived_from PRD; binding 1fcd3c16-f907-4a68-8801-46cb9d2de1ec; operation 0e952140-6489-4943-9170-3913942f9bda; be3171c6-5d3e-47cc-bed1-cce6071b53d8 -> 42d76499-d622-4b5a-845a-0f8b6008c847 | reviewed cooperative mapping |
++| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_42634fb5-1437-4ced-b958-fd0dc63db055.json | TP derived_from SD; binding c002871d-5546-4c8e-8993-d76c414731d1; operation d54cb30b-56eb-4384-a47f-ad91d6f93517; c05a97a0-723a-4834-b780-2df34cdd7da6 -> 427af0cd-8828-4552-b2c0-bd2da658cd4e | reviewed cooperative mapping |
++
++| Brownfield implementation preparation | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_ANALYSIS.md | T-001, existing owner reuse, scope and protected baseline | direct |
++| UR draft | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | problem, goal, scope and acceptance signals | direct |
++| Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_delivery` | direct |
++| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_5e3be588-79b1-4b1e-8fbb-3834a78dd511.json | PRD derived_from UR; binding 9a15ae49-e9e3-4950-b068-14390a696478; operation de6231cd-5727-4f55-bf25-82dc4591f449; 2ac1538f-b507-4c53-84f9-3c57d4437878 -> 88f10567-e730-4d7c-bb6b-cbdfa941f2e0 | reviewed cooperative mapping |
++| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_cdaaad5f-7383-4e58-a012-334297afa4af.json | SD derived_from PRD; binding 81108f9e-5c9b-472b-8071-e36056e5215a; operation 3a4e665b-0496-473e-bc55-05aa929fe9bd; 8be2628b-6f51-4886-a2a0-3ba644b6fd16 -> 48b80d43-5c86-4ed8-9980-af023cdaddb4 | reviewed cooperative mapping |
++| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_13f8e9e8-200a-44e4-aa1e-3907cd3d69e2.json | TP derived_from SD; binding 18e885cb-8942-48fa-8a9d-b699ca87fbd5; operation d989fc44-ebe6-4da2-9b53-4fdcf7c71fc1; 19bfa39f-d97b-45d4-b2ba-7cb1207f574a -> e387dcc0-b8f3-4468-b661-1b85eb2f67a9 | reviewed cooperative mapping |
+ 
+ ## Closeout
+ 
+-- next_allowed_action: Draft or refine the Solution Design; do not implement before SD and TP are approved.
++- next_allowed_action: Reassess UX intent under the current approved UR before dependent source authoring.
+ - quality_outlook:
+ 
+ ## Artefact Bindings
+@@ -92,3 +105,16 @@ Describe the trustworthy outcome.
+ | binding_id | receipt_digest | receipt |
+ |---|---|---|
+ | 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88 | sha256:e70990c409c033afcde31c1a48c214abce387b602699dcfef69c533d624a87bd | eyJiaW5kaW5nX2lkIjoiNDFlYjA2NDUtYmZhNS00Y2ViLWFiMWQtNTUwZTdjOWVhZDg4IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmUyZjhkMmMzZTFjYTZlZjk3OTE1ZGM1NDdlNzYwMTJlZDQ5ZmZjYzZlNWE2YWFkODM1ZWFiODdiMWFmYWNhMjgiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9QUkQubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJQUkQifSwib3BlcmF0aW9uIjp7ImlkIjoiYjA3ZWYwZmYtNDQwNS00MmJmLTg0MDAtMjUwZGUwMjk2NDI3IiwicHJldmlvdXNfcmV2aXNpb25faWQiOiIyYmY5MWRjZi03NGE0LTQ1MzktYjRjOC0wMzg1YTIzMDg0MDciLCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiI3YmI4YTg3MS1jNjk2LTQ5NDAtOTM1Ni1lYjYwMTI1NWJhOTMiLCJyZXZpc2lvbiI6Nn0sIm9yaWdpbiI6InJldmlld2VkX21hcHBpbmciLCJyZWxhdGlvbnNoaXAiOnsiZnJvbSI6IlBSRCIsInJlbGF0aW9uc2hpcCI6ImRlcml2ZWRfZnJvbSIsInRvIjoiVVIifSwicmV2aWV3Ijp7ImRpZ2VzdCI6InNoYTI1Njo0NTMyNGUwMWMzYjRlZGRkYTMxOTlmMGYyOWU0NWJhZWY1YmZmNWZiYTA1NjcyZDNiMGE0YTRlMDRhNDMzNDhhIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEvUFJEX01BUFBJTkdfOTNkYTgxZmEtYjYyZS00ZGJjLTkxZTItMGIyOGI2ZWY5NjExLmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IChQUkQgZGVyaXZhdGlvbiByZXZpZXcpIn0sInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2UiOnsiZGlnZXN0Ijoic2hhMjU2OjQ1N2E5NTBiYzQyMDdmZDhjZTE2OThhYzBjMjkxM2M4YzMwZDg2ZDE5YWUwZGQ3NjQwMjkxZTIzMGE3YTM0YTkiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9VUi5tZCIsInR5cGUiOiJVUiJ9LCJzdXBlcnNlZGVzIjpudWxsLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |
++| 1fcd3c16-f907-4a68-8801-46cb9d2de1ec | sha256:4a689a3a7b93c40f3e071038f56da2a8e892561c7f2b1990e92f8497c750103b | eyJiaW5kaW5nX2lkIjoiMWZjZDNjMTYtZjkwNy00YTY4LTg4MDEtNDZjYjlkMmRlMWVjIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjBiOWM5ZDc5YzI0MzI2Yzc4MzJjNjY0OGJjNTQ1MTczY2EzYzMyMjU2NGY1YmViNjZhMTk4MjkwYzU1OGYwNjEiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9TRC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlNEIn0sIm9wZXJhdGlvbiI6eyJpZCI6IjBlOTUyMTQwLTY0ODktNDk0My05MTcwLTM5MTM5NDJmOWJkYSIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiYmUzMTcxYzYtNWQzZS00N2NjLWJlZDEtY2NlNjA3MWI1M2Q4IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNDJkNzY0OTktZDYyMi00YjVhLTg0NWEtMGY4YjYwMDhjODQ3IiwicmV2aXNpb24iOjh9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJTRCIsInJlbGF0aW9uc2hpcCI6ImRlcml2ZWRfZnJvbSIsInRvIjoiUFJEIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6MmE4MzFmMzBiNGQ3YWQyMDNmZDdkMjRkOTE5ZTE3MjE3ZmU1ZTJiYzk2NjQxNDY4MTg1YzI4Y2Q0YTVjMmJhMSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1NEX01BUFBJTkdfNThmZWI1MGEtZjJmMC00MjdjLTkwZTQtYWI3YTAxYzQ1MDliLmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IChTRCBzZW1hbnRpYyBkZXJpdmF0aW9uIHJldmlldykifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6ZTJmOGQyYzNlMWNhNmVmOTc5MTVkYzU0N2U3NjAxMmVkNDlmZmNjNmU1YTZhYWQ4MzVlYWI4N2IxYWZhY2EyOCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1BSRC5tZCIsInR5cGUiOiJQUkQifSwic3VwZXJzZWRlcyI6bnVsbCwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ |
++| c002871d-5546-4c8e-8993-d76c414731d1 | sha256:e1aaee348f9bf94ff79ba90665c88a21393c518d9c5d8522aac90f05970a1f4b | eyJiaW5kaW5nX2lkIjoiYzAwMjg3MWQtNTU0Ni00YzhlLTg5OTMtZDc2YzQxNDczMWQxIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjQ3OGU5ZWNlZGY3NWJjZTY5MWY1N2Y0OTkwOWNmOWM3NzQ1ZTU5MTE5NzJkMWM3NTY2ZDVmZTQxMDYyZDUyOTciLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9UUC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlRQIn0sIm9wZXJhdGlvbiI6eyJpZCI6ImQ1NGNiMzBiLTU2ZWItNDM4NC1hNDdmLWFkOTFkNmY5MzUxNyIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiYzA1YTk3YTAtNzIzYS00ODM0LWI3ODAtMmRmMzRjZGQ3ZGE2IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNDI3YWYwY2QtODgyOC00NTUyLWIyYzAtYmQyZGE2NThjZDRlIiwicmV2aXNpb24iOjEwfSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiVFAiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlNEIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6OWJiZDBjZGYzMWMzNGEzZmU2YmZkNDE2ZDEyOTE0YzFlMDYxYWU3ZWU1ZjgxNTVhMmFjZjU5NWRmMDA5ODBmNSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1RQX01BUFBJTkdfNDI2MzRmYjUtMTQzNy00Y2VkLWI5NTgtZmQwZGM2M2RiMDU1Lmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IChUUCBzZW1hbnRpYyBkZXJpdmF0aW9uIHJldmlldykifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6MGI5YzlkNzljMjQzMjZjNzgzMmM2NjQ4YmM1NDUxNzNjYTNjMzIyNTY0ZjViZWI2NmExOTgyOTBjNTU4ZjA2MSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1NELm1kIiwidHlwZSI6IlNEIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
++| 9a15ae49-e9e3-4950-b068-14390a696478 | sha256:de9a6eb2f76273544e62187a17969dd2a44d83f658b2bd91102cde736189f283 | eyJiaW5kaW5nX2lkIjoiOWExNWFlNDktZTllMy00OTUwLWIwNjgtMTQzOTBhNjk2NDc4IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmU0ZTkxYmM5OTM3MTgyZGNiNDcwY2IyNTA2YTU1ZGVhZTYxMWZjOWQwZDMxMzU4Yzg0ZTliNTU3NDgxODVhNzQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9QUkQubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJQUkQifSwib3BlcmF0aW9uIjp7ImlkIjoiZGU2MjMxY2QtNTcyNy00ZjU1LWJmMjUtODJkYzQ1OTFmNDQ5IiwicHJldmlvdXNfcmV2aXNpb25faWQiOiIyYWMxNTM4Zi1iNTA3LTRjNTMtODRmOS0zYzU3ZDQ0Mzc4NzgiLCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiI4OGYxMDU2Ny1lNzMwLTRkN2MtYmI2Yi1jYmRmYTk0MWYyZTAiLCJyZXZpc2lvbiI6MTl9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJQUkQiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlVSIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6YmNhNGM5Mzg2YjEwOWQxOTZmODNiZjRiM2E1OWY5YjU2ZmQyNzJkYjA4MmVmNWE0ZDEwNzI3ZjRmMTg4OGQ0MiIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1BSRF9NQVBQSU5HXzVlM2JlNTg4LTc5YjEtNGIxZS04ZmJiLTM4MzRhNzhkZDUxMS5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCAocmV2aXNlZCBQUkQgc2VtYW50aWMgZGVyaXZhdGlvbiByZXZpZXcpIn0sInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2UiOnsiZGlnZXN0Ijoic2hhMjU2OmRiMmNlMjY3ZjkzMzA3NTFlMGViNmMyNzAyN2ZiYTA5YjBiZTNlMTk4ODlkZmYyMDY0MjMwMjViN2UxYTY0OTUiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9VUi5tZCIsInR5cGUiOiJVUiJ9LCJzdXBlcnNlZGVzIjoiNDFlYjA2NDUtYmZhNS00Y2ViLWFiMWQtNTUwZTdjOWVhZDg4IiwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ |
++| 81108f9e-5c9b-472b-8071-e36056e5215a | sha256:ae2be20b3f044cdfe24d455dd9b32d4da16b189ef5f9e67f114a41a1736c3a70 | eyJiaW5kaW5nX2lkIjoiODExMDhmOWUtNWM5Yi00NzJiLTgwNzEtZTM2MDU2ZTUyMTVhIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjQzMDAxN2IyOTkyMWQ2ZDFjZmUzMTUwNzg2ZjFhM2E0NDRkZmY3NjQwODM3NzAzMmZmYTY5M2NmM2QyYWE4MzQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9TRC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlNEIn0sIm9wZXJhdGlvbiI6eyJpZCI6IjNhNGU2NjViLTA0OTYtNDczZS1iYzU1LTA1YWE5MjlmZTliZCIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiOGJlMjYyOGItNmY1MS00ODg2LWEyYTAtM2JhNjQ0YjZmZDE2IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNDhiODBkNDMtNWM4Ni00ZWQ4LTk5ODAtYWYwMjNjZGFkZGI0IiwicmV2aXNpb24iOjIxfSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiU0QiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlBSRCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2OmZlZTI4OGI3ZjczNTNiNWJkOThmNmZmZmY0NTYyNjIzMTJlNGU3NTU1Nzk4Njc0MmJiODUyMDNjMzdmYzUzZjYiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9TRF9NQVBQSU5HX2NkYWFhZDVmLTczODMtNGU1OC1hMDEyLTMzNDI5N2FmYTRhZi5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCAocmV2aXNlZCBTRCBzZW1hbnRpYyBkZXJpdmF0aW9uIHJldmlldykifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6ZTRlOTFiYzk5MzcxODJkY2I0NzBjYjI1MDZhNTVkZWFlNjExZmM5ZDBkMzEzNThjODRlOWI1NTc0ODE4NWE3NCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1BSRC5tZCIsInR5cGUiOiJQUkQifSwic3VwZXJzZWRlcyI6IjFmY2QzYzE2LWY5MDctNGE2OC04ODAxLTQ2Y2I5ZDJkZTFlYyIsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
++| 18e885cb-8942-48fa-8a9d-b699ca87fbd5 | sha256:70e122e0ca41a56d16681d559fb869ca916756135576091a66b7d9d7fe82bdea | eyJiaW5kaW5nX2lkIjoiMThlODg1Y2ItODk0Mi00OGZhLThhOWQtYjY5OWNhODdmYmQ1IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmFjMTJjZTAwNzQwOWU3YmJiOTM2ZTRjMjNmMTJmOGE3N2YzYjlkNGZhZTRlZDIzODg2YjBlZDM3YjhiNWI2ZjQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9UUC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlRQIn0sIm9wZXJhdGlvbiI6eyJpZCI6ImQ5ODlmYzQ0LWViZTYtNGRhMi05YjUzLTRmZGNmN2M3MWZjMSIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiMTliZmEzOWYtZDk3Yi00NWQ0LWIyYmEtN2NiMTIwN2Y1NzRhIiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiZTM4N2RjYzAtYjhmMy00NDY4LWI2NjEtMWI4NWViMmY2N2E5IiwicmV2aXNpb24iOjIzfSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiVFAiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlNEIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6NTViNTI1MjdhZWZhZTVmMDc2YTAzOWNjYzA1YTVlODQ0NjExNGJjMGIyMmQ0MDBmZWI0MDg3ZjhjMjY5Yjg3MyIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1RQX01BUFBJTkdfMTNmOGU5ZTgtMjAwYS00NGU0LWFhMWUtMzkwN2NkM2Q2OWUyLmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IC8gY29vcGVyYXRpdmVfbG9jYWwifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6NDMwMDE3YjI5OTIxZDZkMWNmZTMxNTA3ODZmMWEzYTQ0NGRmZjc2NDA4Mzc3MDMyZmZhNjkzY2YzZDJhYTgzNCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1NELm1kIiwidHlwZSI6IlNEIn0sInN1cGVyc2VkZXMiOiJjMDAyODcxZC01NTQ2LTRjOGUtODk5My1kNzZjNDE0NzMxZDEiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |
++
++## Source Revisions
++
++- schema_version: 1
++
++| operation_id | receipt_digest | receipt |
++|---|---|---|
++| 6cd14441-2dee-4d7f-aac5-e89ea6167506 | sha256:341bdf4dc7d07b706166c61f046c2d68c8c7fc0f70faf843eada38242ff0bcb0 | eyJhbmFseXNlcyI6W3siZGlnZXN0Ijoic2hhMjU2OmYyNDkxNzE1NjE5NmI0ZDQwNGIxNDljNzNjMTkxOWVkMmNkM2M1MjkzZTljZWJlOTJlMWY1NjM5MDNiYTRjZTUiLCJkaXNwb3NpdGlvbiI6InJlYXNzZXNzIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEvQlJPV05GSUVMRF9SRVZJRVcubWQiLCJyZWFzb24iOiJUaGUgcmV2aXNlZCBVUiByZXBsYWNlcyBpbmxpbmUgZGlzY2xvc3VyZSB3aXRoIGEgZGlzdGluY3QgYXBwcm92YWwgcmVhZGluZyBtb2RlOyByZWFzc2VzcyBvd25lciByZXVzZSBhbmQgbmF2aWdhdGlvbi9hY2Nlc3NpYmlsaXR5IGFnYWluc3QgdGhlIG5ldyBpbnRlbnQuIiwidHlwZSI6IkJyb3duZmllbGQgUmV2aWV3In0seyJkaWdlc3QiOiJzaGEyNTY6ZjRhYmVlNmUzNmYyOWI0YjM2YjRkMjI1YmE1ZjdmYzdhYWZmM2EyNDcxMDhiODA4N2NiMjYwYjc4YTRmYzNmZCIsImRpc3Bvc2l0aW9uIjoicmVhc3Nlc3MiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9VWF9JTlRFTlRfREVGSU5JVElPTi5tZCIsInJlYXNvbiI6IlRoZSByZXZpc2VkIFVSIHJlcGxhY2VzIGlubGluZSBkaXNjbG9zdXJlIHdpdGggYSBkaXN0aW5jdCBhcHByb3ZhbCByZWFkaW5nIG1vZGU7IHJlYXNzZXNzIG93bmVyIHJldXNlIGFuZCBuYXZpZ2F0aW9uL2FjY2Vzc2liaWxpdHkgYWdhaW5zdCB0aGUgbmV3IGludGVudC4iLCJ0eXBlIjoiVVggSW50ZW50IERlZmluaXRpb24ifV0sImFyY2hpdmUiOnsiZGlnZXN0Ijoic2hhMjU2Ojk2MzMyOTYxMDVkZDQxNjc5ZTRiYWE5MjM2YTRmOTk4MzE2ZTdlMjdjODc3OThjZDVjYzI5MjYyY2IzYmM2MWUiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9ydW5zL2NvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEvcmV2aXNpb25zLzZjZDE0NDQxLTJkZWUtNGQ3Zi1hYWM1LWU4OWVhNjE2NzUwNi9tYW5pZmVzdC5qc29uIn0sImludmFsaWRhdGVkX2JpbmRpbmdzIjpbIjQxZWIwNjQ1LWJmYTUtNGNlYi1hYjFkLTU1MGU3YzllYWQ4OCIsIjFmY2QzYzE2LWY5MDctNGE2OC04ODAxLTQ2Y2I5ZDJkZTFlYyIsImMwMDI4NzFkLTU1NDYtNGM4ZS04OTkzLWQ3NmM0MTQ3MzFkMSJdLCJvcGVyYXRpb25faWQiOiI2Y2QxNDQ0MS0yZGVlLTRkN2YtYWFjNS1lODllYTYxNjc1MDYiLCJwcmV2aWV3X2RpZ2VzdCI6InNoYTI1NjphYTZkMDRjM2E3MDM1YTA4NTA2MThhZmQ5MTI5YzQ1M2NlZmMzMmFmNjYxYjBkYmVmMDc1ZWYyZThiZDNjZTVkIiwicHJldmlvdXNfcmV2aXNpb25faWQiOiI1OWJiYTMxMS1jNjVhLTRjOWQtODgxNi00ZWMzNjVjMTM0ZTYiLCJyZWFzb24iOiJUaGUgdXNlciByZXF1ZXN0ZWQgY29tcGFjdCByb3dzIHdpdGhvdXQgZXhwYW5kYWJsZSBlbnRyaWVzIGFuZCBhIHNlcGFyYXRlIGxhcmdlIHJlYWRpbmcgdmlldyBmb3IgdGhlIGFwcHJvdmFsLCB3aXRoIGEgc2VwYXJhdGUgY3VycmVudC1kb2N1bWVudCBhY3Rpb24uIiwicmVxdWVzdF9kaWdlc3QiOiJzaGEyNTY6YTE3NDUzYjBmYjA5OWFkN2M3YTU0MzJjZWQ4Njg5N2YxNDFhODBlMTM0ODNjNDlhODg3OWI0ZDMwZTQ0ZDAyNyIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImE0ZDhlZWFkLWY4NDQtNGQ5ZS05ZWY2LTliNGYzY2YxZTlmZSIsInJldGFpbmVkX3NvdXJjZXMiOltdLCJyZXZpc2lvbiI6MTQsInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2VfZ2F0ZSI6IlVSIiwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ |
+diff --git a/packages/control-ui/src/WorkStep.tsx b/packages/control-ui/src/WorkStep.tsx
+index 5ca243d2..f823fcd7 100644
+--- a/packages/control-ui/src/WorkStep.tsx
++++ b/packages/control-ui/src/WorkStep.tsx
+@@ -2,6 +2,7 @@ import { useId, type ReactNode } from 'react';
+ import type { Detail, Resource } from './types';
+ import { label } from './feedback';
+ import { documentName, phaseName, observedAssessment, reportFindingsLabel } from './presentation';
++import { DocumentedApprovals } from './DocumentedApprovals';
+ 
+ // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
+ export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
+@@ -10,7 +11,6 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
+   const id = useId(), e = data.evaluation;
+   if (!e) return <>{children}</>;
+   const assessment = observedAssessment(data, current);
+-  const approvals = e.approvals.filter(a => a.status === 'approved');
+   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
+   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
+   const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
+@@ -54,13 +54,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
+           <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
+         </details>
+       </details>
+-      <details className="work-step-approvals"><summary>Gespeicherte Freigaben · {approvals.length}</summary>
+-        <p className="muted">{approvals.length ? 'Diese Freigaben sind gespeichert. Sie ersetzen keine aktuelle Kontrollauswertung.' : 'Keine Freigaben gespeichert.'}</p>
+-        <ul>{approvals.map(a => <li key={a.gate}><strong>{documentName(a.gate)} · freigegeben</strong>
+-          {onOpen && sources.filter(r => r.type === a.gate).map(r => <button className="text-link" key={r.resource_id} data-focus-id={`approval:${r.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(r, `approval:${r.resource_id}`)}>{documentName(r.type)} ansehen</button>)}
+-          <details className="work-step-original"><summary>Gespeicherter Freigabenachweis · {a.gate}</summary><p className="source-text">{a.evidence || 'Kein Quellenhinweis verfügbar.'}</p></details>
+-        </li>)}</ul>
+-      </details>
++      <DocumentedApprovals approvals={e.approvals} resources={data.resources} runId={data.run_id} onOpen={onOpen} sourceDisabled={sourceDisabled}/>
+     </div>
+   </section>;
+ }
+diff --git a/packages/control-ui/src/style.css b/packages/control-ui/src/style.css
+index 48b677a1..f61a8619 100644
+--- a/packages/control-ui/src/style.css
++++ b/packages/control-ui/src/style.css
+@@ -99,8 +99,6 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
+ .work-step-beginning span { font-size: var(--agdf-text-xs); line-height: var(--agdf-text-leading-xs); color: var(--cockpit-muted); }
+ .work-step-blocked { color: var(--cockpit-risk); font-size: var(--agdf-text-sm); }
+ .work-step-approvals > summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
+-.work-step-approvals li { display: grid; gap: var(--agdf-space-2); }
+-.work-step-approvals li > .text-link { justify-self: start; }
+ .work-step-evidence { border-bottom: 0; }
+ .work-step-evidence summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
+ .work-step-empty { font-size: var(--agdf-text-sm); color: var(--cockpit-muted); margin: var(--agdf-space-2) 0; }
+@@ -110,13 +108,32 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
+ .work-step ul { padding-left: var(--agdf-space-5); margin: var(--agdf-space-3) 0; }
+ .work-step li + li { margin-top: var(--agdf-space-4); }
+ .work-step li p { margin: var(--agdf-space-2) 0; font-size: var(--agdf-text-sm); }
+-.work-step-approvals li span { display: block; font-size: var(--agdf-text-xs); margin: var(--agdf-space-1) 0; }
+ .work-step-label { font-weight: var(--agdf-weight-medium); }
+ .work-step-sources { display: flex; flex-direction: column; align-items: flex-start; }
+ .work-step-sources button + button { font-size: var(--agdf-text-xs); font-weight: var(--agdf-weight-normal); }
+ .work-step .text-link, .work-step summary, .row-evidence { min-height: 44px; text-align: left; }
+ .work-step summary { padding-block: var(--agdf-space-2); }
+ .work-step pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--agdf-text-xs); }
++.documented-approvals-note { font-size: var(--agdf-text-sm); }
++.documented-approvals-columns { display: none; }
++.work-step ul.documented-approvals-list { list-style: none; padding: 0; margin: var(--agdf-space-3) 0 0; }
++.work-step .documented-approval-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--agdf-space-3); padding-block: var(--agdf-space-3); margin: 0; border-bottom: 1px solid var(--cockpit-line); }
++.documented-approval-group { min-width: 0; overflow-wrap: anywhere; }
++.documented-approval-label { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
++.documented-approval-evidence { padding: 0; border: 0; }
++.documented-approval-evidence summary { color: var(--agdf-link-color); font-weight: var(--agdf-weight-medium); }
++.documented-approval-source .text-link { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
++.documented-approval-reference { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
++.documented-approval-facts { font-size: var(--agdf-text-xs); margin: var(--agdf-space-2) 0; }
++.documented-approval-facts dt { color: var(--cockpit-muted); }
++.documented-approval-facts dd { margin: 0 0 var(--agdf-space-2); }
++.documented-approval-original-label { font-weight: var(--agdf-weight-medium); }
++@container (min-width: 600px) {
++  .documented-approvals-columns, .work-step .documented-approval-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.3fr); column-gap: var(--agdf-space-4); align-items: start; }
++  .documented-approvals-columns { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); padding-block: var(--agdf-space-2); border-bottom: 1px solid var(--cockpit-line); }
++  .documented-approval-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
++  .documented-approval-group > strong { display: block; padding-block: var(--agdf-space-2); font-size: var(--agdf-text-sm); }
++}
+ .row-step { display: block; margin: var(--agdf-space-2) 0; font-size: var(--agdf-text-sm); }
+ .detail-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--agdf-space-5); }
+ .status-fields { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: var(--agdf-space-3); font-size: var(--agdf-text-sm); line-height: var(--agdf-leading-relaxed); }
+diff --git a/packages/control-ui/test/browser/journeys.spec.mjs b/packages/control-ui/test/browser/journeys.spec.mjs
+index 560415b1..c29eac20 100644
+--- a/packages/control-ui/test/browser/journeys.spec.mjs
++++ b/packages/control-ui/test/browser/journeys.spec.mjs
+@@ -31,10 +31,9 @@ test('document orientation separates approved Run facts from draft originals in
+     await openSession(page,service);
+     await page.locator('.run-link[data-focus-id="agdf-cockpit-mcp-app-20261005-01"]').click();
+     await page.locator('.work-step-approvals > summary').click();
+-    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen · freigegeben'}).first();
+-    const gap=await approval.evaluate(el=>({labelBottom:el.querySelector('strong').getBoundingClientRect().bottom,buttonTop:el.querySelector('button').getBoundingClientRect().top}));
+-    expect(gap.buttonTop).toBeGreaterThan(gap.labelBottom);
+-    const source=page.getByRole('button',{name:'Anforderungen ansehen',exact:true});
++    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen'}).first();
++    await expect(approval.locator('.documented-approval-evidence > summary')).toHaveAccessibleName('Dokumentiert: Anforderungen');
++    const source=page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/});
+     await source.focus();await page.keyboard.press('Enter');
+     await expect(page.locator('.page-title h1')).toBeFocused();
+     await expect(page.locator('.page-title h1')).toHaveCSS('outline-style','none');
+@@ -78,7 +77,7 @@ test('document orientation separates approved Run facts from draft originals in
+     await expect(page.locator('article.document')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+     await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
+     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+-    await expect(page.getByRole('button',{name:'Anforderungen ansehen',exact:true})).toBeFocused();
++    await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/})).toBeFocused();
+     // Capture the same bound document through the embedded-card browser entry,
+     // whose expanded reader shares the MCP panel layout without the browser rail.
+     await page.setViewportSize({width:845,height:1100});
+@@ -86,7 +85,7 @@ test('document orientation separates approved Run facts from draft originals in
+     await page.locator('.run-link[data-focus-id=\"agdf-cockpit-mcp-app-20261005-01\"]').click();
+     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+     await page.locator('.work-step-approvals > summary').click();
+-    await page.getByRole('button',{name:'Anforderungen ansehen',exact:true}).click();
++    await page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/}).click();
+     await expect(page.locator('.document-reading')).toBeVisible();
+     await expect(page.locator('.document-original')).not.toHaveAttribute('open');
+     for(const theme of ['light','dark']){
+diff --git a/packages/control-ui/test/work-step.test.tsx b/packages/control-ui/test/work-step.test.tsx
+index e3895946..79714c7c 100644
+--- a/packages/control-ui/test/work-step.test.tsx
++++ b/packages/control-ui/test/work-step.test.tsx
+@@ -21,8 +21,8 @@ it('leads with saved state, Core assessment and the actual registered step sourc
+  expect(Array.from(document.querySelectorAll('details')).every(d=>!d.open)).toBe(true);
+  fireEvent.click(screen.getByRole('button',{name:'Umsetzungs- und Prüfnachweise öffnen'}));expect(open).toHaveBeenCalledWith(source, 'step:opaque-cd');
+  expect(document.querySelectorAll('button.primary')).toHaveLength(1);
+- expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Gespeicherte Freigaben · 1')).toBeTruthy();
+- expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben')).toBeTruthy();
++ expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
++ expect(screen.getByText('Umsetzungs- und Prüfplan')).toBeTruthy();
+  // Exact original evidence remains recoverable, independently of its readable summary.
+  expect(screen.getByText(/Aktueller Build noch nicht im Host bestätigt/)).toBeTruthy();
+  expect(screen.getAllByText(/Neue Karte öffnen und prüfen/)).toHaveLength(2);

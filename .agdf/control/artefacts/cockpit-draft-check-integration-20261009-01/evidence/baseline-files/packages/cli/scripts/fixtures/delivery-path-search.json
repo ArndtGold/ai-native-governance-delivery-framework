@@ -1,0 +1,52 @@
+{
+  "input": {
+    "contract_version": "1",
+    "scope_key": "cli-fixture",
+    "objective": "Choose one safe next delivery step",
+    "current_gate": "CD+Tests",
+    "allowed_actions": ["inspect existing tests"],
+    "forbidden_actions": ["release"],
+    "evidence_refs": ["TP.md"],
+    "risks": ["regression"],
+    "enforcement": {
+      "level": "tool_enforced",
+      "evidence": ["fixture evaluator"]
+    },
+    "budgets": {
+      "max_candidates": 2,
+      "max_depth": 1,
+      "max_evaluations": 2,
+      "max_duration_ms": 5000,
+      "max_cost_units": 10,
+      "stability_window": 3
+    }
+  },
+  "candidates": [
+    {
+      "id": "inspect",
+      "action": "inspect existing tests",
+      "expected_evidence": ["test inventory"],
+      "tests": [],
+      "assumptions": [],
+      "depth": 0
+    }
+  ],
+  "evaluations": {
+    "inspect": {
+      "contract_version": "1",
+      "candidate_id": "inspect",
+      "scope_fit": 5,
+      "gate_readiness": 5,
+      "risk_reduction": 4,
+      "evidence_gain": 5,
+      "testability": 5,
+      "reversibility": 5,
+      "cost": 1,
+      "uncertainty": 1,
+      "rationale": "Inspecting tests improves evidence before implementation.",
+      "risks": [],
+      "assumptions": [],
+      "child_actions": []
+    }
+  }
+}

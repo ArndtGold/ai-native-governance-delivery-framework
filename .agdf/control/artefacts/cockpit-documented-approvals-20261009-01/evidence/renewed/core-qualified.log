@@ -1,0 +1,119 @@
+TAP version 13
+# Artifact authoring readiness: validator parity, incomplete input, revision, source and read-only checks passed.
+# Subtest: packages/core/test/artifact-readiness-test.js
+ok 1 - packages/core/test/artifact-readiness-test.js
+  ---
+  duration_ms: 5563.725448
+  type: 'test'
+  ...
+# Subtest: SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+ok 2 - SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+  ---
+  duration_ms: 1224.985609
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+ok 3 - SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+  ---
+  duration_ms: 2865.406778
+  type: 'test'
+  ...
+# Subtest: SCN-004: missing or foreign/malformed approval presentation never confirms current version
+ok 4 - SCN-004: missing or foreign/malformed approval presentation never confirms current version
+  ---
+  duration_ms: 4571.388066
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+ok 5 - SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+  ---
+  duration_ms: 2334.809869
+  type: 'test'
+  ...
+# Subtest: SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+ok 6 - SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+  ---
+  duration_ms: 0.367569
+  type: 'test'
+  ...
+# Subtest: SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+ok 7 - SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+  ---
+  duration_ms: 2835.455362
+  type: 'test'
+  ...
+# Subtest: SCN-006: actual current SD traceability findings are shown without changing the original report
+ok 8 - SCN-006: actual current SD traceability findings are shown without changing the original report
+  ---
+  duration_ms: 739.814655
+  type: 'test'
+  ...
+# Subtest: SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+ok 9 - SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+  ---
+  duration_ms: 1506.954137
+  type: 'test'
+  ...
+# Subtest: SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+ok 10 - SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+  ---
+  duration_ms: 3687.327836
+  type: 'test'
+  ...
+# Subtest: SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+ok 11 - SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+  ---
+  duration_ms: 779.387379
+  type: 'test'
+  ...
+# Subtest: SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+ok 12 - SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+  ---
+  duration_ms: 2254.962725
+  type: 'test'
+  ...
+# Subtest: SCN-009: Core document description array enforces its exact serialized limit
+ok 13 - SCN-009: Core document description array enforces its exact serialized limit
+  ---
+  duration_ms: 1680.428383
+  type: 'test'
+  ...
+# Subtest: SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+ok 14 - SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+  ---
+  duration_ms: 5376.168006
+  type: 'test'
+  ...
+# Subtest: SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+ok 15 - SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+  ---
+  duration_ms: 855.12274
+  type: 'test'
+  ...
+# Subtest: SCN-006: changes during captured/replay/published check never publish success
+ok 16 - SCN-006: changes during captured/replay/published check never publish success
+  ---
+  duration_ms: 2402.134404
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+ok 17 - SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+  ---
+  duration_ms: 1175.651306
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+ok 18 - SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+  ---
+  duration_ms: 1127.68627
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 24871.524382

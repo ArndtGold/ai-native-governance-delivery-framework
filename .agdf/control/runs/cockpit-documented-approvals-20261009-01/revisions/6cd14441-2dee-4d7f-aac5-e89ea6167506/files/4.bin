@@ -1,0 +1,142 @@
+# SD: Compact documented approvals with truthful version links
+
+Status: draft
+Gate: SD
+Gate approval: open
+Owner: Arndt Gold
+Date: 2026-10-09
+Run: cockpit-documented-approvals-20261009-01
+Language: en
+Traceability contract: criteria-chain-v1
+Design Decisions contract: sd-decisions-v1
+
+## Solution Overview
+
+Implement the approved comparable approval overview only within the existing selected undertaking presentation. The same ordered approval rows serve broad three-column and narrow stacked arrangements, without replacing current control assessment, surrounding evidence sections or draft-check UI. Each recorded approved gate contributes one row: document name, deliberate documented-evidence disclosure and a truthfully labelled current-resource action or unavailable state. The count is derived from those exact Core facts, not a fixed four-document list.
+
+A small internal DocumentedApprovals presentation component will separate this bounded block from WorkStep's current-work assessment. It consumes the existing typed approved rows, same-Run registered resources, onOpen and sourceDisabled; it introduces no public DTO, persistence, permission or validation service. WorkStep remains the integration owner. Semantic list items contain three labelled groups, arranged by a scoped CSS grid. A shared visible column heading in wide mode assists comparison; row-level labels and contextual accessible action names preserve meaning in narrow mode. Native details/summary keep original evidence deliberately folded. The same DOM and stable keys remain across widths, avoiding remount-driven focus/disclosure/scroll loss.
+
+The only supported document-version classification is current registered source or unavailable. Existing evidence has no certified readable historical-version binding. Do not introduce an approved-version selector, speculative certification branch, fake verified fixture or parser of partial hashes/prose. “Freigegebene Fassung ansehen” cannot be emitted from today's DTO. A future canonical certification capability would require its own separately governed contract change.
+
+This is a proposed design, not implemented behavior or test/host success. PRD acceptance is the sole product authority; this SD describes its realization without redefining it.
+
+## Sources And Derivation
+
+- Approved PRD: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md; sha256:e2f8d2c3e1ca6ef97915dc547e76012ed49ffcc6e5a6aad835eab87b1afaca28.
+- Completed Brownfield Review: BROWNFIELD_REVIEW.md; sha256:f24917156196b4d404b149c73c1919ed2cd3c5293e9cebe92e1f563903ba4ce5; structured_slice, existing presentation/read owners, no architecture expansion.
+- Ready analytical UX input: UX_INTENT_DEFINITION.md; sha256:f4abee6e36f29b4b36b4d225ba5f7fc7aaff3a247108b8087cb260b78a4fc3fd.
+- Source inspection confirms WorkStep currently filters canonical approved rows and same-Run registered resources; onOpen uses the existing approval resource focus identifier. App and existing reader own selection and captured-source navigation. Current TypeScript approval facts are gate/status/evidence only; DocumentData carries captured current bytes/digest, not approval-version certification.
+- Brownfield source pointers: packages/control-ui/src/WorkStep.tsx, presentation.ts, types.ts, App.tsx and style.css; existing work-step and browser journeys suites. Inspection informs this proposal, not permission to edit product code before TP.
+
+## Ownership And Source Of Truth
+
+| Concern | Authoritative existing owner | Consumer boundary |
+|---|---|---|
+| Recorded approvals and count | Core projected evaluation.approvals gate/status/evidence | Filter status approved once; one row per canonical recorded gate, all supported gates |
+| Current control assessment | Core evaluation and existing WorkStep assessment | Shared explanation and current-work area remain separate; disclosure grants no permission |
+| Original evidence and provenance | Core original evidence text and actually exposed structured fields | Preserve original text; no independent identity/signature or version assertion from prose |
+| Current readable resources | Existing selected Detail.resources and scoped registered-document reader | Same Run and registered status; pass existing opaque Resource through onOpen; no path-based reads or source substitution |
+| Selection, snapshot/freshness, disabled controls, document return | Existing App/reader/navigation owners | Retain sourceDisabled and existing callback/origin contract; no additional selection/result store |
+| Names, approval presentation and layout | documentName, WorkStep/internal component and scoped style.css | Descriptive labels/layout only, no gate evaluator or public schema |
+| Criteria and scenario mapping | Approved PRD, then existing TP owner | Exactly one SD realization per criterion; executable evidence detail belongs in TP |
+
+## Architecture Decisions
+
+- SDD-001: Use one semantic list and three labelled responsive groups; rationale: compact comparison must preserve the same facts and local disclosure state across widths; consequence: one DOM under the existing WorkStep owner, scoped CSS and no duplicate responsive trees.
+- SDD-002: Preserve original evidence and explicit unavailable structured provenance; rationale: today's approval input does not certify identity, time or historical versions; consequence: no prose or partial-hash certification and only a shared control-status explanation.
+- SDD-003: Open existing registered current resources with truthful current-version actions; rationale: the captured reader has no approval-bound historical resource relation; consequence: reuse onOpen and resource origin, show unavailable states and add no archive or public contract.
+- SDD-004: Reuse native controls and existing focus return; rationale: repeated short actions and responsive reflow must remain independently accessible and stable; consequence: contextual action names, stable nodes/keys and existing App origin restoration with actual rendered tests.
+- SDD-005: Keep existing read/selection/freshness/recovery owners; rationale: documented evidence must not gain gate or write authority; consequence: sourceDisabled and original readers remain decisive and surrounding draft-check/control UI is preserved.
+- SDD-006: Capture a scoped baseline and meaningful source/rendered/build proof; rationale: the dirty checkout contains completed protected work and source tests do not prove native behavior; consequence: pre-code protection, scoped reviews and separated actual browser/native evidence without implicit host changes.
+
+### SDD-001 — One compact approval presentation, shared across widths
+
+Use the existing WorkStep approval slot with the internal presentational component DocumentedApprovals.tsx under the same control-ui owner. Render one semantic list row per approved gate with three groups and a shared wide heading: Dokument, Freigabenachweis, Dokumentfassung. Grid tracks may use minmax(0, ...) and container-based reflow; narrow rows expose equivalent labels and actions in reading order. Stable gate keys and the same DOM preserve disclosure state; no JavaScript width detector, duplicate wide/narrow tree, virtual list or sticky/animated layout is required. Keep scoped rules distinct from work-step evidence lists so other regions retain their layout. Use existing spacing/typography and minimum interactive targets; no rigid height crops long text. Reject the old repeated heading/action/evidence blocks because they prevent compact comparison. Reject a new dashboard/table framework as unnecessary scope.
+
+### SDD-002 — Deliberate original evidence, honest unavailable fields
+
+The overview heading is Dokumentierte Freigaben with actual count. A single explanatory note distinguishes documented evidence from today's control evaluation and says the exact approved version is not established by the current reader. Within each row a native details/summary visibly labelled Dokumentiert exposes original stored evidence, with a contextual accessible name for the document/gate. When a documented approval lacks evidence text, show that limitation inside the disclosure rather than inventing a record or reducing the recorded count.
+
+Gate/recorded approval and selected Run are structured facts. Version, approval time, approving person/identity, scope and basis are displayed only when the existing input structurally supports their stated meaning. With today's gate/status/evidence-only approval DTO, explicitly mark unsupported structured provenance unavailable or unconfirmed and retain raw prose separately as the original record. Do not parse a presentation ID, partial digest, date-looking text or path into certified facts; a stored Owner is not automatically the approving person. The component never calls an authoring/check/writer service.
+
+### SDD-003 — Current-version action bound to existing resources
+
+For a same-Run registered resource matching the recorded gate, the visible action is Aktuelle Fassung ansehen, with contextual accessible document/source naming. Send that exact Resource and the existing origin approval:<resource_id> through onOpen. The reader owns captured bytes, current resource availability, fresh-snapshot validation and any blocked result. If several supported registered resources match, preserve explicitly identified resource actions in the same gate row; do not choose an unexplained first match or manufacture a single historical version. All use current-version wording.
+
+If no supported matching resource exists, show current-source unavailable; there is no working action. sourceDisabled disables all document actions without deleting the recorded approval. Changed/moved/blocked resources are evaluated by existing selection/reader owners and retain existing feedback/reload paths. Current path equality, approval status, an unchanged current digest or a partial historic hash cannot justify an approved-version label. The design adds no source path lookup, public API/DTO, archive, digest-join evaluator or Core change. Human-readable “Dokumentfassung” avoids falsely certifying that a historical approved resource exists in every row.
+
+### SDD-004 — Stable keyboard, disclosure and document return
+
+Reuse native keyboard activation, existing focus identifiers and onOpen origin. Tab/Enter disclosure changes only its detail; document return uses the existing App focus restoration keyed to the initiating approval resource. Contextual accessible names distinguish repeated visible Dokumentiert and Aktuelle Fassung ansehen actions. Refocusing, reload, width changes and ordinary re-render must not switch Run, duplicate handlers or remount the whole overview. Preserve the original native details node/key across width changes; use natural content wrapping and no horizontal scrolling requirement for long names/evidence. No new global focus or navigation owner. TP will choose concrete narrow/wide widths and exercise real built browser keyboard, scroll and return cases.
+
+### SDD-005 — Existing read-only and recovery boundaries
+
+Only rendering/disclosure and existing bounded onOpen navigation occur. No approval write, gate advancement, new persistent store or independent eligibility evaluation. App current selection/snapshot/freshness and sourceDisabled remain decisive. The existing reload/retry/close pathways recover transient or obsolete reads; absent historical proof remains the accepted explicit limitation, not a retry that invents certification. Preserve surrounding current-control/evidence, existing draft-check action/result and document/context areas. An unexpected need to expand protocol, storage or permission returns to approved-source routing; do not implement a shortcut.
+
+### SDD-006 — Scoped baseline, meaningful evidence and honest native claims
+
+After TP approval, the required pre-implementation Brownfield Analysis captures the current dirty candidates and exact protected-source baseline before editing. The prior draft-check integration is now completed and QA/UAT approved; its sources, records and implemented behavior remain protected alongside the earlier backlog QA and this Run's approved UR/PRD. Diff review measures this increment against that baseline, not wholesale against HEAD. Candidate source/test/generated paths remain within existing control-ui owners; generate normal browser/MCP bundles through existing build tools without plugin/global configuration changes.
+
+Required evidence combines approval-count/provenance/current-source semantics with actual rendered wide/narrow keyboard/focus/scroll/reload behavior, relevant reader/freshness regression, type/build and scoped/protected-byte checks. Source reasoning or DOM emulation alone cannot establish visible built behavior. Native observation, if performed through an already available authorized host, must identify actual build/runtime and be separately attributed; if unavailable, record that limit explicitly as the approved PRD requires. This slice makes no universal native/platform claim and introduces no implicit install/restart/config prerequisite. Reviews assess every criterion; QA retains its sole final decision. MCP candidate notes record unavoidable code discovery/direct Core calls without authorizing their implementation.
+
+## Integration Points And Flow
+
+1. Existing selected Run detail supplies canonical approval facts and registered resources; WorkStep retains current-work assessment and draft-check slot.
+2. The approval presentation derives recorded rows/count and current resource actions from those existing facts, without a second fetched result or certification cache.
+3. Opening the outer overview exposes comparable rows; opening one Dokumentiert details exposes original evidence and explicit provenance limitations only.
+4. Activating an enabled current-source action passes the exact resource/origin to existing App navigation; the existing scoped reader returns captured current bytes or its own guarded failure.
+5. Document close returns to the same initiating action. Existing reload refreshes selected data; width changes CSS arrangement while nodes, keys and selection remain stable.
+
+## Constraints And Compatibility
+
+Existing Core/MCP/HTTP contracts, Resource/Detail public DTOs, target selection, document resource identifiers, disabled/freshness guards and data authority stay unchanged. This local UI slice does not extend the prior MCP draft-check operation. Original evidence text remains inspectable and safely rendered as text; no interpreted HTML or code executes. Known human document names use documentName; supported later/unknown labels retain its truthful fallback rather than being dropped. Existing compact/expanded use the same component through WorkStep, while surrounding detail/raw-original areas preserve their role.
+
+Styles are scoped to the documented-approval block, use current design tokens and wrapping, and preserve existing interactive-target requirements. No fixed four-gate assumptions, new library or persistent disclosure storage. New tests replace obsolete visible-label assertions where behavior is intentionally changed and retain meaningful reader/guard regressions.
+
+## Test And Evidence Strategy
+
+The TP maps each criterion/SDD to an executable task and scenario. Include zero/four/later-gate counts, absent/long original evidence, explicit missing provenance, unchanged/changed/moved/missing/blocked current sources, misleading prose/partial hashes and foreign resources, disabled/expired source actions, exact resource/origin callback and no writes. No fake certified historical capability or synthetic signature is an accepted positive production proof. Built browser cases cover wide/narrow compact/expanded placement, original disclosure by keyboard, contextual accessible names, long-content wrapping, document return focus, scroll and reload without new jump/flicker. Preserve and recheck prior draft-check UI behavior where the integration slot is adjacent.
+
+Qualified build, baseline and scoped diff/protected byte evidence are required; existing tests/build owners are reused. Capture actual command/exit and inspected rendered cases, including native evidence limits. Test enumeration, fixture construction, measured widths and exact command selection are executable TP detail, not unresolved architecture.
+
+## Acceptance Traceability
+
+| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |
+|---|---|---|---|---|
+| AC-001 | Single counted approval list with three comparable groups and equivalent wide/narrow arrangement | Core approval facts; WorkStep and documentName presentation | SDD-001 | Preserve all approved gates and supported names; zero/long/later cases; no fixed four-row assumption |
+| AC-002 | Native deliberate evidence disclosure, original text and explicit absent structured provenance; one shared note | Core original evidence/structured facts; internal presentation only | SDD-002 | No prose-derived identity/signature/version certification; missing text does not erase approval fact |
+| AC-003 | Exact registered current-source action and unavailable state; no approved-version claim under current DTO | Existing selected resources and scoped document reader | SDD-003 | Changed/moved/blocked/missing sources stay reader-owned; partial digest/path never certifies a version |
+| AC-004 | One stable responsive DOM, contextual names, native keyboard controls and existing document-origin focus return | Existing App navigation/focus; WorkStep/component and scoped styles | SDD-004 | Avoid duplicate responsive trees/remounts; actual narrow/wide built keyboard/long-content evidence |
+| AC-005 | Reuse existing selected-source/freshness/disabled/retry owners and preserve surrounding control/draft-check areas | Existing Core/read/App owners | SDD-005 | No writes, alternative evaluator, protocol/store or unrelated Run change |
+| AC-006 | Post-TP dirty baseline and source protection, scoped review plus source/version/rendered/build evidence with native limits | Existing Brownfield/evidence/review/QA owners | SDD-006 | Previous completed draft-check, backlog QA and this Run's approved sources remain protected; no global installation/Git action |
+
+## Risks And Open Questions
+
+No material product/design question remains open with the inspected inputs. Accepted historical-proof absence is a transparent product limitation, not an archive obligation. Responsive density and document focus may regress if old general list spacing leaks into the new block; scoped styles and actual rendered cases address that risk. Earlier changes are dirty and require baseline containment before code. Any observed new authority or public-contract requirement is a routing blocker rather than an inferred extension. Native proof limitations must stay explicit if the currently available host cannot load the future build; no new host activation is assumed by this design.
+
+## Design Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| SDD-001 Compact responsive structure | before_sd | resolved | Same semantic list/three groups and scoped CSS grid; native disclosure and one DOM across widths; internal DocumentedApprovals.tsx component under WorkStep | Codex, SD owner |
+| SDD-002 Evidence/provenance authority | before_sd | resolved | Preserve original evidence and actual structured facts; today's absent identity/time/version/scope/basis remain explicit; no prose certification | Codex, SD owner |
+| SDD-003 Document-version link ownership | before_sd | resolved | Existing same-Run registered resource/onOpen only, visible current-version action or unavailable; no historical proof/archive or new DTO | Codex, SD owner |
+| SDD-004 Accessibility and focus ownership | before_sd | resolved | Native details/buttons, contextual names, stable keys/DOM and existing approval resource origin/focus restoration | Codex, SD owner |
+| SDD-005 Scope and recovery boundary | before_sd | resolved | Existing reader/freshness/disabled/retry owners stay authoritative; surrounding draft-check/control/evidence unchanged | Codex, SD owner |
+| SDD-006 Qualification and protection | before_sd | resolved | Baseline before implementation; existing UI build/reviews, protected sources and separate browser/native proof attribution | Codex, SD owner |
+| Executable scenario/command details | later_tp | deferred | TP chooses exact fixtures, widths, command groups and evidence paths under the resolved design; no material architecture decision deferred | Codex, TP owner |
+
+## Next Step
+
+Semantically review derivation from the exact approved PRD, evaluate unapproved SD readiness through the bounded MCP operation and record SD derived_from PRD with fresh reviewed mapping. Present the exact registered design for a NEW deliberate Approval: SD. Approval permits TP drafting only; no code, QA, host/configuration or Git action begins here.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Die dokumentierten Freigaben als kompakte, vergleichbare Zeilen anzeigen und die tatsächlich geöffnete Dokumentfassung klar benennen.
+- Aufbau: Ein gemeinsamer Bereich mit tatsächlicher Anzahl, Dokument, Freigabenachweis und Dokumentfassung. Breite Ansichten zeigen vergleichbare Spalten, schmale Ansichten gleichwertige Zeilen; derselbe Aufbau bleibt erhalten, damit Fokus und Klappen nicht durch Größenwechsel verloren gehen.
+- Nachweise: Dokumentiert öffnet die Originalangaben bewusst. Vorhandene strukturierte Angaben werden gezeigt; fehlende Fassungs-, Zeit-, Personen-, Umfangs- und Grundlagenangaben ausdrücklich als nicht verfügbar oder unbestätigt gekennzeichnet. Freitext und Teil-Hashes werden nicht zu geprüften Identitäten oder Versionsnachweisen umgedeutet.
+- Fassungsaktion: Der vorhandene Leser öffnet aktuelle registrierte Quellen. Deshalb Aktuelle Fassung ansehen oder ein klarer nicht verfügbarer Zustand. Freigegebene Fassung ansehen wird aus dem heutigen Datenvertrag nicht erzeugt. Kein Archiv und keine neue Versionsprüfung.
+- Bedienung: Native Klappen und Schaltflächen mit verständlichen zugänglichen Namen, stabilen Zeilen und vorhandener Fokusrückkehr nach dem Dokumentlesen; lange Inhalte bleiben lesbar. Bestehende Quellen-, Frische-, Sperr- und Wiederholungsregeln bleiben maßgeblich.
+- Zuständigkeiten: Core-Freigabedaten und heutige Kontrollauswertung bleiben getrennt; die App nutzt vorhandene registrierte Ressourcen und Lesewege. Keine neue Prüfhoheit, öffentliche Schnittstelle, Speicherung oder Freigabefunktion. Die Entwurfsprüfung aus dem abgeschlossenen Run bleibt erhalten.
+- Prüfung und Schutz: Alle sechs PRD-Kriterien sind genau einmal einer Designentscheidung und ihrem bestehenden Verantwortlichen zugeordnet. Vor Umsetzung wird nach TP-Freigabe die aktuelle Arbeitsstand-Baseline erfasst; ältere freigegebene Quellen, QA/UAT-Nachweise und andere Runs bleiben geschützt. Sichtbare Browserprüfungen sind erforderlich; native Beobachtungen erhalten eigene tatsächliche Build-Identität und Grenzen.
+- Entscheidungen: Die technischen Entscheidungen sind geklärt; konkrete Aufgaben, Testszenarien und Messbreiten werden im TP ausgearbeitet. Approval: SD erlaubt zunächst den Umsetzungs- und Prüfplan, noch keine Umsetzung oder Veröffentlichung.

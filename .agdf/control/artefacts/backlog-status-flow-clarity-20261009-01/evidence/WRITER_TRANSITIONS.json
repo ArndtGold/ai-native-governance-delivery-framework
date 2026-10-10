@@ -1,0 +1,34 @@
+{
+  "run_id": "backlog-status-flow-clarity-20261009-01",
+  "observed_at": "2026-10-09T12:05:32.833962+00:00",
+  "authorizes": false,
+  "scenarios": [
+    "SCN-008",
+    "SCN-009",
+    "SCN-013",
+    "SCN-020",
+    "SCN-030",
+    "SCN-031"
+  ],
+  "results": [
+    "tests/final-core-results.json",
+    "tests/control-state-retry.json",
+    "tests/metadata-boundary-results.json"
+  ],
+  "owners": {
+    "run-approve/control approve": "approval-command -> writeRunWithBacklogLocked",
+    "changed run-update": "run-recording -> writeRunWithBacklogLocked",
+    "unchanged scoped run-update": "synchronizeRunBacklog",
+    "run-step ur/route/review/evidence/artefact/closeout": "run-steps -> common summary/codec and existing transaction",
+    "early source reopen": "existing shared writer",
+    "late source reopen": "run-revision -> common summary/codec, receipt resulting revision, existing source journal"
+  },
+  "cases": [
+    "one exact approval receipt and actual marker revision",
+    "unchanged synchronization keeps sealed Run bytes, revision and observation time",
+    "true new revision updates recorded binding even when visible words agree",
+    "accepted control with unsupported/duplicate/symlink Backlog reports skipped with reason",
+    "legacy title/link/order retained; compact closeout marker moves with its permitted archived row"
+  ],
+  "limitation": "No bulk migration or foreign Run update. Installed runtime remains separate and unchanged."
+}

@@ -1,0 +1,63 @@
+node:internal/errors:983
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /usr/local/Cellar/node@22/22.22.3/bin/node /private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-documents-source-AHG7GO/packages/cli/scripts/prepare-local-plugin.js codex
+node:internal/modules/package_json_reader:314
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'ajv' imported from /private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-documents-source-AHG7GO/scripts/support/portable-schema.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v22.22.3
+
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:916:11)
+    at execFileSync (node:child_process:952:15)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/qualify-runtime.mjs:14:1 {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    Buffer(0) [Uint8Array] [],
+    Buffer(945) [Uint8Array] [
+      110, 111, 100, 101,  58, 105, 110, 116, 101, 114, 110,  97,
+      108,  47, 109, 111, 100, 117, 108, 101, 115,  47, 112,  97,
+       99, 107,  97, 103, 101,  95, 106, 115, 111, 110,  95, 114,
+      101,  97, 100, 101, 114,  58,  51,  49,  52,  10,  32,  32,
+      116, 104, 114, 111, 119,  32, 110, 101, 119,  32,  69,  82,
+       82,  95,  77,  79,  68,  85,  76,  69,  95,  78,  79,  84,
+       95,  70,  79,  85,  78,  68,  40, 112,  97,  99, 107,  97,
+      103, 101,  78,  97, 109, 101,  44,  32, 102, 105, 108, 101,
+       85,  82,  76,  84,
+      ... 845 more items
+    ]
+  ],
+  pid: 34593,
+  stdout: Buffer(0) [Uint8Array] [],
+  stderr: Buffer(945) [Uint8Array] [
+    110, 111, 100, 101,  58, 105, 110, 116, 101, 114, 110,  97,
+    108,  47, 109, 111, 100, 117, 108, 101, 115,  47, 112,  97,
+     99, 107,  97, 103, 101,  95, 106, 115, 111, 110,  95, 114,
+    101,  97, 100, 101, 114,  58,  51,  49,  52,  10,  32,  32,
+    116, 104, 114, 111, 119,  32, 110, 101, 119,  32,  69,  82,
+     82,  95,  77,  79,  68,  85,  76,  69,  95,  78,  79,  84,
+     95,  70,  79,  85,  78,  68,  40, 112,  97,  99, 107,  97,
+    103, 101,  78,  97, 109, 101,  44,  32, 102, 105, 108, 101,
+     85,  82,  76,  84,
+    ... 845 more items
+  ]
+}
+
+Node.js v22.22.3

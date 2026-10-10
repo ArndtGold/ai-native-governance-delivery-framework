@@ -1,0 +1,68 @@
+digraph components {
+  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.38, ranksep=0.58, fontname="Helvetica", label="02  /  ZWEI WERKZEUGVERTRÄGE, VIER ADAPTER", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.18,0.12", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
+
+  skills [label="Verträge und Skills\nAnweisungsweg", fillcolor="#FFF2CF", color="#BF9840"];
+  binding [label="Geprüfte Skill-Bindung"];
+  host [label="Coding-Agent im Host", fillcolor="#EEE9FF", color="#8270AE"];
+  server [label="MCP-Server\ntools/list · tools/call"];
+  contract [label="Dispatch-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
+  continuation [label="Core-Fortsetzungsorchestrierung\ngemeinsamer CLI-/MCP-Einstieg"];
+  dispatch [label="Lesender Skill-Dispatcher\nEingabe · Zielbindung · Route"];
+  inspect_contract [label="Inspect-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
+  inspect [label="Lesender Inspect-Service\nDoctor · Gate-Check · Map · Vertrag"];
+  target [label="Zielauflösung"];
+  gate [label="Gate-Auswertung"];
+  relationships [label="Gemeinsames Beziehungsregister\nReadiness · Erfassung · Belegprüfung", fillcolor="#FFF2CF", color="#BF9840"];
+  correction [label="Begrenzte Beziehungskorrektur\nbeauftragte gebundene Fortsetzung"];
+  recording [label="Artefakterfassung: run-step artefact\nZeiger + Quellbindung + Beziehung + Audit"];
+  writer [label="Bestehender Core-Writer\nLock · Revision · Siegel · Journal"];
+  state [label=".agdf/control/\nRun · Artefakte · Freigaben", fillcolor="#E5F0FC", color="#5284AD"];
+
+  profile [label="MCP-Profil v2\nHosts · Scopes · Zustände", fillcolor="#FFF2CF", color="#BF9840"];
+  service [label="Lifecycle-Service\nstatus · enable · disable"];
+  registry [label="Geschlossenes Adapterregister"];
+  adapters [label="Dünne Host-Adapter\nCodex · Claude · OpenCode · Copilot", fillcolor="#EEE9FF", color="#8270AE"];
+  config [label="Native Host-Quellen\nmit eigener Priorität", fillcolor="#EEE9FF", color="#8270AE"];
+  runtime [label="Gemeinsame exakte Laufzeit\nmit Referenzzählung", fillcolor="#E5F0FC", color="#5284AD"];
+  result [label="Ergebnisvertrag v2\nstabile Codes · authorizes=false"];
+
+  host -> binding [label="Skill"];
+  host -> server [label="MCP"];
+  skills -> binding;
+  binding -> contract;
+  server -> contract;
+  server -> inspect_contract;
+  contract -> continuation;
+  continuation -> dispatch;
+  inspect_contract -> inspect;
+  dispatch -> target;
+  target -> gate;
+  inspect -> gate [label="gemeinsame Evaluatoren"];
+  gate -> state [label="prüft"];
+  gate -> relationships [label="prüft erforderliche Bezüge"];
+  dispatch -> continuation [label="validierte gebundene Route", style=dashed, constraint=false];
+  continuation -> correction [label="höchstens ein Versuch vor Ausgabe"];
+  correction -> writer [label="prüft und ergänzt unter Run-Lock"];
+  correction -> continuation [label="Commit / Ablehnung / Fehler", style=dashed, constraint=false];
+  continuation -> dispatch [label="nach Commit frisch auswerten", style=dashed, constraint=false];
+  host -> recording [label="Agent über CLI", style=dashed, constraint=false];
+  recording -> relationships [label="gemeinsame Zuordnung"];
+  recording -> writer [label="atomar erfassen"];
+  writer -> state [label="persistiert"];
+
+  profile -> service [label="validiert"];
+  service -> registry;
+  registry -> adapters;
+  adapters -> config [label="liest / ändert"];
+  service -> runtime [label="verwaltet"];
+  service -> result [label="erzeugt"];
+  server -> runtime [label="läuft aus exakter Laufzeit"];
+
+  {rank=same; skills; host; profile;}
+  {rank=same; binding; server; service;}
+  {rank=same; contract; registry; runtime;}
+  {rank=same; dispatch; adapters; result;}
+  {rank=same; target; config;}
+}

@@ -1,0 +1,408 @@
+--- baseline/packages/control-ui/src/WorkStep.tsx
++++ current/packages/control-ui/src/WorkStep.tsx
+@@ -2,6 +2,7 @@
+ import type { Detail, Resource } from './types';
+ import { label } from './feedback';
+ import { documentName, phaseName, observedAssessment, reportFindingsLabel } from './presentation';
++import { DocumentedApprovals } from './DocumentedApprovals';
+ 
+ // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
+ export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
+@@ -10,7 +11,6 @@
+   const id = useId(), e = data.evaluation;
+   if (!e) return <>{children}</>;
+   const assessment = observedAssessment(data, current);
+-  const approvals = e.approvals.filter(a => a.status === 'approved');
+   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
+   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
+   const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
+@@ -54,13 +54,7 @@
+           <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
+         </details>
+       </details>
+-      <details className="work-step-approvals"><summary>Gespeicherte Freigaben · {approvals.length}</summary>
+-        <p className="muted">{approvals.length ? 'Diese Freigaben sind gespeichert. Sie ersetzen keine aktuelle Kontrollauswertung.' : 'Keine Freigaben gespeichert.'}</p>
+-        <ul>{approvals.map(a => <li key={a.gate}><strong>{documentName(a.gate)} · freigegeben</strong>
+-          {onOpen && sources.filter(r => r.type === a.gate).map(r => <button className="text-link" key={r.resource_id} data-focus-id={`approval:${r.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(r, `approval:${r.resource_id}`)}>{documentName(r.type)} ansehen</button>)}
+-          <details className="work-step-original"><summary>Gespeicherter Freigabenachweis · {a.gate}</summary><p className="source-text">{a.evidence || 'Kein Quellenhinweis verfügbar.'}</p></details>
+-        </li>)}</ul>
+-      </details>
++      <DocumentedApprovals approvals={e.approvals} resources={data.resources} runId={data.run_id} onOpen={onOpen} sourceDisabled={sourceDisabled}/>
+     </div>
+   </section>;
+ }
+--- baseline/packages/control-ui/src/style.css
++++ current/packages/control-ui/src/style.css
+@@ -99,8 +99,6 @@
+ .work-step-beginning span { font-size: var(--agdf-text-xs); line-height: var(--agdf-text-leading-xs); color: var(--cockpit-muted); }
+ .work-step-blocked { color: var(--cockpit-risk); font-size: var(--agdf-text-sm); }
+ .work-step-approvals > summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
+-.work-step-approvals li { display: grid; gap: var(--agdf-space-2); }
+-.work-step-approvals li > .text-link { justify-self: start; }
+ .work-step-evidence { border-bottom: 0; }
+ .work-step-evidence summary { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); }
+ .work-step-empty { font-size: var(--agdf-text-sm); color: var(--cockpit-muted); margin: var(--agdf-space-2) 0; }
+@@ -110,13 +108,31 @@
+ .work-step ul { padding-left: var(--agdf-space-5); margin: var(--agdf-space-3) 0; }
+ .work-step li + li { margin-top: var(--agdf-space-4); }
+ .work-step li p { margin: var(--agdf-space-2) 0; font-size: var(--agdf-text-sm); }
+-.work-step-approvals li span { display: block; font-size: var(--agdf-text-xs); margin: var(--agdf-space-1) 0; }
+ .work-step-label { font-weight: var(--agdf-weight-medium); }
+ .work-step-sources { display: flex; flex-direction: column; align-items: flex-start; }
+ .work-step-sources button + button { font-size: var(--agdf-text-xs); font-weight: var(--agdf-weight-normal); }
+ .work-step .text-link, .work-step summary, .row-evidence { min-height: 44px; text-align: left; }
+ .work-step summary { padding-block: var(--agdf-space-2); }
+ .work-step pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--agdf-text-xs); }
++.documented-approvals-note { font-size: var(--agdf-text-sm); }
++.documented-approvals-columns { display: none; }
++.work-step ul.documented-approvals-list { list-style: none; padding: 0; margin: var(--agdf-space-3) 0 0; }
++.work-step .documented-approval-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--agdf-space-3); padding-block: var(--agdf-space-3); margin: 0; border-bottom: 1px solid var(--cockpit-line); }
++.documented-approval-group { min-width: 0; overflow-wrap: anywhere; }
++.documented-approval-label { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
++.documented-approval-evidence summary { color: var(--agdf-link-color); font-weight: var(--agdf-weight-medium); }
++.documented-approval-source .text-link { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
++.documented-approval-reference { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
++.documented-approval-facts { font-size: var(--agdf-text-xs); margin: var(--agdf-space-2) 0; }
++.documented-approval-facts dt { color: var(--cockpit-muted); }
++.documented-approval-facts dd { margin: 0 0 var(--agdf-space-2); }
++.documented-approval-original-label { font-weight: var(--agdf-weight-medium); }
++@container (min-width: 600px) {
++  .documented-approvals-columns, .work-step .documented-approval-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.3fr); column-gap: var(--agdf-space-4); align-items: start; }
++  .documented-approvals-columns { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); padding-block: var(--agdf-space-2); border-bottom: 1px solid var(--cockpit-line); }
++  .documented-approval-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
++  .documented-approval-group > strong { display: block; padding-block: var(--agdf-space-2); font-size: var(--agdf-text-sm); }
++}
+ .row-step { display: block; margin: var(--agdf-space-2) 0; font-size: var(--agdf-text-sm); }
+ .detail-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--agdf-space-5); }
+ .status-fields { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: var(--agdf-space-3); font-size: var(--agdf-text-sm); line-height: var(--agdf-leading-relaxed); }
+--- baseline/packages/control-ui/test/work-step.test.tsx
++++ current/packages/control-ui/test/work-step.test.tsx
+@@ -21,8 +21,8 @@
+  expect(Array.from(document.querySelectorAll('details')).every(d=>!d.open)).toBe(true);
+  fireEvent.click(screen.getByRole('button',{name:'Umsetzungs- und Prüfnachweise öffnen'}));expect(open).toHaveBeenCalledWith(source, 'step:opaque-cd');
+  expect(document.querySelectorAll('button.primary')).toHaveLength(1);
+- expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Gespeicherte Freigaben · 1')).toBeTruthy();
+- expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben')).toBeTruthy();
++ expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
++ expect(screen.getByText('Umsetzungs- und Prüfplan')).toBeTruthy();
+  // Exact original evidence remains recoverable, independently of its readable summary.
+  expect(screen.getByText(/Aktueller Build noch nicht im Host bestätigt/)).toBeTruthy();
+  expect(screen.getAllByText(/Neue Karte öffnen und prüfen/)).toHaveLength(2);
+--- baseline/packages/control-ui/test/browser/journeys.spec.mjs
++++ current/packages/control-ui/test/browser/journeys.spec.mjs
+@@ -31,10 +31,9 @@
+     await openSession(page,service);
+     await page.locator('.run-link[data-focus-id="agdf-cockpit-mcp-app-20261005-01"]').click();
+     await page.locator('.work-step-approvals > summary').click();
+-    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen · freigegeben'}).first();
+-    const gap=await approval.evaluate(el=>({labelBottom:el.querySelector('strong').getBoundingClientRect().bottom,buttonTop:el.querySelector('button').getBoundingClientRect().top}));
+-    expect(gap.buttonTop).toBeGreaterThan(gap.labelBottom);
+-    const source=page.getByRole('button',{name:'Anforderungen ansehen',exact:true});
++    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen'}).first();
++    await expect(approval.locator('.documented-approval-evidence > summary')).toHaveAccessibleName('Dokumentiert: Anforderungen');
++    const source=page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/});
+     await source.focus();await page.keyboard.press('Enter');
+     await expect(page.locator('.page-title h1')).toBeFocused();
+     await expect(page.locator('.page-title h1')).toHaveCSS('outline-style','none');
+@@ -78,7 +77,7 @@
+     await expect(page.locator('article.document')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+     await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
+     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+-    await expect(page.getByRole('button',{name:'Anforderungen ansehen',exact:true})).toBeFocused();
++    await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/})).toBeFocused();
+     // Capture the same bound document through the embedded-card browser entry,
+     // whose expanded reader shares the MCP panel layout without the browser rail.
+     await page.setViewportSize({width:845,height:1100});
+@@ -86,7 +85,7 @@
+     await page.locator('.run-link[data-focus-id=\"agdf-cockpit-mcp-app-20261005-01\"]').click();
+     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+     await page.locator('.work-step-approvals > summary').click();
+-    await page.getByRole('button',{name:'Anforderungen ansehen',exact:true}).click();
++    await page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/}).click();
+     await expect(page.locator('.document-reading')).toBeVisible();
+     await expect(page.locator('.document-original')).not.toHaveAttribute('open');
+     for(const theme of ['light','dark']){
+--- /dev/null
++++ current/packages/control-ui/src/DocumentedApprovals.tsx
+@@ -0,0 +1,48 @@
++import type { Detail, Resource } from './types';
++import { documentName } from './presentation';
++
++// Describes recorded facts only. The existing reader owns current resources and freshness.
++export function DocumentedApprovals({ approvals, resources, runId, onOpen, sourceDisabled = false }: {
++  approvals: NonNullable<Detail['evaluation']>['approvals']; resources: Resource[]; runId: string;
++  onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean;
++}) {
++  const recorded = approvals.filter(a => a.status === 'approved');
++  const sources = resources.filter(r => r.status === 'registered' && r.run_id === runId);
++  return <details className="work-step-approvals">
++    <summary>Dokumentierte Freigaben · {recorded.length}</summary>
++    <p className="muted documented-approvals-note">Die Nachweise beziehen sich auf die dokumentierte Freigabe. Den aktuellen Kontrollstatus bestimmt die Kontrollauswertung. Der Lesedienst öffnet aktuelle Quellen; die genaue freigegebene Fassung ist nicht bestätigt.</p>
++    {recorded.length === 0 ? <p className="work-step-empty">Keine Freigaben dokumentiert.</p> : <>
++      <div className="documented-approvals-columns" aria-hidden="true"><span>Dokument</span><span>Freigabenachweis</span><span>Dokumentfassung</span></div>
++      <ul className="documented-approvals-list" aria-label="Dokumentierte Freigaben">
++        {recorded.map(a => {
++          const name = documentName(a.gate), matches = sources.filter(r => r.type === a.gate);
++          return <li className="documented-approval-row" key={a.gate}>
++            <div className="documented-approval-group"><span className="documented-approval-label">Dokument</span><strong>{name}</strong></div>
++            <div className="documented-approval-group"><span className="documented-approval-label">Freigabenachweis</span>
++              <details className="documented-approval-evidence">
++                <summary aria-label={`Dokumentiert: ${name}`}>Dokumentiert</summary>
++                <dl className="documented-approval-facts">
++                  <dt>Freigabe</dt><dd>{a.gate} · dokumentiert</dd>
++                  <dt>Vorhaben</dt><dd>{runId}</dd>
++                  <dt>Freigegebene Fassung</dt><dd>Nicht bestätigt.</dd>
++                  <dt>Freigabezeitpunkt</dt><dd>Keine strukturierte Angabe verfügbar.</dd>
++                  <dt>Freigebende Person</dt><dd>Keine bestätigte Identität verfügbar.</dd>
++                  <dt>Aussagebereich</dt><dd>Keine strukturierte Angabe verfügbar.</dd>
++                  <dt>Grundlage</dt><dd>Keine strukturierte Angabe verfügbar.</dd>
++                </dl>
++                <p className="documented-approval-original-label">Originalnachweis</p>
++                <p className="source-text">{a.evidence.trim() ? a.evidence : 'Kein Originalnachweis verfügbar.'}</p>
++              </details>
++            </div>
++            <div className="documented-approval-group"><span className="documented-approval-label">Dokumentfassung</span>
++              {onOpen && matches.length ? matches.map(r => <div className="documented-approval-source" key={r.resource_id}>
++                <button className="text-link" aria-label={`Aktuelle Fassung ansehen: ${name} · ${r.registered_reference}`} data-focus-id={`approval:${r.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(r, `approval:${r.resource_id}`)}>Aktuelle Fassung ansehen</button>
++                {matches.length > 1 && <span className="documented-approval-reference">{r.registered_reference}</span>}
++              </div>) : <p className="muted">Aktuelle Fassung nicht verfügbar.</p>}
++            </div>
++          </li>;
++        })}
++      </ul>
++    </>}
++  </details>;
++}
+--- /dev/null
++++ current/packages/control-ui/test/documented-approvals.test.tsx
+@@ -0,0 +1,83 @@
++import { afterEach, expect, it, vi } from 'vitest';
++import { cleanup, fireEvent, render, screen } from '@testing-library/react';
++import { DocumentedApprovals } from '../src/DocumentedApprovals';
++import { WorkStep } from '../src/WorkStep';
++import { runData } from './scoped-fixtures';
++import type { Resource } from '../src/types';
++
++afterEach(cleanup);
++const gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
++const approvals = gates.map(gate => ({ gate, status: 'approved', evidence: `Original ${gate}` }));
++const source: Resource = { resource_id: 'current-ur', type: 'UR', run_id: 'run', status: 'registered', path: null, registered_reference: 'UR.md' };
++
++it.each([0, 4, 6])('SCN-001: counts %s recorded approvals, including later gates, without inventing pending approvals', count => {
++  render(<DocumentedApprovals approvals={[...approvals.slice(0, count), { gate: 'OR', status: 'missing', evidence: '' }]} resources={[]} runId="run"/>);
++  expect(screen.getByText(`Dokumentierte Freigaben · ${count}`)).toBeTruthy();
++  expect(document.querySelectorAll('.documented-approval-row')).toHaveLength(count);
++  expect(screen.queryByText('Keine Freigaben dokumentiert.') !== null).toBe(count === 0);
++  expect(document.querySelectorAll('details[open]')).toHaveLength(0);
++});
++
++it('SCN-002: preserves raw long/misleading evidence as text and reports unavailable structured provenance', () => {
++  const evidence = '<script>window.pwned=true</script> Owner: Alice; 2026-10-09; signed; UR.md sha256:1234 ' + 'Original '.repeat(70);
++  render(<DocumentedApprovals approvals={[{ ...approvals[0], evidence }]} resources={[source]} runId="run" onOpen={vi.fn()}/>);
++  expect(document.querySelector('.source-text')?.textContent).toBe(evidence);
++  expect(screen.getByText('Keine bestätigte Identität verfügbar.')).toBeTruthy();
++  expect(screen.getAllByText('Keine strukturierte Angabe verfügbar.')).toHaveLength(3);
++  expect(screen.getByText('Nicht bestätigt.')).toBeTruthy();
++  expect(document.querySelectorAll('.documented-approvals-note')).toHaveLength(1);
++  expect(document.querySelectorAll('script')).toHaveLength(0);
++  expect(screen.getByLabelText('Dokumentiert: Anforderungen').closest('details')?.open).toBe(false);
++  expect(screen.queryByRole('button', { name: /^Freigegebene Fassung ansehen/ })).toBeNull();
++});
++
++it.each(['', '   '])('SCN-002: absent evidence does not remove a recorded approval (%j)', evidence => {
++  render(<DocumentedApprovals approvals={[{ ...approvals[0], evidence }]} resources={[]} runId="run"/>);
++  expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
++  expect(screen.getByText('Kein Originalnachweis verfügbar.')).toBeTruthy();
++});
++
++it('SCN-003/006: current actions pass each exact registered resource and existing return-focus origin', () => {
++  const second = { ...source, resource_id: 'second', registered_reference: 'alternative/UR.md' }, open = vi.fn();
++  render(<DocumentedApprovals approvals={[approvals[0]]} resources={[source, second]} runId="run" onOpen={open}/>);
++  const actions = screen.getAllByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen/ });
++  expect(actions).toHaveLength(2); expect(document.querySelectorAll('.documented-approval-row')).toHaveLength(1);
++  for (const [i, resource] of [source, second].entries()) {
++    fireEvent.click(actions[i]); expect(open).toHaveBeenNthCalledWith(i + 1, resource, `approval:${resource.resource_id}`);
++    expect(actions[i].getAttribute('data-focus-id')).toBe(`approval:${resource.resource_id}`);
++    expect(screen.getByText(resource.registered_reference)).toBeTruthy();
++  }
++});
++
++it.each(['missing', 'foreign', 'unregistered', 'blocked'])('SCN-005: %s resources cannot supply a working current-version action', kind => {
++  const resources = kind === 'missing' ? [] : [{ ...source, ...(kind === 'foreign' ? { run_id: 'other' } : { status: kind }) }];
++  render(<DocumentedApprovals approvals={[approvals[0]]} resources={resources} runId="run" onOpen={vi.fn()}/>);
++  expect(screen.queryByRole('button')).toBeNull(); expect(screen.getByText('Aktuelle Fassung nicht verfügbar.')).toBeTruthy();
++  expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
++});
++
++it('SCN-005/010: disabled reading retains evidence but cannot invoke a callback or mutate supplied facts', () => {
++  const open = vi.fn(), original = JSON.stringify({ approvals, source });
++  render(<DocumentedApprovals approvals={approvals} resources={[source]} runId="run" onOpen={open} sourceDisabled/>);
++  const action = screen.getByRole('button', { name: /^Aktuelle Fassung ansehen/ }) as HTMLButtonElement;
++  expect(action.disabled).toBe(true); fireEvent.click(action); expect(open).not.toHaveBeenCalled();
++  expect(JSON.stringify({ approvals, source })).toBe(original);
++  expect(screen.getByText('Original UR')).toBeTruthy();
++});
++
++it('SCN-008: ordinary parent renders preserve open native disclosure and its identity', () => {
++  const props = { approvals: [approvals[0]], resources: [source], runId: 'run', onOpen: vi.fn() };
++  const view = render(<DocumentedApprovals {...props}/>);
++  const details = screen.getByLabelText('Dokumentiert: Anforderungen').closest('details')!;
++  details.open = true; view.rerender(<DocumentedApprovals {...props} approvals={[...props.approvals]}/>);
++  expect(screen.getByLabelText('Dokumentiert: Anforderungen').closest('details')).toBe(details); expect(details.open).toBe(true);
++});
++
++it('SCN-010: current-control and neighboring draft action retain their independent slots', () => {
++  const data = runData('run'); data.resources = [source]; data.evaluation!.approvals = [approvals[0]];
++  const check = vi.fn(); render(<WorkStep data={data} onOpen={vi.fn()}><button onClick={check}>Entwurf prüfen</button></WorkStep>);
++  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
++  expect(screen.getByRole('button', { name: 'Entwurf prüfen' }).closest('.work-step-approvals')).toBeNull();
++  fireEvent.click(screen.getByLabelText('Dokumentiert: Anforderungen')); expect(check).not.toHaveBeenCalled();
++  fireEvent.click(screen.getByRole('button', { name: 'Entwurf prüfen' })); expect(check).toHaveBeenCalledTimes(1);
++});
+--- /dev/null
++++ current/packages/control-ui/test/browser/documented-approvals.spec.mjs
+@@ -0,0 +1,144 @@
++import { test, expect } from '@playwright/test';
++import * as fs from 'node:fs';
++import { join, resolve } from 'node:path';
++import { approvalFixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
++import { upsertTableRow } from '../../../core/lib/control-state/run-state-edits.js';
++import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
++import { startControlServer } from './server-fixture.mjs';
++
++const evidence = resolve('../../.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/browser');
++fs.mkdirSync(evidence, { recursive: true });
++const gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
++async function fixture(count = 4, long = false) {
++  const f = await approvalFixture();
++  if (f.approve().outcome !== 'approved') throw Error('Canonical fixture UR approval failed');
++  // Additional recorded facts are deliberately unverified fixture inputs. They do not
++  // certify historical versions or authorize delivery, and stay outside app-only windows.
++  let state = fs.readFileSync(f.runPath, 'utf8');
++  for (const [i, gate] of gates.entries()) {
++    const original = gate === 'UR' ? 'Original owner/date/path sha256:1234; <script>window.approvalPwned=true</script> ' + (long ? 'Langer Originalnachweis 日本語 '.repeat(50) : '') : '';
++    state = upsertTableRow(state, 'Approvals', 0, gate, [gate, i < count ? 'approved' : 'missing', original]);
++    if (i < Math.min(count, 4) && gate !== 'UR') {
++      const path = `.agdf/control/artefacts/fixture-a/${gate}.md`;
++      fs.writeFileSync(join(f.root, path), `# ${gate}: Current fixture\n\nCurrent ${gate} document.\n`);
++      state = upsertTableRow(state, 'Artefacts', 0, gate, [gate, path, 'approved', 'Disposable current resource']);
++    }
++  }
++  fs.writeFileSync(f.runPath, sealRunState(f.root, state));
++  return f;
++}
++async function open(page, service, pathname) {
++  await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
++  await page.goto(service.origin + pathname);
++  await page.locator('.run-link[data-focus-id="fixture-a"]').click();
++  await page.locator('.work-step-approvals > summary').focus(); await page.keyboard.press('Enter');
++  await expect(page.locator('.work-step-approvals')).toHaveAttribute('open');
++}
++
++test('SCN-001/002/005: zero and later-gate counts, deliberate original limitations and unavailable versions render truthfully', async ({ page }) => {
++  for (const count of [0, 6]) {
++    const f = await fixture(count), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
++    try {
++      await open(page, service, '/');
++      await expect(page.locator('.work-step-approvals > summary')).toHaveText(`Dokumentierte Freigaben · ${count}`);
++      await expect(page.locator('.documented-approval-row')).toHaveCount(count);
++      if (!count) await expect(page.getByText('Keine Freigaben dokumentiert.')).toBeVisible();
++      else {
++        await expect(page.locator('.documented-approval-evidence[open]')).toHaveCount(0);
++        await page.getByLabel('Dokumentiert: Anforderungen', { exact: true }).focus(); await page.keyboard.press('Enter');
++        await expect(page.locator('.documented-approval-evidence').first()).toContainText('Keine bestätigte Identität verfügbar.');
++        await expect(page.locator('.documented-approval-evidence').first()).toContainText('sha256:1234');
++        expect(await page.evaluate(() => window.approvalPwned)).toBeUndefined();
++        await expect(page.getByText('Aktuelle Fassung nicht verfügbar.', { exact: true })).toHaveCount(2);
++        await expect(page.getByRole('button', { name: /^Freigegebene Fassung ansehen/ })).toHaveCount(0);
++      }
++      await page.screenshot({ path: join(evidence, `count-${count}.png`), fullPage: true });
++      expect(treeBytes(f.root)).toEqual(before);
++    } finally { await page.close(); await service.close(); f.close(); }
++    // A fresh Page is supplied by the browser context after the previous isolated target.
++    if (count === 0) page = await page.context().newPage();
++  }
++});
++
++test('SCN-007/008/010/011: same built compact/expanded rows preserve keyboard, disclosure, focus, wrapping and scroll across widths', async ({ page }) => {
++  const f = await fixture(4, true), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
++  const requests = [], observations = [];
++  page.on('request', r => { if (r.url().includes('/api/')) requests.push({ method: r.method(), path: new URL(r.url()).pathname }); });
++  try {
++    for (const pathname of ['/card.html', '/']) {
++      await page.setViewportSize({ width: 1280, height: 900 }); await open(page, service, pathname);
++      await page.screenshot({ path: join(evidence, `${pathname === '/' ? 'expanded' : 'compact'}-four-closed.png`), fullPage: true });
++      const disclosure = page.getByLabel('Dokumentiert: Anforderungen', { exact: true });
++      await disclosure.focus(); await page.keyboard.press('Enter');
++      await expect(disclosure.locator('..')).toHaveAttribute('open');
++      await disclosure.evaluate(el => { window.approvalDisclosureNode = el; });
++      for (const width of [1280, 360, 1280]) {
++        let viewport = width; const target = width === 1280 ? 960 : 320;
++        for (let attempt = 0; attempt < 3; attempt++) {
++          await page.setViewportSize({ width: viewport, height: 900 });
++          const actual = await page.locator('.documented-approvals-list').evaluate(el => el.clientWidth);
++          if (Math.abs(actual - target) <= 1) break;
++          viewport += target - actual;
++        }
++        await expect(disclosure).toBeFocused();
++        expect(await disclosure.evaluate(el => window.approvalDisclosureNode === el)).toBe(true);
++        await expect(disclosure.locator('..')).toHaveAttribute('open');
++        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
++        const measured = await page.locator('.documented-approvals-list').evaluate(el => ({ width: el.clientWidth, columns: getComputedStyle(el.querySelector('li')).gridTemplateColumns, rows: el.children.length }));
++        observations.push({ pathname, viewport, requestedContainerWidth: target, ...measured });
++        expect(Math.abs(measured.width - target)).toBeLessThanOrEqual(1);
++        expect(measured.rows).toBe(4);
++        if (width === 1280) expect(measured.columns.split(' ')).toHaveLength(3); else expect(measured.columns.split(' ')).toHaveLength(1);
++        const controls = await page.locator('.documented-approval-evidence > summary, .documented-approval-source button').evaluateAll(els => els.map(el => el.getBoundingClientRect().height));
++        expect(controls.every(height => height >= 44)).toBe(true);
++        await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await page.evaluate(() => scrollTo(0, 0));
++        await expect(disclosure).toBeFocused();
++        await page.screenshot({ path: join(evidence, `${pathname === '/' ? 'expanded' : 'compact'}-${width}-long.png`), fullPage: true });
++      }
++      await disclosure.focus(); await page.keyboard.press('Enter'); await expect(disclosure.locator('..')).not.toHaveAttribute('open');
++      await page.keyboard.press('Tab');
++      const current = page.getByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen ·/ });
++      await expect(current).toBeFocused();
++      const received = page.waitForResponse(r => r.url().includes('/api/documents/') && r.ok());
++      await page.keyboard.press('Enter');
++      expect((await (await received).json()).data.document.content).toBe(fs.readFileSync(join(f.root, f.documentPath), 'utf8'));
++      await expect(page.locator('.document-reading')).toBeVisible();
++      await page.getByText('Originaldokument lesen', { exact: true }).click();
++      await expect(page.locator('article.document')).toContainText('Keep provenance and human approval separate.');
++      await page.getByRole('button', { name: 'Dokument schließen', exact: true }).click(); await expect(current).toBeFocused();
++      await page.getByRole('button', { name: /Neu laden|Aktualisieren/ }).click();
++      await expect(page.locator('.documented-approval-row')).toHaveCount(4);
++      expect(treeBytes(f.root)).toEqual(before);
++    }
++    expect(requests.some(r => r.path.includes('draft-check') || /approve|dispatch|write/.test(r.path))).toBe(false);
++    fs.writeFileSync(join(evidence, 'measurements.json'), JSON.stringify({ observations, requests, native_host: 'not observed; actual browser build only' }, null, 2));
++  } finally { await page.close(); await service.close(); f.close(); }
++});
++
++test('SCN-003/004/009: changed/moved current source retains honest wording, freshness, explicit reload and read-only retry', async ({ page }) => {
++  const f = await fixture(), service = await startControlServer({ dir: f.root });
++  try {
++    await open(page, service, '/');
++    const original = '# UR: Changed current source\n\nThe current content has changed.\n';
++    fs.writeFileSync(join(f.root, f.documentPath), original);
++    const moved = '.agdf/control/artefacts/fixture-a/moved-UR.md'; fs.renameSync(join(f.root, f.documentPath), join(f.root, moved)); f.register('UR', moved);
++    await page.getByRole('button', { name: /Neu laden|Aktualisieren/ }).click();
++    const overview = page.locator('.work-step-approvals');
++    if (!await overview.evaluate(el => el.open)) await overview.locator(':scope > summary').click();
++    const current = page.getByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen ·/ });
++    await expect(current).toHaveAccessibleName(/moved-UR.md/);
++    const before = treeBytes(f.root);
++    await page.route('**/api/documents/**', route => route.abort());
++    await current.click(); await expect(page.getByRole('button', { name: 'Wiederholen', exact: true })).toBeVisible();
++    await page.unroute('**/api/documents/**');
++    const received = page.waitForResponse(r => r.url().includes('/api/documents/') && r.ok());
++    await page.getByRole('button', { name: 'Wiederholen', exact: true }).click();
++    expect((await (await received).json()).data.document.content).toBe(original);
++    await expect(page.locator('.document-reading')).toBeVisible(); await page.getByText('Originaldokument lesen', { exact: true }).click();
++    await expect(page.locator('article.document')).toContainText('The current content has changed.');
++    await page.getByRole('button', { name: 'Dokument schließen', exact: true }).click();
++    await expect(current).toBeFocused(); await expect(page.getByRole('button', { name: /^Freigegebene Fassung ansehen/ })).toHaveCount(0);
++    expect(treeBytes(f.root)).toEqual(before);
++    await page.screenshot({ path: join(evidence, 'changed-current.png'), fullPage: true });
++  } finally { await page.close(); await service.close(); f.close(); }
++});

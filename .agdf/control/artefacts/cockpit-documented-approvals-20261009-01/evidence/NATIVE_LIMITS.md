@@ -1,0 +1,3 @@
+# Native observation limits
+
+This increment was not installed or observed in a fresh native Codex host. Browser journeys use the real built application and production read service, bound to qualified-browser and BUILD_IDENTITY.json. MCP UI build and manifest are qualified separately; a built resource alone is not native rendering/init/interaction/teardown proof. The preceding Run native observations and user replies do not certify this changed UI. No global configuration/install/restart was performed. Approved AC-006 permits this explicit native limit; required source/build/actual-browser evidence remains mandatory.

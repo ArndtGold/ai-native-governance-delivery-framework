@@ -1,0 +1,38 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test test/browser/documented-approvals.spec.mjs test/browser/journeys.spec.mjs test/browser/draft-check.spec.mjs --grep SCN-001/002/005|same built compact|changed/moved current|document orientation|built compact/expanded checks
+
+
+Running 5 tests using 1 worker
+
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18810) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18813) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/documented-approvals.spec.mjs:38:1 › SCN-001/002/005: zero and later-gate counts, deliberate original limitations and unavailable versions render truthfully (7.0s)
+(node:18828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/documented-approvals.spec.mjs:63:1 › SCN-007/008/010/011: same built compact/expanded rows preserve keyboard, disclosure, focus, wrapping and scroll across widths (5.9s)
+(node:18865) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 test/browser/documented-approvals.spec.mjs:118:1 › SCN-003/004/009: changed/moved current source retains honest wording, freshness, explicit reload and read-only retry (3.1s)
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 test/browser/draft-check.spec.mjs:7:1 › SCN-015/016/018: built compact/expanded checks use actual Core, preserve keyboard/disclosure/position and wrap long findings (3.8s)
+(node:18897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 test/browser/journeys.spec.mjs:28:1 › document orientation separates approved Run facts from draft originals in both Pages themes (14.1s)
+
+  5 passed (37.5s)

@@ -1,0 +1,151 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-09T20:08:36.118Z",
+  "delivery_run": "cockpit-draft-check-integration-20261009-01",
+  "delivery_revision": "cd818f65-dccb-4f48-b4a5-e95f051b7245",
+  "connection": "agdf-cockpit-draft-check",
+  "host_session": "01a11fe7-d85e-7ad2-9820-14d580ec404e",
+  "ui_tab": {
+    "id": "1",
+    "title": "Agdf Cockpit Draft Check MCP Agdf cockpit",
+    "init_id": "7630bf5f-f373-4efc-9d3d-1ea64c920ac5"
+  },
+  "target_id": "sha256:869f638fa612f68dfa5b49f261e1ecb0447a28b39f33e7cd2eab9c0337e1b11b",
+  "run_id": "synthetic-draft",
+  "gate": "PRD",
+  "revision_id": "06fe071d-202b-453c-a98e-e20b4147cfc5",
+  "original_digest": "sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8",
+  "changed_digest": "sha256:cf50b9b450fda5a114bcde9f43d2f12c72fe4d59785943462a1b1fc7822f4949",
+  "build_reference": "NATIVE_OBSERVATION.json; NATIVE_CONNECTION_CHECK.json; BUILD_IDENTITY.json",
+  "actual_host_diagnostic": {
+    "host": {
+      "name": "chatgpt",
+      "version": "26.1007.21159"
+    },
+    "capabilities": {
+      "serverTools": {},
+      "serverResources": {},
+      "logging": {},
+      "openLinks": {}
+    },
+    "display": "fullscreen"
+  },
+  "initialization": {
+    "operational_native_bridge_observed": true,
+    "raw_ui_initialize_frames_saved": false,
+    "capability_extension": "io.modelcontextprotocol/ui",
+    "capability_evidence": "Successful native tool/resource access uses the qualified server's uiAllowed/requestDeclaresMcpAppUi guard; extension acceptance is inferred from this enforced path, not from a saved raw client capability envelope. Visible host probe reports actual post-connect serverTools and host version."
+  },
+  "observations": [
+    {
+      "step": "initial_open",
+      "state": "Noch nicht geprüft",
+      "automatic_authoring_check": false
+    },
+    {
+      "step": "explicit_check",
+      "pending": "Prüfung läuft",
+      "button_disabled": true,
+      "active_button_observed": true,
+      "result": "Entwurfsprüfung bestanden",
+      "observed_at": "2026-10-09T20:01:16.521Z",
+      "ready": true
+    },
+    {
+      "step": "source_disclosure",
+      "gate": "PRD",
+      "original_core_report": true,
+      "authorizes": false,
+      "semantic_review_required": true,
+      "registration_required": true,
+      "presentation_required": true
+    },
+    {
+      "step": "same_revision_source_change",
+      "state": "Noch nicht geprüft",
+      "old_result_removed": true,
+      "digest": "sha256:cf50b9b450fda5a114bcde9f43d2f12c72fe4d59785943462a1b1fc7822f4949"
+    },
+    {
+      "step": "reload_changed_source",
+      "loading": "Prüfstand nicht aktuell",
+      "explicit_recheck_result": "Korrekturen erforderlich",
+      "observed_at": "2026-10-09T20:02:08.230Z",
+      "diagnostics": [
+        {
+          "code": "prd_readiness",
+          "message": "Scope"
+        }
+      ],
+      "ready": false
+    },
+    {
+      "step": "restore_original_bytes",
+      "state": "Noch nicht geprüft",
+      "old_corrections_removed": true
+    },
+    {
+      "step": "reload_original",
+      "state": "Noch nicht geprüft",
+      "automatic_authoring_check": false
+    },
+    {
+      "step": "explicit_recheck_original",
+      "result": "Entwurfsprüfung bestanden",
+      "observed_at": "2026-10-09T20:02:41.164Z",
+      "ready": true
+    },
+    {
+      "step": "summary_details",
+      "actual_native_view_switch_observed": true,
+      "result_preserved": true
+    },
+    {
+      "step": "registered_document",
+      "document": "UR",
+      "heading": "Anforderungen",
+      "registered_source": ".agdf/control/artefacts/synthetic-draft/UR.md",
+      "digest": "b76a939e9ea58bfb106538bc8c92c4d8e0e0212a09220422c8d6b37c4e2d3d69",
+      "original_document_visible": true
+    },
+    {
+      "step": "overview_reselect",
+      "title": "Entwurfsprüfung – isolierter Test",
+      "reselected_state": "Noch nicht geprüft",
+      "automatic_authoring_check": false
+    },
+    {
+      "step": "approval_disclosure",
+      "count": 1,
+      "document": "UR",
+      "existing_recorded_approval_unchanged_in_view": true
+    },
+    {
+      "step": "manual_native_stability",
+      "request": "Narrow/wide, Tab/Enter for action/source disclosure and scroll down/back",
+      "user_reply": "ohne flackern",
+      "attribution": "Fresh current native test build; literal confirmation of no flicker. No separate detailed keyboard/focus outcome was supplied."
+    },
+    {
+      "step": "native_close",
+      "user_reply": "geschlossen",
+      "subsequent_mcp_app_tabs": [],
+      "view_close_observed": true,
+      "backend_close_ack_saved": false
+    }
+  ],
+  "restored_fixture_bytes_verified": true,
+  "protected_sources_verified": 15,
+  "remaining": [
+    "Controlled transient native failure followed by explicit successful retry has not been observed.",
+    "Native compact inline interaction and detailed keyboard/focus outcome have no separate captured sequence.",
+    "Raw initialization and backend teardown acknowledgement were not saved; operational bridge and native view closure are separately bounded above."
+  ],
+  "finding": {
+    "finding_id": "NATIVE-001",
+    "gap_type": "evidence_gap",
+    "routing_target": "evidence_obligation",
+    "gap_status": "open"
+  },
+  "authorizes": false
+}

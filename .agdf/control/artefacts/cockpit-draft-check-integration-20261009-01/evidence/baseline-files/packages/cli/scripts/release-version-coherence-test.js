@@ -1,0 +1,206 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { assertReleaseVersionCoherence, collectReleaseVersionEvidence } from "../../../scripts/release/version-coherence.js";
+import { assertDistributionProfileHistory } from "../../../scripts/release/profile-history.js";
+import { canonicalDistributionProfileEntryDigest } from "#agdf-core/runtime/distribution-profile-history.js";
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = resolve(packageRoot, "../..");
+const evidence = collectReleaseVersionEvidence({ repoRoot });
+const historyPath = resolve(repoRoot, "plugins", "agdf", "meta", "distribution-profile-history.json");
+const catalogueContent = readFileSync(historyPath, "utf8");
+const currentDefinition = JSON.parse(readFileSync(resolve(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
+const generatedContents = Object.fromEntries([
+  "packages/cli/generated/plugins/agdf/meta/distribution-profile-history.json",
+  "packages/cli/generated/plugins/copilot/agdf/meta/distribution-profile-history.json",
+].map((path) => [path, readFileSync(resolve(repoRoot, ...path.split("/")), "utf8")]));
+const readTagFile = (tag, path) => execFileSync(
+  "git",
+  ["show", `${tag}:${path}`],
+  { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+);
+
+assert.throws(
+  () => assertReleaseVersionCoherence({
+    evidence: {
+      expectedVersion: evidence.expectedVersion,
+      entries: [{ relativePath: "packages/cli/generated/plugins/agdf/runtime/runtime-manifest.json", actualVersion: "0.0.0" }],
+    },
+  }),
+  (error) => error.code === "AGDF_GENERATED_VERSION_STALE" && error.message.includes("release:prepare"),
+);
+assert.throws(
+  () => assertReleaseVersionCoherence({
+    evidence: {
+      expectedVersion: evidence.expectedVersion,
+      entries: [{ relativePath: "packages/cli/distribution/agdf/package.json", actualVersion: "0.0.0" }],
+    },
+  }),
+  (error) => error.code === "AGDF_RELEASE_VERSION_SKEW",
+);
+for (const relativePath of [
+  "packages/cli/distribution/agdf/package-lock.json",
+  "packages/mcp-server/package-lock.json",
+]) {
+  assert.throws(
+    () => assertReleaseVersionCoherence({ evidence: {
+      expectedVersion: evidence.expectedVersion,
+      entries: [{ relativePath, actualVersion: "0.0.0" }],
+    } }),
+    (error) => error.code === "AGDF_RELEASE_VERSION_SKEW" && error.message.includes(relativePath),
+  );
+}
+
+assertReleaseVersionCoherence({ evidence });
+const historyEvidence = assertDistributionProfileHistory({ repoRoot });
+
+const commonHistoryOptions = {
+  catalogueContent,
+  currentDefinition,
+  generatedContents,
+  readTagFile,
+  tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
+  baselineContent: null,
+};
+const missingCurrent = JSON.parse(catalogueContent);
+delete missingCurrent.releases[currentDefinition.version];
+assert.throws(
+  () => assertDistributionProfileHistory({ ...commonHistoryOptions, catalogueContent: `${JSON.stringify(missingCurrent)}\n` }),
+  (error) => error.code === "profile_history_current_release_mismatch",
+);
+assert.throws(
+  () => assertDistributionProfileHistory({
+    ...commonHistoryOptions,
+    generatedContents: { ...generatedContents, "packages/cli/generated/plugins/agdf/meta/distribution-profile-history.json": "{}\n" },
+  }),
+  (error) => error.code === "profile_history_current_release_mismatch",
+);
+assert.throws(
+  () => assertDistributionProfileHistory({
+    ...commonHistoryOptions,
+    readTagFile(tag, path) {
+      const content = readTagFile(tag, path);
+      if (tag === "agdf-v0.13.8" && path === "create-agdf/package.json") {
+        return `${JSON.stringify({ ...JSON.parse(content), version: "0.13.7" })}\n`;
+      }
+      return content;
+    },
+  }),
+  (error) => error.code === "profile_history_tag_mismatch",
+);
+
+assert.doesNotThrow(() => assertDistributionProfileHistory({
+  ...commonHistoryOptions,
+  tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
+}));
+const currentTagFiles = {
+  "plugins/agdf/meta/agdf-plugin.definition.json": `${JSON.stringify(currentDefinition)}\n`,
+  "packages/cli/package.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
+  "plugins/agdf/.codex-plugin/plugin.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
+};
+assert.throws(() => assertDistributionProfileHistory({
+  ...commonHistoryOptions,
+  tagExists: () => true,
+  readTagFile(tag, path) {
+    if (tag === `agdf-v${currentDefinition.version}`) return currentTagFiles[path.replace(/^plugin\//u, "plugins/agdf/")];
+    return readTagFile(tag, path);
+  },
+}), (error) => error.code === "profile_history_tag_mismatch", "two source roots in one tag must not silently select an owner");
+assert.doesNotThrow(() => assertDistributionProfileHistory({
+  ...commonHistoryOptions,
+  tagExists: () => true,
+  readTagFile(tag, path) {
+    if (tag === `agdf-v${currentDefinition.version}`) return currentTagFiles[path];
+    return readTagFile(tag, path);
+  },
+}));
+assert.throws(
+  () => assertDistributionProfileHistory({
+    ...commonHistoryOptions,
+    tagExists: () => true,
+    readTagFile(tag, path) {
+      if (tag === `agdf-v${currentDefinition.version}`) {
+        const value = JSON.parse(currentTagFiles[path]);
+        value.version = "0.0.0";
+        return `${JSON.stringify(value)}\n`;
+      }
+      return readTagFile(tag, path);
+    },
+  }),
+  (error) => error.code === "profile_history_tag_mismatch",
+);
+
+const currentVersionMatch = currentDefinition.version.match(/^(\d+)\.(\d+)\.(\d+)(?:-|$)/);
+assert.ok(currentVersionMatch, `repository version must be semver, got ${currentDefinition.version}`);
+const advancedVersion = `${currentVersionMatch[1]}.${currentVersionMatch[2]}.${Number(currentVersionMatch[3]) + 1}`;
+const advancedCatalogue = JSON.parse(catalogueContent);
+const currentRelease = advancedCatalogue.releases[currentDefinition.version];
+const currentContract = advancedCatalogue.contracts[currentRelease.contract_id];
+advancedCatalogue.releases[advancedVersion] = {
+  ...currentRelease,
+  entry_digest: canonicalDistributionProfileEntryDigest({
+    version: advancedVersion,
+    contract_id: currentRelease.contract_id,
+    contract_digest: currentContract.contract_digest,
+  }),
+};
+advancedCatalogue.releases = Object.fromEntries(Object.entries(advancedCatalogue.releases).sort(([left], [right]) => left.localeCompare(right)));
+const advancedContent = `${JSON.stringify(advancedCatalogue, null, 2)}\n`;
+assert.throws(
+  () => assertDistributionProfileHistory({
+    catalogueContent: advancedContent,
+    currentDefinition: { ...currentDefinition, version: advancedVersion },
+    generatedContents: Object.fromEntries(Object.keys(generatedContents).map((path) => [path, advancedContent])),
+    readTagFile(tag, path) {
+      if (tag === `agdf-v${currentDefinition.version}`) throw new Error("missing prior tag");
+      return readTagFile(tag, path);
+    },
+    tagExists: (tag) => tag !== `agdf-v${advancedVersion}`,
+    baselineContent: catalogueContent,
+  }),
+  (error) => error.code === "profile_history_tag_mismatch",
+);
+
+const baseline = JSON.parse(catalogueContent);
+const priorVersion = "0.13.5";
+const priorRelease = {
+  contract_id: "four-profile-v1",
+  provenance_schema_version: 1,
+  profile_id: "runtime-plugin",
+  status: "supported",
+};
+const entryValue = {
+  version: priorVersion,
+  contract_id: priorRelease.contract_id,
+  contract_digest: baseline.contracts[priorRelease.contract_id].contract_digest,
+  provenance_schema_version: priorRelease.provenance_schema_version,
+  profile_id: priorRelease.profile_id,
+  status: priorRelease.status,
+};
+priorRelease.entry_digest = createHash("sha256").update(JSON.stringify(
+  Object.fromEntries(Object.entries(entryValue).sort(([left], [right]) => left.localeCompare(right))),
+)).digest("hex");
+baseline.releases = { [priorVersion]: priorRelease, ...baseline.releases };
+assert.throws(
+  () => assertDistributionProfileHistory({
+    ...commonHistoryOptions,
+    baselineContent: `${JSON.stringify(baseline)}\n`,
+  }),
+  (error) => error.code === "profile_history_continuity_break",
+);
+assert.throws(
+  () => assertDistributionProfileHistory({
+    catalogueContent,
+    currentDefinition,
+    generatedContents,
+    readTagFile,
+    tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
+  }),
+  (error) => error.code === "profile_history_continuity_break",
+);
+
+console.log(`Release version coherence passed (${evidence.entries.length + 1} surfaces at ${evidence.expectedVersion}; ${historyEvidence.supportedVersions.length} profile snapshots)`);

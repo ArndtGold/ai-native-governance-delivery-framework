@@ -1,0 +1,74 @@
+TAP version 13
+# Subtest: SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+ok 1 - SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+  ---
+  duration_ms: 692.886277
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+not ok 2 - SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+  ---
+  duration_ms: 1503.434032
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-document-state-test.js:33:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"schema_version":"1","resource_id":"6daf48bc-ffc8-4497-9390-a688fe306c66","run_id":"fixture-a","revision_id":"26ed776a-fb82-40c7-a40d-23898391fbea","type":"UR","registered_reference":".agdf/control/artefacts/fixture-a/UR.md","source_state":"available","content_digest":"30c92f765378c67a65deb73c4c7bba8b4c1c18571a018c3ef6f00a218834ef7c","state":"approval_unconfirmed","version_kind":"current","reason":"approval_proof_unconfirmed","recorded_approval":{"status":"approved","evidence":"`Approval: UR` · 2026-10-10 · revision 3 · `.agdf/control/artefacts/fixture-a/UR.md` sha256:30c92f765378c67a · presentation cdad8b8b-fac2-4518-9c34-9725dcb0e7d9 sha256:11c72825d5822695072611e94ee9c81fdfca93c27bce4970cf7d0a7d01001c62"},"check":null,"authorizes":false}
+    + actual - expected
+    
+    + 'approval_unconfirmed'
+    - 'approved'
+             ^
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'approved'
+  actual: 'approval_unconfirmed'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-document-state-test.js:37:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: SCN-004: missing or foreign/malformed approval presentation never confirms current version
+ok 3 - SCN-004: missing or foreign/malformed approval presentation never confirms current version
+  ---
+  duration_ms: 3799.383454
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+not ok 4 - SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+  ---
+  duration_ms: 949.563675
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-document-state-test.js:67:1'
+  failureType: 'testCodeFailure'
+  error: 'source_changed'
+  code: 'source_changed'
+  stack: |-
+    fail (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-read/snapshot.js:12:37)
+    file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-read/snapshot.js:330:42
+    guard (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-read/snapshot.js:189:18)
+    Object.revalidate (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-read/snapshot.js:313:12)
+    assertSnapshot (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-inspect/cockpit.js:204:12)
+    Object.freshness (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-inspect/cockpit.js:375:21)
+    file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-document-state-test.js:88:34
+    getActual (node:assert:609:5)
+    Function.throws (node:assert:757:24)
+    TestContext.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/cockpit-document-state-test.js:88:14)
+  ...
+# Subtest: SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+ok 5 - SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+  ---
+  duration_ms: 0.574713
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 3
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7307.101215

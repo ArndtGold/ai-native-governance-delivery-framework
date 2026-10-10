@@ -1,0 +1,102 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: ai-native-governance-delivery-framework
+  - generic: Nur Lesen
+  - button "Neu laden":
+  - status
+- main:
+  - generic: Dein Repository · Deine Vorhaben
+  - heading "Gespeicherte Vorhaben" [level=1]
+  - paragraph: Orientierung aus dem Masterbacklog. Öffne ein Vorhaben für die aktuelle Prüfung.
+  - generic "Stand 9.10.2026, 14:44:06 · Datenstand und Herkunft"
+  - region "Vorhaben nach Backlog-Bereich":
+    - group "Backlog-Bereich":
+      - button "Aktiv 60" [pressed]:
+        - generic: Aktiv
+        - strong: "60"
+      - button "Geplant 2 Eingeschränkt":
+        - generic: Geplant
+        - strong: "2"
+        - generic: Eingeschränkt
+      - button "Archiv 87":
+        - generic: Archiv
+        - strong: "87"
+    - text: "Aktiv: Vorhaben suchen"
+    - 'searchbox "Aktiv: Vorhaben suchen"'
+    - paragraph: Letzter gespeicherter Eintrag zuerst. Die Suche umfasst gespeicherten Backlog-Titel, Schlüssel und Status.
+    - status
+    - heading "Aktive Vorhaben" [level=2]
+    - status: 60 Einträge
+    - region "Vorhaben · Aktiv":
+      - list:
+        - heading "Clear backlog status and reliable update flow" [level=3]:
+          - button "Clear backlog status and reliable update flow"
+        - generic: "Gespeicherter Stand laut Backlog: QA evidence open"
+        - paragraph: QA · QA-Nachweis offen · 2 offene Aufgaben
+        - paragraph: "Nächster Schritt laut Backlog: Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate. Then rerun QA with refreshed evidence."
+        - paragraph: Gespeicherte Beobachtung; aktueller Run noch nicht verglichen.
+        - generic "Gespeicherte Angaben und Quellen" [active]
+        - term: Titelherkunft
+        - definition: Gespeicherter Backlog-Titel
+        - term: Originaltitel
+        - definition: Clear backlog status and reliable update flow
+        - term: Schlüssel
+        - definition:
+          - code: backlog-status-flow-clarity-20261009-01
+        - term: Backlog-Quelle
+        - definition:
+          - code: .agdf/control/MASTER_BACKLOG.md
+        - term: Backlog-Digest
+        - definition:
+          - code: 370afb932f07c7c5dbef3a72028c78cfa4902d5d3b9ca036c007f310a10c5bc1
+        - term: Gespeicherte Run-Revision
+        - definition:
+          - code: d105b24f-4f0e-4e71-b951-df5991ae2e3d
+        - term: Synchronisiert
+        - definition: 9.10.2026, 14:38:20
+        - term: Offene Aufgabe
+        - definition: BSC-NATIVE-001 · evidence_obligation
+        - term: Originalaktion
+        - definition: Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate.
+        - term: Beobachtete Quellen
+        - definition:
+          - paragraph:
+            - code: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md
+            - code: sha256:762d7d5abed56b223354a954c3f29ca630a54fc837b6f0041b2521342386e2ad
+          - paragraph:
+            - code: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/TASK_PLAN_REVIEW.md
+            - code: sha256:c40f1e3dbfaba5d636861cee75ab9c338702177589af803737044009ad301a48
+          - paragraph:
+            - code: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CLEAN_IMPLEMENTATION_REVIEW.md
+            - code: sha256:8acc2ad9eccf0a825762aaca9eb2c19d1384b0101058f5fdb77c2b55ae8fb154
+          - paragraph:
+            - code: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/CODE_REVIEW.md
+            - code: sha256:a02f5a0ea06532401769ec66988dd03ebfc94443e71be9cc7495053cada3b0ab
+        - term: Ergänzende UR-Überschrift
+        - definition: "UR: Clear backlog status and reliable update flow"
+        - term: Beobachtet
+        - definition: 9.10.2026, 14:42:55
+        - term: UR-Quelle
+        - definition:
+          - code: .agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/UR.md
+        - term: UR-Quelldigest
+        - definition:
+          - code: 1cbf34c54697c5be4ac70206b5e8bc54ea1612b9441b57cf6c863450329ebf9b
+        - term: Priorität
+        - definition: P1
+        - term: Nächster Schritt
+        - definition: Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate. Then rerun QA with refreshed evidence.
+        - term: Quellen
+        - definition: "[UR](artefacts/backlog-status-flow-clarity-20261009-01/UR.md) · [Brownfield](artefacts/backlog-status-flow-clarity-20261009-01/BROWNFIELD_REVIEW.md) · [PRD](artefacts/backlog-status-flow-clarity-20261009-01/PRD.md) · [SD](artefacts/backlog-status-flow-clarity-20261009-01/SD.md) · [TP](artefacts/backlog-status-flow-clarity-20261009-01/TP.md) · [QA](artefacts/backlog-status-flow-clarity-20261009-01/QA_REPORT.md)"
+        - term: Spezifikation
+        - definition: "[UR](artefacts/backlog-status-flow-clarity-20261009-01/UR.md)"
+        - heading "Reliable internal gate continuation and actionable recovery" [level=3]:
+          - button "Reliable internal gate continuation and actionable recovery"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report."
+        - paragraph: Gespeicherter Stand; Quellenbezug und aktueller Run nicht geprüft.
+        - generic "Gespeicherte Angaben und Quellen"
+        - heading "Shared Core reading and readable active-backlog selection" [level=3]:
+          - button "Shared Core reading and readable active-backlog selection"
+        - generic: "Gespeicherter Stand laut Backlog: In Progress"
+        - paragraph: "Nächster Schritt laut Backlog: Resolve the QA revise findings, refresh CD+Tests and reviews, then re

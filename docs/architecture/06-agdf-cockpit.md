@@ -90,7 +90,8 @@ sichtbar ist. Andernfalls erhält die Listenüberschrift den Fokus mit einer pas
 Es gibt keinen zweiten identischen Öffnen-Button pro Zeile.
 
 Die Chat-Vorschau zeigt höchstens drei Treffer ohne internen Scrollbereich. Titel und gespeicherter
-Stand bleiben sichtbar; der vollständige nächste Schritt steht in den aufklappbaren Quellenangaben.
+Stand, Phase/offene Aufgabe, vollständiger nächster Schritt und Einschränkung bleiben direkt sichtbar
+und umbrechen ohne Zeilenbegrenzung. Originalangaben und Quellen sind zusätzlich aufklappbar.
 „Alle Vorhaben öffnen“ vergrößert die Ansicht unter Beibehaltung der Suche. Hinweise zur Lesbarkeit
 beziehen sich hier auf den aktiven Bereich; ein Fehler in Geplant oder Archiv erzeugt keine
 pauschale Warnung über den aktiven Bestand. Die große Übersicht zeigt alle Treffer in einem eigenen, per Tastatur bedienbaren Scrollbereich.
@@ -115,7 +116,8 @@ Eine Rückkehr aus einem anderen Bereich nach kompakt setzt Aktiv mit leerer Suc
 Gesucht wird unabhängig von Großschreibung nach getrimmter Zeichenfolge getrennt in Originaltitel,
 Schlüssel und gespeichertem Status. UR-Überschriften verändern weder primären Titel noch Treffer.
 Bekannte Scope-Präfixe entfallen nur in der Anzeige. Gemeinsame passive Zeilen umbrechen Titel und
-zeigen Originalangaben, Herkunft und vollständigen nächsten Schritt aufklappbar. Bereich, Treffer
+zeigen den vollständigen nächsten Schritt und Quellenbeschränkungen direkt. Originalangaben und
+Herkunft bleiben zusätzlich aufklappbar. Bereich, Treffer
 und kompakter Ausschnitt haben getrennte Zähler. Teilbestände behaupten keine vollständigen
 Nulltreffer; nicht verfügbare Bereiche besitzen keine numerische Anzahl.
 
@@ -151,7 +153,7 @@ Voraussetzungen; veraltete Backlog-Angaben werden dadurch nicht automatisch umge
 
 Die regulären Core-Schreibwege (`run-approve`, `control approve`, `run-update`,
 `run-step` einschließlich Nachweiserfassung sowie PRD-Wiederöffnung) führen Status und
-nächsten Schritt des zugeordneten aktiven Backlog-Eintrags aus derselben Run-Policy nach.
+nächsten Schritt des zugeordneten aktiven Backlog-Eintrags aus der gemeinsamen Core-Zusammenfassung nach.
 Run- und Backlog-Sperre werden in dieser Reihenfolge gehalten. Bei Änderungen beider Dateien
 ist die versiegelte Run-Revision der Commit-Punkt; das vorhandene Transaktionsjournal hält
 den Backlog-Schritt nachholbar. Die Wiederholung einer Freigabe schließt zunächst eine
@@ -169,8 +171,8 @@ Transaktion eines anderen Runs blockiert weiterhin, weil alle Schreibwege dassel
 Backlog-Journal teilen.
 
 Ein ausdrückliches `run-update` kann einen veralteten Backlog-Zeiger eines gültig versiegelten
-Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert nur
-Status und nächsten Schritt der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
+Runs korrigieren, ohne Run-Inhalt, Revision oder Freigaben zu ändern. Es aktualisiert
+Status, nächsten Schritt und Prüfvermerk der eindeutig zugeordneten aktiven Zeile; Titel, Links, Reihenfolge
 und andere Vorhaben bleiben erhalten. Kompakte und bestehende ältere 13-spaltige Tabellen werden
 bei dieser Zeigerkorrektur unterstützt; veraltete Revisionen und ausstehende fremde
 Transaktionen verhindern den Schreibzugriff.
@@ -182,6 +184,82 @@ die Zeile dort nicht. Das Ergebnis meldet in diesem Fall `backlog_reason: backlo
 Andere nicht unterstützte Layouts lehnt `run-step` weiterhin mit `backlog_layout_unsupported` ab.
 Dies ist keine Migration historischer Einträge und verschiebt keine Vorhaben ins Archiv.
 Direkte Dateiänderungen außerhalb der Core-Writer umgehen weiterhin deren Schreibvertrag.
+
+
+### Arbeitsstand, Quellen und Aktualisierung
+
+`control-evaluation/run-work-summary.js` verfeinert die bestehende Run-Policy und den
+Next-Action-Owner ausschließlich für die Beschreibung. QA-Follow-up validiert dieselben
+registrierten Berichte und normalisierten Findings wie bisher; seine Berechtigungsprüfung
+bleibt unverändert. React und HTTP/MCP werten keine Gates oder Findings selbst aus.
+
+| Gespeicherte Bedeutung | Aussage und Folge |
+|---|---|
+| Phase work pending / Awaiting PRD, SD, TP | Arbeit in der benannten Phase; der Prüfvermerk unterscheidet Entwurf und offene menschliche Freigabe. |
+| QA report pending | Der einschlägige QA-Bericht fehlt noch. |
+| QA evidence open | QA verlangt konkrete Nachweise und danach erneute QA. |
+| QA correction open | QA verlangt eine Korrektur innerhalb der freigegebenen Umsetzung und danach erneute QA. |
+| QA source decision required | Zuerst muss der benannte vorgelagerte Owner entscheiden; mehrere Findings folgen der bestehenden restriktiven Route. |
+| QA blocked / Source unconfirmed | Blockiert oder Bericht/Quellenbezug nicht verlässlich; keine positive Qualitätsaussage. |
+| Awaiting QA / Awaiting UAT / Awaiting OR | QA-pass, menschliche Freigabe, UAT und formaler Abschluss bleiben getrennt. |
+| Completed | Der ausdrücklich abgeschlossene Lifecycle; ein vorhandener QA-Bericht allein reicht nicht. |
+
+Eine Tabellenzeile bleibt sieben- beziehungsweise dreizehnspaltig. Ihr privater Prüfvermerk steht
+als eigene Kommentarzeile **nach** der zusammenhängenden Markdown-Tabelle, mit Leerzeile davor:
+`<!-- agdf-backlog-summary-v1 BASE64 -->`. BASE64 ist Standard-Base64 von kanonischem UTF-8-JSON.
+Version 1 enthält genau `schema_version`, `target_id`, `run_id`, `section`, `row_digest`,
+`revision_id`, `observed_at`, `kind`, `phase`, `qa_outcome`, `lifecycle`, `recorded_approvals`,
+`decisive_obligation`, `open_obligation_count`, `display_action`, `sources`, `limitations`
+und `authorizes: false`. `open_obligation_count` zählt offene normalisierte Befundzeilen
+aus registrierten Berichten. Derselbe Sachverhalt kann in mehreren Berichten erscheinen;
+die Anzeige benennt deshalb Berichtsbefunde und behauptet keine Anzahl verschiedener Aufgaben.
+Die Run-Ansicht zeigt diesen Core-Wert auch in der Nachweisklappe. Die separate Liste
+`evaluation.missing_evidence` zählt ausschließlich im Run-Dokument gespeicherte Nachweislücken;
+eine leere Liste bedeutet nicht, dass QA- und Review-Berichte keine offenen Befunde enthalten.
+Die optionale entscheidende Aufgabe enthält `id`, `routing_target`,
+`action`, `source_path`; jede Quelle enthält `path`, `digest`, `state: available`.
+
+`control-state/backlog-summary-shape.js` besitzt die gemeinsame reine Formprüfung für Core und
+UI; `backlog-summary.js` besitzt Kodierung und Zeilenbindung. Der Row-Digest umfasst Bereich
+und tatsächlich serialisierte Zellen. Target, Run, resultierende Revision, Beobachtungszeit und
+beobachtete run-lokale Quelldigests bleiben prüfbar. Der Vermerk ist keine kryptografische
+Beglaubigung, Freigabe oder Behauptung aktueller Vollständigkeit. Grenzen: 64 KiB JSON pro
+Vermerk, 64 Quellen/offene Aufgaben, 256 KiB je Reviewquelle und 2 MiB Backlog. Zu große
+Zusammenfassungen werden ausdrücklich eingeschränkt; entscheidende Aktionen werden nicht
+still gekürzt. Ungültige/mehrdeutige/fremde Vermerke erhalten die ursprüngliche Zeile mit
+sichtbarer Einschränkung. Alte Zeilen bleiben lesbar und unbestätigt; es gibt keine Migration.
+Ein nicht zuordenbarer beschädigter Kommentar wird nicht durch einen Writer gelöscht.
+
+Normale Writer wählen die tatsächliche neue Run-Revision einmal vor der Planung. Zeile und
+Prüfvermerk bilden einen gemeinsamen Backlog-Schritt im bestehenden Journal; die versiegelte
+Run-Revision bleibt Commit-Punkt. Bereits konsumierte QA-/Reviewquellen werden vor Commit
+gegen ihre Digests geprüft. Recovery übernimmt die erfassten Journalbytes, statt spätere
+Quellen mit einem älteren Run zu mischen. Identisches gezieltes Nachführen eines unveränderten
+Runs erhält Revision, Beobachtungszeit und sämtliche Dateibytes; eine echte neue Revision
+aktualisiert den Vermerk auch bei identischem sichtbarem Wortlaut.
+
+Relationship Correction und Run Recovery behalten ihre eigenen Run-/Journal-Owner. Ihr
+Ergebnis meldet den ausstehenden Backlog-Abgleich und nennt ausdrücklich ein auf genau diesen
+Run und dessen aktuelle Revision gebundenes `run-update`. Ein solcher Sonderweg behauptet
+keinen bereits synchronisierten Backlog. Unsupported/ambiguous/path-invalid bleibt bei den
+bereits dokumentierten erlaubten Writer-Operationen ein begründetes `skipped`; die strikten
+run-step-Wege behalten ihre Fehlergrenzen. Historische Freigaben werden nicht wiederholt.
+
+Die Übersicht liest weiterhin ausschließlich den gespeicherten Backlog. `saved_summary` ist
+ein optionales DTO-Feld; alte DTOs bleiben gültig, vorhandene ungültige neue Felder werden
+abgewiesen. Quellen im Vermerk werden niemals als Dateiselektoren verfolgt. Erst bewusstes
+Öffnen des einzelnen Runs erfasst dessen aktuelle registrierte Quellen im selben unveränderlichen
+Read-Snapshot und liefert `work_summary` sowie `backlog_comparison`: `matching`, `different`
+oder `unavailable`. Übereinstimmung benötigt gültige Run-Versiegelung, eindeutigen gültigen
+Prüfvermerk, dieselbe Revision und dieselbe Quellen-/Arbeitsbeschreibung. Fehlende oder
+ungeprüfte Quellen erlauben keine positive Übereinstimmung. Lesen verändert weder Zeile noch
+Run; abweichende Beobachtungen verlangen bewussten Abgleich, keine automatische Freigabe.
+
+Browser-/Quellen-/Protokollprüfungen und native Hostbeobachtung sind getrennte Evidenz. Die
+Quellfassung vom 9. Oktober 2026 besitzt Browsernachweise; die noch offene native Beobachtung
+mit frischer Resource-/Runtime-/UI-Identität ist in
+`.agdf/control/artefacts/backlog-status-flow-clarity-20261009-01/evidence/NATIVE_OBSERVATION.md`
+gebunden. Ein alter offener App-Stand qualifiziert diese neue Fassung nicht.
 
 Jede gültige Anfrage verwirft den vorherigen Quelldatenstand und erfasst Backlog plus angefragte
 URs erneut als unveränderliche Beobachtung. Die Backlog-Grundlage muss übereinstimmen; andernfalls
@@ -480,3 +558,35 @@ Die zuvor offene Wiederverbindung ist am 7. Oktober 2026 tatsächlich in der ver
 Der tatsächliche Rückbau und die unveränderte Wiederherstellung stammen aus Checkpoint 29. Zwei unabhängige Ansichten, Kontextbesitz und Modellzustellung sind datierte Nachweise aus 27/28; ihre unveränderten angrenzenden Quellbereiche wurden erneut abgeglichen. Es wurden keine angenommenen Quellenfragen wiederholt. Der neue Nachweis bestätigt Wiederverbindung und Dokumentnavigation im finalen Modul, keine neue Kontextpublikation oder Claude-Unterstützung.
 
 Nachweise: `.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/HOST_RECONNECTION-30.md`, `native-reconnection-evidence-30/verification.json` und `TASK_PLAN_REVIEW-30.md`. Planerfüllung und Code-/Strukturreviews sind Evidenzdimensionen; QA entscheidet die Qualitätsbereitschaft. Menschliche QA/UAT-Freigaben, OR und Release bleiben eigenständige Schritte.
+
+## Gebundene Entwurfsprüfung
+
+Im ausgewählten Vorhaben bietet das Cockpit eine bewusst ausgelöste Autorenprüfung für den aktuellen unterstützten UR-, PRD-, SD- oder TP-Entwurf an. Auch noch unregistrierte kanonische Entwürfe erhalten einen beobachteten Quellenbezug; daraus entsteht keine Dokumentregistrierung. Bestanden bezeichnet ausschließlich die bestehenden Autorenregeln. Semantische Ableitung, Registrierung, Präsentation, menschliche Freigabe und QA bleiben im bestehenden Ablauf.
+
+Der additive `agdf_cockpit_read`-Aufruf `artifact_readiness` akzeptiert ausschließlich Sitzung, Snapshot, Run, Gate und erwartete Revision. Der authentifizierte Browser-Adapter `/api/draft-check/<run>` verlangt jeweils genau einen `snapshot`-, `gate`- und `expected_revision`-Parameter. Ziel und Dateipfad werden intern abgeleitet; allgemeine Inspect-/Datei-/Writer-Aufrufe sind ausgeschlossen. Beide Wege nutzen denselben Autorenprüfkern aus `artifact-readiness.js` im bestehenden Quellen-Snapshot.
+
+Die Entwurfsdatei beziehungsweise ihre Abwesenheit wird bereits bei Auswahl erfasst. Der Prüfaufruf validiert die alte Auswahl, erstellt über den bestehenden Leser einen neuen Lesestand und prüft vor Veröffentlichung erneut Revision, Gate, Dateiidentität und Quellenfrische. Sitzung, Worker, Pool, Ressourcen und Beobachter übernehmen diesen Stand gemeinsam; bestehende Kontextbereinigung und Quarantäne bleiben wirksam. Dateiänderungen bei gleicher Run-Revision entwerten Ergebnisse ebenfalls.
+
+Eine gemeinsame App-Komponente zeigt ungeprüft, laufend, bestanden, Korrekturen und begrenzte Nichtverfügbarkeit an. Originalbefunde und Quellenbezug bleiben aufklappbar. Eine kurzlebige Anfrage koordiniert Abbruch, Frische und Kontextbereinigung; ausschließlich der zentrale Lesezustand übernimmt eine aktuelle Antwort. Verspätete Antworten dürfen keine frühere Prüfung als aktuell installieren. Ressourcenwechsel erhalten logischen Fokus, Quellenklappen und Leseposition. Neuladen prüft nicht automatisch.
+
+Alte Leseoperationen bleiben kompatibel. Ein alter Server ohne Quellenbeschreibung zeigt die Nichtverfügbarkeit der Prüfung, während Lesen weiterhin möglich ist. Core-/Protokoll-/Browserprüfungen und ein Paket-Build belegen keine neue native MCP-App-Beobachtung; diese benötigt den exakt gebauten und tatsächlich geladenen Host-Stand.
+
+### Dokumentliste und nachgewiesene Fassung
+
+Die Liste „Dokumente“ zählt die tatsächlich registrierten UR-, PRD-, SD-, TP-, QA- und UAT-Ressourcen des ausgewählten Runs. Dateien und gespeicherte Freigaben erzeugen keine zusätzlichen Zeilen. Analysen und Run State behalten ihre bisherigen Quellenwege. Zwei Gruppen zeigen Dokumentname mit Symbol und lesbarem Status sowie genau einen kontextbezogenen Dokumentlink. Bei wenig Platz werden dieselben Gruppen untereinander angeordnet; die logische Zeile bleibt erhalten. Die Übersicht besitzt keine eigenen aufklappbaren Freigabeeinträge und keinen separaten Freigabeleser.
+
+Core liefert optional `Detail.document_states`; ein gelesener verfügbarer Gate-Text trägt denselben Eintrag in `DocumentData.document_state`. Ein Eintrag enthält `schema_version: "1"`, `authorizes: false`, Ressourcen-ID, Run, Revision, Typ, registrierte Referenz, `source_state`, rohen SHA-256 `content_digest` ohne Präfix, `state`, `version_kind`, `reason`, ursprüngliche `recorded_approval` oder null und zutreffende `check` oder null. `check` enthält die bestehende Prüfquelle, den unveränderten Autorenbericht, dessen beschreibende Anzeige und den rohen Digest. Die bestehende kanonisch normalisierte `artifact_digest` bleibt getrennt von den tatsächlich gelesenen Bytes.
+
+Die Zustände sind `approved`, `draft`, `draft_checked`, `revision_required`, `check_unavailable`, `approval_unconfirmed` und `unavailable`. `version_kind` ist `approved`, `draft`, `current` oder `unavailable`; Quellen können `available`, `missing`, `blocked`, `unsupported` oder `unavailable` sein. Eine bestätigte Fassung verlangt bestehende Run-/Quellenintegrität und die exakte Zuordnung über `inspectApprovedArtefact` im bisherigen Freigabeprüfkern zu den zurückgegebenen Rohbytes. `exactApprovedArtefacts` nutzt denselben Kern und behält seine bisherigen Legacy-, Beleg-, Ableitungs- und historischen Regeln. Die bestehende UAT-Ausnahme des Sammelprüfers beweist kein UAT-Dokument; der einzelne Prüfer bestätigt UAT daher nicht.
+
+Eine frühere gespeicherte Freigabe bleibt als Originalnachweis sichtbar, auch wenn die aktuelle Fassung nicht bestätigt ist. Nur `approved` erhält den typbezogenen Link „Freigegebenes … ansehen“; Entwürfe erhalten „Entwurf ansehen“, unbestätigte lesbare Fassungen „Aktuelle Fassung ansehen“. Fehlende und gesperrte Quellen erhalten keinen funktionierenden Link. Der große vorhandene Dokumentleser zeigt Status, zutreffende Korrekturen und den ursprünglichen Freigabetext. Nicht strukturiert bestätigte Angaben zu Zeitpunkt, Person und Grundlage werden ausdrücklich als nicht verfügbar ausgewiesen.
+
+### Kurzlebiger Prüfbezug und Grenzen
+
+Ein Leser hält höchstens einen flüchtigen Core-Prüfbezug von maximal 256 KiB serialisierten UTF-8-JSON-Bytes. Ziel, Run, Gate, Revision, Pfad, kanonischer Digest und roher Digest müssen bei frischer Erfassung übereinstimmen. Navigation zum Dokument, verknüpftem Kontext und zurück zum selben Run darf den Bezug nach erneuter Validierung erhalten; neue Snapshots und Ressourcen-IDs bleiben ausschließlich beim bisherigen Leser. Es gibt keinen App-Prüfcache, Schreibpfad oder automatische Listen-/Sammelprüfung.
+
+Ein expliziter Snapshot/Reload, Übersicht oder anderer Run, beobachtete Änderungen an Quelle, Revision, Gate, Lebenszyklus oder Integrität, fehlgeschlagene Erfassung, `source_changed`, ungültiger aktueller Stand und Sitzungsabbau löschen den Bezug. Vor der Erfassung abgewiesene ungültige Selektoren verändern die legitime Ansicht nicht. Die Beschreibungen aller Dokumente zusammen haben ebenfalls eine harte Grenze von 256 KiB; vorhandene Datei-, Vorschau-, Antwort-, Zeit- und Ressourcenlimits bleiben bestehen. Überschreitung liefert die bestehende begrenzte Nichtverfügbarkeit, kein gekürztes positives Ergebnis.
+
+`describeArtifactReadiness` beschreibt ausschließlich tatsächliche Befunde des bisherigen Autorenprüfers. Frühe `artifact_gate_not_ready`-Berichte dürfen konkrete Korrekturen anzeigen, wenn aktuelles Gate, bekannte UR-/PRD-/SD-/TP-Autorenursache und nichtleere strukturierte offene Punkte zusammenpassen. Andere Voraussetzungen, unbekannte Ursachen oder technische Fehler bleiben „Prüfung nicht verfügbar“. Der Originalbericht wird nicht verändert und erteilt keine Freigabe.
+
+HTTP und STDIO MCP übertragen diese optionalen Angaben über ihre bestehenden Leser. Die gemeinsame App-Grenze prüft Form, Mitgliedschaft, Revision, Quellenbezug, rohen Digest und Gleichheit von Run- und Dokumentbeschreibung, ohne Freigabe oder Autorenregeln selbst auszuwerten. JSON-Schlüsselreihenfolge ist unerheblich. Fehlende Zusatzfelder alter Server bleiben kompatibel und unsicher; vorhandene fehlerhafte oder fremde Zusatzfelder werden als `dto_invalid` abgewiesen. Kontextübergabe, Generation, Abbruch, Fokus, Frische, Quarantäne und Teardown bleiben bei den bisherigen Eigentümern.

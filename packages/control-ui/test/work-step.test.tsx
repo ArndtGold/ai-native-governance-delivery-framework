@@ -21,8 +21,8 @@ it('leads with saved state, Core assessment and the actual registered step sourc
  expect(Array.from(document.querySelectorAll('details')).every(d=>!d.open)).toBe(true);
  fireEvent.click(screen.getByRole('button',{name:'Umsetzungs- und Prüfnachweise öffnen'}));expect(open).toHaveBeenCalledWith(source, 'step:opaque-cd');
  expect(document.querySelectorAll('button.primary')).toHaveLength(1);
- expect(screen.getByText('Nachweise und offene Punkte · 1')).toBeTruthy();expect(screen.getByText('Gespeicherte Freigaben · 1')).toBeTruthy();
- expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben')).toBeTruthy();
+ expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Dokumente · 0')).toBeTruthy();
+ expect(screen.queryByText('Umsetzungs- und Prüfplan')).toBeNull(); // An approval alone never invents a document registration.
  // Exact original evidence remains recoverable, independently of its readable summary.
  expect(screen.getByText(/Aktueller Build noch nicht im Host bestätigt/)).toBeTruthy();
  expect(screen.getAllByText(/Neue Karte öffnen und prüfen/)).toHaveLength(2);
@@ -55,7 +55,7 @@ it('a missing evaluation preserves the explicit read-navigation action',()=>{
 });
 it('completed and zero-evidence observations never grant new permission',()=>{
  render(<WorkStep data={{...data,evaluation:{...data.evaluation!,control_assessment:{state:'completed',authorizes:false},missing_evidence:[]}}}/>);
- expect(screen.getByText('Vorhaben abgeschlossen')).toBeTruthy();expect(screen.getByText('Keine offenen Nachweise ausgewiesen.')).toBeTruthy();
+ expect(screen.getByText('Vorhaben abgeschlossen')).toBeTruthy();expect(screen.getByText('Im Run-Dokument sind keine Nachweislücken gespeichert. Diese Angabe zählt keine Befunde aus QA- und Review-Berichten.')).toBeTruthy();
  expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
 });
 it('shows an out-of-scope evaluation as unconfirmed without presenting the saved step as Core output',async()=>{

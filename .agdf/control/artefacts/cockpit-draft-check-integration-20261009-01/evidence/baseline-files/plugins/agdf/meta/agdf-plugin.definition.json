@@ -1,0 +1,574 @@
+{
+  "schemaVersion": 1,
+  "id": "agdf",
+  "version": "0.14.5",
+  "displayName": "AI Governance & Delivery Framework",
+  "developerName": "Arndt Gold",
+  "description": "Control layer for governed AI-assisted delivery.",
+  "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
+  "homepage": "https://agdf.iself.eu",
+  "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+  "license": "Apache-2.0",
+  "keywords": [
+    "agentic",
+    "governance",
+    "delivery",
+    "ai-native",
+    "brownfield"
+  ],
+  "category": "Productivity",
+  "brandColor": "#14B8A6",
+  "author": {
+    "name": "Arndt Gold",
+    "url": "https://agdf.iself.eu"
+  },
+  "codex": {
+    "skills": "./skills/",
+    "skillPrefix": "",
+    "agentRouter": "meta/agdf-agent-router.md",
+    "composerIcon": "./assets/agdf-icon.svg",
+    "logo": "./assets/agdf-logo.svg",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
+      "Start this request under AGDF governance.",
+      "Close this delivery run with an auditable AGDF report."
+    ],
+    "hooks": "hooks/hooks.json"
+  },
+  "claude": {
+    "skillPrefix": "",
+    "mcpServers": "./mcp/claude.mcp.json",
+    "agentRouter": "meta/agdf-agent-router.md",
+    "defaultPrompt": [
+      "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
+      "Start this request under AGDF governance.",
+      "Close this delivery run with an auditable AGDF report."
+    ]
+  },
+  "copilot": {
+    "skillPrefix": "agdf-",
+    "runtimeContractFileName": "agdf-runtime-contract.md",
+    "pluginManifest": "plugin.json",
+    "skills": "skills/",
+    "hooks": "com.github.copilot/hooks/hooks.json"
+  },
+  "opencode": {
+    "skillPrefix": "agdf-",
+    "globalSkillPrefix": "agdf-global-",
+    "evaluatorAgentName": "agdf-evaluator",
+    "runtimeContractFileName": "agdf-runtime-contract.md",
+    "instructionsFileName": "AGDF.md",
+    "npmPackage": "create-agdf",
+    "permissions": {
+      "question": "allow",
+      "edit": "ask",
+      "bash": "ask",
+      "skill": {
+        "agdf-*": "allow"
+      }
+    }
+  },
+  "automaticRuntimeChecks": {
+    "schemaVersion": 1,
+    "capabilityId": "automatic-runtime-checks",
+    "adapterContractVersion": 1,
+    "entrypoint": "runtime/agdf-session-check.js",
+    "operations": [
+      "resolve-local-runtime",
+      "inspect-control-state",
+      "render-bounded-orientation"
+    ],
+    "constraints": {
+      "arguments": "forbidden",
+      "filesystemWrites": "forbidden",
+      "network": "forbidden",
+      "gateAuthority": "none"
+    },
+    "surfaces": {
+      "codex": "native-hook-review",
+      "claude": "plugin-enablement",
+      "copilot": "plugin-hook-review",
+      "opencode": "plugin-internal",
+      "portable-skills": "manual-external-required"
+    }
+  },
+  "interactions": {
+    "fallback": "exact_text",
+    "localeRegistry": "meta/agdf-interaction-locales.json",
+    "fallbackLocale": "en",
+    "optionOrder": [
+      "approve",
+      "revise",
+      "decline",
+      "cancel"
+    ],
+    "outcomes": [
+      "approve",
+      "revise",
+      "decline",
+      "cancel",
+      "no_response",
+      "timeout",
+      "empty",
+      "invalid",
+      "stale"
+    ],
+    "surfaces": {
+      "codex": {
+        "questionAdapter": "request_user_input",
+        "availability": "when_callable",
+        "gateSafety": "omit_auto_resolution",
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline"
+        ],
+        "dismissOutcome": "cancel",
+        "approvalValueTransport": "exact_option_value",
+        "waitSafety": "deliberate_no_auto_resolution",
+        "authorizationPath": "exact_text",
+        "technicalPermissionOwner": "codex_host"
+      },
+      "claude": {
+        "questionAdapter": "AskUserQuestion",
+        "availability": "when_no_auto_continue_timeout",
+        "gateSafety": "no_timeout_or_hook_supplied_answer",
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline"
+        ],
+        "dismissOutcome": "cancel",
+        "approvalValueTransport": "exact_option_value",
+        "waitSafety": "deliberate_no_auto_resolution",
+        "authorizationPath": "exact_text",
+        "technicalPermissionOwner": "claude_host"
+      },
+      "copilot": {
+        "questionAdapter": "exact_text",
+        "availability": "always",
+        "gateSafety": "wait_for_deliberate_user_input",
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline",
+          "cancel"
+        ],
+        "approvalValueTransport": "exact_option_value",
+        "waitSafety": "deliberate_no_auto_resolution",
+        "authorizationPath": "exact_text",
+        "technicalPermissionOwner": "copilot_host"
+      },
+      "opencode": {
+        "questionAdapter": "question",
+        "availability": "when_permission_question_allows",
+        "gateSafety": "preserve_explicit_deny",
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline"
+        ],
+        "dismissOutcome": "cancel",
+        "approvalValueTransport": "exact_option_value",
+        "waitSafety": "deliberate_no_auto_resolution",
+        "authorizationPath": "exact_text",
+        "technicalPermissionOwner": "opencode_host"
+      },
+      "fallback": {
+        "questionAdapter": "exact_text",
+        "availability": "always",
+        "gateSafety": "wait_for_deliberate_user_input",
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline",
+          "cancel"
+        ],
+        "approvalValueTransport": "exact_option_value",
+        "waitSafety": "deliberate_no_auto_resolution",
+        "authorizationPath": "exact_text",
+        "technicalPermissionOwner": "host_specific"
+      }
+    }
+  },
+  "publicDistribution": {
+    "schemaVersion": 1,
+    "submissionType": "skills",
+    "technicalId": "agdf",
+    "publicDisplayName": "AGDF",
+    "fullDisplayName": "AI Governance & Delivery Framework (AGDF)",
+    "shortDescription": "Governed AI delivery controls",
+    "developerName": "Arndt Gold",
+    "publisher": {
+      "target": "Arndt Gold",
+      "verificationState": "unverified"
+    },
+    "category": "Productivity",
+    "urls": {
+      "website": "https://agdf.iself.eu",
+      "privacy": "https://agdf.iself.eu/privacy",
+      "terms": "https://agdf.iself.eu/terms",
+      "support": "https://agdf.iself.eu/support"
+    },
+    "defaultPrompt": [
+      "Assess whether AGDF fits this work and recommend the lightest safe delivery path.",
+      "Start this request under AGDF governance.",
+      "Review the active AGDF run and explain the next allowed step."
+    ],
+    "availability": {
+      "decisionState": "pending",
+      "countries": [],
+      "regions": [],
+      "workspaceContexts": [],
+      "decisionOwner": "verified publisher"
+    },
+    "submissionSources": {
+      "capabilityMatrix": "submission/openai/capability-matrix.json",
+      "reviewerCases": "submission/openai/reviewer-cases.json",
+      "releaseNotes": "submission/openai/release-notes.md",
+      "availabilityDecision": "submission/openai/availability.md"
+    }
+  },
+  "runtimeContract": {
+    "schemaVersion": 1,
+    "manifestPath": "meta/agdf-runtime-contract.md",
+    "modules": [
+      "meta/contracts/request-activation.md",
+      "meta/contracts/task-target-resolution.md",
+      "meta/contracts/gate-transition.md",
+      "meta/contracts/gate-artifact-preparation.md",
+      "meta/contracts/interaction.md",
+      "meta/contracts/modes.md",
+      "meta/contracts/quality.md",
+      "meta/contracts/context-graph.md",
+      "meta/contracts/control-scaffold.md",
+      "meta/contracts/closeout.md",
+      "meta/contracts/ur-definition.md",
+      "meta/contracts/prd-definition.md",
+      "meta/contracts/sd-definition.md"
+    ]
+  },
+  "instructionFootprint": {
+    "schemaVersion": 1,
+    "measurement": {
+      "encoding": "utf8",
+      "lineEndings": "lf",
+      "dynamicAbsolutePathTokens": {
+        "executable": "<executable>",
+        "validator": "<validator>",
+        "workingDirectory": "<working-directory>"
+      }
+    },
+    "budgets": {
+      "activationKernel": {
+        "maxNormalizedBytes": 1100,
+        "structuralConditions": [
+          "exactly_one_semantic_kernel_source"
+        ]
+      },
+      "skillDiscoveryDescription": {
+        "maxNormalizedBytes": 420,
+        "structuralConditions": [
+          "one_skill_purpose_and_boundary_plus_compact_common_boundary"
+        ]
+      },
+      "allSkillDiscoveryDescriptions": {
+        "maxNormalizedBytes": 3000,
+        "structuralConditions": [
+          "exactly_catalog_in_definition_order",
+          "no_full_exclusion_taxonomy",
+          "no_operation_catalog"
+        ]
+      },
+      "sessionStartBase": {
+        "maxNormalizedBytes": 1900,
+        "structuralConditions": [
+          "exactly_one_kernel",
+          "exactly_one_dispatcher_binding",
+          "no_router_or_target_gate_quality_closeout_handbook"
+        ]
+      },
+      "runtimeCheckSupplement": {
+        "maxNormalizedBytes": 1200,
+        "structuralConditions": [
+          "separately_measurable_variable_facts_only",
+          "bounded_non_authorizing_repository_control_facts_and_fixed_reentry"
+        ]
+      },
+      "openCodeEagerInstructions": {
+        "maxNormalizedBytes": 4000,
+        "structuralConditions": [
+          "exactly_one_kernel",
+          "no_dispatcher_binding",
+          "no_full_router_target_mode_gate_quality_or_closeout_sections"
+        ]
+      },
+      "openCodeActiveDynamicContext": {
+        "maxNormalizedBytes": 1000,
+        "structuralConditions": [
+          "exactly_one_dispatcher_binding",
+          "active_and_version_facts_only",
+          "no_kernel_or_immutable_policy_prose"
+        ]
+      },
+      "openCodeInactiveDynamicContext": {
+        "maxNormalizedBytes": 0,
+        "structuralConditions": [
+          "no_binding_notice_policy_or_runtime_supplement"
+        ]
+      },
+      "openCodeComposedStaticAndActiveDynamic": {
+        "maxNormalizedBytes": 5000,
+        "structuralConditions": [
+          "exactly_one_kernel_and_one_dispatcher_binding_across_repository_and_global_variants"
+        ]
+      },
+      "openCodeCompactionAddition": {
+        "maxNormalizedBytes": 1100,
+        "structuralConditions": [
+          "at_most_one_kernel_only_recovery_block",
+          "no_dispatcher_binding_or_active_inactive_guidance"
+        ]
+      },
+      "selectedGateCheckSkill": {
+        "maxNormalizedBytes": 6900,
+        "structuralConditions": [
+          "exactly_one_kernel_before_unchanged_terminal_dispatch",
+          "dispatch_and_bootstrap_only",
+          "detailed_fallback_only_through_focused_contracts"
+        ]
+      }
+    }
+  },
+  "skillSet": [
+    {
+      "slug": "delivery-path-search",
+      "runtimeContractModules": [
+        "control-scaffold",
+        "gate-transition",
+        "quality"
+      ],
+      "discovery": "optional",
+      "useFor": "high-impact planning decisions with several plausible next delivery steps before implementation",
+      "boundary": "read-only advisory search; never grants gate permission or replaces gate-check",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "brownfield-analysis",
+      "runtimeContractModules": [
+        "gate-transition",
+        "modes",
+        "context-graph",
+        "quality"
+      ],
+      "discovery": "automatic",
+      "useFor": "permitted Brownfield Review or preparation before non-trivial existing-system changes",
+      "boundary": "clarifies reuse, owners, risks and Mode/Slice; never bypasses control or grants implementation",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "ux-intent-definition",
+      "runtimeContractModules": [
+        "gate-transition",
+        "quality"
+      ],
+      "discovery": "automatic",
+      "useFor": "approved UR with routed medium/high UX impact or ambiguous low-impact semantics before PRD",
+      "boundary": "analytical PRD input only; no intent, gate, design or parallel product authority",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "clean-implementation-review",
+      "runtimeContractModules": [
+        "quality",
+        "context-graph"
+      ],
+      "discovery": "automatic",
+      "useFor": "evidence dimension: inspect whether the solution is structurally clean",
+      "boundary": "supports Quality Readiness; not a TP or QA substitute",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "code-review",
+      "runtimeContractModules": [
+        "quality",
+        "context-graph"
+      ],
+      "discovery": "automatic",
+      "useFor": "evidence dimension: review the actual diff for defects, regression and security findings",
+      "boundary": "supports Quality Readiness; does not replace QA",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "delivery-closeout",
+      "runtimeContractModules": [
+        "closeout",
+        "context-graph",
+        "gate-transition"
+      ],
+      "discovery": "automatic",
+      "useFor": "commit/PR-near handoff after QA/OR/UAT",
+      "boundary": "never performs VCS actions automatically",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "ur-definition",
+      "runtimeContractModules": [
+        "ur-definition"
+      ],
+      "discovery": "automatic",
+      "useFor": "drafting or revising an unapproved UR after bound dispatch",
+      "boundary": "owns requirement drafting and clarification; never approves or changes approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "prd-definition",
+      "runtimeContractModules": [
+        "prd-definition",
+        "gate-artifact-preparation"
+      ],
+      "discovery": "automatic",
+      "useFor": "drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch",
+      "boundary": "owns product drafting and clarification; never approves or changes approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "sd-definition",
+      "runtimeContractModules": [
+        "sd-definition",
+        "gate-artifact-preparation"
+      ],
+      "discovery": "automatic",
+      "useFor": "bound SD drafting, clarification or revision",
+      "boundary": "content only; preserves approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "gate-check",
+      "runtimeContractModules": [
+        "gate-transition",
+        "modes",
+        "gate-artifact-preparation"
+      ],
+      "discovery": "start_here",
+      "useFor": "delivery control and gate readiness",
+      "boundary": "delegates drafts; never approves or skips gates",
+      "dispatch": {
+        "mode": "deterministic_control",
+        "deterministicCommand": "gate-check",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "qa-gate",
+      "runtimeContractModules": [
+        "quality",
+        "context-graph",
+        "gate-transition"
+      ],
+      "discovery": "automatic",
+      "useFor": "sole final Quality Readiness decision",
+      "boundary": "only instance for `pass | revise | block`",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "release-or",
+      "runtimeContractModules": [
+        "closeout",
+        "quality",
+        "context-graph",
+        "control-scaffold"
+      ],
+      "discovery": "automatic",
+      "useFor": "auditable closeout for every relevant run",
+      "boundary": "not a QA substitute",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "task-plan-review",
+      "runtimeContractModules": [
+        "quality",
+        "context-graph",
+        "gate-transition"
+      ],
+      "discovery": "automatic",
+      "useFor": "evidence dimension: verify whether the approved Task Plan was fulfilled",
+      "boundary": "supports Quality Readiness; no final QA decision",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    }
+  ],
+  "distributionProfiles": {
+    "schemaVersion": 1,
+    "marketplaceIdentities": {
+      "durable": "agdf",
+      "generatedRepository": "agdf-repo"
+    },
+    "profiles": {
+      "source-development": {
+        "runtime": "absent",
+        "installable": false,
+        "machineValidation": "unavailable"
+      },
+      "runtime-plugin": {
+        "runtime": "required",
+        "installable": true,
+        "machineValidation": "local_exact_version_digest"
+      },
+      "copilot-runtime-plugin": {
+        "runtime": "required",
+        "installable": true,
+        "machineValidation": "local_exact_version_digest_inventory"
+      },
+      "opencode-config-local": {
+        "runtime": "config_local_package",
+        "installable": true,
+        "machineValidation": "local_exact_version"
+      },
+      "portable-skills": {
+        "runtime": "absent",
+        "installable": true,
+        "machineValidation": "unavailable_or_external_required"
+      }
+    }
+  }
+}

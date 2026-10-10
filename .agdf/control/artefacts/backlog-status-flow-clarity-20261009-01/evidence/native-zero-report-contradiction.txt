@@ -1,0 +1,44 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Clear backlog status and reliable update flow
+  - generic: Nur Lesen
+  - button "Neu laden":
+  - status
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben"
+      - text: ›
+      - generic: Clear backlog status and reliable update flow
+  - heading "Clear backlog status and reliable update flow" [level=1]
+  - group "Ansicht":
+    - button "Zusammenfassung" [pressed]
+    - button "Details"
+  - generic "Stand 9.10.2026, 14:50:23 · Datenstand und Herkunft"
+  - status:
+    - strong: Teilweise verfügbar
+    - paragraph: Die gespeicherte Angabe weicht von der Core-Auswertung ab. Beide Quellen sind getrennt dargestellt; die Core-Auswertung bestimmt den Kontrollstatus.
+  - region "Zuletzt beobachteter Arbeitsschritt":
+    - generic: Gespeicherter Arbeitsstand
+    - heading "Qualitätsprüfung" [level=2]
+    - paragraph: Zuletzt als „In Arbeit“ gespeichert.
+    - heading "Aktuelle Voraussetzungen nicht bestätigt" [level=3]
+    - paragraph: Aus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.
+    - button "Stand des Vorhabens öffnen"
+    - group "Nachweise und offene Punkte · 0":
+      - generic "Nachweise und offene Punkte · 0" [active]
+      - paragraph: Keine offenen Nachweise ausgewiesen.
+      - list
+      - button "Qualitätsprüfung öffnen"
+      - generic "Kontrollauswertung · Originalangaben"
+    - generic "Gespeicherte Freigaben · 4"
+  - region "Offene Aufgabe":
+    - heading "QA · Offene Aufgabe und nächster Schritt" [level=2]
+    - paragraph: Collect the fresh identity-bound native observation sequence described in evidence/NATIVE_OBSERVATION.md, then refresh affected review evidence and rerun qa-gate. Then rerun QA with refreshed evidence.
+    - paragraph: 2 offene Aufgaben in den registrierten Berichten.
+  - status: Backlog-Beobachtung stimmt mit dieser Run-Revision und ihren Quellen überein.
+  - generic "Ziel und Run-ID · Originalangaben"
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ansehen"
+  - generic: Lokale Beobachtung · Verfügbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

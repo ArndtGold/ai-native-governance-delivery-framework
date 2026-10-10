@@ -1,0 +1,3 @@
+# Incremental scope ledger
+
+Candidate owners: WorkStep.tsx, new DocumentedApprovals.tsx, scoped style.css and owned approval/unit/browser tests. Existing App focus/reader, Core/MCP/HTTP and public DTOs are reuse-only. Generated dist/dist-mcp are produced by existing builds and qualified in isolated evidence copies, never globally installed. BASELINE.json, exact baseline-files and staged/unstaged patches capture pre-code bytes and shared worktree state. Earlier closed Run artefacts/history and this Run approved sources are protected by PROTECTED_SOURCES.json. Review only this increment; do not reset prior work.

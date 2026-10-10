@@ -19,11 +19,14 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   const many=backlog([pointer('run-a','Deliver cockpit'),...Array.from({length:12},(_,i)=>pointer(`other-${i}`,`Other project ${i}`))]);
   const read=vi.fn(async(path:string)=>named(path)?detail:many) as unknown as ReadTransport;
   render(<App compact transport={read}/>);await screen.findByRole('searchbox');
+  expect(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'})).toBeTruthy();
+  expect(document.querySelector('.compact-controls > p')?.textContent).toBe('fixture');
+  expect(screen.getByText('13 Einträge · 3 angezeigt')).toBeTruthy();
   expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(3);
-  expect(document.querySelector('.undertaking-list .row-step')).toBeNull();
+  expect(document.querySelector('.undertaking-list .row-step')?.textContent).toContain('Stored next step');
   expect(document.querySelector('.row-source dd')?.closest('details')?.open).toBe(false);
   fireEvent.change(screen.getByRole('searchbox',{name:'Vorhaben suchen'}),{target:{value:'other-7'}});
-  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(read).toHaveBeenCalledTimes(1);
+  expect(document.querySelectorAll('.undertaking-list > li')).toHaveLength(1);expect(screen.getByText('13 Einträge · 1 Treffer · 1 angezeigt')).toBeTruthy();expect(read).toHaveBeenCalledTimes(1);
   fireEvent.change(screen.getByRole('searchbox'),{target:{value:'run-a'}});fireEvent.click(await readySelection());
   await screen.findByText('Freigegebenen Umfang umsetzen.');expect(screen.queryByRole('searchbox')).toBeNull();expect(screen.queryByRole('combobox')).toBeNull();
   expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
@@ -44,7 +47,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   await readySelection();
   expect(screen.queryByText(/Backlog-Hinweise/)).toBeNull();
   expect(screen.queryByText(/Einige gespeicherte Vorhaben oder Tabellen/)).toBeNull();
-  expect(screen.getByText('1 Einträge im Bereich · 1 Treffer · 1 angezeigt')).toBeTruthy();
+  expect(screen.getByText('1 Eintrag · 1 angezeigt')).toBeTruthy();
   expect((screen.getByRole('button',{name:'Alle Vorhaben öffnen'}) as HTMLButtonElement).disabled).toBe(false);
  });
  it('summary and details remain in the expanded reader without resetting or re-reading the Run',async()=>{
@@ -88,7 +91,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   expect(screen.queryByRole('combobox')).toBeNull();expect(read).toHaveBeenCalledTimes(1);expect(screen.queryByText('Freigegebenen Umfang umsetzen.')).toBeNull();
   fireEvent.click(select);await screen.findByText('Freigegebenen Umfang umsetzen.');
   expect(screen.getByText('Host context still unverified')).toBeTruthy();expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
-  expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben',{exact:true})).toBeTruthy();expect(screen.queryByText('QA',{exact:true})).toBeNull();
+  expect(screen.getByText('Dokumente · 0',{exact:true})).toBeTruthy();expect(screen.queryByText('Umsetzungs- und Prüfplan',{exact:true})).toBeNull();expect(screen.queryByText('QA',{exact:true})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Run ansehen'}));expect(expand).toHaveBeenCalledTimes(1);
   view.rerender(<App transport={read} onExpand={expand}/>);expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
  });
@@ -152,11 +155,11 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
 it('expanded Run refreshes quietly and retains open evidence and its exact selection',async()=>{
  const read=vi.fn(async(path:string)=>path.startsWith('/api/freshness')?changed:detail) as unknown as ReadTransport;
  render(<App initialRunId="run-a" transport={read}/>);await screen.findByText('Weiterarbeit offen');
- const evidence=screen.getByText('Nachweise und offene Punkte · 1').closest('details')!;
+ const evidence=screen.getByText('Nachweislücken im Run-Dokument · 1').closest('details')!;
  evidence.open=true;
  await act(async()=>document.dispatchEvent(new Event('visibilitychange')));
  await waitFor(()=>expect(vi.mocked(read).mock.calls.filter(c=>c[0]==='/api/snapshot?run_id=run-a')).toHaveLength(2));
- expect(screen.getByText('Nachweise und offene Punkte · 1').closest('details')?.open).toBe(true);
+ expect(screen.getByText('Nachweislücken im Run-Dokument · 1').closest('details')?.open).toBe(true);
  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();expect(screen.queryByText(/Angefragter Run:/)).toBeNull();
  expect(document.querySelector('footer')?.textContent).toContain('Verfügbar');
 });
@@ -183,7 +186,7 @@ it('SCN-003/008/009: compact active preview and expanded projection share query/
  expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice(5).reverse().map(r=>r.title));
  expect(screen.queryByRole('button',{name:'Planned only'})).toBeNull();expect(screen.queryByRole('button',{name:'Archive only'})).toBeNull();
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:' Gemeinsames '}});
- expect(screen.getByText('8 Einträge im Bereich · 8 Treffer · 3 angezeigt')).toBeTruthy();
+ expect(screen.getByText('8 Einträge · 8 Treffer · 3 angezeigt')).toBeTruthy();
  view.rerender(<App transport={read}/>);
  expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe(' Gemeinsames ');
  expect([...document.querySelectorAll('.undertaking-list .run-link')].map(b=>b.textContent)).toEqual(active.slice().reverse().map(r=>r.title));
@@ -201,7 +204,7 @@ it('SCN-020: exact row return focus; source addition hiding it in compact previe
  fireEvent.click(await readySelection());await screen.findByText('Freigegebenen Umfang umsetzen.');
  rows=[...rows,...Array.from({length:5},(_,i)=>pointer('new'+i,'New '+i))];
  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));
- await screen.findByText(/außerhalb des aktuellen Ausschnitts/);expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'}));
+ await screen.findByText(/außerhalb des aktuellen Ausschnitts/);expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'}));
  expect(screen.queryByText(/nicht mehr im Backlog/)).toBeNull();
  fireEvent.change(screen.getByRole('searchbox'),{target:{value:'run-a'}});await readySelection();
  expect(vi.mocked(read).mock.calls.filter(c=>c[0].startsWith('/api/runs/')).map(c=>c[0])).toEqual(['/api/runs/run-a?snapshot=snapshot','/api/runs/run-a?snapshot=snapshot']);
@@ -211,7 +214,7 @@ it('SCN-020: removed originating row has explicit removal feedback without a sub
  const read=vi.fn(async(path:string)=>named(path)?detail:backlog([pointer(removed?'run-b':'run-a')])) as unknown as ReadTransport;
  render(<App compact transport={read}/>);fireEvent.click(await readySelection());await screen.findByText('Freigegebenen Umfang umsetzen.');removed=true;
  fireEvent.click(screen.getByRole('button',{name:'Alle Vorhaben'}));await screen.findByText('Das zuvor geöffnete Vorhaben ist nicht mehr im Backlog enthalten.');
- expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben'}));expect(vi.mocked(read).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
+ expect(document.activeElement).toBe(screen.getByRole('heading',{name:'Aktive Vorhaben im Repository'}));expect(vi.mocked(read).mock.calls.some(c=>c[0].startsWith('/api/runs/run-b'))).toBe(false);
 });
 it('SCN-020: a valid run key matching a view control still restores the exact row focus',async()=>{
  const key='backlog-search';

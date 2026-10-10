@@ -20,27 +20,33 @@ function repositoryFixture(){
  fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | agdf-cockpit-mcp-app-20261005-01 | Embedded AGDF Cockpit for Codex | In progress | none | TP | Stored next step |\n| 2 | agdf-control-cockpit-20261005-01 | Local read-only AGDF control cockpit | In progress | none | TP | Stored next step |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
  return f;
 }
+function unconfirmedRepositoryFixture(){
+ const f=repositoryFixture();
+ // Deliberate normalization-equivalent raw-byte change in the disposable copy.
+ // Retain the recorded approval while making its exact opened version unconfirmed.
+ const path=join(f.root,'.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md');
+ fs.writeFileSync(path,'\ufeff'+fs.readFileSync(path,'utf8').replace(/^\ufeff/,'').replaceAll('\r\n','\n').replaceAll('\n','\r\n'));
+ return f;
+}
 function hashes(root) {
   const data = {};
   const visit = dir => { for (const name of fs.readdirSync(dir)) { const path = join(dir, name), stats = fs.lstatSync(path); data[path.slice(root.length)] = stats.isDirectory() ? 'directory' : createHash('sha256').update(fs.readFileSync(path)).digest('hex'); if (stats.isDirectory()) visit(path); } };
   visit(join(root, '.agdf/control')); return data;
 }
 test('document orientation separates approved Run facts from draft originals in both Pages themes', async ({page}) => {
-  const f=repositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
+  const f=unconfirmedRepositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
   try {
     await openSession(page,service);
     await page.locator('.run-link[data-focus-id="agdf-cockpit-mcp-app-20261005-01"]').click();
-    await page.locator('.work-step-approvals > summary').click();
-    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen · freigegeben'}).first();
-    const gap=await approval.evaluate(el=>({labelBottom:el.querySelector('strong').getBoundingClientRect().bottom,buttonTop:el.querySelector('button').getBoundingClientRect().top}));
-    expect(gap.buttonTop).toBeGreaterThan(gap.labelBottom);
-    const source=page.getByRole('button',{name:'Anforderungen ansehen',exact:true});
+    await expect(page.locator('.run-documents')).toBeVisible();
+    await expect(page.locator('.run-documents details')).toHaveCount(0);
+    const source=page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/});
     await source.focus();await page.keyboard.press('Enter');
     await expect(page.locator('.page-title h1')).toBeFocused();
     await expect(page.locator('.page-title h1')).toHaveCSS('outline-style','none');
     await expect(page.locator('.page-title h1')).toHaveCSS('text-decoration-line','underline');
     await expect(page.locator('.document-summary')).toContainText('Das vorhandene React-Cockpit soll als eingebettete MCP-App in Codex nutzbar werden.');
-    await expect(page.locator('.document-control')).toContainText('Freigegeben');
+    await expect(page.locator('.document-control')).toContainText('Als freigegeben gespeichert');
     // Copied repository controls retain their original target binding; a saved
     // approval cannot confirm permission in the disposable target.
     await expect(page.locator('.document-control')).toContainText('Aktuelle Voraussetzungen nicht bestätigt');
@@ -78,15 +84,15 @@ test('document orientation separates approved Run facts from draft originals in 
     await expect(page.locator('article.document')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
     await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
-    await expect(page.getByRole('button',{name:'Anforderungen ansehen',exact:true})).toBeFocused();
+    await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/})).toBeFocused();
     // Capture the same bound document through the embedded-card browser entry,
     // whose expanded reader shares the MCP panel layout without the browser rail.
     await page.setViewportSize({width:845,height:1100});
     await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"agdf-cockpit-mcp-app-20261005-01\"]').click();
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
-    await page.locator('.work-step-approvals > summary').click();
-    await page.getByRole('button',{name:'Anforderungen ansehen',exact:true}).click();
+    await expect(page.locator('.run-documents')).toBeVisible();
+    await page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/}).click();
     await expect(page.locator('.document-reading')).toBeVisible();
     await expect(page.locator('.document-original')).not.toHaveAttribute('open');
     for(const theme of ['light','dark']){
@@ -289,7 +295,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
     await page.setViewportSize({width:800,height:400});await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await expect(page.locator('.work-step')).toBeVisible();
-    await page.locator('.work-step-approvals > summary').click();
+    await expect(page.locator('.run-documents')).toBeVisible();
     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
     await page.screenshot({path:evidencePath('agdf-cockpit-sticky-card.png')});
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
@@ -334,7 +340,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
-    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
+    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
     await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');
     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
@@ -350,7 +356,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await expect(page.locator('.reading-feedback .notice')).toHaveCount(0);
     await expect(page.locator('footer')).toContainText('Verfügbar');
     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
-    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
+    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
     expect(hashes(f.root)).toEqual(afterChange);
   } finally {await service.close();f.close();}
 });
@@ -515,21 +521,21 @@ test('work action leads, qualifications stay honest and evidence access survives
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
-    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
+    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
-    await page.getByText('Nachweise und offene Punkte · '+e.missing_evidence.length,{exact:true}).click();
+    await page.getByText('Nachweislücken im Run-Dokument · '+e.missing_evidence.length,{exact:true}).click();
     await page.getByText('Kontrollauswertung · Originalangaben',{exact:true}).click();
     await expect(page.locator('.work-step-facts')).toContainText(e.missing_approval);
-    await page.getByText('Nachweise und offene Punkte · '+e.missing_evidence.length,{exact:true}).click();
+    await page.getByText('Nachweislücken im Run-Dokument · '+e.missing_evidence.length,{exact:true}).click();
     const count=e.missing_evidence.length;
     if(count){
       await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
       const toggle=page.locator('.work-step-evidence > summary');
-      await expect(toggle).toHaveText(`Nachweise und offene Punkte · ${count}`);
+      await expect(toggle).toHaveText(`Nachweislücken im Run-Dokument · ${count}`);
       await toggle.focus();await page.keyboard.press('Space');await expect(page.locator('.work-step-evidence')).toHaveAttribute('open','');
       await expect(page.locator('.work-step-evidence ul > li')).toHaveCount(count);
       await page.keyboard.press('Space');await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
-    }else await expect(page.locator('.work-step-evidence > summary')).toHaveText('Nachweise und offene Punkte · 0');
+    }else await expect(page.locator('.work-step-evidence > summary')).toHaveText('Nachweislücken im Run-Dokument · 0');
     for(const theme of ['light','dark']){
       await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
       for(const width of [320,560,800,1280]){

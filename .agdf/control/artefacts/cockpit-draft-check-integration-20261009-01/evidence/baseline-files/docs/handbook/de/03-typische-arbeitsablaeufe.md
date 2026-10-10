@@ -1,0 +1,178 @@
+# Typische Arbeitsabläufe
+
+AGDF verwendet den kleinsten sicheren Arbeitsablauf. Die Auswahl richtet sich nach Wirkung,
+Verantwortung, Risiko und Nachweisbarkeit – nicht nach der Zahl geänderter Dateien.
+
+## Gewöhnliche Arbeit außerhalb von AGDF
+
+Fragen zum bestehenden Code oder zur Dokumentation, reine Prüfungen und Reviews, Erklärungen,
+Vergleiche, Empfehlungen und Diagnosen bleiben außerhalb von AGDF, solange der Auftrag keine
+tatsächliche Umsetzung, kein verbindliches Delivery-Artefakt und keine ausdrückliche AGDF-Aktion
+verlangt. Dabei erscheint keine AGDF-Statuskarte und es wird kein AGDF-Owner aufgerufen.
+
+Prüfung und Änderung bleiben getrennt. Der Auftrag
+
+```text
+Prüfe, ob die README auf einen nicht vorhandenen Link verweist.
+```
+
+autorisiert zunächst die Prüfung und den Befund. Soll der Link auch korrigiert werden, muss dies aus
+dem Auftrag hervorgehen oder anschließend beauftragt werden.
+
+## Zweistufige Anweisungen
+
+Vor einer positiven Aktivierung enthalten die erzeugten AGDF-Profile nur einen kompakten
+Aktivierungskern und kurze Skill-Beschreibungen. Erst danach stellen sie die ausführlichen Regeln für
+Zielauflösung, Gates, Qualität und Abschluss bei Bedarf bereit. Es gibt dafür keinen zweiten Hook und
+keinen ausführbaren Prompt-Klassifikator.
+
+Ein versionierter Vertrag begrenzt die sichtbaren UTF-8-Bytes für Kern, Discovery, SessionStart,
+OpenCode-Kontext, Kompaktierung und den ausgewählten `gate-check`-Skill. Die Metadaten unter
+`skillSet.discovery` beschreiben die beabsichtigte Discovery-Grenze. Sie beweisen nicht, dass jeder
+Host diese Grenze technisch erzwingt.
+
+Quell-, Generierungs- und Paketprüfungen bleiben von installierter und frisch geladener
+Host-Evidenz getrennt. Die Gründe, Messwerte und Nachweisgrenzen stehen im
+[Instruction Footprint Audit](../../../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md).
+
+## Quick Task und Compact Delivery
+
+Ein Quick Task ist ein kompakter AGDF-Pfad für bereits positiv aktivierte, kleine und klar begrenzte
+Arbeit. Nach freigegebener UR kann der Brownfield Review denselben begrenzten Pfad als Compact
+Delivery festhalten. Beide dokumentieren Ergebnis, Evidenz, verbleibendes Risiko und nächsten
+Schritt. Sie reichen nicht aus, wenn neue Produktsemantik, Architektur, Policy, Persistenz, ein
+öffentlicher Vertrag, eine Release-Grenze oder formale Freigaben betroffen sind.
+
+## Brownfield Review und Pfadauswahl
+
+Nach `Approval: UR` prüft der Brownfield Review den bestehenden Kontext. Er erfasst vorhandene
+Eigentümer, Quellen, geschütztes Verhalten, Wiederverwendung, Risiken und offene Entscheidungen.
+Anschließend wird genau einer dieser Werte mit Begründung dokumentiert:
+
+| Mode/Slice-Wert | Nutzerverständliche Bedeutung |
+|---|---|
+| `quick_task` | **Compact Delivery:** kleine, klar begrenzte Lieferung nach freigegebener UR |
+| `verified_change` | begrenzte Änderung mit einem kanonischen Eigentümer und deterministischer Scope-, Propagations- und Testevidenz |
+| `structured_slice` | eigenständig abnehmbares, begrenztes strukturiertes Ergebnis |
+| `structured_delivery` | vollständige strukturierte Lieferung für folgenreiche oder koordinationsintensive Änderungen |
+| `block` | Pfad kann wegen fehlender oder widersprüchlicher Entscheidungsgrundlagen noch nicht sicher gewählt werden |
+
+Die Mode/Slice-Entscheidung ist ein interner Routing-Schritt, kein zusätzliches Nutzer-Gate.
+
+## Compact Delivery
+
+Compact Delivery ist die nutzerverständliche Bezeichnung für einen nach Brownfield Review
+persistierten `quick_task`-Pfad. Die Umsetzung bleibt auf die freigegebene UR begrenzt. Der Agent
+führt passende Prüfungen aus und dokumentiert einen kompakten Abschluss. PRD, SD und TP werden nicht
+aus Gewohnheit erzeugt.
+
+Wächst der Scope oder entstehen neue Produkt-, Architektur-, Policy- oder Release-Fragen, muss der
+Pfad in eine strukturierte Lieferung eskalieren.
+
+## Verified Change
+
+Verified Change ist ein enger, fail-closed Pfad für eine begrenzte Änderung. Vor der Implementierung
+müssen unter anderem belegt sein:
+
+- genau ein kanonischer Eigentümer;
+- begrenzte Quell- und Ableitungspfade;
+- ein sauber erfasster Ausgangszustand der betroffenen Pfade;
+- keine Auswirkungen auf Gates, Sicherheit, Persistenz, Architektur, öffentliche APIs, CLI- oder
+  Release-Verhalten;
+- deterministische Propagation und mindestens eine deterministische Prüfung;
+- ein benanntes strukturiertes Eskalationsziel.
+
+Fehlt ein Nachweis oder verändert sich ein nicht erlaubter Pfad, wird nicht großzügig weitergemacht.
+Der Verified Change eskaliert zum festgelegten Structured Slice oder Structured Delivery.
+
+## Structured Slice und Structured Delivery
+
+Beide strukturierten Wege verwenden dieselben Nutzer-Gates. Der Unterschied ist die erforderliche
+Tiefe.
+
+Ein **Structured Slice** umfasst ein kohärentes, eigenständig abnehmbares Ergebnis. Verantwortung,
+Auswirkungen, Migration, Fehlerbehandlung und Rücknahme müssen innerhalb des Slices begrenzt und
+nachweisbar sein.
+
+**Structured Delivery** ist erforderlich, wenn beispielsweise Autorität, Sicherheit, Architektur,
+Persistenz, öffentliche Verträge, Deployment, Release oder mehrere unabhängige Eigentümer
+koordiniert werden müssen.
+
+Der normale strukturierte Ablauf ist:
+
+```text
+UR und Brownfield Review
+→ PRD
+→ SD
+→ TP
+→ Pre-Implementation Brownfield Analysis
+→ CD+Tests
+→ Task Plan Review, Clean Implementation Review und Code Review
+→ QA
+→ UAT
+→ Orchestration Report und Delivery Closeout
+```
+
+Jeder Pfeil steht für einen erlaubten Übergang, nicht für eine automatische Fortsetzung. Die
+Nutzer-Gates benötigen jeweils die exakte Approval-Zeile.
+
+## Sichtbare Änderungen: UX-Absicht vor der Umsetzung klären
+
+Wenn eine Änderung beeinflusst, was Menschen sehen, tun oder entscheiden und wie sie nach einem
+Fehler weiterarbeiten, reicht ein allgemeiner Wunsch oft nicht aus. AGDF klärt deshalb vor der
+PRD-Reife die UX-Absicht, wenn die Auswirkung mittel oder hoch ist oder eine kleine Änderung noch
+mehrdeutig bleibt.
+
+Dabei werden nur die für die Änderung notwendigen Fragen beantwortet:
+
+- Welches Ziel verfolgt der Nutzer, und welche Arbeitsmodi gibt es?
+- Welcher Zustand gilt tatsächlich, und welcher Zustand wird sichtbar dargestellt?
+- Wer oder welches System besitzt diesen Zustand?
+- Was aktiviert die Funktion, was blockiert sie und wie kann der Nutzer weiterarbeiten?
+- Welche Übergänge sind erlaubt, und woran ist ein erfolgreicher Übergang erkennbar?
+
+Diese Klärung ist kein zusätzliches Nutzer-Gate. Sie liefert überprüfbare Kriterien für das PRD und
+verhindert, dass der Coding-Agent fehlende Produktentscheidungen erst während der Implementierung
+trifft. Bei einer kleinen, eindeutig beschriebenen Änderung kann sie ausdrücklich nicht erforderlich
+sein.
+
+## Fünf typische Fehlentwicklungen
+
+AGDF soll nicht möglichst viele Dokumente erzeugen. Es soll früh erkennen, wenn schnelle
+Agentenausgabe wie eine belastbare Delivery-Entscheidung behandelt wird.
+
+| Fehlentwicklung | Woran du sie erkennst | Saubere Reaktion |
+|---|---|---|
+| Stiller Scope Drift | Auftrag, freigegebene Anforderung und Umsetzung beschreiben nicht mehr dasselbe Ergebnis. | Zum frühesten betroffenen Artefakt zurückkehren und die Änderung ausdrücklich entscheiden. |
+| Neuer Parallelweg im bestehenden System | Der Agent baut eine zweite Regel, Datenquelle oder Integration, obwohl bereits ein zuständiger Eigentümer existiert. | Bestehenden Eigentümer und Wiederverwendung prüfen; eine Abweichung benötigt eine bewusste Designentscheidung. |
+| Grüner Build, unfertiger Plan | Tests bestehen, aber Aufgaben, Akzeptanzkriterien oder sichtbare Nachweise des freigegebenen Plans fehlen. | Planabdeckung und Evidenz prüfen, bevor QA entscheiden darf. |
+| Dauerhafte Übergangslösung | Ein Guard, Fallback oder Workaround bleibt ohne Eigentümer, Zielzustand und Entfernungskriterium bestehen. | Primärlösung herstellen oder Übergang, Verantwortung und Exit-Kriterium ausdrücklich dokumentieren. |
+| Verfrühter Handoff | Commit, Pull Request oder Veröffentlichung beginnt, obwohl Gate-Status, Risiken oder Abnahme noch offen sind. | Offene Entscheidungen schließen und erst danach den ausdrücklich beauftragten Delivery-Schritt ausführen. |
+
+Diese Muster sind Hinweise, keine neuen Gates oder Modi. Welche Regel verbindlich gilt, bestimmt der
+[Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md).
+
+## Gute Arbeitsaufträge
+
+Ein guter Arbeitsauftrag beschreibt zuerst Ziel und gewünschtes Ergebnis. Hilfreich sind außerdem:
+
+- betroffene Nutzer, Dateien, Systeme oder Schnittstellen;
+- Verhalten, das unverändert bleiben muss;
+- bekannte Risiken und Abhängigkeiten;
+- gewünschte Evidenz oder Akzeptanzkriterien;
+- ausdrücklich erlaubte oder verbotene externe Aktionen.
+
+Beispiel:
+
+```text
+Eine zur manuellen Prüfung markierte Echtzeitüberweisung darf das Tageslimit noch
+nicht belasten.
+
+Normale SEPA-Überweisungen und die bestehende Sicherheitsprüfung müssen unverändert
+bleiben. Keine neue Datenbank und keine Übergangslösung einführen.
+```
+
+Solche Vorgaben helfen bei der Planung. Der Agent prüft trotzdem, ob sie zum bestehenden System, zu
+den kanonischen Quellen und zum aktuellen Gate passen.
+
+Weiter: [Mehrere Runs](04-mehrere-runs.md).

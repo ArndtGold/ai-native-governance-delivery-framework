@@ -1,0 +1,37 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/document-state.test.tsx (4 tests | 1 failed) 182ms
+   × SCN-011/016: current check facts must agree across draft/row/reader and malformed handoff facts cannot pass the shared boundary 87ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/document-state.test.tsx > SCN-011/016: current check facts must agree across draft/row/reader and malformed handoff facts cannot pass the shared boundary
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ test/document-state.test.tsx:69:93
+     67|     (v:typeof e)=>v.data.run.document_states![1].check!.source.revisio…
+     68|     (v:typeof e)=>v.data.run.document_states![1].check!.display.findin…
+     69|     const bad=structuredClone(e);alter(bad);expect(()=>validateData('/…
+       |                                                                                             ^
+     70|   }
+     71|   const invalid=structuredClone(document);invalid.document_state.check…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 10 passed (11)
+      Tests  1 failed | 100 passed (101)
+   Start at  10:11:27
+   Duration  8.59s (environment 37%, tests 36%, import 20%, transform 6%)
+
+Environment  jsdom was created 11 times · 7.66s total, 37% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

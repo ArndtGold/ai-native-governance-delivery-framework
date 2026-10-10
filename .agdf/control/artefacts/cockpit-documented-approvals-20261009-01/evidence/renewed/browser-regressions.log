@@ -1,0 +1,127 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test test/browser/run-documents.spec.mjs test/browser/journeys.spec.mjs test/browser/scoped.spec.mjs test/browser/changes.spec.mjs test/browser/draft-check.spec.mjs
+
+
+Running 19 tests using 1 worker
+
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/changes.spec.mjs:7:40 › actual light overview waits for deliberate reload after a file event (2.0s)
+(node:35401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 test/browser/changes.spec.mjs:7:40 › actual dark overview waits for deliberate reload after a file event (1.9s)
+(node:35411) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 test/browser/changes.spec.mjs:44:40 › light changed original uses the header dot until deliberate reload (2.5s)
+(node:35424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 test/browser/changes.spec.mjs:44:40 › dark changed original uses the header dot until deliberate reload (2.4s)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 test/browser/draft-check.spec.mjs:7:1 › SCN-015/016/018: built compact/expanded checks use actual Core, preserve keyboard/disclosure/position and wrap long findings (3.7s)
+(node:35448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 test/browser/journeys.spec.mjs:28:1 › document orientation separates approved Run facts from draft originals in both Pages themes (1.0m)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 test/browser/journeys.spec.mjs:104:1 › SCN-044: Pages fonts survive host body overrides across card, list, Run and document (5.2s)
+(node:35595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 test/browser/journeys.spec.mjs:161:1 › SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries (2.4s)
+(node:35599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 test/browser/journeys.spec.mjs:188:1 › SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes (11.4s)
+(node:35621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 test/browser/journeys.spec.mjs:231:1 › SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents (1.9s)
+(node:35632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 test/browser/journeys.spec.mjs:252:1 › SCN-009/014/018/024: hostile document, stale reload, retry and removed selection (2.1s)
+(node:35634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 test/browser/journeys.spec.mjs:274:1 › sticky card and document headers, sliding view selector and narrow summary retain source identity (2.5s)
+(node:35649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 test/browser/journeys.spec.mjs:325:1 › summary leads with the work step and stale reads never claim a missing Run or current control (6.4s)
+(node:35661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 test/browser/journeys.spec.mjs:356:1 › neutral light reading planes and Pages dark surfaces survive host colors across all views (5.5s)
+(node:35665) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 test/browser/journeys.spec.mjs:435:1 › Pages action and type hierarchy retains the Cockpit neutral light palette (3.0s)
+(node:35668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 test/browser/journeys.spec.mjs:503:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (2.4s)
+(node:35670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 test/browser/run-documents.spec.mjs:18:1 › SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading (6.0s)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload (3.7s)
+(node:35713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 test/browser/scoped.spec.mjs:6:1 › scoped HTTP reading preserves stored backlog, source navigation and Pages themes at four widths (2.8s)
+
+
+  1) test/browser/journeys.spec.mjs:28:1 › document orientation separates approved Run facts from draft originals in both Pages themes 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.focus: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen$/ })
+
+
+      34 |     await expect(page.locator('.run-documents details')).toHaveCount(0);
+      35 |     const source=page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/});
+    > 36 |     await source.focus();await page.keyboard.press('Enter');
+         |                  ^
+      37 |     await expect(page.locator('.page-title h1')).toBeFocused();
+      38 |     await expect(page.locator('.page-title h1')).toHaveCSS('outline-style','none');
+      39 |     await expect(page.locator('.page-title h1')).toHaveCSS('text-decoration-line','underline');
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:36:18
+
+    Error Context: test-results/journeys-document-orientat-5d0f1-ginals-in-both-Pages-themes/error-context.md
+
+  1 failed
+    test/browser/journeys.spec.mjs:28:1 › document orientation separates approved Run facts from draft originals in both Pages themes 
+  18 passed (2.2m)

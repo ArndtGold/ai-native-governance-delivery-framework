@@ -1,0 +1,201 @@
+import {
+  closeSync,
+  existsSync,
+  fstatSync,
+  fsyncSync,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readdirSync,
+  rmdirSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { renameSyncWithRetry } from "../fs-swap.js";
+import { dirname, join } from "node:path";
+import { randomUUID } from "node:crypto";
+import { assertCanonicalRunStore, canonicalScaffoldRequired, directoryIdentity, regularFileSnapshot } from "./run-store-inspection.js";
+import { parseRunState } from "./run-state-parser.js";
+import { runPath } from "./run-state-reader.js";
+import { sealRunState } from "./run-seal.js";
+
+export { discoverRuns, runPath } from "./run-state-reader.js";
+
+
+function sameDirectory(identity, path = identity.path) {
+  try {
+    const current = directoryIdentity(path);
+    return current.realpath === identity.realpath
+      && current.dev === identity.dev
+      && current.ino === identity.ino;
+  } catch {
+    return false;
+  }
+}
+
+function sameRegularFile(snapshot, path = snapshot.path, content = snapshot.content) {
+  try {
+    const current = regularFileSnapshot(path);
+    return current.dev === snapshot.dev
+      && current.ino === snapshot.ino
+      && (content === undefined || current.content.equals(content));
+  } catch {
+    return false;
+  }
+}
+
+function sameCanonicalRunStore(snapshot) {
+  return snapshot.directories.every((identity) => sameDirectory(identity))
+    && snapshot.files.every((file) => sameRegularFile(file));
+}
+
+function writeNewRunState(path, content) {
+  let descriptor;
+  let identity;
+  try {
+    descriptor = openSync(path, "wx");
+    const stats = fstatSync(descriptor);
+    identity = Object.freeze({ path, dev: stats.dev, ino: stats.ino });
+    writeFileSync(descriptor, content, "utf8");
+    fsyncSync(descriptor);
+  } catch (error) {
+    if (descriptor !== undefined) closeSync(descriptor);
+    if (identity && sameRegularFile(identity, path, undefined)) {
+      try {
+        unlinkSync(path);
+      } catch (cleanupError) {
+        if (cleanupError.code !== "ENOENT") throw cleanupError;
+      }
+    }
+    throw error;
+  }
+  closeSync(descriptor);
+  const snapshot = Object.freeze({ ...identity, content: Buffer.from(content, "utf8") });
+  if (!sameRegularFile(snapshot)) {
+    throw Error("AGDF_RUN_STAGE_INVALID");
+  }
+  return snapshot;
+}
+
+function cleanupRunStage(stageIdentity, stagedFile) {
+  if (stagedFile && sameRegularFile(stagedFile)) {
+    try {
+      unlinkSync(stagedFile.path);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  if (!sameDirectory(stageIdentity)) return;
+  try {
+    rmdirSync(stageIdentity.path);
+  } catch (error) {
+    if (!["ENOENT", "ENOTEMPTY", "EEXIST"].includes(error.code)) throw error;
+  }
+}
+
+function ensureStagedRunUnchanged(stageIdentity, stagedFile) {
+  if (!sameDirectory(stageIdentity) || !sameRegularFile(stagedFile)) {
+    throw Error("AGDF_RUN_STAGE_INVALID");
+  }
+}
+
+const DEFAULT_BODY = `## Objective
+
+Describe the trustworthy outcome.
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | New run created. |
+| What is approved? | Nothing yet. |
+| What is missing? | Durable UR and exact approval. |
+| What is the next allowed action? | Draft the UR. |
+| What is explicitly forbidden right now? | Later artefacts and implementation. |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR |  | missing |  |
+| Brownfield Review |  | missing |  |
+| Verified Change |  | missing |  |
+| PRD |  | missing |  |
+| SD |  | missing |  |
+| TP |  | missing |  |
+| Brownfield Analysis |  | missing |  |
+| CD+Tests |  | missing |  |
+| CR |  | missing |  |
+| QA |  | missing |  |
+
+## Mode/Slice Decision
+
+- decision:
+- required_next_gate:
+- scope_reason:
+- evidence:
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Run creation | run-create | Control initialization | direct |
+
+## Closeout
+
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
+- quality_outlook:
+`;
+export function renderRunState(id, body = DEFAULT_BODY, meta = {}) {
+  return `# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: ${id}\n- lifecycle: ${meta.lifecycle ?? "active"}\n- revision: 1\n- revision_id: ${randomUUID()}\n- updated_at: ${meta.updated_at ?? new Date().toISOString()}\n- mode: ${meta.mode ?? "structured_delivery"}\n- current_gate: ${meta.current_gate ?? "UR"}\n- decision: ${meta.decision ?? "in_progress"}\n- owner: ${meta.owner ?? "agent"}\n\n${body}`;
+}
+export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
+  const path = runPath(root, id);
+  const runStore = assertCanonicalRunStore(root);
+  const runDirectory = dirname(path);
+  const parent = dirname(runDirectory);
+  if (parent !== runStore.path) throw canonicalScaffoldRequired(root, runStore.path);
+  if (existsSync(runDirectory)) throw Error("AGDF_RUN_COLLISION");
+  const stagePrefix = `.run-stage-${id}-`;
+  const staleStage = readdirSync(runStore.path).find((name) => name.startsWith(stagePrefix));
+  if (staleStage) throw Error(`AGDF_RUN_STALE_STAGE: ${join(runStore.path, staleStage)}`);
+  const stageDirectory = join(runStore.path, `${stagePrefix}${randomUUID()}`);
+  const stagedPath = join(stageDirectory, "RUN_STATE.md");
+  mkdirSync(stageDirectory);
+  const stageIdentity = directoryIdentity(stageDirectory);
+  let stagedFile;
+  try {
+    hooks.beforeWrite?.({ root, id, path: stagedPath });
+    const rendered = sealRunState(root, renderRunState(id, body));
+    stagedFile = writeNewRunState(stagedPath, rendered);
+    hooks.beforePublish?.({ root, id, path, stageDirectory });
+    if (!sameCanonicalRunStore(runStore)) {
+      throw Error("AGDF_RUN_TARGET_DRIFT");
+    }
+    ensureStagedRunUnchanged(stageIdentity, stagedFile);
+    if (existsSync(runDirectory)) throw Error("AGDF_RUN_COLLISION");
+    // Windows scanners briefly lock fresh files; the same bounded retry as the marketplace swap.
+    renameSyncWithRetry(stageDirectory, runDirectory);
+    return path;
+  } catch (error) {
+    cleanupRunStage(stageIdentity, stagedFile);
+    throw error;
+  }
+}

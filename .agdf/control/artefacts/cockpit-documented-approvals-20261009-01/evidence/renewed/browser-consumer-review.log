@@ -1,0 +1,41 @@
+
+Running 1 test using 1 worker
+
+(node:38279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/run-documents.spec.mjs:115:1 › SCN-001/010/015/017: built consumer renders multiple long references and old-server absence truthfully (7.9s)
+
+
+  1) test/browser/run-documents.spec.mjs:115:1 › SCN-001/010/015/017: built consumer renders multiple long references and old-server absence truthfully 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.run-documents h3')
+    Expected: "Dokumente · 2"
+    Received: "Dokumente · 1"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.run-documents h3') with timeout 5000ms
+      - waiting for locator('.run-documents h3')
+        14 × locator resolved to <h3>Dokumente · 1</h3>
+           - unexpected value "Dokumente · 1"
+
+
+      133 |       await route.fulfill({response,json:e});
+      134 |     });
+    > 135 |     await open(page,service,'/','fixture-a');await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 2');
+          |                                                                                              ^
+      136 |     await expect(page.locator('.run-document-row')).toHaveCount(2);await expect(page.locator('.run-document-reference')).toHaveCount(2);
+      137 |     const names=await page.locator('.run-documents button').evaluateAll(rows=>rows.map(r=>r.getAttribute('aria-label')));expect(new Set(names).size).toBe(2);
+      138 |     await page.setViewportSize({width:420,height:900});
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/run-documents.spec.mjs:135:94
+
+    Error Context: test-results/run-documents-SCN-001-010--764f3-d-server-absence-truthfully/error-context.md
+
+  1 failed
+    test/browser/run-documents.spec.mjs:115:1 › SCN-001/010/015/017: built consumer renders multiple long references and old-server absence truthfully 

@@ -1,0 +1,71 @@
+{
+  "run_id": "backlog-status-flow-clarity-20261009-01",
+  "observed_at": "2026-10-09T12:05:32.833962+00:00",
+  "authorizes": false,
+  "scenarios": [
+    "SCN-003",
+    "SCN-023",
+    "SCN-024",
+    "SCN-025",
+    "SCN-033"
+  ],
+  "ui": {
+    "command": "npm --prefix packages/control-ui run test",
+    "exit_code": 0,
+    "service_tests": 8,
+    "component_tests": 134,
+    "component_files": 14,
+    "session": 69245
+  },
+  "browser": {
+    "command": "AGDF_COCKPIT_TEST_DIST=/private/tmp/backlog-summary-final-browser-20261009 packages/control-ui/node_modules/.bin/playwright test -c packages/control-ui/playwright.config.mjs test/browser/backlog-summary.spec.mjs test/browser/backlog.spec.mjs test/browser/backlog-titles.spec.mjs test/browser/scoped.spec.mjs",
+    "exit_code": 0,
+    "session": 23713,
+    "report": "tests/browser-final-report.json",
+    "stats": {
+      "startTime": "2026-10-09T11:57:06.688Z",
+      "duration": 24614.511,
+      "expected": 7,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "build_files": {
+      "/private/tmp/backlog-summary-final-browser-20261009/index.html": "sha256:3d70072a2a7ff0785e6fca9562d92ee1b9c9f2d6d48579c0c16caa71e5e9d53c",
+      "/private/tmp/backlog-summary-final-browser-20261009/card.html": "sha256:c59acf08ae8f54b87fb971b649dd3d1688feb813fd92e9e6f0a63c239c91bf22",
+      "/private/tmp/backlog-summary-final-browser-20261009/assets/jetbrains-mono-latin-wght-normal-B9CIFXIH.woff2": "sha256:18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e",
+      "/private/tmp/backlog-summary-final-browser-20261009/assets/main-C_7SbOBC.js": "sha256:4b16f90f4c99a448bc10a0c39c540adaf65c056ba6b8fdd267d47b3c29f47d79",
+      "/private/tmp/backlog-summary-final-browser-20261009/assets/inter-latin-wght-normal-Dx4kXJAl.woff2": "sha256:3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62",
+      "/private/tmp/backlog-summary-final-browser-20261009/assets/main-DycVE9Lr.css": "sha256:fe7e215c9d31cadd1a05e520f20019c2d9eff6af3e3c517e37a14954c947c639"
+    }
+  },
+  "screenshots": [
+    {
+      "path": "backlog-summary-compact-1000.png",
+      "bytes": 141719,
+      "digest": "sha256:47f580ea2d2b3d03ba18784bb32fb12e5ca44c174a3c050a8aa622d21349a940"
+    },
+    {
+      "path": "backlog-summary-compact-390.png",
+      "bytes": 118111,
+      "digest": "sha256:a8c1da2b6bbe79438896845478c1508abf36093c22be90875bbad1b2c9502bf2"
+    },
+    {
+      "path": "backlog-summary-expanded-1000.png",
+      "bytes": 175479,
+      "digest": "sha256:5dbf5598cc4086e7d62a9cb37f19ca7bf9fe2361483247d1cdbdfb0e9710ed0d"
+    },
+    {
+      "path": "backlog-summary-expanded-390.png",
+      "bytes": 106698,
+      "digest": "sha256:5f9e471f1413a717908cf057d7befa6ae10e1b601c809dff626e23f8efd7aed0"
+    }
+  ],
+  "observations": [
+    "compact/expanded complete action and visible unconfirmed-source limitation at 390/1000px, keyboard source expansion",
+    "light/dark additional regression at 320/560/800/1280px, no horizontal overflow",
+    "delayed title loading while downward scrolling preserves bounds/query/focus and scroll",
+    "selected difference feedback/current action component observation; HTTP/scoped journeys preserve unchanged tree"
+  ],
+  "limitation": "Synthetic illustrative QA row demonstrates rendering; Core QA fixture separately proves its meaning. Browser proof does not qualify native host."
+}

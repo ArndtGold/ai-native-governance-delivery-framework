@@ -1,0 +1,23 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: same visible row must bind each new typed recording revision
++ actual - expected
+
++ '7b49ac45-ea9d-4883-aa76-7d0a0a6662c6'
+- '591cfc8a-450b-4886-acd2-c93904bcc6f5'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/artefact-recording-test.js:93:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '7b49ac45-ea9d-4883-aa76-7d0a0a6662c6',
+  expected: '591cfc8a-450b-4886-acd2-c93904bcc6f5',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

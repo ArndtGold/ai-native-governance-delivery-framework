@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+ok 1 - SCN-001/002/010/019: all supported unregistered drafts use the actual standalone evaluator, no writes
+  ---
+  duration_ms: 3677.146635
+  type: 'test'
+  ...
+# Subtest: SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+ok 2 - SCN-004/006: invalid selectors retain view; same-revision edit, atomic replace, removal and absent creation invalidate dependencies
+  ---
+  duration_ms: 870.276294
+  type: 'test'
+  ...
+# Subtest: SCN-006: changes during captured/replay/published check never publish success
+ok 3 - SCN-006: changes during captured/replay/published check never publish success
+  ---
+  duration_ms: 2063.367056
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+ok 4 - SCN-003/004/005/007/020: real worker/session replacement adopts sources/resources, rejects old selectors and schema extras
+  ---
+  duration_ms: 1017.800702
+  type: 'test'
+  ...
+# Subtest: SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+ok 5 - SCN-005/007/009: new check cannot replace an owned publication or bypass uncertain cleanup
+  ---
+  duration_ms: 1079.505712
+  type: 'test'
+  ...
+# Subtest: cockpit assessment projects the evaluated outcome without a second doctor-warning veto
+ok 6 - cockpit assessment projects the evaluated outcome without a second doctor-warning veto
+  ---
+  duration_ms: 3.144224
+  type: 'test'
+  ...
+# Subtest: captured assessment matches canonical gate evaluation and performs no writes
+ok 7 - captured assessment matches canonical gate evaluation and performs no writes
+  ---
+  duration_ms: 1171.154032
+  type: 'test'
+  ...
+# Subtest: cockpit title identifies the bound UR instead of a generic current artefact heading
+ok 8 - cockpit title identifies the bound UR instead of a generic current artefact heading
+  ---
+  duration_ms: 776.523725
+  type: 'test'
+  ...
+# Subtest: SCN-001/002/008/020: backlog inventory stays passive; selected valid, completed and invalid Runs retain Core semantics and no writes
+ok 9 - SCN-001/002/008/020: backlog inventory stays passive; selected valid, completed and invalid Runs retain Core semantics and no writes
+  ---
+  duration_ms: 715.109411
+  type: 'test'
+  ...
+# Subtest: SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary
+ok 10 - SCN-010: missing, binary, invalid UTF8 and inclusive preview boundary
+  ---
+  duration_ms: 1197.791562
+  type: 'test'
+  ...
+# Subtest: SCN-006/015: mutation of selected dependencies invalidates related reads, while backlog remains independent
+ok 11 - SCN-006/015: mutation of selected dependencies invalidates related reads, while backlog remains independent
+  ---
+  duration_ms: 643.566587
+  type: 'test'
+  ...
+# Subtest: SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest
+ok 12 - SCN-002/008: absent and genuinely empty stores differ, JSON/text retain exact source and registered links resolve only within manifest
+  ---
+  duration_ms: 695.667203
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9060.401572

@@ -1,0 +1,525 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/draft-check.test.tsx (6 tests | 1 failed) 2386ms
+   ❯ Bound draft check (6)
+     × SCN-009/014: an unresponsive transport leaves finite explained state and cannot later publish success 700ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/draft-check.test.tsx > Bound draft check > SCN-009/014: an unresponsive transport leaves finite explained state and cannot later publish success
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Stand neu laden"
+
+Here are the accessible roles:
+
+  complementary:
+
+  Name "":
+  [36m<aside[39m
+    [33mclass[39m=[32m"rail"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "▦ Run-Übersicht":
+  [36m<button[39m
+    [33mclass[39m=[32m"nav-item"[39m
+  [36m/>[39m
+
+  Name "Neu laden":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Neu laden"[39m
+    [33mclass[39m=[32m"refresh-control"[39m
+    [33mdata-refreshing[39m=[32m"false"[39m
+    [33mtitle[39m=[32m"Neu laden"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Alle Vorhaben":
+  [36m<button />[39m
+
+  Name "Zusammenfassung":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"true"[39m
+  [36m/>[39m
+
+  Name "Details":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+  [36m/>[39m
+
+  Name "Entwurf prüfen":
+  [36m<button[39m
+    [33maria-disabled[39m=[32m"false"[39m
+    [33mdata-focus-id[39m=[32m"draft-check:run-a"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Verknüpfter Kontext ansehen":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33mclass[39m=[32m"context-toggle"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"cockpit-brand-header cockpit-brand-header--view"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong[39m
+    [33mclass[39m=[32m"cockpit-brand-title"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "/fixture":
+  [36m<p[39m
+    [33mclass[39m=[32m"cockpit-brand-project"[39m
+    [33mtitle[39m=[32m"/fixture"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"work-step-saved"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"work-step-action"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"objective"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<span[39m
+    [33mclass[39m=[32m"refresh-announcement"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main />[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Vorhaben-Pfad":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Vorhaben-Pfad"[39m
+    [33mclass[39m=[32m"breadcrumbs"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ol />[39m
+
+  Name "":
+  [36m<ul />[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "run-a":
+  [36m<h1[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "Umsetzung und Prüfung":
+  [36m<h2 />[39m
+
+  Name "Weiterarbeit offen":
+  [36m<h3 />[39m
+
+  Name "Dokumente · 0":
+  [36m<h3 />[39m
+
+  Name "Entwurfsprüfung · PRD":
+  [36m<h2 />[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "Ansicht":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Ansicht"[39m
+    [33mclass[39m=[32m"view-switch"[39m
+    [33mdata-mode[39m=[32m"summary"[39m
+    [33mrole[39m=[32m"group"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"provenance-details"[39m
+  [36m/>[39m
+
+  Name "Nachweislücken im Run-Dokument · 0":
+  [36m<details[39m
+    [33maria-labelledby[39m=[32m"_r_3_"[39m
+    [33mclass[39m=[32m"work-step-evidence"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"work-step-original"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<details />[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"run-goal"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  code:
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  Name "":
+  [36m<code />[39m
+
+  --------------------------------------------------
+  time:
+
+  Name "":
+  [36m<time />[39m
+
+  --------------------------------------------------
+  region:
+
+  Name "So geht dein Vorhaben weiter":
+  [36m<section[39m
+    [33maria-label[39m=[32m"So geht dein Vorhaben weiter"[39m
+    [33mclass[39m=[32m"work-step agdf-surface agdf-controlled-surface panel work-step--condensed"[39m
+  [36m/>[39m
+
+  Name "Dokumente":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Dokumente"[39m
+    [33mclass[39m=[32m"run-documents"[39m
+  [36m/>[39m
+
+  Name "Entwurfsprüfung":
+  [36m<section[39m
+    [33maria-busy[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"Entwurfsprüfung"[39m
+    [33mclass[39m=[32m"draft-check panel agdf-surface"[39m
+  [36m/>[39m
+
+  Name "Verknüpfter Kontext":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Verknüpfter Kontext"[39m
+    [33mclass[39m=[32m"context-panel agdf-surface"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  term:
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  --------------------------------------------------
+  definition:
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer />[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"shell"[39m
+    [36m>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"rail"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<img[39m
+            [33malt[39m=[32m""[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+            [33msrc[39m=[32m"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%20role='img'%20aria-label='AGDF'%3e%3cdefs%3e%3clinearGradient%20id='agdf-logo-bg'%20x1='80'%20y1='48'%20x2='432'%20y2='464'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%230F766E'/%3e%3cstop%20offset='1'%20stop-color='%232563EB'/%3e%3c/linearGradient%3e%3c/defs%3e%3crect%20width='512'%20height='512'%20rx='112'%20fill='%2306131F'/%3e%3crect%20x='32'%20y='32'%20width='448'%20height='448'%20rx='96'%20fill='url(%23agdf-logo-bg)'/%3e%3cpath%20d='M256%2084%20400%20168v176L256%20428%20112%20344V168L256%2084Z'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='40'%20stroke-linejoin='round'/%3e%3cpath%20d='M256%20168v104m0%200-80%2048m80-48%2080%2048'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='32'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3ccircle%20cx='256'%20cy='168'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='256'%20cy='272'%20r='45'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='176'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='336'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3c/svg%3e"[39m
+          [36m/>[39m
+          [36m<span>[39m
+            [0mAGDF[0m
+            [36m<small>[39m
+              [0mControl Cockpit[0m
+            [36m</small>[39m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rail-label"[39m
+        [36m>[39m
+          [0mLokaler Arbeitsbereich[0m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"nav-item"[39m
+        [36m>[39m
+          [0m▦ [0m
+          [36m<span>[39m
+            [0mRun-Übersicht[0m
+          [36m</span>[39m
+        [36m</button>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rail-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"live-dot"[39m
+          [36m/>[39m
+          [0m Lokale Sitzung[0m
+          [36m<br />[39m
+          [36m<small>[39m
+            [0mEntscheidungen bleiben bei dir.[0m
+          [36m</small>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"workspace workspace--summary"[39m
+        [33mstyle[39m=[32m"--cockpit-header-height: 0px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"cockpit-brand-header cockpit-brand-header--view"[39m
+        [36m>[39m
+          [36m<img[39m
+            [33malt[39m=[32m""[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"cockpit-brand-mark"[39m
+            [33msrc[39m=[32m"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%20role='img'%20aria-label='AGDF'%3e%3cdefs%3e%3clinearGradient%20id='agdf-logo-bg'%20x1='80'%20y1='48'%20x2='432'%20y2='464'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%230F766E'/%3e%3cstop%20offset='1'%20stop-color='%232563EB'/%3e%3c/linearGradient%3e%3c/defs%3e%3crect%20width='512'%20height='512'%20rx='112'%20fill='%2306131F'/%3e%3crect%20x='32'%20y='32'%20width='448'%20height='448'%20rx='96'%20fill='url(%23agdf-logo-bg)'/%3e%3cpath%20d='M256%2084%20400%20168v176L256%20428%20112%20344V168L256%2084Z'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='40'%20stroke-linejoin='round'/%3e%3cpath%20d='M256%20168v104m0%200-80%2048m80-48%2080%2048'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='32'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3ccircle%20cx='256'%20cy='168'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='256'%20cy='272'%20r='45'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='176'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='336'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3c/svg%3e"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"cockpit-brand-copy"[39m
+          [36m>[39m
+            [36m<strong[39m
+              [33mclass[39m=[32m"cockpit-brand-title"[39m
+            [36m>[39m
+              [0mAGDF Cockpit[0m
+            [36m</strong>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"cockpit-brand-project"[39m
+              [33mtitle[39m=[32m"/fixture"[39m
+            [36m>[39m
+              [0mrun-a[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"cockpit-brand-actions"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"read-only"[39m
+            [36m>[39m
+              [0mNur Lesen[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Neu laden"[39m
+              [33mclass[39m=[32m"refresh-control"[39m
+              [33mdata-refreshing[39m=[32m"false"[39m
+              [33mtitle[39m=[32m"Neu laden"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"cockpit-icon"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"1.5"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M20 7v5h-5 M20 12a8 8 0 1 0-2.34 5.66"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"refresh-announcement"[39m
+              [33mrole[39m=[32m"status"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main>[39m
+          [36m<nav[39m
+            [33maria-label[39m=[32m"Vorhaben-Pfad"[39m
+            [33mclass[39m=[32m"breadcrumbs"[39m
+          [36m>[39m
+            [36m<ol>[39m
+              [36m<li>[39m
+                [36m<button>[39m
+                  [0mAlle Vorhaben[0m
+                [36m</button>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<span[39m
+                  [33maria-current[39m=[32m"page"[39m
+                [36m>[39m
+                  [0mrun-a[0m
+                [36m</span>[39m
+             ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ test/draft-check.test.tsx:84:19
+     82|     await act(async () => { vi.advanceTimersByTime(12_000); });
+     83|     expect(screen.queryByText('Prüfung läuft')).toBeNull();
+     84|     expect(screen.getByRole('button', { name: 'Stand neu laden' })).to…
+       |                   ^
+     85|     await act(async () => resolve(selected('run-a', true)));
+     86|     expect(screen.queryByText('Entwurfsprüfung bestanden')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 10 passed (11)
+      Tests  1 failed | 122 passed (123)
+   Start at  10:21:10
+   Duration  15.50s (tests 41%, environment 35%, import 19%, transform 5%, worker 1%)
+
+Environment  jsdom was created 11 times · 13.75s total, 35% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

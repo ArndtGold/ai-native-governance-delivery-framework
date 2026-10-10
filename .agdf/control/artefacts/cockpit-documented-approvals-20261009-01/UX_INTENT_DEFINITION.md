@@ -1,22 +1,36 @@
-# UX Intent: Compact documented approvals
+# UX Intent: document state and one truthful reading action
 
 - decision: ready
 - blocking_reason: none
-- primary_user_intent: Compare documented approvals, inspect original evidence and understand which document version the action opens.
-- success_signal: Scan one comparable row per approval; distinguish evidence, current document and current control state without opening every detail.
-- primary_decision_or_action: Disclose recorded evidence or read the available document version; neither action approves anything.
-- working_modes: wide overview; narrow overview; evidence disclosure; document reading; unavailable/stale reading.
-- effective_state_by_mode: Wide/narrow display identical selected-Run approval facts; disclosure adds evidence only; document reading opens its selected registered source; unavailable/stale mode retains existing guarded reading and recovery.
-- visible_state_types: documented approval; current version available; exact approved version unavailable or unconfirmed; current source missing or blocked; no documented approvals; independent current control assessment.
-- effective_state_authority_by_mode: Core Run approvals own documented evidence, existing registered scoped readers own source availability/freshness, and Core evaluation owns current control state in all modes.
-- primary_state_presentation_owner_by_mode: The selected undertaking's approval overview presents evidence and version actions; the document view presents opened content; existing availability feedback presents blockers. These are presentation roles, not approval authority.
-- activation_paths: Expand Dokumentierte Freigaben, activate Dokumentiert for original evidence, activate the truthfully labelled available document action, close the document to return to its initiating action.
-- blockers: Missing/blocked/stale source actions remain guarded; an unconfirmed approved version is explained without labelling today's file approved. Absent provenance fields remain explicitly unavailable. No recorded approvals yields a clear empty state.
-- recovery_paths: Close evidence to return to its row; close document to restore initiating focus; use existing reload/retry after recoverable reading failure. Limitations never ask for fabricated proof or create approval.
-- relevant_state_transitions: overview closed/open; evidence closed/open; row/document/return; available/stale-disabled; reload/fresh selected state. Width changes arrangement only. Selection, focus and scroll semantics are preserved.
-- proposed_prd_acceptance_criteria: Compact rows and actual count; truthful version actions; deliberate original-evidence disclosure and explicit absent fields; equivalent wide/narrow keyboard actions; selected-source/freshness/read-only guards; meaningful proof with browser/native limits.
-- open_product_questions: none; the approved UR accepts the current-version fallback. No archive or new version-certification capability is added to remove this accepted limitation.
-- affected_outputs: The PRD draft; downstream design and plan derive only from approved product criteria.
-- evidence: Approved UR acceptance signals 1–6; BROWNFIELD_REVIEW.md; user's Ist/Soll screenshots and fix request; current WorkStep/registered-source actions.
-- missing_evidence: Fresh visible/keyboard results remain future implementation evidence, not a blocker to this analytical input.
-- required_next_step: Draft and canonically record the bounded PRD from approved UR and ready analyses, evaluate readiness and present for deliberate approval.
+- primary_user_intent: Scan the undertaking's documents, identify approval/check state and read the relevant document with one action.
+- success_signal: Two comparable columns; status icon plus plain text; no expanding document entries or separate approval action; large document view explains relevant findings and available original approval.
+- primary_decision_or_action: Read a document. Approval stays in the deliberate existing human control flow.
+- working_modes: Document overview at wide/narrow widths; document reading; deliberate current draft check; unavailable or stale source/check.
+- effective_state_by_mode: Overview reflects current bounded canonical document/check observations; reading reflects the selected registered source; checking is explicitly initiated and pending; unavailable/stale views retain limits and existing recovery.
+- visible_state_types: Freigegeben; Entwurf; Entwurf geprüft; Überarbeitung nötig; Prüfung nicht verfügbar; Freigabe dieser Fassung nicht bestätigt; transient Prüfung läuft when the deliberate check is active.
+- effective_state_authority_by_mode: Canonical Core approval/source proof and authoring validators, current target/Run/source/revision plus snapshot/freshness authority. Neither user-visible original prose nor a icon/color decides state.
+- primary_state_presentation_owner_by_mode: Document row for scan state; large document reading context for matching original approval/check findings; existing deliberate draft-check area for check action, progress and retry; existing reading feedback for source/session failures.
+- activation_paths: Select undertaking; scan rows; activate contextual document action to read/expand; close/back to initiating row. Explicitly activate supported current Entwurf prüfen; no list-triggered or bulk checks. No separate proof-navigation mode.
+- blockers: Missing/blocked source, unsupported check, invalid proof, unavailable service, expired session, stale source or mismatched check identity. These do not become invented document defects or approval.
+- recovery_paths: Read existing available current source with truthful current-version label when approval identity is unconfirmed. Explicit retry for busy/transient check; reload for changed source; reopen expired session through existing host path. Missing source has unavailable feedback instead of a working link. Revised drafts use a fresh deliberate applicable check.
+- relevant_state_transitions: Unchecked draft -> checking -> passed draft pending approval / concrete corrections / unavailable. Source/revision change invalidates checked/defective claims. Valid human approval plus exact current version proof -> Freigegeben. Earlier approval plus uncertain or changed version -> unconfirmed current version with historical approval preserved. Width changes rearrange only; closing reading restores focus, and reload never automatically checks.
+- proposed_prd_acceptance_criteria: Equivalent two-column narrow/wide rows for actual documents; explicit evidenced state matrix; exact version/action agreement; one large reading destination with supported original approval and current findings; meaningful keyboard/focus/scroll and stale/missing/retry cases; additive reader compatibility and no-control-mutation evidence.
+- open_product_questions: none. Technical descriptive shape, proof reuse and diagnostic association remain SD decisions, not competing product choices.
+- affected_outputs: Existing undertaking document list, document reading context, shared Core descriptive read result and consumer interpretation, existing explicit current draft-check feedback.
+- evidence: Approved revised UR sha256:db2ce267f9330751e0eb6c27027fba09b0be3e19889dff206423025b7e1a6495; current BROWNFIELD_REVIEW.md; original screenshots and subsequent answered intent; current reader/check ownership inspection.
+- missing_evidence: Actual new presentation/interaction/compatibility and native observations remain later TP evidence; no product claim of implementation.
+- required_next_step: Incorporate the resolved state semantics and observable acceptance into the current PRD through its existing authoring owner.
+
+## State meaning and priority for PRD
+
+Freigegeben requires positive canonical approval correspondence for the exact readable current version. A matching passed authoring check on an unapproved draft means Entwurf geprüft, never approved or QA passed. Concrete applicable authoring findings mean Überarbeitung nötig. Unchecked unapproved draft means Entwurf. An unsupported, technical, stale or otherwise inconclusive check cannot create a defect label; show uncertainty with a next action where supported. A previous approval whose current version cannot be confirmed needs its own explanatory limit, not Entwurf as a guessed replacement.
+
+The document name and state form one semantic group; icons are supplementary. Ansehen has an accessible contextual name identifying the document and whether draft/approved/current bytes are opened. Missing data cannot be replaced with green/positive state. Action disablement does not obscure existing evidence and historical approval remains distinguished from current permission.
+
+## Reading context and return
+
+The user reads the registered document in the existing large view and can inspect applicable check findings and the original recorded approval there. User-facing copy explains the result before technical provenance. Unavailable time/identity/version is stated explicitly; there is no invented signer or recovered approved history. Close/back returns to the initiating document action or an existing sensible fallback if the resource disappeared. Compact expansion, keyboard operation, long text and narrow widths preserve equivalent meaning.
+
+## Authority and limits
+
+This is analytical input under the approved UR, not a new gate, design, independent status source or approval. Proposed acceptance becomes authoritative only in the approved PRD. No storage/components/endpoints are prescribed here. No historical QA or native observation is transferred.

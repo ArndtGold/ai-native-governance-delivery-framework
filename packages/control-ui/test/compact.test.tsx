@@ -91,7 +91,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
   expect(screen.queryByRole('combobox')).toBeNull();expect(read).toHaveBeenCalledTimes(1);expect(screen.queryByText('Freigegebenen Umfang umsetzen.')).toBeNull();
   fireEvent.click(select);await screen.findByText('Freigegebenen Umfang umsetzen.');
   expect(screen.getByText('Host context still unverified')).toBeTruthy();expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
-  expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben',{exact:true})).toBeTruthy();expect(screen.queryByText('QA',{exact:true})).toBeNull();
+  expect(screen.getByText('Dokumente · 0',{exact:true})).toBeTruthy();expect(screen.queryByText('Umsetzungs- und Prüfplan',{exact:true})).toBeNull();expect(screen.queryByText('QA',{exact:true})).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Run ansehen'}));expect(expand).toHaveBeenCalledTimes(1);
   view.rerender(<App transport={read} onExpand={expand}/>);expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
  });

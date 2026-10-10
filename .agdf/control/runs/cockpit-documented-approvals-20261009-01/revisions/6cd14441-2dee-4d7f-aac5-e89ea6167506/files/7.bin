@@ -1,0 +1,130 @@
+# TP: Compact documented approvals with truthful version links
+
+Status: draft
+Gate: TP
+Gate approval: open
+Owner: Arndt Gold
+Date: 2026-10-09
+Run: cockpit-documented-approvals-20261009-01
+Language: en
+Traceability contract: criteria-chain-v1
+
+## Objective And Approved Sources
+
+Execute the compact documented-approval presentation designed in the approved SD, within the existing WorkStep and registered-document reading owners. PRD acceptance remains the sole product authority; the IDs below reference it without copying or redefining acceptance. All tasks, scenarios and evidence here are planned, not completed or passed.
+
+- Approved PRD: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md; sha256:e2f8d2c3e1ca6ef97915dc547e76012ed49ffcc6e5a6aad835eab87b1afaca28.
+- Approved SD: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD.md; sha256:0b9c9d79c24326c7832c6648bc545173ca3c322564f5beb66a198290c558f061.
+- Analytical inputs: completed BROWNFIELD_REVIEW.md and ready UX_INTENT_DEFINITION.md; subordinate to those approved sources.
+
+After deliberate Approval: TP, first perform canonical pre-implementation Brownfield Analysis and capture the shared dirty baseline. CD+Tests begins only when fresh routing permits it. This plan does not authorize a plugin installation, configuration change, Git action or publication.
+
+## Task List
+
+| task_id | Task | Owner | Dependencies | Planned output |
+|---|---|---|---|---|
+| T-001 | Perform approved-TP Brownfield Analysis; capture exact staged/unstaged/untracked candidate bytes, source/build identity, protected Run artefacts and incremental scope; confirm reuse and local rollback | brownfield-analysis / Codex | Fresh Approval: TP and canonical continuation | BROWNFIELD_ANALYSIS.md; evidence/BASELINE.json, BASELINE.patch, PROTECTED_SOURCES.json and SCOPE_LEDGER.md |
+| T-002 | Implement internal DocumentedApprovals.tsx under WorkStep with one counted semantic list, native evidence disclosure, truthful current-resource actions and existing origin callbacks; preserve surrounding control/evidence/draft-check presentation | Existing WorkStep presentation owner / Codex | T-001 complete and CD+Tests permitted | DocumentedApprovals.tsx; bounded WorkStep.tsx integration; focused semantic tests |
+| T-003 | Add scoped responsive grid/group styles and contextual accessible names; preserve native nodes/keys, wrapping, usable targets and existing navigation/focus ownership | Existing control-ui style and presentation owners / Codex | T-002 row structure established | Scoped style.css changes; accessible narrow/wide arrangement |
+| T-004 | Add meaningful approval/provenance/resource regressions and built browser journeys; update only intentionally obsolete wording assertions, retaining existing reader/freshness and neighboring draft-check tests | Existing control-ui test owners / Codex | T-002 and T-003; tests may accompany their implementation | Focused documented-approvals unit and browser suites; bounded existing test changes |
+| T-005 | Typecheck and build browser/MCP UI through existing tools; qualify actual source and generated asset identities; execute relevant source/reader/browser checks and inspect rendered cases | Existing build and evidence owners / Codex | T-002 through T-004 ready | evidence/tests logs; BUILD_IDENTITY.json; browser screenshots/observations; VERIFICATION.md |
+| T-006 | Compare protected bytes and the incremental diff against T-001; perform mandatory actual-diff Code Review and relevant plan/clean-implementation reviews, resolving findings inside approved scope | Existing code-review, task-plan-review and clean-implementation-review owners / Codex | CD+Tests fulfilled and relevant evidence available; fresh routing for each review | CR/review reports; SCOPE_REVIEW.md and PROTECTED_AFTER.json |
+| T-007 | At the permitted stage, run qa-gate over the actual mapped evidence and reviews; record its real pass/revise/block decision, limitations and remaining work; present separate QA decision | qa-gate owner / Codex | Required reviews and checks complete; canonical QA route | QA_REPORT.md and exact reviewed source binding; no inferred approval |
+
+Tasks establish technical dependency, not transferable permission. T-001 is not predeclared pass. Failed checks or material source/design drift return to the responsible owner; no implementation around a blocker. Normal test iteration stays within this slice. Later UAT/OR follow their existing separate routes and decisions.
+
+## Implementation Scope And Protected Work
+
+Primary candidates are packages/control-ui/src/WorkStep.tsx, planned src/DocumentedApprovals.tsx and scoped src/style.css. Reuse src/presentation.ts documentName and existing App.tsx navigation/focus without a new owner. Do not alter Core, public DTOs, MCP/HTTP contracts, reader/session code or global configuration to make this presentation work. If inspection establishes a material change outside the approved design, stop dependent implementation and re-route before editing it.
+
+Tests belong to existing packages/control-ui/test owners: planned documented-approvals.test.tsx and test/browser/documented-approvals.spec.mjs plus relevant existing work-step, scoped-reading, draft-check and browser journeys/scoped/changes/draft-check assertions. Preserve reader and security checks; do not weaken them to accommodate new labels. Existing build tools own any generated browser/MCP artefacts; inventory their actual paths separately and never hand-edit bundles. Use isolated fixtures and a qualified build directory so observation cannot replace another active host's assets.
+
+T-001 captures the exact pre-existing dirty bytes/diffs of candidate and generated paths, including staged and untracked files, before code edits. Review this increment against that baseline rather than claiming the whole HEAD diff. Retain staged state and earlier work; no reset, clean, checkout or blanket overwrite. Rollback, if required, restores only this increment against the captured baseline through the scoped owner.
+
+Protect this Run's approved UR/PRD/SD and histories; all artefacts/history of the completed cockpit-draft-check-integration-20261009-01; earlier backlog-status-flow-clarity-20261009-01 sources and independent decisions; all other Run artefacts. Selected-Run canonical writer transitions are recorded separately from product reading, which remains non-mutating. Test source changes occur only in isolated temporary fixture targets. MCP_CANDIDATES.md continues the user's observation assignment without authorizing candidate implementation.
+
+## Scenario Definitions
+
+- SCN-001: Zero, four and six canonical approved rows, including supported later gates, plus a non-approved row. Open the overview in compact and expanded placement. Verify actual count and exactly one row per approved gate, no fixed-four assumption, explicit empty state and document/evidence/version groups.
+- SCN-002: Original evidence with long text, absent/blank evidence and misleading owner/date/path/partial-hash/signature-like prose. Details start closed; activate Dokumentiert. Preserve original text as text, show unsupported structured version/time/person/scope/basis explicitly unavailable or unconfirmed, retain recorded gate facts and one shared control-status explanation. No fabricated identity or certification; HTML-looking evidence cannot execute.
+- SCN-003: Same-Run registered current resource with an unchanged path/digest and approved status. Activate its action: wording is Aktuelle Fassung ansehen; callback receives the exact Resource and approval:<resource_id> origin; actual reader opens captured current bytes. No Freigegebene Fassung ansehen from today's DTO.
+- SCN-004: Change contents, rename/move the registered source through the fixture's existing registry, and include historic-looking partial hashes in evidence. Reload through the existing reader and open the new current resource. Actual bytes/identity agree with the current-version wording; no prose/path/digest match certifies a historical version. Old captured selectors remain subject to existing guards.
+- SCN-005: Missing matching resource, unsupported/unregistered resource, foreign-Run matching gate, blocked source and sourceDisabled. Missing eligible resource yields an explicit unavailable state with no working action; disabled current actions cannot invoke onOpen. Count/evidence remain intact. Reader-owned blocked failures retain their existing feedback rather than pretending readable availability.
+- SCN-006: Two registered same-Run resources match one approved gate. The row remains one recorded approval with explicitly identified current-resource actions; each action passes its own exact resource/origin. No silently selected first source and no invented historical distinction.
+- SCN-007: In the actual built browser, use compact and expanded placements with wide and narrow available panel widths, Tab/Enter to open/close original evidence and activate a current-resource action. Accessible names distinguish repeated actions. Closing document returns focus to the initiating resource action and retains selected Run.
+- SCN-008: Keep evidence open and focused while resizing the actual panel/container wide to narrow and back. Verify the same native details node, open state and action identity survive; long document/evidence text wraps, no horizontal overflow, targets stay usable and no competing responsive tree or focus trap appears. Scroll down/back with selection unchanged; ordinary resize causes reflow without unrelated list remount/jump/flicker.
+- SCN-009: Reload while viewing this Run after guarded source change; exercise supported retry after a fixture-controlled transient reader failure and expired/stale source feedback. Old actions cannot bypass sourceDisabled/freshness; new selection/resources use existing owners. Return from reading and disclosure remains usable; no foreign Run appears.
+- SCN-010: Around evidence open/close, document read/close and failed reads, snapshot fixture control/approval/source bytes and request endpoints. Bytes remain unchanged except explicit test setup; no gate writer, generic file/path call or new authoring-check request is triggered by these actions. Existing current-control assessment and draft-check action/results remain separate and usable.
+- SCN-011: Record qualified browser and MCP UI bundle digests, source identity, supported Node/toolchain and exact command outcomes. Inspect captured narrow/wide/long/empty/additional-gate rendered cases and correlate screenshots with that build. Browser evidence does not stand in for native host proof.
+- SCN-012: Compare actual incremental source/test/generated diff and protected artefact bytes against T-001. All six criteria and SD decisions have actual evidence; previous approved sources and other Run histories remain unchanged. Attribute any native observation to its actual build/runtime and limits; otherwise explicitly record absence. Required check failures remain blockers, not silently accepted evidence gaps.
+
+## Verification Traceability
+
+Each scenario below belongs to one task and gives an observable result and concrete planned evidence. These mappings do not create a second acceptance register. Reused scenarios cover multiple approved criteria where the actual check observes their separate properties.
+
+| criterion_id | design_decision_id | task_id | scenario_id | expected_result | evidence |
+|---|---|---|---|---|---|
+| AC-001 | SDD-001 | T-004 | SCN-001 | Count and semantic rows match zero/four/six approved facts, excluding non-approved facts; compact comparable groups and explicit empty state | evidence/tests/documented-approvals.log; evidence/browser/overview-cases.md and screenshots |
+| AC-002 | SDD-002 | T-004 | SCN-002 | Deliberate original disclosure preserves text and explicit absent fields; prose/partial hashes never become certified provenance; shared note appears once | evidence/tests/documented-approvals.log; evidence/browser/evidence-disclosure.md |
+| AC-003 | SDD-003 | T-004 | SCN-003 | Current wording and exact resource/origin agree with opened captured bytes; approved-version label absent | evidence/tests/documented-approvals.log; evidence/browser/version-reading.md |
+| AC-003 | SDD-003 | T-004 | SCN-004 | Changed/moved current bytes retain truthful wording and existing stale guards; unchanged or partial digest proves no historical certification | evidence/browser/version-reading.md; evidence/tests/reader-regressions.log |
+| AC-003 | SDD-003 | T-004 | SCN-005 | Missing/foreign/unregistered sources yield no working action, sourceDisabled prevents callback and reader-owned blocked feedback remains visible | evidence/tests/documented-approvals.log; evidence/browser/unavailable-reading.md |
+| AC-003 | SDD-003 | T-004 | SCN-006 | Multiple eligible sources remain explicit current actions in one row, each with its own exact resource/origin | evidence/tests/documented-approvals.log; evidence/browser/overview-cases.md |
+| AC-004 | SDD-004 | T-005 | SCN-007 | Actual compact/expanded keyboard disclosure and document close restore initiating focus and keep selected Run | evidence/tests/browser.log; evidence/browser/keyboard-focus.md |
+| AC-004 | SDD-004 | T-005 | SCN-008 | Responsive same-node disclosure survives width changes; long content has no horizontal loss, usable targets and no remount-induced focus/scroll jump | evidence/tests/browser.log; evidence/browser/resize-scroll.md and screenshots |
+| AC-005 | SDD-005 | T-005 | SCN-009 | Existing selected-source freshness, expiry, reload and retry govern old/new actions without Run substitution | evidence/tests/reader-regressions.log; evidence/tests/browser.log; evidence/browser/recovery.md |
+| AC-005 | SDD-005 | T-004 | SCN-010 | Read/disclose/close adds no writes or validation calls; current assessment and draft-check behavior remain separate and functional | evidence/tests/documented-approvals.log; evidence/tests/draft-check-regressions.log; evidence/browser/read-only.md |
+| AC-006 | SDD-006 | T-005 | SCN-011 | Required type/build/source/rendered results identify actual qualified assets and inspected cases; no unsupported native claim | evidence/BUILD_IDENTITY.json; evidence/tests/build.log; evidence/VERIFICATION.md |
+| AC-006 | SDD-006 | T-006 | SCN-012 | Incremental scope and protected bytes pass; every criterion/decision has evidence and explicit native limits | evidence/SCOPE_REVIEW.md; evidence/PROTECTED_AFTER.json; CR/review reports; evidence/NATIVE_LIMITS.md |
+
+## Test Plan And Evidence Commands
+
+Use the existing supported Node toolchain and existing installed dependencies. Record node --version, relevant source/lockfile identities and exact command/exit evidence. Planned suites are created only after T-001 permits implementation. Commands below are verification choices, not already executed results. Log failures completely and record compact pass evidence; do not repeat broad checks after success unless changes or unresolved findings justify it.
+
+| Working directory | Planned command or observation | Purpose |
+|---|---|---|
+| packages/control-ui | npx vitest run test/documented-approvals.test.tsx test/work-step.test.tsx | Counts, original evidence, misleading prose, eligible resources, contextual controls and exact callback semantics |
+| packages/control-ui | npx vitest run test/scoped-reading.test.tsx test/refresh-control.test.tsx test/mcp-changes.test.tsx | Existing selected-source/read/freshness/reload regressions |
+| packages/control-ui | npx vitest run test/draft-check.test.tsx | Preserve neighboring draft-check behavior and its separate authority |
+| packages/control-ui | npm run typecheck | Existing typed UI integration; no new public DTO |
+| packages/control-ui | npm run build | Actual browser assets through established build, including existing prebuild tokens |
+| packages/control-ui | npm run build:mcp | Actual self-contained MCP App build; record manifest, digest and generated scope |
+| packages/control-ui | npm run test:browser -- test/browser/documented-approvals.spec.mjs test/browser/journeys.spec.mjs test/browser/scoped.spec.mjs test/browser/changes.spec.mjs test/browser/draft-check.spec.mjs | New actual rendered cases plus existing document, selection, freshness and draft-check journeys |
+| Repository root | git diff --check plus comparison with captured candidate byte/diff baseline | Whitespace and attributable incremental scope; read-only Git inspection only |
+| Selected Run evidence | Compare PROTECTED_SOURCES.json to actual post-change bytes; inspect screenshots and actual browser observations | Protected source/history and visibly verified hierarchy, wrapping and interaction |
+
+Use the existing browser server-fixture production service and its AGDF_COCKPIT_TEST_DIST override with an isolated copied qualified build, avoiding replacement of another session's served files. New browser fixtures extend existing local fixture patterns and real document read flow; transport injection controls transient failure only, not invented certification or control authority. Capture requests/fixture byte comparisons for the no-write observation. Existing service/security implementations remain unchanged.
+
+Required rendered widths: available content/panel widths approximately 320 CSS px and 960 CSS px, observed inside actual browser viewports 360 and 1280 CSS px. Measure the real approval container width; if surrounding chrome reduces it, resize the panel/viewport to obtain the intended narrow/wide cases and record actual measurements. Exercise compact and expanded placement, four normal rows, extra gates, empty state, long names/evidence, details open while resizing, keyboard navigation, return focus, scroll and reload. Check at least 44 CSS px usable interactive targets, document/panel horizontal overflow, same-node identity and readable relationships. Actual screenshots and browser inspection are required; DOM emulation alone is insufficient. Distinguish expected content-height reflow from unrelated list/selection jumps and retain failure traces/observations if instability occurs.
+
+Any native observation is optional evidence under approved AC-006, with the actual build digest/runtime, observed actions and attribution recorded separately. An old installed Cockpit, the preceding Run's manual stability reply or a protocol advertisement proves nothing about this new UI. No install/config/restart is implicit. If the new qualified build is unavailable in the existing native host, write evidence/NATIVE_LIMITS.md explicitly; required browser/source/build evidence still applies. No universal platform or native-host claim is allowed.
+
+## Risks, Dependencies And Stop Conditions
+
+- Dirty preceding-scope files: T-001 must preserve exact prior bytes and staged/untracked state; unsafe attribution or protected-source change blocks completion.
+- Historical proof absence: accepted current-version alternative is mandatory. Discovery of a new certification need returns to product/design routing; do not add archive, signature parsing or a new contract.
+- Responsive density: shared general list spacing can recreate tall blocks; scoped CSS and actual rendered comparisons must establish the approved hierarchy, not just updated strings.
+- Focus and multiple-resource ambiguity: exact existing resource/origin and stable native nodes are required; do not create a parallel navigation/focus store.
+- Missing dependency/environment: record the failed check and next owner action. No automatic dependency upgrade, global configuration or approval waiver.
+- A required failed/missing source, browser, build, scope or review check prevents a clean QA claim. Native absence is the approved explicitly reported limit and cannot hide a failed required browser check.
+
+## Out Of Scope
+
+No new Core/MCP function, public read protocol/DTO, persistent disclosure state, archive, certification, permission, gate writer or independent evaluator. No broad dashboard/backlog redesign, unrelated finding closure, changes to approved sources, global install/config, Git write, PR, publication or release action. MCP candidate recording is observational only.
+
+## Next Step
+
+Semantically review this plan against the exact approved PRD/SD, use bounded MCP artifact-readiness, and record TP derived_from SD with reviewed mapping. Present the exact current registered plan for a new deliberate Approval: TP. That approval permits implementation-preparation Brownfield Analysis first; it does not infer QA/UAT or publication authority.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Die freigegebene kompakte Übersicht dokumentierter Freigaben umsetzen und die Fassungsaktionen wahrheitsgemäß prüfen.
+- Aufgaben: T-001 erfasst nach TP-Freigabe die Brownfield- und Schutzbaseline. T-002 erstellt die interne Übersicht im bestehenden WorkStep. T-003 ergänzt responsive Anordnung und zugängliche Bedienung. T-004 erstellt gezielte Verhaltens- und Browserprüfungen. T-005 qualifiziert Builds und führt Quellen-, Leser- und sichtbare Prüfungen aus. T-006 prüft den tatsächlichen inkrementellen Diff, geschützte Quellen und Plan-/Lösungserfüllung. T-007 führt anschließend die erlaubte QA durch und legt deren echte Entscheidung separat vor.
+- AC-001: SCN-001 prüft null, vier und sechs dokumentierte Freigaben, tatsächliche Anzahl und vergleichbare Gruppen in kleiner und großer Ansicht.
+- AC-002: SCN-002 prüft bewusste Originalnachweise, lange oder fehlende Angaben und irreführenden Freitext; fehlende strukturierte Herkunft bleibt ausdrücklich erkennbar.
+- AC-003: SCN-003 bis SCN-006 prüfen aktuelle, geänderte, verschobene, fehlende, fremde, gesperrte und mehrere Quellen. Linktext, tatsächlich geöffnete Quelle und Fokusursprung stimmen überein; heutige Quellen erhalten keine Zusage einer freigegebenen historischen Fassung.
+- AC-004: SCN-007 und SCN-008 prüfen im tatsächlich gebauten Browser schmale/breite Container, Tab/Enter, Fokusrückkehr, offene Klappen bei Größenwechsel, lange Inhalte und Scrollen. Gleiche Elemente bleiben erhalten; nutzbare Ziele, kein horizontaler Inhaltsverlust oder neue Listen-/Fokussprünge.
+- AC-005: SCN-009 und SCN-010 prüfen vorhandene Frische-, Sperr-, Ablauf-, Neulade- und Wiederholungsregeln sowie unveränderte Kontroll-/Quellenbytes. Lesen erzeugt keine Freigabe oder Entwurfsprüfung; die benachbarte Entwurfsprüfung bleibt funktionsfähig.
+- AC-006: SCN-011 und SCN-012 binden Typprüfung, Browser-/MCP-Builds, sichtbare Nachweise und tatsächlichen Diff an die erfasste Identität. Frühere freigegebene Quellen und andere Runs bleiben geschützt. Native Beobachtungen werden separat mit tatsächlicher Identität benannt; fehlen sie, wird das ausdrücklich dokumentiert.
+- Abhängigkeiten und Risiken: Zuerst Brownfield- und Baselineprüfung, dann UI/Tests, qualifizierte Builds und sichtbare Prüfung, anschließend Reviews und QA. Fehlende Pflichtnachweise, unsicherer Schutz oder neue Vertrags-/Zertifizierungsanforderungen stoppen die abhängige Arbeit. Kein Archiv, neuer Core/MCP-Vertrag, Installation, Konfigurationsänderung oder Git-/Veröffentlichungsschritt.
+- Entscheidung: Alle sechs Kriterien und SD-Entscheidungen sind konkreten Aufgaben, Szenarien, beobachtbaren Ergebnissen und Nachweisen zugeordnet. Approval: TP erlaubt zunächst die Umsetzungsvorbereitung; QA und UAT bleiben eigene Entscheidungen.

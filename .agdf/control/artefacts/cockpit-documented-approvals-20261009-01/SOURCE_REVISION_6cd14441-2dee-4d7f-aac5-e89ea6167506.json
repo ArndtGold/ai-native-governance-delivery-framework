@@ -1,0 +1,55 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "cockpit-documented-approvals-20261009-01",
+  "expected_revision_id": "59bba311-c65a-4c9d-8816-4ec365c134e6",
+  "operation_id": "6cd14441-2dee-4d7f-aac5-e89ea6167506",
+  "source_gate": "UR",
+  "reason": "The user requested compact rows without expandable entries and a separate large reading view for the approval, with a separate current-document action.",
+  "intended_change": "Each comparable row shows the document, Freigabe dokumentiert, Freigabe ansehen and Aktuelles Dokument ansehen. Approval reading opens the stored original approval plus evidence-bounded provenance in a large read-only view, with close/return and focus restoration. It must not open the current gate document as if it were the approval. No inline expanding approval rows. No new approval writer, fabricated identity/version, archive or certification.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md",
+      "digest": "sha256:457a950bc4207fd8ce1698ac0c2913c8c30d86d19ae0dd7640291e230a7a34a9"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md",
+      "digest": "sha256:e2f8d2c3e1ca6ef97915dc547e76012ed49ffcc6e5a6aad835eab87b1afaca28"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD.md",
+      "digest": "sha256:0b9c9d79c24326c7832c6648bc545173ca3c322564f5beb66a198290c558f061"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP.md",
+      "digest": "sha256:478e9ecedf75bce691f57f49909cf9c7745e5911972d1c7566d5fe41062d5297"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex (source impact review)",
+    "earliest_source": "UR",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:f24917156196b4d404b149c73c1919ed2cd3c5293e9cebe92e1f563903ba4ce5",
+        "reason": "The revised UR replaces inline disclosure with a distinct approval reading mode; reassess owner reuse and navigation/accessibility against the new intent."
+      },
+      {
+        "type": "UX Intent Definition",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:f4abee6e36f29b4b36b4d225ba5f7fc7aaff3a247108b8087cb260b78a4fc3fd",
+        "reason": "The revised UR replaces inline disclosure with a distinct approval reading mode; reassess owner reuse and navigation/accessibility against the new intent."
+      }
+    ],
+    "implementation_evidence": "Existing seven-file implementation and test files are retained only as work in progress. The previous 46 unit checks, 20 browser regression checks and final 5 overlapping affected browser checks passed for the superseded inline design; they are not fulfillment of the revised reading-mode requirement. Renew preparation, implementation assessment, tests and review under a newly approved TP.",
+    "unresolved": []
+  }
+}

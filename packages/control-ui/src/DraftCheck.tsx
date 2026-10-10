@@ -22,7 +22,7 @@ export function DraftCheck({ result, action, current, onReload }: {
     {(!current || action.problem && !retry && !reopen || draft?.display.recovery === 'reload') && <button type="button" onClick={onReload}>Stand neu laden</button>}
     {current && !action.problem && !draft?.source.available && <p>Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.</p>}
     {current && !action.problem && draft?.result && <>
-      {!!draft.result.diagnostics.length && <ul>{draft.result.diagnostics.map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>}
+      {!!(draft.display.findings?.length || draft.result.diagnostics.length) && <ul>{(draft.display.findings?.length ? draft.display.findings : draft.result.diagnostics).map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>}
       <p className="source-text">Nächster Schritt · Core-Original: {draft.result.next_action}</p>
     </>}
     <details><summary>Prüfquelle und Originalbefunde</summary>

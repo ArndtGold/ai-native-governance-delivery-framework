@@ -1,68 +1,85 @@
-# Brownfield Review: Compact documented approvals
+# Brownfield Review: document state and truthful reading links
 
 - mode: post_ur_review
 - decision: pass
-- mode_slice_decision: structured_slice
+- mode_slice_decision: structured_delivery
 - required_next_gate: PRD
-- scope: The approved UR's compact documented-approval overview and truthful current/approved document actions in the existing read-only Cockpit.
+- artefact: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
+- scope: Approved revised UR db2ce267; two-column document/state overview, canonical approved-version correspondence and applicable draft-check findings in existing reading surfaces.
 - delivery_context: brownfield
 - ui_ux_impact: medium
-- ui_ux_impact_reason: The overview changes the visible approval state from a generic approved label to documented evidence and explicitly distinguishes the document version action. Reading, disclosure and current-control authority remain unchanged.
+- ui_ux_impact_reason: Replaces inline evidence disclosure with a document-reading action and introduces evidenced draft/check/approval states in the overview without changing human approval authority.
 - ux_intent_definition_required: yes
-- current_coverage: partially_done; recorded approvals, original evidence, names, registered resource reading, disabled/freshness guards and focus restoration exist. Compact comparable rows and explicit current-version wording are missing.
-- reuse_strategy: extend existing presentation and styles; reuse registered resource readers and canonical descriptive approval data. No archive, approval writer or parallel evaluator.
-- architecture_relevance: architecture-not-applicable
-- architecture_reason: This bounded presentation can fulfil the UR with existing gate/status/evidence and registered resources. Existing readers do not expose a validated exact-approved-version action; use the approved current-version fallback. No new protocol, public DTO, persistence, permission or host boundary is required. An implementation proposal to extend such a boundary requires fresh routing before proceeding.
-- evidence: packages/control-ui/src/WorkStep.tsx; packages/control-ui/src/types.ts; packages/control-ui/src/api.ts; packages/control-ui/src/style.css; packages/core/lib/control-inspect/cockpit.js; packages/core/lib/control-state/run-recording.js; packages/core/lib/control-state/run-presentation.js; packages/core/lib/control-read/snapshot.js; docs/architecture/06-agdf-cockpit.md.
-- missing_evidence: No existing Cockpit DTO certifies that a registered resource is the exact approval-bound version. This is the UR's explicit supported fallback, not an implementation prerequisite for an archive. Fresh rendered behaviour is still future implementation evidence; no host claim is made.
-- context_graph_impact: none
-- context_graph_reconciliation: not_applicable
-- context_graph_required_action: none
-- context_graph_gate_effect: none
-- memory_target: scope_artifact
-- memory_reason: This review records run-specific reuse and version-reading limitations; it changes no reusable architecture ownership.
-- memory_refs: This BROWNFIELD_REVIEW.md and the approved UR.
-- required_next_step: Prepare the required UX intent analysis, then draft the smallest PRD for the bounded outcome and present it for a new deliberate approval.
+- current_coverage: partially_done
+- reuse_strategy: extend existing Core descriptive projection and presentation/read components; reuse approval proof, authoring checks, snapshot and navigation owners.
+- transparency: Quick Task is ineligible because product state semantics and a consumed MCP/HTTP descriptive result change. Verified Change is ineligible because contract impact and existing dirty in-progress product files fail compact eligibility. Structured Slice is rejected because the returned version/state contract is consumed by model/App MCP and authenticated browser readers and requires explicit compatibility qualification.
+- missing_evidence: Implementation, final output shape, negative/version/check tests, browser and native-host qualification are future SD/TP work; not asserted by this review.
+- required_next_step: Complete required UX intent analysis, then derive the PRD from the approved revised UR.
 
-## Existing Owners And Source Facts
+## G-00 and scope binding
 
-WorkStep.tsx owns the documented approval presentation. It filters evaluation.approvals by approved status and opens resources registered for the same gate through the existing onOpen callback and approval focus identifier. documentName in presentation.ts supplies human labels; style.css supplies layout. Existing WorkStep/component and journeys browser tests cover disabled source actions, disclosure, navigation and focus restoration. RunDetail and App retain selection/navigation and freshness ownership.
+Target is the confirmed repository; selected Run cockpit-documented-approvals-20261009-01, approved UR revision 16 / 50246889-10c2-4f8d-8b1b-d304d2581255. Dispatcher doctor passes. UR digest sha256:db2ce267f9330751e0eb6c27027fba09b0be3e19889dff206423025b7e1a6495. Source revision operation 6cd14441-2dee-4d7f-aac5-e89ea6167506 archived previous approved sources; they are historical only. No implementation authority from this review. Seven old-design source/test changes remain retained work in progress and require reassessment after renewed TP. No repository instruction override is inferred from cwd or historical Run evidence.
 
-Core cockpit.js projects canonical approval rows as gate/status/evidence and manifests current registered artefacts. readDocument returns the current captured bytes and their digest through the selected Run/resource/snapshot. It does not expose an historical approved-version selector or a verified join between the recorded approval and those bytes. run-recording.js saves approval evidence including the then-current revision, partial artefact digest and presentation reference. run-presentation.js validates full bound presentation records for approval operations; the UI DTO does not expose that operation's binding as a readable approved-version resource. The snapshot reader captures only requested bounded dependencies and freezes/revalidates them. Raw evidence text or file-path equality cannot serve as independent version certification.
+## Existing owners and coverage
 
-Consequently the currently supported action is labelled Aktuelle Fassung ansehen. The disclosure retains original evidence, describing unsupported fields as unavailable rather than extracting identity or version authority from prose. If later existing canonical proof becomes available, only its verified matching readable resource can receive Freigegebene Fassung ansehen; inventing new storage or proof is excluded from this slice.
+| Outcome | Existing owner and evidence | Coverage and bounded reuse |
+|---|---|---|
+| Registered documents and saved statuses | packages/core/lib/control-inspect/cockpit.js manifest/detail; persisted.artefacts and evaluation.approvals | Present. Resource.status means registered/blocked, not approved; preserve this meaning. |
+| Exact approved source | packages/core/lib/control-state/artefact-binding-proof.js exactApprovedArtefacts/validateBindingProof; run-seal.js; approval-operations.js; presentations | Canonical proof already checks actual canonical and raw content against presentations/receipts/bindings. Current cockpit resources do not expose a per-document proof result. Extend descriptive reading through these owners rather than accepting prose/partial digests or reimplementing checks in App. |
+| Supported draft checking | packages/core/lib/control-inspect/artifact-readiness.js projectArtifactReadiness; cockpit.js draftDescriptor/artifactReadiness | Existing read-only authoring check, currently supported UR/PRD/SD/TP and selected current gate only. Preserve this boundary; do not pretend all visible resources were checked. |
+| Check identity and visible classification | cockpit.js and packages/control-ui/src/api.ts validDraftCheck; useDraftCheck.ts, DraftCheck.tsx | Snapshot, Run, revision, path and digest are already checked. Missing result is unchecked/unavailable. Preserve distinctions between content diagnostics and technical/gate blockers. Concrete applicable findings can be surfaced without a new validator. |
+| Document reading and return | App.tsx, DocumentView.tsx, mcp/CompactCockpit.tsx | Current opaque-resource read, expansion, close/back and contextual focus path exist. Extend current document view instead of making a separate approval-document target. |
+| Transport and consumer compatibility | core/control-inspect/cockpit-contract.js; mcp-server/src/server.js; control-ui/src/mcp/transport.ts, api.ts; server/service.mjs | Existing MCP model/App-visible run/document operations and authenticated HTTP reader share Core result. Added descriptive state must be qualified through both; old-reader absence remains explicit uncertainty. |
+| Tests | core/test/cockpit-draft-check-test.js, artifact-readiness-test.js, control-cockpit-projection-test.js; MCP protocol/contract tests; UI unit/browser suites | Existing isolated fixture and native proof boundaries reusable. Old inline-design test results are superseded evidence, not revised-state fulfillment. |
+
+## Architecture Impact
+
+architecture_relevance: relevant
+
+The affected boundary is the descriptive Core result consumed through existing model/App-visible MCP reads and the HTTP UI adapter. Explicit per-document approval/byte correspondence is currently absent. Check-result applicability must remain with Core/snapshot authority rather than a visual heuristic. No approval-policy, trust, filesystem-selector, writer, persistence or lifecycle boundary is authorized to change. SD must decide additive shape, old-server absence, malformed/foreign proof handling, document/check association and bounded resource use. Scope explicitly forbids new archive/validation authority.
 
 ## Reuse And Parallel-Structure Risk
 
-| Finding | Classification | Evidence and treatment | Owner | Exit condition |
-|---|---|---|---|---|
-| Current file mistaken for approved version | problem | WorkStep resource action and Core manifest open a current registered path; label it current and explain the unconfirmed approved version. | Existing Cockpit presentation owner | Meaningful changed/missing-source cases prove truthful wording and guarded reading. |
-| Prose promoted to signature or identity | problem | Approval evidence is stored text; preserve it as original evidence and mark absent structured identity/version fields explicitly. | Existing Core approval owner / Cockpit presentation | No inferred verified identity, approval action or evaluator is introduced. |
-| Historical archive recreated in UI | problem | No existing approved-version read selector in the current DTO; use the UR's accepted fallback. | Existing read-service owner | No archive, selector or persistent parallel store added. |
-| Narrow layout and focus regressions | problem | Existing details, resource action and focus identifiers must survive the compact rows. | Existing UI owner | Wide/narrow visible and keyboard checks preserve actions, focus and disabled/stale handling. |
-
-No debt-accepting trade-off is proposed; missing historical proof remains an explicit product limitation accepted by the UR.
+| ID | Classification | Evidence / effect | Existing owner and next action |
+|---|---|---|---|
+| BF-001 | problem | A resource registration or saved approved flag alone does not certify the read bytes; cockpit.js manifest omits that explicit proof. | Core approval proof and cockpit projection owners; SD defines the descriptive proof path using existing checks. |
+| BF-002 | problem | App-only matching or prose parsing would duplicate authority; DocumentView currently explains saved stand separately. | Core owns state; SD preserves presentation as a consumer of bounded facts. |
+| BF-003 | problem | projectArtifactReadiness can return artifact_gate_not_ready with readiness_details before content checks; unsupported/current-gate limitations and transport errors cannot be called document defects. | Existing authoring-check and projection owners; SD handles exact diagnostics/applicability without inventing a second readiness implementation. |
+| BF-004 | problem | Old inline disclosure files/tests are dirty retained work; repeating their successful checks does not verify the new two-column behaviour. | SD/TP assess replacement/reuse and meaningful revised-state cases; preserve protected baseline/history. |
+| BF-005 | trade-off | Not all documents have an applicable check; deliberate current-gate authoring remains bounded and no bulk-checking workflow is added. | Owner: Core authoring-check and PRD document state. Rationale: retain actual checked identity and read-only limits. Mitigation: unchecked/unavailable labels, explicit current check only. Exit condition: renewed TP/QA proves no false passed/defective badge for untested resources. No undocumented technical debt accepted. |
 
 ## Structured Depth Evidence
 
 - depth_policy_version: 1
 - depth_facts_status: complete
-- primary_reason_code: bounded_structured_slice
-- decisive_full_depth_triggers: none
-- rejected_alternative: quick_task and verified_change; this changes approval-evidence/version presentation semantics and needs observable acceptance across responsive reading states. Verified Change also cannot certify clean candidate paths: WorkStep.tsx, style.css and related tests already contain protected preceding-scope work. structured_delivery is disproportionate because there is no external contract, archive, migration, rollout or authority change.
-- missing_or_conflicting_facts: none decisive for this bounded current-version-fallback scope
-- depth_evidence_refs: approved UR; owners and source facts above; current worktree status; packages/control-ui/test/work-step.test.tsx; packages/control-ui/test/browser/journeys.spec.mjs.
+- primary_reason_code: external_contract_depth
+- decisive_full_depth_triggers: External/public contract: new explicit per-document state/version facts change the returned descriptive contract of model/App-visible agdf_cockpit_read and shared browser reads; compatibility and absence semantics require coordinated consumer qualification.
+- rejected_alternative: structured_slice; full_depth_impacts_absent cannot pass because the user requested an explicit canonical returned fact that current consumers lack. File/owner counts do not decide depth.
+- missing_or_conflicting_facts: none for route selection; specific wire-shape and implementation choices belong to SD.
+- depth_evidence_refs: approved UR; cockpit.js detail/manifest/artifactReadiness; cockpit-contract.js COCKPIT_READ_DEFINITION visibility model/app; mcp/transport.ts and api.ts validateData; server/service.mjs; artefact-binding-proof.js.
 
 | Check ID | Result | Evidence |
 |---|---|---|
-| coherent_outcome | pass | One compact documented-approval overview with truthful document actions; UR acceptance signals 1–6. |
-| authority_boundary | pass | Existing Core approval/evaluation and scoped readers remain authoritative; disclosure only reads. |
-| owner_consumer_coordination | pass | Existing local Cockpit components/read DTO suffice; no external consumer coordination or shared cutover. |
-| full_depth_impacts_absent | pass | Existing DTO current-version fallback fulfils the UR; no protocol, CLI, persistent schema, gate, security or cross-host/release behaviour changes. |
-| migration_propagation_bounded | pass | No migration; existing UI build and tests are sufficient. The source increment can be locally reverted without changing approved control records. |
-| failure_recovery_local | pass | Existing selected Run/resource/snapshot, disabled/stale controls and document open/close/retry remain the recovery owners. |
-| independently_acceptable | pass | Compact rows, disclosure and truthful current-only/missing actions have independent observable acceptance; no future archive or installer work is a prerequisite. |
+| coherent_outcome | pass | One document overview/read outcome defined in approved UR. |
+| authority_boundary | pass | Existing canonical approval/check owners unchanged; output is descriptive/non-authorizing. |
+| owner_consumer_coordination | pass | Identified Core, MCP and UI/HTTP owners coordinated in same repository; no independent external rollout authorized. |
+| full_depth_impacts_absent | fail | Externally consumed MCP descriptive state result requires additive contract/compatibility qualification. No persistence, approval-policy or new-host expansion. |
+| migration_propagation_bounded | pass | Read-only derived fields, no control migration/archive or mass rewriting; old absence must remain safe. |
+| failure_recovery_local | pass | Existing snapshot/freshness/retry/session boundaries and local source rollback; no writer. |
+| independently_acceptable | pass | Two-column documented states and exact reading labels can be tested as a complete accepted outcome. |
 
-## Transparency And Limits
+## Risks and next owners
 
-Structured Slice retains the existing PRD/SD/TP/QA/UAT sequence with depth limited to this coherent outcome. It does not transfer preceding Run approvals. Preserve existing dirty files, the earlier backlog QA and foreign findings; establish the scoped implementation baseline after TP. No implementation, plugin installation, Git action or native-host success has occurred in this review.
+PRD must settle state precedence, what counted/listed records represent, old-server uncertainty and document-view feedback within approved intent. SD must settle source-proof reuse, version identity and descriptor/read association, check diagnostic interpretation, resource bounds and consumer compatibility. TP must map version changes, missing/malformed/foreign proofs, concrete authoring failure vs busy/unavailable, check/source invalidation, narrow/wide keyboard/focus and no-control-mutation to actual tests. No deferred product decision is silently moved to implementation.
+
+## Knowledge and Context Graph
+
+- memory_target: scope_artifact
+- memory_reason: Run-specific ownership/compatibility evidence and user-directed MCP candidates; no new generic authority or global memory update.
+- memory_refs: BROWNFIELD_REVIEW.md; MCP_CANDIDATES.md
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Existing read/approval authority is preserved; no graph ownership change claimed. Architecture documentation remains an existing documentation owner for any approved implementation update.

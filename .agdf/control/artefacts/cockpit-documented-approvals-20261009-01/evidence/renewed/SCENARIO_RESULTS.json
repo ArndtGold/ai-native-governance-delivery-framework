@@ -1,0 +1,228 @@
+{
+  "schema_version": "1",
+  "run_id": "cockpit-documented-approvals-20261009-01",
+  "sources": "PROTECTED_AFTER-final.json",
+  "fixture_authority": "disposable synthetic targets; no production approvals",
+  "scenarios": [
+    {
+      "scenario": "SCN-001",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "ui-review-serial.log",
+        "browser-review.log",
+        "browser-consumer-qualified.log"
+      ],
+      "observation": "Zero/four/six real Core/HTTP registrations; consumer-only multiple distinct long-reference DTO, duplicate filtering and analytical-resource exclusion."
+    },
+    {
+      "scenario": "SCN-002",
+      "status": "pass",
+      "evidence": [
+        "PROOF_PARITY.json",
+        "proof-parity-final.log",
+        "source-revisions.log",
+        "artefact-recording.log"
+      ],
+      "observation": "154 differential comparisons use the captured old module and canonical disposable legacy/typed/source-revision fixtures; 20 source-revision cases and 210 recording assertions unchanged."
+    },
+    {
+      "scenario": "SCN-003",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "mcp-protocol-quality.log",
+        "browser-review.log"
+      ],
+      "observation": "Canonical fixture approval; Core, HTTP browser and both real STDIO negotiation modes return exact source bytes/raw digest and descriptive approved version."
+    },
+    {
+      "scenario": "SCN-004",
+      "status": "pass",
+      "evidence": [
+        "PROOF_PARITY.json",
+        "core-qualified.log",
+        "core-regressions-serial.log",
+        "browser-review.log"
+      ],
+      "observation": "Changed/BOM/CRLF/moved/missing/foreign/malformed proof and damaged receipts/seals; captured/replayed/publication replacement remains denied. UAT aggregate omission never certifies UAT."
+    },
+    {
+      "scenario": "SCN-005",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "http-worker-qualified.log",
+        "mcp-protocol-quality.log",
+        "browser-quality.log"
+      ],
+      "observation": "Actual current authoring pass/corrections; cockpit original equals standalone report. Registered UR/PRD/SD/TP cases, unsupported/current eligibility, no approval from check."
+    },
+    {
+      "scenario": "SCN-006",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "SD_EARLY_TRACEABILITY.json",
+        "browser-quality.log",
+        "ui-review-serial.log"
+      ],
+      "observation": "Actual early UR requirements/PRD decisions/SD decisions and traceability/TP traceability. Unknown prefixed diagnostics explicitly unavailable; missing/empty/foreign prerequisites and technical errors do not imply a defect."
+    },
+    {
+      "scenario": "SCN-007",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "http-worker-qualified.log",
+        "mcp-protocol-quality.log",
+        "browser-quality.log"
+      ],
+      "observation": "Pass and corrections survive fresh matching document/context/return with new IDs; isolated readers; unregistered current draft never invents a row."
+    },
+    {
+      "scenario": "SCN-008",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "core-authoring-final.log",
+        "core-regressions-serial.log",
+        "mcp-protocol-quality.log"
+      ],
+      "observation": "Checked slot invalidated by reload/overview/another existing Run, source missing/changed, revision/gate/lifecycle and failed publication. Invalid selectors preserve legitimate view; closed/expired workers/sessions deny reads."
+    },
+    {
+      "scenario": "SCN-009",
+      "status": "pass",
+      "evidence": [
+        "core-qualified.log",
+        "ui-review-serial.log",
+        "http-worker-qualified.log",
+        "core-regressions-serial.log"
+      ],
+      "observation": "Actual Core slot and description array below/exactly at/above 256 KiB; DTO exact limit; original file/read/preview/response/timeout/containment bounds unchanged. No partial positive or silent truncation."
+    },
+    {
+      "scenario": "SCN-010",
+      "status": "pass",
+      "evidence": [
+        "ui-review-serial.log",
+        "browser-consumer-qualified.log",
+        "http-worker-qualified.log",
+        "mcp-protocol-quality.log"
+      ],
+      "observation": "Absent optional old-server fields remain uncertain/current; valid facts match actual identities/resources/raw bytes. Multiple-reference browser fixture is a consumer contract test, not a fabricated canonical proof."
+    },
+    {
+      "scenario": "SCN-011",
+      "status": "pass",
+      "evidence": [
+        "ui-review-serial.log",
+        "ui-refresh-review.log"
+      ],
+      "observation": "Exact shared boundary rejects schema/enums/authority/member/revision/digest/check/recorded-approval mismatch, including handoff and omitted original approval. Object key order irrelevant."
+    },
+    {
+      "scenario": "SCN-012",
+      "status": "pass",
+      "evidence": [
+        "http-worker-qualified.log",
+        "mcp-protocol-quality.log",
+        "RUNTIME_QUALIFICATION-quality.json"
+      ],
+      "observation": "Production HTTP service/worker plus actual STDIO modes false/true, isolated bounded sessions and exact HTML manifest digest. Approved/draft/check/read/context/reload/freshness/changes/close paths; no mock positive substitutes."
+    },
+    {
+      "scenario": "SCN-013",
+      "status": "pass",
+      "evidence": [
+        "ui-review-serial.log",
+        "ui-refresh-review.log",
+        "browser-changes-review.log",
+        "core-regressions-serial.log",
+        "browser-quality.log"
+      ],
+      "observation": "Existing generation/abort/context/visibility/handoff quarantine retained; deliberately injected busy is transient, retry explicit; expired/stale/timeout do not reinstall a result."
+    },
+    {
+      "scenario": "SCN-014",
+      "status": "pass",
+      "evidence": [
+        "READ_ONLY_WINDOWS.json",
+        "core-qualified.log",
+        "http-worker-qualified.log",
+        "mcp-protocol-quality.log",
+        "browser-quality.log"
+      ],
+      "observation": "Actual treeBytes comparisons around isolated read windows; request tracing detects only deliberate checks. Setup/control bookkeeping outside these windows, no writer/arbitrary path/bulk check."
+    },
+    {
+      "scenario": "SCN-015",
+      "status": "pass",
+      "evidence": [
+        "browser-review.log",
+        "browser-consumer-qualified.log",
+        "browser-review/",
+        "ui-review-serial.log"
+      ],
+      "observation": "Real built light/dark/compact/expanded zero/four/six rows, approved/draft/checked/corrections/check unavailable/unconfirmed/unavailable presentations; long/multiple contract references wrap. No overview entry disclosure or separate approval action."
+    },
+    {
+      "scenario": "SCN-016",
+      "status": "pass",
+      "evidence": [
+        "browser-review.log",
+        "browser-quality.log",
+        "ui-review-serial.log"
+      ],
+      "observation": "Keyboard opens actual bound source, original disclosure, close returns logical action focus; checked/correction context, original approval and unknown person/time/basis explicit. Passive HTML-looking original is tested."
+    },
+    {
+      "scenario": "SCN-017",
+      "status": "pass",
+      "evidence": [
+        "browser-review/responsive-observations.json",
+        "browser-review.log",
+        "browser-consumer-qualified.log"
+      ],
+      "observation": "Twelve measured 320/960/960 CSS container transitions across routes/themes, same row/action node and focus, at least 44px actions, no horizontal loss; scrolling/reload stable. No native-host inference."
+    },
+    {
+      "scenario": "SCN-018",
+      "status": "pass",
+      "evidence": [
+        "browser-quality.log",
+        "browser-changes-review.log",
+        "browser-quality/"
+      ],
+      "observation": "Real authoring/check\u2192document\u2192return; checked and concrete Scope correction, busy/retry, source change/reload/recheck, no automatic checks."
+    },
+    {
+      "scenario": "SCN-019",
+      "status": "pass",
+      "evidence": [
+        "BUILD_IDENTITY-quality.json",
+        "RUNTIME_QUALIFICATION-quality.json",
+        "build-browser-review.log",
+        "build-mcp-review.log",
+        "runtime-qualification-quality.log",
+        "NATIVE_LIMITS.md"
+      ],
+      "observation": "Node22 and unchanged dependency/lockfile identities; immutable UI built from current UI sources, current Core/server/SDK/dispatcher copied offline and executed. No install/config/native activation."
+    },
+    {
+      "scenario": "SCN-020",
+      "status": "pass",
+      "evidence": [
+        "INCREMENT-final.json",
+        "increment-final.patch",
+        "PROTECTED_AFTER-final.json",
+        "SCOPE_REVIEW.md",
+        "../../CODE_REVIEW-02.md",
+        "../../TASK_PLAN_REVIEW-02.md",
+        "../../CLEAN_IMPLEMENTATION_REVIEW-02.md"
+      ],
+      "observation": "27 attributable paths, retained WIP preserved in baseline, 5375 protected bytes unchanged, current approved digests exact. Mandatory reviews are separately registered after CD+Tests."
+    }
+  ]
+}

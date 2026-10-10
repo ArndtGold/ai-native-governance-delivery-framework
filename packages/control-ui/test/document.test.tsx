@@ -12,7 +12,7 @@ afterEach(cleanup);
 it('puts authored German orientation and separate saved/Core facts before closed exact originals',()=>{
   render(<DocumentView result={result} detail={detail} onOpen={vi.fn()}/>);
   expect(within(screen.getByRole('region',{name:'Einordnung des Dokuments'})).getByText('Kunden können ihre Unterlagen schneller zuordnen.')).toBeTruthy();
-  expect(screen.getByText('Freigegeben')).toBeTruthy(); expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
+  expect(screen.getByText('Als freigegeben gespeichert')).toBeTruthy(); expect(screen.getByText('Freigabe dieser Fassung nicht bestätigt')).toBeTruthy(); expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
   expect(screen.getByText('Umsetzung und Prüfung')).toBeTruthy();
   expect(screen.getByRole('heading',{name:'Requirements'}).closest('details')?.open).toBe(false);
   expect(screen.getByText('Quellenangaben').closest('details')?.open).toBe(false);

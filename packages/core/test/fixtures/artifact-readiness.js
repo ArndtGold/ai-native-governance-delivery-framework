@@ -7,11 +7,11 @@ import { artefactFileDigest, sealRunState } from '../../lib/control-state/run-se
 import { digest } from '../../lib/control-state/approval-command-contract.js';
 
 // Synthetic non-authorizing control data confined to a temporary test repository.
-export function artifactReadinessFixture(gate = 'PRD', language = 'de') {
+export function artifactReadinessFixture(gate = 'PRD', language = 'de', runId = 'synthetic-draft') {
   const root = mkdtempSync(join(tmpdir(), 'agdf-artifact-check-'));
   execFileSync('git', ['init', '--quiet', root], { stdio: 'pipe' });
   execFileSync(process.execPath, [resolve(import.meta.dirname, '../../../cli/bin/create-agdf.js'), 'init', '--dir', root, '--language', 'en'], { stdio: 'pipe' });
-  const runId = 'synthetic-draft', revision = randomUUID(), gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
+  const revision = randomUUID(), gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
   const prefix = `.agdf/control/artefacts/${runId}/`, runDir = join(root, `.agdf/control/runs/${runId}`);
   mkdirSync(join(root, prefix), { recursive: true });
   mkdirSync(join(runDir, 'presentations'), { recursive: true });

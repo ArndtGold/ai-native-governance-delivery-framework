@@ -1,0 +1,174 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test test/browser/run-documents.spec.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:34050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34070) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/run-documents.spec.mjs:18:1 › SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading (10.9s)
+(node:34112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload (6.6s)
+
+
+  1) test/browser/run-documents.spec.mjs:18:1 › SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('article.document')
+    Timeout: 5000ms
+    - Expected substring  -  1
+    + Received string     + 13
+
+    - 日本語
+    + UR: Approval fixture
+    + Problem
+    + Inspect stored pointers independently from current Run authority.
+    + Goal
+    + Keep provenance and human approval separate.
+    + Scope
+    + Disposable fixture only.
+    + AGDF Approval Summary (de; source=en)
+    +
+    + Problem: Gespeicherte Angaben getrennt vom aktuellen Run prüfen.
+    + Ziel: Herkunft und Freigabe getrennt halten.
+    + Umfang: Nur isolierter Test.
+    +
+
+    Call log:
+      - Expect "toContainText" locator('article.document') with timeout 5000ms
+      - waiting for locator('article.document')
+        14 × locator resolved to <article class="document agdf-surface">…</article>
+           - unexpected value "UR: Approval fixture
+    Problem
+    Inspect stored pointers independently from current Run authority.
+    Goal
+    Keep provenance and human approval separate.
+    Scope
+    Disposable fixture only.
+    AGDF Approval Summary (de; source=en)
+    
+    Problem: Gespeicherte Angaben getrennt vom aktuellen Run prüfen.
+    Ziel: Herkunft und Freigabe getrennt halten.
+    Umfang: Nur isolierter Test.
+    "
+
+
+      50 |       await expect(page.locator('.document-state-context')).toContainText('Approval: UR');
+      51 |       await expect(page.locator('.document-state-context')).toContainText('Freigabezeitpunkt, freigebende Person und Grundlage');
+    > 52 |       await page.locator('.document-original > summary').focus();await page.keyboard.press('Enter');await expect(page.locator('article.document')).toContainText('日本語');
+         |                                                                                                                                                    ^
+      53 |       await page.getByRole('button',{name:'Dokument schließen',exact:true}).focus();await page.keyboard.press('Enter');await expect(action).toBeFocused();
+      54 |       await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(action).toBeEnabled();
+      55 |       expect(treeBytes(f.root)).toEqual(before);
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/run-documents.spec.mjs:52:148
+
+    Error Context: test-results/run-documents-SCN-001-003--7e7f8-oard-and-raw-source-reading/error-context.md
+
+  2) test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.draft-check')
+    Timeout: 5000ms
+    - Expected substring  -  1
+    + Received string     + 33
+
+    - Entwurfsprüfung bestanden
+    + Entwurfsprüfung · PRDPrüfung nicht verfügbarPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.Entwurf prüfenStand neu ladenartifact_gate_not_readyResolve the current canonical gate or blocker before checking this draft.Nächster Schritt · Core-Original: Use [UR](artefacts/<key>/UR.md) style links separated by a middle dot.Prüfquelle und OriginalbefundeGatePRDRevision33da2a1e-6b36-4fa6-aa57-7e5ad20deb4bQuelle.agdf/control/artefacts/synthetic-draft/PRD.mdSHA-256sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8Beobachtet2026-10-10T07:55:24.070Z{
+    +   "run_id": "synthetic-draft",
+    +   "gate": "PRD",
+    +   "expected_revision_id": "33da2a1e-6b36-4fa6-aa57-7e5ad20deb4b",
+    +   "revision_id": "33da2a1e-6b36-4fa6-aa57-7e5ad20deb4b",
+    +   "artifact_path": ".agdf/control/artefacts/synthetic-draft/PRD.md",
+    +   "artifact_digest": null,
+    +   "ready": false,
+    +   "readiness_scope": "authoring_checks",
+    +   "authorizes": false,
+    +   "semantic_review_required": true,
+    +   "registration_required": true,
+    +   "presentation_required": true,
+    +   "checks": [],
+    +   "diagnostics": [
+    +     {
+    +       "code": "artifact_gate_not_ready",
+    +       "message": "Resolve the current canonical gate or blocker before checking this draft."
+    +     }
+    +   ],
+    +   "next_action": "Use [UR](artefacts/<key>/UR.md) style links separated by a middle dot.",
+    +   "current_gate": "PRD",
+    +   "blocking_reason": "AGDF_BACKLOG_ARTEFACT_LINK_INVALID",
+    +   "readiness_details": {
+    +     "ur": null,
+    +     "prd": {
+    +       "ready": true,
+    +       "open_decisions": []
+    +     },
+    +     "sd": null,
+    +     "traceability": null
+    +   }
+    + }
+
+    Call log:
+      - Expect "toContainText" locator('.draft-check') with timeout 5000ms
+      - waiting for locator('.draft-check')
+        2 × locator resolved to <section aria-busy="true" aria-label="Entwurfsprüfung" class="draft-check panel agdf-surface">…</section>
+          - unexpected value "Entwurfsprüfung · PRDPrüfung läuftPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.Prüfung läuft …Prüfquelle und OriginalbefundeGatePRDRevision33da2a1e-6b36-4fa6-aa57-7e5ad20deb4bQuelle.agdf/control/artefacts/synthetic-draft/PRD.mdSHA-256sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8Beobachtet2026-10-10T07:55:23.842Z"
+        12 × locator resolved to <section aria-busy="false" aria-label="Entwurfsprüfung" class="draft-check panel agdf-surface">…</section>
+           - unexpected value "Entwurfsprüfung · PRDPrüfung nicht verfügbarPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.Entwurf prüfenStand neu ladenartifact_gate_not_readyResolve the current canonical gate or blocker before checking this draft.Nächster Schritt · Core-Original: Use [UR](artefacts/<key>/UR.md) style links separated by a middle dot.Prüfquelle und OriginalbefundeGatePRDRevision33da2a1e-6b36-4fa6-aa57-7e5ad20deb4bQuelle.agdf/control/artefacts/synthetic-draft/PRD.mdSHA-256sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8Beobachtet2026-10-10T07:55:24.070Z{
+      "run_id": "synthetic-draft",
+      "gate": "PRD",
+      "expected_revision_id": "33da2a1e-6b36-4fa6-aa57-7e5ad20deb4b",
+      "revision_id": "33da2a1e-6b36-4fa6-aa57-7e5ad20deb4b",
+      "artifact_path": ".agdf/control/artefacts/synthetic-draft/PRD.md",
+      "artifact_digest": null,
+      "ready": false,
+      "readiness_scope": "authoring_checks",
+      "authorizes": false,
+      "semantic_review_required": true,
+      "registration_required": true,
+      "presentation_required": true,
+      "checks": [],
+      "diagnostics": [
+        {
+          "code": "artifact_gate_not_ready",
+          "message": "Resolve the current canonical gate or blocker before checking this draft."
+        }
+      ],
+      "next_action": "Use [UR](artefacts/<key>/UR.md) style links separated by a middle dot.",
+      "current_gate": "PRD",
+      "blocking_reason": "AGDF_BACKLOG_ARTEFACT_LINK_INVALID",
+      "readiness_details": {
+        "ur": null,
+        "prd": {
+          "ready": true,
+          "open_decisions": []
+        },
+        "sd": null,
+        "traceability": null
+      }
+    }"
+
+
+      74 |       await check.focus();await page.keyboard.press('Enter');await expect(page.locator('.draft-check')).toContainText('Der Lesedienst ist beschäftigt');
+      75 |       const retry=page.getByRole('button',{name:'Prüfung wiederholen',exact:true});await retry.focus();await page.keyboard.press('Enter');
+    > 76 |       await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');
+         |                                                  ^
+      77 |       await expect(page.locator('.run-document-state').filter({hasText:'Entwurf geprüft'})).toBeVisible();
+      78 |       const source=page.getByRole('button',{name:'Entwurf ansehen: Produktanforderungen',exact:true});await source.focus();await page.keyboard.press('Enter');
+      79 |       await expect(page.locator('.document-state-context')).toContainText('Entwurf geprüft');await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/run-documents.spec.mjs:76:50
+
+    Error Context: test-results/run-documents-SCN-005-007--bb840-ns-source-change-and-reload/error-context.md
+
+  2 failed
+    test/browser/run-documents.spec.mjs:18:1 › SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading 
+    test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload 

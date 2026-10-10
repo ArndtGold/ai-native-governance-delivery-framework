@@ -1,0 +1,440 @@
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
+
+export const INSTALLATION_PROVENANCE_FILE = ".agdf-installation.json";
+export const LEGACY_LOCAL_INSTALL_FILE = ".agdf-local-install.json";
+export const COPILOT_PAYLOAD_INVENTORY_FILE = ".agdf-payload-inventory.json";
+// Host-owned liveness markers written into the installed plugin root while a session holds it
+// (Claude Code: `.in_use/<pid>`). They are not plugin payload and must not affect provenance.
+export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
+
+// Codex starts plugin MCP servers only from absolute paths and passes no plugin root or data directory
+// (native probe, Codex 0.145/0.157). The runtime plugin therefore ships a template that the installer
+// fills with the absolute marketplace plugin root and data directory; provenance digests the template.
+export const CODEX_PLUGIN_MCP_FILE = "mcp.json";
+const CODEX_ROOT_TOKEN = "{{AGDF_PLUGIN_ROOT}}";
+const CODEX_DATA_TOKEN = "{{AGDF_MCP_DATA}}";
+
+export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN, portable = true } = {}) {
+  const root = pluginRoot.replaceAll("\\", "/");
+  return `${JSON.stringify({
+    ...(portable ? { $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json" } : {}),
+    mcpServers: {
+      agdf: {
+        ...(portable ? { type: "stdio" } : {}),
+        command: "node",
+        args: [`${root}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")],
+      },
+    },
+  }, null, 2)}\n`;
+}
+
+export function renderCopilotPluginMcpConfig() {
+  return `${JSON.stringify({
+    $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    mcpServers: {
+      agdf: {
+        type: "stdio",
+        command: "node",
+        args: ["${PLUGIN_ROOT}/mcp/agdf-mcp-launch.js", "--surface", "copilot", "--data", "${PLUGIN_DATA}"],
+      },
+    },
+  }, null, 2)}\n`;
+}
+
+// Returns the template for any config of the owned shape, so an installed file with absolute paths
+// digests exactly like the generated one; any other content is returned unchanged and therefore
+// changes the digest.
+export function normalizeCodexPluginMcpConfig(content) {
+  try {
+    const config = JSON.parse(String(content));
+    const args = config.mcpServers?.agdf?.args;
+    if (Array.isArray(args) && args.length === 5 && typeof args[0] === "string"
+        && args[0].endsWith("/mcp/agdf-mcp-launch.js") && typeof args[4] === "string" && args[4]) {
+      const portable = Object.hasOwn(config, "$schema");
+      const expected = renderCodexPluginMcpConfig({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable });
+      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return renderCodexPluginMcpConfig({ portable });
+    }
+  } catch {}
+  return content;
+}
+
+function isHostRuntimeMarker(root, directory, name) {
+  return directory === root && HOST_RUNTIME_MARKER_DIRECTORIES.includes(name);
+}
+
+const EXPECTED_PROFILES = Object.freeze({
+  "source-development": Object.freeze({ runtime: "absent", installable: false, machineValidation: "unavailable" }),
+  "runtime-plugin": Object.freeze({ runtime: "required", installable: true, machineValidation: "local_exact_version_digest" }),
+  "copilot-runtime-plugin": Object.freeze({ runtime: "required", installable: true, machineValidation: "local_exact_version_digest_inventory" }),
+  "opencode-config-local": Object.freeze({ runtime: "config_local_package", installable: true, machineValidation: "local_exact_version" }),
+  "portable-skills": Object.freeze({ runtime: "absent", installable: true, machineValidation: "unavailable_or_external_required" }),
+});
+
+function readJson(path) {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+export function digestDirectory(root) {
+  const files = [];
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) visit(path);
+      else if (stats.isFile()) files.push(path);
+    }
+  }
+  visit(root);
+  const hash = createHash("sha256");
+  for (const path of files) {
+    hash.update(relative(root, path).replaceAll("\\", "/"));
+    hash.update("\0");
+    hash.update(readFileSync(path));
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+const LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
+  "package.json",
+  "lib/mcp-dispatch-runtime.js",
+  "lib/control-read-boundary.js",
+  "lib/control-inspect",
+  "lib/skill-dispatch",
+  "lib/control-evaluation",
+  "lib/control-state",
+  "lib/cli/runtime-context.js",
+  "lib/runtime/control-context.js",
+  "lib/cli/contract-command.js",
+  "lib/runtime/plugin-provenance.js",
+  "lib/task-target-resolution.js",
+  "lib/repository-context-reader.js",
+  "lib/interaction-presentation.js",
+  "lib/interaction-catalog.js",
+  "generated/plugins/agdf/meta/agdf-plugin.definition.json",
+  "generated/plugins/agdf/meta/agdf-interaction-locales.json",
+  "generated/plugins/agdf/meta/contracts",
+]);
+
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
+  "package.json", "lib/mcp-dispatch-runtime.js", "lib/cli/runtime-context.js", "lib/runtime/control-context.js", "lib/cli/contract-command.js", "lib/runtime/plugin-provenance.js", "runtime/core",
+  "generated/plugins/agdf/meta/agdf-plugin.definition.json", "generated/plugins/agdf/meta/agdf-interaction-locales.json", "generated/plugins/agdf/meta/contracts",
+]);
+const dispatcherEntries = root => existsSync(join(root, "runtime", "core")) ? MCP_DISPATCHER_RUNTIME_ENTRIES : LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES;
+
+export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
+  "node_modules/@modelcontextprotocol/server",
+  "node_modules/@modelcontextprotocol/core",
+  "node_modules/zod",
+]);
+
+function digestSelectedEntries(root, entries, syntheticEntries = []) {
+  const files = [];
+  function visit(path) {
+    const stats = statSync(path);
+    if (stats.isDirectory()) {
+      for (const name of readdirSync(path).sort()) visit(join(path, name));
+    } else if (stats.isFile()) files.push({ path, content: readFileSync(path) });
+  }
+  for (const entry of entries) visit(join(root, entry));
+  for (const entry of syntheticEntries) files.push({ path: join(root, entry.path), content: Buffer.from(entry.content) });
+  const hash = createHash("sha256");
+  for (const file of files.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)) {
+    hash.update(relative(root, file.path).replaceAll("\\", "/"));
+    hash.update("\0");
+    hash.update(file.content);
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+export function digestMcpDispatcherPackage(root) {
+  return digestSelectedEntries(root, dispatcherEntries(root));
+}
+
+export function digestPluginMcpDispatcherSource(root, version) {
+  const packageJson = `${JSON.stringify({
+    name: "create-agdf",
+    version,
+    private: true,
+    type: "module",
+    exports: { "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js" },
+    ...(existsSync(join(root, "runtime", "core")) ? { imports: { "#agdf-core": "./runtime/core/lib/index.js", "#agdf-core/*": "./runtime/core/lib/*" } } : {}),
+  }, null, 2)}\n`;
+  return digestSelectedEntries(
+    root,
+    dispatcherEntries(root).filter((entry) => entry !== "package.json"),
+    [{ path: "package.json", content: packageJson }],
+  );
+}
+
+export function digestMcpSdkRuntime(root) {
+  return digestSelectedEntries(root, MCP_SDK_RUNTIME_ENTRIES);
+}
+
+export function digestFile(path) {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+export function inspectCopilotPayloadInventory(pluginRoot, expectedVersion) {
+  const inventoryPath = join(pluginRoot, COPILOT_PAYLOAD_INVENTORY_FILE);
+  const inventory = readJson(inventoryPath);
+  if (!inventory || inventory.schema_version !== 1 || inventory.profile_id !== "copilot-runtime-plugin"
+      || inventory.version !== expectedVersion || !Array.isArray(inventory.entries)) {
+    return { status: "invalid", reason: "copilot_payload_inventory_invalid" };
+  }
+  const destinations = inventory.entries.map((entry) => entry.destination);
+  if (new Set(destinations).size !== destinations.length) {
+    return { status: "invalid", reason: "copilot_payload_inventory_duplicate" };
+  }
+  const actual = [];
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) {
+        if (!isHostRuntimeMarker(pluginRoot, directory, name)) visit(path);
+      } else if (stats.isFile()) {
+        const normalized = relative(pluginRoot, path).replaceAll("\\", "/");
+        if (![COPILOT_PAYLOAD_INVENTORY_FILE, INSTALLATION_PROVENANCE_FILE, LEGACY_LOCAL_INSTALL_FILE].includes(normalized)) actual.push(normalized);
+      }
+    }
+  }
+  try { visit(pluginRoot); } catch { return { status: "invalid", reason: "copilot_payload_incomplete" }; }
+  if (JSON.stringify(actual.sort()) !== JSON.stringify([...destinations].sort())) {
+    return { status: "invalid", reason: "copilot_payload_inventory_mismatch" };
+  }
+  for (const entry of inventory.entries) {
+    const path = join(pluginRoot, entry.destination);
+    if (!existsSync(path) || digestFile(path) !== entry.digest || statSync(path).size !== entry.bytes) {
+      return { status: "invalid", reason: "copilot_payload_digest_mismatch", entry: entry.destination };
+    }
+  }
+  const excluded = actual.some((path) => path.startsWith("copilot-skills/") || path.startsWith(".codex-plugin/")
+    || path.startsWith(".claude-plugin/") || path.startsWith("submission/")
+    || path === "hooks/hooks.json" || path === "hooks/session-start.sh");
+  if (excluded) return { status: "invalid", reason: "copilot_payload_excluded_surface" };
+  return { status: "matched", inventory, inventoryDigest: digestFile(inventoryPath) };
+}
+
+export function digestNormalizedPluginSource(root, canonicalVersion) {
+  const files = [];
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) {
+        if (!isHostRuntimeMarker(root, directory, name)) visit(path);
+      } else if (stats.isFile()) files.push(path);
+    }
+  }
+  visit(root);
+  const hash = createHash("sha256");
+  for (const path of files) {
+    const normalizedPath = relative(root, path).replaceAll("\\", "/");
+    if ([INSTALLATION_PROVENANCE_FILE, LEGACY_LOCAL_INSTALL_FILE].includes(normalizedPath)) continue;
+    let content = readFileSync(path);
+    if (normalizedPath === ".codex-plugin/plugin.json"
+        || (normalizedPath === "plugin.json" && readJson(path)?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")) {
+      const manifest = readJson(path);
+      if (!manifest) throw new Error(`Invalid Codex plugin manifest: ${path}`);
+      content = `${JSON.stringify({ ...manifest, version: canonicalVersion }, null, 2)}\n`;
+    } else if ([CODEX_PLUGIN_MCP_FILE, "mcp/codex.mcp.json"].includes(normalizedPath)) {
+      content = normalizeCodexPluginMcpConfig(content);
+    }
+    hash.update(normalizedPath);
+    hash.update("\0");
+    hash.update(content);
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+export function validateDistributionProfiles(definition) {
+  const contract = definition?.distributionProfiles;
+  if (contract?.schemaVersion !== 1) return { status: "invalid", reason: "profile_invalid" };
+  if (contract.marketplaceIdentities?.durable !== "agdf"
+      || contract.marketplaceIdentities?.generatedRepository !== "agdf-repo") {
+    return { status: "invalid", reason: "profile_invalid" };
+  }
+  for (const [profileId, expected] of Object.entries(EXPECTED_PROFILES)) {
+    const observed = contract.profiles?.[profileId];
+    if (!observed
+        || Object.keys(observed).length !== Object.keys(expected).length
+        || Object.keys(expected).some((key) => observed[key] !== expected[key])) {
+      return { status: "invalid", reason: "profile_invalid" };
+    }
+  }
+  if (Object.keys(contract.profiles ?? {}).length !== Object.keys(EXPECTED_PROFILES).length) {
+    return { status: "invalid", reason: "profile_invalid" };
+  }
+  return { status: "matched", contract };
+}
+
+function classifyInstalledHistoricalProfile(catalogue, definition, classifyHistoricalProfile) {
+  if (typeof classifyHistoricalProfile !== "function") {
+    return { status: "invalid", reason: "profile_history_invalid" };
+  }
+  const result = classifyHistoricalProfile({
+    catalogue,
+    version: definition?.version,
+    distributionProfiles: definition?.distributionProfiles,
+  });
+  if (result.status !== "matched") return result;
+  return {
+    ...result,
+    contract: catalogue.contracts[result.contract_id].distribution_profiles,
+  };
+}
+
+export function inspectGeneratedRepositoryMarketplace(targetDir) {
+  const marketplacePath = join(targetDir, ".agents", "plugins", "marketplace.json");
+  if (!existsSync(marketplacePath)) return { status: "absent", marketplacePath };
+  const marketplace = readJson(marketplacePath);
+  const plugin = marketplace?.plugins?.length === 1 ? marketplace.plugins[0] : null;
+  const pluginPath = plugin?.source?.source === "local" ? plugin.source.path : null;
+  if (marketplace?.name !== "agdf-repo" || plugin?.name !== "agdf" || pluginPath !== "./plugins/agdf") {
+    return { status: "invalid", reason: "repository_marketplace_invalid", marketplacePath };
+  }
+  const pluginRoot = resolve(targetDir, pluginPath);
+  const rel = relative(resolve(targetDir), pluginRoot);
+  if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    return { status: "invalid", reason: "repository_marketplace_path_escape", marketplacePath };
+  }
+  const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"));
+  const runtimeManifest = readJson(join(pluginRoot, "runtime", "runtime-manifest.json"));
+  const codexManifest = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"));
+  const claudeManifest = readJson(join(pluginRoot, ".claude-plugin", "plugin.json"));
+  const runtimeRoot = join(pluginRoot, "runtime");
+  const runtimePackageRoot = join(pluginRoot, "runtime", "create-agdf");
+  const runtimeEntrypoint = resolve(runtimeRoot, runtimeManifest?.entrypoint ?? "");
+  const runtimeEntrypointRel = relative(runtimeRoot, runtimeEntrypoint);
+  if (validateDistributionProfiles(definition).status !== "matched"
+      || definition?.version !== runtimeManifest?.version
+      || codexManifest?.version !== definition?.version
+      || claudeManifest?.version !== definition?.version
+      || !/^[a-f0-9]{64}$/.test(runtimeManifest?.digest ?? "")
+      || !existsSync(join(runtimeRoot, "agdf-local.js"))
+      || !runtimeManifest?.entrypoint
+      || runtimeEntrypointRel === ".."
+      || runtimeEntrypointRel.startsWith(`..${sep}`)
+      || isAbsolute(runtimeEntrypointRel)
+      || !existsSync(runtimeEntrypoint)
+      || !existsSync(runtimePackageRoot)) {
+    return { status: "invalid", reason: "repository_runtime_incomplete", marketplacePath, pluginRoot };
+  }
+  let runtimeDigest;
+  try { runtimeDigest = digestDirectory(runtimePackageRoot); } catch {
+    return { status: "invalid", reason: "repository_runtime_incomplete", marketplacePath, pluginRoot };
+  }
+  if (runtimeDigest !== runtimeManifest.digest) {
+    return { status: "invalid", reason: "runtime_digest_mismatch", marketplacePath, pluginRoot };
+  }
+  return {
+    status: "matched",
+    marketplacePath,
+    pluginRoot,
+    selector: `${plugin.name}@${marketplace.name}`,
+    runtimeDigest,
+  };
+}
+
+export function inspectInstallationProvenance(pluginRoot, {
+  definition,
+  runtimeManifest,
+  pluginVersion,
+  allowLegacy = false,
+  profileId = "runtime-plugin",
+  inventoryDigest = null,
+  allowHistoricalProfilesForMigration = false,
+  distributionProfileHistory = null,
+  classifyHistoricalProfile = null,
+} = {}) {
+  const markerPath = join(pluginRoot, INSTALLATION_PROVENANCE_FILE);
+  const legacyPath = join(pluginRoot, LEGACY_LOCAL_INSTALL_FILE);
+  if (!existsSync(markerPath)) {
+    if (allowLegacy && existsSync(legacyPath)) {
+      const currentProfile = validateDistributionProfiles(definition);
+      if (Object.hasOwn(definition ?? {}, "distributionProfiles")
+          && currentProfile.status !== "matched") {
+        return allowHistoricalProfilesForMigration
+          ? classifyInstalledHistoricalProfile(distributionProfileHistory, definition, classifyHistoricalProfile).status === "matched"
+            ? { status: "invalid", reason: "installation_provenance_invalid" }
+            : classifyInstalledHistoricalProfile(distributionProfileHistory, definition, classifyHistoricalProfile)
+          : currentProfile;
+      }
+      const marker = readJson(legacyPath);
+      if (!marker
+          || marker.schema_version !== 1
+          || marker.owner !== "create-agdf"
+          || marker.kind !== "codex_local_development_projection"
+          || marker.canonical_version !== definition.version
+          || marker.codex_install_version !== pluginVersion
+          || !/^[a-f0-9]{64}$/.test(marker.source_digest ?? "")) {
+        return { status: "invalid", reason: "installation_provenance_invalid", marker };
+      }
+      let observedSourceDigest;
+      try { observedSourceDigest = digestNormalizedPluginSource(pluginRoot, definition.version); } catch {
+        return { status: "invalid", reason: "source_digest_mismatch", marker };
+      }
+      return observedSourceDigest === marker.source_digest
+        ? { status: "legacy", marker, observedSourceDigest, reason: "legacy_installation_provenance" }
+        : { status: "invalid", reason: "source_digest_mismatch", marker, observedSourceDigest };
+    }
+    const profile = validateDistributionProfiles(definition);
+    if (profile.status !== "matched") return profile;
+    return { status: "missing", reason: "installation_provenance_missing" };
+  }
+  const currentProfile = validateDistributionProfiles(definition);
+  const historicalProfile = currentProfile.status !== "matched" && allowHistoricalProfilesForMigration
+    ? classifyInstalledHistoricalProfile(distributionProfileHistory, definition, classifyHistoricalProfile)
+    : null;
+  if (currentProfile.status !== "matched" && historicalProfile?.status !== "matched") {
+    return historicalProfile ?? currentProfile;
+  }
+  const profile = currentProfile.status === "matched" ? currentProfile : historicalProfile;
+  const marker = readJson(markerPath);
+  const portable = readJson(join(pluginRoot, "plugin.json"));
+  if (!marker
+      || marker.schema_version !== 1
+      || marker.owner !== "create-agdf"
+      || marker.profile_id !== profileId
+      || marker.marketplace_id !== profile.contract.marketplaceIdentities.durable
+      || marker.canonical_version !== definition.version
+      || marker.codex_install_version !== pluginVersion
+      || (portable?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json" && portable.version !== pluginVersion)
+      || marker.runtime_digest !== runtimeManifest?.digest
+      || (profileId === "copilot-runtime-plugin" && marker.inventory_digest !== inventoryDigest)
+      || !/^[a-f0-9]{64}$/.test(marker.source_digest ?? "")) {
+    return { status: "invalid", reason: "installation_provenance_invalid", marker };
+  }
+  let observedSourceDigest;
+  try {
+    observedSourceDigest = digestNormalizedPluginSource(pluginRoot, definition.version);
+  } catch {
+    return { status: "invalid", reason: "source_digest_mismatch", marker };
+  }
+  if (observedSourceDigest !== marker.source_digest) {
+    return { status: "invalid", reason: "source_digest_mismatch", marker, observedSourceDigest };
+  }
+  return {
+    status: "matched",
+    marker,
+    observedSourceDigest,
+    profileClassification: historicalProfile ? "supported_historical" : "current",
+    historicalReleaseVersion: historicalProfile?.release_version ?? null,
+    historicalContractId: historicalProfile?.contract_id ?? null,
+    historicalContractDigest: historicalProfile?.contract_digest ?? null,
+    historicalEntryDigest: historicalProfile?.entry_digest ?? null,
+  };
+}
+
+export const distributionProfileContract = Object.freeze({
+  expectedProfiles: EXPECTED_PROFILES,
+});

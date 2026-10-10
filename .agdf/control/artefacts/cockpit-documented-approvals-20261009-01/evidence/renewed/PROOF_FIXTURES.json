@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "canonical_setup_owners": [
+    "packages/core/test/control-cockpit-fixtures.js:approvalFixture",
+    "packages/core/test/run-source-revisions-test.js:createLateSourceRevisionTestRun"
+  ],
+  "differential_harness": "proof-parity.mjs",
+  "observations": "PROOF_PARITY.json",
+  "comparisons": 154,
+  "transports": [
+    "actual HTTP production browser service",
+    "actual STDIO false and true modes"
+  ],
+  "positive_bytes": "Exact source bytes and raw digest compared in actual Core/MCP/browser read windows. No DTO fabrication as sole positive proof.",
+  "synthetic_authority_only": true
+}

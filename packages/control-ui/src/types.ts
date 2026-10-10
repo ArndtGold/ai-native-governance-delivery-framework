@@ -22,6 +22,7 @@ export type ReadingScope = Inventory | { kind: 'run'; run: Detail | null; reques
   | { kind: 'context'; run: Detail; document: DocumentData | null; context: GraphData };
 export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
 export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
+  document_states?: DocumentState[];
   draft_check?: DraftCheckData;
   work_summary?: WorkSummary | null; backlog_comparison?: { state: 'matching' | 'different' | 'unavailable'; reason: string; saved_revision_id: string | null; authorizes: false };
   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
@@ -31,12 +32,20 @@ export interface Detail { run_id: string; title?: string; revision_id: string | 
 export interface Diagnostic { code: string; message?: string; path?: string; next_step?: string; severity?: string; section?: string; key?: string | null }
 export interface DraftCheckData {
   source: { run_id: string; gate: string; revision_id: string; artifact_path: string | null; artifact_digest: string | null; available: boolean; reason: string | null };
-  display: { state: 'unchecked' | 'passed' | 'corrections_required' | 'unavailable'; reason: string | null; recovery: 'check' | 'authoring' | 'reload' };
+  display: { state: 'unchecked' | 'passed' | 'corrections_required' | 'unavailable'; reason: string | null; recovery: 'check' | 'authoring' | 'reload'; findings?: Diagnostic[] };
   result: null | { run_id: string; gate: string; expected_revision_id: string; revision_id: string | null; artifact_path: string; artifact_digest: string | null;
     ready: boolean; readiness_scope: 'authoring_checks'; authorizes: false; semantic_review_required: true; registration_required: true; presentation_required: true;
-    checks: { name: string; ready: boolean; [key: string]: unknown }[]; diagnostics: Diagnostic[]; next_action: string; readiness_details?: Record<string, unknown> };
+    checks: { name: string; ready: boolean; [key: string]: unknown }[]; diagnostics: Diagnostic[]; next_action: string; readiness_details?: Record<string, unknown>; current_gate?: string; blocking_reason?: string };
 }
-export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string }
+export interface DocumentState {
+  schema_version: '1'; resource_id: string; run_id: string; revision_id: string; type: string; registered_reference: string;
+  source_state: 'available' | 'missing' | 'blocked' | 'unsupported' | 'unavailable'; content_digest: string | null;
+  state: 'approved' | 'draft' | 'draft_checked' | 'revision_required' | 'check_unavailable' | 'approval_unconfirmed' | 'unavailable';
+  version_kind: 'approved' | 'draft' | 'current' | 'unavailable'; reason: string | null;
+  recorded_approval: { status: 'approved'; evidence: string } | null;
+  check: (DraftCheckData & { content_digest: string }) | null; authorizes: false;
+}
+export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string; document_state?: DocumentState }
 export interface Route { view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
 export interface GraphReference { resource_id: string; run_id: string; origin: string; path: string; node_id: string | null;
   graph_digest: string | null; content_digest: string | null; content: string | null;

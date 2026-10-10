@@ -2,6 +2,7 @@ import { useId, type ReactNode } from 'react';
 import type { Detail, Resource } from './types';
 import { label } from './feedback';
 import { documentName, phaseName, observedAssessment, reportFindingsLabel } from './presentation';
+import { RunDocuments } from './RunDocuments';
 
 // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
 export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
@@ -10,7 +11,6 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
   const id = useId(), e = data.evaluation;
   if (!e) return <>{children}</>;
   const assessment = observedAssessment(data, current);
-  const approvals = e.approvals.filter(a => a.status === 'approved');
   const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
   const stepSource = sources.find(r => r.type === e.current_gate), runSource = sources.find(r => r.type === 'Run State');
   const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
@@ -54,13 +54,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
           <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
         </details>
       </details>
-      <details className="work-step-approvals"><summary>Gespeicherte Freigaben · {approvals.length}</summary>
-        <p className="muted">{approvals.length ? 'Diese Freigaben sind gespeichert. Sie ersetzen keine aktuelle Kontrollauswertung.' : 'Keine Freigaben gespeichert.'}</p>
-        <ul>{approvals.map(a => <li key={a.gate}><strong>{documentName(a.gate)} · freigegeben</strong>
-          {onOpen && sources.filter(r => r.type === a.gate).map(r => <button className="text-link" key={r.resource_id} data-focus-id={`approval:${r.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(r, `approval:${r.resource_id}`)}>{documentName(r.type)} ansehen</button>)}
-          <details className="work-step-original"><summary>Gespeicherter Freigabenachweis · {a.gate}</summary><p className="source-text">{a.evidence || 'Kein Quellenhinweis verfügbar.'}</p></details>
-        </li>)}</ul>
-      </details>
+      <RunDocuments data={data} onOpen={onOpen} sourceDisabled={sourceDisabled} current={current}/>
     </div>
   </section>;
 }

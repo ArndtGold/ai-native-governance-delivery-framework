@@ -19,3 +19,11 @@ export function runData(id: string, title = id): Detail {
 export function runScope(run: Detail, snapshot = 'run-snapshot'): Envelope<ReadingScope> {
   return { ...fixtureMeta, snapshot_id: snapshot, data: { kind: 'run', run } };
 }
+
+export const revision = '00000000-0000-0000-0000-000000000001';
+export function documentFixture(): Detail {
+  const data = runData('run-a'); data.revision_id = revision;
+  data.resources = ['UR', 'PRD', 'SD', 'TP'].map(type => ({resource_id:type,run_id:'run-a',type,path:`.agdf/control/artefacts/run-a/${type}.md`,registered_reference:`.agdf/control/artefacts/run-a/${type}.md`,status:'registered'}));
+  data.document_states = data.resources.map(r => ({schema_version:'1',resource_id:r.resource_id,run_id:r.run_id,revision_id:revision,type:r.type,registered_reference:r.registered_reference,source_state:'available',content_digest:'a'.repeat(64),state:'draft',version_kind:'draft',reason:'not_checked',recorded_approval:null,check:null,authorizes:false}));
+  return data;
+}

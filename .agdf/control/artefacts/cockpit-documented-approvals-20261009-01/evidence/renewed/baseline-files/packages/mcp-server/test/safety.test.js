@@ -1,0 +1,218 @@
+import assert from "node:assert/strict";
+import { EventEmitter } from "node:events";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+import { createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../../core/lib/runtime/plugin-provenance.js";
+import { DispatchExecutionError, createWorkerDispatchExecutor } from "../src/worker.js";
+import { tryLinkFile } from "../../../scripts/support/symlinks.js";
+
+const sourceRoot = new URL("../src/", import.meta.url);
+const sources = readdirSync(sourceRoot)
+  .filter((name) => name.endsWith(".js"))
+  .map((name) => readFileSync(new URL(name, sourceRoot), "utf8"))
+  .join("\n");
+for (const prohibited of [
+  "node:child_process", "node:net", "node:http", "node:https", "node:http2",
+  "node:tls", "node:dgram", "node:dns", "writeFile", "rename(", "unlink(", "rm(", "fetch(",
+]) {
+  assert.equal(sources.includes(prohibited), false, `reachable server source includes prohibited capability: ${prohibited}`);
+}
+assert.equal(sources.includes("McpServer.connect(new StdioServerTransport"), false);
+assert.match(sources, /serveStdio\(/);
+
+const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
+const importPattern = /(?:import|export)\s+(?:[\s\S]*?\s+from\s+)?["']([^"']+)["']/g;
+const visited = new Map();
+function localImport(from, specifier) {
+  if (specifier === "create-agdf/mcp-dispatch-runtime") {
+    return resolve(repositoryRoot, "dist/npm/create-agdf/lib/mcp-dispatch-runtime.js");
+  }
+  if (specifier === "#agdf-core") return resolve(repositoryRoot, "dist/npm/create-agdf/runtime/core/lib/index.js");
+  if (specifier.startsWith("#agdf-core/")) return resolve(repositoryRoot, "dist/npm/create-agdf/runtime/core/lib", specifier.slice("#agdf-core/".length));
+  if (!specifier.startsWith(".")) return null;
+  const candidate = resolve(dirname(from), specifier);
+  return extname(candidate) ? candidate : `${candidate}.js`;
+}
+function visit(path, graph = visited) {
+  if (graph.has(path)) return;
+  const content = readFileSync(path, "utf8");
+  graph.set(path, content);
+  for (const match of content.matchAll(importPattern)) {
+    const imported = localImport(path, match[1]);
+    if (imported && existsSync(imported)) visit(imported, graph);
+  }
+}
+for (const name of readdirSync(sourceRoot).filter((value) => value.endsWith(".js"))) {
+  visit(fileURLToPath(new URL(name, sourceRoot)));
+}
+const dispatcherRoot = resolve(repositoryRoot, "dist/npm/create-agdf");
+const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
+  "rmdirSync", "mkdirSync", "openSync", "fsyncSync"];
+// Bound continuation composes the existing writer; the MCP adapter adds no write owner.
+const continuationWriteOwners = new Map([
+  ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync"]],
+  ["runtime/core/lib/fs-swap.js", ["renameSync"]],
+  ["runtime/core/lib/control-read/snapshot.js", ["openSync"]],
+]);
+function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
+  assert.deepEqual(writeSymbols.filter(symbol => content.includes(symbol)), owners.get(packagePath) ?? [],
+    `module ${packagePath} exceeds its declared filesystem write boundary`);
+}
+for (const [path, content] of visited) {
+  for (const prohibited of [
+    "node:child_process", "node:net", "node:http", "node:https", "node:http2",
+    "node:tls", "node:dgram", "node:dns", "fetch(",
+  ]) {
+    assert.equal(content.includes(prohibited), false, `reachable module ${path} includes ${prohibited}`);
+  }
+  const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
+  assertWriteBoundary(packagePath, content);
+  if (path.startsWith(`${dispatcherRoot}${sep}`)) {
+    assert.ok(
+      MCP_DISPATCHER_RUNTIME_ENTRIES.some((entry) => packagePath === entry || packagePath.startsWith(`${entry}/`)),
+      `reachable dispatcher module is outside the provenance digest: ${packagePath}`,
+    );
+  }
+}
+assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/skill-dispatch/service.js")));
+assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/runtime/core/lib/control-inspect/service.js")), "the read tool is part of the scanned reachable surface");
+for (const owner of continuationWriteOwners.keys()) assert.ok(visited.has(resolve(dispatcherRoot, owner)));
+const readOnlyGraph = new Map();
+for (const owner of ["skill-dispatch/service.js", "control-inspect/service.js"]) {
+  visit(resolve(dispatcherRoot, "runtime/core/lib", owner), readOnlyGraph);
+}
+const readDescriptors = new Map([["runtime/core/lib/control-read/snapshot.js", ["openSync"]]]);
+for (const [path, content] of readOnlyGraph) {
+  assertWriteBoundary(relative(dispatcherRoot, path).replaceAll("\\", "/"), content, readDescriptors);
+}
+const snapshotSource = readOnlyGraph.get(resolve(dispatcherRoot, 'runtime/core/lib/control-read/snapshot.js'));
+assert.match(snapshotSource, /fs\.openSync\(path, fs\.constants\.O_RDONLY \| \(fs\.constants\.O_NOFOLLOW/);
+assert.equal((snapshotSource.match(/fs\.openSync\(/g) ?? []).length, 1, 'The bounded snapshot may open only the checked read-only descriptor.');
+assert.throws(() => assertWriteBoundary("runtime/core/lib/unexpected-writer.js", "writeFileSync()"), /write boundary/);
+assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync(); mkdirSync()"), /write boundary/);
+assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync()", new Map()), /write boundary/);
+
+class SilentWorker extends EventEmitter {
+  constructor() {
+    super();
+    this.terminated = false;
+  }
+  async terminate() {
+    this.terminated = true;
+  }
+}
+
+const busyExecutor = createWorkerDispatchExecutor({
+  surface: "codex", expectedVersion: "0.14.5", timeoutMs: 1_000, WorkerClass: SilentWorker,
+});
+const activeCall = busyExecutor.execute({});
+await assert.rejects(
+  busyExecutor.execute({}),
+  (error) => error instanceof DispatchExecutionError && error.code === "dispatch_busy",
+);
+await busyExecutor.close();
+await assert.rejects(activeCall, (error) => error.code === "dispatch_cancelled");
+
+const timeoutExecutor = createWorkerDispatchExecutor({
+  surface: "codex", expectedVersion: "0.14.5", timeoutMs: 5, WorkerClass: SilentWorker,
+});
+await assert.rejects(
+  timeoutExecutor.execute({}),
+  (error) => error instanceof DispatchExecutionError && error.code === "dispatch_timeout",
+);
+assert.equal(timeoutExecutor.active, false);
+
+const cancelExecutor = createWorkerDispatchExecutor({
+  surface: "codex", expectedVersion: "0.14.5", timeoutMs: 1_000, WorkerClass: SilentWorker,
+});
+const controller = new AbortController();
+const cancelled = cancelExecutor.execute({}, { signal: controller.signal });
+controller.abort();
+await assert.rejects(cancelled, (error) => error.code === "dispatch_cancelled");
+assert.equal(cancelExecutor.active, false);
+
+const preCancelled = new AbortController();
+preCancelled.abort();
+const preCancelledExecutor = createWorkerDispatchExecutor({
+  surface: "codex",
+  expectedVersion: "0.14.5",
+  WorkerClass: class MustNotStart {
+    constructor() { throw new Error("pre-cancelled calls must not start a worker"); }
+  },
+});
+await assert.rejects(
+  preCancelledExecutor.execute({}, { signal: preCancelled.signal }),
+  (error) => error.code === "dispatch_cancelled",
+);
+assert.equal(preCancelledExecutor.active, false);
+
+const runtime = createMcpDispatchRuntime({ surface: "codex" });
+const sanitized = runtime.failure("dispatch_worker_failed");
+assert.equal(JSON.stringify(sanitized).includes("secret"), false);
+assert.deepEqual(sanitized.diagnostics, [{ code: "dispatch_worker_failed" }]);
+assert.equal(sanitized.authorizes, false);
+
+const escapedTarget = mkdtempSync(join(tmpdir(), "agdf-mcp-read-boundary-"));
+const outsideRoot = mkdtempSync(join(tmpdir(), "agdf-mcp-outside-"));
+try {
+  mkdirSync(join(escapedTarget, ".git"));
+  writeFileSync(join(escapedTarget, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
+  mkdirSync(join(escapedTarget, ".agdf", "control"), { recursive: true });
+  const outside = join(outsideRoot, "outside-secret.txt");
+  writeFileSync(outside, "MCP_BOUNDARY_SECRET");
+  if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "escape.md"), "mcp-safety-test")) {
+    const inspectTool = runtime.tool("agdf_inspect");
+    const guardedInspect = inspectTool.execute(inspectTool.parse({
+      operation: "doctor",
+      presentation_language: "en",
+      working_directory: escapedTarget,
+      target_source: "explicit_target",
+      primary_target: escapedTarget,
+    }));
+    assert.equal(guardedInspect.outcome, "evaluator_error");
+    assert.deepEqual(guardedInspect.diagnostics, [{ code: "inspect_control_evaluation_failed" }]);
+    assert.equal(JSON.stringify(guardedInspect).includes("MCP_BOUNDARY_SECRET"), false);
+    const guarded = runtime.execute(runtime.parse({
+      skill_id: "gate-check",
+      presentation_language: "en",
+      working_directory: escapedTarget,
+      target_source: "explicit_target",
+      primary_target: escapedTarget,
+    }));
+    assert.equal(guarded.outcome, "evaluator_error");
+    assert.deepEqual(guarded.diagnostics, [{ code: "dispatch_control_evaluation_failed" }]);
+    assert.equal(JSON.stringify(guarded).includes("MCP_BOUNDARY_SECRET"), false);
+  }
+} finally {
+  rmSync(escapedTarget, { recursive: true, force: true });
+  rmSync(outsideRoot, { recursive: true, force: true });
+}
+
+const fakeRepository = mkdtempSync(join(tmpdir(), "agdf-mcp-fake-repository-"));
+try {
+  mkdirSync(join(fakeRepository, ".git"));
+  const rejected = runtime.execute(runtime.parse({
+    skill_id: "gate-check",
+    presentation_language: "en",
+    working_directory: fakeRepository,
+    target_source: "explicit_target",
+    primary_target: fakeRepository,
+  }));
+  assert.equal(rejected.outcome, "target_unresolved");
+  assert.equal(rejected.target.reason_code, "target_not_in_repository");
+} finally {
+  rmSync(fakeRepository, { recursive: true, force: true });
+}
+
+console.log("AGDF MCP isolation, timeout, cancellation and static safety tests passed.");

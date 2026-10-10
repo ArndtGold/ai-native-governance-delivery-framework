@@ -1,0 +1,1829 @@
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/docs/architecture/06-agdf-cockpit.md b/docs/architecture/06-agdf-cockpit.md
+index ffe7b65d..2d91614f 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/docs/architecture/06-agdf-cockpit.md
++++ b/docs/architecture/06-agdf-cockpit.md
+@@ -567,6 +567,26 @@ Der additive `agdf_cockpit_read`-Aufruf `artifact_readiness` akzeptiert ausschli
+ 
+ Die Entwurfsdatei beziehungsweise ihre Abwesenheit wird bereits bei Auswahl erfasst. Der Prüfaufruf validiert die alte Auswahl, erstellt über den bestehenden Leser einen neuen Lesestand und prüft vor Veröffentlichung erneut Revision, Gate, Dateiidentität und Quellenfrische. Sitzung, Worker, Pool, Ressourcen und Beobachter übernehmen diesen Stand gemeinsam; bestehende Kontextbereinigung und Quarantäne bleiben wirksam. Dateiänderungen bei gleicher Run-Revision entwerten Ergebnisse ebenfalls.
+ 
+-Eine gemeinsame App-Komponente zeigt ungeprüft, laufend, bestanden, Korrekturen und begrenzte Nichtverfügbarkeit an. Originalbefunde und Quellenbezug bleiben aufklappbar. Eine kurzlebige Anfrage koordiniert Abbruch, Frische und Kontextbereinigung; ausschließlich der zentrale Lesezustand übernimmt eine aktuelle Antwort. Navigation, Neuladen oder eine verspätete Antwort dürfen keine frühere Prüfung als aktuell installieren. Ressourcenwechsel erhalten logischen Fokus, Quellenklappen und Leseposition. Neuladen prüft nicht automatisch.
++Eine gemeinsame App-Komponente zeigt ungeprüft, laufend, bestanden, Korrekturen und begrenzte Nichtverfügbarkeit an. Originalbefunde und Quellenbezug bleiben aufklappbar. Eine kurzlebige Anfrage koordiniert Abbruch, Frische und Kontextbereinigung; ausschließlich der zentrale Lesezustand übernimmt eine aktuelle Antwort. Verspätete Antworten dürfen keine frühere Prüfung als aktuell installieren. Ressourcenwechsel erhalten logischen Fokus, Quellenklappen und Leseposition. Neuladen prüft nicht automatisch.
+ 
+ Alte Leseoperationen bleiben kompatibel. Ein alter Server ohne Quellenbeschreibung zeigt die Nichtverfügbarkeit der Prüfung, während Lesen weiterhin möglich ist. Core-/Protokoll-/Browserprüfungen und ein Paket-Build belegen keine neue native MCP-App-Beobachtung; diese benötigt den exakt gebauten und tatsächlich geladenen Host-Stand.
++
++### Dokumentliste und nachgewiesene Fassung
++
++Die Liste „Dokumente“ zählt die tatsächlich registrierten UR-, PRD-, SD-, TP-, QA- und UAT-Ressourcen des ausgewählten Runs. Dateien und gespeicherte Freigaben erzeugen keine zusätzlichen Zeilen. Analysen und Run State behalten ihre bisherigen Quellenwege. Zwei Gruppen zeigen Dokumentname mit Symbol und lesbarem Status sowie genau einen kontextbezogenen Dokumentlink. Bei wenig Platz werden dieselben Gruppen untereinander angeordnet; die logische Zeile bleibt erhalten. Die Übersicht besitzt keine eigenen aufklappbaren Freigabeeinträge und keinen separaten Freigabeleser.
++
++Core liefert optional `Detail.document_states`; ein gelesener verfügbarer Gate-Text trägt denselben Eintrag in `DocumentData.document_state`. Ein Eintrag enthält `schema_version: "1"`, `authorizes: false`, Ressourcen-ID, Run, Revision, Typ, registrierte Referenz, `source_state`, rohen SHA-256 `content_digest` ohne Präfix, `state`, `version_kind`, `reason`, ursprüngliche `recorded_approval` oder null und zutreffende `check` oder null. `check` enthält die bestehende Prüfquelle, den unveränderten Autorenbericht, dessen beschreibende Anzeige und den rohen Digest. Die bestehende kanonisch normalisierte `artifact_digest` bleibt getrennt von den tatsächlich gelesenen Bytes.
++
++Die Zustände sind `approved`, `draft`, `draft_checked`, `revision_required`, `check_unavailable`, `approval_unconfirmed` und `unavailable`. `version_kind` ist `approved`, `draft`, `current` oder `unavailable`; Quellen können `available`, `missing`, `blocked`, `unsupported` oder `unavailable` sein. Eine bestätigte Fassung verlangt bestehende Run-/Quellenintegrität und die exakte Zuordnung über `inspectApprovedArtefact` im bisherigen Freigabeprüfkern zu den zurückgegebenen Rohbytes. `exactApprovedArtefacts` nutzt denselben Kern und behält seine bisherigen Legacy-, Beleg-, Ableitungs- und historischen Regeln. Die bestehende UAT-Ausnahme des Sammelprüfers beweist kein UAT-Dokument; der einzelne Prüfer bestätigt UAT daher nicht.
++
++Eine frühere gespeicherte Freigabe bleibt als Originalnachweis sichtbar, auch wenn die aktuelle Fassung nicht bestätigt ist. Nur `approved` erhält den typbezogenen Link „Freigegebenes … ansehen“; Entwürfe erhalten „Entwurf ansehen“, unbestätigte lesbare Fassungen „Aktuelle Fassung ansehen“. Fehlende und gesperrte Quellen erhalten keinen funktionierenden Link. Der große vorhandene Dokumentleser zeigt Status, zutreffende Korrekturen und den ursprünglichen Freigabetext. Nicht strukturiert bestätigte Angaben zu Zeitpunkt, Person und Grundlage werden ausdrücklich als nicht verfügbar ausgewiesen.
++
++### Kurzlebiger Prüfbezug und Grenzen
++
++Ein Leser hält höchstens einen flüchtigen Core-Prüfbezug von maximal 256 KiB serialisierten UTF-8-JSON-Bytes. Ziel, Run, Gate, Revision, Pfad, kanonischer Digest und roher Digest müssen bei frischer Erfassung übereinstimmen. Navigation zum Dokument, verknüpftem Kontext und zurück zum selben Run darf den Bezug nach erneuter Validierung erhalten; neue Snapshots und Ressourcen-IDs bleiben ausschließlich beim bisherigen Leser. Es gibt keinen App-Prüfcache, Schreibpfad oder automatische Listen-/Sammelprüfung.
++
++Ein expliziter Snapshot/Reload, Übersicht oder anderer Run, beobachtete Änderungen an Quelle, Revision, Gate, Lebenszyklus oder Integrität, fehlgeschlagene Erfassung, `source_changed`, ungültiger aktueller Stand und Sitzungsabbau löschen den Bezug. Vor der Erfassung abgewiesene ungültige Selektoren verändern die legitime Ansicht nicht. Die Beschreibungen aller Dokumente zusammen haben ebenfalls eine harte Grenze von 256 KiB; vorhandene Datei-, Vorschau-, Antwort-, Zeit- und Ressourcenlimits bleiben bestehen. Überschreitung liefert die bestehende begrenzte Nichtverfügbarkeit, kein gekürztes positives Ergebnis.
++
++`describeArtifactReadiness` beschreibt ausschließlich tatsächliche Befunde des bisherigen Autorenprüfers. Frühe `artifact_gate_not_ready`-Berichte dürfen konkrete Korrekturen anzeigen, wenn aktuelles Gate, bekannte UR-/PRD-/SD-/TP-Autorenursache und nichtleere strukturierte offene Punkte zusammenpassen. Andere Voraussetzungen, unbekannte Ursachen oder technische Fehler bleiben „Prüfung nicht verfügbar“. Der Originalbericht wird nicht verändert und erteilt keine Freigabe.
++
++HTTP und STDIO MCP übertragen diese optionalen Angaben über ihre bestehenden Leser. Die gemeinsame App-Grenze prüft Form, Mitgliedschaft, Revision, Quellenbezug, rohen Digest und Gleichheit von Run- und Dokumentbeschreibung, ohne Freigabe oder Autorenregeln selbst auszuwerten. JSON-Schlüsselreihenfolge ist unerheblich. Fehlende Zusatzfelder alter Server bleiben kompatibel und unsicher; vorhandene fehlerhafte oder fremde Zusatzfelder werden als `dto_invalid` abgewiesen. Kontextübergabe, Generation, Abbruch, Fokus, Frische, Quarantäne und Teardown bleiben bei den bisherigen Eigentümern.
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/cli/scripts/cockpit-scoped-mcp-test.js b/packages/cli/scripts/cockpit-scoped-mcp-test.js
+index cc9b84ec..15d129e3 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/cli/scripts/cockpit-scoped-mcp-test.js
++++ b/packages/cli/scripts/cockpit-scoped-mcp-test.js
+@@ -2,15 +2,39 @@ import assert from 'node:assert/strict';
+ import { readFileSync, writeFileSync, realpathSync, rmSync } from 'node:fs';
+ import { join } from 'node:path';
+ import { withStdioClient } from '../../mcp-server/test/helpers.js';
+-import { fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
++import { approvalFixture, fixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
+ import { COCKPIT_UI_URI } from '../../core/lib/control-inspect/cockpit-contract.js';
+ import { recordBacklogSummary } from '../../core/lib/control-state/backlog-summary.js';
+ import { runWorkSummary } from '../../core/lib/control-evaluation/run-work-summary.js';
+ import { parseRunState } from '../../core/lib/control-state/run-state-parser.js';
+ import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
++import { upsertTableRow } from '../../core/lib/control-state/run-state-edits.js';
+ const preparation = JSON.parse(readFileSync(process.env.AGDF_COCKPIT_TEST_PREPARATION, 'utf8'));
++for (const modern of [false, true]) {
++  const f = await approvalFixture(); f.root=realpathSync(f.root);
++  try {
++    assert.equal(f.approve().outcome,'approved'); const before=treeBytes(f.root);
++    await withStdioClient({modern,command:preparation.node,args:[preparation.entrypoint,'--surface','codex','--cockpit-dir',f.root]},async client=>{
++      const session_id=(await client.callTool({name:'agdf_cockpit',arguments:{run_id:'fixture-a'}}))._meta.agdf_cockpit.session_id;
++      const call=async args=>(await client.callTool({name:'agdf_cockpit_read',arguments:{session_id,...args}})).structuredContent;
++      const selected=await call({operation:'snapshot',run_id:'fixture-a'});
++      const state=selected.data.run.document_states.find(s=>s.type==='UR'); assert.equal(state.state,'approved');
++      const opened=await call({operation:'document',snapshot_id:selected.snapshot_id,run_id:'fixture-a',resource_id:state.resource_id});
++      assert.equal(opened.data.document.document_state.version_kind,'approved');
++      assert.equal(opened.data.document.content,readFileSync(join(f.root,f.documentPath),'utf8'));
++      const {createHash}=await import('node:crypto');
++      assert.equal(opened.data.document.content_digest,createHash('sha256').update(readFileSync(join(f.root,f.documentPath))).digest('hex'));
++      assert.equal(opened.authorizes,false);
++      await call({operation:'close'});
++      assert.equal((await call({operation:'snapshot',run_id:'fixture-a'})).code,'session_expired');
++      console.log(JSON.stringify({modern,actual_canonical_approval:true,raw_reader_version:'approved',native_ui_observation:false}));
++    });
++    assert.deepEqual(treeBytes(f.root),before);
++  } finally { f.close(); }
++}
+ for (const modern of [false, true]) {
+   const f = artifactReadinessFixture(); f.root = realpathSync(f.root); writeFileSync(f.path, readyPrd);
++  f.reseal(s => upsertTableRow(s, 'Artefacts', 0, 'PRD', ['PRD', `${f.prefix}PRD.md`, 'draft', 'Real registered draft read through STDIO']));
+   const before = treeBytes(f.root);
+   try {
+     await withStdioClient({ modern, command: preparation.node, args: [preparation.entrypoint, '--surface', 'codex', '--cockpit-dir', f.root] }, async client => {
+@@ -22,8 +46,21 @@ for (const modern of [false, true]) {
+       const selected = await call({ operation: 'snapshot', run_id: f.runId });
+       const checked = await call({ operation: 'artifact_readiness', snapshot_id: selected.snapshot_id, run_id: f.runId, gate: 'PRD', expected_revision_id: f.revision });
+       assert.equal(checked.data.run.draft_check.display.state, 'passed'); assert.equal(checked.data.run.draft_check.result.authorizes, false);
++      const description=checked.data.run.document_states.find(s=>s.type==='PRD');assert.equal(description.state,'draft_checked');
++      const document=await call({operation:'document',snapshot_id:checked.snapshot_id,run_id:f.runId,resource_id:description.resource_id});
++      assert.deepEqual(document.data.document.document_state.check.result,checked.data.run.draft_check.result);
++      assert.equal(document.data.document.content,readyPrd);
++      assert.equal(document.data.document.content_digest,document.data.document.document_state.content_digest);
++      const returned=await call({operation:'run',snapshot_id:document.snapshot_id,run_id:f.runId});
++      assert.equal(returned.data.run.document_states.find(s=>s.type==='PRD').state,'draft_checked');
++      assert.deepEqual(returned.data.run.draft_check.result,checked.data.run.draft_check.result);
++      const resource=await client.readResource({uri:COCKPIT_UI_URI});
++      const {createHash}=await import('node:crypto');
++      assert.equal('sha256:'+createHash('sha256').update(resource.contents[0].text).digest('hex'),preparation.ui.digest);
++      const reloaded=await call({operation:'snapshot',run_id:f.runId});assert.equal(reloaded.data.run.draft_check.result,null);
+       assert.equal((await call({ operation: 'freshness', snapshot_id: selected.snapshot_id })).code, 'resource_denied');
+       await call({ operation: 'close' });
++      assert.equal((await call({operation:'snapshot',run_id:f.runId})).code,'session_expired');
+       console.log(JSON.stringify({ modern, operation: 'artifact_readiness', actual_authoring_pass: true, ui_digest: preparation.ui.digest, native_ui_observation: false }));
+     });
+     assert.deepEqual(treeBytes(f.root), before);
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DocumentView.tsx b/packages/control-ui/src/DocumentView.tsx
+index 2429f465..6f4c58e3 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DocumentView.tsx
++++ b/packages/control-ui/src/DocumentView.tsx
+@@ -3,6 +3,8 @@ import remarkGfm from 'remark-gfm';
+ import type { Envelope, DocumentData, Detail } from './types';
+ import { ReadState, label } from './feedback';
+ import { documentPurpose, phaseName, observedAssessment, sourceSummary } from './presentation';
++import { documentPresentation, DocumentStateLabel } from './document-state';
++import { sameJson } from './api';
+ export function PassiveMarkdown({ content, links, onOpen }: { content: string; links: Record<string, string>; onOpen: (id: string) => void }) {
+   return <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{
+     a: ({ href, children }) => href && Object.hasOwn(links, href) ? <button className="text-link" onClick={() => onOpen(links[href])}>{children}</button> : <span>{children}{href ? <span className="muted"> ({href})</span> : null}</span>,
+@@ -25,6 +27,10 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true
+   }) : undefined;
+   const readable = result.state === 'available' && data?.content !== undefined;
+   const confirmed = bound && current && readable && detail?.state === 'available';
++  const state = bound && data?.document_state && data.content_digest === data.document_state.content_digest
++    && sameJson(data.document_state, detail?.data?.document_states?.find(s => s.resource_id === data.resource.resource_id)) ? data.document_state : undefined;
++  const approval = state?.recorded_approval ?? (bound ? detail?.data?.evaluation?.approvals.find(a => a.gate === data?.resource.type && a.status === 'approved') : undefined);
++  const presentation = documentPresentation(state, data?.resource.type ?? '', !!confirmed, !!approval);
+   const assessment = bound && detail?.data ? observedAssessment(detail.data, !!confirmed) : 'unconfirmed';
+   const assessmentName = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
+     : assessment === 'completed' ? 'Vorhaben abgeschlossen' : 'Aktuelle Voraussetzungen nicht bestätigt';
+@@ -33,10 +39,16 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true
+     <section className="document-context" aria-label="Einordnung des Dokuments">
+       {runTitle && <p>Zum Vorhaben <strong>{runTitle}</strong></p>}
+       <h2>Worum es hier geht</h2>
++      <div className="document-state-context"><DocumentStateLabel state={state} type={data?.resource.type ?? ''} current={!!confirmed} recordedApproval={!!approval}/>
++        <p>{presentation.explanation}</p>
++        {confirmed && state?.check?.display.findings?.length ? <ul aria-label="Aktuelle Korrekturen">{state.check.display.findings.map((finding, i) => <li key={`${finding.code}:${i}`}>{finding.message ?? finding.code}</li>)}</ul> : null}
++        {approval && <><h3>Dokumentierte Freigabe</h3><p className="source-text">{approval.evidence.trim() || 'Kein Originalnachweis verfügbar.'}</p></>}
++        {approval && <p className="muted">Freigabezeitpunkt, freigebende Person und Grundlage sind nicht als bestätigte strukturierte Angaben verfügbar.{state?.state !== 'approved' && ' Die genaue freigegebene Fassung ist nicht bestätigt.'}</p>}
++      </div>
+       {summary ? <><div className="document-summary"><PassiveMarkdown content={summary} links={data?.links ?? {}} onOpen={onOpen}/></div><p className="muted document-summary-origin">Aus der deutschsprachigen Zusammenfassung dieser Quelle.</p></>
+         : <><p>{documentPurpose(data?.resource.type)}</p><p className="muted">Eine deutschsprachige Kurzfassung ist in dieser Quelle nicht verfügbar.</p></>}
+       <dl className="document-control">
+-        <div><dt>{confirmed ? 'Gespeicherter Dokumentstand' : 'Zuletzt gespeicherter Dokumentstand'}</dt><dd>{row ? label(row.status) : 'Nicht bestätigt'}</dd></div>
++        <div><dt>{confirmed ? 'Gespeicherter Dokumentstand' : 'Zuletzt gespeicherter Dokumentstand'}</dt><dd>{row ? row.status === 'approved' ? 'Als freigegeben gespeichert' : row.status === 'draft' ? 'Entwurf' : label(row.status) : 'Nicht bestätigt'}</dd></div>
+         <div><dt>Aktuelle Kontrollauswertung</dt><dd>{assessmentName}</dd></div>
+         {confirmed && detail?.data?.evaluation && <div><dt>Aktueller Arbeitsschritt</dt><dd>{phaseName(detail.data.evaluation.current_gate)}</dd></div>}
+       </dl>
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DocumentedApprovals.tsx b/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DocumentedApprovals.tsx
+deleted file mode 100644
+index 1c236174..00000000
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DocumentedApprovals.tsx
++++ /dev/null
+@@ -1,48 +0,0 @@
+-import type { Detail, Resource } from './types';
+-import { documentName } from './presentation';
+-
+-// Describes recorded facts only. The existing reader owns current resources and freshness.
+-export function DocumentedApprovals({ approvals, resources, runId, onOpen, sourceDisabled = false }: {
+-  approvals: NonNullable<Detail['evaluation']>['approvals']; resources: Resource[]; runId: string;
+-  onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean;
+-}) {
+-  const recorded = approvals.filter(a => a.status === 'approved');
+-  const sources = resources.filter(r => r.status === 'registered' && r.run_id === runId);
+-  return <details className="work-step-approvals">
+-    <summary>Dokumentierte Freigaben · {recorded.length}</summary>
+-    <p className="muted documented-approvals-note">Die Nachweise beziehen sich auf die dokumentierte Freigabe. Den aktuellen Kontrollstatus bestimmt die Kontrollauswertung. Der Lesedienst öffnet aktuelle Quellen; die genaue freigegebene Fassung ist nicht bestätigt.</p>
+-    {recorded.length === 0 ? <p className="work-step-empty">Keine Freigaben dokumentiert.</p> : <>
+-      <div className="documented-approvals-columns" aria-hidden="true"><span>Dokument</span><span>Freigabenachweis</span><span>Dokumentfassung</span></div>
+-      <ul className="documented-approvals-list" aria-label="Dokumentierte Freigaben">
+-        {recorded.map(a => {
+-          const name = documentName(a.gate), matches = sources.filter(r => r.type === a.gate);
+-          return <li className="documented-approval-row" key={a.gate}>
+-            <div className="documented-approval-group"><span className="documented-approval-label">Dokument</span><strong>{name}</strong></div>
+-            <div className="documented-approval-group"><span className="documented-approval-label">Freigabenachweis</span>
+-              <details className="documented-approval-evidence">
+-                <summary aria-label={`Dokumentiert: ${name}`}>Dokumentiert</summary>
+-                <dl className="documented-approval-facts">
+-                  <dt>Freigabe</dt><dd>{a.gate} · dokumentiert</dd>
+-                  <dt>Vorhaben</dt><dd>{runId}</dd>
+-                  <dt>Freigegebene Fassung</dt><dd>Nicht bestätigt.</dd>
+-                  <dt>Freigabezeitpunkt</dt><dd>Keine strukturierte Angabe verfügbar.</dd>
+-                  <dt>Freigebende Person</dt><dd>Keine bestätigte Identität verfügbar.</dd>
+-                  <dt>Aussagebereich</dt><dd>Keine strukturierte Angabe verfügbar.</dd>
+-                  <dt>Grundlage</dt><dd>Keine strukturierte Angabe verfügbar.</dd>
+-                </dl>
+-                <p className="documented-approval-original-label">Originalnachweis</p>
+-                <p className="source-text">{a.evidence.trim() ? a.evidence : 'Kein Originalnachweis verfügbar.'}</p>
+-              </details>
+-            </div>
+-            <div className="documented-approval-group"><span className="documented-approval-label">Dokumentfassung</span>
+-              {onOpen && matches.length ? matches.map(r => <div className="documented-approval-source" key={r.resource_id}>
+-                <button className="text-link" aria-label={`Aktuelle Fassung ansehen: ${name} · ${r.registered_reference}`} data-focus-id={`approval:${r.resource_id}`} disabled={sourceDisabled} onClick={() => onOpen(r, `approval:${r.resource_id}`)}>Aktuelle Fassung ansehen</button>
+-                {matches.length > 1 && <span className="documented-approval-reference">{r.registered_reference}</span>}
+-              </div>) : <p className="muted">Aktuelle Fassung nicht verfügbar.</p>}
+-            </div>
+-          </li>;
+-        })}
+-      </ul>
+-    </>}
+-  </details>;
+-}
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DraftCheck.tsx b/packages/control-ui/src/DraftCheck.tsx
+index b35c129f..7ba1c44d 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/DraftCheck.tsx
++++ b/packages/control-ui/src/DraftCheck.tsx
+@@ -22,7 +22,7 @@ export function DraftCheck({ result, action, current, onReload }: {
+     {(!current || action.problem && !retry && !reopen || draft?.display.recovery === 'reload') && <button type="button" onClick={onReload}>Stand neu laden</button>}
+     {current && !action.problem && !draft?.source.available && <p>Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.</p>}
+     {current && !action.problem && draft?.result && <>
+-      {!!draft.result.diagnostics.length && <ul>{draft.result.diagnostics.map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>}
++      {!!(draft.display.findings?.length || draft.result.diagnostics.length) && <ul>{(draft.display.findings?.length ? draft.display.findings : draft.result.diagnostics).map((d, i) => <li key={`${d.code}:${i}`}><code>{d.code}</code>{d.message && <p>{d.message}</p>}</li>)}</ul>}
+       <p className="source-text">Nächster Schritt · Core-Original: {draft.result.next_action}</p>
+     </>}
+     <details><summary>Prüfquelle und Originalbefunde</summary>
+diff --git a/packages/control-ui/src/RunDocuments.tsx b/packages/control-ui/src/RunDocuments.tsx
+new file mode 100644
+index 00000000..62b63548
+--- /dev/null
++++ b/packages/control-ui/src/RunDocuments.tsx
+@@ -0,0 +1,41 @@
++import type { Detail, Resource } from './types';
++import { documentName } from './presentation';
++import { documentPresentation, DocumentStateLabel } from './document-state';
++const gates = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
++
++export function RunDocuments({ data, onOpen, sourceDisabled = false, current = true }: {
++  data: Detail; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; current?: boolean;
++}) {
++  const seen = new Set<string>();
++  const rows = data.resources.filter(r => {
++    const key = `${r.type}:${r.registered_reference}`;
++    if (r.run_id !== data.run_id || !gates.has(r.type) || seen.has(key)) return false;
++    seen.add(key); return true;
++  });
++  return <section className="run-documents" aria-label="Dokumente">
++    <h3>Dokumente · {rows.length}</h3>
++    {rows.length === 0 ? <p className="muted">Keine Dokumente registriert.</p> : <>
++      <div className="run-documents-columns" aria-hidden="true"><span>Dokument</span><span>Dokument ansehen</span></div>
++      <ul className="run-documents-list">
++        {rows.map(r => {
++          const state = data.document_states?.find(s => s.resource_id === r.resource_id);
++          const recordedApproval = data.evaluation?.approvals.some(a => a.gate === r.type && a.status === 'approved');
++          const p = documentPresentation(state, r.type, current, recordedApproval);
++          const readable = r.status === 'registered' && (!state || state.source_state === 'available');
++          const multiple = rows.filter(x => x.type === r.type).length > 1;
++          return <li className="run-document-row" key={`${r.run_id}:${r.type}:${r.registered_reference}`}>
++            <div className="run-document-name"><strong>{documentName(r.type)}</strong>
++              <DocumentStateLabel state={state} type={r.type} current={current} recordedApproval={recordedApproval}/>
++              {multiple && <span className="run-document-reference">{r.registered_reference}</span>}
++            </div>
++            <div className="run-document-action">{readable && onOpen
++              ? <button className="text-link" data-focus-id={`document:${r.resource_id}`} disabled={sourceDisabled}
++                aria-label={`${p.action}: ${documentName(r.type)}${multiple ? ` · ${r.registered_reference}` : ''}`}
++                onClick={() => onOpen(r, `document:${r.resource_id}`)}>{p.action}</button>
++              : <span className="muted">Dokument nicht verfügbar.</span>}</div>
++          </li>;
++        })}
++      </ul>
++    </>}
++  </section>;
++}
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/WorkStep.tsx b/packages/control-ui/src/WorkStep.tsx
+index f823fcd7..4107a2d5 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/WorkStep.tsx
++++ b/packages/control-ui/src/WorkStep.tsx
+@@ -2,7 +2,7 @@ import { useId, type ReactNode } from 'react';
+ import type { Detail, Resource } from './types';
+ import { label } from './feedback';
+ import { documentName, phaseName, observedAssessment, reportFindingsLabel } from './presentation';
+-import { DocumentedApprovals } from './DocumentedApprovals';
++import { RunDocuments } from './RunDocuments';
+ 
+ // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
+ export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, children }: {
+@@ -54,7 +54,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
+           <dl className="work-step-facts"><dt>Kontrollstatus</dt><dd>{label(e.status)}</dd><dt>Kontrollprüfung</dt><dd>{label(e.doctor_status)}</dd><dt>{current ? 'Blocker' : 'Zuletzt gespeicherter Blocker'}</dt><dd><code>{e.blocking_reason}</code></dd><dt>{current ? 'Ausstehende Freigabe' : 'Zuletzt ausstehende Freigabe'}</dt><dd><code>{e.missing_approval}</code></dd><dt>Nächster Schritt laut Quelle</dt><dd>{e.next_allowed_action}</dd></dl>
+         </details>
+       </details>
+-      <DocumentedApprovals approvals={e.approvals} resources={data.resources} runId={data.run_id} onOpen={onOpen} sourceDisabled={sourceDisabled}/>
++      <RunDocuments data={data} onOpen={onOpen} sourceDisabled={sourceDisabled} current={current}/>
+     </div>
+   </section>;
+ }
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/api.ts b/packages/control-ui/src/api.ts
+index 094980c9..04d64954 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/api.ts
++++ b/packages/control-ui/src/api.ts
+@@ -3,6 +3,15 @@ import { hasConsistentBacklogCounts } from '../../core/lib/control-inspect/cockp
+ import { validBacklogSummary, validWorkSummary } from '../../core/lib/control-state/backlog-summary-shape.js';
+ const states = new Set(['available', 'empty', 'partial', 'invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
+ const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
++// JSON object member order is not part of the wire contract. Array order is.
++export const sameJson = (a: unknown, b: unknown): boolean => {
++  if (a === b) return true;
++  if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b)
++    && a.length === b.length && a.every((v, i) => sameJson(v, b[i]));
++  if (!object(a) || !object(b)) return false;
++  const keys = Object.keys(a);
++  return keys.length === Object.keys(b).length && keys.every(k => Object.hasOwn(b, k) && sameJson(a[k], b[k]));
++};
+ const text = (v: unknown) => typeof v === 'string';
+ const nullableText = (v: unknown) => v === null || text(v);
+ const savedSummary = (v: unknown, key: unknown, section: unknown) => object(v)
+@@ -23,6 +32,8 @@ const resources = (v: unknown) => Array.isArray(v) && v.every(r => object(r) &&
+ const diagnostics = (v: unknown) => Array.isArray(v) && v.every(d => object(d) && text(d.code) && ['message', 'path', 'next_step', 'severity', 'section'].every(k => d[k] === undefined || text(d[k])) && (d.key === undefined || nullableText(d.key)));
+ const sha = (v: unknown) => typeof v === 'string' && /^sha256:[a-f0-9]{64}$/.test(v);
+ const uuid = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(v);
++const rawSha = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
++const documentGates = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
+ export function validDraftCheck(v: unknown, runId: string, revision: unknown): boolean {
+   if (!object(v) || !object(v.source) || !object(v.display)) return false;
+   const s = v.source, d = v.display, r = v.result;
+@@ -33,10 +44,12 @@ export function validDraftCheck(v: unknown, runId: string, revision: unknown): b
+     || !(s.artifact_digest === null || sha(s.artifact_digest))
+     || s.available && (!supported || !sha(s.artifact_digest) || s.reason !== null)
+     || !['unchecked', 'passed', 'corrections_required', 'unavailable'].includes(String(d.state))
+-    || !nullableText(d.reason) || !['check', 'authoring', 'reload'].includes(String(d.recovery))) return false;
++    || !nullableText(d.reason) || !['check', 'authoring', 'reload'].includes(String(d.recovery))
++    || d.findings !== undefined && (!diagnostics(d.findings) || d.state !== 'corrections_required' && (d.findings as unknown[]).length > 0)) return false;
+   if (r === null) return d.state === (s.available ? 'unchecked' : 'unavailable');
+   return s.available && object(r) && r.run_id === runId && r.gate === s.gate && r.expected_revision_id === revision && r.revision_id === revision
+-    && r.artifact_path === s.artifact_path && (r.artifact_digest === s.artifact_digest || r.artifact_digest === null && d.state === 'unavailable')
++    && r.artifact_path === s.artifact_path && (r.artifact_digest === s.artifact_digest || r.artifact_digest === null && (d.state === 'unavailable'
++      || r.current_gate === s.gate && r.diagnostics instanceof Array && r.diagnostics.length === 1 && object(r.diagnostics[0]) && r.diagnostics[0].code === 'artifact_gate_not_ready'))
+     && typeof r.ready === 'boolean' && r.readiness_scope === 'authoring_checks' && r.authorizes === false
+     && r.semantic_review_required === true && r.registration_required === true && r.presentation_required === true
+     && Array.isArray(r.checks) && r.checks.every(c => object(c) && text(c.name) && typeof c.ready === 'boolean')
+@@ -44,6 +57,49 @@ export function validDraftCheck(v: unknown, runId: string, revision: unknown): b
+     && (r.ready ? d.state === 'passed' && r.artifact_digest === s.artifact_digest && r.diagnostics.length === 0 && r.checks.length > 0 && r.checks.every(c => c.ready)
+       : ['corrections_required', 'unavailable'].includes(String(d.state)) && r.diagnostics.length > 0);
+ }
++// Boundary/association validation only. The Core remains the state/proof authority.
++function validDocumentState(v: unknown, resource: unknown): v is Record<string, unknown> {
++  if (!object(v) || !object(resource) || !documentGates.has(String(v.type)) || v.schema_version !== '1' || v.authorizes !== false
++    || !uuid(v.revision_id) || !nullableText(v.reason)
++    || !['available', 'missing', 'blocked', 'unsupported', 'unavailable'].includes(String(v.source_state))
++    || !['approved', 'draft', 'draft_checked', 'revision_required', 'check_unavailable', 'approval_unconfirmed', 'unavailable'].includes(String(v.state))
++    || !['approved', 'draft', 'current', 'unavailable'].includes(String(v.version_kind))
++    || !['resource_id', 'run_id', 'type', 'registered_reference'].every(k => v[k] === resource[k])
++    || resource.status === 'blocked' && v.source_state !== 'blocked') return false;
++  const approval = v.recorded_approval, check = v.check;
++  if (!(approval === null || object(approval) && approval.status === 'approved' && text(approval.evidence))) return false;
++  if (v.source_state !== 'available') return v.content_digest === null && v.state === 'unavailable' && v.version_kind === 'unavailable' && check === null;
++  if (!rawSha(v.content_digest)) return false;
++  if (check !== null && !(object(check) && check.content_digest === v.content_digest && validDraftCheck(check, String(v.run_id), v.revision_id)
++    && object(check.source) && check.source.gate === v.type && check.source.artifact_path === v.registered_reference && check.result !== null)) return false;
++  if (v.state === 'approved') return v.version_kind === 'approved' && approval !== null && check === null && v.reason === null;
++  if (v.state === 'approval_unconfirmed') return v.version_kind === 'current' && approval !== null && check === null;
++  if (approval !== null || v.version_kind === 'approved') return false;
++  if (v.state === 'draft') return v.version_kind === 'draft' && check === null;
++  if (v.state === 'draft_checked' || v.state === 'revision_required') return v.version_kind === 'draft' && object(check) && object(check.display)
++    && check.display.state === (v.state === 'draft_checked' ? 'passed' : 'corrections_required');
++  if (v.state === 'check_unavailable') return v.version_kind === 'draft' && (check === null || object(check) && object(check.display) && check.display.state === 'unavailable');
++  return v.state === 'unavailable' && v.version_kind === 'current' && check === null;
++}
++function validDocumentStates(detail: Record<string, unknown>): boolean {
++  const rows = detail.document_states;
++  if (rows === undefined) return true;
++  if (!Array.isArray(rows) || new TextEncoder().encode(JSON.stringify(rows)).length > 256 * 1024 || !Array.isArray(detail.resources)) return false;
++  const registered = detail.resources.filter(r => object(r) && documentGates.has(String(r.type)));
++  if (rows.length !== registered.length || new Set(rows.map(r => object(r) ? r.resource_id : null)).size !== rows.length) return false;
++  return rows.every(v => {
++    if (!object(v) || v.run_id !== detail.run_id || v.revision_id !== detail.revision_id
++      || !registered.some(r => validDocumentState(v, r))) return false;
++    const approval = v.recorded_approval, check = v.check;
++    const original = object(detail.evaluation) && Array.isArray(detail.evaluation.approvals)
++      ? detail.evaluation.approvals.find(a => object(a) && a.gate === v.type && a.status === 'approved') : undefined;
++    if ((approval === null) !== (original === undefined)) return false;
++    if (!(approval === null || object(approval) && approval.status === 'approved' && text(approval.evidence)
++      && object(detail.evaluation) && Array.isArray(detail.evaluation.approvals)
++      && detail.evaluation.approvals.some(a => object(a) && a.gate === v.type && a.status === approval.status && a.evidence === approval.evidence))) return false;
++    return check === null || object(check) && sameJson({source:check.source,result:check.result,display:check.display}, detail.draft_check);
++  });
++}
+ export const graphReferences = (v: unknown) => Array.isArray(v) && v.length <= 64 && v.every(r => object(r)
+   && ['resource_id', 'run_id', 'origin', 'path'].every(k => text(r[k]))
+   && ['node_id', 'graph_digest', 'content_digest', 'content', 'code'].every(k => nullableText(r[k]))
+@@ -55,6 +111,7 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
+     || data.title !== undefined && !text(data.title) || data.diagnostics !== undefined && !diagnostics(data.diagnostics)
+     || data.work_summary !== undefined && data.work_summary !== null && !workSummary(data.work_summary, data.run_id)
+     || data.draft_check !== undefined && !validDraftCheck(data.draft_check, data.run_id, data.revision_id)
++    || !validDocumentStates(data)
+     || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
+       && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
+       && text(data.backlog_comparison.reason) && nullableText(data.backlog_comparison.saved_revision_id) && data.backlog_comparison.authorizes === false)) return false;
+@@ -68,7 +125,10 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
+ };
+ export const documentData = (data: unknown) => object(data) && resources([data.resource])
+   && (data.content === undefined || text(data.content) && ['markdown', 'json', 'text'].includes(String(data.format))
+-    && text(data.content_digest) && object(data.links) && Object.values(data.links).every(text));
++    && text(data.content_digest) && object(data.links) && Object.values(data.links).every(text))
++  && (data.document_state === undefined || validDocumentState(data.document_state, data.resource)
++    && data.document_state.content_digest === data.content_digest
++    && new TextEncoder().encode(JSON.stringify(data.document_state)).length <= 256 * 1024);
+ export function validateData(path: string, value: Envelope<unknown>) {
+   if (value.data === null) return;
+   if (!value.snapshot_id || !value.observed_as_of || !value.source_digest) throw Error('dto_invalid');
+@@ -106,6 +166,12 @@ export function validateData(path: string, value: Envelope<unknown>) {
+           && object(data.document) && object(data.document.resource) && data.document.resource.run_id === data.run.run_id
+           && Array.isArray(data.run.resources) && data.run.resources.some(r => object(r) && object(data.document) && object(data.document.resource)
+             && ['resource_id', 'run_id', 'type', 'path', 'registered_reference', 'status'].every(key => r[key] === (data.document as Record<string, Record<string, unknown>>).resource[key])));
++        if (valid && object(data.document) && object(data.run)) {
++          const projection = Array.isArray(data.run.document_states) ? data.run.document_states.find(s => object(s) && object(data.document) && object(data.document.resource) && s.resource_id === data.document.resource.resource_id) : undefined;
++          valid = data.document.document_state === undefined ? projection === undefined || data.document.content === undefined
++            : projection !== undefined && sameJson(projection, data.document.document_state)
++              && object(projection) && projection.source_state === 'available' && projection.content_digest === data.document.content_digest;
++        }
+       }
+       if (data.kind === 'context') valid = valid && object(data.context) && object(data.run)
+         && data.context.run_id === data.run.run_id && Array.isArray(data.context.references) && graphReferences(data.context.references)
+diff --git a/packages/control-ui/src/document-state.tsx b/packages/control-ui/src/document-state.tsx
+new file mode 100644
+index 00000000..f3aa1ad0
+--- /dev/null
++++ b/packages/control-ui/src/document-state.tsx
+@@ -0,0 +1,28 @@
++import type { DocumentState } from './types';
++
++// Presentation of validated Core descriptions only; no proof or authoring evaluation.
++const states = {
++  approved: ['✓', 'Freigegeben', 'Diese gelesene Fassung ist der dokumentierten Freigabe zugeordnet.'],
++  draft: ['○', 'Entwurf', 'Für diese Fassung liegt keine aktuelle Entwurfsprüfung vor.'],
++  draft_checked: ['✓', 'Entwurf geprüft', 'Die Autorenprüfung ist bestanden. Die Freigabe steht noch aus.'],
++  revision_required: ['⚠', 'Überarbeitung nötig', 'Die aktuelle Autorenprüfung nennt konkrete Korrekturen für diese Fassung.'],
++  check_unavailable: ['?', 'Prüfung nicht verfügbar', 'Für diese Fassung ist keine verlässliche aktuelle Entwurfsprüfung verfügbar.'],
++  approval_unconfirmed: ['?', 'Freigabe dieser Fassung nicht bestätigt', 'Eine frühere Freigabe ist dokumentiert. Ihre Zuordnung zur aktuell gelesenen Fassung ist nicht bestätigt.'],
++  unavailable: ['?', 'Dokumentstand nicht verfügbar', 'Der Dokumentstand konnte nicht verlässlich festgestellt werden.'],
++} as const;
++const approvedActions: Record<string, string> = {
++  UR: 'Freigegebene Anforderungen ansehen', PRD: 'Freigegebene Produktanforderungen ansehen',
++  SD: 'Freigegebenes Lösungskonzept ansehen', TP: 'Freigegebenen Taskplan ansehen',
++  QA: 'Freigegebenen Qualitätsbericht ansehen', UAT: 'Freigegebene Abnahme ansehen',
++};
++export function documentPresentation(state: DocumentState | undefined, type: string, current = true, recordedApproval = false) {
++  const [icon, text, explanation] = state ? states[state.state] : recordedApproval ? states.approval_unconfirmed
++    : ['?', 'Dokumentstand nicht bestätigt', 'Der Lesedienst liefert keine bestätigten Zustandsangaben zu dieser Fassung.'];
++  return { icon: current ? icon : '?', text: current ? text : `Zuletzt beobachtet: ${text}`, explanation: current ? explanation : 'Diese Angaben gehören zur letzten Beobachtung. Lade den Stand neu.',
++    action: state?.version_kind === 'approved' ? approvedActions[type] ?? 'Freigegebenes Dokument ansehen'
++      : state?.version_kind === 'draft' ? 'Entwurf ansehen' : 'Aktuelle Fassung ansehen' };
++}
++export function DocumentStateLabel({ state, type, current = true, recordedApproval = false }: { state?: DocumentState; type: string; current?: boolean; recordedApproval?: boolean }) {
++  const p = documentPresentation(state, type, current, recordedApproval);
++  return <span className="run-document-state" data-document-state={current ? state?.state ?? 'unconfirmed' : 'stale'}><span aria-hidden="true">{p.icon}</span> {p.text}</span>;
++}
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/style.css b/packages/control-ui/src/style.css
+index f61a8619..a922c5e1 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/style.css
++++ b/packages/control-ui/src/style.css
+@@ -114,25 +114,22 @@ td small { max-width: 550px; margin-top: var(--agdf-space-1); }
+ .work-step .text-link, .work-step summary, .row-evidence { min-height: 44px; text-align: left; }
+ .work-step summary { padding-block: var(--agdf-space-2); }
+ .work-step pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--agdf-text-xs); }
+-.documented-approvals-note { font-size: var(--agdf-text-sm); }
+-.documented-approvals-columns { display: none; }
+-.work-step ul.documented-approvals-list { list-style: none; padding: 0; margin: var(--agdf-space-3) 0 0; }
+-.work-step .documented-approval-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--agdf-space-3); padding-block: var(--agdf-space-3); margin: 0; border-bottom: 1px solid var(--cockpit-line); }
+-.documented-approval-group { min-width: 0; overflow-wrap: anywhere; }
+-.documented-approval-label { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+-.documented-approval-evidence { padding: 0; border: 0; }
+-.documented-approval-evidence summary { color: var(--agdf-link-color); font-weight: var(--agdf-weight-medium); }
+-.documented-approval-source .text-link { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+-.documented-approval-reference { display: block; color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+-.documented-approval-facts { font-size: var(--agdf-text-xs); margin: var(--agdf-space-2) 0; }
+-.documented-approval-facts dt { color: var(--cockpit-muted); }
+-.documented-approval-facts dd { margin: 0 0 var(--agdf-space-2); }
+-.documented-approval-original-label { font-weight: var(--agdf-weight-medium); }
++/* One logical registration tree; container reflow does not recreate rows. */
++.run-documents { margin-top: var(--agdf-space-4); }
++.run-documents h3 { margin-bottom: var(--agdf-space-3); }
++.run-documents-columns { display: none; }
++.work-step ul.run-documents-list { list-style: none; padding: 0; margin: 0; }
++.work-step .run-document-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--agdf-space-2); padding-block: var(--agdf-space-3); margin: 0; border-bottom: 1px solid var(--cockpit-line); }
++.run-document-name, .run-document-action { min-width: 0; overflow-wrap: anywhere; }
++.run-document-name > strong, .run-document-state, .run-document-reference { display: block; }
++.run-document-state, .run-document-reference { font-size: var(--agdf-text-sm); color: var(--cockpit-muted); }
++.run-document-state { margin-top: var(--agdf-space-1); }
++.run-document-state[data-document-state="approved"], .run-document-state[data-document-state="draft_checked"] { color: var(--agdf-link-color); }
++.run-document-action .text-link { max-width: 100%; white-space: normal; overflow-wrap: anywhere; min-height: 44px; }
++.document-state-context { margin-block: var(--agdf-space-3); }
+ @container (min-width: 600px) {
+-  .documented-approvals-columns, .work-step .documented-approval-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.3fr); column-gap: var(--agdf-space-4); align-items: start; }
+-  .documented-approvals-columns { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); padding-block: var(--agdf-space-2); border-bottom: 1px solid var(--cockpit-line); }
+-  .documented-approval-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+-  .documented-approval-group > strong { display: block; padding-block: var(--agdf-space-2); font-size: var(--agdf-text-sm); }
++  .run-documents-columns, .work-step .run-document-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: var(--agdf-space-4); align-items: center; }
++  .run-documents-columns { font-size: var(--agdf-text-sm); font-weight: var(--agdf-weight-semibold); padding-block: var(--agdf-space-2); border-bottom: 1px solid var(--cockpit-line); }
+ }
+ .row-step { display: block; margin: var(--agdf-space-2) 0; font-size: var(--agdf-text-sm); }
+ .detail-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--agdf-space-5); }
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/types.ts b/packages/control-ui/src/types.ts
+index 617f0f12..0b908d47 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/src/types.ts
++++ b/packages/control-ui/src/types.ts
+@@ -22,6 +22,7 @@ export type ReadingScope = Inventory | { kind: 'run'; run: Detail | null; reques
+   | { kind: 'context'; run: Detail; document: DocumentData | null; context: GraphData };
+ export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
+ export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
++  document_states?: DocumentState[];
+   draft_check?: DraftCheckData;
+   work_summary?: WorkSummary | null; backlog_comparison?: { state: 'matching' | 'different' | 'unavailable'; reason: string; saved_revision_id: string | null; authorizes: false };
+   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
+@@ -31,12 +32,20 @@ export interface Detail { run_id: string; title?: string; revision_id: string |
+ export interface Diagnostic { code: string; message?: string; path?: string; next_step?: string; severity?: string; section?: string; key?: string | null }
+ export interface DraftCheckData {
+   source: { run_id: string; gate: string; revision_id: string; artifact_path: string | null; artifact_digest: string | null; available: boolean; reason: string | null };
+-  display: { state: 'unchecked' | 'passed' | 'corrections_required' | 'unavailable'; reason: string | null; recovery: 'check' | 'authoring' | 'reload' };
++  display: { state: 'unchecked' | 'passed' | 'corrections_required' | 'unavailable'; reason: string | null; recovery: 'check' | 'authoring' | 'reload'; findings?: Diagnostic[] };
+   result: null | { run_id: string; gate: string; expected_revision_id: string; revision_id: string | null; artifact_path: string; artifact_digest: string | null;
+     ready: boolean; readiness_scope: 'authoring_checks'; authorizes: false; semantic_review_required: true; registration_required: true; presentation_required: true;
+-    checks: { name: string; ready: boolean; [key: string]: unknown }[]; diagnostics: Diagnostic[]; next_action: string; readiness_details?: Record<string, unknown> };
++    checks: { name: string; ready: boolean; [key: string]: unknown }[]; diagnostics: Diagnostic[]; next_action: string; readiness_details?: Record<string, unknown>; current_gate?: string; blocking_reason?: string };
+ }
+-export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string }
++export interface DocumentState {
++  schema_version: '1'; resource_id: string; run_id: string; revision_id: string; type: string; registered_reference: string;
++  source_state: 'available' | 'missing' | 'blocked' | 'unsupported' | 'unavailable'; content_digest: string | null;
++  state: 'approved' | 'draft' | 'draft_checked' | 'revision_required' | 'check_unavailable' | 'approval_unconfirmed' | 'unavailable';
++  version_kind: 'approved' | 'draft' | 'current' | 'unavailable'; reason: string | null;
++  recorded_approval: { status: 'approved'; evidence: string } | null;
++  check: (DraftCheckData & { content_digest: string }) | null; authorizes: false;
++}
++export interface DocumentData { resource: Resource; format?: string; content?: string; content_digest?: string; links?: Record<string, string>; reason?: string; document_state?: DocumentState }
+ export interface Route { view: 'overview' | 'detail' | 'document'; runId?: string; resourceId?: string; resourcePath?: string }
+ export interface GraphReference { resource_id: string; run_id: string; origin: string; path: string; node_id: string | null;
+   graph_digest: string | null; content_digest: string | null; content: string | null;
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/browser/documented-approvals.spec.mjs b/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/browser/documented-approvals.spec.mjs
+deleted file mode 100644
+index 661651d4..00000000
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/browser/documented-approvals.spec.mjs
++++ /dev/null
+@@ -1,144 +0,0 @@
+-import { test, expect } from '@playwright/test';
+-import * as fs from 'node:fs';
+-import { join, resolve } from 'node:path';
+-import { approvalFixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
+-import { upsertTableRow } from '../../../core/lib/control-state/run-state-edits.js';
+-import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
+-import { startControlServer } from './server-fixture.mjs';
+-
+-const evidence = resolve('../../.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/browser');
+-fs.mkdirSync(evidence, { recursive: true });
+-const gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
+-async function fixture(count = 4, long = false) {
+-  const f = await approvalFixture();
+-  if (f.approve().outcome !== 'approved') throw Error('Canonical fixture UR approval failed');
+-  // Additional recorded facts are deliberately unverified fixture inputs. They do not
+-  // certify historical versions or authorize delivery, and stay outside app-only windows.
+-  let state = fs.readFileSync(f.runPath, 'utf8');
+-  for (const [i, gate] of gates.entries()) {
+-    const original = gate === 'UR' ? 'Original owner/date/path sha256:1234; <script>window.approvalPwned=true</script> ' + (long ? 'Langer Originalnachweis 日本語 '.repeat(50) : '') : '';
+-    state = upsertTableRow(state, 'Approvals', 0, gate, [gate, i < count ? 'approved' : 'missing', original]);
+-    if (i < Math.min(count, 4) && gate !== 'UR') {
+-      const path = `.agdf/control/artefacts/fixture-a/${gate}.md`;
+-      fs.writeFileSync(join(f.root, path), `# ${gate}: Current fixture\n\nCurrent ${gate} document.\n`);
+-      state = upsertTableRow(state, 'Artefacts', 0, gate, [gate, path, 'approved', 'Disposable current resource']);
+-    }
+-  }
+-  fs.writeFileSync(f.runPath, sealRunState(f.root, state));
+-  return f;
+-}
+-async function open(page, service, pathname) {
+-  await page.addInitScript(({ secret, origin, pathname }) => { if (location.origin === origin) history.replaceState(null, '', pathname + '#' + secret); }, { secret: service.secret, origin: service.origin, pathname });
+-  await page.goto(service.origin + pathname);
+-  await page.locator('.run-link[data-focus-id="fixture-a"]').click();
+-  await page.locator('.work-step-approvals > summary').focus(); await page.keyboard.press('Enter');
+-  await expect(page.locator('.work-step-approvals')).toHaveAttribute('open');
+-}
+-
+-test('SCN-001/002/005: zero and later-gate counts, deliberate original limitations and unavailable versions render truthfully', async ({ page }) => {
+-  for (const count of [0, 6]) {
+-    const f = await fixture(count), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
+-    try {
+-      await open(page, service, '/');
+-      await expect(page.locator('.work-step-approvals > summary')).toHaveText(`Dokumentierte Freigaben · ${count}`);
+-      await expect(page.locator('.documented-approval-row')).toHaveCount(count);
+-      if (!count) await expect(page.getByText('Keine Freigaben dokumentiert.')).toBeVisible();
+-      else {
+-        await expect(page.locator('.documented-approval-evidence[open]')).toHaveCount(0);
+-        await page.getByLabel('Dokumentiert: Anforderungen', { exact: true }).focus(); await page.keyboard.press('Enter');
+-        await expect(page.locator('.documented-approval-evidence').first()).toContainText('Keine bestätigte Identität verfügbar.');
+-        await expect(page.locator('.documented-approval-evidence').first()).toContainText('sha256:1234');
+-        expect(await page.evaluate(() => window.approvalPwned)).toBeUndefined();
+-        await expect(page.getByText('Aktuelle Fassung nicht verfügbar.', { exact: true })).toHaveCount(2);
+-        await expect(page.getByRole('button', { name: /^Freigegebene Fassung ansehen/ })).toHaveCount(0);
+-      }
+-      await page.screenshot({ path: join(evidence, `count-${count}.png`), fullPage: true });
+-      expect(treeBytes(f.root)).toEqual(before);
+-    } finally { await page.close(); await service.close(); f.close(); }
+-    // A fresh Page is supplied by the browser context after the previous isolated target.
+-    if (count === 0) page = await page.context().newPage();
+-  }
+-});
+-
+-test('SCN-007/008/010/011: same built compact/expanded rows preserve keyboard, disclosure, focus, wrapping and scroll across widths', async ({ page }) => {
+-  const f = await fixture(4, true), before = treeBytes(f.root), service = await startControlServer({ dir: f.root });
+-  const requests = [], observations = [];
+-  page.on('request', r => { if (r.url().includes('/api/')) requests.push({ method: r.method(), path: new URL(r.url()).pathname }); });
+-  try {
+-    for (const pathname of ['/card.html', '/']) {
+-      await page.setViewportSize({ width: 1280, height: 900 }); await open(page, service, pathname);
+-      await page.screenshot({ path: join(evidence, `${pathname === '/' ? 'expanded' : 'compact'}-four-closed.png`), fullPage: true });
+-      const disclosure = page.getByLabel('Dokumentiert: Anforderungen', { exact: true });
+-      await disclosure.focus(); await page.keyboard.press('Enter');
+-      await expect(disclosure.locator('..')).toHaveAttribute('open');
+-      await disclosure.evaluate(el => { window.approvalDisclosureNode = el; });
+-      for (const width of [1280, 360, 1280]) {
+-        let viewport = width; const target = width === 1280 ? 960 : 320;
+-        for (let attempt = 0; attempt < 12; attempt++) {
+-          await page.setViewportSize({ width: viewport, height: 900 });
+-          const actual = await page.locator('.documented-approvals-list').evaluate(el => el.clientWidth);
+-          if (Math.abs(actual - target) <= 1) break;
+-          viewport += target - actual;
+-        }
+-        await expect(disclosure).toBeFocused();
+-        expect(await disclosure.evaluate(el => window.approvalDisclosureNode === el)).toBe(true);
+-        await expect(disclosure.locator('..')).toHaveAttribute('open');
+-        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+-        const measured = await page.locator('.documented-approvals-list').evaluate(el => ({ width: el.clientWidth, columns: getComputedStyle(el.querySelector('li')).gridTemplateColumns, rows: el.children.length }));
+-        observations.push({ pathname, viewport, requestedContainerWidth: target, ...measured });
+-        expect(Math.abs(measured.width - target)).toBeLessThanOrEqual(1);
+-        expect(measured.rows).toBe(4);
+-        if (width === 1280) expect(measured.columns.split(' ')).toHaveLength(3); else expect(measured.columns.split(' ')).toHaveLength(1);
+-        const controls = await page.locator('.documented-approval-evidence > summary, .documented-approval-source button').evaluateAll(els => els.map(el => el.getBoundingClientRect().height));
+-        expect(controls.every(height => height >= 44)).toBe(true);
+-        await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await page.evaluate(() => scrollTo(0, 0));
+-        await expect(disclosure).toBeFocused();
+-        await page.screenshot({ path: join(evidence, `${pathname === '/' ? 'expanded' : 'compact'}-${width}-long.png`), fullPage: true });
+-      }
+-      await disclosure.focus(); await page.keyboard.press('Enter'); await expect(disclosure.locator('..')).not.toHaveAttribute('open');
+-      await page.keyboard.press('Tab');
+-      const current = page.getByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen ·/ });
+-      await expect(current).toBeFocused();
+-      const received = page.waitForResponse(r => r.url().includes('/api/documents/') && r.ok());
+-      await page.keyboard.press('Enter');
+-      expect((await (await received).json()).data.document.content).toBe(fs.readFileSync(join(f.root, f.documentPath), 'utf8'));
+-      await expect(page.locator('.document-reading')).toBeVisible();
+-      await page.getByText('Originaldokument lesen', { exact: true }).click();
+-      await expect(page.locator('article.document')).toContainText('Keep provenance and human approval separate.');
+-      await page.getByRole('button', { name: 'Dokument schließen', exact: true }).click(); await expect(current).toBeFocused();
+-      await page.getByRole('button', { name: /Neu laden|Aktualisieren/ }).click();
+-      await expect(page.locator('.documented-approval-row')).toHaveCount(4);
+-      expect(treeBytes(f.root)).toEqual(before);
+-    }
+-    expect(requests.some(r => r.path.includes('draft-check') || /approve|dispatch|write/.test(r.path))).toBe(false);
+-    fs.writeFileSync(join(evidence, 'measurements.json'), JSON.stringify({ observations, requests, native_host: 'not observed; actual browser build only' }, null, 2));
+-  } finally { await page.close(); await service.close(); f.close(); }
+-});
+-
+-test('SCN-003/004/009: changed/moved current source retains honest wording, freshness, explicit reload and read-only retry', async ({ page }) => {
+-  const f = await fixture(), service = await startControlServer({ dir: f.root });
+-  try {
+-    await open(page, service, '/');
+-    const original = '# UR: Changed current source\n\nThe current content has changed.\n';
+-    fs.writeFileSync(join(f.root, f.documentPath), original);
+-    const moved = '.agdf/control/artefacts/fixture-a/moved-UR.md'; fs.renameSync(join(f.root, f.documentPath), join(f.root, moved)); f.register('UR', moved);
+-    await page.getByRole('button', { name: /Neu laden|Aktualisieren/ }).click();
+-    const overview = page.locator('.work-step-approvals');
+-    if (!await overview.evaluate(el => el.open)) await overview.locator(':scope > summary').click();
+-    const current = page.getByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen ·/ });
+-    await expect(current).toHaveAccessibleName(/moved-UR.md/);
+-    const before = treeBytes(f.root);
+-    await page.route('**/api/documents/**', route => route.abort());
+-    await current.click(); await expect(page.getByRole('button', { name: 'Wiederholen', exact: true })).toBeVisible();
+-    await page.unroute('**/api/documents/**');
+-    const received = page.waitForResponse(r => r.url().includes('/api/documents/') && r.ok());
+-    await page.getByRole('button', { name: 'Wiederholen', exact: true }).click();
+-    expect((await (await received).json()).data.document.content).toBe(original);
+-    await expect(page.locator('.document-reading')).toBeVisible(); await page.getByText('Originaldokument lesen', { exact: true }).click();
+-    await expect(page.locator('article.document')).toContainText('The current content has changed.');
+-    await page.getByRole('button', { name: 'Dokument schließen', exact: true }).click();
+-    await expect(current).toBeFocused(); await expect(page.getByRole('button', { name: /^Freigegebene Fassung ansehen/ })).toHaveCount(0);
+-    expect(treeBytes(f.root)).toEqual(before);
+-    await page.screenshot({ path: join(evidence, 'changed-current.png'), fullPage: true });
+-  } finally { await page.close(); await service.close(); f.close(); }
+-});
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/browser/journeys.spec.mjs b/packages/control-ui/test/browser/journeys.spec.mjs
+index c29eac20..832fc502 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/browser/journeys.spec.mjs
++++ b/packages/control-ui/test/browser/journeys.spec.mjs
+@@ -20,26 +20,33 @@ function repositoryFixture(){
+  fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | agdf-cockpit-mcp-app-20261005-01 | Embedded AGDF Cockpit for Codex | In progress | none | TP | Stored next step |\n| 2 | agdf-control-cockpit-20261005-01 | Local read-only AGDF control cockpit | In progress | none | TP | Stored next step |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n');
+  return f;
+ }
++function unconfirmedRepositoryFixture(){
++ const f=repositoryFixture();
++ // Deliberate normalization-equivalent raw-byte change in the disposable copy.
++ // Retain the recorded approval while making its exact opened version unconfirmed.
++ const path=join(f.root,'.agdf/control/artefacts/agdf-cockpit-mcp-app-20261005-01/UR.md');
++ fs.writeFileSync(path,'\ufeff'+fs.readFileSync(path,'utf8').replace(/^\ufeff/,'').replaceAll('\r\n','\n').replaceAll('\n','\r\n'));
++ return f;
++}
+ function hashes(root) {
+   const data = {};
+   const visit = dir => { for (const name of fs.readdirSync(dir)) { const path = join(dir, name), stats = fs.lstatSync(path); data[path.slice(root.length)] = stats.isDirectory() ? 'directory' : createHash('sha256').update(fs.readFileSync(path)).digest('hex'); if (stats.isDirectory()) visit(path); } };
+   visit(join(root, '.agdf/control')); return data;
+ }
+ test('document orientation separates approved Run facts from draft originals in both Pages themes', async ({page}) => {
+-  const f=repositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
++  const f=unconfirmedRepositoryFixture(),root=f.root,before=hashes(root),service=await startControlServer({dir:root});
+   try {
+     await openSession(page,service);
+     await page.locator('.run-link[data-focus-id="agdf-cockpit-mcp-app-20261005-01"]').click();
+-    await page.locator('.work-step-approvals > summary').click();
+-    const approval=page.locator('.work-step-approvals li').filter({hasText:'Anforderungen'}).first();
+-    await expect(approval.locator('.documented-approval-evidence > summary')).toHaveAccessibleName('Dokumentiert: Anforderungen');
+-    const source=page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/});
++    await expect(page.locator('.run-documents')).toBeVisible();
++    await expect(page.locator('.run-documents details')).toHaveCount(0);
++    const source=page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/});
+     await source.focus();await page.keyboard.press('Enter');
+     await expect(page.locator('.page-title h1')).toBeFocused();
+     await expect(page.locator('.page-title h1')).toHaveCSS('outline-style','none');
+     await expect(page.locator('.page-title h1')).toHaveCSS('text-decoration-line','underline');
+     await expect(page.locator('.document-summary')).toContainText('Das vorhandene React-Cockpit soll als eingebettete MCP-App in Codex nutzbar werden.');
+-    await expect(page.locator('.document-control')).toContainText('Freigegeben');
++    await expect(page.locator('.document-control')).toContainText('Als freigegeben gespeichert');
+     // Copied repository controls retain their original target binding; a saved
+     // approval cannot confirm permission in the disposable target.
+     await expect(page.locator('.document-control')).toContainText('Aktuelle Voraussetzungen nicht bestätigt');
+@@ -77,15 +84,15 @@ test('document orientation separates approved Run facts from draft originals in
+     await expect(page.locator('article.document')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+     await expect(page.locator('article.document')).toHaveCSS('box-shadow','none');
+     await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();
+-    await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/})).toBeFocused();
++    await expect(page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/})).toBeFocused();
+     // Capture the same bound document through the embedded-card browser entry,
+     // whose expanded reader shares the MCP panel layout without the browser rail.
+     await page.setViewportSize({width:845,height:1100});
+     await openSession(page,service,'/card.html');
+     await page.locator('.run-link[data-focus-id=\"agdf-cockpit-mcp-app-20261005-01\"]').click();
+     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+-    await page.locator('.work-step-approvals > summary').click();
+-    await page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen ·/}).click();
++    await expect(page.locator('.run-documents')).toBeVisible();
++    await page.getByRole('button',{name:/^Aktuelle Fassung ansehen: Anforderungen$/}).click();
+     await expect(page.locator('.document-reading')).toBeVisible();
+     await expect(page.locator('.document-original')).not.toHaveAttribute('open');
+     for(const theme of ['light','dark']){
+@@ -288,7 +295,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
+     await page.setViewportSize({width:800,height:400});await openSession(page,service,'/card.html');
+     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
+     await expect(page.locator('.work-step')).toBeVisible();
+-    await page.locator('.work-step-approvals > summary').click();
++    await expect(page.locator('.run-documents')).toBeVisible();
+     await page.evaluate(()=>window.scrollTo(0,160));await pinned();
+     await page.screenshot({path:evidencePath('agdf-cockpit-sticky-card.png')});
+     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+@@ -333,7 +340,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
+     await page.getByRole('button',{name:'Zusammenfassung',exact:true}).click();
+     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
+     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+-    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
++    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
+     await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');
+     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
+@@ -349,7 +356,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
+     await expect(page.locator('.reading-feedback .notice')).toHaveCount(0);
+     await expect(page.locator('footer')).toContainText('Verfügbar');
+     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+-    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
++    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+     expect(hashes(f.root)).toEqual(afterChange);
+   } finally {await service.close();f.close();}
+ });
+@@ -514,7 +521,7 @@ test('work action leads, qualifications stay honest and evidence access survives
+     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
+     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
+-    await expect(page.locator('.work-step-approvals')).not.toHaveAttribute('open');
++    await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
+     await page.getByText('Nachweislücken im Run-Dokument · '+e.missing_evidence.length,{exact:true}).click();
+     await page.getByText('Kontrollauswertung · Originalangaben',{exact:true}).click();
+diff --git a/packages/control-ui/test/browser/run-documents.spec.mjs b/packages/control-ui/test/browser/run-documents.spec.mjs
+new file mode 100644
+index 00000000..9d53ee21
+--- /dev/null
++++ b/packages/control-ui/test/browser/run-documents.spec.mjs
+@@ -0,0 +1,149 @@
++import {test,expect} from '@playwright/test';
++import * as fs from 'node:fs';
++import {join,resolve} from 'node:path';
++import {approvalFixture,treeBytes} from '../../../core/test/control-cockpit-fixtures.js';
++import {artifactReadinessFixture,readyPrd} from '../../../core/test/fixtures/artifact-readiness.js';
++import {upsertTableRow} from '../../../core/lib/control-state/run-state-edits.js';
++import {sealRunState} from '../../../core/lib/control-state/run-seal.js';
++import {startControlServer} from './server-fixture.mjs';
++const evidence=resolve(process.env.AGDF_COCKPIT_BROWSER_EVIDENCE ?? '../../.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/browser');
++fs.mkdirSync(evidence,{recursive:true});
++function pointer(f,run){fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),`# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | ${run} | Browser document fixture | In progress | [UR](artefacts/${run}/UR.md) | UR | Read |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n`);}
++async function open(page,service,route,run){
++  await page.addInitScript(({secret,origin})=>{if(location.origin===origin)history.replaceState(null,'',location.pathname+'#'+secret);},{secret:service.secret,origin:service.origin});
++  await page.goto(service.origin+route);await page.locator(`.run-link[data-focus-id="${run}"]`).click();
++  if(route==='/card.html')await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
++  await expect(page.locator('.run-documents')).toBeVisible();
++}
++test('SCN-001/004/015/016: visible zero/four actual registrations and unconfirmed raw version retain passive original evidence',async({page})=>{
++  for(const count of [0,4]){
++    const f=await approvalFixture();expect(f.approve().outcome).toBe('approved');pointer(f,'fixture-a');
++    let state=fs.readFileSync(f.runPath,'utf8');
++    if(count===0)state=upsertTableRow(state,'Artefacts',0,'UR',['UR','','missing','No current registered document']);
++    else {
++      fs.writeFileSync(join(f.root,f.documentPath),'\ufeff'+fs.readFileSync(join(f.root,f.documentPath),'utf8').replaceAll('\n','\r\n'));
++      for(const type of ['PRD','SD','TP']){const path=`.agdf/control/artefacts/fixture-a/${type}.md`;fs.writeFileSync(join(f.root,path),`# ${type}: Actual registered current draft\n`);state=upsertTableRow(state,'Artefacts',0,type,[type,path,'draft','Disposable current source']);}
++    }
++    fs.writeFileSync(f.runPath,sealRunState(f.root,state));const before=treeBytes(f.root),service=await startControlServer({dir:f.root});
++    try{
++      await open(page,service,'/','fixture-a');await expect(page.locator('.run-documents h3')).toHaveText(`Dokumente · ${count}`);await expect(page.locator('.run-document-row')).toHaveCount(count);
++      if(count===0)await expect(page.getByText('Keine Dokumente registriert.',{exact:true})).toBeVisible();
++      else{
++        await expect(page.locator('.run-documents')).toContainText('Freigabe dieser Fassung nicht bestätigt');
++        await expect(page.locator('.run-documents button').filter({hasText:'Freigegebene Anforderungen ansehen'})).toHaveCount(0);
++        const source=page.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen',exact:true});await source.click();
++        await expect(page.locator('.document-state-context')).toContainText('Approval: UR');await expect(page.locator('.document-state-context')).toContainText('Die genaue freigegebene Fassung ist nicht bestätigt.');
++        await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
++      }
++      await page.screenshot({path:join(evidence,`actual-count-${count}.png`),fullPage:true});expect(treeBytes(f.root)).toEqual(before);
++    }finally{await service.close();f.close();}
++  }
++});
++test('SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading',async({page})=>{
++  const f=await approvalFixture();expect(f.approve().outcome).toBe('approved');pointer(f,'fixture-a');
++  let state=fs.readFileSync(f.runPath,'utf8');
++  for(const type of ['PRD','SD','TP','QA','UAT']){
++    const path=`.agdf/control/artefacts/fixture-a/${type}.md`;
++    if(!['QA','UAT'].includes(type))fs.writeFileSync(join(f.root,path),`# ${type}: Registered draft\n`);
++    state=upsertTableRow(state,'Artefacts',0,type,[type,type==='UAT'?'../outside.md':path,'draft','Disposable registered resource']);
++  }
++  fs.writeFileSync(f.runPath,sealRunState(f.root,state));
++  const before=treeBytes(f.root),service=await startControlServer({dir:f.root}),observations=[];
++  try{
++    for(const route of ['/','/card.html']){
++      await open(page,service,route,'fixture-a');
++      await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 6');await expect(page.locator('.run-document-row')).toHaveCount(6);
++      await expect(page.locator('.run-documents details')).toHaveCount(0);await expect(page.locator('.run-documents button')).toHaveCount(4);
++      const action=page.getByRole('button',{name:'Freigegebene Anforderungen ansehen: Anforderungen',exact:true});await expect(action).toBeVisible();
++      await action.focus();await action.evaluate(e=>{window.documentAction=e;window.documentRow=e.closest('li');});
++      for(const theme of ['light','dark'])for(const target of [960,320,960]){
++        await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
++        let viewport=target+120;
++        for(let attempt=0;attempt<12;attempt++){
++          await page.setViewportSize({width:viewport,height:900});const width=await page.locator('.run-documents-list').evaluate(e=>e.clientWidth);
++          if(Math.abs(width-target)<=1)break;viewport+=target-width;
++        }
++        const geometry=await page.locator('.run-documents-list').evaluate(e=>({width:e.clientWidth,sameNode:window.documentAction===e.querySelector('button'),sameRow:window.documentRow===e.querySelector('li'),focused:document.activeElement===window.documentAction,
++          columns:getComputedStyle(e.querySelector('li')).gridTemplateColumns,scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,actionHeight:window.documentAction.getBoundingClientRect().height}));
++        expect(Math.abs(geometry.width-target)).toBeLessThanOrEqual(1);expect(geometry.sameNode).toBe(true);expect(geometry.sameRow).toBe(true);expect(geometry.focused).toBe(true);expect(geometry.actionHeight).toBeGreaterThanOrEqual(44);expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.viewport);
++        await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));await page.evaluate(()=>window.scrollTo(0,0));await expect(action).toBeFocused();
++        observations.push({route,theme,target,...geometry});await page.screenshot({path:join(evidence,`documents-${route==='/'?'browser':'card'}-${theme}-${target}.png`),fullPage:true});
++      }
++      await page.keyboard.press('Enter');await expect(page.locator('.page-title h1')).toBeFocused();
++      await expect(page.locator('.document-state-context')).toContainText('Diese gelesene Fassung ist der dokumentierten Freigabe zugeordnet.');
++      await expect(page.locator('.document-state-context')).toContainText('Approval: UR');
++      await expect(page.locator('.document-state-context')).toContainText('Freigabezeitpunkt, freigebende Person und Grundlage');
++      await page.locator('.document-original > summary').focus();await page.keyboard.press('Enter');await expect(page.locator('article.document')).toContainText('UR: Approval fixture');
++      await page.getByRole('button',{name:'Dokument schließen',exact:true}).focus();await page.keyboard.press('Enter');await expect(action).toBeFocused();
++      await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(action).toBeEnabled();
++      expect(treeBytes(f.root)).toEqual(before);
++    }
++    fs.writeFileSync(join(evidence,'responsive-observations.json'),JSON.stringify(observations,null,2));
++  }finally{await service.close();f.close();}
++});
++test('SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload',async({page})=>{
++  const f=artifactReadinessFixture();f.root=fs.realpathSync(f.root);fs.writeFileSync(f.path,readyPrd);pointer(f,f.runId);
++  f.reseal(s=>upsertTableRow(s,'Artefacts',0,'PRD',['PRD',`${f.prefix}PRD.md`,'draft','Actual registered draft']));
++  const service=await startControlServer({dir:f.root});let before=treeBytes(f.root),requests=0;
++  page.on('request',r=>{if(r.url().includes('/api/draft-check/'))requests++;});
++  try{
++    for(const route of ['/card.html','/']){
++      await open(page,service,route,f.runId);const check=page.getByRole('button',{name:'Entwurf prüfen',exact:true});
++      expect(requests).toBe(route==='/card.html'?0:3);
++      let busy=true;await page.route('**/api/draft-check/**',async route=>{if(!busy)return route.continue();busy=false;
++        // Fault injection before draft execution; a read-only freshness response supplies the actual envelope binding.
++        const snapshot=new URL(route.request().url()).searchParams.get('snapshot');
++        const response=await route.fetch({url:service.origin+'/api/freshness?snapshot='+snapshot});const e=await response.json();await route.fulfill({response,json:{...e,state:'error',code:'busy',retryable:true,data:null}});
++      });
++      await check.focus();await page.keyboard.press('Enter');await expect(page.locator('.draft-check')).toContainText('Der Lesedienst ist beschäftigt');
++      const retry=page.getByRole('button',{name:'Prüfung wiederholen',exact:true});await retry.focus();await page.keyboard.press('Enter');
++      await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');
++      await expect(page.locator('.run-document-state').filter({hasText:'Entwurf geprüft'})).toBeVisible();
++      const source=page.getByRole('button',{name:'Entwurf ansehen: Produktanforderungen',exact:true});await source.focus();await page.keyboard.press('Enter');
++      await expect(page.locator('.document-state-context')).toContainText('Entwurf geprüft');await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();
++      await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');expect(treeBytes(f.root)).toEqual(before);
++      fs.writeFileSync(f.path,readyPrd.replace('before_prd | resolved','before_prd | open'));f.reseal(s=>s);before=treeBytes(f.root);
++      await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(page.locator('.draft-check')).toContainText('Noch nicht geprüft');await check.click();
++      await expect(page.locator('.run-document-state').filter({hasText:'Überarbeitung nötig'})).toBeVisible();await source.click();
++      await expect(page.locator('.document-state-context')).toContainText('Überarbeitung nötig');await expect(page.getByRole('list',{name:'Aktuelle Korrekturen'})).toContainText('Scope');
++      await page.screenshot({path:join(evidence,`corrections-${route==='/'?'browser':'card'}.png`),fullPage:true});
++      await page.getByRole('button',{name:'Dokument schließen',exact:true}).click();await expect(source).toBeFocused();expect(treeBytes(f.root)).toEqual(before);
++      await page.unroute('**/api/draft-check/**');fs.writeFileSync(f.path,readyPrd);f.reseal(s=>s);before=treeBytes(f.root);
++    }
++  }finally{await service.close();fs.rmSync(f.root,{recursive:true,force:true});}
++});
++test('SCN-001/010/015/017: built consumer renders multiple long references and old-server absence truthfully',async({page})=>{
++  const f=await approvalFixture();expect(f.approve().outcome).toBe('approved');pointer(f,'fixture-a');
++  const before=treeBytes(f.root),service=await startControlServer({dir:f.root});
++  let variant='multiple';
++  try {
++    await page.route(/\/api\/(?:runs\/|snapshot)/,async route=>{
++      const response=await route.fetch(),e=await response.json();
++      if(e.data?.kind==='run'&&e.data.run){
++        if(variant==='old') delete e.data.run.document_states;
++        else {
++          // Consumer-only additive DTO fixture. Positive approval evidence is tested separately
++          // against real Core reads; this extra reference is deliberately unconfirmed.
++          const r=e.data.run.resources.find(r=>r.type==='UR'),s=e.data.run.document_states.find(s=>s.type==='UR');
++          const ref='.agdf/control/artefacts/fixture-a/'+'long-reference/'.repeat(35)+'UR.md';
++          e.data.run.resources.push({...r,resource_id:'extra-consumer-reference',registered_reference:ref,path:ref});
++          e.data.run.document_states.push({...s,resource_id:'extra-consumer-reference',registered_reference:ref,state:'approval_unconfirmed',version_kind:'current',reason:'consumer_fixture_unconfirmed'});
++        }
++      }
++      await route.fulfill({response,json:e});
++    });
++    await open(page,service,'/','fixture-a');await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 2');
++    await expect(page.locator('.run-document-row')).toHaveCount(2);await expect(page.locator('.run-document-reference')).toHaveCount(2);
++    const names=await page.locator('.run-documents button').evaluateAll(rows=>rows.map(r=>r.getAttribute('aria-label')));expect(new Set(names).size).toBe(2);
++    await page.setViewportSize({width:420,height:900});
++    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
++    await expect(page.locator('.run-document-state').filter({hasText:'Freigabe dieser Fassung nicht bestätigt'})).toBeVisible();
++    await page.screenshot({path:join(evidence,'multiple-consumer-references.png'),fullPage:true});
++    variant='old';await page.getByRole('button',{name:'Neu laden',exact:true}).click();
++    await expect(page.locator('.run-documents h3')).toHaveText('Dokumente · 1');
++    await expect(page.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen',exact:true})).toBeVisible();
++    await expect(page.locator('.run-document-state').filter({hasText:'Freigabe dieser Fassung nicht bestätigt'})).toBeVisible();
++    await page.screenshot({path:join(evidence,'old-server-consumer-absence.png'),fullPage:true});
++    expect(treeBytes(f.root)).toEqual(before);
++  } finally {await service.close();f.close();}
++});
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/compact.test.tsx b/packages/control-ui/test/compact.test.tsx
+index db152f02..286febc2 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/compact.test.tsx
++++ b/packages/control-ui/test/compact.test.tsx
+@@ -91,7 +91,7 @@ describe('compact MCP entry using the shared scoped reading state',()=>{
+   expect(screen.queryByRole('combobox')).toBeNull();expect(read).toHaveBeenCalledTimes(1);expect(screen.queryByText('Freigegebenen Umfang umsetzen.')).toBeNull();
+   fireEvent.click(select);await screen.findByText('Freigegebenen Umfang umsetzen.');
+   expect(screen.getByText('Host context still unverified')).toBeTruthy();expect(screen.getByText('Zuletzt als „In Arbeit“ gespeichert.')).toBeTruthy();
+-  expect(screen.getByText('Umsetzungs- und Prüfplan · freigegeben',{exact:true})).toBeTruthy();expect(screen.queryByText('QA',{exact:true})).toBeNull();
++  expect(screen.getByText('Dokumente · 0',{exact:true})).toBeTruthy();expect(screen.queryByText('Umsetzungs- und Prüfplan',{exact:true})).toBeNull();expect(screen.queryByText('QA',{exact:true})).toBeNull();
+   fireEvent.click(screen.getByRole('button',{name:'Run ansehen'}));expect(expand).toHaveBeenCalledTimes(1);
+   view.rerender(<App transport={read} onExpand={expand}/>);expect(screen.getByRole('heading',{name:'Deliver cockpit'})).toBeTruthy();expect(read).toHaveBeenCalledTimes(2);
+  });
+diff --git a/packages/control-ui/test/document-state.test.tsx b/packages/control-ui/test/document-state.test.tsx
+new file mode 100644
+index 00000000..9ff6f7e8
+--- /dev/null
++++ b/packages/control-ui/test/document-state.test.tsx
+@@ -0,0 +1,75 @@
++import { afterEach, expect, it, vi } from 'vitest';
++import { cleanup, render, screen } from '@testing-library/react';
++import { validateData, documentData } from '../src/api';
++import { DocumentView } from '../src/DocumentView';
++import { documentFixture, fixtureMeta } from './scoped-fixtures';
++import type { DocumentState } from '../src/types';
++afterEach(cleanup);
++const scope = () => ({...fixtureMeta,data:{kind:'run',run:documentFixture()}});
++it('SCN-010/011: accepts additive facts and old absence; rejects every foreign/malformed shape instead of old-server fallback', () => {
++  const e=scope(); expect(()=>validateData('/api/runs/run-a',e)).not.toThrow();
++  const old=structuredClone(e); delete old.data.run.document_states; expect(()=>validateData('/api/runs/run-a',old)).not.toThrow();
++  for(const [key,value] of [['schema_version','2'],['authorizes',true],['resource_id','foreign'],['run_id','foreign'],['revision_id','00000000-0000-0000-0000-000000000002'],['type','QA'],['registered_reference','other.md'],['state','invented'],['version_kind','invented'],['source_state','invented'],['content_digest','partial'],['check',{}],['recorded_approval',{status:'approved',evidence:'foreign'}]] as const){
++    const bad=structuredClone(e); Object.assign(bad.data.run.document_states![0],{[key]:value});
++    expect(()=>validateData('/api/runs/run-a',bad),key).toThrow('dto_invalid');
++  }
++  for(const mutate of [(v:ReturnType<typeof scope>)=>v.data.run.document_states!.push(v.data.run.document_states![0]),
++    (v:ReturnType<typeof scope>)=>v.data.run.document_states!.pop(),
++    (v:ReturnType<typeof scope>)=>Object.assign(v.data.run.document_states![0],{state:'approved',version_kind:'draft'}),
++    (v:ReturnType<typeof scope>)=>Object.assign(v.data.run.document_states![0],{source_state:'missing',state:'draft'})]){
++    const bad=structuredClone(e);mutate(bad);expect(()=>validateData('/api/runs/run-a',bad)).toThrow('dto_invalid');
++  }
++});
++it('SCN-011/016: document must carry the same description and raw digest; actual original approval stays passive and uncertain provenance explicit', () => {
++  const run=documentFixture(), s=run.document_states![0]; s.state='approval_unconfirmed';s.version_kind='current';s.recorded_approval={status:'approved',evidence:'Original <script>bad()</script> sha256:partial'};
++  run.evaluation!.approvals=[{gate:'UR',...s.recorded_approval}];
++  const document={resource:run.resources[0],format:'markdown',content:'# Actual document\n',content_digest:s.content_digest!,links:{},document_state:s};
++  const e={...fixtureMeta,data:{kind:'document',run,document}};
++  expect(()=>validateData('/api/documents/UR',e)).not.toThrow();
++  const omitted=structuredClone(e);Object.assign(omitted.data.run.document_states![0],{state:'draft',version_kind:'draft',recorded_approval:null});
++  expect(()=>validateData('/api/runs/run-a',{...omitted,data:{kind:'run',run:omitted.data.run}})).toThrow('dto_invalid');
++  expect(documentData(e.data.document)).toBe(true);
++  const reordered=structuredClone(e);
++  reordered.data.document.document_state=Object.fromEntries(Object.entries(reordered.data.document.document_state).reverse()) as DocumentState;
++  expect(()=>validateData('/api/documents/UR',reordered)).not.toThrow();
++  for(const mutate of [(v:typeof e)=>v.data.document.content_digest='b'.repeat(64),
++    (v:typeof e)=>v.data.document.document_state.state='approved',
++    (v:typeof e)=>v.data.document.document_state.resource_id='foreign']){
++    const bad=structuredClone(e);mutate(bad);expect(()=>validateData('/api/documents/UR',bad)).toThrow('dto_invalid');
++    expect(documentData(bad.data.document)).toBe(false);
++  }
++  render(<DocumentView result={{...fixtureMeta,data:document}} detail={{...fixtureMeta,data:run}} onOpen={vi.fn()}/>);
++  expect(screen.getByText('Freigabe dieser Fassung nicht bestätigt')).toBeTruthy();
++  expect(screen.getByText('Original <script>bad()</script> sha256:partial')).toBeTruthy();
++  expect(globalThis.document.querySelector('script')).toBeNull();
++  expect(screen.getByText(/Freigabezeitpunkt, freigebende Person und Grundlage/)).toBeTruthy();
++});
++it('SCN-009: serialized optional document descriptions accept the exact 256 KiB bound and reject one byte above', () => {
++  const e=scope(),rows=e.data.run.document_states!,limit=256*1024;
++  const size=()=>new TextEncoder().encode(JSON.stringify(rows)).length;
++  rows[0].reason='';const spare=limit-size();rows[0].reason='x'.repeat(spare-1);
++  expect(size()).toBe(limit-1);expect(()=>validateData('/api/runs/run-a',e)).not.toThrow();
++  rows[0].reason+='x';expect(size()).toBe(limit);expect(()=>validateData('/api/runs/run-a',e)).not.toThrow();
++  rows[0].reason+='x';expect(size()).toBe(limit+1);expect(()=>validateData('/api/runs/run-a',e)).toThrow('dto_invalid');
++});
++it('SCN-011/016: current check facts must agree across draft/row/reader and malformed handoff facts cannot pass the shared boundary', () => {
++  const e=scope(),run=e.data.run,row=run.document_states![1];
++  const source={run_id:run.run_id,gate:'PRD',revision_id:run.revision_id!,artifact_path:row.registered_reference,artifact_digest:'sha256:'+'a'.repeat(64),available:true,reason:null};
++  const result={run_id:run.run_id,gate:'PRD',expected_revision_id:run.revision_id!,revision_id:run.revision_id!,artifact_path:row.registered_reference,artifact_digest:source.artifact_digest,
++    ready:false,readiness_scope:'authoring_checks' as const,authorizes:false as const,semantic_review_required:true as const,registration_required:true as const,presentation_required:true as const,
++    checks:[{name:'prd_readiness',ready:false}],diagnostics:[{code:'prd_readiness',message:'Actual owned decision'}],next_action:'Correct actual owned decision'};
++  const display={state:'corrections_required' as const,reason:'prd_readiness',recovery:'authoring' as const,findings:result.diagnostics};
++  run.draft_check={source,result,display};row.state='revision_required';row.check={source,result,display,content_digest:row.content_digest!};
++  expect(()=>validateData('/api/runs/run-a',e)).not.toThrow();
++  const document={resource:run.resources[1],format:'markdown',content:'# Current PRD\n',content_digest:row.content_digest!,links:{},document_state:row};
++  expect(documentData(document)).toBe(true);
++  render(<DocumentView result={{...fixtureMeta,data:document}} detail={{...fixtureMeta,data:run}} onOpen={vi.fn()}/>);
++  expect(screen.getByRole('list',{name:'Aktuelle Korrekturen'}).textContent).toContain('Actual owned decision');
++  for(const alter of [(v:typeof e)=>v.data.run.document_states![1].check!.content_digest='b'.repeat(64),
++    (v:typeof e)=>v.data.run.document_states![1].check!.source.revision_id='00000000-0000-0000-0000-000000000002',
++    (v:typeof e)=>{const checked=v.data.run.document_states![1].check!;v.data.run.document_states![1].check={...checked,display:{...checked.display,findings:[{code:'other',message:'Foreign finding'}]}};}]){
++    const bad=structuredClone(e);alter(bad);expect(()=>validateData('/api/runs/run-a',bad)).toThrow('dto_invalid');
++  }
++  const invalid=structuredClone(document);invalid.document_state.check!.display.state='passed';
++  expect(documentData(invalid)).toBe(false);
++});
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/document.test.tsx b/packages/control-ui/test/document.test.tsx
+index 061da999..92b6e0ba 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/document.test.tsx
++++ b/packages/control-ui/test/document.test.tsx
+@@ -12,7 +12,7 @@ afterEach(cleanup);
+ it('puts authored German orientation and separate saved/Core facts before closed exact originals',()=>{
+   render(<DocumentView result={result} detail={detail} onOpen={vi.fn()}/>);
+   expect(within(screen.getByRole('region',{name:'Einordnung des Dokuments'})).getByText('Kunden können ihre Unterlagen schneller zuordnen.')).toBeTruthy();
+-  expect(screen.getByText('Freigegeben')).toBeTruthy(); expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
++  expect(screen.getByText('Als freigegeben gespeichert')).toBeTruthy(); expect(screen.getByText('Freigabe dieser Fassung nicht bestätigt')).toBeTruthy(); expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
+   expect(screen.getByText('Umsetzung und Prüfung')).toBeTruthy();
+   expect(screen.getByRole('heading',{name:'Requirements'}).closest('details')?.open).toBe(false);
+   expect(screen.getByText('Quellenangaben').closest('details')?.open).toBe(false);
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/documented-approvals.test.tsx b/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/documented-approvals.test.tsx
+deleted file mode 100644
+index d01b2810..00000000
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/documented-approvals.test.tsx
++++ /dev/null
+@@ -1,83 +0,0 @@
+-import { afterEach, expect, it, vi } from 'vitest';
+-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+-import { DocumentedApprovals } from '../src/DocumentedApprovals';
+-import { WorkStep } from '../src/WorkStep';
+-import { runData } from './scoped-fixtures';
+-import type { Resource } from '../src/types';
+-
+-afterEach(cleanup);
+-const gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
+-const approvals = gates.map(gate => ({ gate, status: 'approved', evidence: `Original ${gate}` }));
+-const source: Resource = { resource_id: 'current-ur', type: 'UR', run_id: 'run', status: 'registered', path: null, registered_reference: 'UR.md' };
+-
+-it.each([0, 4, 6])('SCN-001: counts %s recorded approvals, including later gates, without inventing pending approvals', count => {
+-  render(<DocumentedApprovals approvals={[...approvals.slice(0, count), { gate: 'OR', status: 'missing', evidence: '' }]} resources={[]} runId="run"/>);
+-  expect(screen.getByText(`Dokumentierte Freigaben · ${count}`)).toBeTruthy();
+-  expect(document.querySelectorAll('.documented-approval-row')).toHaveLength(count);
+-  expect(screen.queryByText('Keine Freigaben dokumentiert.') !== null).toBe(count === 0);
+-  expect(document.querySelectorAll('details[open]')).toHaveLength(0);
+-});
+-
+-it('SCN-002: preserves raw long/misleading evidence as text and reports unavailable structured provenance', () => {
+-  const evidence = '<script>window.pwned=true</script> Owner: Alice; 2026-10-09; signed; UR.md sha256:1234 ' + 'Original '.repeat(70);
+-  render(<DocumentedApprovals approvals={[{ ...approvals[0], evidence }]} resources={[source]} runId="run" onOpen={vi.fn()}/>);
+-  expect(document.querySelector('.source-text')?.textContent).toBe(evidence);
+-  expect(screen.getByText('Keine bestätigte Identität verfügbar.')).toBeTruthy();
+-  expect(screen.getAllByText('Keine strukturierte Angabe verfügbar.')).toHaveLength(3);
+-  expect(screen.getByText('Nicht bestätigt.')).toBeTruthy();
+-  expect(document.querySelectorAll('.documented-approvals-note')).toHaveLength(1);
+-  expect(document.querySelectorAll('script')).toHaveLength(0);
+-  expect(screen.getByLabelText('Dokumentiert: Anforderungen').closest('details')?.open).toBe(false);
+-  expect(screen.queryByRole('button', { name: /^Freigegebene Fassung ansehen/ })).toBeNull();
+-});
+-
+-it.each(['', '   '])('SCN-002: absent evidence does not remove a recorded approval (%j)', evidence => {
+-  render(<DocumentedApprovals approvals={[{ ...approvals[0], evidence }]} resources={[]} runId="run"/>);
+-  expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
+-  expect(screen.getByText('Kein Originalnachweis verfügbar.')).toBeTruthy();
+-});
+-
+-it('SCN-003/006: current actions pass each exact registered resource and existing return-focus origin', () => {
+-  const second = { ...source, resource_id: 'second', registered_reference: 'alternative/UR.md' }, open = vi.fn();
+-  render(<DocumentedApprovals approvals={[approvals[0]]} resources={[source, second]} runId="run" onOpen={open}/>);
+-  const actions = screen.getAllByRole('button', { name: /^Aktuelle Fassung ansehen: Anforderungen/ });
+-  expect(actions).toHaveLength(2); expect(document.querySelectorAll('.documented-approval-row')).toHaveLength(1);
+-  for (const [i, resource] of [source, second].entries()) {
+-    fireEvent.click(actions[i]); expect(open).toHaveBeenNthCalledWith(i + 1, resource, `approval:${resource.resource_id}`);
+-    expect(actions[i].getAttribute('data-focus-id')).toBe(`approval:${resource.resource_id}`);
+-    expect(screen.getByText(resource.registered_reference)).toBeTruthy();
+-  }
+-});
+-
+-it.each(['missing', 'foreign', 'unregistered', 'blocked'])('SCN-005: %s resources cannot supply a working current-version action', kind => {
+-  const resources = kind === 'missing' ? [] : [{ ...source, ...(kind === 'foreign' ? { run_id: 'other' } : { status: kind }) }];
+-  render(<DocumentedApprovals approvals={[approvals[0]]} resources={resources} runId="run" onOpen={vi.fn()}/>);
+-  expect(screen.queryByRole('button')).toBeNull(); expect(screen.getByText('Aktuelle Fassung nicht verfügbar.')).toBeTruthy();
+-  expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
+-});
+-
+-it('SCN-005/010: disabled reading retains evidence but cannot invoke a callback or mutate supplied facts', () => {
+-  const open = vi.fn(), original = JSON.stringify({ approvals, source });
+-  render(<DocumentedApprovals approvals={approvals} resources={[source]} runId="run" onOpen={open} sourceDisabled/>);
+-  const action = screen.getByRole('button', { name: /^Aktuelle Fassung ansehen/ }) as HTMLButtonElement;
+-  expect(action.disabled).toBe(true); fireEvent.click(action); expect(open).not.toHaveBeenCalled();
+-  expect(JSON.stringify({ approvals, source })).toBe(original);
+-  expect(screen.getByText('Original UR')).toBeTruthy();
+-});
+-
+-it('SCN-008: ordinary parent renders preserve open native disclosure and its identity', () => {
+-  const props = { approvals: [approvals[0]], resources: [source], runId: 'run', onOpen: vi.fn() };
+-  const view = render(<DocumentedApprovals {...props}/>);
+-  const details = screen.getByLabelText('Dokumentiert: Anforderungen').closest('details')!;
+-  details.open = true; view.rerender(<DocumentedApprovals {...props} approvals={[...props.approvals]}/>);
+-  expect(screen.getByLabelText('Dokumentiert: Anforderungen').closest('details')).toBe(details); expect(details.open).toBe(true);
+-});
+-
+-it('SCN-010: current-control and neighboring draft action retain their independent slots', () => {
+-  const data = runData('run'); data.resources = [source]; data.evaluation!.approvals = [approvals[0]];
+-  const check = vi.fn(); render(<WorkStep data={data} onOpen={vi.fn()}><button onClick={check}>Entwurf prüfen</button></WorkStep>);
+-  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
+-  expect(screen.getByRole('button', { name: 'Entwurf prüfen' }).closest('.work-step-approvals')).toBeNull();
+-  fireEvent.click(screen.getByLabelText('Dokumentiert: Anforderungen')); expect(check).not.toHaveBeenCalled();
+-  fireEvent.click(screen.getByRole('button', { name: 'Entwurf prüfen' })); expect(check).toHaveBeenCalledTimes(1);
+-});
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/draft-service.test.mjs b/packages/control-ui/test/draft-service.test.mjs
+index 5bd597b3..a2bca846 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/draft-service.test.mjs
++++ b/packages/control-ui/test/draft-service.test.mjs
+@@ -4,8 +4,10 @@ import * as fs from 'node:fs';
+ import { startControlServer } from '../server/service.mjs';
+ import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
+ import { treeBytes } from '../../core/test/control-cockpit-fixtures.js';
++import { upsertTableRow } from '../../core/lib/control-state/run-state-edits.js';
+ test('SCN-008/010: authenticated exact-query draft route uses actual Core and does not write', async () => {
+   const f = artifactReadinessFixture(); fs.writeFileSync(f.path, readyPrd);
++  f.reseal(s=>upsertTableRow(s,'Artefacts',0,'PRD',['PRD',`${f.prefix}PRD.md`,'draft','Actual registered HTTP draft']));
+   const before = treeBytes(fs.realpathSync(f.root)), service = await startControlServer({ dir: f.root });
+   const request = (path, options = {}) => fetch(service.origin + path, { headers: { 'x-agdf-session': service.secret, ...options.headers }, method: options.method });
+   try {
+@@ -18,6 +20,12 @@ test('SCN-008/010: authenticated exact-query draft route uses actual Core and do
+     const response = await request(path), checked = await response.json();
+     assert.equal(response.status, 200); assert.equal(checked.data.run.draft_check.display.state, 'passed');
+     assert.equal(checked.data.run.draft_check.result.authorizes, false);
++    const row=checked.data.run.document_states.find(s=>s.type==='PRD');assert.equal(row.state,'draft_checked');
++    const opened=await(await request(`/api/documents/${row.resource_id}?snapshot=${checked.snapshot_id}`)).json();
++    assert.equal(opened.data.document.content,readyPrd);assert.equal(opened.data.document.content_digest,opened.data.document.document_state.content_digest);
++    assert.deepEqual(opened.data.document.document_state.check.result,checked.data.run.draft_check.result);
++    const returned=await(await request(`/api/runs/${f.runId}?snapshot=${opened.snapshot_id}`)).json();assert.deepEqual(returned.data.run.draft_check.result,checked.data.run.draft_check.result);
++    const reload=await(await request('/api/snapshot?run_id='+f.runId)).json();assert.equal(reload.data.run.draft_check.result,null);
+     assert.equal(response.headers.get('cache-control'), 'no-store');
+     assert.deepEqual(treeBytes(fs.realpathSync(f.root)), before);
+   } finally { await service.close(); fs.rmSync(f.root, { recursive: true, force: true }); }
+diff --git a/packages/control-ui/test/run-documents.test.tsx b/packages/control-ui/test/run-documents.test.tsx
+new file mode 100644
+index 00000000..0d4461db
+--- /dev/null
++++ b/packages/control-ui/test/run-documents.test.tsx
+@@ -0,0 +1,64 @@
++import { afterEach, expect, it, vi } from 'vitest';
++import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
++import { RunDocuments } from '../src/RunDocuments';
++import { documentPresentation } from '../src/document-state';
++import { documentFixture } from './scoped-fixtures';
++import type { DocumentState, Detail } from '../src/types';
++afterEach(cleanup);
++it('SCN-001/015: multiple distinct references of one gate keep separate, disambiguated actions', () => {
++  const data = documentFixture(), open = vi.fn();
++  const extra = {...data.resources[0], resource_id:'UR-second', registered_reference:'.agdf/control/artefacts/fixture-a/'+'long-name-'.repeat(30)+'UR.md'};
++  data.resources.push(extra);
++  data.document_states!.push({...data.document_states![0],resource_id:extra.resource_id,registered_reference:extra.registered_reference});
++  render(<RunDocuments data={data} onOpen={open}/>);
++  expect(screen.getByText('Dokumente · 5')).toBeTruthy();
++  const actions = screen.getAllByRole('button'); expect(actions).toHaveLength(5);
++  fireEvent.click(actions[4]); expect(open).toHaveBeenCalledWith(extra,'document:UR-second');
++  expect(actions[0].getAttribute('aria-label')).not.toBe(actions[4].getAttribute('aria-label'));
++  expect(document.querySelectorAll('.run-document-row')).toHaveLength(5);
++});
++it('SCN-001/015: actual distinct registrations including drafts; no approval-only or filesystem-invented rows', () => {
++  const data = documentFixture();
++  data.evaluation!.approvals = [{gate:'UAT',status:'approved',evidence:'No registered UAT source'}];
++  data.resources.push({...data.resources[0]}, {...data.resources[0],resource_id:'foreign',run_id:'foreign'}, {...data.resources[0],resource_id:'analysis',type:'Brownfield Analysis'});
++  render(<RunDocuments data={data} onOpen={vi.fn()}/>);
++  expect(screen.getByText('Dokumente · 4')).toBeTruthy(); expect(document.querySelectorAll('.run-document-row')).toHaveLength(4);
++  expect(document.querySelectorAll('.run-document-row details')).toHaveLength(0);
++  expect(screen.queryByText('Freigabe ansehen')).toBeNull(); expect(screen.queryByText('Abnahme')).toBeNull();
++  expect(screen.getAllByText('Entwurf ansehen')).toHaveLength(4);
++});
++it('SCN-001/015: zero entries and blocked/missing rows are explicit, not working actions', () => {
++  const data = documentFixture(); data.resources = []; const rendered = render(<RunDocuments data={data} onOpen={vi.fn()}/>);
++  expect(screen.getByText('Dokumente · 0')).toBeTruthy(); expect(screen.getByText('Keine Dokumente registriert.')).toBeTruthy(); rendered.unmount();
++  const blocked = documentFixture(); blocked.resources[0].status = 'blocked'; blocked.document_states![0].source_state = 'blocked';
++  blocked.document_states![1].source_state = 'missing';
++  render(<RunDocuments data={blocked} onOpen={vi.fn()}/>);
++  expect(screen.getAllByText('Dokument nicht verfügbar.')).toHaveLength(2); expect(screen.getAllByRole('button')).toHaveLength(2);
++});
++it('SCN-003/016: contextual action passes exact current resource and document origin; refreshed logical row keeps its DOM', () => {
++  const data = documentFixture(), open = vi.fn(), s = data.document_states![0];
++  s.state = 'approved'; s.version_kind = 'approved'; s.recorded_approval = {status:'approved',evidence:'Original'};
++  const rendered = render(<RunDocuments data={data} onOpen={open}/>);
++  const action = screen.getByRole('button',{name:'Freigegebene Anforderungen ansehen: Anforderungen'});
++  fireEvent.click(action); expect(open).toHaveBeenCalledWith(data.resources[0],'document:UR');
++  const old = action.closest('li'); data.resources[0].resource_id = 'new-id'; s.resource_id = 'new-id';
++  rendered.rerender(<RunDocuments data={data} onOpen={open}/>);
++  expect(screen.getByRole('button',{name:'Freigegebene Anforderungen ansehen: Anforderungen'}).closest('li')).toBe(old);
++  expect(action.getAttribute('data-focus-id')).toBe('document:new-id');
++});
++it.each(['approved','draft','draft_checked','revision_required','check_unavailable','approval_unconfirmed','unavailable'] as const)('SCN-015: %s has readable text/icon and truthful version action', state => {
++  const data=documentFixture(), s=data.document_states![0]; s.state=state;
++  s.version_kind=state==='approved'?'approved':state==='approval_unconfirmed'||state==='unavailable'?'current':'draft';
++  render(<RunDocuments data={data} onOpen={vi.fn()}/>);
++  const p=documentPresentation(s,'UR'); const row=document.querySelector('li')!;
++  expect(within(row).getByText(p.text)).toBeTruthy(); expect(within(row).getByRole('button').textContent).toBe(p.action);
++});
++it('SCN-010/013: old server has uncertainty/current action; stale controls preserve observed limits and cannot navigate', () => {
++  const data = documentFixture(); delete data.document_states;
++  data.evaluation!.approvals = [{gate:'UR',status:'approved',evidence:'Original'}]; const open=vi.fn();
++  const view=render(<RunDocuments data={data} onOpen={open}/>);
++  expect(screen.getByText('Freigabe dieser Fassung nicht bestätigt')).toBeTruthy(); expect(screen.getAllByText('Aktuelle Fassung ansehen')).toHaveLength(4);
++  view.rerender(<RunDocuments data={data} onOpen={open} current={false} sourceDisabled/>);
++  expect(screen.getByText('Zuletzt beobachtet: Freigabe dieser Fassung nicht bestätigt')).toBeTruthy();
++  fireEvent.click(screen.getAllByRole('button')[0]); expect(open).not.toHaveBeenCalled();
++});
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/scoped-fixtures.ts b/packages/control-ui/test/scoped-fixtures.ts
+index 659d3541..3d8e7a6f 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/scoped-fixtures.ts
++++ b/packages/control-ui/test/scoped-fixtures.ts
+@@ -19,3 +19,11 @@ export function runData(id: string, title = id): Detail {
+ export function runScope(run: Detail, snapshot = 'run-snapshot'): Envelope<ReadingScope> {
+   return { ...fixtureMeta, snapshot_id: snapshot, data: { kind: 'run', run } };
+ }
++
++export const revision = '00000000-0000-0000-0000-000000000001';
++export function documentFixture(): Detail {
++  const data = runData('run-a'); data.revision_id = revision;
++  data.resources = ['UR', 'PRD', 'SD', 'TP'].map(type => ({resource_id:type,run_id:'run-a',type,path:`.agdf/control/artefacts/run-a/${type}.md`,registered_reference:`.agdf/control/artefacts/run-a/${type}.md`,status:'registered'}));
++  data.document_states = data.resources.map(r => ({schema_version:'1',resource_id:r.resource_id,run_id:r.run_id,revision_id:revision,type:r.type,registered_reference:r.registered_reference,source_state:'available',content_digest:'a'.repeat(64),state:'draft',version_kind:'draft',reason:'not_checked',recorded_approval:null,check:null,authorizes:false}));
++  return data;
++}
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/work-step.test.tsx b/packages/control-ui/test/work-step.test.tsx
+index 79714c7c..7d4a17ed 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/control-ui/test/work-step.test.tsx
++++ b/packages/control-ui/test/work-step.test.tsx
+@@ -21,8 +21,8 @@ it('leads with saved state, Core assessment and the actual registered step sourc
+  expect(Array.from(document.querySelectorAll('details')).every(d=>!d.open)).toBe(true);
+  fireEvent.click(screen.getByRole('button',{name:'Umsetzungs- und Prüfnachweise öffnen'}));expect(open).toHaveBeenCalledWith(source, 'step:opaque-cd');
+  expect(document.querySelectorAll('button.primary')).toHaveLength(1);
+- expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Dokumentierte Freigaben · 1')).toBeTruthy();
+- expect(screen.getByText('Umsetzungs- und Prüfplan')).toBeTruthy();
++ expect(screen.getByText('Nachweislücken im Run-Dokument · 1')).toBeTruthy();expect(screen.getByText('Dokumente · 0')).toBeTruthy();
++ expect(screen.queryByText('Umsetzungs- und Prüfplan')).toBeNull(); // An approval alone never invents a document registration.
+  // Exact original evidence remains recoverable, independently of its readable summary.
+  expect(screen.getByText(/Aktueller Build noch nicht im Host bestätigt/)).toBeTruthy();
+  expect(screen.getAllByText(/Neue Karte öffnen und prüfen/)).toHaveLength(2);
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/lib/control-inspect/artifact-readiness.js b/packages/core/lib/control-inspect/artifact-readiness.js
+index 9f81e431..4a425787 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/lib/control-inspect/artifact-readiness.js
++++ b/packages/core/lib/control-inspect/artifact-readiness.js
+@@ -14,6 +14,31 @@ import { extractField } from '../control-evaluation/verified-change.js';
+ 
+ export const ARTIFACT_READINESS_GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP']);
+ 
++// Describes the original author's findings; it does not validate or change gate policy.
++export function describeArtifactReadiness(result) {
++  const names = new Set(['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability',
++    'approval_summary_locale_missing', 'approval_summary_locale_duplicate', 'approval_summary_source_language_mismatch',
++    'approval_summary_truncated_or_overlong', 'approval_summary_field_overlong', 'approval_summary_criteria_missing',
++    'approval_summary_source_criteria_duplicate', 'approval_summary_criteria_duplicate', 'approval_summary_criteria_unknown',
++    'approval_summary_criteria_incomplete', 'approval_summary_user_goal_missing', 'approval_summary_scope_missing',
++    'approval_summary_decisions_missing', 'approval_summary_criterion_content_missing', 'approval_summary_content_missing']);
++  let findings = result.diagnostics.filter(row => names.has(row.code));
++  const readinessOwner = { AGDF_UR_REQUIREMENTS_INCOMPLETE: 'ur', AGDF_PRD_DECISIONS_OPEN: 'prd',
++    AGDF_SD_DECISIONS_OPEN: 'sd', AGDF_SD_TRACEABILITY_INCOMPLETE: 'traceability', AGDF_TP_TRACEABILITY_INCOMPLETE: 'traceability' };
++  const key = readinessOwner[result.blocking_reason];
++  const details = key && result.current_gate === result.gate && result.readiness_details?.[key];
++  const items = details && (details.open_items ?? details.open_decisions);
++  if (result.diagnostics.length === 1 && result.diagnostics[0].code === 'artifact_gate_not_ready'
++      && Array.isArray(items) && items.length && items.every(item => typeof item === 'string' && item.trim())) {
++    findings = items.map(message => ({ code: result.blocking_reason, message }));
++  }
++  const corrections = findings.length > 0 && (result.diagnostics.every(row => names.has(row.code))
++    || result.diagnostics.length === 1 && result.diagnostics[0].code === 'artifact_gate_not_ready' && !!key && !!details);
++  return { state: result.ready ? 'passed' : corrections ? 'corrections_required' : 'unavailable',
++    reason: result.diagnostics[0]?.code ?? null, recovery: result.ready || corrections ? 'authoring' : 'reload',
++    findings: corrections ? findings : [] };
++}
++
+ // Runs only inside the caller's bounded captured view. Both consumers use these same validators.
+ export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage }) {
+   const path = `.agdf/control/artefacts/${runId}/${gate}.md`;
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/lib/control-inspect/cockpit.js b/packages/core/lib/control-inspect/cockpit.js
+index 8979d78e..d8df802f 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/lib/control-inspect/cockpit.js
++++ b/packages/core/lib/control-inspect/cockpit.js
+@@ -14,12 +14,17 @@ import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.
+ import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
+ import { runSealState } from '../control-state/run-seal.js';
+ import { canonicalJson } from '../control-state/approval-command-contract.js';
+-import { ARTIFACT_READINESS_GATES, projectArtifactReadiness } from './artifact-readiness.js';
++import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactReadiness } from './artifact-readiness.js';
+ import { artefactFileDigest } from '../control-state/run-seal.js';
++import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
+ 
+ const CONTROL = '.agdf/control/';
+ const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
+ const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
++const DOCUMENT_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
++const DESCRIPTION_LIMIT = 256 * 1024;
++const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
++const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
+ function boundedCode(error) {
+   return ['resource_denied', 'source_changed', 'timeout', 'resource_limit', 'read_failed'].includes(error.code) ? error.code : 'read_failed';
+ }
+@@ -41,6 +46,8 @@ export function createCockpitReader(root, options = {}) {
+   let view = null, details = new Map(), documents = new Map();
+   let graph = null, inspected = null, packet = null;
+   let backlogRows = new Map(), backlogDigest = null;
++  // One result belongs to this existing reader, never to a shared or durable cache.
++  let checkedDraft = null;
+   const invalidate = () => { packet = null; };
+   const target = { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
+   const meta = () => ({ schema_version: '1', target, snapshot_id: view?.snapshot_id ?? null,
+@@ -116,6 +123,8 @@ export function createCockpitReader(root, options = {}) {
+       comparison = saved.revision_id === run.meta.revision_id && keys.every(key => canonicalJson(saved[key]) === canonicalJson(work_summary[key])) ? 'matching' : 'different';
+       comparison_reason = comparison === 'matching' ? 'same_revision_and_sources' : 'saved_observation_differs';
+     }
++    const draft_check = draftDescriptor(run, state, report);
++    const document_states = documentStates(run, state, report, resources, draft_check);
+     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
+       work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
+         saved_revision_id: saved?.revision_id ?? null, authorizes: false },
+@@ -127,14 +136,55 @@ export function createCockpitReader(root, options = {}) {
+       evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
+         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
+       context_graph: { refs: state.context_graph.refs }, resources,
+-      draft_check: draftDescriptor(run, state, report) };
++      draft_check, document_states };
++  }
++  function documentStates(run, state, report, resources, draft) {
++    const integrity = !!report && report.doctor_status !== 'fail' && runSealState(root, run.content).status === 'valid';
++    const records = resources.filter(r => DOCUMENT_GATES.has(r.type)).map(resource => {
++      const approval = state.approvals.get(resource.type);
++      const recorded_approval = approval?.status === 'approved' ? { status: approval.status, evidence: approval.evidence ?? '' } : null;
++      const record = { schema_version: '1', resource_id: resource.resource_id, run_id: run.run_id,
++        revision_id: run.meta.revision_id, type: resource.type, registered_reference: resource.registered_reference,
++        source_state: 'unavailable', content_digest: null, state: 'unavailable', version_kind: 'unavailable',
++        reason: 'document_unavailable', recorded_approval, check: null, authorizes: false };
++      if (resource.status === 'blocked') return { ...record, source_state: 'blocked', reason: 'resource_denied' };
++      const file = view.readOptionalFileSync(join(root, resource.path), READ_LIMITS.file);
++      if (!file.bytes) return { ...record, source_state: file.code === 'document_missing' || file.code === 'missing' ? 'missing' : 'unavailable', reason: file.code ?? 'document_missing' };
++      if (!SUPPORTED.has(resource.path.split('.').at(-1)?.toLowerCase()) || file.bytes.length > READ_LIMITS.preview)
++        return { ...record, source_state: 'unsupported', reason: file.bytes.length > READ_LIMITS.preview ? 'resource_limit' : 'document_unsupported' };
++      try { if (decoder.decode(file.bytes).includes('\0')) throw Error(); }
++      catch { return { ...record, source_state: 'unsupported', reason: 'document_unsupported' }; }
++      record.source_state = 'available'; record.content_digest = rawDigest(file.bytes); record.version_kind = 'current';
++      if (recorded_approval) {
++        const proof = integrity ? inspectApprovedArtefact(root, { ...state, meta: { ...run.meta, run_id: run.run_id } }, resource.type) : null;
++        const confirmed = proof?.confirmed && proof.path === resource.path && proof.raw_digest === `sha256:${record.content_digest}`;
++        return { ...record, state: confirmed ? 'approved' : 'approval_unconfirmed', version_kind: confirmed ? 'approved' : 'current',
++          reason: confirmed ? null : integrity ? proof?.reason ?? 'approval_source_mismatch' : 'artifact_run_integrity' };
++      }
++      const registered = state.artefacts.get(resource.type);
++      if (registered?.status !== 'draft' || approval && !['missing', 'not_applicable'].includes(approval.status))
++        return { ...record, reason: 'document_status_unconfirmed' };
++      record.version_kind = 'draft'; record.state = 'draft'; record.reason = 'not_checked';
++      if (draft.source.gate !== resource.type || draft.source.artifact_path !== resource.path)
++        return { ...record, state: 'check_unavailable', reason: 'artifact_gate_invalid' };
++      if (!draft.source.available) return { ...record, state: 'check_unavailable', reason: draft.source.reason };
++      if (!draft.result) return record;
++      record.check = { ...draft, content_digest: record.content_digest };
++      return { ...record, state: draft.display.state === 'passed' ? 'draft_checked'
++        : draft.display.state === 'corrections_required' ? 'revision_required' : 'check_unavailable', reason: draft.display.reason };
++    });
++    assertDescriptionBound(records);
++    return records;
+   }
+   function draftDescriptor(run, state, report) {
+     const gate = report?.current_gate ?? state.current_gate;
+     const source = { run_id: run.run_id, gate, revision_id: run.meta.revision_id,
+       artifact_path: ARTIFACT_READINESS_GATES.includes(gate) ? `.agdf/control/artefacts/${run.run_id}/${gate}.md` : null,
+       artifact_digest: null, available: false, reason: 'artifact_gate_invalid' };
+-    if (!source.artifact_path) return { source, result: null, display: { state: 'unavailable', reason: source.reason, recovery: 'authoring' } };
++    if (!source.artifact_path) {
++      checkedDraft = null;
++      return { source, result: null, display: { state: 'unavailable', reason: source.reason, recovery: 'authoring' } };
++    }
+     // An optional denied source is observed but never traversed. Absence is a real dependency.
+     const file = view.readOptionalFileSync(join(root, source.artifact_path), READ_LIMITS.file);
+     source.reason = file.code ?? (run.meta.lifecycle !== 'active' ? 'artifact_run_inactive'
+@@ -143,13 +193,19 @@ export function createCockpitReader(root, options = {}) {
+       : !report ? 'evaluation_out_of_scope' : runSealState(root, run.content).status !== 'valid' ? 'artifact_run_integrity' : null);
+     if (file.bytes) source.artifact_digest = artefactFileDigest(root, source.artifact_path);
+     source.available = source.reason === null;
++    const raw = file.bytes ? rawDigest(file.bytes) : null;
++    if (checkedDraft && source.available && checkedDraft.target_id === target.target_id && checkedDraft.content_digest === raw
++        && ['run_id', 'gate', 'revision_id', 'artifact_path', 'artifact_digest'].every(key => checkedDraft.source[key] === source[key])) {
++      return { source, result: checkedDraft.result, display: checkedDraft.display };
++    }
++    checkedDraft = null;
+     return { source, result: null, display: { state: source.available ? 'unchecked' : 'unavailable', reason: source.reason, recovery: source.available ? 'check' : 'authoring' } };
+   }
+   function assertSnapshot(id) {
+     if (!view || id !== view.snapshot_id) fail('resource_denied');
+     try {
+       view.revalidate();
+-    } catch (error) { invalidate(); inspected = null; graph = null; throw error; }
++    } catch (error) { checkedDraft = null; invalidate(); inspected = null; graph = null; throw error; }
+   }
+   function readDocument(resourceId) {
+       const resource = documents.get(resourceId);
+@@ -175,26 +231,29 @@ export function createCockpitReader(root, options = {}) {
+         const registered = resources.find(r => r.path === targetPath && r.status === 'registered');
+         if (registered) links[href] = registered.resource_id;
+       }
+-      return envelope({ resource, format, content, content_digest: createHash('sha256').update(bytes).digest('hex'), links });
++      const document_state = details.get(resource.run_id)?.data?.document_states?.find(row => row.resource_id === resourceId);
++      return envelope({ resource, format, content, content_digest: rawDigest(bytes), links, ...(document_state ? { document_state } : {}) });
+   }
+-  function discardScope() {
++  function discardScope(retainCheck = false) {
++    if (!retainCheck) checkedDraft = null;
+     invalidate(); inspected = null; graph = null; view = null;
+     details = new Map(); documents = new Map();
+     backlogRows = new Map(); backlogDigest = null;
+   }
+   function selectedRun(runId) {
+     const run = discoverRuns(root).find(row => row.run_id === runId);
+-    if (!run) return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } };
+-    if (!run.valid) return { state: 'invalid', code: 'invalid_run', data: { kind: 'run', requested_run_id: runId,
++    if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
++    if (!run.valid) { checkedDraft = null; return { state: 'invalid', code: 'invalid_run', data: { kind: 'run', requested_run_id: runId,
+       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
++    }
+     const data = detail(run);
+     details.set(runId, { state: 'available', code: null, data });
+     return { state: 'available', code: null, data: { kind: 'run', run: data } };
+   }
+-  function replaceScope(project) {
++  function replaceScope(project, retainCheck = false) {
+     // Incoming opaque selectors have already been checked. Drop retained bytes
+     // before recording a candidate; a failed candidate never restores them.
+-    discardScope();
++    discardScope(retainCheck);
+     try {
+       const captured = captureControlScope(root, candidate => {
+         view = candidate; details = new Map(); documents = new Map(); graph = null; inspected = null;
+@@ -244,7 +303,7 @@ export function createCockpitReader(root, options = {}) {
+       if (!/^[A-Za-z0-9_-]{1,128}$/.test(runId)) fail('resource_denied');
+       assertSnapshot(id);
+       const wasInspected = details.get(runId)?.state === 'available';
+-      return replaceScope(() => reopenRun(runId, wasInspected));
++      return replaceScope(() => reopenRun(runId, wasInspected), true);
+     },
+     artifactReadiness(runId, id, gate, revision) {
+       const previous = details.get(runId)?.data?.draft_check?.source;
+@@ -257,10 +316,13 @@ export function createCockpitReader(root, options = {}) {
+           || current.artifact_digest !== previous.artifact_digest || current.artifact_path !== previous.artifact_path) fail('source_changed');
+         const result = projectArtifactReadiness(root, { runId, gate, expectedRevisionId: revision, presentationLanguage: 'de' });
+         if (result.revision_id !== revision || result.artifact_digest && result.artifact_digest !== current.artifact_digest) fail('source_changed');
+-        const contentOnly = result.diagnostics.every(row => ['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability'].some(name => row.code.startsWith(name)));
+-        const display = { state: result.ready ? 'passed' : contentOnly ? 'corrections_required' : 'unavailable',
+-          reason: result.diagnostics[0]?.code ?? null, recovery: result.ready ? 'authoring' : contentOnly ? 'authoring' : 'reload' };
++        const display = describeArtifactReadiness(result);
++        checkedDraft = { target_id: target.target_id, source: current, content_digest: rawDigest(view.readFileSync(join(root, current.artifact_path))), result, display };
++        assertDescriptionBound(checkedDraft);
+         selected.data.run.draft_check = { source: current, result, display };
++        const state = readRunState(root, { runId, ignoreRunIdEnv: true });
++        selected.data.run.document_states = documentStates({ run_id: runId, meta: { revision_id: revision }, content: state.content }, state,
++          selected.data.run.evaluation, selected.data.run.resources, selected.data.run.draft_check);
+         return selected;
+       });
+     },
+@@ -276,7 +338,7 @@ export function createCockpitReader(root, options = {}) {
+       const previous = documents.get(resourceId);
+       if (!previous || runId !== undefined && previous.run_id !== runId) fail('resource_denied');
+       assertSnapshot(id);
+-      return replaceScope(() => selectedDocument(previous, previous.run_id));
++      return replaceScope(() => selectedDocument(previous, previous.run_id), true);
+     },
+     context(runId, id) {
+       if (!details.has(runId)) fail('resource_denied');
+@@ -289,7 +351,7 @@ export function createCockpitReader(root, options = {}) {
+         graph = projectCockpitContext(view, root, runId, run.context_graph.refs);
+         return { state: !graph.references.length ? 'empty' : graph.references.some(ref => ref.state !== 'available') ? 'partial' : 'available', code: null,
+           data: { kind: 'context', run, document: selected.data.document ?? null, context: graph } };
+-      });
++      }, true);
+     },
+     prepareContext(input) {
+       invalidate(); assertSnapshot(input.snapshot_id);
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/lib/control-state/artefact-binding-proof.js b/packages/core/lib/control-state/artefact-binding-proof.js
+index 98c1e9ee..334224c8 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/lib/control-state/artefact-binding-proof.js
++++ b/packages/core/lib/control-state/artefact-binding-proof.js
+@@ -13,42 +13,51 @@ export function readContainedJson(root, path) {
+   catch { throw new Error("AGDF_ARTEFACT_BINDING_PROOF_INVALID"); }
+ }
+ 
+-export function exactApprovedArtefacts(root, control, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false,
++// Keep the existing aggregate semantics, including legacy receipts and UAT omission.
++export function exactApprovedArtefacts(root, control, options = {}) {
++  if (!readApprovalOperations(control.content).valid || !readSourceRevisions(control.content).valid
++      || !readArtefactBindings(control.content).valid) return false;
++  return APPROVAL_GATES.filter(gate => gate !== 'UAT' && control.approvals.get(gate)?.status === 'approved')
++    .every(gate => inspectApprovedArtefact(root, control, gate, options).confirmed);
++}
++
++export function inspectApprovedArtefact(root, control, gate, { fileDigest = path => artefactFileDigest(root, path), readJson = path => readContainedJson(root, path), historical = false,
+   rawFileDigest = path => {
+     const file = containedRegularFile(root, path);
+     return file.status === "valid" && !hasSymlinkComponent(root, path) && statSync(file.path).size <= 131072 ? digest(readFileSync(file.path)) : "missing";
+   } } = {}) {
++  const unconfirmed = () => ({ confirmed: false, reason: 'approval_proof_unconfirmed' });
++  if (!APPROVAL_GATES.includes(gate) || gate === 'UAT' || control.approvals.get(gate)?.status !== 'approved') return unconfirmed();
+   const operations = readApprovalOperations(control.content);
+-  if (!operations.valid) return false;
++  if (!operations.valid) return unconfirmed();
+   const revisions = readSourceRevisions(control.content), bindings = readArtefactBindings(control.content);
+-  if (!revisions.valid || !bindings.valid) return false;
++  if (!revisions.valid || !bindings.valid) return unconfirmed();
+   // Receipts keep their recording checkout's target_id; writers bind new commands locally.
+-  for (const gate of APPROVAL_GATES.filter(gate => gate !== "UAT" && control.approvals.get(gate)?.status === "approved")) {
+     const row = control.artefacts.get(gate), actual = fileDigest(row?.path);
+-    if (!actual.startsWith("sha256:")) return false;
++    if (!actual.startsWith("sha256:")) return unconfirmed();
+     if (revisions.present && ["PRD", "SD", "TP", "QA"].includes(gate)
+         && !bindings.active.some(binding => binding.destination.type === (gate === "QA" ? "QA_REPORT" : gate) && binding.destination.path === row?.path
+-          && binding.destination.digest === actual && validateBindingProof(root, binding, { fileDigest, readJson, historical }))) return false;
++          && binding.destination.digest === actual && validateBindingProof(root, binding, { fileDigest, readJson, historical }))) return unconfirmed();
+     const evidence = control.approvals.get(gate).evidence ?? "";
+     const presentation = evidence.match(/presentation ([0-9a-f-]{36}) (sha256:[0-9a-f]{64})(?:\s|$)/u);
+-    if (!presentation) return false;
++    if (!presentation) return unconfirmed();
+     const receipt = operations.receipts.filter(item => item.binding.gate === gate && item.binding.presentation_id === presentation[1]);
+-    if (receipt.length > 1) return false;
++    if (receipt.length > 1) return unconfirmed();
+     if (receipt.length === 1) {
+       if (receipt[0].binding.run_id !== control.meta.run_id
+-          || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest !== presentation[2]) return false;
++          || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest !== presentation[2]) return unconfirmed();
+       // The row identifies the exact prepared record, not a historical superseded approval.
+     }
++    let observedRaw;
+     try {
+       const envelope = readJson(`.agdf/control/runs/${control.meta.run_id}/presentations/${presentation[1]}.json`);
+       const record = envelope.record;
+       if (!record || record.schema_version !== 1 || record.presentation_id !== presentation[1] || record.run_id !== control.meta.run_id
+-          || record.gate !== gate || record.artefact_digest !== rawFileDigest(row.path) || envelope.digest !== presentation[2]
++          || record.gate !== gate || record.artefact_digest !== (observedRaw = rawFileDigest(row.path)) || envelope.digest !== presentation[2]
+           || receipt.length === 1 && record.revision_id !== receipt[0].binding.expected_revision_id
+-          || digest(JSON.stringify(record)) !== envelope.digest) return false;
+-    } catch { return false; }
+-  }
+-  return true;
++          || digest(JSON.stringify(record)) !== envelope.digest) return unconfirmed();
++    } catch { return unconfirmed(); }
++  return { confirmed: true, reason: null, path: row.path, artefact_digest: actual, raw_digest: observedRaw };
+ }
+ 
+ // Local reviewed attestation: explicit exact mapping, never prose or inferred gate order.
+diff --git a/packages/core/test/cockpit-document-state-test.js b/packages/core/test/cockpit-document-state-test.js
+new file mode 100644
+index 00000000..e8181001
+--- /dev/null
++++ b/packages/core/test/cockpit-document-state-test.js
+@@ -0,0 +1,251 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import * as fs from 'node:fs';
++import { join } from 'node:path';
++import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
++import { describeArtifactReadiness, inspectArtifactReadiness } from '../lib/control-inspect/artifact-readiness.js';
++import { approvalFixture, fixture, treeBytes } from './control-cockpit-fixtures.js';
++import { artifactReadinessFixture, readyPrd } from './fixtures/artifact-readiness.js';
++import { upsertTableRow } from '../lib/control-state/run-state-edits.js';
++import { sealRunState } from '../lib/control-state/run-seal.js';
++import { createHash } from 'node:crypto';
++const sha = bytes => createHash('sha256').update(bytes).digest('hex');
++const row = result => result.data.run.document_states.find(s => s.type === 'UR');
++function draftFixture(content = readyPrd) {
++  const f = artifactReadinessFixture('PRD'); f.root = fs.realpathSync(f.root); fs.writeFileSync(f.path, content);
++  const path = `.agdf/control/artefacts/${f.runId}/PRD.md`, statePath = join(f.root, `.agdf/control/runs/${f.runId}/RUN_STATE.md`);
++  fs.writeFileSync(statePath, sealRunState(f.root, upsertTableRow(fs.readFileSync(statePath, 'utf8'), 'Artefacts', 0, 'PRD', ['PRD', path, 'draft', 'Disposable registered draft'])));
++  return { ...f, close: () => fs.rmSync(f.root, { recursive: true, force: true }) };
++}
++test('SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes', () => {
++  const f = fixture(); try {
++    f.register('PRD', '.agdf/control/artefacts/fixture-a/absent.md');
++    f.register('SD', '../outside.md');
++    f.register('Brownfield Analysis', '.agdf/control/artefacts/fixture-a/analysis.md');
++    const before = treeBytes(f.root), reader = createCockpitReader(f.root), r = reader.snapshot('fixture-a');
++    assert.equal(r.state, 'available'); assert.equal(r.data.run.document_states.length, 3);
++    assert.deepEqual(r.data.run.document_states.map(s => s.type), ['UR', 'PRD', 'SD']);
++    assert.equal(r.data.run.document_states[1].source_state, 'missing'); assert.equal(r.data.run.document_states[2].source_state, 'blocked');
++    assert.ok(r.data.run.document_states.every(s => s.authorizes === false));
++    assert.deepEqual(treeBytes(f.root), before);
++  } finally { f.close(); }
++});
++test('SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it', async () => {
++  const f = await approvalFixture(); try {
++    assert.equal(f.approve().outcome, 'approved'); const before = treeBytes(f.root);
++    const reader = createCockpitReader(f.root), selected = reader.snapshot('fixture-a');
++    assert.equal(row(selected).state, 'approved', JSON.stringify(row(selected)));
++    const source = selected.data.run.resources.find(s => s.type === 'UR');
++    const opened = reader.document(source.resource_id, selected.snapshot_id, 'fixture-a');
++    let observation = opened;
++    assert.equal(opened.data.document.content_digest, sha(fs.readFileSync(join(f.root, f.documentPath))));
++    assert.deepEqual(opened.data.document.document_state, row(opened)); assert.equal(row(opened).version_kind, 'approved');
++    assert.equal(opened.data.document.resource.status, 'registered'); assert.deepEqual(treeBytes(f.root), before);
++    const original = fs.readFileSync(join(f.root, f.documentPath), 'utf8');
++    for (const content of ['\ufeff' + original.replaceAll('\n', '\r\n'), original + '\nChanged source\n']) {
++      fs.writeFileSync(join(f.root, f.documentPath), content);
++      assert.throws(() => reader.freshness(observation.snapshot_id), /source_changed/);
++      const fresh = reader.snapshot('fixture-a');
++      observation = fresh;
++      assert.equal(row(fresh).state, 'approval_unconfirmed'); assert.equal(row(fresh).version_kind, 'current');
++      assert.ok(row(fresh).recorded_approval.evidence.includes('Approval: UR'));
++      assert.equal(row(fresh).content_digest, sha(fs.readFileSync(join(f.root, f.documentPath))));
++    }
++  } finally { f.close(); }
++});
++test('SCN-004: missing or foreign/malformed approval presentation never confirms current version', async () => {
++  for (const mutation of ['missing', 'malformed', 'foreign']) {
++    const f = await approvalFixture(); try {
++      assert.equal(f.approve().outcome, 'approved');
++      const dir = join(f.root, '.agdf/control/runs/fixture-a/presentations'), path = join(dir, fs.readdirSync(dir)[0]);
++      if (mutation === 'missing') fs.rmSync(path);
++      else if (mutation === 'malformed') fs.writeFileSync(path, '{broken');
++      else { const p = JSON.parse(fs.readFileSync(path, 'utf8')); p.record.run_id = 'foreign'; fs.writeFileSync(path, JSON.stringify(p)); }
++      const fresh = createCockpitReader(f.root).snapshot('fixture-a'); assert.equal(row(fresh).state, 'approval_unconfirmed');
++      assert.ok(row(fresh).recorded_approval); assert.equal(row(fresh).version_kind, 'current');
++    } finally { f.close(); }
++  }
++});
++test('SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear', () => {
++  for (const content of [readyPrd, readyPrd.replace('- AC-001: Die gewählte Quelle bleibt lesbar.\n', '')]) {
++    const f = draftFixture(content); try {
++      const reader = createCockpitReader(f.root), other = createCockpitReader(f.root); let s = reader.snapshot(f.runId);
++      const before = treeBytes(f.root), checked = reader.artifactReadiness(f.runId, s.snapshot_id, 'PRD', f.revision);
++      const result = checked.data.run.draft_check.result, expected = inspectArtifactReadiness(f.root, {runId:f.runId,gate:'PRD',expectedRevisionId:f.revision,presentationLanguage:'de'});
++      assert.deepEqual(result, expected); assert.equal(result.authorizes, false);
++      const state = checked.data.run.document_states.find(x => x.type === 'PRD');
++      assert.equal(state.state, expected.ready ? 'draft_checked' : 'revision_required');
++      assert.equal(other.snapshot(f.runId).data.run.draft_check.result, null);
++      assert.throws(() => reader.document('foreign', checked.snapshot_id), /resource_denied/);
++      const source = checked.data.run.resources.find(r => r.type === 'PRD');
++      const opened = reader.document(source.resource_id, checked.snapshot_id, f.runId);
++      assert.notEqual(opened.snapshot_id, checked.snapshot_id); assert.notEqual(opened.data.document.resource.resource_id, source.resource_id);
++      assert.deepEqual(opened.data.document.document_state.check.result, result);
++      const context = reader.context(f.runId, opened.snapshot_id);
++      assert.deepEqual(context.data.run.draft_check.result, result);
++      s = reader.run(f.runId, context.snapshot_id); assert.deepEqual(s.data.run.draft_check.result, result);
++      assert.equal(reader.snapshot(f.runId).data.run.draft_check.result, null);
++      s = reader.snapshot(f.runId); s = reader.artifactReadiness(f.runId, s.snapshot_id, 'PRD', f.revision);
++      fs.writeFileSync(f.path, content + '\nChanged raw draft\n');
++      assert.throws(() => reader.freshness(s.snapshot_id), /source_changed/);
++      fs.writeFileSync(f.path, content);
++      assert.throws(() => reader.run(f.runId, s.snapshot_id), /source_changed/, 'Restoring bytes does not revive the changed capture');
++      assert.equal(reader.snapshot(f.runId).data.run.draft_check.result, null, 'Fresh recovery cannot resurrect cleared result');
++      s = reader.snapshot(f.runId); s = reader.artifactReadiness(f.runId, s.snapshot_id, 'PRD', f.revision);
++      s = reader.run('nonexistent-run', s.snapshot_id); assert.equal(s.state, 'missing');
++      assert.equal(reader.run(f.runId, s.snapshot_id).data.run.draft_check.result, null);
++      assert.deepEqual(treeBytes(f.root), before);
++    } finally { f.close(); }
++  }
++});
++test('SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures', () => {
++  const base = {ready:false,gate:'PRD',current_gate:'PRD',diagnostics:[{code:'artifact_gate_not_ready',message:'Original gate prerequisite'}],blocking_reason:'AGDF_PRD_DECISIONS_OPEN',readiness_details:{prd:{open_decisions:['Owner decision remains open']}}};
++  const described = describeArtifactReadiness(base);
++  assert.equal(described.state, 'corrections_required'); assert.deepEqual(described.findings, [{code:base.blocking_reason,message:'Owner decision remains open'}]);
++  for (const change of [{blocking_reason:'AGDF_UNKNOWN'}, {current_gate:'SD'}, {readiness_details:{}}, {readiness_details:{prd:{open_decisions:[]}}}, {diagnostics:[{code:'artifact_read_timeout'}]},
++    {diagnostics:[{code:'prd_readiness_unknown'}]}, {diagnostics:[{code:'approval_summary_unknown'}]}]) {
++    const result = describeArtifactReadiness({...base,...change}); assert.equal(result.state,'unavailable'); assert.deepEqual(result.findings,[]);
++  }
++});
++
++test('SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings', () => {
++  const broken = {
++    UR: '# UR: Incomplete need\n\nRequirements clarification: complete\n',
++    PRD: readyPrd.replace('before_prd | resolved', 'before_prd | open'),
++    SD: '# SD: Open design\n\nDesign Decisions contract: sd-decisions-v1\n\n## Design Decisions\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|---|\n| Ownership | before_sd | open | Decide ownership | Synthetic design owner |\n',
++    TP: '# TP: Missing scenario mapping\n\nTraceability contract: criteria-chain-v1\n',
++  };
++  for (const gate of Object.keys(broken)) {
++    const f = artifactReadinessFixture(gate, 'en'); f.root = fs.realpathSync(f.root);
++    try {
++      fs.writeFileSync(f.path, broken[gate]);
++      f.reseal(text => upsertTableRow(text, 'Artefacts', 0, gate, [gate, `${f.prefix}${gate}.md`, 'draft', 'Actual registered authoring draft']));
++      const before = treeBytes(f.root), reader = createCockpitReader(f.root), selected = reader.snapshot(f.runId);
++      assert.equal(selected.data.run.draft_check.source.available, true, JSON.stringify(selected));
++      const checked = reader.artifactReadiness(f.runId, selected.snapshot_id, gate, f.revision), check = checked.data.run.draft_check;
++      assert.deepEqual(check.result, inspectArtifactReadiness(f.root, {runId:f.runId,gate,expectedRevisionId:f.revision,presentationLanguage:'de'}));
++      assert.equal(check.result.diagnostics[0].code, 'artifact_gate_not_ready', JSON.stringify(check));
++      assert.equal(check.result.current_gate, gate); assert.equal(check.display.state, 'corrections_required');
++      assert.ok(check.display.findings.length); assert.equal(checked.data.run.document_states.find(s => s.type === gate).state, 'revision_required');
++      assert.deepEqual(treeBytes(f.root), before);
++    } finally { fs.rmSync(f.root, {recursive:true,force:true}); }
++  }
++});
++
++test('SCN-006: actual current SD traceability findings are shown without changing the original report', () => {
++  const f=artifactReadinessFixture('SD','en'); f.root=fs.realpathSync(f.root);
++  try {
++    fs.writeFileSync(f.path,'# SD: Missing design mapping\n\nTraceability contract: criteria-chain-v1\n');
++    f.reseal(text=>upsertTableRow(text,'Artefacts',0,'SD',['SD',`${f.prefix}SD.md`,'draft','Actual SD traceability fixture']));
++    const before=treeBytes(f.root),reader=createCockpitReader(f.root),selected=reader.snapshot(f.runId);
++    const checked=reader.artifactReadiness(f.runId,selected.snapshot_id,'SD',f.revision),check=checked.data.run.draft_check;
++    assert.deepEqual(check.result,inspectArtifactReadiness(f.root,{runId:f.runId,gate:'SD',expectedRevisionId:f.revision,presentationLanguage:'de'}));
++    assert.equal(check.display.state,'corrections_required');
++    assert.ok(check.display.findings.some(x=>/Traceability|traceability/.test(x.message)));
++    assert.equal(checked.data.run.document_states.find(s=>s.type==='SD').state,'revision_required');
++    assert.deepEqual(treeBytes(f.root),before);
++  } finally {fs.rmSync(f.root,{recursive:true,force:true});}
++});
++test('SCN-008: another existing Run and observed missing draft invalidate an already passed slot', () => {
++  const f=draftFixture(),other=artifactReadinessFixture('PRD','de','another-run');
++  try {
++    for(const dir of ['artefacts','runs'])fs.cpSync(join(other.root,'.agdf/control',dir,other.runId),join(f.root,'.agdf/control',dir,other.runId),{recursive:true});
++    const reader=createCockpitReader(f.root);let s=reader.snapshot(f.runId);
++    s=reader.artifactReadiness(f.runId,s.snapshot_id,'PRD',f.revision);
++    assert.equal(s.data.run.draft_check.display.state,'passed');
++    const before=treeBytes(f.root),otherSelected=reader.run(other.runId,s.snapshot_id);
++    assert.equal(otherSelected.state,'available');assert.equal(otherSelected.data.run.run_id,other.runId);
++    s=reader.run(f.runId,otherSelected.snapshot_id);assert.equal(s.data.run.draft_check.result,null);assert.deepEqual(treeBytes(f.root),before);
++    s=reader.artifactReadiness(f.runId,s.snapshot_id,'PRD',f.revision);
++    fs.rmSync(f.path);assert.throws(()=>reader.freshness(s.snapshot_id),/source_changed/);
++    fs.writeFileSync(f.path,readyPrd);assert.throws(()=>reader.run(f.runId,s.snapshot_id),/source_changed/);
++    assert.equal(reader.snapshot(f.runId).data.run.draft_check.result,null);
++  } finally {f.close();fs.rmSync(other.root,{recursive:true,force:true});}
++});
++test('SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot', () => {
++  for (const kind of ['overview', 'revision', 'lifecycle', 'gate', 'published']) {
++    const f = draftFixture(); let armed = false;
++    try {
++      const reader = createCockpitReader(f.root, {checkpoint(stage) {
++        if (armed && kind === 'published' && stage === 'published') { armed = false; fs.writeFileSync(f.path, readyPrd + '\nConcurrent change\n'); }
++      }});
++      let selected = reader.snapshot(f.runId);
++      selected = reader.artifactReadiness(f.runId, selected.snapshot_id, 'PRD', f.revision);
++      assert.ok(selected.data.run.draft_check.result);
++      if (kind === 'overview') { selected = reader.snapshot(); }
++      else if (kind === 'published') {
++        armed = true; selected = reader.run(f.runId, selected.snapshot_id);
++        assert.equal(selected.code, 'source_changed'); fs.writeFileSync(f.path, readyPrd);
++      } else {
++        const original = fs.readFileSync(f.runPath, 'utf8');
++        const change = kind === 'revision' ? original.replace(f.revision, '00000000-0000-0000-0000-000000000001')
++          : kind === 'lifecycle' ? original.replace('- lifecycle: active', '- lifecycle: completed')
++          : original.replace('- current_gate: PRD', '- current_gate: QA');
++        fs.writeFileSync(f.runPath, sealRunState(f.root, change));
++        assert.throws(() => reader.freshness(selected.snapshot_id), /source_changed/);
++        fs.writeFileSync(f.runPath, original);
++      }
++      assert.equal(reader.snapshot(f.runId).data.run.draft_check.result, null);
++    } finally { f.close(); }
++  }
++});
++
++test('SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success', () => {
++  const f=draftFixture();
++  try {
++    const reader=createCockpitReader(f.root);
++    for(const length of [1024,140000]) {
++      fs.writeFileSync(f.path,readyPrd.replace('| Scope | before_prd | resolved',`| ${'Large actual decision '.padEnd(length,'x')} | before_prd | open`));
++      f.reseal(s=>s);const selected=reader.snapshot(f.runId),before=treeBytes(f.root);
++      const checked=reader.artifactReadiness(f.runId,selected.snapshot_id,'PRD',f.revision);
++      if(length===1024){assert.equal(checked.data.run.draft_check.display.state,'corrections_required');assert.ok(Buffer.byteLength(JSON.stringify(checked.data.run.document_states))<=256*1024);}
++      else {assert.equal(checked.code,'resource_limit');assert.equal(checked.data,null);assert.equal(reader.snapshot(f.runId).data.run.draft_check.result,null);}
++      assert.deepEqual(treeBytes(f.root),before);
++    }
++  }finally{f.close();}
++});
++
++test('SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB', () => {
++  const limit=256*1024;let exact=false;
++  for(const suffix of ['','x','xx']){
++    const f=artifactReadinessFixture('PRD','de','bounded-draft'+suffix);f.root=fs.realpathSync(f.root);
++    try{
++      const content=n=>readyPrd.replace('| Scope | before_prd | resolved',`| ${'x'.repeat(n)} | before_prd | open`);
++      fs.writeFileSync(f.path,content(1));const reader=createCockpitReader(f.root),s=reader.snapshot(f.runId);
++      const result=inspectArtifactReadiness(f.root,{runId:f.runId,gate:'PRD',expectedRevisionId:f.revision,presentationLanguage:'de'});
++      const size=Buffer.byteLength(JSON.stringify({target_id:s.target.target_id,source:s.data.run.draft_check.source,content_digest:sha(fs.readFileSync(f.path)),result,display:describeArtifactReadiness(result)}));
++      const n=1+(limit-size)/3;if(!Number.isInteger(n))continue;
++      exact=true;
++      for(const delta of [-1,0,1]){
++        fs.writeFileSync(f.path,content(n+delta));const selected=reader.snapshot(f.runId),before=treeBytes(f.root);
++        const original=inspectArtifactReadiness(f.root,{runId:f.runId,gate:'PRD',expectedRevisionId:f.revision,presentationLanguage:'de'});
++        const bytes=Buffer.byteLength(JSON.stringify({target_id:selected.target.target_id,source:selected.data.run.draft_check.source,content_digest:sha(fs.readFileSync(f.path)),result:original,display:describeArtifactReadiness(original)}));
++        assert.equal(bytes,limit+delta*3);
++        const checked=reader.artifactReadiness(f.runId,selected.snapshot_id,'PRD',f.revision);
++        if(delta<=0){assert.equal(checked.state,'available',JSON.stringify(checked));assert.deepEqual(checked.data.run.draft_check.result,original);assert.equal(checked.data.run.resources.some(r=>r.type==='PRD'),false);}
++        else{assert.equal(checked.code,'resource_limit');assert.equal(checked.data,null);assert.equal(reader.snapshot(f.runId).data.run.draft_check.result,null);}
++        assert.deepEqual(treeBytes(f.root),before);
++      }
++      break;
++    }finally{fs.rmSync(f.root,{recursive:true,force:true});}
++  }
++  assert.equal(exact,true,'One real fixture must exercise exactly 256 KiB; no skipped boundary');
++});
++
++test('SCN-009: Core document description array enforces its exact serialized limit',async()=>{
++  const f=await approvalFixture();
++  try{
++    assert.equal(f.approve().outcome,'approved');const original=fs.readFileSync(f.runPath,'utf8');
++    const evidence=original.split('\n').find(l=>l.startsWith('| UR | approved |')).split('|')[3].trim();
++    const reader=createCockpitReader(f.root),set=n=>fs.writeFileSync(f.runPath,sealRunState(f.root,upsertTableRow(original,'Approvals',0,'UR',['UR','approved',evidence+' '+ 'x'.repeat(n)])));
++    // First measure the actual final-state shape, including any integrity qualification.
++    set(250000);const measured=reader.snapshot('fixture-a');assert.equal(measured.state,'available');
++    const base=Buffer.byteLength(JSON.stringify(measured.data.run.document_states)),n=250000+(256*1024-base);
++    for(const delta of [-1,0,1]){
++      set(n+delta);const before=treeBytes(f.root),observed=reader.snapshot('fixture-a');
++      if(delta<=0){assert.equal(observed.state,'available',JSON.stringify(observed));assert.equal(Buffer.byteLength(JSON.stringify(observed.data.run.document_states)),256*1024+delta);}
++      else{assert.equal(observed.code,'resource_limit');assert.equal(observed.data,null);}
++      assert.deepEqual(treeBytes(f.root),before);
++    }
++  }finally{f.close();}
++});
+diff --git a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/test/fixtures/artifact-readiness.js b/packages/core/test/fixtures/artifact-readiness.js
+index feeb90e5..1386ba9f 100644
+--- a/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/baseline-files/packages/core/test/fixtures/artifact-readiness.js
++++ b/packages/core/test/fixtures/artifact-readiness.js
+@@ -7,11 +7,11 @@ import { artefactFileDigest, sealRunState } from '../../lib/control-state/run-se
+ import { digest } from '../../lib/control-state/approval-command-contract.js';
+ 
+ // Synthetic non-authorizing control data confined to a temporary test repository.
+-export function artifactReadinessFixture(gate = 'PRD', language = 'de') {
++export function artifactReadinessFixture(gate = 'PRD', language = 'de', runId = 'synthetic-draft') {
+   const root = mkdtempSync(join(tmpdir(), 'agdf-artifact-check-'));
+   execFileSync('git', ['init', '--quiet', root], { stdio: 'pipe' });
+   execFileSync(process.execPath, [resolve(import.meta.dirname, '../../../cli/bin/create-agdf.js'), 'init', '--dir', root, '--language', 'en'], { stdio: 'pipe' });
+-  const runId = 'synthetic-draft', revision = randomUUID(), gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
++  const revision = randomUUID(), gates = ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT'];
+   const prefix = `.agdf/control/artefacts/${runId}/`, runDir = join(root, `.agdf/control/runs/${runId}`);
+   mkdirSync(join(root, prefix), { recursive: true });
+   mkdirSync(join(runDir, 'presentations'), { recursive: true });

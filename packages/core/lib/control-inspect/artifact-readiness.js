@@ -14,6 +14,31 @@ import { extractField } from '../control-evaluation/verified-change.js';
 
 export const ARTIFACT_READINESS_GATES = Object.freeze(['UR', 'PRD', 'SD', 'TP']);
 
+// Describes the original author's findings; it does not validate or change gate policy.
+export function describeArtifactReadiness(result) {
+  const names = new Set(['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability',
+    'approval_summary_locale_missing', 'approval_summary_locale_duplicate', 'approval_summary_source_language_mismatch',
+    'approval_summary_truncated_or_overlong', 'approval_summary_field_overlong', 'approval_summary_criteria_missing',
+    'approval_summary_source_criteria_duplicate', 'approval_summary_criteria_duplicate', 'approval_summary_criteria_unknown',
+    'approval_summary_criteria_incomplete', 'approval_summary_user_goal_missing', 'approval_summary_scope_missing',
+    'approval_summary_decisions_missing', 'approval_summary_criterion_content_missing', 'approval_summary_content_missing']);
+  let findings = result.diagnostics.filter(row => names.has(row.code));
+  const readinessOwner = { AGDF_UR_REQUIREMENTS_INCOMPLETE: 'ur', AGDF_PRD_DECISIONS_OPEN: 'prd',
+    AGDF_SD_DECISIONS_OPEN: 'sd', AGDF_SD_TRACEABILITY_INCOMPLETE: 'traceability', AGDF_TP_TRACEABILITY_INCOMPLETE: 'traceability' };
+  const key = readinessOwner[result.blocking_reason];
+  const details = key && result.current_gate === result.gate && result.readiness_details?.[key];
+  const items = details && (details.open_items ?? details.open_decisions);
+  if (result.diagnostics.length === 1 && result.diagnostics[0].code === 'artifact_gate_not_ready'
+      && Array.isArray(items) && items.length && items.every(item => typeof item === 'string' && item.trim())) {
+    findings = items.map(message => ({ code: result.blocking_reason, message }));
+  }
+  const corrections = findings.length > 0 && (result.diagnostics.every(row => names.has(row.code))
+    || result.diagnostics.length === 1 && result.diagnostics[0].code === 'artifact_gate_not_ready' && !!key && !!details);
+  return { state: result.ready ? 'passed' : corrections ? 'corrections_required' : 'unavailable',
+    reason: result.diagnostics[0]?.code ?? null, recovery: result.ready || corrections ? 'authoring' : 'reload',
+    findings: corrections ? findings : [] };
+}
+
 // Runs only inside the caller's bounded captured view. Both consumers use these same validators.
 export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage }) {
   const path = `.agdf/control/artefacts/${runId}/${gate}.md`;

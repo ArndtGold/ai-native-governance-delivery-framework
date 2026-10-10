@@ -14,12 +14,17 @@ import { projectCockpitBacklog, projectBacklogUrTitle } from './cockpit-backlog.
 import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
 import { runSealState } from '../control-state/run-seal.js';
 import { canonicalJson } from '../control-state/approval-command-contract.js';
-import { ARTIFACT_READINESS_GATES, projectArtifactReadiness } from './artifact-readiness.js';
+import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactReadiness } from './artifact-readiness.js';
 import { artefactFileDigest } from '../control-state/run-seal.js';
+import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 
 const CONTROL = '.agdf/control/';
 const SUPPORTED = new Map([['md', 'markdown'], ['json', 'json'], ['txt', 'text'], ['log', 'text']]);
 const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
+const DOCUMENT_GATES = new Set(['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']);
+const DESCRIPTION_LIMIT = 256 * 1024;
+const rawDigest = bytes => createHash('sha256').update(bytes).digest('hex');
+const assertDescriptionBound = value => { if (Buffer.byteLength(JSON.stringify(value)) > DESCRIPTION_LIMIT) fail('resource_limit'); };
 function boundedCode(error) {
   return ['resource_denied', 'source_changed', 'timeout', 'resource_limit', 'read_failed'].includes(error.code) ? error.code : 'read_failed';
 }
@@ -41,6 +46,8 @@ export function createCockpitReader(root, options = {}) {
   let view = null, details = new Map(), documents = new Map();
   let graph = null, inspected = null, packet = null;
   let backlogRows = new Map(), backlogDigest = null;
+  // One result belongs to this existing reader, never to a shared or durable cache.
+  let checkedDraft = null;
   const invalidate = () => { packet = null; };
   const target = { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const meta = () => ({ schema_version: '1', target, snapshot_id: view?.snapshot_id ?? null,
@@ -116,6 +123,8 @@ export function createCockpitReader(root, options = {}) {
       comparison = saved.revision_id === run.meta.revision_id && keys.every(key => canonicalJson(saved[key]) === canonicalJson(work_summary[key])) ? 'matching' : 'different';
       comparison_reason = comparison === 'matching' ? 'same_revision_and_sources' : 'saved_observation_differs';
     }
+    const draft_check = draftDescriptor(run, state, report);
+    const document_states = documentStates(run, state, report, resources, draft_check);
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       work_summary, backlog_comparison: { state: comparison, reason: comparison_reason,
         saved_revision_id: saved?.revision_id ?? null, authorizes: false },
@@ -127,14 +136,55 @@ export function createCockpitReader(root, options = {}) {
       evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources,
-      draft_check: draftDescriptor(run, state, report) };
+      draft_check, document_states };
+  }
+  function documentStates(run, state, report, resources, draft) {
+    const integrity = !!report && report.doctor_status !== 'fail' && runSealState(root, run.content).status === 'valid';
+    const records = resources.filter(r => DOCUMENT_GATES.has(r.type)).map(resource => {
+      const approval = state.approvals.get(resource.type);
+      const recorded_approval = approval?.status === 'approved' ? { status: approval.status, evidence: approval.evidence ?? '' } : null;
+      const record = { schema_version: '1', resource_id: resource.resource_id, run_id: run.run_id,
+        revision_id: run.meta.revision_id, type: resource.type, registered_reference: resource.registered_reference,
+        source_state: 'unavailable', content_digest: null, state: 'unavailable', version_kind: 'unavailable',
+        reason: 'document_unavailable', recorded_approval, check: null, authorizes: false };
+      if (resource.status === 'blocked') return { ...record, source_state: 'blocked', reason: 'resource_denied' };
+      const file = view.readOptionalFileSync(join(root, resource.path), READ_LIMITS.file);
+      if (!file.bytes) return { ...record, source_state: file.code === 'document_missing' || file.code === 'missing' ? 'missing' : 'unavailable', reason: file.code ?? 'document_missing' };
+      if (!SUPPORTED.has(resource.path.split('.').at(-1)?.toLowerCase()) || file.bytes.length > READ_LIMITS.preview)
+        return { ...record, source_state: 'unsupported', reason: file.bytes.length > READ_LIMITS.preview ? 'resource_limit' : 'document_unsupported' };
+      try { if (decoder.decode(file.bytes).includes('\0')) throw Error(); }
+      catch { return { ...record, source_state: 'unsupported', reason: 'document_unsupported' }; }
+      record.source_state = 'available'; record.content_digest = rawDigest(file.bytes); record.version_kind = 'current';
+      if (recorded_approval) {
+        const proof = integrity ? inspectApprovedArtefact(root, { ...state, meta: { ...run.meta, run_id: run.run_id } }, resource.type) : null;
+        const confirmed = proof?.confirmed && proof.path === resource.path && proof.raw_digest === `sha256:${record.content_digest}`;
+        return { ...record, state: confirmed ? 'approved' : 'approval_unconfirmed', version_kind: confirmed ? 'approved' : 'current',
+          reason: confirmed ? null : integrity ? proof?.reason ?? 'approval_source_mismatch' : 'artifact_run_integrity' };
+      }
+      const registered = state.artefacts.get(resource.type);
+      if (registered?.status !== 'draft' || approval && !['missing', 'not_applicable'].includes(approval.status))
+        return { ...record, reason: 'document_status_unconfirmed' };
+      record.version_kind = 'draft'; record.state = 'draft'; record.reason = 'not_checked';
+      if (draft.source.gate !== resource.type || draft.source.artifact_path !== resource.path)
+        return { ...record, state: 'check_unavailable', reason: 'artifact_gate_invalid' };
+      if (!draft.source.available) return { ...record, state: 'check_unavailable', reason: draft.source.reason };
+      if (!draft.result) return record;
+      record.check = { ...draft, content_digest: record.content_digest };
+      return { ...record, state: draft.display.state === 'passed' ? 'draft_checked'
+        : draft.display.state === 'corrections_required' ? 'revision_required' : 'check_unavailable', reason: draft.display.reason };
+    });
+    assertDescriptionBound(records);
+    return records;
   }
   function draftDescriptor(run, state, report) {
     const gate = report?.current_gate ?? state.current_gate;
     const source = { run_id: run.run_id, gate, revision_id: run.meta.revision_id,
       artifact_path: ARTIFACT_READINESS_GATES.includes(gate) ? `.agdf/control/artefacts/${run.run_id}/${gate}.md` : null,
       artifact_digest: null, available: false, reason: 'artifact_gate_invalid' };
-    if (!source.artifact_path) return { source, result: null, display: { state: 'unavailable', reason: source.reason, recovery: 'authoring' } };
+    if (!source.artifact_path) {
+      checkedDraft = null;
+      return { source, result: null, display: { state: 'unavailable', reason: source.reason, recovery: 'authoring' } };
+    }
     // An optional denied source is observed but never traversed. Absence is a real dependency.
     const file = view.readOptionalFileSync(join(root, source.artifact_path), READ_LIMITS.file);
     source.reason = file.code ?? (run.meta.lifecycle !== 'active' ? 'artifact_run_inactive'
@@ -143,13 +193,19 @@ export function createCockpitReader(root, options = {}) {
       : !report ? 'evaluation_out_of_scope' : runSealState(root, run.content).status !== 'valid' ? 'artifact_run_integrity' : null);
     if (file.bytes) source.artifact_digest = artefactFileDigest(root, source.artifact_path);
     source.available = source.reason === null;
+    const raw = file.bytes ? rawDigest(file.bytes) : null;
+    if (checkedDraft && source.available && checkedDraft.target_id === target.target_id && checkedDraft.content_digest === raw
+        && ['run_id', 'gate', 'revision_id', 'artifact_path', 'artifact_digest'].every(key => checkedDraft.source[key] === source[key])) {
+      return { source, result: checkedDraft.result, display: checkedDraft.display };
+    }
+    checkedDraft = null;
     return { source, result: null, display: { state: source.available ? 'unchecked' : 'unavailable', reason: source.reason, recovery: source.available ? 'check' : 'authoring' } };
   }
   function assertSnapshot(id) {
     if (!view || id !== view.snapshot_id) fail('resource_denied');
     try {
       view.revalidate();
-    } catch (error) { invalidate(); inspected = null; graph = null; throw error; }
+    } catch (error) { checkedDraft = null; invalidate(); inspected = null; graph = null; throw error; }
   }
   function readDocument(resourceId) {
       const resource = documents.get(resourceId);
@@ -175,26 +231,29 @@ export function createCockpitReader(root, options = {}) {
         const registered = resources.find(r => r.path === targetPath && r.status === 'registered');
         if (registered) links[href] = registered.resource_id;
       }
-      return envelope({ resource, format, content, content_digest: createHash('sha256').update(bytes).digest('hex'), links });
+      const document_state = details.get(resource.run_id)?.data?.document_states?.find(row => row.resource_id === resourceId);
+      return envelope({ resource, format, content, content_digest: rawDigest(bytes), links, ...(document_state ? { document_state } : {}) });
   }
-  function discardScope() {
+  function discardScope(retainCheck = false) {
+    if (!retainCheck) checkedDraft = null;
     invalidate(); inspected = null; graph = null; view = null;
     details = new Map(); documents = new Map();
     backlogRows = new Map(); backlogDigest = null;
   }
   function selectedRun(runId) {
     const run = discoverRuns(root).find(row => row.run_id === runId);
-    if (!run) return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } };
-    if (!run.valid) return { state: 'invalid', code: 'invalid_run', data: { kind: 'run', requested_run_id: runId,
+    if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
+    if (!run.valid) { checkedDraft = null; return { state: 'invalid', code: 'invalid_run', data: { kind: 'run', requested_run_id: runId,
       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
+    }
     const data = detail(run);
     details.set(runId, { state: 'available', code: null, data });
     return { state: 'available', code: null, data: { kind: 'run', run: data } };
   }
-  function replaceScope(project) {
+  function replaceScope(project, retainCheck = false) {
     // Incoming opaque selectors have already been checked. Drop retained bytes
     // before recording a candidate; a failed candidate never restores them.
-    discardScope();
+    discardScope(retainCheck);
     try {
       const captured = captureControlScope(root, candidate => {
         view = candidate; details = new Map(); documents = new Map(); graph = null; inspected = null;
@@ -244,7 +303,7 @@ export function createCockpitReader(root, options = {}) {
       if (!/^[A-Za-z0-9_-]{1,128}$/.test(runId)) fail('resource_denied');
       assertSnapshot(id);
       const wasInspected = details.get(runId)?.state === 'available';
-      return replaceScope(() => reopenRun(runId, wasInspected));
+      return replaceScope(() => reopenRun(runId, wasInspected), true);
     },
     artifactReadiness(runId, id, gate, revision) {
       const previous = details.get(runId)?.data?.draft_check?.source;
@@ -257,10 +316,13 @@ export function createCockpitReader(root, options = {}) {
           || current.artifact_digest !== previous.artifact_digest || current.artifact_path !== previous.artifact_path) fail('source_changed');
         const result = projectArtifactReadiness(root, { runId, gate, expectedRevisionId: revision, presentationLanguage: 'de' });
         if (result.revision_id !== revision || result.artifact_digest && result.artifact_digest !== current.artifact_digest) fail('source_changed');
-        const contentOnly = result.diagnostics.every(row => ['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability'].some(name => row.code.startsWith(name)));
-        const display = { state: result.ready ? 'passed' : contentOnly ? 'corrections_required' : 'unavailable',
-          reason: result.diagnostics[0]?.code ?? null, recovery: result.ready ? 'authoring' : contentOnly ? 'authoring' : 'reload' };
+        const display = describeArtifactReadiness(result);
+        checkedDraft = { target_id: target.target_id, source: current, content_digest: rawDigest(view.readFileSync(join(root, current.artifact_path))), result, display };
+        assertDescriptionBound(checkedDraft);
         selected.data.run.draft_check = { source: current, result, display };
+        const state = readRunState(root, { runId, ignoreRunIdEnv: true });
+        selected.data.run.document_states = documentStates({ run_id: runId, meta: { revision_id: revision }, content: state.content }, state,
+          selected.data.run.evaluation, selected.data.run.resources, selected.data.run.draft_check);
         return selected;
       });
     },
@@ -276,7 +338,7 @@ export function createCockpitReader(root, options = {}) {
       const previous = documents.get(resourceId);
       if (!previous || runId !== undefined && previous.run_id !== runId) fail('resource_denied');
       assertSnapshot(id);
-      return replaceScope(() => selectedDocument(previous, previous.run_id));
+      return replaceScope(() => selectedDocument(previous, previous.run_id), true);
     },
     context(runId, id) {
       if (!details.has(runId)) fail('resource_denied');
@@ -289,7 +351,7 @@ export function createCockpitReader(root, options = {}) {
         graph = projectCockpitContext(view, root, runId, run.context_graph.refs);
         return { state: !graph.references.length ? 'empty' : graph.references.some(ref => ref.state !== 'available') ? 'partial' : 'available', code: null,
           data: { kind: 'context', run, document: selected.data.document ?? null, context: graph } };
-      });
+      }, true);
     },
     prepareContext(input) {
       invalidate(); assertSnapshot(input.snapshot_id);

@@ -1,0 +1,77 @@
+{
+  "source": {
+    "run_id": "synthetic-draft",
+    "gate": "SD",
+    "revision_id": "dfcfd325-d2db-40a8-aec0-23fbaff6a9b5",
+    "artifact_path": ".agdf/control/artefacts/synthetic-draft/SD.md",
+    "artifact_digest": "sha256:6ba85b392220e2fb947ba3a9914374eba7ff11ddcf12621340115e090a3b345a",
+    "available": true,
+    "reason": null
+  },
+  "result": {
+    "run_id": "synthetic-draft",
+    "gate": "SD",
+    "expected_revision_id": "dfcfd325-d2db-40a8-aec0-23fbaff6a9b5",
+    "revision_id": "dfcfd325-d2db-40a8-aec0-23fbaff6a9b5",
+    "artifact_path": ".agdf/control/artefacts/synthetic-draft/SD.md",
+    "artifact_digest": null,
+    "ready": false,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [],
+    "diagnostics": [
+      {
+        "code": "artifact_gate_not_ready",
+        "message": "Resolve the current canonical gate or blocker before checking this draft."
+      }
+    ],
+    "next_action": "complete the listed SD traceability rows, then record the revision with run-update",
+    "current_gate": "SD",
+    "blocking_reason": "AGDF_SD_TRACEABILITY_INCOMPLETE",
+    "readiness_details": {
+      "ur": null,
+      "prd": null,
+      "sd": {
+        "ready": true,
+        "open_decisions": [],
+        "contract": "legacy"
+      },
+      "traceability": {
+        "ready": false,
+        "open_items": [
+          "PRD must declare the criteria-chain-v1 traceability contract",
+          "PRD Acceptance Criteria section is missing",
+          "SD Architecture Decisions section is missing",
+          "Acceptance Traceability section is missing"
+        ],
+        "contract": "criteria-chain-v1"
+      }
+    }
+  },
+  "display": {
+    "state": "corrections_required",
+    "reason": "artifact_gate_not_ready",
+    "recovery": "authoring",
+    "findings": [
+      {
+        "code": "AGDF_SD_TRACEABILITY_INCOMPLETE",
+        "message": "PRD must declare the criteria-chain-v1 traceability contract"
+      },
+      {
+        "code": "AGDF_SD_TRACEABILITY_INCOMPLETE",
+        "message": "PRD Acceptance Criteria section is missing"
+      },
+      {
+        "code": "AGDF_SD_TRACEABILITY_INCOMPLETE",
+        "message": "SD Architecture Decisions section is missing"
+      },
+      {
+        "code": "AGDF_SD_TRACEABILITY_INCOMPLETE",
+        "message": "Acceptance Traceability section is missing"
+      }
+    ]
+  }
+}

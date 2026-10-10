@@ -4,15 +4,15 @@
 
 - control_state_version: 2
 - run_id: cockpit-documented-approvals-20261009-01
-- lifecycle: active
-- revision: 7
-- revision_id: be3171c6-5d3e-47cc-bed1-cce6071b53d8
-- content_seal: sha256:f195dc85a2f55841fa6b9ae73ee02e0ee02dc29060a5eb61abeb843fe18ea1fc
-- approval_seal: sha256:1eeaf6ff15f46640ab148a057ad08311a20e24752a8c676445ef30849e9cf2a7
-- updated_at: 2026-10-09T16:19:20.883Z
-- mode: structured_slice
-- current_gate: SD
-- decision: in_progress
+- lifecycle: completed
+- revision: 32
+- revision_id: c771e0c8-e537-41f0-8581-c571c36c686d
+- content_seal: sha256:d3603087b97b6146d55601180dd6c587a51c9a626c968fc1c385a1b2e3f00eee
+- approval_seal: sha256:386fc2b6c7af081c9df6ff1354a4a58cc0da6934ec1bc201d845d3f3abfe6d54
+- updated_at: 2026-10-10T09:11:36.212Z
+- mode: structured_delivery
+- current_gate: OR
+- decision: completed
 - owner: agent
 
 ## Objective
@@ -23,53 +23,62 @@ Describe the trustworthy outcome.
 
 | Question | Answer |
 |---|---|
-| What is known? | Approval recorded for PRD; current gate is SD. |
-| What is approved? | Approval: UR, Approval: PRD |
-| What is missing? | Exact Approval: SD. |
-| What is the next allowed action? | Draft or refine the Solution Design; do not implement before SD and TP are approved. |
-| What is explicitly forbidden right now? | create TP; implement code; claim QA or release readiness |
+| What is known? | Renewed scope delivered; nine TP tasks and all 20 mandatory scenarios fulfilled; QA pass and UAT approved; OR recorded. |
+| What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP, Approval: QA, Approval: UAT |
+| What is missing? | No mandatory evidence or approval pending; optional final native-host observation absent and disclosed in OR. |
+| What is the next allowed action? | Use delivery-closeout only when an operative VCS handoff is explicitly requested. |
+| What is explicitly forbidden right now? | Automatic commit, push, PR, release, publication or installation; claim fresh native-host qualification. |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | `Approval: UR` · 2026-10-09 · revision 2 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:457a950bc4207fd8 · presentation ad5b75c3-7f70-476c-8ab2-cecb89c0a854 sha256:0c20e24d714c420c7abc0780c79cae9881d5cba3fa069a4f343fba9eb8e1b269 |
-| PRD | approved | `Approval: PRD` · 2026-10-09 · revision 6 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md` sha256:e2f8d2c3e1ca6ef9 · presentation 3ee87263-4704-4ba6-bfb9-2ee04f113eef sha256:fee01d763d5cfa61ef78d1d07a382a628b770659b6e59c7b3136d5fdeef68ae2 |
-| SD | missing |  |
-| TP | missing |  |
-| QA | missing |  |
-| UAT | missing |  |
+| UR | approved | `Approval: UR` · 2026-10-10 · revision 15 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:db2ce267f9330751 · presentation 9c228127-b23f-4f4a-895d-0cd76eaa4534 sha256:030fe385b015b3e805c90b0b331d7e56b688dcd9e1497457379d598465a4ad56 |
+| PRD | approved | `Approval: PRD` · 2026-10-10 · revision 19 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md` sha256:e4e91bc9937182dc · presentation be43cef6-6de5-4736-8247-b1bc58fcea37 sha256:0fa073a5540a1270d7d5f53ebc69b6c2e4e3198833d9e7dc7c89ff8852852f4f |
+| SD | approved | `Approval: SD` · 2026-10-10 · revision 21 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD.md` sha256:430017b29921d6d1 · presentation 202e3ee1-4d7e-45de-80fe-f20d054c1c32 sha256:32a4b0bc51e3325f772b6a3f23eaea94e61224a02dab5858701cad0554c111fe |
+| TP | approved | `Approval: TP` · 2026-10-10 · revision 23 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP.md` sha256:ac12ce007409e7bb · presentation caccb8e9-8ae9-48b4-b3df-bcd72fbced94 sha256:910b54e7c75f6d0d52fd53436ee44b7c1df495d513cb9a38a6c2dea17f79b4c3 |
+| QA | approved | `Approval: QA` · 2026-10-10 · revision 29 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/QA_REPORT.md` sha256:92d000264c123fc9 · presentation be36590e-32a0-44b5-90fb-1a45b59f3384 sha256:9ffa21bd3f9c15209f31cac6e4bffd949b24301a639a6cf9a6b1426c2799d9b6 |
+| UAT | approved | `Approval: UAT` · 2026-10-10 · revision 30 · presentation 3458f6c0-b827-477e-b6f3-2221b08698d4 sha256:d54dac2dd30f8cafacbc28607ed5cb420d6a05af6b69f97abc5257602994a80c |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | approved |  |
-| Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | done |  |
-| UX Intent Definition | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md` | done | Analytical input ready; preserves approved UR. |
+| UR | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | approved | Previous content is historical; fresh recording and approval required |
+| Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | done | Renewed evidence required after source revision |
+| UX Intent Definition | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UX_INTENT_DEFINITION.md | done | Renewed analytical input ready under current approved UR. |
 | Verified Change |  | missing |  |
 | PRD | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD.md | approved | Reviewed source binding recorded atomically |
-| SD |  | missing |  |
-| TP |  | missing |  |
-| Brownfield Analysis |  | missing |  |
-| CD+Tests |  | missing |  |
-| CR |  | missing |  |
-| QA |  | missing |  |
-| Binding proof 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_93da81fa-b62e-4dbc-91e2-0b28b6ef9611.json | done | Subordinate reviewed mapping evidence |
+| SD | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD.md | approved | Reviewed source binding recorded atomically |
+| TP | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP.md | approved | Reviewed source binding recorded atomically |
+| Brownfield Analysis | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_ANALYSIS-02.md | done | Renewed T-001 preparation pass; new protected baseline; implementation not yet fulfilled |
+| CD+Tests | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/CD_TESTS-02.md | done | Renewed TP implementation and qualified tests; no QA approval |
+| CR | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/CODE_REVIEW-02.md | done | Renewed scoped review pass; no QA approval |
+| QA | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/QA_REPORT.md | pass | Reviewed source binding recorded atomically |
+| Binding proof 9a15ae49-e9e3-4950-b068-14390a696478 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_5e3be588-79b1-4b1e-8fbb-3834a78dd511.json | done | Subordinate reviewed mapping evidence |
+| Binding proof 81108f9e-5c9b-472b-8071-e36056e5215a | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_cdaaad5f-7383-4e58-a012-334297afa4af.json | done | Subordinate reviewed mapping evidence |
+| Binding proof 18e885cb-8942-48fa-8a9d-b699ca87fbd5 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_13f8e9e8-200a-44e4-aa1e-3907cd3d69e2.json | done | Subordinate reviewed mapping evidence |
+| TP Review | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TASK_PLAN_REVIEW-02.md | done | Renewed scoped review pass; no QA approval |
+| Clean Implementation Review | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/CLEAN_IMPLEMENTATION_REVIEW-02.md | done | Renewed scoped review pass; no QA approval |
+| Binding proof 03695611-ee81-45ce-a790-a2faf7f47015 | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/QA_MAPPING_ebe09948-d7a2-4b00-b6b2-f38061727e3d.json | done | Subordinate reviewed mapping evidence |
+| OR | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/OR.md | done | Renewed scope completed; QA and UAT approved; qualified limits and next permitted handoff recorded |
 
 ## Mode/Slice Decision
 
-- decision: structured_slice
+- decision: structured_delivery
 - required_next_gate: PRD
-- scope_reason: bounded_structured_slice: compact documented approvals with truthful current-version fallback in existing read-only owners; reject quick_task and dirty-baseline verified_change, no full-depth boundary impact.
+- scope_reason: external_contract_depth: expose canonical document state and approved readable-version correspondence through the existing model/App MCP and HTTP descriptive results; qualify compatibility, reject Quick Task/Verified Change and structured_slice; medium UX requires intent analysis.
 - evidence: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-09 · revision 2 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:457a950bc4207fd8 · presentation ad5b75c3-7f70-476c-8ab2-cecb89c0a854 sha256:0c20e24d714c420c7abc0780c79cae9881d5cba3fa069a4f343fba9eb8e1b269 |
-| PRD | derived_from | UR | binding 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88; reviewed by Codex (PRD derivation review); .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_93da81fa-b62e-4dbc-91e2-0b28b6ef9611.json |
+| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-10 · revision 15 · `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` sha256:db2ce267f9330751 · presentation 9c228127-b23f-4f4a-895d-0cd76eaa4534 sha256:030fe385b015b3e805c90b0b331d7e56b688dcd9e1497457379d598465a4ad56 |
+| PRD | derived_from | UR | binding 9a15ae49-e9e3-4950-b068-14390a696478; reviewed by Codex (revised PRD semantic derivation review); .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_5e3be588-79b1-4b1e-8fbb-3834a78dd511.json |
+| SD | derived_from | PRD | binding 81108f9e-5c9b-472b-8071-e36056e5215a; reviewed by Codex (revised SD semantic derivation review); .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_cdaaad5f-7383-4e58-a012-334297afa4af.json |
+| TP | derived_from | SD | binding 18e885cb-8942-48fa-8a9d-b699ca87fbd5; reviewed by Codex / cooperative_local; .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_13f8e9e8-200a-44e4-aa1e-3907cd3d69e2.json |
+| QA_REPORT | tests | TP | binding 03695611-ee81-45ce-a790-a2faf7f47015; reviewed by qa-gate / Codex cooperative_local; .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/QA_MAPPING_ebe09948-d7a2-4b00-b6b2-f38061727e3d.json |
 
 ## Evidence
 
@@ -79,11 +88,34 @@ Describe the trustworthy outcome.
 | UR draft | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | problem, goal, scope and acceptance signals | direct |
 | Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_slice` | direct |
 | Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_93da81fa-b62e-4dbc-91e2-0b28b6ef9611.json | PRD derived_from UR; binding 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88; operation b07ef0ff-4405-42bf-8400-250de0296427; 2bf91dcf-74a4-4539-b4c8-0385a2308407 -> 7bb8a871-c696-4940-9356-eb601255ba93 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_58feb50a-f2f0-427c-90e4-ab7a01c4509b.json | SD derived_from PRD; binding 1fcd3c16-f907-4a68-8801-46cb9d2de1ec; operation 0e952140-6489-4943-9170-3913942f9bda; be3171c6-5d3e-47cc-bed1-cce6071b53d8 -> 42d76499-d622-4b5a-845a-0f8b6008c847 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_42634fb5-1437-4ced-b958-fd0dc63db055.json | TP derived_from SD; binding c002871d-5546-4c8e-8993-d76c414731d1; operation d54cb30b-56eb-4384-a47f-ad91d6f93517; c05a97a0-723a-4834-b780-2df34cdd7da6 -> 427af0cd-8828-4552-b2c0-bd2da658cd4e | reviewed cooperative mapping |
+
+| Brownfield implementation preparation | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_ANALYSIS.md | T-001, existing owner reuse, scope and protected baseline | direct |
+| UR draft | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+| Brownfield Review | `.agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_delivery` | direct |
+| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/PRD_MAPPING_5e3be588-79b1-4b1e-8fbb-3834a78dd511.json | PRD derived_from UR; binding 9a15ae49-e9e3-4950-b068-14390a696478; operation de6231cd-5727-4f55-bf25-82dc4591f449; 2ac1538f-b507-4c53-84f9-3c57d4437878 -> 88f10567-e730-4d7c-bb6b-cbdfa941f2e0 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/SD_MAPPING_cdaaad5f-7383-4e58-a012-334297afa4af.json | SD derived_from PRD; binding 81108f9e-5c9b-472b-8071-e36056e5215a; operation 3a4e665b-0496-473e-bc55-05aa929fe9bd; 8be2628b-6f51-4886-a2a0-3ba644b6fd16 -> 48b80d43-5c86-4ed8-9980-af023cdaddb4 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TP_MAPPING_13f8e9e8-200a-44e4-aa1e-3907cd3d69e2.json | TP derived_from SD; binding 18e885cb-8942-48fa-8a9d-b699ca87fbd5; operation d989fc44-ebe6-4da2-9b53-4fdcf7c71fc1; 19bfa39f-d97b-45d4-b2ba-7cb1207f574a -> e387dcc0-b8f3-4468-b661-1b85eb2f67a9 | reviewed cooperative mapping |
+| Renewed implementation preparation | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/BROWNFIELD_ANALYSIS-02.md | Approved renewed TP; existing owner reuse and fresh baseline | direct |
+| Renewed CD+Tests | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/evidence/renewed/VERIFICATION.md | Exact approved TP, scoped implementation, Core/UI/HTTP/STDIO/browser/protected evidence | direct |
+| Code Review | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/CODE_REVIEW-02.md | decision pass: Reviewed bounded renewed increment; concrete findings resolved; exact sources and Core/UI/HTTP/STDIO/browser/protection evidence in evidence/renewed/VERIFICATION.md. | direct |
+| Renewed supporting reviews | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/TASK_PLAN_REVIEW-02.md | 8/8 pre-QA tasks and all six UX fidelity rows fulfilled; current clean/code reviews and exact source/protection evidence | direct |
+| Artefact source binding | .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/QA_MAPPING_ebe09948-d7a2-4b00-b6b2-f38061727e3d.json | QA_REPORT tests TP; binding 03695611-ee81-45ce-a790-a2faf7f47015; operation 6b88d4aa-0e9c-48ef-8d34-c03bf6ec0108; a0eef95a-73f8-49fb-bae2-96f5fd82b5d2 -> 9e94c26c-c0e7-4dea-b072-8a1482d3b1ae | reviewed cooperative mapping |
 
 ## Closeout
 
-- next_allowed_action: Draft or refine the Solution Design; do not implement before SD and TP are approved.
-- quality_outlook:
+- next_allowed_action: Use delivery-closeout only when an operative VCS handoff is explicitly requested.
+- quality_outlook: Scoped delivery completed; mandatory checks and reviews pass, QA/UAT approved; optional native-host qualification remains absent.
+- memory_target: scope_artifact
+- memory_reason: Run-specific qualification and bounded MCP candidates
+- memory_refs: .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/OR.md; .agdf/control/artefacts/cockpit-documented-approvals-20261009-01/MCP_CANDIDATES.md
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Protected Context Graph and SoT registry unchanged; existing architecture owner updated.
 
 ## Artefact Bindings
 
@@ -92,3 +124,17 @@ Describe the trustworthy outcome.
 | binding_id | receipt_digest | receipt |
 |---|---|---|
 | 41eb0645-bfa5-4ceb-ab1d-550e7c9ead88 | sha256:e70990c409c033afcde31c1a48c214abce387b602699dcfef69c533d624a87bd | eyJiaW5kaW5nX2lkIjoiNDFlYjA2NDUtYmZhNS00Y2ViLWFiMWQtNTUwZTdjOWVhZDg4IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmUyZjhkMmMzZTFjYTZlZjk3OTE1ZGM1NDdlNzYwMTJlZDQ5ZmZjYzZlNWE2YWFkODM1ZWFiODdiMWFmYWNhMjgiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9QUkQubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJQUkQifSwib3BlcmF0aW9uIjp7ImlkIjoiYjA3ZWYwZmYtNDQwNS00MmJmLTg0MDAtMjUwZGUwMjk2NDI3IiwicHJldmlvdXNfcmV2aXNpb25faWQiOiIyYmY5MWRjZi03NGE0LTQ1MzktYjRjOC0wMzg1YTIzMDg0MDciLCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiI3YmI4YTg3MS1jNjk2LTQ5NDAtOTM1Ni1lYjYwMTI1NWJhOTMiLCJyZXZpc2lvbiI6Nn0sIm9yaWdpbiI6InJldmlld2VkX21hcHBpbmciLCJyZWxhdGlvbnNoaXAiOnsiZnJvbSI6IlBSRCIsInJlbGF0aW9uc2hpcCI6ImRlcml2ZWRfZnJvbSIsInRvIjoiVVIifSwicmV2aWV3Ijp7ImRpZ2VzdCI6InNoYTI1Njo0NTMyNGUwMWMzYjRlZGRkYTMxOTlmMGYyOWU0NWJhZWY1YmZmNWZiYTA1NjcyZDNiMGE0YTRlMDRhNDMzNDhhIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEvUFJEX01BUFBJTkdfOTNkYTgxZmEtYjYyZS00ZGJjLTkxZTItMGIyOGI2ZWY5NjExLmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IChQUkQgZGVyaXZhdGlvbiByZXZpZXcpIn0sInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2UiOnsiZGlnZXN0Ijoic2hhMjU2OjQ1N2E5NTBiYzQyMDdmZDhjZTE2OThhYzBjMjkxM2M4YzMwZDg2ZDE5YWUwZGQ3NjQwMjkxZTIzMGE3YTM0YTkiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9VUi5tZCIsInR5cGUiOiJVUiJ9LCJzdXBlcnNlZGVzIjpudWxsLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |
+| 1fcd3c16-f907-4a68-8801-46cb9d2de1ec | sha256:4a689a3a7b93c40f3e071038f56da2a8e892561c7f2b1990e92f8497c750103b | eyJiaW5kaW5nX2lkIjoiMWZjZDNjMTYtZjkwNy00YTY4LTg4MDEtNDZjYjlkMmRlMWVjIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjBiOWM5ZDc5YzI0MzI2Yzc4MzJjNjY0OGJjNTQ1MTczY2EzYzMyMjU2NGY1YmViNjZhMTk4MjkwYzU1OGYwNjEiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9TRC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlNEIn0sIm9wZXJhdGlvbiI6eyJpZCI6IjBlOTUyMTQwLTY0ODktNDk0My05MTcwLTM5MTM5NDJmOWJkYSIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiYmUzMTcxYzYtNWQzZS00N2NjLWJlZDEtY2NlNjA3MWI1M2Q4IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNDJkNzY0OTktZDYyMi00YjVhLTg0NWEtMGY4YjYwMDhjODQ3IiwicmV2aXNpb24iOjh9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJTRCIsInJlbGF0aW9uc2hpcCI6ImRlcml2ZWRfZnJvbSIsInRvIjoiUFJEIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6MmE4MzFmMzBiNGQ3YWQyMDNmZDdkMjRkOTE5ZTE3MjE3ZmU1ZTJiYzk2NjQxNDY4MTg1YzI4Y2Q0YTVjMmJhMSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1NEX01BUFBJTkdfNThmZWI1MGEtZjJmMC00MjdjLTkwZTQtYWI3YTAxYzQ1MDliLmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IChTRCBzZW1hbnRpYyBkZXJpdmF0aW9uIHJldmlldykifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6ZTJmOGQyYzNlMWNhNmVmOTc5MTVkYzU0N2U3NjAxMmVkNDlmZmNjNmU1YTZhYWQ4MzVlYWI4N2IxYWZhY2EyOCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1BSRC5tZCIsInR5cGUiOiJQUkQifSwic3VwZXJzZWRlcyI6bnVsbCwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ |
+| c002871d-5546-4c8e-8993-d76c414731d1 | sha256:e1aaee348f9bf94ff79ba90665c88a21393c518d9c5d8522aac90f05970a1f4b | eyJiaW5kaW5nX2lkIjoiYzAwMjg3MWQtNTU0Ni00YzhlLTg5OTMtZDc2YzQxNDczMWQxIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjQ3OGU5ZWNlZGY3NWJjZTY5MWY1N2Y0OTkwOWNmOWM3NzQ1ZTU5MTE5NzJkMWM3NTY2ZDVmZTQxMDYyZDUyOTciLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9UUC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlRQIn0sIm9wZXJhdGlvbiI6eyJpZCI6ImQ1NGNiMzBiLTU2ZWItNDM4NC1hNDdmLWFkOTFkNmY5MzUxNyIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiYzA1YTk3YTAtNzIzYS00ODM0LWI3ODAtMmRmMzRjZGQ3ZGE2IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNDI3YWYwY2QtODgyOC00NTUyLWIyYzAtYmQyZGE2NThjZDRlIiwicmV2aXNpb24iOjEwfSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiVFAiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlNEIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6OWJiZDBjZGYzMWMzNGEzZmU2YmZkNDE2ZDEyOTE0YzFlMDYxYWU3ZWU1ZjgxNTVhMmFjZjU5NWRmMDA5ODBmNSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1RQX01BUFBJTkdfNDI2MzRmYjUtMTQzNy00Y2VkLWI5NTgtZmQwZGM2M2RiMDU1Lmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IChUUCBzZW1hbnRpYyBkZXJpdmF0aW9uIHJldmlldykifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6MGI5YzlkNzljMjQzMjZjNzgzMmM2NjQ4YmM1NDUxNzNjYTNjMzIyNTY0ZjViZWI2NmExOTgyOTBjNTU4ZjA2MSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1NELm1kIiwidHlwZSI6IlNEIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
+| 9a15ae49-e9e3-4950-b068-14390a696478 | sha256:de9a6eb2f76273544e62187a17969dd2a44d83f658b2bd91102cde736189f283 | eyJiaW5kaW5nX2lkIjoiOWExNWFlNDktZTllMy00OTUwLWIwNjgtMTQzOTBhNjk2NDc4IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmU0ZTkxYmM5OTM3MTgyZGNiNDcwY2IyNTA2YTU1ZGVhZTYxMWZjOWQwZDMxMzU4Yzg0ZTliNTU3NDgxODVhNzQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9QUkQubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJQUkQifSwib3BlcmF0aW9uIjp7ImlkIjoiZGU2MjMxY2QtNTcyNy00ZjU1LWJmMjUtODJkYzQ1OTFmNDQ5IiwicHJldmlvdXNfcmV2aXNpb25faWQiOiIyYWMxNTM4Zi1iNTA3LTRjNTMtODRmOS0zYzU3ZDQ0Mzc4NzgiLCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiI4OGYxMDU2Ny1lNzMwLTRkN2MtYmI2Yi1jYmRmYTk0MWYyZTAiLCJyZXZpc2lvbiI6MTl9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJQUkQiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlVSIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6YmNhNGM5Mzg2YjEwOWQxOTZmODNiZjRiM2E1OWY5YjU2ZmQyNzJkYjA4MmVmNWE0ZDEwNzI3ZjRmMTg4OGQ0MiIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1BSRF9NQVBQSU5HXzVlM2JlNTg4LTc5YjEtNGIxZS04ZmJiLTM4MzRhNzhkZDUxMS5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCAocmV2aXNlZCBQUkQgc2VtYW50aWMgZGVyaXZhdGlvbiByZXZpZXcpIn0sInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2UiOnsiZGlnZXN0Ijoic2hhMjU2OmRiMmNlMjY3ZjkzMzA3NTFlMGViNmMyNzAyN2ZiYTA5YjBiZTNlMTk4ODlkZmYyMDY0MjMwMjViN2UxYTY0OTUiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9VUi5tZCIsInR5cGUiOiJVUiJ9LCJzdXBlcnNlZGVzIjoiNDFlYjA2NDUtYmZhNS00Y2ViLWFiMWQtNTUwZTdjOWVhZDg4IiwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ |
+| 81108f9e-5c9b-472b-8071-e36056e5215a | sha256:ae2be20b3f044cdfe24d455dd9b32d4da16b189ef5f9e67f114a41a1736c3a70 | eyJiaW5kaW5nX2lkIjoiODExMDhmOWUtNWM5Yi00NzJiLTgwNzEtZTM2MDU2ZTUyMTVhIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjQzMDAxN2IyOTkyMWQ2ZDFjZmUzMTUwNzg2ZjFhM2E0NDRkZmY3NjQwODM3NzAzMmZmYTY5M2NmM2QyYWE4MzQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9TRC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlNEIn0sIm9wZXJhdGlvbiI6eyJpZCI6IjNhNGU2NjViLTA0OTYtNDczZS1iYzU1LTA1YWE5MjlmZTliZCIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiOGJlMjYyOGItNmY1MS00ODg2LWEyYTAtM2JhNjQ0YjZmZDE2IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiNDhiODBkNDMtNWM4Ni00ZWQ4LTk5ODAtYWYwMjNjZGFkZGI0IiwicmV2aXNpb24iOjIxfSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiU0QiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlBSRCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2OmZlZTI4OGI3ZjczNTNiNWJkOThmNmZmZmY0NTYyNjIzMTJlNGU3NTU1Nzk4Njc0MmJiODUyMDNjMzdmYzUzZjYiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9TRF9NQVBQSU5HX2NkYWFhZDVmLTczODMtNGU1OC1hMDEyLTMzNDI5N2FmYTRhZi5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCAocmV2aXNlZCBTRCBzZW1hbnRpYyBkZXJpdmF0aW9uIHJldmlldykifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6ZTRlOTFiYzk5MzcxODJkY2I0NzBjYjI1MDZhNTVkZWFlNjExZmM5ZDBkMzEzNThjODRlOWI1NTc0ODE4NWE3NCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1BSRC5tZCIsInR5cGUiOiJQUkQifSwic3VwZXJzZWRlcyI6IjFmY2QzYzE2LWY5MDctNGE2OC04ODAxLTQ2Y2I5ZDJkZTFlYyIsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
+| 18e885cb-8942-48fa-8a9d-b699ca87fbd5 | sha256:70e122e0ca41a56d16681d559fb869ca916756135576091a66b7d9d7fe82bdea | eyJiaW5kaW5nX2lkIjoiMThlODg1Y2ItODk0Mi00OGZhLThhOWQtYjY5OWNhODdmYmQ1IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmFjMTJjZTAwNzQwOWU3YmJiOTM2ZTRjMjNmMTJmOGE3N2YzYjlkNGZhZTRlZDIzODg2YjBlZDM3YjhiNWI2ZjQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9UUC5tZCIsInN0YXR1cyI6ImRyYWZ0IiwidHlwZSI6IlRQIn0sIm9wZXJhdGlvbiI6eyJpZCI6ImQ5ODlmYzQ0LWViZTYtNGRhMi05YjUzLTRmZGNmN2M3MWZjMSIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiMTliZmEzOWYtZDk3Yi00NWQ0LWIyYmEtN2NiMTIwN2Y1NzRhIiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiZTM4N2RjYzAtYjhmMy00NDY4LWI2NjEtMWI4NWViMmY2N2E5IiwicmV2aXNpb24iOjIzfSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiVFAiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlNEIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6NTViNTI1MjdhZWZhZTVmMDc2YTAzOWNjYzA1YTVlODQ0NjExNGJjMGIyMmQ0MDBmZWI0MDg3ZjhjMjY5Yjg3MyIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1RQX01BUFBJTkdfMTNmOGU5ZTgtMjAwYS00NGU0LWFhMWUtMzkwN2NkM2Q2OWUyLmpzb24iLCJyZXZpZXdlciI6IkNvZGV4IC8gY29vcGVyYXRpdmVfbG9jYWwifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6NDMwMDE3YjI5OTIxZDZkMWNmZTMxNTA3ODZmMWEzYTQ0NGRmZjc2NDA4Mzc3MDMyZmZhNjkzY2YzZDJhYTgzNCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1NELm1kIiwidHlwZSI6IlNEIn0sInN1cGVyc2VkZXMiOiJjMDAyODcxZC01NTQ2LTRjOGUtODk5My1kNzZjNDE0NzMxZDEiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |
+| 03695611-ee81-45ce-a790-a2faf7f47015 | sha256:200dacd8e7e3c17ec7c2801e63d5fcc5c97a36d422fe50acc9e898e1befd7a3b | eyJiaW5kaW5nX2lkIjoiMDM2OTU2MTEtZWU4MS00NWNlLWE3OTAtYTJmYWY3ZjQ3MDE1IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjkyZDAwMDI2NGMxMjNmYzkyMWZkMDRlY2U3ODU5YWIxMmRkYjNhYTcyNWQxYWJhZDVlN2E4MzgzNTA5ZTdhMWUiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9RQV9SRVBPUlQubWQiLCJzdGF0dXMiOiJwYXNzIiwidHlwZSI6IlFBX1JFUE9SVCJ9LCJvcGVyYXRpb24iOnsiaWQiOiI2Yjg4ZDRhYS0wZTljLTQ4ZWYtOGQzNC1jMDNiZjZlYzAxMDgiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImEwZWVmOTVhLTczZjgtNDlmYi1iYWUyLTk2ZjVmZDgyYjVkMiIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjllOTRjMjZjLWMwZTctNGRlYS1iMDcyLThhMTQ4MmQzYjFhZSIsInJldmlzaW9uIjoyOX0sIm9yaWdpbiI6InJldmlld2VkX21hcHBpbmciLCJyZWxhdGlvbnNoaXAiOnsiZnJvbSI6IlFBX1JFUE9SVCIsInJlbGF0aW9uc2hpcCI6InRlc3RzIiwidG8iOiJUUCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2OjdiM2E1NzA0OWJjNTcwNmVkODE2MTdmZTk5OTFiNjUwMWQzY2M4Y2Q5NzFjNTQxMzZmOTM3ZDRjMWI2OTZjODMiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9RQV9NQVBQSU5HX2ViZTA5OTQ4LWQ3YTItNGIwMC1iNmIyLWYzODA2MTcyN2UzZC5qc29uIiwicmV2aWV3ZXIiOiJxYS1nYXRlIC8gQ29kZXggY29vcGVyYXRpdmVfbG9jYWwifSwicnVuX2lkIjoiY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6YWMxMmNlMDA3NDA5ZTdiYmI5MzZlNGMyM2YxMmY4YTc3ZjNiOWQ0ZmFlNGVkMjM4ODZiMGVkMzdiOGI1YjZmNCIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb2NrcGl0LWRvY3VtZW50ZWQtYXBwcm92YWxzLTIwMjYxMDA5LTAxL1RQLm1kIiwidHlwZSI6IlRQIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
+
+## Source Revisions
+
+- schema_version: 1
+
+| operation_id | receipt_digest | receipt |
+|---|---|---|
+| 6cd14441-2dee-4d7f-aac5-e89ea6167506 | sha256:341bdf4dc7d07b706166c61f046c2d68c8c7fc0f70faf843eada38242ff0bcb0 | eyJhbmFseXNlcyI6W3siZGlnZXN0Ijoic2hhMjU2OmYyNDkxNzE1NjE5NmI0ZDQwNGIxNDljNzNjMTkxOWVkMmNkM2M1MjkzZTljZWJlOTJlMWY1NjM5MDNiYTRjZTUiLCJkaXNwb3NpdGlvbiI6InJlYXNzZXNzIiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEvQlJPV05GSUVMRF9SRVZJRVcubWQiLCJyZWFzb24iOiJUaGUgcmV2aXNlZCBVUiByZXBsYWNlcyBpbmxpbmUgZGlzY2xvc3VyZSB3aXRoIGEgZGlzdGluY3QgYXBwcm92YWwgcmVhZGluZyBtb2RlOyByZWFzc2VzcyBvd25lciByZXVzZSBhbmQgbmF2aWdhdGlvbi9hY2Nlc3NpYmlsaXR5IGFnYWluc3QgdGhlIG5ldyBpbnRlbnQuIiwidHlwZSI6IkJyb3duZmllbGQgUmV2aWV3In0seyJkaWdlc3QiOiJzaGEyNTY6ZjRhYmVlNmUzNmYyOWI0YjM2YjRkMjI1YmE1ZjdmYzdhYWZmM2EyNDcxMDhiODA4N2NiMjYwYjc4YTRmYzNmZCIsImRpc3Bvc2l0aW9uIjoicmVhc3Nlc3MiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29ja3BpdC1kb2N1bWVudGVkLWFwcHJvdmFscy0yMDI2MTAwOS0wMS9VWF9JTlRFTlRfREVGSU5JVElPTi5tZCIsInJlYXNvbiI6IlRoZSByZXZpc2VkIFVSIHJlcGxhY2VzIGlubGluZSBkaXNjbG9zdXJlIHdpdGggYSBkaXN0aW5jdCBhcHByb3ZhbCByZWFkaW5nIG1vZGU7IHJlYXNzZXNzIG93bmVyIHJldXNlIGFuZCBuYXZpZ2F0aW9uL2FjY2Vzc2liaWxpdHkgYWdhaW5zdCB0aGUgbmV3IGludGVudC4iLCJ0eXBlIjoiVVggSW50ZW50IERlZmluaXRpb24ifV0sImFyY2hpdmUiOnsiZGlnZXN0Ijoic2hhMjU2Ojk2MzMyOTYxMDVkZDQxNjc5ZTRiYWE5MjM2YTRmOTk4MzE2ZTdlMjdjODc3OThjZDVjYzI5MjYyY2IzYmM2MWUiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9ydW5zL2NvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEvcmV2aXNpb25zLzZjZDE0NDQxLTJkZWUtNGQ3Zi1hYWM1LWU4OWVhNjE2NzUwNi9tYW5pZmVzdC5qc29uIn0sImludmFsaWRhdGVkX2JpbmRpbmdzIjpbIjQxZWIwNjQ1LWJmYTUtNGNlYi1hYjFkLTU1MGU3YzllYWQ4OCIsIjFmY2QzYzE2LWY5MDctNGE2OC04ODAxLTQ2Y2I5ZDJkZTFlYyIsImMwMDI4NzFkLTU1NDYtNGM4ZS04OTkzLWQ3NmM0MTQ3MzFkMSJdLCJvcGVyYXRpb25faWQiOiI2Y2QxNDQ0MS0yZGVlLTRkN2YtYWFjNS1lODllYTYxNjc1MDYiLCJwcmV2aWV3X2RpZ2VzdCI6InNoYTI1NjphYTZkMDRjM2E3MDM1YTA4NTA2MThhZmQ5MTI5YzQ1M2NlZmMzMmFmNjYxYjBkYmVmMDc1ZWYyZThiZDNjZTVkIiwicHJldmlvdXNfcmV2aXNpb25faWQiOiI1OWJiYTMxMS1jNjVhLTRjOWQtODgxNi00ZWMzNjVjMTM0ZTYiLCJyZWFzb24iOiJUaGUgdXNlciByZXF1ZXN0ZWQgY29tcGFjdCByb3dzIHdpdGhvdXQgZXhwYW5kYWJsZSBlbnRyaWVzIGFuZCBhIHNlcGFyYXRlIGxhcmdlIHJlYWRpbmcgdmlldyBmb3IgdGhlIGFwcHJvdmFsLCB3aXRoIGEgc2VwYXJhdGUgY3VycmVudC1kb2N1bWVudCBhY3Rpb24uIiwicmVxdWVzdF9kaWdlc3QiOiJzaGEyNTY6YTE3NDUzYjBmYjA5OWFkN2M3YTU0MzJjZWQ4Njg5N2YxNDFhODBlMTM0ODNjNDlhODg3OWI0ZDMwZTQ0ZDAyNyIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImE0ZDhlZWFkLWY4NDQtNGQ5ZS05ZWY2LTliNGYzY2YxZTlmZSIsInJldGFpbmVkX3NvdXJjZXMiOltdLCJyZXZpc2lvbiI6MTQsInJ1bl9pZCI6ImNvY2twaXQtZG9jdW1lbnRlZC1hcHByb3ZhbHMtMjAyNjEwMDktMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2VfZ2F0ZSI6IlVSIiwidGFyZ2V0X2lkIjoic2hhMjU2OmE1YzFkYWVlNzg4NmY4MWQyN2IyYjc3MTg3MThmYTdhMzgyMmIyN2E0YmMxZDA1N2Y5OWFmMDFiZTc2ODhhMTkifQ |

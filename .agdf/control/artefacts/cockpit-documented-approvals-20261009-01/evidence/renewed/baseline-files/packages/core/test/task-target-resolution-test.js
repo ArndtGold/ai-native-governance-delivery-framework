@@ -1,0 +1,166 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { resolveTaskTarget } from "../lib/task-target-resolution.js";
+import { resolveRepositoryContext } from "../../cli/lib/repository-context.js";
+import { runValidatorCli } from "../../cli/lib/runtime/validator-application.js";
+
+const root = mkdtempSync(join(tmpdir(), "agdf-target-check-"));
+const repo = join(root, "repo");
+const chat = join(root, "chat");
+const file = join(repo, "src", "feature.js");
+mkdirSync(join(repo, "src"), { recursive: true });
+mkdirSync(chat, { recursive: true });
+writeFileSync(file, "export const feature = true;\n");
+execFileSync("git", ["init", "-q", repo]);
+
+try {
+  assert.equal(resolveRepositoryContext("relative").context_state, "repo_less");
+  assert.equal(resolveRepositoryContext(chat).reason_code, "not_in_git_worktree");
+  const repositoryContext = resolveRepositoryContext(join(repo, "src"));
+  assert.equal(repositoryContext.context_state, "repository_bound");
+  assert.equal(repositoryContext.repository_root, realpathSync(repo));
+
+  const base = { workingDirectory: chat };
+  const noTarget = resolveTaskTarget(base);
+  assert.equal(noTarget.reason_code, "no_reliable_target");
+  assert.equal(noTarget.governance_target, "");
+  assert.equal(noTarget.working_directory, realpathSync(chat));
+
+  const invalidTargetSource = resolveTaskTarget({
+    ...base,
+    targetSource: "user",
+    primaryTarget: repo,
+  });
+  assert.equal(invalidTargetSource.reason_code, "target_source_invalid");
+  assert.deepEqual(invalidTargetSource.input_error, {
+    field: "target_source",
+    allowed_values: ["explicit_target", "continued_target", "current_repository"],
+  });
+  assert.equal(JSON.stringify(invalidTargetSource).includes("\"user\""), false);
+
+  const missingContext = resolveTaskTarget({
+    workingDirectory: join(root, "missing-context"),
+    targetSource: "explicit_target",
+    primaryTarget: repo,
+  });
+  assert.equal(missingContext.reason_code, "working_directory_invalid");
+  assert.equal(missingContext.target_source, "explicit_target");
+
+  const multiple = resolveTaskTarget({
+    ...base,
+    targetSource: "explicit_target",
+    candidates: [repo, file],
+  });
+  assert.equal(multiple.reason_code, "multiple_plausible_targets");
+  assert.equal(multiple.primary_target, "");
+
+  const unavailable = resolveTaskTarget({ ...base, targetSource: "explicit_target", primaryTarget: join(root, "missing") });
+  assert.equal(unavailable.reason_code, "target_unavailable");
+  assert.equal(unavailable.target_source, "explicit_target");
+
+  const relative = resolveTaskTarget({ ...base, targetSource: "explicit_target", primaryTarget: "repo" });
+  assert.equal(relative.reason_code, "target_path_relative");
+
+  const nonRepository = resolveTaskTarget({ ...base, targetSource: "explicit_target", primaryTarget: chat });
+  assert.equal(nonRepository.reason_code, "target_not_in_repository");
+
+  const explicit = resolveTaskTarget({
+    ...base,
+    targetSource: "explicit_target",
+    primaryTarget: file,
+    evidenceSources: ["user request"],
+    targetChanged: true,
+  });
+  assert.equal(explicit.resolution_state, "resolved");
+  assert.equal(explicit.reason_code, "explicit_target");
+  assert.equal(explicit.primary_target, realpathSync(file));
+  assert.equal(explicit.governance_target, realpathSync(repo));
+  assert.equal(explicit.target_source, "explicit_target");
+  assert.equal(explicit.target_changed, true);
+  assert.equal(explicit.authorizes, false);
+
+  const continued = resolveTaskTarget({ ...base, targetSource: "continued_target", primaryTarget: repo });
+  assert.equal(continued.reason_code, "continued_target");
+
+  const staleContinued = resolveTaskTarget({ ...base, targetSource: "continued_target", primaryTarget: repo, targetChanged: true });
+  assert.equal(staleContinued.reason_code, "continued_target_changed");
+  assert.equal(staleContinued.resolution_state, "unresolved");
+
+  const current = resolveTaskTarget({ workingDirectory: join(repo, "src"), targetSource: "current_repository", primaryTarget: repo });
+  assert.equal(current.reason_code, "explicit_target");
+  assert.equal(current.target_source, "current_repository");
+
+  const repoLessCurrent = resolveTaskTarget({ ...base, targetSource: "current_repository", primaryTarget: repo });
+  assert.equal(repoLessCurrent.reason_code, "current_repository_context_mismatch");
+  assert.equal(repoLessCurrent.resolution_state, "unresolved");
+
+  const currentFile = resolveTaskTarget({ ...base, targetSource: "current_repository", primaryTarget: file });
+  assert.equal(currentFile.reason_code, "current_repository_root_required");
+
+  const output = [];
+  const exitCode = await runValidatorCli([
+    "target-check", "--json", "--target-source", "explicit_target", "--primary-target", repo,
+    "--working-directory", chat,
+  ], { io: { log(value) { output.push(value); }, error(value) { output.push(value); } } });
+  assert.equal(exitCode, 0);
+  const targetCheckOutput = JSON.parse(output[0]);
+  assert.equal(targetCheckOutput.governance_target, realpathSync(repo));
+  assert.equal(targetCheckOutput.task_target_orientation.semantic_block, "task_target_orientation");
+
+  const unresolvedOutput = [];
+  const unresolvedExit = await runValidatorCli(["target-check", "--json", "--working-directory", chat], {
+    io: { log(value) { unresolvedOutput.push(value); }, error(value) { unresolvedOutput.push(value); } },
+  });
+  assert.equal(unresolvedExit, 2);
+  assert.equal(JSON.parse(unresolvedOutput[0]).reason_code, "no_reliable_target");
+
+  const germanOutput = [];
+  await runValidatorCli(["target-check", "--json", "--language", "de", "--working-directory", chat], {
+    io: { log(value) { germanOutput.push(value); }, error(value) { germanOutput.push(value); } },
+  });
+  const germanPresentation = JSON.parse(germanOutput[0]).task_target_orientation.markdown;
+  assert.match(germanPresentation, /Ein exaktes Ziel mit vollständigem Pfad, Git-URL oder vorhandener Run-ID benennen\./);
+  assert.doesNotMatch(germanPresentation, /Name exactly one/);
+
+  const invalidSourceOutput = [];
+  const invalidSourceExit = await runValidatorCli([
+    "target-check", "--json", "--language", "de", "--working-directory", chat,
+    "--target-source", "user", "--primary-target", repo,
+  ], { io: { log(value) { invalidSourceOutput.push(value); }, error(value) { invalidSourceOutput.push(value); } } });
+  assert.equal(invalidSourceExit, 2);
+  const invalidSourceReport = JSON.parse(invalidSourceOutput[0]);
+  assert.equal(invalidSourceReport.reason_code, "target_source_invalid");
+  assert.deepEqual(invalidSourceReport.input_error.allowed_values, ["explicit_target", "continued_target", "current_repository"]);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /Ungültige Zielquelle/);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /explicit_target, continued_target, current_repository/);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /Einen erlaubten target_source-Wert und den vollständigen Pfad, die Git-URL oder Run-ID angeben\./);
+  assert.doesNotMatch(invalidSourceReport.task_target_orientation.markdown, /Kein belastbares Arbeitsziel/);
+} finally {
+  rmSync(root, { recursive: true, force: true });
+}
+
+// Windows keeps 8.3 short names (for example C:\Users\RUNNER~1) in realpathSync, while git reports
+// the long root; the working directory must still resolve as repository-bound.
+if (process.platform === "win32") {
+  const longRoot = mkdtempSync(join(tmpdir(), "agdf-short-name-repository-"));
+  try {
+    const longRepo = join(longRoot, "repository-with-long-name");
+    mkdirSync(join(longRepo, "src"), { recursive: true });
+    execFileSync("git", ["init", "-q", longRepo]);
+    const shortRepo = execFileSync("cmd.exe", ["/d", "/s", "/c", `for %I in ("${longRepo}") do @echo %~sI`], { encoding: "utf8", windowsVerbatimArguments: true }).trim();
+    if (shortRepo.toLowerCase() === longRepo.toLowerCase()) {
+      console.log("[task-target-resolution-test] SKIPPED short-name assertions: 8.3 names are disabled on this volume");
+    } else {
+      const shortContext = resolveRepositoryContext(join(shortRepo, "src"));
+      assert.equal(shortContext.context_state, "repository_bound", "an 8.3 short working directory stays repository-bound");
+      assert.equal(shortContext.repository_root, realpathSync(shortRepo), "the root keeps the working directory's spelling");
+    }
+  } finally {
+    rmSync(longRoot, { recursive: true, force: true });
+  }
+}
+
+console.log("task target resolution tests passed");

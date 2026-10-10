@@ -1,0 +1,51 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test test/browser/run-documents.spec.mjs
+
+
+Running 2 tests using 1 worker
+
+(node:34463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/run-documents.spec.mjs:18:1 › SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading (6.6s)
+(node:34463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload (6.9s)
+
+
+  1) test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.draft-check')
+    Expected substring: "Noch nicht geprüft"
+    Received string:    "Entwurfsprüfung · PRDPrüfung nicht verfügbarPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.Prüfquelle und OriginalbefundeGatePRDRevisiona87cc95e-4949-410b-a2a7-3b6e44563c91Quelle.agdf/control/artefacts/synthetic-draft/PRD.mdSHA-256sha256:cf50b9b450fda5a114bcde9f43d2f12c72fe4d59785943462a1b1fc7822f4949Beobachtet2026-10-10T07:57:46.610ZOriginalgrund: artifact_run_integrity"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.draft-check') with timeout 5000ms
+      - waiting for locator('.draft-check')
+        2 × locator resolved to <section aria-busy="false" aria-label="Entwurfsprüfung" class="draft-check panel agdf-surface">…</section>
+          - unexpected value "Entwurfsprüfung · PRDPrüfstand nicht aktuellPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.Entwurf prüfenStand neu ladenPrüfquelle und OriginalbefundeGatePRDRevisiona87cc95e-4949-410b-a2a7-3b6e44563c91Quelle.agdf/control/artefacts/synthetic-draft/PRD.mdSHA-256sha256:f825d3829582d632b267d65e2ae82c97ae95378b4656c201c42452c5f19409e8Beobachtet2026-10-10T07:57:46.472Z"
+        12 × locator resolved to <section aria-busy="false" aria-label="Entwurfsprüfung" class="draft-check panel agdf-surface">…</section>
+           - unexpected value "Entwurfsprüfung · PRDPrüfung nicht verfügbarPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.Prüfquelle und OriginalbefundeGatePRDRevisiona87cc95e-4949-410b-a2a7-3b6e44563c91Quelle.agdf/control/artefacts/synthetic-draft/PRD.mdSHA-256sha256:cf50b9b450fda5a114bcde9f43d2f12c72fe4d59785943462a1b1fc7822f4949Beobachtet2026-10-10T07:57:46.610ZOriginalgrund: artifact_run_integrity"
+
+
+      80 |       await expect(page.locator('.draft-check')).toContainText('Entwurfsprüfung bestanden');expect(treeBytes(f.root)).toEqual(before);
+      81 |       fs.writeFileSync(f.path,readyPrd.replace('before_prd | resolved','before_prd | open'));before=treeBytes(f.root);
+    > 82 |       await page.getByRole('button',{name:'Neu laden',exact:true}).click();await expect(page.locator('.draft-check')).toContainText('Noch nicht geprüft');await check.click();
+         |                                                                                                                       ^
+      83 |       await expect(page.locator('.run-document-state').filter({hasText:'Überarbeitung nötig'})).toBeVisible();await source.click();
+      84 |       await expect(page.locator('.document-state-context')).toContainText('Überarbeitung nötig');await expect(page.getByRole('list',{name:'Aktuelle Korrekturen'})).toContainText('Scope');
+      85 |       await page.screenshot({path:join(evidence,`corrections-${route==='/'?'browser':'card'}.png`),fullPage:true});
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/run-documents.spec.mjs:82:119
+
+    Error Context: test-results/run-documents-SCN-005-007--bb840-ns-source-change-and-reload/error-context.md
+
+  1 failed
+    test/browser/run-documents.spec.mjs:60:1 › SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload 
+  1 passed (18.4s)

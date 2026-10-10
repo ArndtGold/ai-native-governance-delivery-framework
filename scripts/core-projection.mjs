@@ -14,11 +14,11 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   mkdirSync(target, { recursive: true });
   cpSync(join(coreRoot, 'lib'), join(target, 'lib'), { recursive: true });
   // Copilot exposes the default dispatcher/inspector, never the private Codex cockpit.
-  // Its default entry point has no dependency on this opt-in read closure.
+  // Keep the shared snapshot owner: default artifact-readiness imports it too.
   if (copilot) for (const module of [
     'control-inspect/cockpit.js', 'control-inspect/cockpit-backlog.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
     'control-inspect/cockpit-list.js', 'control-inspect/cockpit-list.d.ts',
-    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-read/control-changes.js', 'control-read/snapshot.js',
+    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-read/control-changes.js',
   ]) rmSync(join(target, 'lib', module));
   // Only the explicit build-owned resource descriptor differs from private source composition.
   const contracts = copilot ? '../../skills/contracts/' : 'plugins/agdf/meta/contracts/';

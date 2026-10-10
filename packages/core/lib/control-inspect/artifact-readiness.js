@@ -1,4 +1,5 @@
 import { readFileSync } from '../control-read/fs.js';
+import { join } from 'node:path';
 import { captureControlScope } from '../control-read/snapshot.js';
 import { readRunState } from '../control-evaluation/run-state.js';
 import { evaluateGateCheck } from '../control-evaluation/gate-check.js';
@@ -57,7 +58,7 @@ export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId
   if (!ARTIFACT_READINESS_GATES.includes(gate)) return fail('artifact_gate_invalid', 'This gate has no supported draft artifact.');
   state = readRunState(targetRoot, { runId, ignoreRunIdEnv: true });
   if (!state.content || state.resolution_error || state.identity_findings.length
-      || state.path !== `.agdf/control/runs/${runId}/RUN_STATE.md`
+      || state.path !== join('.agdf', 'control', 'runs', runId, 'RUN_STATE.md')
       || extractField(state.content, 'run_id') !== runId)
     return fail('artifact_run_invalid', 'The explicitly selected canonical run is unavailable or invalid.');
   revision = extractField(state.content, 'revision_id');

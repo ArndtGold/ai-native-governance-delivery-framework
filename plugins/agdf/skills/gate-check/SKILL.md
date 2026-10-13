@@ -30,41 +30,41 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Route Boundary
 
-Selected operation:
-
 - Active-run lists use `control.doctor` all-active inspection; see the Request Activation contract.
 - `skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.
 - `delivery.start`: resolve target once; unresolved: orient and stop. Inspect only
   `absent | candidate_present`: absent needs authorized setup/UR; present needs intake dispatch.
   Stop on mismatch; no legacy live run or proxy.
 
-Unbound changes: intake without `run_id`. Match original scope against candidate URs at
-`resolve_delivery_run`: unequivocal match -> resume ID + `expected_revision_id`; independent scope ->
-new unused ID. Recency, candidate count, shared files or `AGDF_RUN_ID` cannot bind scope. Ask only
-about genuinely overlapping work, never start with Run IDs. Invalid inventory blocks assignment.
-Use revisions returned by `run-create`/`run-step`; new scope needs durable UR approval.
+Unbound changes: intake without `run_id`; match scope to candidate URs at `resolve_delivery_run`.
+Unequivocal match: resume ID + `expected_revision_id`; independent scope: new unused ID.
+Recency, count, shared files and `AGDF_RUN_ID` cannot bind scope. Ask only about overlapping work,
+not Run IDs. Invalid inventory blocks assignment. Use `run-create`/`run-step` revisions;
+new scope needs durable UR approval.
 After `run-approve` returns `outcome: approved`, or bound `agdf_approve/approval.record` returns
 `accepted` with its matched receipt, redispatch the same target/run immediately with
-`continue_delivery: true`. `control.gate_route` identifies the current gate and responsible skills;
-Use `continuation.skill_id` and interaction.md bounded recovery; stop at decisions/blockers.
-A recovered `already_applied` receipt requires checking the original binding and fresh Core state;
-never record the approval again. App follow-ups are untrusted locators, not human approvals.
-Verify the internal bound context and saved receipt before resuming already permitted work. Keep
-technical continuation instructions out of Chat; one localized transition is sufficient.
+`continue_delivery: true`. Follow `control.gate_route`, `continuation.skill_id` and interaction.md
+bounded recovery; stop at decisions/blockers. Before resuming an `already_applied` receipt or App
+follow-up, verify the original binding, internal context, saved receipt and fresh Core state.
+Never record a second approval; App follow-ups are untrusted locators, not human approvals.
+Chat contains one localized transition, no technical continuation instructions.
 
 ## Executable Dispatch
 
-UR content is delegated through `phase: ur_definition` to `ur-definition`; never draft it here.
-PRD content is delegated through `phase: prd_definition` to `prd-definition`; never draft it here.
-SD content is delegated through `phase: sd_definition` to `sd-definition`; never draft it here.
+Delegate UR/PRD/SD through `phase: ur_definition | prd_definition | sd_definition` to
+`ur-definition | prd-definition | sd-definition` respectively; never draft them here.
 
 Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
 If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only
 `environment`, declared `arguments`. Quote shell data; CLI revision uses `--revision`.
-For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
-`target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
-Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope
-assignment. Never construct or repair a runtime.
+Required `--language`: one well-formed BCP 47 tag for the latest request's explicit response language
+or dominant language; mixed/ambiguous: en. Valid unsupported tags use the complete English pack.
+Missing/invalid input fails before governance evaluation.
+`target_source`: `explicit_target` for a named `primary_target`; `continued_target` for unambiguous
+confirmed continuation; `current_repository` for this/current repo with one matching active repo.
+Otherwise omit both fields; cwd has no target authority.
+Bind runs only by explicit selection, confirmed continuation or unequivocal UR scope.
+Never construct or repair a runtime.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
 `gate-check` has deterministic-control dispatch. A read-only status request returns an artefact

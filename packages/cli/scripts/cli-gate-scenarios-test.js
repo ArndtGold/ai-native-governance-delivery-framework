@@ -156,7 +156,9 @@ function boundUrApproval() {
     assert.equal(unbound.reason, "presentation_required", "an unbound reply must not advance the gate");
     const prepared = json(continuation.continuation.steps[0].argv);
     assert.equal(prepared.outcome, "prepared");
-    assert.match(prepared.text, /Artefakt: \[UR\.md\]/u);
+    assert.match(prepared.text, /Dokument lesen/u);
+    assert.equal(readFileSync(join(root, '.agdf/control/runs', runId, 'presentations', `${prepared.presentation_id}.document`), 'utf8'),
+      readFileSync(join(artefactDir, 'UR.md'), 'utf8'), 'the readable decision uses the exact presented document snapshot');
     assert.match(prepared.text, /Approval: UR/u);
     const approved = json(["run-approve", "--dir", root, "--run", runId, "--gate", "UR",
       "--revision", prepared.revision_id, "--presentation", prepared.presentation_id,

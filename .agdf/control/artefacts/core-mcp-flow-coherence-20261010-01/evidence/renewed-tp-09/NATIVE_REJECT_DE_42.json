@@ -1,0 +1,114 @@
+{
+  "schema_version": "1",
+  "evidence_class": "native_app_reject_agent_DOM_read_and_guard_human_action",
+  "agent_document_and_return": true,
+  "agent_empty_comment_guard": true,
+  "user_report": "Entscheidung gespeichert.",
+  "technical_permission_report": "pending",
+  "keyboard_observation": "User reported successful instructed rejection; actual physical key not independently observed.",
+  "dom_status": "Entscheidung gespeichert.",
+  "dom_actions_disabled": true,
+  "native_app_result": {
+    "at": "2026-10-11T18:02:10.395Z",
+    "event": "tool_result",
+    "evidence_class": "native_probe_unclassified",
+    "producer": {
+      "process_id": 95605,
+      "server_started_at": "2026-10-11T17:49:15.500Z"
+    },
+    "data": {
+      "name": "agdf_decision_action",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "6b5ad907-1997-4295-b29f-35e2aff657aa",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "presentation_decision.record",
+          "operation_id": "6b5ad907-1997-4295-b29f-35e2aff657aa",
+          "request_digest": "sha256:dd7c8f54a0609502df630bf6ee004f3776a75559bc087beb3240e937731137c8",
+          "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f",
+          "run_id": "native-de-reject",
+          "expected_revision_id": "b0602a64-555e-4e99-b34f-1f456eea2294",
+          "created_at": "2026-10-11T18:02:10.206Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "b0602a64-555e-4e99-b34f-1f456eea2294",
+            "resulting_revision_id": "7ac42978-ac80-48dc-b7cc-3bc9416eeb23",
+            "revision": 8,
+            "record": {
+              "gate": "SD",
+              "presentation_id": "9e581713-5199-4180-a574-c8f820ed0f53",
+              "presentation_digest": "sha256:631d126932a0ad6666cde7ea29370083a6dad358cf1a4beb7402b7dee3435298",
+              "material_version": "sha256:dc2de2d007ffc58c4b85f59b1a5565faec58d30ba8fc26b384a4eba4741e1024",
+              "material_sources": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-de-reject/UR.md",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-de-reject/PRD.md",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-de-reject/SD.md",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                }
+              ],
+              "action": "reject",
+              "comment": "",
+              "owner": "sd-definition",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "7ac42978-ac80-48dc-b7cc-3bc9416eeb23",
+          "lifecycle": "active",
+          "gate": "SD",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "presentation_version_decided",
+          "next_operation": {
+            "type": "revise_gate_material",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD",
+            "skill_id": "sd-definition"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  },
+  "authorizes": false
+}

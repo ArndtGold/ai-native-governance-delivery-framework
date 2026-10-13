@@ -1,0 +1,48 @@
+Skill dispatch semantic function contract tests passed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    'doctor',
+    'gate-check',
+    'delivery-map',
+    'contract',
+    'artifact-readiness',
++   'operation-contract',
++   'operation-status',
++   'native-qualification',
++   'presentation-document',
++   'runtime-generations'
+  ]
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/skill-dispatch-function-contract-test.js:295:8 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'doctor',
+    'gate-check',
+    'delivery-map',
+    'contract',
+    'artifact-readiness',
+    'operation-contract',
+    'operation-status',
+    'native-qualification',
+    'presentation-document',
+    'runtime-generations'
+  ],
+  expected: [
+    'doctor',
+    'gate-check',
+    'delivery-map',
+    'contract',
+    'artifact-readiness'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

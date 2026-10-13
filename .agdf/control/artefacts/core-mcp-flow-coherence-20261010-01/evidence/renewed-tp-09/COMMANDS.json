@@ -1,0 +1,1375 @@
+{
+  "schema_version": "1",
+  "recorded_at": "2026-10-11T20:04:19.419707+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "source_revision_id": "9063bc02-1fa7-4d00-95e2-b3dc05e0d44f",
+  "node": "22.22.3",
+  "os": "darwin",
+  "architecture": "x64",
+  "commands": [
+    {
+      "log": "qualification.log",
+      "log_digest": "sha256:c1454301794ff050e5198b846a0ec0afc0015d705bd14535c72380119c81188e",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/decision-qualification-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "command-contract.log",
+      "log_digest": "sha256:ec5c3c7e9acc1ff7ef018360c92557ee67993de1ee34d84eb84fc0db321b8b9f",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/run-command-contract-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "remote-document.log",
+      "log_digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/presentation-document-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "presentation-decision.log",
+      "log_digest": "sha256:7f799c07c53d04addfa7e48d5792c414ed8120c752946eadcb20421b754560ee",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/presentation-decision-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "decision-action.log",
+      "log_digest": "sha256:4103ec02666ff507934dd7bf80b62f2877c067f3fa5e9aed284be9ae0112b994",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/decision-action-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "control-inspect.log",
+      "log_digest": "sha256:eca9f4f76d01d9f28ee46047d5e6de5147bc6ef37f3ae48c70fa6c29d17385a9",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/cli/scripts/control-inspect-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "decision-resource.log",
+      "log_digest": "sha256:97c1432fc291c8a91bd925bdc1d96dd5354e37eb1ef76d43d1aa7a05833a895d",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/decision-resource.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Earlier scoped checkpoint; later affected checks listed separately."
+    },
+    {
+      "log": "core-flow-13.log",
+      "log_digest": "sha256:ed2ce1bfe3d6afd5b090ea2d62cceca6dd4de88b59b51abe7d1b49d62b8de9a2",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /usr/local/Cellar/node@22/22.22.3/lib/node_modules/npm/bin/npm-cli.js --prefix packages/cli run test:run-command-flow",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "15 files pass; later snapshot/revision changes verified separately, not silently attributed to this earlier run."
+    },
+    {
+      "log": "prepare-10.log",
+      "log_digest": "sha256:a75b8a32f333c31a5a2b5e54f1346aa828a6d36ba6ff5994f9eddda597d32ee7",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Ordered generation/assembly/public/portable/release checks; final runtime candidate is 28."
+    },
+    {
+      "log": "prepare-12.log",
+      "log_digest": "sha256:10ebbe9f0b73aa39b97135a083289cd4f2ce9ec8e542f7240c762e41ebff37c1",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Ordered generation/assembly/public/portable/release checks; final runtime candidate is 28."
+    },
+    {
+      "log": "prepare-17.log",
+      "log_digest": "sha256:5e490e644a38c6622bd328d7db007c4b1c49ec76581a7facafb31fd945f79b9e",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Ordered generation/assembly/public/portable/release checks; final runtime candidate is 28."
+    },
+    {
+      "log": "prepare-23.log",
+      "log_digest": "sha256:3e48211191b9b5458a772ea355d4f086dc60010775d5608c3aa2f7c4daaf2f04",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Ordered generation/assembly/public/portable/release checks; final runtime candidate is 28."
+    },
+    {
+      "log": "prepare-28.log",
+      "log_digest": "sha256:d2502d0909043c2a06e240fa19c3964efc560048e0a8901cd72dd0e456697480",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Historical passing package checkpoint, superseded by final prepare-34."
+    },
+    {
+      "log": "generate-22.log",
+      "log_digest": "sha256:efe40114634daa900aa54c29c56594ffd673c2e295f723c82305a416116a334f",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/sync-package-assets.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Measured payload growth guard; corrected via reviewed exact inventory, no ceiling headroom."
+    },
+    {
+      "log": "generate-27.log",
+      "log_digest": "sha256:056862d484b13737af56b26d301c554a52cdb1c152ef0ed8951af476a567196c",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/sync-package-assets.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": "Measured snapshot/archive delta; exact baseline reviewed before build 28."
+    },
+    {
+      "log": "generation-integrated-19.log",
+      "log_digest": "sha256:2209bcb765b3fd7a9afa18c8d244e7871f887e69afe3357de2092e3adcd71fe9",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_TRACE.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "19 exposed parsed-context IPC defect; 30 crosses generated SDK server/actual owned children and retains no native claim."
+    },
+    {
+      "log": "generation-integrated-24.log",
+      "log_digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_TRACE.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "19 exposed parsed-context IPC defect; 30 crosses generated SDK server/actual owned children and retains no native claim."
+    },
+    {
+      "log": "generation-extended-26.log",
+      "log_digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_TRACE_EXTENDED.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "19 exposed parsed-context IPC defect; 30 crosses generated SDK server/actual owned children and retains no native claim."
+    },
+    {
+      "log": "generation-sdk-30.log",
+      "log_digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_SDK_TRACE.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "19 exposed parsed-context IPC defect; 30 crosses generated SDK server/actual owned children and retains no native claim."
+    },
+    {
+      "log": "mcp-flow-24.log",
+      "log_digest": "sha256:775127df1afcd76e4c3beca36df272c18a9130c6057c2543ef7144f80bca6682",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /usr/local/Cellar/node@22/22.22.3/lib/node_modules/npm/bin/npm-cli.js --prefix packages/mcp-server run test:run-command-flow",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "actual_stdio_synthetic_host",
+      "note": "Recording, decision resource and Quick chain passed; structured suite stopped at obsolete UAT Chat-layout equality assertion, corrected separately."
+    },
+    {
+      "log": "mcp-structured-25.log",
+      "log_digest": "sha256:a1a5f3479e4ed4f1fa7ab3f3c8642edba52d480ddd01d32f594fd687aaac25f0",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/structured-flow.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_stdio_synthetic_host",
+      "note": "Both protocol eras; delivery and slice QA/UAT/OR completion."
+    },
+    {
+      "log": "mcp-revision-25.log",
+      "log_digest": "sha256:3c888fc4a212f849ce630aac083582aa8ae026011d135fa61bb92f5c66674df4",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/revision-command.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "actual_stdio_synthetic_host",
+      "note": "Real missing v3 document in revision archive; owner fixed and retested in 30."
+    },
+    {
+      "log": "mcp-revision-30.log",
+      "log_digest": "sha256:2890ab5be3ea3ac60d6d713896dd9e5558e8182b7fa32d264f9ffd64a8a7cea0",
+      "command": "AGDF_TEST_EVIDENCE_DIR=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/revision-command.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_stdio_synthetic_host",
+      "note": "Actual early UR/PRD and late source preview/apply/archive/replay, exact bytes, both protocol eras."
+    },
+    {
+      "log": "document-recovery-22.log",
+      "log_digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/presentation-document-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "command-service-23.log",
+      "log_digest": "sha256:8dc6924c6a0682018a562fcdaf4862e79b1a8899ffc315915f8924a4b8239d3d",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/run-command-service-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "interaction-24.log",
+      "log_digest": "sha256:1c3e1a98c51a6b00d8e61d2f15e3eb8a00b5f0a0c09b6cd252745c43f0f356e7",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/interaction-presentation-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "early-ur-27.log",
+      "log_digest": "sha256:73b88493c99a5c7ab0a29f8568cdee59c591f31ff8719a971e87425d354f7b6f",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/early-ur-revision-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "early-prd-27.log",
+      "log_digest": "sha256:3ae0cb9e3b0bb9bccf17c4bb6f6c5f5279be116015d79a9ee9501de6958c723b",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/early-prd-command-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "closeout-29.log",
+      "log_digest": "sha256:7b182ed879c57014e3c53c816cec0d44f93a1bb4fdb58ac45b5e6deef8fd84a7",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/run-closeout-command-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "source-revision-29.log",
+      "log_digest": "sha256:e8d37967cab02b825ea4b7310f4ab538f116415f159720aba06866f60f008ff1",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/run-command-revision-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "package-lifecycle-24.log",
+      "log_digest": "sha256:46ce6de133ad15caca4229b7e1689a65838e18a18cc3232f99539e3ac4d8466a",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /usr/local/Cellar/node@22/22.22.3/lib/node_modules/npm/bin/npm-cli.js --prefix packages/cli run test:plugin-mcp-runtime",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_package_process",
+      "note": "Immutable retained runtime/publication claims and actual child end."
+    },
+    {
+      "log": "ui-typecheck-13.log",
+      "log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/node_modules/typescript/bin/tsc --noEmit --project packages/control-ui/tsconfig.json",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_or_generated_synthetic",
+      "note": ""
+    },
+    {
+      "log": "ui-browser-21.log",
+      "log_digest": "sha256:d09d9e6242ef78d1ca5f1de5a8b3851db6536aad54cdc1206cdfc1cfbc32576b",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/@playwright/test/cli.js test test/browser/decision-card.spec.mjs test/browser/decision-close-integration.spec.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "actual_browser_synthetic_bridge",
+      "note": "5 tests pass en/de; Chromium outside sandbox; not native Codex/iPad."
+    },
+    {
+      "log": "native-prepare-30.log",
+      "log_digest": "sha256:168762f86024317c960715fc6bb24b9b763dcd2fecccc5202f7afa1b05e638d9",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/native-probes/core-mcp-decision.mjs --dispatcher-root dist/npm/create-agdf --server-root dist/npm/agdf-mcp-server --evidence-dir .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "prepared_candidate",
+      "note": "Eight isolated SD action/text targets, en/de; private experimental App mediation flag does not qualify production."
+    },
+    {
+      "log": "native-preflight-31.log",
+      "log_digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /private/tmp/agdf-tp09-probe-preflight.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_stdio_synthetic_client_no_UI",
+      "note": "Exact full Chat selection and complete immutable document; no business decision."
+    },
+    {
+      "log": "prepare-34.log",
+      "log_digest": "sha256:0e0aee437b6d1032dcbbe92cf1f60212b1b54d74e425996bb8bf9b91e8a0b981",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Final source package candidate; replaces checkpoint 28."
+    },
+    {
+      "log": "generation-sdk-35.log",
+      "log_digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_SDK_TRACE_FINAL.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "Final SDK boundary includes both cross-family UUID-conflict directions; no native claim."
+    },
+    {
+      "log": "native-prepare-35.log",
+      "log_digest": "sha256:2d3af6b49a854cc7a242e79a41eff92fa3db25f3b876775afa688d0ea8d49928",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/native-probes/core-mcp-decision.mjs --dispatcher-root dist/npm/create-agdf --server-root dist/npm/agdf-mcp-server --evidence-dir .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "prepared_candidate",
+      "note": "Eight isolated SD targets only; private experimental App path never production qualification."
+    },
+    {
+      "log": "native-preflight-36.log",
+      "log_digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /private/tmp/agdf-tp09-probe-preflight.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_stdio_synthetic_client_no_UI",
+      "note": "Fresh final candidate supplies full Chat and exact complete document, without decision."
+    },
+    {
+      "log": "ui-build-source-38.log",
+      "log_digest": "sha256:8493084b42db243cc00b1342c641d247e458e870422e9007a1bd0f249e9348d9",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/cli/scripts/plugin-mcp-cockpit-variant-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_regression",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "ui-build-38.log",
+      "log_digest": "sha256:a8123efa1abc7b9d2b00d08cfa4996cb4c4a28ac7eb7ebbd80761fc702f8ce2e",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/scripts/build-mcp.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_UI_build",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "prepare-39.log",
+      "log_digest": "sha256:649a64a28b04cb29d3c1687581f06e67a46646bd3e2a9310ed5e60a40aaf7fc7",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "ui-browser-39.log",
+      "log_digest": "sha256:d2b1fcafa9a13ccd8af9c688d21809b5cd4a1eaaa9b8a103c1ea1b93b329e277",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/@playwright/test/cli.js test test/browser/decision-card.spec.mjs test/browser/decision-close-integration.spec.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "actual_browser_synthetic_bridge",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "ui-browser-brief-41.log",
+      "log_digest": "sha256:06f7663f2550c7af2ce7c9ac8879b37f3bb0a0b002747a9696c7ecae5e7c80c4",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/@playwright/test/cli.js test test/browser/decision-card.spec.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "actual_browser_synthetic_bridge",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "generation-sdk-40.log",
+      "log_digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_SDK_TRACE_UI_CURRENT.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "native-prepare-40.log",
+      "log_digest": "sha256:04597eafadf7491d69eb797a9915cfa406d35aac5570f0f9d9078f282c0fd174",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/native-probes/core-mcp-decision.mjs --dispatcher-root dist/npm/create-agdf --server-root dist/npm/agdf-mcp-server --evidence-dir .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "prepared_candidate",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "native-preflight-41.log",
+      "log_digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /private/tmp/agdf-tp09-probe-preflight.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_stdio_synthetic_client_no_UI",
+      "note": "Current-source UI build retry. No native qualification or business decision inferred."
+    },
+    {
+      "log": "ui-decision-consequence-43.log",
+      "log_digest": "sha256:262814f5f1d0973952be9e8a5165ab0442f64ec2de938dcf7bfcc7a82856bc82",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/vitest/vitest.mjs run test/decision-card.test.tsx",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "source_regression",
+      "note": "Temporary additional locale key; superseded by 47."
+    },
+    {
+      "log": "ui-build-43.log",
+      "log_digest": "sha256:52124397e979023e3cf98fca56b0fb1779f995ee3c06b91d20c913a91eed7d34",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/scripts/build-mcp.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "actual_UI_build",
+      "note": "Generated locale/catalog mismatch discovered."
+    },
+    {
+      "log": "sync-assets-43.log",
+      "log_digest": "sha256:2de0c7796deac64d64024798c4117a00ed00fb36ca91b21ba762243e07c606de",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/sync-package-assets.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "build_package",
+      "note": "Fresh UI guard refused stale assets."
+    },
+    {
+      "log": "ui-build-44.log",
+      "log_digest": "sha256:adfb2e703542bfcd40b9be4adce7d2cc8a964b72bc86cf05b5c1fd1e31243ea0",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/scripts/build-mcp.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_UI_build",
+      "note": "Intermediate label implementation, superseded."
+    },
+    {
+      "log": "ui-build-45.log",
+      "log_digest": "sha256:bcdf2971d3606909024f47852ca4456d8f1b100a0caa4c611828a81fee9e10fc",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/scripts/build-mcp.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_UI_build",
+      "note": "Intermediate label implementation, superseded."
+    },
+    {
+      "log": "ui-browser-consequence-45.log",
+      "log_digest": "sha256:36c54a69fb971dbef56aa7e99095b7c3d1e31f0201b1fc25901d4abb060942fe",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/@playwright/test/cli.js test test/browser/decision-card.spec.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "actual_browser_synthetic_bridge",
+      "note": "Intermediate bundle only, superseded by 47."
+    },
+    {
+      "log": "prepare-45.log",
+      "log_digest": "sha256:d011c5dfffe050ddbcdb35e4a0e0f026f2be8b2a751daeb5953e614d8fb7720a",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "build_package",
+      "note": "Copilot payload growth guard; extra locale key removed, ceiling unchanged."
+    },
+    {
+      "log": "ui-build-46.log",
+      "log_digest": "sha256:1fb5bd0a5ec06f28e6e930b78449f2698d712270717a33fce60aa5a2bc633de4",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/scripts/build-mcp.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_UI_build",
+      "note": "Intermediate generic-guidance fallback, superseded by existing canonical label."
+    },
+    {
+      "log": "ui-decision-consequence-47.log",
+      "log_digest": "sha256:96cb170fb692fdd2e16c05d04d4c32d58d0fcb6300a3ba2443d84f117a636254",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/vitest/vitest.mjs run test/decision-card.test.tsx",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "source_regression",
+      "note": "29 passing tests; no native claim."
+    },
+    {
+      "log": "ui-build-47.log",
+      "log_digest": "sha256:768c7ac806e052a4e965e074e33197733773ee54ca37b0f0c81ce4a76db76ecb",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/control-ui/scripts/build-mcp.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_UI_build",
+      "note": "Final current source/UI build."
+    },
+    {
+      "log": "ui-browser-consequence-47.log",
+      "log_digest": "sha256:2beb0766e6606bb70573371b1fa1cd933b6b00533cab8cfd8f568ffcebfe4b66",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node node_modules/@playwright/test/cli.js test test/browser/decision-card.spec.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "exit_code": 0,
+      "evidence_class": "actual_browser_synthetic_bridge",
+      "note": "4 Chromium cases en/de; synthetic bridge, not native."
+    },
+    {
+      "log": "prepare-47.log",
+      "log_digest": "sha256:692f650d7949818b5eccf7b2bce712538a9438220d639b29c6b02dbf62e6f50e",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/verify-ci.mjs --profile prepare",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "build_package",
+      "note": "Final build/package/public/portable checks; unchanged budget ceiling."
+    },
+    {
+      "log": "decision-action-48.log",
+      "log_digest": "sha256:ad656a4fe86c812c2901dab54a36f715b92672c06a8eaf0089ecf8d1dbc00951",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/core/test/decision-action-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_regression",
+      "note": "Existing locale owner and decision effects."
+    },
+    {
+      "log": "native-prepare-48.log",
+      "log_digest": "sha256:d333372b62bd9049e3c5358162c88c15bd64bcfb31b7a810f9b375596c913f54",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node scripts/native-probes/core-mcp-decision.mjs --dispatcher-root dist/npm/create-agdf --server-root dist/npm/agdf-mcp-server --evidence-dir .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "prepared_candidate",
+      "note": "E41VnZ eight disposable fixtures; no business approval."
+    },
+    {
+      "log": "native-preflight-49.log",
+      "log_digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node /private/tmp/agdf-tp09-probe-preflight.mjs",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_stdio_synthetic_client_no_UI",
+      "note": "Full Chat and complete exact document access; business state unchanged."
+    },
+    {
+      "log": "generation-sdk-49.log",
+      "log_digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command": "AGDF_GENERATION_TRACE_PATH=\".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-09/GENERATION_SDK_TRACE_UI_49.json\" /usr/local/Cellar/node@22/22.22.3/bin/node packages/mcp-server/test/generation.test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "actual_owned_process_synthetic_host",
+      "note": "Final current candidate source/build; owned children and SDK facade. No native Host replacement qualification."
+    },
+    {
+      "log": "dispatch-revision-50.log",
+      "log_digest": "sha256:9ab956c713fdb37e55c3d1d5e2e283cc376c09f3ce8931c364b7cc90fff44046",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/cli/scripts/skill-dispatch-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_contract",
+      "note": "Before source reopening; retained evidence requiring renewed TP applicability."
+    },
+    {
+      "log": "dispatch-contract-52.log",
+      "log_digest": "sha256:b21c6f02489adb12334367d82a5b4ee2efc273974be1d5f8c962a0e2a81b74e8",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/cli/scripts/skill-dispatch-function-contract-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "source_contract",
+      "note": "Before source reopening; retained evidence requiring renewed TP applicability."
+    },
+    {
+      "log": "dispatch-packaged-52.log",
+      "log_digest": "sha256:8664c483b6b27c573ec47a239e1ccbc5d43182579d00ae3f9c11d269bb5a1641",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/cli/scripts/prd-definition-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 1,
+      "evidence_class": "generated_package_contract",
+      "note": "Before source reopening; retained evidence requiring renewed TP applicability."
+    },
+    {
+      "log": "dispatch-packaged-53.log",
+      "log_digest": "sha256:29df7ded02263626709b5401b55dd703ef09602ad7710a93fee1278c2ed9f870",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node packages/cli/scripts/prd-definition-test.js",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "exit_code": 0,
+      "evidence_class": "generated_package_contract",
+      "note": "Before source reopening; retained evidence requiring renewed TP applicability."
+    }
+  ],
+  "all_logs": [
+    {
+      "log": "closeout-29.log",
+      "digest": "sha256:7b182ed879c57014e3c53c816cec0d44f93a1bb4fdb58ac45b5e6deef8fd84a7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "command-contract.log",
+      "digest": "sha256:ec5c3c7e9acc1ff7ef018360c92557ee67993de1ee34d84eb84fc0db321b8b9f",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "command-service-23.log",
+      "digest": "sha256:8dc6924c6a0682018a562fcdaf4862e79b1a8899ffc315915f8924a4b8239d3d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "control-inspect.log",
+      "digest": "sha256:eca9f4f76d01d9f28ee46047d5e6de5147bc6ef37f3ae48c70fa6c29d17385a9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "core-flow-13.log",
+      "digest": "sha256:ed2ce1bfe3d6afd5b090ea2d62cceca6dd4de88b59b51abe7d1b49d62b8de9a2",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "decision-action-test.js.log",
+      "digest": "sha256:ad656a4fe86c812c2901dab54a36f715b92672c06a8eaf0089ecf8d1dbc00951",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "decision-action.log",
+      "digest": "sha256:4103ec02666ff507934dd7bf80b62f2877c067f3fa5e9aed284be9ae0112b994",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "decision-resource.log",
+      "digest": "sha256:97c1432fc291c8a91bd925bdc1d96dd5354e37eb1ef76d43d1aa7a05833a895d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-contract-50.log",
+      "digest": "sha256:62b70775875a35ab5ef9167e621cb062cf794d29b13b345b2e2406f96dd11a9c",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-contract-52.log",
+      "digest": "sha256:b21c6f02489adb12334367d82a5b4ee2efc273974be1d5f8c962a0e2a81b74e8",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-generate-50.log",
+      "digest": "sha256:c8aed67dea7cae1625b90379999b847814ddf43b8a3cbeb36c4d4d997888e9d5",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-generate-51.log",
+      "digest": "sha256:c8aed67dea7cae1625b90379999b847814ddf43b8a3cbeb36c4d4d997888e9d5",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-packaged-52.log",
+      "digest": "sha256:8664c483b6b27c573ec47a239e1ccbc5d43182579d00ae3f9c11d269bb5a1641",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-packaged-53.log",
+      "digest": "sha256:29df7ded02263626709b5401b55dd703ef09602ad7710a93fee1278c2ed9f870",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-prepare-52.log",
+      "digest": "sha256:541eefa7a0582a95741bacb2b7cb9eda5eedfd7a14b6e5237326c9f4364909db",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-revision-50.log",
+      "digest": "sha256:9ab956c713fdb37e55c3d1d5e2e283cc376c09f3ce8931c364b7cc90fff44046",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "document-recovery-22.log",
+      "digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "early-prd-27.log",
+      "digest": "sha256:3ae0cb9e3b0bb9bccf17c4bb6f6c5f5279be116015d79a9ee9501de6958c723b",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "early-ur-27.log",
+      "digest": "sha256:73b88493c99a5c7ab0a29f8568cdee59c591f31ff8719a971e87425d354f7b6f",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generate-10.log",
+      "digest": "sha256:e34d0fd1f99f948a22e0ddbe0a6a73ea6386bb8a61f4288344a87988757d80a6",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generate-12.log",
+      "digest": "sha256:08e6755ee87ecbce1f046986bbbc6be9eaace1664d9031cb425140c6a04de0b0",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generate-17.log",
+      "digest": "sha256:9d5c407ddfc76c7fede7b825f4021dcf1875b3840a6ba362a82b55c9e084690f",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generate-22.log",
+      "digest": "sha256:efe40114634daa900aa54c29c56594ffd673c2e295f723c82305a416116a334f",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generate-27.log",
+      "digest": "sha256:056862d484b13737af56b26d301c554a52cdb1c152ef0ed8951af476a567196c",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-actual-11.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-actual.log",
+      "digest": "sha256:97f878ddf1cc1b5276fb43d7910e0ca90b623704361d1a5e74e57099f96dd866",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-extended-26.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-faults-13.log",
+      "digest": "sha256:60617f4db1c80ec41122894355eab7814c187704f6d02db85623aff5033fabe8",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-integrated-18.log",
+      "digest": "sha256:0e2be16a6393e61c63596c3647b0d46a711f27df73e8c2f16d1dc3b5c59edabf",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-integrated-19.log",
+      "digest": "sha256:2209bcb765b3fd7a9afa18c8d244e7871f887e69afe3357de2092e3adcd71fe9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-integrated-24.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-sdk-30.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "interaction-24.log",
+      "digest": "sha256:1c3e1a98c51a6b00d8e61d2f15e3eb8a00b5f0a0c09b6cd252745c43f0f356e7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-flow-24.log",
+      "digest": "sha256:775127df1afcd76e4c3beca36df272c18a9130c6057c2543ef7144f80bca6682",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-lifecycle-test.js.log",
+      "digest": "sha256:7791aa224f92b412417c87826c13989998f386df5a245fc789261db94c2c9fc0",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-lifecycle.log",
+      "digest": "sha256:ea06e595b0e09f3ad17321dae0a30d6ca3a41723389f2dd03eca0ab82fa6a989",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-live-protocol-13.log",
+      "digest": "sha256:97c1432fc291c8a91bd925bdc1d96dd5354e37eb1ef76d43d1aa7a05833a895d",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-revision-25.log",
+      "digest": "sha256:3c888fc4a212f849ce630aac083582aa8ae026011d135fa61bb92f5c66674df4",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-revision-30.log",
+      "digest": "sha256:2890ab5be3ea3ac60d6d713896dd9e5558e8182b7fa32d264f9ffd64a8a7cea0",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-runtime-retention-test.js.log",
+      "digest": "sha256:44a5e6ead3202e2fe514f0d4c5cd5839f5e67de2e9f6214c9cf84e440c6e44e1",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-structured-25.log",
+      "digest": "sha256:a1a5f3479e4ed4f1fa7ab3f3c8642edba52d480ddd01d32f594fd687aaac25f0",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-preflight-31.log",
+      "digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-prepare-30.log",
+      "digest": "sha256:168762f86024317c960715fc6bb24b9b763dcd2fecccc5202f7afa1b05e638d9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "package-lifecycle-24.log",
+      "digest": "sha256:46ce6de133ad15caca4229b7e1689a65838e18a18cc3232f99539e3ac4d8466a",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "plugin-mcp-runtime-test.js.log",
+      "digest": "sha256:c80edd280b4cf0c563c4aef4f9f7a936cce8024859e9c0c9854efefe19e19648",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "plugin-runtime.log",
+      "digest": "sha256:d87796664a1e53ef540713a19e910ef3602ed2432bfa78042847f3e83eaf0149",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "prepare-10.log",
+      "digest": "sha256:a75b8a32f333c31a5a2b5e54f1346aa828a6d36ba6ff5994f9eddda597d32ee7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-12.log",
+      "digest": "sha256:10ebbe9f0b73aa39b97135a083289cd4f2ce9ec8e542f7240c762e41ebff37c1",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-17.log",
+      "digest": "sha256:5e490e644a38c6622bd328d7db007c4b1c49ec76581a7facafb31fd945f79b9e",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-23.log",
+      "digest": "sha256:3e48211191b9b5458a772ea355d4f086dc60010775d5608c3aa2f7c4daaf2f04",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-28.log",
+      "digest": "sha256:d2502d0909043c2a06e240fa19c3964efc560048e0a8901cd72dd0e456697480",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "presentation-decision-test.js.log",
+      "digest": "sha256:7f799c07c53d04addfa7e48d5792c414ed8120c752946eadcb20421b754560ee",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "presentation-decision.log",
+      "digest": "sha256:7f799c07c53d04addfa7e48d5792c414ed8120c752946eadcb20421b754560ee",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "presentation-document-test.js.log",
+      "digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "qualification.log",
+      "digest": "sha256:c1454301794ff050e5198b846a0ec0afc0015d705bd14535c72380119c81188e",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "remote-document.log",
+      "digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "runtime-retention.log",
+      "digest": "sha256:44a5e6ead3202e2fe514f0d4c5cd5839f5e67de2e9f6214c9cf84e440c6e44e1",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "source-revision-29.log",
+      "digest": "sha256:e8d37967cab02b825ea4b7310f4ab538f116415f159720aba06866f60f008ff1",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-browser-19.log",
+      "digest": "sha256:52519382c9495fdc7b6293c59976e7b3ba1d9aa99bc0a24aa1d18780959c98d9",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-browser-20.log",
+      "digest": "sha256:3d7af7c36099f43af665348d8bf4d470235a686c99a823abeba04e4fe388bef3",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-browser-21.log",
+      "digest": "sha256:d09d9e6242ef78d1ca5f1de5a8b3851db6536aad54cdc1206cdfc1cfbc32576b",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-decisions-15.log",
+      "digest": "sha256:ae360412fd1e7da9112469871f4c4871b57d9e81c5bab5cafdc00394ee99d206",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-decisions-16.log",
+      "digest": "sha256:9d97d45c3375c7d1c77000eda99f4c4821df2923459cc9353bd9ea05207932d2",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-typecheck-13.log",
+      "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-unit-13.log",
+      "digest": "sha256:59b93d4cf0600232c48b95d07b7d9514997d802d9e9bd1ea689abb21f3ac0bec",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-unit-14.log",
+      "digest": "sha256:313dfd6427d629837ce27c0dd830df97292c85765313c4bb387a426d65c40902",
+      "command_and_exit_recovered": false
+    }
+  ],
+  "limits": "Logs without recovered exact command/exit remain retained diagnostics, not claimed fresh passing commands. Native observations and model performance are separate and not yet measured.",
+  "authorizes": false,
+  "retained_logs": [
+    {
+      "log": "closeout-29.log",
+      "digest": "sha256:7b182ed879c57014e3c53c816cec0d44f93a1bb4fdb58ac45b5e6deef8fd84a7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "command-contract.log",
+      "digest": "sha256:ec5c3c7e9acc1ff7ef018360c92557ee67993de1ee34d84eb84fc0db321b8b9f",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "command-service-23.log",
+      "digest": "sha256:8dc6924c6a0682018a562fcdaf4862e79b1a8899ffc315915f8924a4b8239d3d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "control-inspect.log",
+      "digest": "sha256:eca9f4f76d01d9f28ee46047d5e6de5147bc6ef37f3ae48c70fa6c29d17385a9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "core-flow-13.log",
+      "digest": "sha256:ed2ce1bfe3d6afd5b090ea2d62cceca6dd4de88b59b51abe7d1b49d62b8de9a2",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "decision-action-test.js.log",
+      "digest": "sha256:ad656a4fe86c812c2901dab54a36f715b92672c06a8eaf0089ecf8d1dbc00951",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "decision-action.log",
+      "digest": "sha256:4103ec02666ff507934dd7bf80b62f2877c067f3fa5e9aed284be9ae0112b994",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "decision-resource.log",
+      "digest": "sha256:97c1432fc291c8a91bd925bdc1d96dd5354e37eb1ef76d43d1aa7a05833a895d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-contract-50.log",
+      "digest": "sha256:62b70775875a35ab5ef9167e621cb062cf794d29b13b345b2e2406f96dd11a9c",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-contract-52.log",
+      "digest": "sha256:b21c6f02489adb12334367d82a5b4ee2efc273974be1d5f8c962a0e2a81b74e8",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-generate-50.log",
+      "digest": "sha256:c8aed67dea7cae1625b90379999b847814ddf43b8a3cbeb36c4d4d997888e9d5",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-generate-51.log",
+      "digest": "sha256:c8aed67dea7cae1625b90379999b847814ddf43b8a3cbeb36c4d4d997888e9d5",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-packaged-52.log",
+      "digest": "sha256:8664c483b6b27c573ec47a239e1ccbc5d43182579d00ae3f9c11d269bb5a1641",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-packaged-53.log",
+      "digest": "sha256:29df7ded02263626709b5401b55dd703ef09602ad7710a93fee1278c2ed9f870",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "dispatch-prepare-52.log",
+      "digest": "sha256:541eefa7a0582a95741bacb2b7cb9eda5eedfd7a14b6e5237326c9f4364909db",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "dispatch-revision-50.log",
+      "digest": "sha256:9ab956c713fdb37e55c3d1d5e2e283cc376c09f3ce8931c364b7cc90fff44046",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "document-recovery-22.log",
+      "digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "early-prd-27.log",
+      "digest": "sha256:3ae0cb9e3b0bb9bccf17c4bb6f6c5f5279be116015d79a9ee9501de6958c723b",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "early-ur-27.log",
+      "digest": "sha256:73b88493c99a5c7ab0a29f8568cdee59c591f31ff8719a971e87425d354f7b6f",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generate-10.log",
+      "digest": "sha256:e34d0fd1f99f948a22e0ddbe0a6a73ea6386bb8a61f4288344a87988757d80a6",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generate-12.log",
+      "digest": "sha256:08e6755ee87ecbce1f046986bbbc6be9eaace1664d9031cb425140c6a04de0b0",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generate-17.log",
+      "digest": "sha256:9d5c407ddfc76c7fede7b825f4021dcf1875b3840a6ba362a82b55c9e084690f",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generate-22.log",
+      "digest": "sha256:efe40114634daa900aa54c29c56594ffd673c2e295f723c82305a416116a334f",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generate-27.log",
+      "digest": "sha256:056862d484b13737af56b26d301c554a52cdb1c152ef0ed8951af476a567196c",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generate-33.log",
+      "digest": "sha256:d1a52e2ed02418fbfe61356ac0ac3b3d30c4957116dceb96d09ae460eec6cf7a",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-actual-11.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-actual.log",
+      "digest": "sha256:97f878ddf1cc1b5276fb43d7910e0ca90b623704361d1a5e74e57099f96dd866",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-extended-26.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-faults-13.log",
+      "digest": "sha256:60617f4db1c80ec41122894355eab7814c187704f6d02db85623aff5033fabe8",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-integrated-18.log",
+      "digest": "sha256:0e2be16a6393e61c63596c3647b0d46a711f27df73e8c2f16d1dc3b5c59edabf",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "generation-integrated-19.log",
+      "digest": "sha256:2209bcb765b3fd7a9afa18c8d244e7871f887e69afe3357de2092e3adcd71fe9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-integrated-24.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-sdk-30.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-sdk-35.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "generation-sdk-40.log",
+      "digest": "sha256:0942ab38f49532a08c77fa7c0751ab5838beeed3eed0d0c072e900e11ff26e29",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "interaction-24.log",
+      "digest": "sha256:1c3e1a98c51a6b00d8e61d2f15e3eb8a00b5f0a0c09b6cd252745c43f0f356e7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-contract-32.log",
+      "digest": "sha256:24aba1d79b56c0d4a247f3dafd071aa1e5a801045c35996526b716d6067e9c3b",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-flow-24.log",
+      "digest": "sha256:775127df1afcd76e4c3beca36df272c18a9130c6057c2543ef7144f80bca6682",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-lifecycle-test.js.log",
+      "digest": "sha256:7791aa224f92b412417c87826c13989998f386df5a245fc789261db94c2c9fc0",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-lifecycle.log",
+      "digest": "sha256:ea06e595b0e09f3ad17321dae0a30d6ca3a41723389f2dd03eca0ab82fa6a989",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-live-protocol-13.log",
+      "digest": "sha256:97c1432fc291c8a91bd925bdc1d96dd5354e37eb1ef76d43d1aa7a05833a895d",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-package-32.log",
+      "digest": "sha256:0854ef5b6df5cd43f2c5a9923128b9a8006ed669264f7080eba066b8c46026a3",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-protocol-32.log",
+      "digest": "sha256:8c7c420cd1181f3a41dcfd502499a4a469fceafcb7391a16ed510e0a5a5cd3d4",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-revision-25.log",
+      "digest": "sha256:3c888fc4a212f849ce630aac083582aa8ae026011d135fa61bb92f5c66674df4",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-revision-30.log",
+      "digest": "sha256:2890ab5be3ea3ac60d6d713896dd9e5558e8182b7fa32d264f9ffd64a8a7cea0",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "mcp-runtime-retention-test.js.log",
+      "digest": "sha256:44a5e6ead3202e2fe514f0d4c5cd5839f5e67de2e9f6214c9cf84e440c6e44e1",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-safety-32.log",
+      "digest": "sha256:f37eb97c7046fbe0359f853c1744590bc445cd83c621ede058ce5d8083120e78",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-safety-33.log",
+      "digest": "sha256:b36df0a5ab940c39140807bc097e83df092666f0ff273aed37c075c30bdf1f85",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-safety-34.log",
+      "digest": "sha256:43b9b524a3313df56f26de66c43c6b177788cc116e9ca01951980fa2f068792c",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "mcp-structured-25.log",
+      "digest": "sha256:a1a5f3479e4ed4f1fa7ab3f3c8642edba52d480ddd01d32f594fd687aaac25f0",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-preflight-31.log",
+      "digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-preflight-36.log",
+      "digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-preflight-41.log",
+      "digest": "sha256:869a10183eeb2a54015c90d882afdad8bfecdfb65ed7963173d2384bad40ba9d",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-prepare-30.log",
+      "digest": "sha256:168762f86024317c960715fc6bb24b9b763dcd2fecccc5202f7afa1b05e638d9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-prepare-35.log",
+      "digest": "sha256:2d3af6b49a854cc7a242e79a41eff92fa3db25f3b876775afa688d0ea8d49928",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "native-prepare-40.log",
+      "digest": "sha256:04597eafadf7491d69eb797a9915cfa406d35aac5570f0f9d9078f282c0fd174",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "package-lifecycle-24.log",
+      "digest": "sha256:46ce6de133ad15caca4229b7e1689a65838e18a18cc3232f99539e3ac4d8466a",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "plugin-mcp-runtime-test.js.log",
+      "digest": "sha256:c80edd280b4cf0c563c4aef4f9f7a936cce8024859e9c0c9854efefe19e19648",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "plugin-runtime.log",
+      "digest": "sha256:d87796664a1e53ef540713a19e910ef3602ed2432bfa78042847f3e83eaf0149",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "prepare-10.log",
+      "digest": "sha256:a75b8a32f333c31a5a2b5e54f1346aa828a6d36ba6ff5994f9eddda597d32ee7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-12.log",
+      "digest": "sha256:10ebbe9f0b73aa39b97135a083289cd4f2ce9ec8e542f7240c762e41ebff37c1",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-17.log",
+      "digest": "sha256:5e490e644a38c6622bd328d7db007c4b1c49ec76581a7facafb31fd945f79b9e",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-23.log",
+      "digest": "sha256:3e48211191b9b5458a772ea355d4f086dc60010775d5608c3aa2f7c4daaf2f04",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-28.log",
+      "digest": "sha256:d2502d0909043c2a06e240fa19c3964efc560048e0a8901cd72dd0e456697480",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-34.log",
+      "digest": "sha256:0e0aee437b6d1032dcbbe92cf1f60212b1b54d74e425996bb8bf9b91e8a0b981",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "prepare-39.log",
+      "digest": "sha256:649a64a28b04cb29d3c1687581f06e67a46646bd3e2a9310ed5e60a40aaf7fc7",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "presentation-decision-test.js.log",
+      "digest": "sha256:7f799c07c53d04addfa7e48d5792c414ed8120c752946eadcb20421b754560ee",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "presentation-decision.log",
+      "digest": "sha256:7f799c07c53d04addfa7e48d5792c414ed8120c752946eadcb20421b754560ee",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "presentation-document-test.js.log",
+      "digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "qualification.log",
+      "digest": "sha256:c1454301794ff050e5198b846a0ec0afc0015d705bd14535c72380119c81188e",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "remote-document.log",
+      "digest": "sha256:ab83b9856c32c86a9a5220ced1e858b24570b5b91fd0e61dac44fb9ee7e7f7a6",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "runtime-retention.log",
+      "digest": "sha256:44a5e6ead3202e2fe514f0d4c5cd5839f5e67de2e9f6214c9cf84e440c6e44e1",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "source-revision-29.log",
+      "digest": "sha256:e8d37967cab02b825ea4b7310f4ab538f116415f159720aba06866f60f008ff1",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-browser-19.log",
+      "digest": "sha256:52519382c9495fdc7b6293c59976e7b3ba1d9aa99bc0a24aa1d18780959c98d9",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-browser-20.log",
+      "digest": "sha256:3d7af7c36099f43af665348d8bf4d470235a686c99a823abeba04e4fe388bef3",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-browser-21.log",
+      "digest": "sha256:d09d9e6242ef78d1ca5f1de5a8b3851db6536aad54cdc1206cdfc1cfbc32576b",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-browser-39.log",
+      "digest": "sha256:d2b1fcafa9a13ccd8af9c688d21809b5cd4a1eaaa9b8a103c1ea1b93b329e277",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-browser-brief-41.log",
+      "digest": "sha256:06f7663f2550c7af2ce7c9ac8879b37f3bb0a0b002747a9696c7ecae5e7c80c4",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-build-38.log",
+      "digest": "sha256:a8123efa1abc7b9d2b00d08cfa4996cb4c4a28ac7eb7ebbd80761fc702f8ce2e",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-build-source-38.log",
+      "digest": "sha256:8493084b42db243cc00b1342c641d247e458e870422e9007a1bd0f249e9348d9",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-decisions-15.log",
+      "digest": "sha256:ae360412fd1e7da9112469871f4c4871b57d9e81c5bab5cafdc00394ee99d206",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-decisions-16.log",
+      "digest": "sha256:9d97d45c3375c7d1c77000eda99f4c4821df2923459cc9353bd9ea05207932d2",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-typecheck-13.log",
+      "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_and_exit_recovered": true
+    },
+    {
+      "log": "ui-unit-13.log",
+      "digest": "sha256:59b93d4cf0600232c48b95d07b7d9514997d802d9e9bd1ea689abb21f3ac0bec",
+      "command_and_exit_recovered": false
+    },
+    {
+      "log": "ui-unit-14.log",
+      "digest": "sha256:313dfd6427d629837ce27c0dd830df97292c85765313c4bb387a426d65c40902",
+      "command_and_exit_recovered": false
+    }
+  ]
+}

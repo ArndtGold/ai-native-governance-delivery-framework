@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_native_defect_and_source_build_fix",
+  "affected_test_presentation": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+  "old_candidate_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj",
+  "old_resource_digest": "sha256:9daa4741ab4bd0dd0bbfafe79ff3f71238258f0f6e77aa7caaf129ac479c51b3",
+  "actual_native_heading": "Synthetic saved-filter need",
+  "expected_exact_metadata_heading": "Lösungsdesign prüfen und entscheiden",
+  "correct_document_binding": true,
+  "native_decision_observed": false,
+  "cause": "The assembly reader validated HTML bytes and resource manifest without a current UI source binding. dist-mcp retained an older DecisionCard despite current source and correct new Core metadata.",
+  "fix_owner": "existing scripts/cockpit-ui-build.mjs/build-mcp.mjs",
+  "fix": "Both generated resources carry the same exact source-input digest, checked by every existing build reader. Missing/stale source binding rejects assembly; source changes during build reject publication. Immutable loaded candidate was retained, a fresh candidate prepared.",
+  "regression_proof": [
+    "ui-build-source-38.log",
+    "ui-browser-39.log",
+    "ui-browser-brief-41.log"
+  ],
+  "current_resource": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 776592,
+    "digest": "sha256:7333d84c62d06487a793f03fdd64574a900988d815ff1de8a0f91daa8441d677",
+    "source_digest": "sha256:a5ee30e6882367813ee7025fdbf099424a77e2765d3814a14947c460960df909"
+  },
+  "revalidated_generation_log": "generation-sdk-40.log",
+  "native_retry_requires_restart": true,
+  "native_qualified": false,
+  "authorizes": false
+}

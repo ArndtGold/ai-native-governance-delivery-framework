@@ -1,0 +1,337 @@
+{
+  "status": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "inspect_result",
+    "terminal": false,
+    "authorizes": false,
+    "operation": "operation-status",
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/node_modules/create-agdf/",
+      "runtime_digest": "6add9571ea495ea1b0e69e927927f9fca5baf299e92c3a59b36606c9f40959e1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "report": {
+      "schema_version": "1",
+      "run_id": "native-de-approve",
+      "operation_id": "65889a69-ed65-4a5e-aca5-8e68f2f12ad5",
+      "authorizes": false,
+      "status": "recorded",
+      "family": "approval.record",
+      "request_digest": "sha256:ebf456fe655a48bdb2d0e631ed4aa4cb30081971d60a52ebe9aab506a2a35907",
+      "receipt": {
+        "action": "record_gate_approval",
+        "assurance": {
+          "independent_human_proof": "unavailable",
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply"
+        },
+        "binding": {
+          "expected_revision_id": "d21dfe66-02d9-4d92-8280-4de6159c4f1f",
+          "gate": "SD",
+          "presentation_id": "239c589e-ab86-49ab-aead-7a06a3059ba0",
+          "run_id": "native-de-approve",
+          "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f"
+        },
+        "command_digest": "sha256:ebf456fe655a48bdb2d0e631ed4aa4cb30081971d60a52ebe9aab506a2a35907",
+        "created_at": "2026-10-11T17:54:32.792Z",
+        "effect": {
+          "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "approval": "Approval: SD",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+          "next_gate_after_approval": "TP",
+          "presentation_digest": "sha256:9db0cdd5c48572b7c9583198f2c244cf3c187bc7340c3ff66303894178579606",
+          "previous_revision_id": "d21dfe66-02d9-4d92-8280-4de6159c4f1f",
+          "resulting_revision_id": "c4aad3ac-196b-48f6-9a4b-c8da09ebe0fc",
+          "revision": 8
+        },
+        "operation_id": "65889a69-ed65-4a5e-aca5-8e68f2f12ad5",
+        "producer": {
+          "contract": "approval-service/1",
+          "package_version": "0.14.5"
+        },
+        "request_digest": "sha256:31f2cb364c7c001d44ca56451f5520546f8412db0bf0d581fa221292a2bf0490",
+        "schema_version": "2"
+      },
+      "historical_effect": true,
+      "current_revision_id": "c4aad3ac-196b-48f6-9a4b-c8da09ebe0fc",
+      "pending": null,
+      "expected_revision_id": "d21dfe66-02d9-4d92-8280-4de6159c4f1f"
+    },
+    "presentation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "consume_report_and_continue",
+      "source": "report",
+      "allow_surrounding_text": true,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 5.227,
+      "target_ms": 0.369,
+      "control_ms": 6.813,
+      "render_ms": 0,
+      "total_ms": 12.429
+    },
+    "diagnostics": []
+  },
+  "user_report": "Freigabe erfolgt, alles ok",
+  "visible_status": "Entscheidung gespeichert.",
+  "actions_disabled": true,
+  "human_observation_interpretation": "User reports instructed action and overall success; no separate technical consent observation yet.",
+  "next_change_binding": {
+    "presentation_language": "de",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+    "target_source": "explicit_target",
+    "run_id": "native-de-request-change",
+    "expected_revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b"
+  },
+  "next_change_prepared": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "b081a023-d32b-4cfc-b7d2-246b91a2d9a6",
+    "request_digest": "sha256:27c8a167d8072846a001d8208a39c09d9bbfe53de774149a2792bd5a9ec14681",
+    "binding": {
+      "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f",
+      "run_id": "native-de-request-change",
+      "expected_revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 3,
+      "presentation_id": "b081a023-d32b-4cfc-b7d2-246b91a2d9a6",
+      "operation_id": "b081a023-d32b-4cfc-b7d2-246b91a2d9a6",
+      "request_digest": "sha256:27c8a167d8072846a001d8208a39c09d9bbfe53de774149a2792bd5a9ec14681",
+      "created_at": "2026-10-11T17:56:07.795Z",
+      "run_id": "native-de-request-change",
+      "gate": "SD",
+      "revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b",
+      "content_digest": "sha256:e6692e8651d1cec37e00c3189a7b1d198417b4f35ce1947ed3ab03d7d9e5c53f",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:6540e8f4bf5e375a7ae204a0641b95f168167e199597e9465fca9997459ec359",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "b081a023-d32b-4cfc-b7d2-246b91a2d9a6",
+      "operation_id": "b081a023-d32b-4cfc-b7d2-246b91a2d9a6",
+      "request_digest": "sha256:27c8a167d8072846a001d8208a39c09d9bbfe53de774149a2792bd5a9ec14681",
+      "created_at": "2026-10-11T17:56:07.795Z",
+      "run_id": "native-de-request-change",
+      "gate": "SD",
+      "revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b",
+      "content_digest": "sha256:e6692e8651d1cec37e00c3189a7b1d198417b4f35ce1947ed3ab03d7d9e5c53f",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:6540e8f4bf5e375a7ae204a0641b95f168167e199597e9465fca9997459ec359",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342,
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um die vorgelegte Fassung vollständig im Chat zu lesen. Du kannst anschließend freigeben, eine Änderung mit Kommentar anfordern oder ablehnen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-request-change` · Lösungsdesign · Revision: `4796414f-6a42-4dad-a211-4d557f2d488b`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "summary": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.",
+      "companion_text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um die vorgelegte Fassung vollständig im Chat zu lesen. Du kannst anschließend freigeben, eine Änderung mit Kommentar anfordern oder ablehnen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-request-change` · Lösungsdesign · Revision: `4796414f-6a42-4dad-a211-4d557f2d488b`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "record_digest": "sha256:951d2f04ae6f95470158f6ebf228fefe910bc4c58b84c0dc0d3934f0a7126ae1",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available",
+    "presentation_delivery": {
+      "mode": "native_plus_chat",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um die vorgelegte Fassung vollständig im Chat zu lesen. Du kannst anschließend freigeben, eine Änderung mit Kommentar anfordern oder ablehnen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-request-change` · Lösungsdesign · Revision: `4796414f-6a42-4dad-a211-4d557f2d488b`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "presentation_id": "b081a023-d32b-4cfc-b7d2-246b91a2d9a6",
+      "revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_language": "en",
+      "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+      "authorizes": false
+    }
+  },
+  "native_app_call_result": {
+    "at": "2026-10-11T17:54:33.250Z",
+    "event": "tool_result",
+    "evidence_class": "native_probe_unclassified",
+    "producer": {
+      "process_id": 95605,
+      "server_started_at": "2026-10-11T17:49:15.500Z"
+    },
+    "data": {
+      "name": "agdf_decision_action",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "65889a69-ed65-4a5e-aca5-8e68f2f12ad5",
+        "receipt": {
+          "action": "record_gate_approval",
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "binding": {
+            "expected_revision_id": "d21dfe66-02d9-4d92-8280-4de6159c4f1f",
+            "gate": "SD",
+            "presentation_id": "239c589e-ab86-49ab-aead-7a06a3059ba0",
+            "run_id": "native-de-approve",
+            "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f"
+          },
+          "command_digest": "sha256:ebf456fe655a48bdb2d0e631ed4aa4cb30081971d60a52ebe9aab506a2a35907",
+          "created_at": "2026-10-11T17:54:32.792Z",
+          "effect": {
+            "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+            "approval": "Approval: SD",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "gate": "SD",
+            "material_sources": [
+              {
+                "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                "type": "UR"
+              },
+              {
+                "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                "type": "PRD"
+              },
+              {
+                "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                "type": "SD"
+              }
+            ],
+            "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+            "next_gate_after_approval": "TP",
+            "presentation_digest": "sha256:9db0cdd5c48572b7c9583198f2c244cf3c187bc7340c3ff66303894178579606",
+            "previous_revision_id": "d21dfe66-02d9-4d92-8280-4de6159c4f1f",
+            "resulting_revision_id": "c4aad3ac-196b-48f6-9a4b-c8da09ebe0fc",
+            "revision": 8
+          },
+          "operation_id": "65889a69-ed65-4a5e-aca5-8e68f2f12ad5",
+          "producer": {
+            "contract": "approval-service/1",
+            "package_version": "0.14.5"
+          },
+          "request_digest": "sha256:31f2cb364c7c001d44ca56451f5520546f8412db0bf0d581fa221292a2bf0490",
+          "schema_version": "2"
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "c4aad3ac-196b-48f6-9a4b-c8da09ebe0fc",
+          "lifecycle": "active",
+          "gate": "TP",
+          "status": "open",
+          "missing_approval": "Approval: TP",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "prepare_gate_artifact",
+            "gate": "TP",
+            "skill_id": "gate-check",
+            "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+            "source_artifacts": [
+              ".agdf/control/artefacts/native-de-approve/PRD.md",
+              ".agdf/control/artefacts/native-de-approve/SD.md"
+            ]
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  },
+  "one_observed_action_call": true,
+  "saved_at": "2026-10-11T17:57:41.497800+00:00",
+  "authorizes": false,
+  "human_keyboard_resize_scroll_report": "Freigabe erfolgt, alles ok",
+  "host_permission_prompt_report": "Keine Toolabfrage",
+  "user_host_views_closed_report": "Freigabekarte geschlossen",
+  "cua_tab_inventory_after_close": [],
+  "backend_automatic_close_observed": false,
+  "close_absence_limitation": "No automatic close request in current observer snapshot; tab closure is distinct from Core lifecycle end."
+}

@@ -1,0 +1,56 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-10T20:11:26.019182+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "implementation_revision_id": "2b1b6d04-eceb-4a7e-bc56-e92344b934ae",
+  "evidence_class": "source_and_actual_stdio_regression_not_native_qualification",
+  "cause": "Shared reader intentionally rotates snapshot/resource selectors; decision App immutable presentation retains initial selectors. First read available, subsequent read resource_denied.",
+  "owner": "Core createDecisionSessionService, bounded private cursor per exact decision view",
+  "implementation": "Retain immutable presentation alias and current issued selector pair; forward only current cursor to existing reader. Serialize reads; enforce immutable gate/revision/digest and retirement. No new endpoint, generic reader contract or authority.",
+  "source_files": [
+    {
+      "path": "packages/core/lib/control-inspect/decision-session.js",
+      "digest": "sha256:0261a080bf6dc48e4cdd86af9e88469a61adff6309e5ea5cd3688a8475bf08ed"
+    },
+    {
+      "path": "packages/core/test/decision-action-test.js",
+      "digest": "sha256:9d9eed9eaf009beb486aefb888d885caaf24c51b8e5862dfaae9a1955aa79568"
+    },
+    {
+      "path": "packages/mcp-server/test/decision-resource.test.js",
+      "digest": "sha256:d8f3d7ea8633ca9e930f4797107636522e7b837f12238860ecc2733a5259248c"
+    }
+  ],
+  "checks": [
+    {
+      "command": "node packages/core/test/decision-action-test.js",
+      "exit_code": 0,
+      "checks": "Repeated exact read, foreign selectors, current issued selectors, overlap busy, closed in-flight read expired, changed source rejection, replay and opposite actions"
+    },
+    {
+      "command": "node packages/core/test/cockpit-session-test.js",
+      "exit_code": 0,
+      "passed_subtests": 13,
+      "checks": "Existing snapshot rotation, scoped resources, worker and session bounds unchanged"
+    },
+    {
+      "command": "node packages/mcp-server/test/decision-resource.test.js with assembled Codex candidate roots",
+      "exit_code": 0,
+      "checks": "Actual legacy and 2026-07-28 STDIO package payload, repeat original selectors, qualification boundaries and teardown"
+    },
+    {
+      "command": "node /private/tmp/agdf-decision-readcursor-preflight.mjs",
+      "exit_code": 0,
+      "evidence": "READ_CURSOR_CANDIDATE_PREFLIGHT_01.json",
+      "checks": "Exact replacement entrypoint: four reads, resource_denied, close/expired, Run state unchanged"
+    }
+  ],
+  "old_native_bug_evidence": "NATIVE_AUTOMATED_EN_CHANGE_01.json",
+  "replacement_candidate": "NATIVE_PROBE_CANDIDATE.json",
+  "registration": "NATIVE_READ_CURSOR_REGISTRATION_01.json",
+  "protected_checkpoint": "PROTECTED_CHECKPOINT_READ_CURSOR_01.json",
+  "native_qualified": false,
+  "quality_readiness_decision": null,
+  "authorizes": false,
+  "remaining": "Restart/load replacement and actual App repeated document/return. Human keyboard/resize/scroll/permission/closure and remaining locale/gate matrix remain open."
+}

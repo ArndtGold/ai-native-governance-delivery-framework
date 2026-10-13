@@ -3,8 +3,10 @@ import { validateEnvelope, validateData, type ReadTransport } from '../api';
 import type { Envelope } from '../types';
 
 export class CockpitBridge {
-  readonly app = new McpApp({ name: 'AGDF Cockpit', version: '1.0.0' }, {}, { autoResize: true });
+  readonly app: McpApp;
+  constructor(name = 'AGDF Cockpit') { this.app = new McpApp({ name, version: '1.0.0' }, {}, { autoResize: true }); }
   private pending = 0;
+  private closing = new Map<string, ReturnType<McpApp['callServerTool']>>();
   private sessionId = '';
   private resourceRuns = new Map<string, string>();
   get session() { return this.sessionId; }
@@ -15,17 +17,37 @@ export class CockpitBridge {
   async request<T>(action: () => Promise<T>): Promise<T> {
     if (this.pending >= 8) throw Error('busy');
     this.pending += 1;
+    try { return await this.deadline(action); }
+    finally { this.pending -= 1; }
+  }
+  private async deadline<T>(action: () => Promise<T>): Promise<T> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       return await Promise.race([action(), new Promise<never>((_, reject) => {
         timer = setTimeout(() => reject(Error('timeout')), 10_000);
       })]);
-    } finally { clearTimeout(timer); this.pending -= 1; }
+    } finally { clearTimeout(timer); }
+  }
+  private close(session: string, signal?: AbortSignal) {
+    const previous = this.closing.get(session);
+    if (previous) return previous;
+    // Retirement releases existing resources. Reads must not starve it, and
+    // simultaneous lifecycle signals must not dispatch duplicate closes.
+    // The separate lane is bounded and keeps the existing RPC deadline.
+    if (this.closing.size >= 8) throw Error('busy');
+    const pending = this.deadline(() => this.app.callServerTool({ name: 'agdf_cockpit_read',
+      arguments: { operation: 'close', session_id: session } }, { timeout: 10_000, signal }));
+    this.closing.set(session, pending);
+    void pending.finally(() => { if (this.closing.get(session) === pending) this.closing.delete(session); }).catch(() => {});
+    return pending;
   }
   async operation(argumentsValue: Record<string, unknown>, signal?: AbortSignal, boundSession?: string) {
     const session = boundSession ?? this.session;
     if (!this.app.getHostCapabilities()?.serverTools || !session) throw Error('session_invalid');
-    const result = await this.request(() => this.app.callServerTool({ name: 'agdf_cockpit_read', arguments: { ...argumentsValue, session_id: session } }, { timeout: 10_000, signal }));
+    const isClose = argumentsValue.operation === 'close';
+    if (isClose && Object.keys(argumentsValue).length !== 1) throw Error('resource_denied');
+    const result = await (isClose ? this.close(session, signal) : this.request(() => this.app.callServerTool({ name: 'agdf_cockpit_read',
+      arguments: { ...argumentsValue, session_id: session } }, { timeout: 10_000, signal })));
     if ((boundSession === undefined && session !== this.session) || signal?.aborted) throw Error('session_invalid');
     if (result.isError || !result.structuredContent) throw Error('read_failed');
     return result.structuredContent;

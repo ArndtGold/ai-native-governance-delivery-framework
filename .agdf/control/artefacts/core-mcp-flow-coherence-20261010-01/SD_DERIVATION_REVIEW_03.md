@@ -1,0 +1,34 @@
+# Renewed SD derivation review
+
+Date: 2026-10-10
+Reviewer: Codex
+Run: core-mcp-flow-coherence-20261010-01
+Assurance: cooperative semantic derivation review; not independent human-origin proof, implementation or QA.
+Approved product source: PRD.md, sha256:4d876d26b7bcc207bf2b6067ca5d5a1c0acf81999949044c41eedefca1cce2db.
+Destination: renewed SD.md, sha256:6cef01ba44934f991f3e6701e9d386fe084f6c8a3386e5e6d3d060b2c606a619.
+Bound authoring revision: 84b1f182-4b69-4d8f-ae4d-3ee73ff774e3; current SD pointer absent after the supported same-Run UR revision. Initial renewed registration uses update_draft=false; old SD/mapping/review/presentation remain archived history. No old SD response transfers.
+Inputs: exact approved renewed PRD; renewed completed Brownfield Review (86a293190c72446c36d20b69fa55ee93b4f316e449df879e0ed9710e4a8e0f48) and ready UX Intent Definition (84a4b8b360c9be6b200f6e36b4d0644c21cbc9e788b556d35ef7ffa9c05b2404). Analytical inputs do not amend approved acceptance.
+
+## Semantic assessment
+
+The original SDD-001 through SDD-014 retain complete Core-state ownership, semantic routing, bounded command groups, existing writer/receipt authority, strict transaction recovery, structured completion, common authoring interpretation, current/history/unknown evidence and identity-bound qualification. SDD-006 now includes exactly the newly approved early UR-at-SD boundary through its existing shared owner; adapters do not invent another eligibility test. General cockpit reads and draft checks remain separate from the newly required focused decision card.
+
+SDD-015 through SDD-018 realize the renewed card requirements: immutable exact material and larger-document return, three canonical outcomes, same-version locked deduplication and app-only cooperative interaction. The five model-facing groups remain; one facade-only decision transport shares their enabled-effect checks and existing approval/recording owners. There is no second approval ledger or app evaluator. App-only metadata/session possession is explicitly not independent proof of a human gesture; trusted exact text or deliberate native interaction remains the cooperative origin. Actual host behavior must be qualified; fallback does not pass native card acceptance.
+
+Approve delegates the existing exact approval command. Change/comment and reject are clearly proposed bounded extensions to existing run-step evidence/Run Operations recording, not falsely described as already available functions. Both are non-approval decisions on this exact version, with an eligibility guard shared by presentation/evaluator/approval/recording. A new presentation over unchanged rejected material cannot bypass that guard. Actual changed material needs current registration/presentation and another deliberate decision. QA/UAT outcomes route to their actual existing owners; a comment neither invents QA revise nor authorizes upstream source invalidation or closes the Run.
+
+At most one effective decision is checked against canonical gate/version and source binding under Run then Backlog locks, independently of UUID/route. Original-UUID replay returns historical receipt plus separately fresh current state; different-path loser reports a proven recorded outcome or conflict/staleness, never a second approval. Non-approval persistence uses the same transaction responsibility as bounded internal recording; approval retains its own receipt/recovery owner. Session expiry before dispatch blocks execution; expiry/lost response after dispatch cannot promise cancellation. Late results cannot revive retired view state.
+
+The approved PRD's 21 canonical criteria are each present exactly once in the single Acceptance Traceability table. AC-001/002 cover state/semantic operation; AC-003/004 owner contracts and actual recording; AC-005/006 presentation and supported revisions; AC-007/008 receipts/recovery/currentness; AC-009 structured/Quick completion; AC-010/011 current evidence and preserved app behavior; AC-012/013 transport compatibility/identity; AC-014/015 measured whole-chain/foreign/localized protections; AC-016/017 exact card and three decisions; AC-018/019 human-permission boundary and deduplication; AC-020 actual native qualification; AC-021 same-Run early UR revision. Every one of the 18 stable SDD identities is referenced. These are design mappings, not duplicated product acceptance or test results.
+
+All material design decisions have concrete before_sd resolutions. Only task/scenario/fault/native-observation decomposition is deferred to TP. Host support is a qualification obligation under a chosen bounded architecture, not a fictional guarantee. If preparation contradicts proposed reuse/budgets or requires stronger origin enforcement, return to the existing SD/source revision owner before implementation. No accepted-debt exception or installer/VCS action is introduced.
+
+## Checks and remaining boundary
+
+The first authoring check identified the six added rows as unmapped because they were separated from the existing Markdown table. The draft was corrected to keep one contiguous table, without inspecting/changing the parser or weakening validation. Fresh live MCP artifact-readiness now reports ready=true, complete German summary, sd-decisions-v1 and criteria-chain-v1 pass with no diagnostics at the bound revision and exact destination digest above. This proves authoring checks only; reviewed source registration, fresh presentation and a new human SD decision remain required.
+
+The OpenAI UI reference was read on 2026-10-10 for standard app/model visibility and bridge behavior. It does not establish independent human gestures or identical local Codex behavior. Existing source/UI bridge inspection is normal engineering reuse evidence, not a proposal for a generic code-search endpoint. The actual bootstrap archive/renewed Run is retained as read-only history evidence and must be requalified within the integrated plan; synthetic/disposable transport and failure cases supplement it without rewriting live reference Runs.
+
+Conclusion: the renewed design stays within the exact approved PRD, resolves its later_sd obligations coherently and is suitable for canonical initial source registration followed by a new deliberate SD decision. No implementation, QA or later approval is granted by this review.
+
+Post-registration: canonical run-step artefact registration succeeded with fresh SD_MAPPING_03.json/SD_RECORDING_03.json, update_draft=false, at revision 18 / 92a153ab-5314-4006-b46b-03a9212a8e13; backlog updated. Fresh bound gate-check reports doctor pass, no blocker and presentation_required for this exact SD digest. Exact approved PRD/Brownfield/UX digests were checked unchanged before recording; git diff --check passed. These are authoring/source/registration observations, not implementation/native/QA qualification.

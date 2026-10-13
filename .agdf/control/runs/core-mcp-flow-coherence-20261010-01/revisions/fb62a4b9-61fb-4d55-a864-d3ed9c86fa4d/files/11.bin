@@ -1,0 +1,85 @@
+# UX Intent Definition — consistent delivery lifecycle
+
+- run_id: core-mcp-flow-coherence-20261010-01
+- decision: ready
+- blocking_reason: none
+- source_ur: UR.md, digest sha256:b937eb29e750758c842d8abf42325cf3ada6869198b197247e31a7eefd9b2a1b; new Approval: UR bound to presentation 12aa3f85-b4cd-4819-a454-0ff7c260214a at revision 13
+- analytical_scope: input for PRD; no product approval or technical design authority
+- primary_user_intent: Understand the current undertaking, perform the permitted next step and decide on exact current material without reconciling conflicting surfaces or editing control tables.
+- success_signal: After each supported operation the current state, confirmed effect, next actor/action and remaining obligations are understandable and consistent. The same state produces the same decision meaning across agent/MCP/CLI/cockpit.
+- primary_decision_or_action: Inspect the exact current material, continue an eligible internal step, deliberately approve its presented gate, request an allowed revision, recover a concrete failed operation or finish governance closeout.
+- working_modes: inspect/status; internal recording/preparation; read/discuss/decide card; larger document view; pending decision effect; awaiting deliberate approval; source revision; recovery; governance closeout; completed/history
+- visible_state_types: current effective state; confirmed operation effect/receipt; pending internal work; awaiting human decision; blocked prerequisite; validation error; recoverable transient failure; recovery required; unsupported capability; unavailable current observation; superseded historical evidence; unknown applicability; completed governance
+
+## Effective state and visible ownership
+
+| Working mode | Effective state | Effective-state authority | Primary state presentation owner |
+|---|---|---|---|
+| Inspect/status | Bound current revision and evaluated prerequisites/gate/operation; read has no write effect | Canonical Core evaluation of sealed sources | Requesting agent's status response, CLI/MCP result or cockpit view of that same observation |
+| Internal recording/preparation | Confirmed effect and resulting revision are separate from current allowed next step; draft/registered/approved remain distinct | Existing operation-specific Core writer plus current evaluator | Invoking surface shows receipt/current observation and next actor/action |
+| Awaiting approval | Exact reviewed material and presentation exist; read/discussion does not decide; click or exact text is pending until the same authority confirms its matching effect | Existing presentation and approval owner | Focused bound decision card or equal exact-text gate presentation; general cockpit remains read-only |
+| Source revision | Preview is advisory; only a supported applied revision changes sources/dependent obligations; renewed approvals remain pending | Existing revision writer and current source dependency evaluation | Requesting agent presents impact before application; current views show resulting invalidation/history |
+| Recovery | Failed acknowledgement does not determine whether a write happened; current receipt/recovery state governs eligible retry | Existing operation-specific receipt/transaction and current evaluator | Invoking surface states uncertainty, next permitted recovery and preserved operation identity |
+| Closeout | Valid QA/UAT/OR and applicable obligations determine whether governance can complete | Existing canonical evaluation and closeout/backlog writer | Agent/CLI/MCP expose requirements/effect; cockpit displays the same resulting state |
+| Completed/history | Governance completed; historical evidence/receipts remain inspectable; VCS remains a separate request | Canonical completion/evidence authority | Current views distinguish completed state from former decisions and superseded history |
+
+These are user-level authority and presentation roles, not prescribed components, endpoints or storage design.
+
+## Activation and deactivation
+
+- activation_paths: Existing explicit delivery request/selected continuation binds target and Run. A pure status request remains read-only. Inspecting a link or changing views grants no operation authority. Writes require current eligible prerequisites and operation-specific binding. Deliberate approval is a new human card action or exact reply to the bound presentation. A possible host tool-permission prompt authorizes execution, not an additional gate decision; approval success is shown only after canonical confirmation. Unsupported host interaction retains the exact-text path and explicit qualification gap.
+- deactivation_paths: Finishing or cancelling an interaction/view ends that interaction without approving or completing governance. Expired sessions and changed source snapshots invalidate their dependent read/check result. A later view must observe current applicability. View closure alone is not proof of backend-session teardown.
+
+## Blockers and recovery
+
+| Situation | Visible meaning and permitted next action |
+|---|---|
+| Missing prerequisite or unapproved required gate | Name the missing input/decision and responsible actor; do not offer implementation or closeout as eligible |
+| Invalid supported input or authoring form | Name the affected field/source/form and expected condition; correct only permitted unapproved input, then validate again |
+| Unsupported revision/lifecycle capability | State unsupported scope and applicable current route; do not invent an apply workaround |
+| Stale/foreign target, Run, revision, source or presentation | Reject the operation, refresh/rebind through the current owner; an earlier approval reply cannot approve new material |
+| Recoverable transient read/check failure | Show unavailable/busy and a visible retry where that view already offers the operation; no substitute successful result |
+| Lost write acknowledgement | Show uncertain effect and bounded inspect/retry instructions using the same operation identity/payload where supported; no new approval or guessed success |
+| Conflicting payload, concurrent change or pending transaction | Show conflict/recovery required and owning correction path; prevent blind repeat and duplicate effect |
+| Current observation unavailable after known effect | Show the confirmed effect and unavailable current state separately; do not imply that historical next steps still apply |
+| Evidence has no reliable current binding | Show unknown association or history; do not count it as a current decision prerequisite merely because it exists |
+| Incomplete closeout synchronization | Show pending recovery and actual fulfilled obligations; do not report clean completion or require all fulfilled decisions again |
+
+- blockers: The cases above; invalid seal or incompatible runtime remains an explicit integrity/runtime blocker. Human decision, internal work and host/external evidence action remain distinct.
+- recovery_paths: Owner-provided refresh/rebind, concrete input correction, supported same-operation retry, receipt inspection or transaction recovery; paths retain exact binding and do not create new permission. The cockpit displays current next-step explanations; the focused decision card adds only bound approve/change/reject actions; it adds no general cockpit writer.
+
+## Relevant transitions
+
+- relevant_state_transitions: Valid draft -> registered draft -> exact presentation -> new deliberate response -> confirmed approval effect -> newly evaluated next step. Registered analyses/reviews -> satisfied prerequisite, not human approval. Supported revision preview -> bound apply -> renewed sources/invalidated dependencies -> fresh preparation/approval. Failed operation -> concrete error/uncertain effect -> bounded recovery -> fresh current state. QA pass before approval -> decision pending; QA revise/block -> owned obligation; accepted QA/UAT plus valid OR/requirements -> governance completed; completed -> history inspection without reopened closeout.
+
+## Proposed PRD input
+
+- proposed_prd_acceptance_criteria: Same-bound-state consistency; typed next-step independence from display wording; correct input/format guidance; deliberate card/text approval and operation-effect/current-state separation; exact larger view and discussion; single decision under click/text concurrency; actionable uncertainty and recovery; truthful current versus historical evidence; completed-state consistency without Git side effects; compatible transport behavior and protected document/draft-check interaction.
+- open_product_questions: none material to approved need. The PRD owner must concretely define supported scenarios and baseline comparison; exact API/recovery design belongs to SD. These are downstream specification tasks, not an unknown user intent or an additional gate.
+- affected_outputs: Core observations and operation results; CLI/MCP descriptions; bound approval summaries; cockpit current evidence/next-step/completion display; authoring diagnostics
+- evidence: Approved UR scope/AC-001..013; BROWNFIELD_REVIEW.md; EVIDENCE_BROWNFIELD.md; existing architecture R-04 and cockpit document-state boundaries
+- missing_evidence: No missing analytical input prevents PRD drafting. Real operation, model-benefit and native host behavior remain later qualification obligations; no empirical UX pass is claimed.
+- required_next_step: Register this renewed analysis through existing canonical revision recording, then dispatch PRD definition for this same Run.
+
+## Decision-card user journey under the renewed UR
+
+| Mode/state | Visible user meaning | Permitted action and success | Blocker/recovery |
+|---|---|---|---|
+| Current decision-ready card | Exact gate/document/version, complete concise summary, relevant changes or comparison unavailable, open points and approval consequence | Read; open exact larger document; discuss; approve; request a change with comment; reject | Missing material/readiness removes eligibility; disclose current owner/action |
+| Larger document view | The opened material is the exact card-bound version; returning preserves context | Read and return to the decision; no implicit approval on open/close | Source changed or unsupported large view: disclose, retain text alternative and refresh current material |
+| Discussion | Questions and AI replies clarify the version without deciding | Later exact Approval text can decide while the same presentation remains current and eligible | Material change requires new material/presentation and new deliberate response; quoted or old approval is not reused |
+| Change requested | A human comment is a request to revise this version, not approval of the replacement | Acknowledge request with its applicable next owner; preserve historical decision and prepare permitted new draft/revision | Empty/unsupported comment or approved-source boundary yields precise correction or supported preview/apply path |
+| Rejected | This exact version was rejected; rejection does not delete history or complete another gate | Explain recorded outcome and permitted next step; no approval | Unknown result remains uncertain; inspect receipt/current state |
+| Decision in progress | One submitted intent is being processed; it is not yet saved success | Show progress; prevent repetitive local submit; confirm one effect/next action after canonical response | Double-click or simultaneous text/click resolves through one Core authority, never a second effective gate decision |
+| Host execution permission | Technical permission for the bound operation; separate from the user's gate decision | Explain effect and exact scope if the host asks; send no new business decision | Denial means no confirmed execution; do not label the gate approved |
+| Unknown acknowledgement | The write may have happened; repeating a decision is unsafe | Show uncertainty, inspect saved effect/current applicability and use same operation identity for supported retry | Changed payload or competing state requires explicit conflict/recovery |
+| Superseded/expired card | Prior card is historical and cannot approve current material | Inspect history or obtain a fresh eligible card | No delayed click/text, asynchronous result or view closure revives authority |
+
+- effective_state_by_mode: the table above extends the existing mode matrix; current evaluation remains canonical, request/reject and pending state are distinct from approved gate state.
+- effective_state_authority_by_mode: existing presentation/approval/revision/receipt and Core state authority; no UI, AI assertion or host permission independently changes gate status.
+- primary_state_presentation_owner_by_mode: focused decision interaction for card/read/discussion/pending states; general cockpit for current read projection; exact text route for the same still-current eligible decision. These are product roles, not component prescriptions.
+- relevant_state_transitions: current card -> exact large view -> return/discuss -> one human click or exact text -> pending -> one confirmed decision effect plus fresh next step; change/reject -> recorded non-approval outcome and permitted owner; source change/expiry -> historical card plus fresh preparation; uncertain result -> receipt/status -> supported same-operation recovery.
+- proposed_prd_acceptance_criteria: defined scenarios must prove read/view/discussion does not decide; actual native approve/change/reject/comment and equal text route; one effect under double-click/simultaneous click-text; denial/uncertainty/stale results remain truthful; late exact text stays usable only for the still-current version; all registered languages and accessible focus/layout/teardown are qualified.
+- open_product_questions: none prevents PRD drafting; actual supported human-origin mechanism, comment/rejection recording/revision owner, permission grouping and cross-route deduplication design remain mandatory SD decisions. No unsupported native capability is reported as implemented.
+- evidence: renewed UR scope 7/8 and AC-010..013; current Brownfield route; reusable exact documents/read sessions and typed approval receipts; user explanation confirms one deliberate decision and distinct technical permission.
+- missing_evidence: actual native decision-card interaction does not exist as qualified product behavior yet; obtaining it is required later qualification, not a completed UX proof.

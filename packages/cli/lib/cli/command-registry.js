@@ -1,7 +1,9 @@
 import { TASK_TARGET_SOURCES } from "#agdf-core/task-target-resolution.js";
 import { skillDispatchArgumentGrammar, skillDispatchCommandGrammar } from "#agdf-core/skill-dispatch/contract.js";
 import { validateReadSelection } from "#agdf-core/control-inspect/selection.js";
+import { RUN_COMMAND_GROUPS } from '#agdf-core/control-state/run-command-contract.js';
 export { skillDispatchArgumentGrammar };
+export const commandGroupRoutes = Object.freeze(Object.fromEntries(Object.keys(RUN_COMMAND_GROUPS).map(group => [group.replace('_', '-'), group])));
 
 const TASK_TARGET_SOURCE_GRAMMAR = `<${TASK_TARGET_SOURCES.join("|")}>`;
 
@@ -51,6 +53,7 @@ export const commandRegistry = Object.freeze([
   command("run-migrate", { local: [" [--run <run_id>]"] }),
   command("run-recovery", { local: [" --run <run_id> --action <inspect|preview>", " --run <run_id> --action apply --preview-id <uuid> --recovery-confirmation \"RECOVER <run_id> <preview_id>\""] }),
   command("run-render-legacy", { local: [" --run <run_id>"] }),
+  ...Object.keys(commandGroupRoutes).map(name => command(name, { local: [' --command-file <bounded-command.json>'] })),
 ]);
 
 const commandByName = new Map(commandRegistry.map((entry) => [entry.name, entry]));
@@ -64,6 +67,11 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if (Object.hasOwn(commandGroupRoutes, options.target)) {
+    if (!options.commandFile) throw new Error('Bound command routes require --command-file; target/Run/revision/UUID are taken only from that strict envelope.');
+    return options;
+  }
+  if (options.commandFile) throw new Error('--command-file requires a fixed AGDF command-group route');
   if ((options.guided || options.details) && options.target !== "control-maintenance") {
     throw new Error("--guided and --details are supported only by control-maintenance");
   }

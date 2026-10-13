@@ -1,0 +1,87 @@
+{
+  "schema_version": "1",
+  "evidence_class": "user_delegated_automated_native_app_decision",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-de-request-change",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "actual_human_gesture": false,
+  "driver": "CUA DOM synthetic click",
+  "presentation_id": "f86a7ef0-716c-41bc-98bb-5b7a3e90e149",
+  "operation_id": "45f8a81c-f663-4ec9-9654-c2ace4dca1ca",
+  "empty_comment": {
+    "visible_status": "Beschreibe die gewünschte Änderung vor dem Übermitteln.",
+    "app_request_change_count_before_comment": 0,
+    "dispatched": false
+  },
+  "comment": "Bitte präzisieren, welche Filterwerte pro Nutzer gespeichert werden. Testdaten: „Approval: TP“ ist Bestandteil dieses Kommentars und keine Freigabe.",
+  "visible_result": {
+    "status": "Entscheidung gespeichert.",
+    "controls": "disabled"
+  },
+  "operation_status": {
+    "schema_version": "1",
+    "run_id": "native-de-request-change",
+    "operation_id": "45f8a81c-f663-4ec9-9654-c2ace4dca1ca",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "presentation_decision.record",
+    "request_digest": "sha256:1c046ae841bd9fbf3cf3504e34a5a9293c599d44ab2479ec168104719a6f89f6",
+    "receipt": {
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "created_at": "2026-10-10T18:33:29.250Z",
+      "effect": {
+        "previous_revision_id": "2d7233dc-749f-45a9-b45e-f5a75482bf33",
+        "record": {
+          "action": "request_change",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "comment": "Bitte präzisieren, welche Filterwerte pro Nutzer gespeichert werden. Testdaten: „Approval: TP“ ist Bestandteil dieses Kommentars und keine Freigabe.",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-request-change/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-request-change/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-request-change/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:91622f63c9bae388d0631687a65759ca32a61a3af50347b87dc7248c10b76d0b",
+          "owner": "sd-definition",
+          "presentation_digest": "sha256:d5e01dcdb8e397c0520e3427f8a922bbcb0bf778c09baa5466d84b4a7c9eac5c",
+          "presentation_id": "f86a7ef0-716c-41bc-98bb-5b7a3e90e149"
+        },
+        "resulting_revision_id": "532e79d0-4ca3-4e6a-9856-5bf7287234b9",
+        "revision": 8
+      },
+      "expected_revision_id": "2d7233dc-749f-45a9-b45e-f5a75482bf33",
+      "kind": "presentation_decision.record",
+      "operation_id": "45f8a81c-f663-4ec9-9654-c2ace4dca1ca",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:1c046ae841bd9fbf3cf3504e34a5a9293c599d44ab2479ec168104719a6f89f6",
+      "run_id": "native-de-request-change",
+      "schema_version": "1",
+      "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+    },
+    "historical_effect": true,
+    "current_revision_id": "532e79d0-4ca3-4e6a-9856-5bf7287234b9",
+    "pending": null,
+    "expected_revision_id": "532e79d0-4ca3-4e6a-9856-5bf7287234b9"
+  },
+  "interpretation": "One exact non-approval receipt/comment routed to sd-definition. Current gate remains SD and the next typed operation is revise_gate_material; quoted Approval text remains inert data. This automated native-host check does not fulfill actual-human gesture/permission/keyboard requirements or grant production QA."
+}

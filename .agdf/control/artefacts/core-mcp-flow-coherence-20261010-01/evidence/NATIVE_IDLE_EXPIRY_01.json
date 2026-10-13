@@ -1,0 +1,149 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_native_codex_view_idle_expiry_observed_through_same_live_mcp_server",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "disposable_run": "native-en-request-change",
+  "candidate_identity": "NATIVE_PROBE_CANDIDATE.json",
+  "last_available": "NATIVE_CLOSE_PATH_AFTER_HOST_ABORT_01.json",
+  "before": "NATIVE_IDLE_EXPIRY_BEFORE_01.json",
+  "idle_milliseconds": 1800000,
+  "last_available_at": "2026-10-11T07:05:58.497Z",
+  "earliest_deadline": "2026-10-11T07:35:58.497Z",
+  "snapshot": {
+    "args": {
+      "operation": "snapshot",
+      "run_id": "native-en-request-change",
+      "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schema_version\":\"1\",\"outcome\":\"rejected\",\"reason\":\"session_expired\",\"authorizes\":false}"
+        }
+      ],
+      "structuredContent": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "reason": "session_expired",
+        "authorizes": false
+      }
+    },
+    "observed_at": {
+      "current_time": "2026-10-11 07:36:19 UTC"
+    }
+  },
+  "document": {
+    "args": {
+      "operation": "document",
+      "run_id": "native-en-request-change",
+      "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74",
+      "snapshot_id": "8ef38d5b-7b54-4481-921e-b40c9063982f",
+      "resource_id": "888ffa19-10a9-4f66-83d4-4e06003d15b1"
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schema_version\":\"1\",\"outcome\":\"rejected\",\"reason\":\"session_expired\",\"authorizes\":false}"
+        }
+      ],
+      "structuredContent": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "reason": "session_expired",
+        "authorizes": false
+      }
+    },
+    "observed_at": {
+      "current_time": "2026-10-11 07:36:24 UTC"
+    }
+  },
+  "model_close_requests": 0,
+  "decision_requests": 0,
+  "observed_case_passed": true,
+  "native_action_after_expiry_observed": false,
+  "expired_action_source_evidence": "CLOSE_PATH_IDLE_FALLBACK_01.json",
+  "immediate_host_close_passed": false,
+  "host_abort_evidence": "NATIVE_CLOSE_PATH_HOST_ABORT_DIAGNOSIS_01.json",
+  "scope": "Exact closed English SD view only; no final candidate or all-gate human qualification transfer",
+  "native_qualified": false,
+  "authorizes": false,
+  "verified_at": "2026-10-11T07:37:01.561363+00:00",
+  "requests": [
+    {
+      "at": "2026-10-11T06:55:35.446Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "document",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74",
+        "snapshot_id": "8ef38d5b-7b54-4481-921e-b40c9063982f",
+        "resource_id": "888ffa19-10a9-4f66-83d4-4e06003d15b1",
+        "run_id": "native-en-request-change"
+      }
+    },
+    {
+      "at": "2026-10-11T06:56:25.940Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "document",
+        "snapshot_id": "8ef38d5b-7b54-4481-921e-b40c9063982f",
+        "run_id": "native-en-request-change",
+        "resource_id": "888ffa19-10a9-4f66-83d4-4e06003d15b1",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74"
+      }
+    },
+    {
+      "at": "2026-10-11T06:57:05.288Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "document",
+        "snapshot_id": "8ef38d5b-7b54-4481-921e-b40c9063982f",
+        "run_id": "native-en-request-change",
+        "resource_id": "888ffa19-10a9-4f66-83d4-4e06003d15b1",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74"
+      }
+    },
+    {
+      "at": "2026-10-11T06:58:12.745Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "snapshot",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74",
+        "run_id": "native-en-request-change"
+      }
+    },
+    {
+      "at": "2026-10-11T07:05:58.415Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "snapshot",
+        "run_id": "native-en-request-change",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74"
+      }
+    },
+    {
+      "at": "2026-10-11T07:36:18.976Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "snapshot",
+        "run_id": "native-en-request-change",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74"
+      }
+    },
+    {
+      "at": "2026-10-11T07:36:24.463Z",
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "document",
+        "run_id": "native-en-request-change",
+        "session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74",
+        "snapshot_id": "8ef38d5b-7b54-4481-921e-b40c9063982f",
+        "resource_id": "888ffa19-10a9-4f66-83d4-4e06003d15b1"
+      }
+    }
+  ],
+  "run_digest_before": "sha256:cd2284708cbab20d8892b5a7ffec72587e47ef01f91beb56b65832cbf0c5befc",
+  "run_digest_after": "sha256:cd2284708cbab20d8892b5a7ffec72587e47ef01f91beb56b65832cbf0c5befc",
+  "run_unchanged": true
+}

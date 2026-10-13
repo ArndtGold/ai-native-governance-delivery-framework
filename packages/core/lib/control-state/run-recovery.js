@@ -5,7 +5,7 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
-import { closeoutArtefacts, internalStepArtefacts, userGateOrder } from "../control-evaluation/run-state.js";
+import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { duplicateArtefactRowTypes, parseControlState, parseRunState, scalarFields, sectionTableRows } from "./run-state-parser.js";
 import { applyRunSeals, artefactFileDigest, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths, runSealState } from "./run-seal.js";
@@ -119,16 +119,8 @@ function approvalSnapshot(content) {
     .map(([gate, status = "", evidence = ""]) => ({ section, gate, status: status.replace(/^`|`$/gu, "").trim(), evidence: evidence.trim() })));
 }
 
-function parsedControlState(content, path) {
-  return { path, content, ...parseControlState(content, {
-    userGates: userGateOrder,
-    internalSteps: [...internalStepArtefacts],
-    closeoutArtefacts: [...closeoutArtefacts],
-  }) };
-}
-
 function deriveNextGate(root, content, path) {
-  const state = parsedControlState(content, path);
+  const state = prepareRunContentState(root, content, path);
   return transitionDecisionForRunState(state).current_gate;
 }
 

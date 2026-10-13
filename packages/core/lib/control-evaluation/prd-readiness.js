@@ -4,6 +4,9 @@ import { evaluatePrdCriteriaReadiness } from "./traceability-readiness.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from "../control-state/run-presentation-render.js";
 
+export const PRD_DECISION_FORMAT = Object.freeze({ section: "Approval Decisions", columns: Object.freeze(["Decision", "Timing", "Status", "Resolution", "Owner"]),
+  timings: Object.freeze(["before_prd", "later_sd", "later_tp"]), statuses: Object.freeze(["resolved", "open", "deferred"]), owner_field: "Owner:" });
+
 // PRD product decisions are explicit data. Free-form risk prose cannot safely establish
 // whether a decision was resolved before the user saw an approval card.
 export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage } = {}) {
@@ -14,15 +17,15 @@ export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage
   if (!section) return { ready: false, open_decisions: ["Approval Decisions section is missing"] };
   const rows = section.split(/\r?\n/u).filter((line) => line.trim().startsWith("|"))
     .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
-  if (rows.length < 3 || rows[0].join("|") !== "Decision|Timing|Status|Resolution|Owner") {
+  if (rows.length < 3 || rows[0].join("|") !== PRD_DECISION_FORMAT.columns.join("|")) {
     return { ready: false, open_decisions: ["Approval Decisions table is empty or malformed"] };
   }
   const open = [];
   const seen = new Set();
   const incomplete = (value) => !value || /^(?:<|tbd\b|to confirm\b)/iu.test(value);
   for (const [decision, timing, status, resolution, owner, ...extra] of rows.slice(2)) {
-    if (!decision || seen.has(decision) || extra.length || !["before_prd", "later_sd", "later_tp"].includes(timing)
-        || !["resolved", "open", "deferred"].includes(status)) {
+    if (!decision || seen.has(decision) || extra.length || !PRD_DECISION_FORMAT.timings.includes(timing)
+        || !PRD_DECISION_FORMAT.statuses.includes(status)) {
       open.push(decision || "Malformed decision row");
       continue;
     }

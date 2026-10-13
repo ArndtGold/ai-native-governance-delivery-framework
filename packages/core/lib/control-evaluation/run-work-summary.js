@@ -1,18 +1,16 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from '../control-read/fs.js';
-import { parseControlState } from '../control-state/run-state-parser.js';
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from '../control-state/contained-file.js';
 import { policyForRunContent } from './run-step-policy.js';
 import { effectiveNextAllowedAction } from './next-action.js';
 import { evaluateQaFollowUp, inspectQaReports } from './qa-follow-up.js';
-import { userGateOrder, internalStepArtefacts, closeoutArtefacts, modeSliceDecision } from './run-state.js';
+import { prepareRunContentState, modeSliceDecision } from './run-state.js';
 import { extractField } from './verified-change.js';
 import { summaryLabel } from './backlog-vocabulary.js';
 
 // Shared projection; never invokes gate-check, changes control or grants permission.
 export function runWorkSummary(root, content, runPath = '', decision = policyForRunContent(root, content, runPath)) {
-  const state = { content, ...parseControlState(content, { userGates: userGateOrder,
-    internalSteps: [...internalStepArtefacts], closeoutArtefacts: [...closeoutArtefacts] }) };
+  const state = prepareRunContentState(root, content, runPath);
   const runId = extractField(content, 'run_id'), lifecycle = extractField(content, 'lifecycle');
   const policyOnly = modeSliceDecision(state) === 'verified_change' || /## Source Revisions\b/u.test(content);
   const summary = { kind: 'work_pending', phase: decision.current_gate, qa_outcome: 'not_applicable', lifecycle,
@@ -20,7 +18,9 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
     decisive_obligation: null, open_obligation_count: 0,
     display_action: policyOnly ? decision.next_allowed_action : effectiveNextAllowedAction(state, decision),
     sources: [], limitations: [], authorizes: false };
-  if (lifecycle === 'completed') summary.kind = 'completed';
+  summary.evidence_applicability = Object.fromEntries(['current', 'superseded', 'applicability_unknown'].map(group => [group,
+    state.evidence_applicability[group].map(row => ({ path: row.report?.path ?? row.source, step: row.step ?? null, reason: row.reason, available: row.available }))]));
+  if (lifecycle === 'completed') summary.kind = decision.completion?.fulfilled ? 'completed' : 'unconfirmed';
   else if (decision.status === 'blocked') summary.kind = 'unconfirmed';
   else if (decision.current_gate === 'OR') summary.kind = 'closeout_pending';
   else if (decision.missing_approval !== 'none') summary.kind = 'approval_pending';
@@ -49,7 +49,23 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
         if (bytes.length > 262144 || decisions.length !== 1 || normalized(decisions[0][1]) !== normalized(qa.status)) unconfirmed('qa_decision_unconfirmed');
         else {
           summary.qa_outcome = normalized(qa.status);
-          if (qa.status === 'revise') {
+          const association = state.evidence_applicability.by_step.get('QA');
+          if (association && association.applicability !== 'current') {
+            unconfirmed('qa_evidence_association_not_current');
+          }
+          else if (qa.status === 'revise' && state.qa_acceptance?.accepted) {
+            // Human acceptance does not change the original QA outcome or mark tests passed.
+            summary.qa_acceptance = { kind: 'accepted_with_deviations', digest: state.qa_acceptance.digest,
+              deviation_ids: state.qa_acceptance.proposal.deviations.map(row => row.finding_id) };
+            summary.open_obligation_count = state.qa_acceptance.proposal.deviations.length;
+            summary.sources = state.qa_acceptance.sources;
+          }
+          else if (qa.status === 'revise' && state.qa_acceptance?.eligible) {
+            summary.kind = 'approval_pending'; summary.sources = state.qa_acceptance.sources;
+            summary.open_obligation_count = state.qa_acceptance.proposal.deviations.length;
+            summary.qa_acceptance = { kind: 'deviation_acceptance_pending', digest: state.qa_acceptance.digest };
+          }
+          else if (qa.status === 'revise') {
             const followUp = evaluateQaFollowUp(root, state, runId, 64, true);
             summary.sources = followUp.sources;
             if (followUp.kind === 'blocked') unconfirmed(followUp.reason);
@@ -74,6 +90,7 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
   if (summary.sources.length > 64) { summary.sources = summary.sources.slice(0, 64); unconfirmed('source_limit'); }
   if (Buffer.byteLength(JSON.stringify(summary)) > 60000) {
     summary.decisive_obligation = null; summary.open_obligation_count = 0; summary.sources = [];
+    summary.evidence_applicability = { current: [], superseded: [], applicability_unknown: [] };
     summary.limitations = ['summary_size_limit']; summary.kind = 'source_unconfirmed';
     summary.display_action = 'Inspect the current Run and its registered sources before recording a bounded backlog summary.';
   }

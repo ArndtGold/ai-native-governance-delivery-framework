@@ -6,7 +6,7 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
-import { SKILL_DISPATCH_FUNCTION_DEFINITION, createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { SKILL_DISPATCH_FUNCTION_DEFINITION, createMcpDispatchRuntime } from "../../cli/lib/mcp-dispatch-runtime.js";
 import { buildAgdfServer } from "../src/server.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
@@ -37,7 +37,7 @@ await server.connect(serverTransport);
 await client.connect(clientTransport);
 
 const { tools } = await client.listTools();
-assert.equal(tools.length, 2);
+assert.equal(tools.length, 7);
 assert.equal(tools[1].name, "agdf_inspect");
 assert.equal(tools[1].annotations.readOnlyHint, true);
 assert.equal(tools[0].name, SKILL_DISPATCH_FUNCTION_DEFINITION.name);

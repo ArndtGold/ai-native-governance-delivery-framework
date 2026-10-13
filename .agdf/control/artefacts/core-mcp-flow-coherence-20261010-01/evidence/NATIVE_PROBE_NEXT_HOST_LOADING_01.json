@@ -1,0 +1,82 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:03:26.229Z",
+  "evidence_class": "actual_codex_mcp_discovery_and_prepare_not_human_ui_proof",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "implementation_revision_id": "263caefb-7390-40c3-901c-6a32f039d916",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/node_modules/create-agdf/",
+    "runtime_digest": "49bc6520a5523c3017d4342f04cfa7f59bde3be771ea5c8b4d8c5af65e80c67c",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "corrected_contract": {
+    "operation": "operation-contract",
+    "module": "agdf_prepare/presentation.prepare",
+    "available": true,
+    "binding": {
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+      "run_id": "native-en-request-change",
+      "expected_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6"
+    }
+  },
+  "prepared_test": {
+    "input": {
+      "schema_version": "1",
+      "presentation_language": "de",
+      "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+      "target_source": "explicit_target",
+      "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+      "operation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+      "assurance": "cooperative_local",
+      "command": {
+        "kind": "presentation.prepare",
+        "payload": {
+          "gate": "SD"
+        }
+      }
+    },
+    "outcome": "accepted",
+    "receipt": {
+      "schema_version": 2,
+      "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+      "operation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+      "request_digest": "sha256:6dbb22a0fc29238106c637f5ba46fa59f13726e2dc5dbb447f9390a1d3324527",
+      "created_at": "2026-10-11T07:58:18.116Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+      "content_digest": "sha256:0b3323095eb8b4b1755450556ec7ceaeb69c6a67d29e869b02b4dd08fc900b94",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:f16d2155aee98f4a624ac3612c19d2c3565e5efb637feced1ba6d43c95241336",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:1b83c9e052f5a3b2bd11417b1e5cca9aeac5db0418a2558ce53f34dee7e99a3d"
+    },
+    "app_capability": "available"
+  },
+  "limitations": [
+    "Loaded dispatcher precedes the Inspect diagnostic fix performed after restart.",
+    "No human choice or visible UI/accessibility/permission evidence inferred from preparation.",
+    "Only disposable SD Runs; not all-gate qualification."
+  ],
+  "native_qualified": false,
+  "authorizes": false
+}

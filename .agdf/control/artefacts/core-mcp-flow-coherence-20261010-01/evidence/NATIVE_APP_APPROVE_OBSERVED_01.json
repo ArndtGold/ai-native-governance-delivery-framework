@@ -1,0 +1,101 @@
+{
+  "schema_version": "1",
+  "evidence_class": "native_host_app_action_observed_after_requested_human_test",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-en-approve",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "agent_generated_click": false,
+  "independent_human_proof": "unavailable",
+  "actual_human_gesture_details": "not reported; user answered weiter",
+  "presentation_id": "1b23640f-1e5b-4933-ab57-c0e7e1e4160d",
+  "operation_id": "5b00350b-6b1f-4abc-b440-65346c101d4e",
+  "operation_status": {
+    "schema_version": "1",
+    "run_id": "native-en-approve",
+    "operation_id": "5b00350b-6b1f-4abc-b440-65346c101d4e",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "approval.record",
+    "request_digest": "sha256:d639756446954b235271afddf2bd1c4d82bc8f6eba119a92955e48355a84e16c",
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "3bbdabaf-1986-499f-879d-a6b4252aa83c",
+        "gate": "SD",
+        "presentation_id": "1b23640f-1e5b-4933-ab57-c0e7e1e4160d",
+        "run_id": "native-en-approve",
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+      },
+      "command_digest": "sha256:d639756446954b235271afddf2bd1c4d82bc8f6eba119a92955e48355a84e16c",
+      "created_at": "2026-10-10T19:53:49.537Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-en-approve/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-en-approve/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-en-approve/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:dcc71d28675b552bfc4284894ea3825725c2593fef12b24cafc70b11cc527ddd",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:b7ba0cb709512873392f2ae9555a6ffd35cecd1610caadd95d2ff9f1f9d8fcae",
+        "previous_revision_id": "3bbdabaf-1986-499f-879d-a6b4252aa83c",
+        "resulting_revision_id": "39b3d94b-22c3-445d-9d6b-c884e864b365",
+        "revision": 8
+      },
+      "operation_id": "5b00350b-6b1f-4abc-b440-65346c101d4e",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:9d6c692414290d362b085528d7025ae78e4070bc644954175fb70dd66ad21900",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current_revision_id": "39b3d94b-22c3-445d-9d6b-c884e864b365",
+    "pending": null,
+    "expected_revision_id": "39b3d94b-22c3-445d-9d6b-c884e864b365"
+  },
+  "visible_result": {
+    "tab_id": "6",
+    "run_id": "native-en-approve",
+    "status": "Decision saved.",
+    "controls": "disabled",
+    "sidebar_view": "still visible at observation"
+  },
+  "reader_after_user": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "reason": "decision_binding_changed",
+    "authorizes": false
+  },
+  "remaining_observations": [
+    "keyboard/document/source/focus behavior not confirmed",
+    "Enter in comment non-approval not confirmed",
+    "narrow/wide scroll stability not confirmed",
+    "technical host prompt not confirmed",
+    "inline closure not confirmed; sidebar is still visible",
+    "server_closed events unclassified; decision_binding_changed is not session_expired or teardown proof"
+  ],
+  "interpretation": "One canonical exact App-route SD approval observed, with no CUA/model click performed during requested-human window. Independently inspected receipt is recorded, pending null, revision 8 at TP. UI shows saved and disabled actions. User weiter is not a report that all requested checks passed; no independent gesture identity or full native qualification is claimed."
+}

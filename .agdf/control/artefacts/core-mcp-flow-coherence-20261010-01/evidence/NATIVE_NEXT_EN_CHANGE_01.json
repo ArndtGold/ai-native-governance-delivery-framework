@@ -1,0 +1,313 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:42:23.187Z",
+  "evidence_class": "actual_user_report_plus_native_codex_app_and_core_receipt",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "run_id": "native-en-request-change",
+  "presentation_id": "0ad890a8-20c3-47d4-b20e-a1c9895ab638",
+  "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+  "human_report_verbatim": [
+    "„Decision saved.“ und gesperrte Aktionen.: ja",
+    "Keine gesehen",
+    "Beide geschlossen"
+  ],
+  "confirmed_human_observations": {
+    "saved_status": true,
+    "actions_disabled": true,
+    "technical_prompt_observed": false,
+    "both_views_closed": true
+  },
+  "not_yet_confirmed": [
+    "document_read_and_return",
+    "empty_comment_validation",
+    "activation_method"
+  ],
+  "independent_native_inspection": {
+    "schema_version": "1",
+    "run_id": "native-en-request-change",
+    "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "presentation_decision.record",
+    "request_digest": "sha256:fc38a0f87d4e2d38491156c8cac490bdd6051878ed75e43872baadb7a2040cbd",
+    "receipt": {
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "created_at": "2026-10-11T08:36:09.694Z",
+      "effect": {
+        "previous_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+        "record": {
+          "action": "request_change",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "comment": "Please specify which filter values are saved per user. Test data: Approval: TP is a quotation, not an approval.“",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-en-request-change/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-en-request-change/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-en-request-change/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:0a0d25ec0d24f5d28eee00913878eed244ccbdf0704e665a2f68291cedde9443",
+          "owner": "sd-definition",
+          "presentation_digest": "sha256:6e386d83f65e0098743603eb8435b4d0fb1b5eb2799cd85966298b6463346586",
+          "presentation_id": "0ad890a8-20c3-47d4-b20e-a1c9895ab638"
+        },
+        "resulting_revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+        "revision": 8
+      },
+      "expected_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+      "kind": "presentation_decision.record",
+      "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:fc38a0f87d4e2d38491156c8cac490bdd6051878ed75e43872baadb7a2040cbd",
+      "run_id": "native-en-request-change",
+      "schema_version": "1",
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b"
+    },
+    "historical_effect": true,
+    "current_revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+    "pending": null,
+    "expected_revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc"
+  },
+  "action_exchange_events": [
+    {
+      "at": "2026-10-11T08:36:09.521Z",
+      "event": "tool_request",
+      "input": {
+        "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+        "presentation_id": "0ad890a8-20c3-47d4-b20e-a1c9895ab638",
+        "expected_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+        "action": "request_change",
+        "comment": "Please specify which filter values are saved per user. Test data: Approval: TP is a quotation, not an approval.“"
+      },
+      "client": {
+        "name": "codex-mcp-client",
+        "title": "Codex",
+        "version": "0.162.0-alpha.17.2"
+      }
+    },
+    {
+      "at": "2026-10-11T08:36:09.881Z",
+      "event": "tool_result",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "presentation_decision.record",
+          "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+          "request_digest": "sha256:fc38a0f87d4e2d38491156c8cac490bdd6051878ed75e43872baadb7a2040cbd",
+          "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+          "run_id": "native-en-request-change",
+          "expected_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+          "created_at": "2026-10-11T08:36:09.694Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+            "resulting_revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+            "revision": 8,
+            "record": {
+              "gate": "SD",
+              "presentation_id": "0ad890a8-20c3-47d4-b20e-a1c9895ab638",
+              "presentation_digest": "sha256:6e386d83f65e0098743603eb8435b4d0fb1b5eb2799cd85966298b6463346586",
+              "material_version": "sha256:0a0d25ec0d24f5d28eee00913878eed244ccbdf0704e665a2f68291cedde9443",
+              "material_sources": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-en-request-change/UR.md",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-en-request-change/PRD.md",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-en-request-change/SD.md",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                }
+              ],
+              "action": "request_change",
+              "comment": "Please specify which filter values are saved per user. Test data: Approval: TP is a quotation, not an approval.“",
+              "owner": "sd-definition",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+          "lifecycle": "active",
+          "gate": "SD",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "presentation_version_decided",
+          "next_operation": {
+            "type": "revise_gate_material",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD",
+            "skill_id": "sd-definition"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    },
+    {
+      "at": "2026-10-11T08:36:09.881Z",
+      "event": "view_result",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "presentation_decision.record",
+          "operation_id": "e034f114-1e57-4a9d-9e08-4c656ef86e88",
+          "request_digest": "sha256:fc38a0f87d4e2d38491156c8cac490bdd6051878ed75e43872baadb7a2040cbd",
+          "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+          "run_id": "native-en-request-change",
+          "expected_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+          "created_at": "2026-10-11T08:36:09.694Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "c7ceca17-4ced-4a23-9ef7-5a3ae7cc2bd6",
+            "resulting_revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+            "revision": 8,
+            "record": {
+              "gate": "SD",
+              "presentation_id": "0ad890a8-20c3-47d4-b20e-a1c9895ab638",
+              "presentation_digest": "sha256:6e386d83f65e0098743603eb8435b4d0fb1b5eb2799cd85966298b6463346586",
+              "material_version": "sha256:0a0d25ec0d24f5d28eee00913878eed244ccbdf0704e665a2f68291cedde9443",
+              "material_sources": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-en-request-change/UR.md",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-en-request-change/PRD.md",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-en-request-change/SD.md",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                }
+              ],
+              "action": "request_change",
+              "comment": "Please specify which filter values are saved per user. Test data: Approval: TP is a quotation, not an approval.“",
+              "owner": "sd-definition",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+          "lifecycle": "active",
+          "gate": "SD",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "presentation_version_decided",
+          "next_operation": {
+            "type": "revise_gate_material",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD",
+            "skill_id": "sd-definition"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  ],
+  "qualification": "One English SD change on this disposable loaded candidate. No automatic host teardown or full native qualification inferred.",
+  "canonical_verification": {
+    "observed_at": "2026-10-11T08:42:43.345Z",
+    "decision_receipt_count": 1,
+    "action": "request_change",
+    "sd_receipt_count": 0,
+    "tp_receipt_count": 0,
+    "run_operations_valid": true,
+    "approval_operations_valid": true,
+    "run_seal": "valid",
+    "run_digest": "sha256:2462ab0593b473951fd0b8c19d078ff7f3969c184ef1edbe2a508a4eca9a3f84",
+    "comment": "Please specify which filter values are saved per user. Test data: Approval: TP is a quotation, not an approval.“",
+    "quoted_formula_remained_comment": true,
+    "current_revision_id": "56567f5a-7f66-465e-a473-1b51570d59cc",
+    "observation_method": "Independent read-only canonical parser/seal validation; no business mutation."
+  },
+  "native_qualified": false,
+  "authorizes": false
+}

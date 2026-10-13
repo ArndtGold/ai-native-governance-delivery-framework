@@ -1,0 +1,106 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:19:49.304Z",
+  "evidence_class": "actual_native_mcp_prepare_no_decision",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "args": {
+    "schema_version": "1",
+    "presentation_language": "de",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "target_source": "explicit_target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+    "run_id": "native-de-reject",
+    "expected_revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+    "operation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+    "assurance": "cooperative_local",
+    "command": {
+      "kind": "presentation.prepare",
+      "payload": {
+        "gate": "SD"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+    "request_digest": "sha256:da919cc9acd58c985a0e6a95c3b19b649a0e19e481dbc58e40aa78af4c06727f",
+    "binding": {
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+      "run_id": "native-de-reject",
+      "expected_revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 2,
+      "presentation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "operation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "request_digest": "sha256:da919cc9acd58c985a0e6a95c3b19b649a0e19e481dbc58e40aa78af4c06727f",
+      "created_at": "2026-10-11T08:19:03.005Z",
+      "run_id": "native-de-reject",
+      "gate": "SD",
+      "revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+      "content_digest": "sha256:8deffb220c462f9f467ab8234383f3b517b1e8237637f6446527d097f39e3dc6",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:78ad2d0ec0e5fd8d3982d5b86fa90363a57b0117e780908c04219f25aa2224d2",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:6bf46cb40124ba80faddd1217cdacd49b9f8e78db14e6e497ba42111223bb75b"
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "operation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "request_digest": "sha256:da919cc9acd58c985a0e6a95c3b19b649a0e19e481dbc58e40aa78af4c06727f",
+      "created_at": "2026-10-11T08:19:03.005Z",
+      "run_id": "native-de-reject",
+      "gate": "SD",
+      "revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+      "content_digest": "sha256:8deffb220c462f9f467ab8234383f3b517b1e8237637f6446527d097f39e3dc6",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:78ad2d0ec0e5fd8d3982d5b86fa90363a57b0117e780908c04219f25aa2224d2",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:6bf46cb40124ba80faddd1217cdacd49b9f8e78db14e6e497ba42111223bb75b",
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\nAusgewählter Run: SD: Synthetic saved filter · `native-de-reject`\nAGDF-Statuskarte: Bereit für deine Entscheidung\nAktuelles Gate: Lösungsdesign (`SD`)\nErforderliche Entscheidung: Freigabe des Lösungsdesigns\nNächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option.\n\n## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | SD: Synthetic saved filter · `native-de-reject` |\n| Pfad | ✓ UR · ✓ PRD · ● SD · ○ TP · ○ QA · ○ UAT · ○ OR |\n| Status | offen |\n| Aktuelles Gate | Lösungsdesign (`SD`) |\n| Deine Entscheidung | Approval: SD · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | das Lösungsdesign entwerfen oder überarbeiten<br>die Architektur festlegen<br>Verantwortlichkeiten festlegen<br>die exakte SD-Freigabe anfordern |\n| Aktuell verboten | den Aufgaben- und Testplan erstellen<br>Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten |\n| Wartet auf | Approval: SD |\n\n## Kurzfassung · SD\n\nRun: `native-de-reject` · Gate: `SD` · Revision: `ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n## Prüfartefakt · SD\n\nRun: `native-de-reject` · Gate: `SD` · Revision: `ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8`\n\nArtefakt: [SD.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target/.agdf/control/artefacts/native-de-reject/SD.md>)\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.\n\nLösungsdesign · SD: Synthetic saved filter · `native-de-reject`\n[UR](.agdf/control/artefacts/native-de-reject/UR.md) · [PRD](.agdf/control/artefacts/native-de-reject/PRD.md) · [SD](.agdf/control/artefacts/native-de-reject/SD.md) · TP (noch nicht erstellt)\nBereit für deine Entscheidung\n\nJetzt freigeben\n`Approval: SD` Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nDanach\nAgent entwirft als Nächstes den Aufgaben- und Testplan. Aufgaben- und Testplan ist die nächste Nutzerentscheidung.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+      "record_digest": "sha256:9ce68db3040df6929d96e3b145baccf53bd44d0355b1866eaaa7278b67490602",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available"
+  },
+  "human_decision_observed": false,
+  "native_qualified": false,
+  "authorizes": false
+}

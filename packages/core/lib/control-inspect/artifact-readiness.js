@@ -20,7 +20,7 @@ export function describeArtifactReadiness(result) {
   const names = new Set(['approval_summary', 'prd_readiness', 'ur_readiness', 'sd_decisions', 'sd_traceability', 'tp_traceability',
     'approval_summary_locale_missing', 'approval_summary_locale_duplicate', 'approval_summary_source_language_mismatch',
     'approval_summary_truncated_or_overlong', 'approval_summary_field_overlong', 'approval_summary_criteria_missing',
-    'approval_summary_source_criteria_duplicate', 'approval_summary_criteria_duplicate', 'approval_summary_criteria_unknown',
+    'approval_summary_source_criteria_duplicate', 'approval_summary_source_criteria_invalid', 'approval_summary_criteria_duplicate', 'approval_summary_criteria_unknown',
     'approval_summary_criteria_incomplete', 'approval_summary_user_goal_missing', 'approval_summary_scope_missing',
     'approval_summary_decisions_missing', 'approval_summary_criterion_content_missing', 'approval_summary_content_missing']);
   let findings = result.diagnostics.filter(row => names.has(row.code));
@@ -76,6 +76,7 @@ export function projectArtifactReadiness(root, { runId, gate, expectedRevisionId
       },
       next_action: evaluated.next_allowed_action };
   }
+  if (evaluated.presentation_decision?.decided) return fail('presentation_version_decided', 'Revise this material through its existing owner before another decision.');
   const registered = state.artefacts.get(gate)?.path;
   if (registered && registered !== path) return fail('artifact_path_conflict', 'The existing registered source differs from the canonical draft path.');
   const file = containedRegularFile(targetRoot, path);

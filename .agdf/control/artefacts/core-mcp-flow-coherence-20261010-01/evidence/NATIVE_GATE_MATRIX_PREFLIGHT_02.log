@@ -1,0 +1,30 @@
+native-en-ur-text legacy preparation/document/close passed
+native-en-prd-text legacy preparation/document/close passed
+native-en-sd-text legacy preparation/document/close passed
+native-en-tp-text legacy preparation/document/close passed
+native-en-qa-text legacy preparation/document/close passed
+native-en-uat-text legacy preparation/document/close passed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","target":{"target_id":"sha256:3b8b33beddd435868970813e2f7eaaa770801baf1f724ec731614fa96656fe06","display_path":"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-r2Q8jw/governance-target"},"snapshot_id":null,"observed_as_of":null,"source_digest":null,"state":"error","code":"source_changed","retryable":true,"data":null,"authorizes":false}
++ actual - expected
+
++ 'error'
+- 'available'
+
+    at file:///private/tmp/agdf-gate-matrix-preflight-02.mjs:38:89
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async Promise.allSettled (index 0)
+    at async file:///private/tmp/agdf-gate-matrix-preflight-02.mjs:18:51 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'error',
+  expected: 'available',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

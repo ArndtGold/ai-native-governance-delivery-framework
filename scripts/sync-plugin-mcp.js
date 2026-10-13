@@ -97,10 +97,11 @@ function copyText(source, destination, expected, root) {
 // Writes the runtime plugin's mcp/ directory: the shared launcher and server copy plus one declaration per
 // host whose plugin starts the server itself (Claude Code, and Codex as an installer-completed template).
 // `cockpitUi` (a verified build from cockpit-ui-build.mjs) selects the Claude cockpit variant.
-export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi } = {}) {
+export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi, decisionUi } = {}) {
   if (!pluginRoot || resolve(pluginRoot) !== pluginRoot) throw new Error("Plugin MCP sync requires an absolute pluginRoot.");
   if (!["shared", "copilot"].includes(profile)) throw new Error("Plugin MCP sync requires a supported profile.");
   if (cockpitUi && profile !== "shared") throw new Error("Plugin MCP cockpit variant requires the shared profile.");
+  if (decisionUi && profile !== 'shared') throw new Error('Decision UI requires the shared profile.');
   const mcpRoot = join(pluginRoot, "mcp");
   mkdirSync(mcpRoot, { recursive: true });
   const expected = new Set(["agdf-mcp-launch.js"]);
@@ -119,10 +120,10 @@ export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi } = {}
   for (const entry of SERVER_ENTRIES) {
     copyText(join(serverSourceRoot, entry), join(mcpRoot, "server", entry), expected, mcpRoot);
   }
-  if (cockpitUi) {
+  if (cockpitUi || decisionUi) {
     // Exact verified bytes; cockpit-resource.js reads them from server/ui/ relative to server/src/.
     mkdirSync(join(mcpRoot, "server", "ui"), { recursive: true });
-    for (const [name, bytes] of Object.entries(cockpitUi.files)) {
+    for (const [name, bytes] of Object.entries({ ...cockpitUi?.files, ...decisionUi?.files })) {
       writeFileSync(join(mcpRoot, "server", "ui", name), bytes);
       expected.add(`server/ui/${name}`);
     }

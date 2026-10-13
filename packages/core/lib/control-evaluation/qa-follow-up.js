@@ -36,7 +36,7 @@ export function evaluateQaFollowUp(root, state, runId, maxSources = Infinity, st
 
 // Shared registered-source and normalized-finding validation. Only the wrapper above routes
 // corrective work; pass/block observations here cannot approve or revoke a gate.
-export function inspectQaReports(root, state, runId, expectedDecision, maxSources = Infinity, strictUtf8 = false) {
+export function inspectQaReports(root, state, runId, expectedDecision, maxSources = Infinity, strictUtf8 = false, { readArtefact } = {}) {
   const observations = [];
   const stop = reason => ({ kind: 'blocked', reason, findings: [], sources: observations });
   const routes = declaredRoutes();
@@ -48,13 +48,15 @@ export function inspectQaReports(root, state, runId, expectedDecision, maxSource
     const path = String(artefact.path ?? '').replace(/^`|`$/gu, '');
     if (!path) { if (type === 'QA') return stop('Current QA report is missing.'); else continue; }
     if (posix.normalize(path) !== path || strictUtf8 && /[%?#]/u.test(path)
-        || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
-    const file = containedRegularFile(root, path);
-    if (file.status !== 'valid') return stop(`Review source unavailable: ${type}.`);
+        || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || !readArtefact && hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
+    const file = readArtefact ? null : containedRegularFile(root, path);
+    if (file && file.status !== 'valid') return stop(`Review source unavailable: ${type}.`);
     if (reports.has(path)) continue;
     if (reports.size >= maxSources) return stop('Review source limit exceeded.');
     reports.add(path);
-    const bytes = readFileSync(file.path);
+    const captured = readArtefact ? readArtefact(path) : null;
+    if (readArtefact && typeof captured !== 'string') return stop(`Review source unavailable: ${type}.`);
+    const bytes = readArtefact ? Buffer.from(captured) : readFileSync(file.path);
     observations.push({ path, digest: 'sha256:' + createHash('sha256').update(bytes).digest('hex'), state: 'available' });
     if (strictUtf8 && bytes.length > 262144) return stop(`Review source exceeds the bounded input size: ${type}.`);
     let content;

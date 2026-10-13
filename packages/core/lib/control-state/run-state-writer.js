@@ -1,3 +1,6 @@
+import { assertRunOperationsChange, validRunOperation } from "./run-operations.js";
+import { assertEvidenceBindingsChange, validEvidenceBinding } from './evidence-bindings.js';
+import { validateEarlyPrdHistory, validEarlyPrdEffect, earlyPrdHistoryReference } from './run-revision-history.js';
 import { assertApprovalOperationsChange, readApprovalOperations, validApprovalReceipt } from "./approval-operations.js";
 import { assertArtefactBindingsChange, validArtefactBinding } from "./artefact-bindings.js";
 import { assertSourceRevisionsChange, validSourceRevision, validSourceRevisionEffect } from "./run-source-revisions.js";
@@ -21,7 +24,7 @@ import { basename, dirname, join } from "node:path";
 import { duplicateArtefactRowTypes, parseControlState, parseRunState } from "./run-state-parser.js";
 import { APPROVAL_GATES, approvalSeal, canonicalRunText, runRootFromStatePath, runSealState, sealRunState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
-import { closeoutArtefacts, internalStepArtefacts, userGateOrder } from "../control-evaluation/run-state.js";
+import { prepareRunContentState } from "../control-evaluation/run-state.js";
 
 export function fsyncDirectory(path) {
   if (process.platform === "win32") return;
@@ -40,7 +43,7 @@ function stampRunActivity(content, updatedAt = new Date().toISOString()) {
   return content.replace(/(^## Run Meta\s*\n(?:.*\n)*?- revision_id:.*$)/mu, `$1\n- updated_at: ${updatedAt}`);
 }
 
-export function atomicWrite(path, content, { checkpoint = () => {} } = {}) {
+export function atomicWrite(path, content, { checkpoint = () => {}, temporaryPath } = {}) {
   let previousMode;
   if (existsSync(path)) {
     const destination = lstatSync(path);
@@ -55,7 +58,8 @@ export function atomicWrite(path, content, { checkpoint = () => {} } = {}) {
     throw new Error("AGDF_RUN_PATH_INVALID");
   }
 
-  const temp = `${path}.tmp-${process.pid}-${randomUUID()}`;
+  const temp = temporaryPath ?? `${path}.tmp-${process.pid}-${randomUUID()}`;
+  if (typeof temp !== 'string' || temp === path || dirname(temp) !== dirname(path)) throw new Error('AGDF_RUN_PATH_INVALID');
   let descriptor;
 
   try {
@@ -186,7 +190,7 @@ export function withRunLock(path, work, options) {
   return withOwnedFileLock(path, work, options);
 }
 
-export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, appendedRevision, checkpoint } = {}) {
+export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, appendedBinding, appendedRevision, appendedOperation, appendedEvidence, checkpoint } = {}) {
   const root = runRootFromStatePath(path);
   if (!allowPendingTransaction && existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
     throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
@@ -209,6 +213,15 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
     assertApprovalOperationsChange(currentContent, content, appendedReceipt);
     assertArtefactBindingsChange(currentContent, content, appendedBinding);
     assertSourceRevisionsChange(currentContent, content, appendedRevision);
+    assertRunOperationsChange(currentContent, content, appendedOperation);
+    assertEvidenceBindingsChange(currentContent, content, appendedEvidence);
+    if (appendedEvidence && (!validEvidenceBinding(appendedEvidence) || appendedEvidence.run_id !== current.meta.run_id
+      || appendedEvidence.operation_id !== (appendedOperation?.operation_id ?? appendedBinding?.operation.id))) throw Error('AGDF_EVIDENCE_BINDINGS_INVALID');
+    if (appendedOperation && (!validRunOperation(appendedOperation) || (allowApprovalChange !== (appendedOperation.kind === 'prd_revision.reopen')) || appendedReceipt || appendedBinding || appendedRevision
+        || appendedOperation.run_id !== current.meta.run_id || appendedOperation.expected_revision_id !== expectedRevisionId
+        || appendedOperation.effect.resulting_revision_id !== nextRevisionId || appendedOperation.effect.revision !== Number(current.meta.revision) + 1)) throw Error("AGDF_RUN_OPERATIONS_INVALID");
+    if (appendedOperation?.kind === 'prd_revision.reopen' && (!validateBeforeWrite || !validateEarlyPrdHistory(root, appendedOperation)
+      || !archivedRunMatches(root, earlyPrdHistoryReference(appendedOperation), currentContent) || !validEarlyPrdEffect(currentContent, content))) throw Error('AGDF_RUN_OPERATIONS_INVALID');
     if (appendedRevision && (!allowApprovalChange || appendedReceipt || appendedBinding || !validateBeforeWrite
         || !validSourceRevision(appendedRevision) || appendedRevision.run_id !== current.meta.run_id
         || appendedRevision.previous_revision_id !== expectedRevisionId || appendedRevision.resulting_revision_id !== nextRevisionId
@@ -259,11 +272,7 @@ export function unapproveRecoveryApprovals(content) {
     lines[index] = `| ${cells.join(" | ")} |`;
   }
   let candidate = lines.join("\n");
-  const state = { content: candidate, ...parseControlState(candidate, {
-    userGates: userGateOrder,
-    internalSteps: [...internalStepArtefacts],
-    closeoutArtefacts: [...closeoutArtefacts],
-  }) };
+  const state = prepareRunContentState("", candidate);
   const decision = transitionDecisionForRunState(state);
   candidate = candidate.replace(/^- current_gate:.*$/mu, `- current_gate: ${decision.current_gate}`)
     .replace(/^- next_allowed_action:.*$/mu, `- next_allowed_action: ${decision.next_allowed_action}`);
@@ -319,6 +328,8 @@ export function writeRunRecoveryLocked(path, candidateContent, {
   }
   assertRecoveryOperationsTrusted(currentContent);
   assertApprovalOperationsChange(currentContent, candidateContent);
+  assertRunOperationsChange(currentContent, candidateContent);
+  assertEvidenceBindingsChange(currentContent, candidateContent);
   const currentSeal = runSealState(root, currentContent);
   if (!["unsealed", "invalid"].includes(currentSeal.status)) {
     throw new Error("AGDF_RUN_RECOVERY_NOT_REQUIRED");

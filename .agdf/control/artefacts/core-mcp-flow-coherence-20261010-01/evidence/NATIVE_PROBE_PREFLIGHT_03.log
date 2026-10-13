@@ -1,0 +1,9 @@
+file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-TJ6kyt/native-scope-check.mjs:14
+const checked=await client.callTool({name:'agdf_inspect',arguments:{operation:'gate-check',presentation_language:'de',working_directory:c.target,target_source:'explicit_target',primary_target:c.target,run_id:f.run_id,expected_revision_id:f.expected_revision_id}});assert.equal(checked.structuredContent.outcome,'inspect_result',JSON.stringify(checked));
+                                                                                                                                                                                                                                                                                                               ^
+
+TypeError: Cannot read properties of undefined (reading 'outcome')
+    at file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-TJ6kyt/native-scope-check.mjs:14:304
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.22.3

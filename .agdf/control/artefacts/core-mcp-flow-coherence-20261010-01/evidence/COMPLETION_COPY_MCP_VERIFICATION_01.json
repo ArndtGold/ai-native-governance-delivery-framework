@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "--test-concurrency=2",
+    "packages/mcp-server/test/whole-flow.test.js",
+    "packages/mcp-server/test/structured-flow.test.js",
+    "packages/mcp-server/test/decision-resource.test.js"
+  ],
+  "observed_completed_at": "2026-10-11T07:33:19.601382+00:00",
+  "exit_code": 0,
+  "evidence_class": "actual_reassembled_stdio_synthetic_disposable_decisions",
+  "raw_log": "COMPLETION_COPY_MCP_VERIFICATION_01.log",
+  "raw_log_digest": "sha256:c5320dca4835850eac68dc3e2195a3bf0468f6e86285c1365656e2e5eaa85f46",
+  "candidate_identity": "CANDIDATE_IDENTITY_COMPLETION_COPY_01.json",
+  "source_delta": "QA_CONTINUATION_SOURCE_DELTA_01.json",
+  "native_qualified": false,
+  "authorizes": false,
+  "candidate_environment": {
+    "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+    "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+    "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-completion-copy"
+  },
+  "ui_source_build_binding": "The initial copy assembly used the prior UI resource; command policy/locale results qualify this dispatcher. The fully rebuilt UI resource is separately qualified by COMPLETION_COPY_UI_MCP_VERIFICATION_01."
+}

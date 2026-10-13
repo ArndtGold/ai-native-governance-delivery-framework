@@ -1,3 +1,4 @@
+import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -31,7 +32,7 @@ function observe(root, command, evaluateGateCheck) {
 // Internal dependencies expose I/O checkpoints for deterministic fault/process tests. The public
 // facade supplies only canonical policy, Git observations and package metadata, never caller policy.
 export function executeApprovalCommand(root, command, { evaluateGateCheck, packageVersion,
-  checkpoint = () => {}, flush = flushRunCommit, afterWrite } = {}) {
+  checkpoint = () => {}, flush = flushRunCommit, afterWrite, commandContext } = {}) {
   let target, requestDigest, path, snapshot;
   const result = (outcome, reason = null, receipt = null, details = {}) => Object.freeze({
     schema_version: "1", outcome, reason,
@@ -50,6 +51,7 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
   const invalid = validateApprovalCommand(command);
   if (invalid) return result("rejected", invalid);
   requestDigest = approvalRequestDigest(command);
+  const operationContext = commandContext ? { kind: 'approval.record', operation_id: command.operation_id, target_id: command.target_id, request_digest: requestDigest } : undefined;
   try { target = resolveControlCommandTarget(root); } catch { return result("rejected", "target_invalid"); }
   if (target.target_id !== command.target_id) return result("rejected", "target_binding_mismatch");
   const relativePath = `.agdf/control/runs/${command.run_id}/RUN_STATE.md`;
@@ -61,13 +63,14 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
     return withRunBacklogLock(target.root, path, () => {
       const run = readRun(target.root, command.run_id);
       if (run.rejection) return result("recovery_required", run.rejection.reason);
+      assertRunOperationIdentity(target.root, run, command.operation_id, "approval.record");
       snapshot = run.content;
       if (!sealIsValid(target.root, run.content)) return result("recovery_required", "seal_invalid");
       const operations = readApprovalOperations(run.content);
       const existing = operations.receipts.find((item) => item.operation_id === command.operation_id);
       // Check history before freshness: an acknowledged historical effect grants no current approval.
       if (existing) {
-        if (existing.request_digest !== requestDigest) return result("rejected", "operation_payload_conflict");
+        if (existing.request_digest !== requestDigest || (existing.command_digest ?? null) !== (commandContext?.request_digest ?? null)) return result("rejected", "operation_payload_conflict");
         flush(path);
         return result("already_applied", null, existing);
       }
@@ -79,12 +82,14 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
         recovery: prepared.recovery ?? "Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply.",
       });
       const receipt = {
-        schema_version: "1", action: command.action, operation_id: command.operation_id,
-        request_digest: requestDigest, binding: commandBinding(command), assurance: COOPERATIVE_ASSURANCE,
+        schema_version: prepared.qaAcceptance ? "3" : "2", action: command.action, operation_id: command.operation_id,
+        request_digest: requestDigest, command_digest: commandContext?.request_digest ?? null, binding: commandBinding(command), assurance: COOPERATIVE_ASSURANCE,
         created_at: new Date().toISOString(), producer: { contract: "approval-service/1", package_version: packageVersion },
         effect: { previous_revision_id: command.expected_revision_id, resulting_revision_id: randomUUID(),
           revision: Number(run.meta.revision) + 1, gate: command.gate, approval: `Approval: ${command.gate}`,
+          material_version: prepared.material.material_version, material_sources: prepared.material.sources,
           artefact_digest: prepared.digest, presentation_digest: prepared.presentation.digest,
+          ...(prepared.qaAcceptance ? { qa_acceptance: prepared.qaAcceptance } : {}),
           next_gate_after_approval: prepared.after.current_gate, allowed_after_approval: prepared.after.next_allowed_action },
       };
       checkpoint("before_final_validation");
@@ -92,11 +97,13 @@ export function executeApprovalCommand(root, command, { evaluateGateCheck, packa
         allowApprovalChange: true, expectedContent: run.content, appendedReceipt: receipt,
         nextRevisionId: receipt.effect.resulting_revision_id, validateBeforeWrite: prepared.validateBeforeWrite,
         validateDuringTransaction: prepared.validateDuringTransaction, checkpoint, afterWrite,
+        operationContext,
       });
       checkpoint("before_response");
       return result("accepted", null, receipt, backlogSkip({ status: written.backlog, reason: written.backlog_reason }));
-    }, { checkpoint });
+    }, { checkpoint, operationContext });
   } catch (error) {
+    if (error.message === 'AGDF_OPERATION_PAYLOAD_CONFLICT') return result('rejected', 'operation_payload_conflict');
     if (error.message === "AGDF_RUN_WRITE_LOCKED") return result(error.lock_owner_status === "unknown" ? "recovery_required" : "retryable_failure",
       error.lock_owner_status === "unknown" ? "lock_owner_unconfirmed" : "run_write_locked");
     if (error.message === "AGDF_STALE_RUN_REVISION") return result("rejected", "stale_revision", null,

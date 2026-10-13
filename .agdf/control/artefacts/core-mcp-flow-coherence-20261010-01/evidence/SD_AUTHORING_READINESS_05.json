@@ -1,0 +1,81 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "artifact-readiness",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "gate": "SD",
+    "expected_revision_id": "eb824440-0df1-4fc2-9b53-d77e6a24ea5b",
+    "revision_id": "eb824440-0df1-4fc2-9b53-d77e6a24ea5b",
+    "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md",
+    "artifact_digest": "sha256:2e5a7621b8515619fdade54c630f3d00e70c5871cfca3942dea060887f51faa0",
+    "ready": true,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [
+      {
+        "name": "approval_summary",
+        "ready": true,
+        "required_heading": "AGDF Approval Summary (de; source=en)",
+        "reason": null
+      },
+      {
+        "name": "sd_decisions",
+        "ready": true,
+        "open_decisions": [],
+        "contract": "sd-decisions-v1"
+      },
+      {
+        "name": "sd_traceability",
+        "ready": true,
+        "open_items": [],
+        "contract": "criteria-chain-v1"
+      }
+    ],
+    "diagnostics": [],
+    "next_action": "Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval."
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.127,
+    "target_ms": 1.111,
+    "control_ms": 717.976,
+    "render_ms": 0,
+    "total_ms": 727.383
+  },
+  "diagnostics": []
+}

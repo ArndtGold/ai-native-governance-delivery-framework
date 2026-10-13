@@ -1,0 +1,167 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "artifact-readiness",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "gate": "TP",
+    "expected_revision_id": "96ed9e6e-0522-442e-ba48-c19978387e6f",
+    "revision_id": "96ed9e6e-0522-442e-ba48-c19978387e6f",
+    "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+    "artifact_digest": "sha256:1757ee3070de84dea18e6e3d3d6f2612cce37d284e66f430553621ec5026f5f4",
+    "ready": false,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [
+      {
+        "name": "approval_summary",
+        "ready": true,
+        "required_heading": "AGDF Approval Summary (de; source=en)",
+        "reason": null
+      },
+      {
+        "name": "tp_traceability",
+        "ready": false,
+        "open_items": [
+          "PRD criterion AC-022 is not mapped",
+          "PRD criterion AC-023 is not mapped",
+          "PRD criterion AC-024 is not mapped",
+          "PRD criterion AC-025 is not mapped",
+          "PRD criterion AC-026 is not mapped",
+          "SD decision SDD-019 for AC-022 has no TP verification scenario",
+          "SD decision SDD-020 for AC-022 has no TP verification scenario",
+          "SD decision SDD-019 for AC-023 has no TP verification scenario",
+          "SD decision SDD-021 for AC-023 has no TP verification scenario",
+          "SD decision SDD-019 for AC-024 has no TP verification scenario",
+          "SD decision SDD-020 for AC-024 has no TP verification scenario",
+          "SD decision SDD-013 for AC-025 has no TP verification scenario",
+          "SD decision SDD-019 for AC-025 has no TP verification scenario",
+          "SD decision SDD-021 for AC-025 has no TP verification scenario",
+          "SD decision SDD-015 for AC-026 has no TP verification scenario",
+          "SD decision SDD-017 for AC-026 has no TP verification scenario",
+          "SD decision SDD-021 for AC-026 has no TP verification scenario",
+          "SD decision SDD-022 for AC-026 has no TP verification scenario"
+        ],
+        "contract": "criteria-chain-v1"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "tp_traceability",
+        "message": "PRD criterion AC-022 is not mapped"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "PRD criterion AC-023 is not mapped"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "PRD criterion AC-024 is not mapped"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "PRD criterion AC-025 is not mapped"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "PRD criterion AC-026 is not mapped"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-019 for AC-022 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-020 for AC-022 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-019 for AC-023 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-021 for AC-023 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-019 for AC-024 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-020 for AC-024 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-013 for AC-025 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-019 for AC-025 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-021 for AC-025 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-015 for AC-026 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-017 for AC-026 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-021 for AC-026 has no TP verification scenario"
+      },
+      {
+        "code": "tp_traceability",
+        "message": "SD decision SDD-022 for AC-026 has no TP verification scenario"
+      }
+    ],
+    "next_action": "Correct the reported issue through its existing owner, then recheck this run and revision."
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.386,
+    "target_ms": 1.218,
+    "control_ms": 734.049,
+    "render_ms": 0,
+    "total_ms": 743.816
+  },
+  "diagnostics": []
+}

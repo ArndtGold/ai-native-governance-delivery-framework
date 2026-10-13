@@ -1,0 +1,59 @@
+TAP version 13
+# SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+# Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+# SCN-020/021: actual generated STDIO UR-at-SD preview/apply, explicit confirmation, exact archive, invalidated approvals/analysis, stale approval denial and single replay passed; synthetic decisions only.
+# Actual default-entrypoint STDIO early PRD reopening and source preview/apply, explicit confirmation, preserved old state on denial and single historical replay passed; synthetic only.
+# Subtest: packages/mcp-server/test/revision-command.test.js
+ok 1 - packages/mcp-server/test/revision-command.test.js
+  ---
+  duration_ms: 250447.942904
+  type: 'test'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"effect_unknown","reason":"dispatch_timeout","operation_id":"f63c7892-1cf0-4bd5-a001-f474a2871428","request_digest":"sha256:5cb5bc8e153489664e35750989931a85eaec33e22813ae0044c2af0397932b47","binding":{"target_id":"sha256:e61d1e59cd9bbb5f02ac6cf2da62d4344d75938050ef9e86db708d6115edf2f5","run_id":"structured-closeout-command","expected_revision_id":"a4a941b9-6aed-40de-aa2a-7355cce926e9","kind":"approval.record"},"dispatch":"unknown","authorizes":false,"recovery":"Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer non-execution or create another decision."}
+# + actual - expected
+# + 'effect_unknown'
+# - 'accepted'
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/structured-flow.test.js:80:12
+#     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+#     at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+#     at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/structured-flow.test.js:21:3 {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 'effect_unknown',
+#   expected: 'accepted',
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/mcp-server/test/structured-flow.test.js
+not ok 2 - packages/mcp-server/test/structured-flow.test.js
+  ---
+  duration_ms: 104268.616374
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/structured-flow.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+# Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+# Subtest: packages/mcp-server/test/whole-flow.test.js
+ok 3 - packages/mcp-server/test/whole-flow.test.js
+  ---
+  duration_ms: 85535.144622
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 250464.849091

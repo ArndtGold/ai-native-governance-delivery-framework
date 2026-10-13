@@ -1,0 +1,221 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:46:03.890Z",
+  "evidence_class": "actual_user_report_plus_native_codex_app_and_core_receipt",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "run_id": "native-en-reject",
+  "presentation_id": "b8b87680-7bc4-48dd-867a-c348350a83a8",
+  "operation_id": "d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+  "human_report_verbatim": [
+    "Alle Schritte geprüft; Decision saved.; Karte offen",
+    "Keine gesehen"
+  ],
+  "confirmed_human_observations": {
+    "document_read_and_return": true,
+    "empty_comment_validation": true,
+    "reject_via_tab_enter": true,
+    "saved_status": true,
+    "actions_disabled": true,
+    "technical_prompt_observed": false,
+    "card_left_open": true
+  },
+  "sidebar_inventory": [],
+  "not_yet_confirmed": [
+    "host_view_location_inline_or_sidebar",
+    "post_repeat_view_closure"
+  ],
+  "independent_native_inspection": {
+    "schema_version": "1",
+    "run_id": "native-en-reject",
+    "operation_id": "d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "presentation_decision.record",
+    "request_digest": "sha256:a72dd149d9899c537bc8af1da360bcb4f44f570575478c41502adce54a41978f",
+    "receipt": {
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "created_at": "2026-10-11T08:44:36.040Z",
+      "effect": {
+        "previous_revision_id": "0fe191cc-df03-4509-82cc-83586dbafc6f",
+        "record": {
+          "action": "reject",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "comment": "",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-en-reject/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-en-reject/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-en-reject/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:27083ee77c114adb39f15faeef328c9844270994783e34b9dd123e642648f01b",
+          "owner": "sd-definition",
+          "presentation_digest": "sha256:65f8d66ba20bcd8b1a2a50839bea08a0069ac5218aba33de4f96953474042e6d",
+          "presentation_id": "b8b87680-7bc4-48dd-867a-c348350a83a8"
+        },
+        "resulting_revision_id": "778b2d68-dc7f-49b5-a5b3-a10f379cf2db",
+        "revision": 8
+      },
+      "expected_revision_id": "0fe191cc-df03-4509-82cc-83586dbafc6f",
+      "kind": "presentation_decision.record",
+      "operation_id": "d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:a72dd149d9899c537bc8af1da360bcb4f44f570575478c41502adce54a41978f",
+      "run_id": "native-en-reject",
+      "schema_version": "1",
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b"
+    },
+    "historical_effect": true,
+    "current_revision_id": "778b2d68-dc7f-49b5-a5b3-a10f379cf2db",
+    "pending": null,
+    "expected_revision_id": "778b2d68-dc7f-49b5-a5b3-a10f379cf2db"
+  },
+  "prior_discrepancy": "NATIVE_NEXT_EN_REJECT_DISCREPANCY_01.json",
+  "same_uuid_preparation_replay": "NATIVE_NEXT_EN_REJECT_REPLAY_01.json",
+  "qualification": "Repeated human report is now corroborated by one native request and original canonical rejection receipt. Cause of earlier missing request is not established. No automatic host teardown or full native qualification inferred.",
+  "native_qualified": false,
+  "authorizes": false,
+  "action_exchange_events": [
+    {
+      "at": "2026-10-11T08:44:35.481Z",
+      "event": "tool_request",
+      "client": {
+        "name": "codex-mcp-client",
+        "title": "Codex",
+        "version": "0.162.0-alpha.17.2"
+      },
+      "input": {
+        "operation_id": "d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+        "presentation_id": "b8b87680-7bc4-48dd-867a-c348350a83a8",
+        "expected_revision_id": "0fe191cc-df03-4509-82cc-83586dbafc6f",
+        "action": "reject"
+      }
+    },
+    {
+      "at": "2026-10-11T08:44:36.346Z",
+      "event": "tool_result",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "presentation_decision.record",
+          "operation_id": "d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+          "request_digest": "sha256:a72dd149d9899c537bc8af1da360bcb4f44f570575478c41502adce54a41978f",
+          "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+          "run_id": "native-en-reject",
+          "expected_revision_id": "0fe191cc-df03-4509-82cc-83586dbafc6f",
+          "created_at": "2026-10-11T08:44:36.040Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "0fe191cc-df03-4509-82cc-83586dbafc6f",
+            "resulting_revision_id": "778b2d68-dc7f-49b5-a5b3-a10f379cf2db",
+            "revision": 8,
+            "record": {
+              "gate": "SD",
+              "presentation_id": "b8b87680-7bc4-48dd-867a-c348350a83a8",
+              "presentation_digest": "sha256:65f8d66ba20bcd8b1a2a50839bea08a0069ac5218aba33de4f96953474042e6d",
+              "material_version": "sha256:27083ee77c114adb39f15faeef328c9844270994783e34b9dd123e642648f01b",
+              "material_sources": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-en-reject/UR.md",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-en-reject/PRD.md",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-en-reject/SD.md",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                }
+              ],
+              "action": "reject",
+              "comment": "",
+              "owner": "sd-definition",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "778b2d68-dc7f-49b5-a5b3-a10f379cf2db",
+          "lifecycle": "active",
+          "gate": "SD",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "presentation_version_decided",
+          "next_operation": {
+            "type": "revise_gate_material",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD",
+            "skill_id": "sd-definition"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  ],
+  "canonical_verification": {
+    "observed_at": "2026-10-11T08:46:04.718Z",
+    "decision_receipt_count": 1,
+    "native_action_request_count": 1,
+    "action": "reject",
+    "sd_receipt_count": 0,
+    "tp_receipt_count": 0,
+    "run_operations_valid": true,
+    "approval_operations_valid": true,
+    "run_seal": "valid",
+    "run_digest": "sha256:40f110a58d46782a7946e18b126cf03f481b4c966100e4a3806d2fdddb8a80d4",
+    "current_revision_id": "778b2d68-dc7f-49b5-a5b3-a10f379cf2db",
+    "observation_method": "Read-only canonical parsers, seal and native request log; no business mutation."
+  }
+}

@@ -31,6 +31,12 @@ beschreibt diese vorhandenen Schreibgrenzen. Die folgenden vorgeschlagenen allge
 MCP-Operationen und Ausführungskontrollen sind dadurch weder umgesetzt noch freigegeben;
 die Nachweisgrenzen und Roadmap dieses Konzepts gelten weiter.
 
+**Nachführung vom 11. Oktober 2026:** Der [Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md)
+beschreibt inzwischen vorhandene begrenzte Befehlsgruppen und eine Decision App im
+Repository-Entwicklungsstand. Die Bestands- und Nachweistabellen dieses Konzepts bleiben der
+historische Ausgangsstand ihrer angegebenen Quellen. Die neue Implementierung ist kein Nachweis
+für die vollständige Umsetzung dieser Roadmap, allgemeine Ausführungskontrolle oder native Host-Abnahme.
+
 ### Ziel und Lesehilfe
 
 Ziel ist, zu kontrollieren, was der Coding-Agent tun darf, und zu prüfen, was er tatsächlich getan hat. Auswahl-Buttons für Freigaben sind eine Darstellungsoption innerhalb dieses Kontrollmodells. Das vollständige Modell muss vorliegen, bevor einzelne MCP-Operationen oder hostspezifisches Verhalten ergänzt werden.
@@ -66,7 +72,7 @@ Der aktuelle Freigabeweg ist `cooperative_local`: Der Aufrufer reicht eine bewus
 | Dauerhafter Zustand | Schreibkomponenten und Versiegelungen unter control-state; E-03 | Revisions-, Integritäts- und Übergangsprüfungen schützen kooperierende Schreibkomponenten; für den Agenten zugängliche Dateien bilden keine Vertrauensgrenze gegenüber einem angreifenden Agenten |
 | Darstellung und Freigabe | run-presentation.js, gate-approval-validator.js, interaction-presentation.js; E-04 | Die Vorbereitung bindet den Inhalt; der Validator prüft die Einstufung als bewusste Antwort sowie den exakten Entscheidungsgegenstand und Wert; ein unabhängiger Nachweis der Anzeige oder menschlichen Eingabe fehlt |
 | Idempotente Freigabebefehle | approval-command.js und approval-command-contract.js; E-05 | Für diesen Befehlsdienst bestehen Operationsbelege, Erkennung von Nutzlastkonflikten, Sperren sowie Wiederholung und Wiederherstellung; dies belegt keine allgemeine Idempotenz beliebiger Aktionen |
-| MCP | packages/mcp-server/src/server.js und die MCP-Laufzeit der CLI; E-07 | Der Server bietet Tools an und liefert Text sowie structuredContent zurück; Formulare, Resources, Prompts und Ereignisverarbeitung sind dort nicht implementiert |
+| MCP, historische Ausgangsbasis | packages/mcp-server/src/server.js und die MCP-Laufzeit der CLI; E-07 | Zum damaligen Quellenstand wurden Tools mit Text und structuredContent geprüft. Der spätere Bestand ergänzt MCP-App-Resources und begrenzte Befehlsgruppen; siehe Befehlsfluss. Formulare, Prompts und MCP-Ereignisverarbeitung werden dadurch nicht implementiert. |
 | Qualität | Review-Skills und quality.md; E-08 | Die bestehende QA-Instanz bleibt für die abschließende Qualitätsentscheidung zuständig; Reviews desselben Agenten können dokumentierte Schritte erfüllen, ohne eine unabhängige Absicherung zu belegen |
 
 Der gewöhnliche Ablauf lautet derzeit: Anfrage -> Zuordnung zu Ziel und Run -> Evaluator -> Dispatcher -> Agent führt die zurückgegebene Arbeit aus -> kanonische Aufzeichnung -> Review/QA -> menschliche Abnahme -> Abschluss. Eine Gate-Auswertung kontrolliert diesen kooperativen Ablauf. Der Agent hat daneben direkten Zugriff auf Datei-, Shell-, MCP- und weitere Werkzeuge. Diese können ohne Rückfrage beim Dispatcher handeln; Wirkungen auf Arbeitsbereich, Netzwerk, externe Dienste, Zustandsdateien und Prüfwerkzeuge benötigen eigene Ausführungskontrollen.
@@ -199,7 +205,7 @@ Tools decken explizite validierte Operationen ab. Resources sind optional für s
 
 Der Umsetzungsvertrag muss die Bedeutung von Anfragen, Ergebnissen und Fehlern gemeinsam mit der Fähigkeitsaushandlung versionieren. Bestehende Lese-/Dispatch-Clients bleiben während eines definierten Kompatibilitätszeitraums funktionsfähig. Vorgeschlagene allgemeine Schreibzugriffe dürfen die [bestehenden Lese- und begrenzten Dispatch-Schreibgrenzen](02-dispatcher.md#artefakterfassung-und-begrenzte-beziehungskorrektur) nicht stillschweigend erweitern; Fähigkeitserkennung und menschliche Zustimmung müssen die neue Wirkung vor der Nutzung beschreiben. Ein neuer Transport rechtfertigt weder eine zweite Zustandsdatenbank noch eine zweite maßgebliche Schemaquelle.
 
-Die von OpenAI dokumentierte MCP-Events-Integration verwendet Webhooks mit Protokoll 2026-07-28 in Work Web, Desktop Cloud und Dots. Daraus folgt keine Unterstützung lokaler Codex-Ereignisse. Der aktuelle AGDF-Server bietet ausschließlich Tools und hat keine Ereignisverarbeitung. Für die lokale Ausgangsbasis dieses Konzepts ist keine Webhook-Infrastruktur erforderlich. [MCP Events](https://developers.openai.com/plugins/build/mcp-events).
+Die von OpenAI dokumentierte MCP-Events-Integration verwendet Webhooks mit Protokoll 2026-07-28 in Work Web, Desktop Cloud und Dots. Daraus folgt keine Unterstützung lokaler Codex-Ereignisse. Der damals untersuchte AGDF-Server bot ausschließlich Tools und keine MCP-Ereignisverarbeitung. Der spätere MCP-App-Bestand ergänzt Resources, aber keine Webhook-Ereignisverarbeitung. Für die lokale Ausgangsbasis dieses Konzepts ist keine Webhook-Infrastruktur erforderlich. [MCP Events](https://developers.openai.com/plugins/build/mcp-events).
 
 ## 8. Matrix der Host-Fähigkeiten und Nachweise
 

@@ -1,0 +1,142 @@
+TAP version 13
+# Artifact authoring readiness: validator parity, incomplete input, revision, source and read-only checks passed.
+# Subtest: packages/core/test/artifact-readiness-test.js
+ok 1 - packages/core/test/artifact-readiness-test.js
+  ---
+  duration_ms: 7575.92503
+  type: 'test'
+  ...
+# PASS specific qa_evidence_open, mixed-route precedence and unchanged permission envelope
+# PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+# PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+# PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+# PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+# PASS contradictory/missing/invalid/foreign normalized sources remain unconfirmed
+# PASS missing QA registration, invalid UTF-8, oversized report and bounded reference set stay explicit
+# PASS pass awaiting approval, approved QA/UAT, closeout and completed are distinct from block
+# PASS actual resulting revision, exact repeat timestamp/bytes and selected current comparison
+# PASS consumed QA source movement before commit cannot mix Run and pointer evidence
+# PASS explicit referenced review movement also prevents a mixed commit
+# 11 work-summary checks passed
+# Subtest: packages/core/test/backlog-work-summary-test.js
+ok 2 - packages/core/test/backlog-work-summary-test.js
+  ---
+  duration_ms: 4028.831628
+  type: 'test'
+  ...
+# artefact recording/correction tests passed (211 assertions)
+# control-state tests passed
+# backlog status vocabulary tests passed
+# Subtest: packages/core/test/control-state-test.js
+ok 3 - packages/core/test/control-state-test.js
+  ---
+  duration_ms: 90836.371903
+  type: 'test'
+  ...
+# Private facade qualification/groups, inert comments, exact replay/conflict, unknown acknowledgement and actual opposed text/App processes passed (17569 definition bytes; synthetic targets only).
+# Subtest: packages/core/test/decision-action-test.js
+ok 4 - packages/core/test/decision-action-test.js
+  ---
+  duration_ms: 97678.794096
+  type: 'test'
+  ...
+# Existing early PRD boundary, concrete confirmation, immutable exact archive, replay/conflict and v3 pre/post-commit process recovery passed (synthetic only).
+# Subtest: packages/core/test/early-prd-command-test.js
+ok 5 - packages/core/test/early-prd-command-test.js
+  ---
+  duration_ms: 80036.145368
+  type: 'test'
+  ...
+# Early approved-UR revision: Core/CLI, history, fresh approval, unsupported boundaries, stale inputs, recovery and process concurrency passed (synthetic fixtures only).
+# Subtest: packages/core/test/early-ur-revision-test.js
+ok 6 - packages/core/test/early-ur-revision-test.js
+  ---
+  duration_ms: 42715.447653
+  type: 'test'
+  ...
+# Exact current/superseded/unknown evidence associations, immutable archive reads, writer guards and orphan rejection passed (synthetic only).
+# Subtest: packages/core/test/evidence-bindings-test.js
+ok 7 - packages/core/test/evidence-bindings-test.js
+  ---
+  duration_ms: 21766.295287
+  type: 'test'
+  ...
+# Shared material-version rejection/change guard, inert comments, replay/conflict, renewed material, exact approval and historical presentation passed (synthetic only).
+# Subtest: packages/core/test/presentation-decision-test.js
+ok 8 - packages/core/test/presentation-decision-test.js
+  ---
+  duration_ms: 18149.439833
+  type: 'test'
+  ...
+# Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+# Subtest: packages/core/test/quick-closeout-command-test.js
+ok 9 - packages/core/test/quick-closeout-command-test.js
+  ---
+  duration_ms: 4594.469963
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: packages/core/test/run-closeout-command-test.js
+ok 10 - packages/core/test/run-closeout-command-test.js
+  ---
+  duration_ms: 75702.042681
+  type: 'test'
+  ...
+# Bounded command schema/groups, side-effect annotations, accessor/injection rejection and generated definition budgets passed (16403 bytes; facade not yet included).
+# Subtest: packages/core/test/run-command-contract-test.js
+ok 11 - packages/core/test/run-command-contract-test.js
+  ---
+  duration_ms: 429.73952
+  type: 'test'
+  ...
+# Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).
+# Subtest: packages/core/test/run-command-revision-test.js
+ok 12 - packages/core/test/run-command-revision-test.js
+  ---
+  duration_ms: 76772.814835
+  type: 'test'
+  ...
+# Shared service target/group confinement, source recording, historical replay/conflict and post-dispatch lost-result acknowledgement passed (synthetic only).
+# Subtest: packages/core/test/run-command-service-test.js
+ok 13 - packages/core/test/run-command-service-test.js
+  ---
+  duration_ms: 23064.820224
+  type: 'test'
+  ...
+# Shared full-state/writer renewal, bounded internal recording/replay, invalid completion and shared criteria grammar passed (synthetic only).
+# Subtest: packages/core/test/run-flow-coherence-test.js
+ok 14 - packages/core/test/run-flow-coherence-test.js
+  ---
+  duration_ms: 24760.263367
+  type: 'test'
+  ...
+# Strict v3 owned-output process interruption, pre-commit rollback, post-commit forward recovery, receipt replay and interference rejection passed (no power-loss claim).
+# Subtest: packages/core/test/run-owned-output-recovery-test.js
+ok 15 - packages/core/test/run-owned-output-recovery-test.js
+  ---
+  duration_ms: 36560.915669
+  type: 'test'
+  ...
+# {"suite":"source-revisions","scenarios":["SCN-001","SCN-003","SCN-004","SCN-005","SCN-007","SCN-008","SCN-011","SCN-012","SCN-013","SCN-014","SCN-018","SCN-009","SCN-010","SCN-015","SCN-017","SCN-019","SCN-020","SCN-016","SCN-021","SCN-006"],"fixture_authority":"synthetic_only"}
+# Subtest: packages/core/test/run-source-revisions-test.js
+ok 16 - packages/core/test/run-source-revisions-test.js
+  ---
+  duration_ms: 100227.024333
+  type: 'test'
+  ...
+# Run-step transaction boundaries passed.
+# Subtest: packages/core/test/run-step-transaction-test.js
+ok 17 - packages/core/test/run-step-transaction-test.js
+  ---
+  duration_ms: 10392.284928
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 222694.758588

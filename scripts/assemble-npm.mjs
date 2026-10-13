@@ -3,7 +3,7 @@ import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cliRoot, coreRoot, mcpRoot, repoRoot, projectCore, coreImports } from './core-projection.mjs';
 import { renameSyncWithRetry } from '../packages/core/lib/fs-swap.js';
-import { readCockpitUiBuild } from './cockpit-ui-build.mjs';
+import { readCockpitUiBuild, readDecisionUiBuild } from './cockpit-ui-build.mjs';
 const OWNER = 'agdf:npm-assembly';
 export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
   if (surface && !['codex', 'claude', 'copilot', 'opencode'].includes(surface)) throw new Error('AGDF_ASSEMBLY_SURFACE_INVALID');
@@ -40,6 +40,11 @@ export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
         const directory = join(target, 'ui'); mkdirSync(directory);
         for (const file of ['manifest.json', 'cockpit.html']) cpSync(join(ui, file), join(directory, file));
         manifest.files = [...manifest.files, 'ui'];
+      }
+      if (name === 'agdf-mcp-server') {
+        const directory = join(target, 'ui'); mkdirSync(directory, { recursive: true });
+        for (const [name, bytes] of Object.entries(readDecisionUiBuild().files)) writeFileSync(join(directory, name), bytes);
+        manifest.files = [...new Set([...manifest.files, 'ui'])];
       }
       cpSync(join(repoRoot, 'LICENSE'), join(target, 'LICENSE'));
       delete manifest.devDependencies;

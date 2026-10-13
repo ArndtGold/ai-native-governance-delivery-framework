@@ -433,3 +433,25 @@ The shared MCP server and launcher add 1 file / 4678 bytes. The Core next-step c
 its actual closure is 529 bytes larger than the previously recorded 3430-byte estimate.
 The exact generated Copilot inventory is 206 files / 1725372 bytes, up from 204 / 1716735.
 No UI assets or spare budget are included, and the file, byte and provenance checks remain active.
+
+
+## Completed and inconsistent completion status copy (2026-10-11)
+
+The Core already distinguishes valid completion from unconfirmed obligations. The
+English/German operational card lacked the eight corresponding action/next-step
+strings, causing German dispatcher presentation to fail instead of showing the
+existing blocker. The locale source adds 1568 bytes, projected twice into Copilot
+(+3136 bytes). Measured inventory: 229 files / 2000847 bytes -> 229 / 2003983.
+No spare headroom, file-count expansion or disabled provenance/budget check.
+See the existing core-mcp-flow-coherence-20261010-01 Run's completion-copy evidence.
+
+## Inspect operation-contract selector diagnostics (2026-10-11)
+
+The observed `prepare/presentation.prepare` typo now points to `module` and the
+canonical allowed group/kind pairs, with a usable example in discovery. The shared
+registry and existing localized recovery retain all rejection and binding rules.
+Measured Core projection delta: contract.js +136, service.js +112,
+interaction-presentation.js +73 bytes. Inventory: 229 / 2003983 -> 229 / 2004304.
+Inspect discovery remains below its unchanged 5000-byte limit; no spare payload
+headroom or additional file is included. The Run retains the initial failed budget
+check and INSPECT_MODULE_PAYLOAD_DELTA_01.json with the exact affected projections.

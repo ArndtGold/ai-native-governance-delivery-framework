@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T11:04:36.611Z",
+  "evidence_class": "deterministic_actual_core_command_interleaving_with_observed_reader_dependencies",
+  "rows": [
+    {
+      "read_run": "native-en-ur-approve",
+      "replay_run": "native-en-ur-approve",
+      "interleaving": "captured_before_revalidation",
+      "replay_outcome": "already_applied",
+      "replay_reason": null,
+      "reader_state": "available",
+      "reader_code": null,
+      "changed_observed_dependencies": [
+        {
+          "path": ".agdf/control/runs/native-en-ur-approve",
+          "before": {
+            "kind": "directory",
+            "identity": "16777223:13095081625:16877",
+            "mtime": "1791716624402246183",
+            "ctime": "1791716624402246183",
+            "size": "128"
+          },
+          "after": {
+            "kind": "directory",
+            "identity": "16777223:13095081625:16877",
+            "mtime": "1791716675146179975",
+            "ctime": "1791716675146179975",
+            "size": "128"
+          }
+        }
+      ],
+      "observed_dependency_count": 169
+    },
+    {
+      "read_run": "native-en-ur-approve",
+      "replay_run": "native-en-ur-request-change",
+      "interleaving": "captured_before_revalidation",
+      "replay_outcome": "already_applied",
+      "replay_reason": null,
+      "reader_state": "available",
+      "reader_code": null,
+      "changed_observed_dependencies": [
+        {
+          "path": ".agdf/control/runs/native-en-ur-request-change",
+          "before": {
+            "kind": "directory",
+            "identity": "16777223:13095081657:16877",
+            "mtime": "1791716625407218606",
+            "ctime": "1791716625407218606",
+            "size": "128"
+          },
+          "after": {
+            "kind": "directory",
+            "identity": "16777223:13095081657:16877",
+            "mtime": "1791716676153695884",
+            "ctime": "1791716676153695884",
+            "size": "128"
+          }
+        }
+      ],
+      "observed_dependency_count": 169
+    }
+  ],
+  "all_fixture_run_bytes_unchanged": true,
+  "native_qualified": false,
+  "authorizes": false
+}

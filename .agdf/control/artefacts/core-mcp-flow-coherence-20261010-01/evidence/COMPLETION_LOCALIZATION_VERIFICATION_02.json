@@ -1,0 +1,24 @@
+{
+  "schema_version": "1",
+  "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "--test-concurrency=2",
+    "packages/core/test/interaction-presentation-test.js",
+    "packages/cli/scripts/cli-gate-scenarios-test.js",
+    "packages/cli/scripts/control-inspect-test.js"
+  ],
+  "exit_code": 0,
+  "evidence_class": "source_canonical_dispatch_and_rendered_locale_regression",
+  "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "raw_log": "COMPLETION_LOCALIZATION_VERIFICATION_02.log",
+  "raw_log_digest": "sha256:a47e70f86d71d84017d669dcb774f36b5b6a7eadb239084441be99b3646068bb",
+  "native_qualified": false,
+  "authorizes": false,
+  "passed": 3,
+  "registered_locales": [
+    "en",
+    "de"
+  ]
+}

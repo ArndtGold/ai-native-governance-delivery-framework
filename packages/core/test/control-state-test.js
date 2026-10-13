@@ -191,6 +191,7 @@ try {
     ...activeQuickTask,
     content: "- lifecycle: completed",
     current_gate: "OR",
+    closeout_evidence: { ready: true },
     artefacts: new Map([...activeQuickTask.artefacts, ["OR", { path: "OR.md", status: "done" }]]),
   };
   assert.deepEqual(
@@ -198,6 +199,7 @@ try {
     { status: "pass", current_gate: "OR" },
     "completed Quick Task with OR projects pass instead of reopening execution",
   );
+  assert.equal(transitionDecisionForRunState({ ...completedQuickTask, closeout_evidence: undefined }).status, 'blocked', 'completion requires positively evaluated OR evidence');
   assert.deepEqual(
     {
       status: transitionDecisionForRunState({ ...completedQuickTask, content: "- lifecycle: active" }).status,

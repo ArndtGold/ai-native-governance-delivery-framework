@@ -1,0 +1,119 @@
+{
+  "import_ms": 147.25656199999997,
+  "provenance_ms": 125.80892700000004,
+  "composition_ms": 1.1947549999999865,
+  "parse_ms": 0.25630999999998494,
+  "execute_ms": 423.63428400000004,
+  "total_ms": 698.150838,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.739,
+    "target_ms": 1.31,
+    "control_ms": 412.925,
+    "render_ms": 0,
+    "total_ms": 423.148
+  },
+  "available": true,
+  "current": {
+    "current_gate": "Brownfield Review",
+    "lifecycle": "active",
+    "status": "open",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "analyse_existing_system",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_review",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Review"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "artefacts": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+        "status": "approved",
+        "digest": "sha256:aa34d410513866e46718be708f0b9e245df447c8136b003e46d3dc194e367af4",
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "PRD",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "SD",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "TP",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "Brownfield Analysis",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "CD+Tests",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "CR",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "QA",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      }
+    ],
+    "source_bindings": []
+  },
+  "diagnostics": []
+}

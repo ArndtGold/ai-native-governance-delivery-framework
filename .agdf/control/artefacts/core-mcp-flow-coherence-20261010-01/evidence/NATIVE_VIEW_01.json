@@ -1,0 +1,50 @@
+{
+  "schema_version": "1",
+  "evidence_class": "native_host_visible_app_with_automated_read",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-de-approve",
+  "native_qualified": false,
+  "production_entrypoint": false,
+  "human_decision": false,
+  "observations": {
+    "visible_app": {
+      "title": "Agdf Decision Probe MCP Agdf prepare",
+      "language": "de",
+      "buttons": [
+        "Vorgelegtes Dokument lesen",
+        "Freigeben",
+        "Änderung anfordern",
+        "Ablehnen"
+      ],
+      "undecided_status": "Eine Speicherung ist nicht bestätigt. Lesen und Diskussion entscheiden nichts.",
+      "tab_id": "1",
+      "presentation_id": "c2e7a3b1-8619-4922-8a9d-71c6c562d2a4"
+    },
+    "automated_document_click": {
+      "driver": "CUA DOM synthetic click",
+      "read_snapshot": "657d4447-ccb7-4f29-9785-6e5311adb645",
+      "result": {
+        "state": "blocked",
+        "code": "source_changed"
+      },
+      "visible_status": "Das genaue vorgelegte Dokument ist nicht verfügbar. Eine andere Fassung wird nicht stattdessen angezeigt."
+    },
+    "newest_presentation_check": {
+      "presentation_id": "7b5ac8c4-ed8f-4d1a-a791-0a6cc9c79b24",
+      "driver": "model MCP read; not native human observation",
+      "state": "available",
+      "code": null,
+      "current_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+      "document_digest": "be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "gate": "SD",
+      "approval_status": "missing"
+    }
+  },
+  "cause": "An additional prepared presentation changed the reader source snapshot while the previous side-panel card remained open. Old source snapshot was rejected; latest session reads the exact registered document. No native decision or completed document/return flow has been observed.",
+  "pending": [
+    "Open latest inline card in side panel",
+    "Actual document and return in that view",
+    "Human choices and technical permission",
+    "Lifecycle and other locales/gates"
+  ]
+}

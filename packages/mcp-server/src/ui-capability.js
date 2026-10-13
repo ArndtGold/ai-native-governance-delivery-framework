@@ -1,7 +1,8 @@
-import { CLIENT_CAPABILITIES_META_KEY } from "@modelcontextprotocol/server";
+import { CLIENT_CAPABILITIES_META_KEY, CLIENT_INFO_META_KEY } from "@modelcontextprotocol/server";
 
 // Extension id under which MCP Apps hosts declare UI support (@modelcontextprotocol/ext-apps EXTENSION_ID).
 export const MCP_APP_UI_EXTENSION = "io.modelcontextprotocol/ui";
+export const requestMcpClientInfo = (server, context) => context?.mcpReq?.envelope?.[CLIENT_INFO_META_KEY] ?? server.getClientVersion();
 
 export function declaresMcpAppUi(capabilities, mimeType) {
   const mimeTypes = capabilities?.extensions?.[MCP_APP_UI_EXTENSION]?.mimeTypes;

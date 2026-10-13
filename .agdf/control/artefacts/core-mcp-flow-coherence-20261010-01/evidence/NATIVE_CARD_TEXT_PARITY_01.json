@@ -1,0 +1,17 @@
+{
+  "schema_version": "1",
+  "evidence_class": "automated_card_and_actual_user_text_semantic_comparison",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "card_evidence": "NATIVE_AUTOMATED_APPROVE_01.json",
+  "text_evidence": "NATIVE_HUMAN_TEXT_APPROVAL_01.json",
+  "same_gate": true,
+  "same_source_types_and_digests": true,
+  "same_artefact_digest": true,
+  "same_next_gate": "TP",
+  "distinct_run_material_and_presentation_bindings": true,
+  "text_same_uuid_retry": "already_applied",
+  "human_app_click_observed": false,
+  "interpretation": "Canonical SD approval effects match on separately bound disposable versions. Text is an actual human answer; card side is synthetic CUA. This comparison alone does not fulfill the required human click/permission proof.",
+  "raw_exchange_digest": "sha256:5d66df0dd66c0f4a6aa23667c4c37daea8b193ccf4a46a0de4f33517f7b2baf8"
+}

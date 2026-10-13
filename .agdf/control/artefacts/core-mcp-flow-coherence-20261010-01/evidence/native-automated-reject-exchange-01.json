@@ -1,0 +1,402 @@
+{
+  "schema_version": "1",
+  "evidence_class": "automated_native_host_exchange",
+  "actual_human_gesture": false,
+  "exchanges": [
+    {
+      "at": "2026-10-10T19:42:31.718Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "input": {
+          "session_id": "70598566-35f2-4490-be1a-99a7efee2dd2",
+          "operation_id": "dbfb7c82-38c5-4adc-b055-7a1fec43db13",
+          "presentation_id": "c5aed0df-5f52-46e1-bc83-cfc486ef84be",
+          "expected_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+          "action": "reject"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-10T19:43:35.367Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "input": {
+          "session_id": "cfb05cb0-1688-42f8-88f4-5485f1b5a8c9",
+          "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+          "presentation_id": "c5aed0df-5f52-46e1-bc83-cfc486ef84be",
+          "expected_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+          "action": "reject"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-10T19:43:35.775Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+          "receipt": {
+            "schema_version": "1",
+            "kind": "presentation_decision.record",
+            "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+            "request_digest": "sha256:e326032354b96e8d81522284a2a07997f6a589689f630bc017cc89ccadfe2821",
+            "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+            "run_id": "native-de-reject",
+            "expected_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+            "created_at": "2026-10-10T19:43:35.563Z",
+            "producer": {
+              "contract": "run-command/1",
+              "package_version": "0.14.5"
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "effect": {
+              "previous_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+              "resulting_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+              "revision": 8,
+              "record": {
+                "gate": "SD",
+                "presentation_id": "c5aed0df-5f52-46e1-bc83-cfc486ef84be",
+                "presentation_digest": "sha256:3e85b5587a0d1bbeed28f20b065b056397f31ac17265ab61a294f0937fac7d74",
+                "material_version": "sha256:dc2de2d007ffc58c4b85f59b1a5565faec58d30ba8fc26b384a4eba4741e1024",
+                "material_sources": [
+                  {
+                    "type": "UR",
+                    "path": ".agdf/control/artefacts/native-de-reject/UR.md",
+                    "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                  },
+                  {
+                    "type": "PRD",
+                    "path": ".agdf/control/artefacts/native-de-reject/PRD.md",
+                    "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                  },
+                  {
+                    "type": "SD",
+                    "path": ".agdf/control/artefacts/native-de-reject/SD.md",
+                    "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                  }
+                ],
+                "action": "reject",
+                "comment": "",
+                "owner": "sd-definition",
+                "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+              }
+            }
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+            "lifecycle": "active",
+            "gate": "SD",
+            "status": "open",
+            "missing_approval": "none",
+            "blocking_reason": "presentation_version_decided",
+            "next_operation": {
+              "type": "revise_gate_material",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "SD",
+              "skill_id": "sd-definition"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    },
+    {
+      "at": "2026-10-10T19:43:35.775Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+          "receipt": {
+            "schema_version": "1",
+            "kind": "presentation_decision.record",
+            "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+            "request_digest": "sha256:e326032354b96e8d81522284a2a07997f6a589689f630bc017cc89ccadfe2821",
+            "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+            "run_id": "native-de-reject",
+            "expected_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+            "created_at": "2026-10-10T19:43:35.563Z",
+            "producer": {
+              "contract": "run-command/1",
+              "package_version": "0.14.5"
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "effect": {
+              "previous_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+              "resulting_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+              "revision": 8,
+              "record": {
+                "gate": "SD",
+                "presentation_id": "c5aed0df-5f52-46e1-bc83-cfc486ef84be",
+                "presentation_digest": "sha256:3e85b5587a0d1bbeed28f20b065b056397f31ac17265ab61a294f0937fac7d74",
+                "material_version": "sha256:dc2de2d007ffc58c4b85f59b1a5565faec58d30ba8fc26b384a4eba4741e1024",
+                "material_sources": [
+                  {
+                    "type": "UR",
+                    "path": ".agdf/control/artefacts/native-de-reject/UR.md",
+                    "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                  },
+                  {
+                    "type": "PRD",
+                    "path": ".agdf/control/artefacts/native-de-reject/PRD.md",
+                    "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                  },
+                  {
+                    "type": "SD",
+                    "path": ".agdf/control/artefacts/native-de-reject/SD.md",
+                    "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                  }
+                ],
+                "action": "reject",
+                "comment": "",
+                "owner": "sd-definition",
+                "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+              }
+            }
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+            "lifecycle": "active",
+            "gate": "SD",
+            "status": "open",
+            "missing_approval": "none",
+            "blocking_reason": "presentation_version_decided",
+            "next_operation": {
+              "type": "revise_gate_material",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "SD",
+              "skill_id": "sd-definition"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    },
+    {
+      "at": "2026-10-10T19:44:05.358Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_prepare",
+        "input": {
+          "schema_version": "1",
+          "assurance": "cooperative_local",
+          "presentation_language": "de",
+          "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+          "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+          "target_source": "explicit_target",
+          "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+          "run_id": "native-de-reject",
+          "expected_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+          "operation_id": "6685f7ee-0f59-4a08-a1dd-a20058ac33dc",
+          "command": {
+            "kind": "presentation.prepare",
+            "payload": {
+              "gate": "SD"
+            }
+          }
+        }
+      }
+    },
+    {
+      "at": "2026-10-10T19:44:05.636Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_prepare",
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "approval_presentation_unavailable",
+          "operation_id": "6685f7ee-0f59-4a08-a1dd-a20058ac33dc",
+          "request_digest": "sha256:9bf6c58deaa3a2b3fd2e877efafcd6c6ae7de2d6c3ebf50018d3a5029815c974",
+          "binding": {
+            "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+            "run_id": "native-de-reject",
+            "expected_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+            "kind": "presentation.prepare"
+          },
+          "effect": null,
+          "receipt": null,
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+            "lifecycle": "active",
+            "gate": "SD",
+            "status": "open",
+            "missing_approval": "none",
+            "blocking_reason": "presentation_version_decided",
+            "next_operation": {
+              "type": "revise_gate_material",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "SD",
+              "skill_id": "sd-definition"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "authorizes": false,
+          "recovery": null,
+          "family_result": {
+            "schema_version": "1",
+            "outcome": "rejected",
+            "run_id": "native-de-reject",
+            "reason": "approval_presentation_unavailable",
+            "recovery": "Run run-present for the current run/gate/revision, show its exact presentation, then wait for a NEW deliberate user response. Never bind an earlier reply retroactively."
+          }
+        }
+      }
+    },
+    {
+      "at": "2026-10-10T19:44:05.636Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_prepare",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "approval_presentation_unavailable",
+          "operation_id": "6685f7ee-0f59-4a08-a1dd-a20058ac33dc",
+          "request_digest": "sha256:9bf6c58deaa3a2b3fd2e877efafcd6c6ae7de2d6c3ebf50018d3a5029815c974",
+          "binding": {
+            "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+            "run_id": "native-de-reject",
+            "expected_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+            "kind": "presentation.prepare"
+          },
+          "effect": null,
+          "receipt": null,
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+            "lifecycle": "active",
+            "gate": "SD",
+            "status": "open",
+            "missing_approval": "none",
+            "blocking_reason": "presentation_version_decided",
+            "next_operation": {
+              "type": "revise_gate_material",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "SD",
+              "skill_id": "sd-definition"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "authorizes": false,
+          "recovery": null,
+          "family_result": {
+            "schema_version": "1",
+            "outcome": "rejected",
+            "run_id": "native-de-reject",
+            "reason": "approval_presentation_unavailable",
+            "recovery": "Run run-present for the current run/gate/revision, show its exact presentation, then wait for a NEW deliberate user response. Never bind an earlier reply retroactively."
+          },
+          "app_capability": "unavailable"
+        }
+      }
+    }
+  ]
+}

@@ -33,7 +33,7 @@ const objective = content => content?.match(/(?:^|\n)## Objective\s*\n([\s\S]*?)
 // Read-only projection of the evaluated decision, never a second gate evaluator.
 // Doctor warnings are already considered by evaluateGateCheck; they are not a UI veto.
 export function projectCockpitAssessment(report, lifecycle) {
-  const state = lifecycle === 'completed' ? 'completed'
+  const state = lifecycle === 'completed' ? report.completion?.fulfilled === true ? 'completed' : 'unconfirmed'
     : lifecycle !== 'active' ? 'unconfirmed'
     : report.status === 'blocked' || (report.blocking_reason && report.blocking_reason !== 'none')
       || (report.missing_approval && report.missing_approval !== 'none') ? 'blocked'
@@ -72,6 +72,7 @@ export function createCockpitReader(root, options = {}) {
       diagnostics: [...(report.doctor_report?.findings ?? []), ...(report.delivery_map?.findings ?? [])],
       approvals: [...state.approvals].map(([gate, row]) => ({ gate, ...row })),
       missing_evidence: state.missing_evidence,
+      next_operation: report.next_operation, completion: report.completion,
       git_evidence: 'unavailable',
     };
   }
@@ -106,7 +107,12 @@ export function createCockpitReader(root, options = {}) {
       missing_evidence: state.missing_evidence, git_evidence: 'unavailable' };
   }
   function detail(run) {
-    const state = readRunState(root, { runId: run.run_id, ignoreRunIdEnv: true });
+    const state = readRunState(root, { runId: run.run_id, ignoreRunIdEnv: true, readArtefact: path => {
+      // Optional applicability observations cannot traverse an out-of-scope registration.
+      if (!isSafeControlRelativePath(path) || !path.startsWith(CONTROL)) return undefined;
+      const file = view.readOptionalFileSync(join(root, path), READ_LIMITS.file);
+      return file.bytes ? decoder.decode(file.bytes) : undefined;
+    } });
     const resources = manifest(run.run_id, state);
     const outside = resources.filter(r => r.status === 'blocked' && isSafeControlRelativePath(r.registered_reference)).map(r => r.registered_reference);
     const report = outside.length ? null : evaluateGateCheck(root, { runId: run.run_id, ignoreRunIdEnv: true });
@@ -136,7 +142,8 @@ export function createCockpitReader(root, options = {}) {
       evaluation: report ? evaluation(state, report, run.meta.lifecycle) : outOfScopeEvaluation(state, outside), persisted: { current_gate: state.current_gate, next_allowed_action: state.next_allowed_action,
         decision: run.meta.decision, artefacts: [...state.artefacts].map(([type, value]) => ({ type, ...value })) },
       context_graph: { refs: state.context_graph.refs }, resources,
-      draft_check, document_states };
+      draft_check, document_states, evidence_applicability: Object.fromEntries(['current', 'superseded', 'applicability_unknown'].map(group => [group,
+        state.evidence_applicability[group].map(row => ({ step: row.step ?? null, path: row.report?.path ?? row.source, reason: row.reason, available: row.available }))])) };
   }
   function documentStates(run, state, report, resources, draft) {
     const integrity = !!report && report.doctor_status !== 'fail' && runSealState(root, run.content).status === 'valid';

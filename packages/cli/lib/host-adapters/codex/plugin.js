@@ -11,6 +11,10 @@ import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLoca
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "./plugin-mcp.js";
 import { ownedFileSnapshot } from "../../lifecycle/owned-mutation.js";
 
+// Codex lists its complete remote catalog too. Keep capture bounded while allowing
+// that output to exceed Node's 1 MiB default; other host commands retain their limits.
+export const CODEX_PLUGIN_LIST_MAX_BUFFER = 4 * 1024 * 1024;
+
 export function installCodexGlobalPlugin({
   exec = execHostFileSync,
   prepare = prepareLocalMarketplace,
@@ -28,7 +32,7 @@ export function installCodexGlobalPlugin({
     const marketplaceOutput = runPluginPhase(exec, "codex", ["plugin", "marketplace", "list", "--json"], "marketplace", captureOptions());
     migrateMarketplace({ exec, output: marketplaceOutput, root: transaction.root, nativeOutput, migration, refreshOwnedLocal: transaction.changed === true });
     nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "add", "agdf@agdf", "--json"], "plugin_operation", captureOptions()));
-    const listOutput = runPluginPhase(exec, "codex", ["plugin", "list"], "verification", captureOptions());
+    const listOutput = runPluginPhase(exec, "codex", ["plugin", "list"], "verification", { ...captureOptions(), maxBuffer: CODEX_PLUGIN_LIST_MAX_BUFFER });
     const installedVersion = pluginVersionFromList(listOutput, "agdf@agdf");
     if (installedVersion !== expectedInstallVersion) {
       throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedInstallVersion, installedVersion, "npx --yes @agdf/cli@latest codex"));
@@ -115,6 +119,7 @@ function recoverMarketplace({ exec, migration, transaction, error }) {
 
 export function inspectCodexPlugin(exec = execHostFileSync, options = {}, surface) {
   return inspectPluginList({ surface, exec, executable: "codex", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
+    maxBuffer: CODEX_PLUGIN_LIST_MAX_BUFFER,
     selectPlugin: () => "agdf@agdf",
     // Codex also lists available marketplace entries after removal.
     isInstalled(output, pluginId) {

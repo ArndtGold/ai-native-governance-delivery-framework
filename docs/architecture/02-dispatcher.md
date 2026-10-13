@@ -18,6 +18,9 @@ Runtime-Kennungen und definieren keine zusätzliche Policy. Maßgeblich bleiben 
 [Dispatch-Service](../../packages/core/lib/skill-dispatch/service.js), die
 [Fortsetzungsorchestrierung](../../packages/core/lib/delivery-continuation/service.js) und die
 [Runtime-Verträge](../../plugins/agdf/meta/contracts/).
+Der [Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md) beschreibt ergänzend den am
+11. Oktober 2026 abgeglichenen Entwicklungsstand der Erfassungs-, Entscheidungs- und Abschlussoperationen.
+Diese Operationen delegieren an eigene Core-Dienste; sie erweitern nicht die Zuständigkeit des Dispatchers.
 
 ## Zuständigkeiten und Aufrufwege
 
@@ -46,7 +49,11 @@ und Repository-Migration gehören zu getrennten Services; sie sind keine Dispatc
 
 `agdf_inspect` veröffentlicht die bestehenden Auswahlregeln auch als JSON-Schema:
 `all_active: true` gilt nur für `doctor` und `delivery-map`; `variant` nur für
-`gate-check`; `module` ausschließlich und verpflichtend für `contract`.
+`gate-check`; `module` ist verpflichtend für `contract` sowie im nachgeführten Entwicklungsstand
+für `operation-contract` und `operation-status`. Dort wählt es den exakten Gruppen-/Operationsvertrag
+beziehungsweise die ursprüngliche UUID. Die zusätzlichen Run-/Revisionsbindungen stehen im
+[Inspect-Vertrag](../../packages/core/lib/control-inspect/contract.js) und im
+[Befehlsfluss](core-mcp-command-flow.md#2-welche-operation-vermittelt-welches-tool).
 `all_active: false` bleibt bei allen Operationen zulässig.
 `artifact-readiness` verlangt zusätzlich ein ausdrücklich gebundenes Ziel sowie
 `run_id`, `gate` und `expected_revision_id`. Core leitet den eigenen UR-, PRD-, SD-

@@ -1,0 +1,58 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T07:07:22.306771+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "implementation_revision_id": "2b1b6d04-eceb-4a7e-bc56-e92344b934ae",
+  "evidence_class": "native_host_log_diagnosis_and_independent_backend_read",
+  "client": {
+    "name": "codex-mcp-client",
+    "version": "0.162.0-alpha.17.2"
+  },
+  "candidate_identity": "NATIVE_PROBE_CANDIDATE.json",
+  "ui_digest": "sha256:9daa4741ab4bd0dd0bbfafe79ff3f71238258f0f6e77aa7caaf129ac479c51b3",
+  "view_identity": {
+    "session_id": "683c7722-0644-409c-98a0-38ada674e9a7",
+    "read_session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74",
+    "owner_epoch": "3100dede-c243-4ebc-8381-035cd1b30e53",
+    "generation": 1
+  },
+  "presentation_id": "cc691e1c-3b40-4180-bbc6-903680d9735e",
+  "host_events": {
+    "disposal_started": "2026-10-11T06:59:18.952Z",
+    "teardown_requested": "2026-10-11T06:59:18.953Z",
+    "call_mcp_started": "2026-10-11T06:59:18.990Z",
+    "call_mcp_cancelled": "2026-10-11T06:59:18.993Z",
+    "cancellation": "AbortError: signal is aborted without reason",
+    "teardown_timed_out": "2026-10-11T06:59:48.956Z"
+  },
+  "cause_boundary": "Codex host initiates resource teardown but cancels an App MCP call during disposal; bounded close does not reach the probe. Exact method/opaque request IDs are logged, but call arguments are not in the host extract. Correlation with no same-view close on server and post-timeout available read identifies host delivery as the failure boundary, without claiming unlogged host internals.",
+  "host_extract": "NATIVE_CLOSE_PATH_HOST_ABORT_EXTRACT_01.json",
+  "host_extract_digest": "sha256:f38b1b85bcace08b7fa670fdd669db95926ee8abbcd58941ad6290f477601f14",
+  "backend_after_host_abort": {
+    "schema_version": "1",
+    "evidence_class": "actual_native_codex_model_read_after_host_teardown_abort",
+    "read_session_id": "4bde025a-ba7d-43b5-80d6-2b59cb9d5a74",
+    "run_id": "native-en-request-change",
+    "state": "available",
+    "code": null,
+    "reason": null,
+    "observed_as_of": "2026-10-11T07:05:58.497Z",
+    "snapshot_id": "acb4390a-59f9-41b3-9710-b80ff56f089c",
+    "source_digest": "dd7e178fb1dd88d5369acba804c5cf6ac9c1edc001dc0e10a80c6364c4e2ebff",
+    "model_close_requests": 0,
+    "authorizes": false,
+    "native_qualified": false,
+    "interpretation": "Snapshot after native host teardown timeout remains available; this diagnostic read renews idle time. No automatic-close or idle-expiry success is inferred."
+  },
+  "model_cleanup_called": false,
+  "close_delivery_status": "fail",
+  "idle_expiry_status": "not_observed_native",
+  "existing_idle_timeout_ms": 1800000,
+  "diagnostic_last_touch": "2026-10-11T07:05:58.497Z",
+  "earliest_idle_deadline_if_no_later_read": "2026-10-11T07:35:58.497Z",
+  "idle_limit_source": "packages/core/lib/control-inspect/cockpit-contract.js",
+  "scope_disposition": "Keep existing Core bounded expiry and close owner. No new endpoint, heartbeat, shortened timeout or Codex installation mutation. Immediate native close requires host to keep App tool mediation usable until teardown completes.",
+  "native_qualified": false,
+  "quality_readiness_decision": null,
+  "authorizes": false
+}

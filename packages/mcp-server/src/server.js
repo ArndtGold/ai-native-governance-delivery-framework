@@ -2,7 +2,7 @@ import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@mo
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
 import { loadCockpitResource } from './cockpit-resource.js';
-import { requestDeclaresMcpAppUi } from "./ui-capability.js";
+import { requestDeclaresMcpAppUi, requestMcpClientInfo } from "./ui-capability.js";
 
 export const SERVER_NAME = "agdf-mcp";
 
@@ -10,7 +10,7 @@ function toolResult(runtime, result, serialize = runtime.serialize) {
   const { _meta, ...publicResult } = result;
   const text = serialize(_meta ? publicResult : result);
   const response = {
-    content: [{ type: "text", text }],
+    content: [{ type: "text", text: result.presentation_delivery?.text ?? text }],
     structuredContent: JSON.parse(text),
     ...(_meta ? { _meta } : {}),
   };
@@ -39,12 +39,14 @@ export function buildAgdfServer({ runtime, executor } = {}) {
   };
   const server = new McpServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
-    { capabilities: { tools: {}, ...(runtime.mode === 'cockpit' ? { resources: {} } : {}) } },
+    { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) } },
   );
   // A UI-gated cockpit is offered only to clients that declare MCP app UI support for its resource type.
   const gated = runtime.mode === 'cockpit' && runtime.uiCapabilityRequired === true;
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
-  for (const { name, definition, serialize } of tools) {
+  const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
+  for (const tool of tools) {
+    const { name, definition, serialize } = tool;
     server.registerTool(
       name,
       {
@@ -56,38 +58,45 @@ export function buildAgdfServer({ runtime, executor } = {}) {
       },
       async (argumentsValue, context) => {
         if (!uiAllowed(context)) return toolResult(runtime, runtime.failure("resource_denied", name), serialize ?? runtime.serialize);
+        if (tool.requiresUi && !supportsUi(context)) return toolResult(runtime, runtime.failure('host_ui_unsupported', name, argumentsValue, { dispatch: 'not_dispatched' }), serialize ?? runtime.serialize);
         try {
-          const result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
+          let result = tool.parentOwned ? await tool.execute(tool.parse(argumentsValue), context.signal,
+            { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) })
+            : await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
+          if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
+            { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
           return toolResult(runtime, result, serialize ?? runtime.serialize);
         } catch (error) {
           const code = error instanceof DispatchExecutionError ? error.code : "dispatch_worker_failed";
-          return toolResult(runtime, runtime.failure(code, name), serialize ?? runtime.serialize);
+          return toolResult(runtime, runtime.failure(code, name, argumentsValue, { dispatch: error.dispatch ?? 'unknown' }), serialize ?? runtime.serialize);
         }
       },
     );
   }
-  if (runtime.mode === 'cockpit') {
+  if (runtime.ui) {
     const resource = loadCockpitResource(runtime.ui);
-    server.registerResource('AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
+    server.registerResource(runtime.mode === 'decision' ? 'AGDF Gate Decision' : 'AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
       async (_uri, context) => {
-        if (!uiAllowed(context)) throw new ProtocolError(ProtocolErrorCode.InvalidParams, "resource_denied");
+        if (!uiAllowed(context) || runtime.mode === 'decision' && !supportsUi(context)) throw new ProtocolError(ProtocolErrorCode.InvalidParams, "resource_denied");
         return { contents: [resource] };
       });
-    if (gated) {
+    if (gated || runtime.mode === 'decision') {
       // McpServer's list handlers ignore the request context, so the gated surface lists per request.
       const listedTools = tools.map(({ name, definition }) => ({
         name, description: definition.description, inputSchema: server.toolInputSchemaJson(name),
         annotations: definition.annotations, ...(definition._meta ? { _meta: definition._meta } : {}),
+        ...(definition.outputSchema ? { outputSchema: definition.outputSchema } : {}),
       }));
       const listedResource = { uri: resource.uri, name: 'AGDF Cockpit', mimeType: resource.mimeType, _meta: resource._meta };
       server.server.removeRequestHandler("tools/list");
-      server.server.setRequestHandler("tools/list", (_request, context) => ({ tools: uiAllowed(context) ? listedTools : [] }));
+      server.server.setRequestHandler("tools/list", (_request, context) => ({ tools: !uiAllowed(context) ? [] : runtime.mode === 'decision' && !supportsUi(context)
+        ? listedTools.filter(tool => !tools.find(entry => entry.name === tool.name)?.requiresUi) : listedTools }));
       server.server.removeRequestHandler("resources/list");
-      server.server.setRequestHandler("resources/list", (_request, context) => ({ resources: uiAllowed(context) ? [listedResource] : [] }));
+      server.server.setRequestHandler("resources/list", (_request, context) => ({ resources: uiAllowed(context) && (runtime.mode !== 'decision' || supportsUi(context)) ? [listedResource] : [] }));
     }
   }
   return Object.assign(server, {
-    closeAgdfRuntime: () => dispatchExecutor.close(),
+    closeAgdfRuntime: async () => { await dispatchExecutor.close(); await runtime.close?.(); },
   });
 }
 
@@ -113,6 +122,7 @@ export function createAgdfWorkerExecutor(runtime, options = {}) {
   return createWorkerDispatchExecutor({
     surface: runtime.trustedContext.surface,
     expectedVersion: runtime.trustedContext.expectedVersion,
+    commandGroups: runtime.trustedContext.commandGroups,
     ...options,
   });
 }

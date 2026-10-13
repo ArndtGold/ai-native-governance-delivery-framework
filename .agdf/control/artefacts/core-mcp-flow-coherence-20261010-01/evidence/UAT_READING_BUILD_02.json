@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--input-type=module",
+    "-e",
+    "import {assembleNpm} from './scripts/assemble-npm.mjs'; console.log(JSON.stringify(assembleNpm({surface:'codex'})))"
+  ],
+  "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "started_at": "2026-10-11T09:14:24.284253+00:00",
+  "observed_at": "2026-10-11T09:14:27.426456+00:00",
+  "elapsed_seconds": 3.142,
+  "exit_code": 0,
+  "raw_log": "UAT_READING_BUILD_02.log",
+  "raw_log_digest": "sha256:85c784269837320b0b156019499f3ca607a4dbd5dc4c58a0e64a1b8a59f87e98",
+  "source_hashes": {
+    "packages/core/lib/control-inspect/decision-session.js": "sha256:26509715219f14c404649249b9063875a3eb2cca7fe640a22b3bd59db0032b48",
+    "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+    "packages/mcp-server/test/structured-flow.test.js": "sha256:4a9b21d404b030f57f2a8e7352d1a6cfb49ced0112f3f1d10fa01adbf3a90b4b"
+  },
+  "candidate_environment": {},
+  "evidence_class": "source_or_generated_stdio_synthetic_verification",
+  "native_qualified": false,
+  "authorizes": false
+}

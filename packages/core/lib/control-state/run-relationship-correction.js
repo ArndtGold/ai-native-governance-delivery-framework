@@ -4,14 +4,14 @@ import { readArtefactBindings } from "./artefact-bindings.js";
 import { exactApprovedArtefacts, validateBindingProof } from "./artefact-binding-proof.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { readRun, appendTableRow, guardedWrite, rejected } from "./run-state-edits.js";
+import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { parseControlState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
 import { flushRunCommit, withRunLock, writeRunLocked } from "./run-state-writer.js";
 import { sameRelationship } from "../control-evaluation/delivery-relationships.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
 
-const controlFor = run => ({ ...parseControlState(run.content, { userGates: APPROVAL_GATES,
-  internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"], closeoutArtefacts: ["OR"] }), content: run.content, meta: run.meta });
+const controlFor = (root, run) => ({ ...prepareRunContentState(root, run.content, run.path), meta: run.meta });
 
 // Mutation owner for authorized bound continuation only. Evaluators never call it.
 export function correctRunRelationship(root, { runId, revisionId }, { evaluateGateCheck, checkpoint, confirmCommit = flushRunCommit } = {}) {
@@ -28,7 +28,7 @@ export function correctRunRelationship(root, { runId, revisionId }, { evaluateGa
       && row.code !== "AGDF_DELIVERY_RELATIONSHIP_MISSING");
     if (unrelatedDoctor.length || decisive.length !== 1 || decisive[0].code !== "AGDF_DELIVERY_RELATIONSHIP_MISSING"
         || missing.length !== 1 || report.blocking_reason !== "AGDF_DELIVERY_RELATIONSHIP_MISSING") return rejected(runId, "correction_not_eligible");
-    const control = controlFor(run), expected = missing[0];
+    const control = controlFor(root, run), expected = missing[0];
     if (control.artefact_chain.some(row => row.from === expected.from)) return rejected(runId, "correction_not_eligible");
     const history = readArtefactBindings(run.content);
     const eligible = history.active.filter(receipt => receipt.run_id === runId && receipt.operation.revision <= Number(run.meta.revision)
@@ -45,7 +45,7 @@ export function correctRunRelationship(root, { runId, revisionId }, { evaluateGa
     const nextRevisionId = randomUUID();
     next = appendTableRow(next, "Evidence", ["Relationship correction", receipt.review.path,
       `binding ${receipt.binding_id}; ${expected.from} ${expected.relationship} ${expected.to}; revision ${revisionId} -> ${nextRevisionId}`, "exact sealed reviewed mapping"]);
-    if (!next || canonicalJson(transitionDecisionForRunState(controlFor({ ...run, content: next }))) !== before) return rejected(runId, "correction_permission_changed");
+    if (!next || canonicalJson(transitionDecisionForRunState(controlFor(root, { ...run, content: next }))) !== before) return rejected(runId, "correction_permission_changed");
     let written, recoveredCommit = false;
     try { written = writeRunLocked(run.path, next, revisionId, { expectedContent: run.content, nextRevisionId, checkpoint,
       validateBeforeWrite: () => {

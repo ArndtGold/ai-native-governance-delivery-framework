@@ -1,0 +1,1309 @@
+{
+  "observed_at": "2026-10-11T11:19:23.187582+00:00",
+  "scope": "Observed commands and retained logs; not full TP scenario qualification",
+  "commands": [
+    {
+      "evidence_class": "isolated_source_process_tests",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=4",
+        "packages/core/test/run-command-contract-test.js",
+        "packages/core/test/run-command-service-test.js",
+        "packages/core/test/run-flow-coherence-test.js",
+        "packages/core/test/presentation-decision-test.js",
+        "packages/core/test/decision-action-test.js",
+        "packages/core/test/evidence-bindings-test.js",
+        "packages/core/test/run-owned-output-recovery-test.js",
+        "packages/core/test/early-prd-command-test.js",
+        "packages/core/test/run-command-revision-test.js",
+        "packages/core/test/run-closeout-command-test.js",
+        "packages/core/test/quick-closeout-command-test.js",
+        "packages/core/test/run-step-transaction-test.js",
+        "packages/core/test/run-source-revisions-test.js",
+        "packages/core/test/early-ur-revision-test.js",
+        "packages/core/test/backlog-work-summary-test.js",
+        "packages/core/test/control-state-test.js",
+        "packages/core/test/artifact-readiness-test.js"
+      ],
+      "started_at": "2026-10-10T17:22:30.914787+00:00",
+      "finished_at": "2026-10-10T17:26:13.838061+00:00",
+      "elapsed_seconds": 222.92,
+      "exit_code": 0,
+      "raw_log": "CORE_VERIFICATION_02.log",
+      "native_qualified": false,
+      "metadata_path": "CORE_VERIFICATION_02.json",
+      "metadata_digest": "sha256:f821ab7f8448e6ad4135a5cfb6abc3a9f0597d6a13774ebfab954a54c0fa8796",
+      "raw_log_digest": "sha256:f58a3c4d8be19795f9dbde06c6ba675f7b210ed15634e260e526105190935f3a"
+    },
+    {
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui",
+      "observed_at": "2026-10-10T17:23:09.554191+00:00",
+      "exit_code": 0,
+      "evidence_class": "source_jsdom_ui",
+      "native_qualified": false,
+      "raw_log": "UI_VERIFICATION_02.log",
+      "metadata_path": "UI_VERIFICATION_02.json",
+      "metadata_digest": "sha256:b7a3e7d15537d07fdbe52542e1735869c74599fe873fd52410dc0b140f51b8bc",
+      "raw_log_digest": "sha256:6513dfbc3aa7f4e46afda041e58c7c3b1bed28361cf3b016cdbddf0f6bef6e69"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "packages/core/test/decision-action-test.js",
+        "packages/core/test/decision-qualification-test.js"
+      ],
+      "exit_code": 0,
+      "observed_at": "2026-10-10T17:29:42.382435+00:00",
+      "evidence_class": "source_synthetic_qualification_contract",
+      "native_qualified": false,
+      "raw_log": "DECISION_QUALIFICATION_01.log",
+      "metadata_path": "DECISION_QUALIFICATION_01.json",
+      "metadata_digest": "sha256:7f551d863e06d23a3102b933fbbddae3a7888206ca6a52bf2ea2b153cf660409",
+      "raw_log_digest": "sha256:ea83caf71a4f84c5dce2cd66c31b3065fbace4bd00b93ba4d597f1154e537a14"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "packages/mcp-server/test/run-command.test.js",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server"
+      },
+      "exit_code": 0,
+      "observed_at": "2026-10-10T17:29:09.409980+00:00",
+      "evidence_class": "actual_owned_generated_stdio_synthetic_intents",
+      "native_qualified": false,
+      "raw_log": "MCP_PACKAGE_VERIFICATION_03.log",
+      "metadata_path": "MCP_PACKAGE_VERIFICATION_03.json",
+      "metadata_digest": "sha256:9a840a0930d0c44d03dea45ead84898f48745fd0cac91112b12a4d092149db46",
+      "raw_log_digest": "sha256:b53ba7119f77b03d368b8a1624734bacbce86fc4e0aa065d686cccaabf99b0fd"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=3",
+        "packages/core/test/approval-command-recovery-test.js",
+        "packages/core/test/run-closeout-slice-test.js",
+        "packages/mcp-server/test/whole-flow.test.js",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges"
+      },
+      "started_at": "2026-10-10T17:51:02.987159+00:00",
+      "observed_at": "2026-10-10T17:54:53.704210+00:00",
+      "exit_code": 0,
+      "evidence_class": "source_owner_and_actual_generated_stdio_synthetic_tests",
+      "native_qualified": false,
+      "raw_log": "ADDITIONAL_FLOW_VERIFICATION_01.log",
+      "metadata_path": "ADDITIONAL_FLOW_VERIFICATION_01.json",
+      "metadata_digest": "sha256:5b207307ed7829bdc48ca8022f1fd765b1f5178d9d3cacc661253ead90296f85",
+      "raw_log_digest": "sha256:571b9046f2dc1971dbcb818a3f24dd4e87ce8b26417726642b18d235dcd316a1"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=3",
+        "packages/core/test/run-command-contract-test.js",
+        "packages/mcp-server/test/run-command.test.js",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-final"
+      },
+      "started_at": "2026-10-10T17:56:20.964403+00:00",
+      "observed_at": "2026-10-10T17:57:11.560287+00:00",
+      "exit_code": 0,
+      "evidence_class": "source_contract_and_actual_generated_stdio_synthetic_tests",
+      "native_qualified": false,
+      "raw_log": "FINAL_CONTRACT_VERIFICATION_01.log",
+      "metadata_path": "FINAL_CONTRACT_VERIFICATION_01.json",
+      "metadata_digest": "sha256:6947305444e139edce307c7127e7c5a827c98dbc8131b4116f7703021b5cbe53",
+      "raw_log_digest": "sha256:f73989755ffc5c9380894405ad66e05854fe01389ac9892410fc97b9b5704bb4"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/cli/scripts/package-build-test.js"
+      ],
+      "exit_code": 0,
+      "observed_at": "2026-10-10T17:57:13.342603+00:00",
+      "evidence_class": "generated_package_build_verification",
+      "native_qualified": false,
+      "raw_log": "FINAL_PACKAGE_BUILD_01.log",
+      "metadata_path": "FINAL_PACKAGE_BUILD_01.json",
+      "metadata_digest": "sha256:e69aa5398130afe6496daa6e256391a0585457da6305d7476f178885fcfc2ddd",
+      "raw_log_digest": "sha256:5f22a908a8b5d72c0be70743cff8d9ecdf4fffe352cd11b5e94456a97f938e5e"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-TJ6kyt/native-scope-check.mjs",
+        ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/NATIVE_PROBE_CANDIDATE.json"
+      ],
+      "exit_code": 0,
+      "observed_at": "2026-10-10T17:44:31.268122+00:00",
+      "evidence_class": "synthetic_native_probe_entrypoint_preflight",
+      "native_qualified": false,
+      "raw_log": "NATIVE_PROBE_PREFLIGHT_04.log",
+      "log_digest": "sha256:194e267aadc2f5bb1ed3b346e02ee18482f4a530d9000f7e52bd37a1271d540e",
+      "correction": "The gate-check inspection no longer sends expected_revision_id, which belongs to the selected artefact/operation inspections. Failed 01/03 logs remain.",
+      "metadata_path": "NATIVE_PROBE_PREFLIGHT_04.json",
+      "metadata_digest": "sha256:803f96755cb0403c5d72343a9c2e86ecc3ba32948f06e5d0d7ae6d2ae6071ca6",
+      "raw_log_digest": "sha256:194e267aadc2f5bb1ed3b346e02ee18482f4a530d9000f7e52bd37a1271d540e"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=3",
+        "packages/core/test/run-command-contract-test.js",
+        "packages/mcp-server/test/run-command.test.js",
+        "packages/mcp-server/test/decision-resource.test.js",
+        "packages/mcp-server/test/whole-flow.test.js",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-reassembled"
+      },
+      "started_at": "2026-10-10T17:59:36.444585+00:00",
+      "observed_at": "2026-10-10T18:03:53.518382+00:00",
+      "exit_code": 0,
+      "evidence_class": "actual_reassembled_default_entrypoint_stdio_synthetic_tests",
+      "native_qualified": false,
+      "raw_log": "REASSEMBLED_MCP_VERIFICATION_01.log",
+      "metadata_path": "REASSEMBLED_MCP_VERIFICATION_01.json",
+      "metadata_digest": "sha256:be931cd56176f0d47119f3087de23016d4d8ead2e6bd9c96639faf3b78cacbaf",
+      "raw_log_digest": "sha256:3bcc9f3b93c5c22bd1048a1708c71a2b07894449ccece3af0302560097385264"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-TJ6kyt/native-scope-check.mjs",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/NATIVE_PROBE_CANDIDATE.json"
+      ],
+      "exit_code": 0,
+      "observed_at": "2026-10-10T18:02:45.243146+00:00",
+      "evidence_class": "reassembled_bounded_probe_stdio_preflight",
+      "native_qualified": false,
+      "raw_log": "NATIVE_PROBE_PREFLIGHT_05.log",
+      "metadata_path": "NATIVE_PROBE_PREFLIGHT_05.json",
+      "metadata_digest": "sha256:ed840a98a99b7f6def2c8e20ec10e99924fb87bbd7e20a19f3f9b9bc1df84a42",
+      "raw_log_digest": "sha256:194e267aadc2f5bb1ed3b346e02ee18482f4a530d9000f7e52bd37a1271d540e"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/native-probes/core-mcp-decision.mjs"
+      ],
+      "exit_code": 0,
+      "observed_at": "2026-10-10T18:01:45.239153+00:00",
+      "evidence_class": "prepared_disposable_native_probe_after_canonical_npm_reassembly",
+      "native_qualified": false,
+      "raw_log": "NATIVE_PROBE_PREPARATION_03.log",
+      "metadata_path": "NATIVE_PROBE_PREPARATION_03.json",
+      "metadata_digest": "sha256:5819c20e7b182a1b8baeccc2cd9cd78d92c5ab005fe7ea87dbfe9781fd55620e",
+      "raw_log_digest": "sha256:c2f7dfec835e4e2dd4e11d736512e3f58470f44e9004e0ca7b13a01e5ee56ba2"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=2",
+        "packages/mcp-server/test/run-command.test.js",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-complete-payload"
+      },
+      "observed_at": "2026-10-10T18:09:00.123321+00:00",
+      "exit_code": 0,
+      "evidence_class": "actual_complete_payload_default_entrypoint_stdio_synthetic_tests",
+      "native_qualified": false,
+      "raw_log": "COMPLETE_PAYLOAD_MCP_VERIFICATION_01.log",
+      "metadata_path": "COMPLETE_PAYLOAD_MCP_VERIFICATION_01.json",
+      "metadata_digest": "sha256:fdb3cdd73002fb9ed2524dcebf8ed4086f7c4d70fff88ee02cef8b6e5439416f",
+      "raw_log_digest": "sha256:08752a94c3af77c0588cbde162b64e3314755d3eb2c4bf48544b7f33868e24eb"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-TJ6kyt/native-scope-check.mjs",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/NATIVE_PROBE_CANDIDATE.json"
+      ],
+      "exit_code": 0,
+      "observed_at": "2026-10-10T18:07:59.152968+00:00",
+      "evidence_class": "complete_payload_bounded_probe_stdio_preflight",
+      "native_qualified": false,
+      "raw_log": "NATIVE_PROBE_PREFLIGHT_06.log",
+      "metadata_path": "NATIVE_PROBE_PREFLIGHT_06.json",
+      "metadata_digest": "sha256:047c8cc3cc55aeceeec8c22933a3a5ec26abfa4cc0a85e75f0deb02adc5ff8c8",
+      "raw_log_digest": "sha256:194e267aadc2f5bb1ed3b346e02ee18482f4a530d9000f7e52bd37a1271d540e"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/core/test/decision-action-test.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "synthetic_clock_actual_core_decision_and_shared_reader",
+      "raw_log": "CLOSE_PATH_IDLE_FALLBACK_01.log",
+      "observed_at": "2026-10-11T07:08:00.065583+00:00",
+      "native_qualified": false,
+      "raw_log_digest": "sha256:e4c462018d09dc634ed23e175d3971e08e02006d4c280211617b41ffbf61e0c8",
+      "metadata_path": "CLOSE_PATH_IDLE_FALLBACK_01.json",
+      "metadata_digest": "sha256:7a4337aec9697d8d413f1cb4c9ec2ef454815798434cb97f5a3e267d4775e16e"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/core/test/run-flow-coherence-test.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "synthetic_actual_full_reader_writer_policy_and_stale_revision",
+      "raw_log": "SEMANTIC_ROUTING_01.log",
+      "observed_at": "2026-10-11T07:08:00.065583+00:00",
+      "native_qualified": false,
+      "raw_log_digest": "sha256:8ab9ae3fb361349f1a14d43abdee381a27b630fee4d2dcb0f699bd872ba75204"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "actual_generated_stdio_synthetic_disposable_decisions",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "EARLY_UR_MCP_VERIFICATION_01.log",
+      "raw_log_digest": "sha256:a86e2663b0aa58c486451dcf80eeb9dc33e1570d59ba5036b34eea0de739e517",
+      "native_qualified": false,
+      "authorizes": false,
+      "build_identity": "CANDIDATE_IDENTITY_CLOSE_PATH_01.json",
+      "protocols": [
+        "legacy_sdk_v1",
+        "modern_sdk_v2"
+      ],
+      "exchanges": [
+        "stdio-exchanges-final/early-ur-legacy.json",
+        "stdio-exchanges-final/early-ur-modern.json"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-final"
+      },
+      "metadata_path": "EARLY_UR_MCP_VERIFICATION_01.json",
+      "metadata_digest": "sha256:6701cd4686821b28a9ab9ca82abed9891b709d762293277ecefd45087c7121a1"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/core/test/early-ur-revision-test.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "source_real_process_interruption_synthetic_disposable_decisions",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "EARLY_UR_RECOVERY_VERIFICATION_01.log",
+      "raw_log_digest": "sha256:204f25a41d2061b29b31377b270e743cb9d3884e66a130e0ee525921f6bbc97a",
+      "native_qualified": false,
+      "authorizes": false,
+      "checkpoint_count": 38,
+      "physical_power_loss": false,
+      "metadata_path": "EARLY_UR_RECOVERY_VERIFICATION_01.json",
+      "metadata_digest": "sha256:6848d994e0dfbecdf1484696796e8667830ad487e2f21fca9bdda49596a50b75"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=3",
+        "packages/cli/scripts/control-inspect-test.js",
+        "packages/cli/scripts/skill-dispatch-test.js",
+        "packages/cli/scripts/cli-gate-scenarios-test.js",
+        "packages/cli/scripts/control-command-process-test.js",
+        "packages/core/test/prd-readiness-test.js",
+        "packages/core/test/sd-readiness-test.js",
+        "packages/core/test/parent-reconciliation-test.js",
+        "packages/core/test/next-action-test.js",
+        "packages/core/test/run-backlog-writer-test.js",
+        "packages/core/test/interaction-presentation-test.js"
+      ],
+      "exit_code": 1,
+      "evidence_class": "source_regression_initial_failure",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "REVIEW_COMPATIBILITY_VERIFICATION_01.log",
+      "raw_log_digest": "sha256:0e47cd383a55cf9d16da19043f88935ac6b7024636a0737b736f6f43aab2cd3f",
+      "native_qualified": false,
+      "authorizes": false,
+      "passed": 8,
+      "failed": 2,
+      "repaired_test_expectations": "COMPLETION_LOCALIZATION_VERIFICATION_02.json",
+      "production_copy_issue": "COMPLETION_LOCALIZATION_VERIFICATION_02.json",
+      "metadata_path": "REVIEW_COMPATIBILITY_VERIFICATION_01.json",
+      "metadata_digest": "sha256:aa71177609c9cc1ecf9d423e098fc5364e3a2e427b5b4d7545784f385a252c6c"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=2",
+        "packages/core/test/interaction-presentation-test.js",
+        "packages/cli/scripts/cli-gate-scenarios-test.js",
+        "packages/cli/scripts/control-inspect-test.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "source_canonical_dispatch_and_rendered_locale_regression",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "COMPLETION_LOCALIZATION_VERIFICATION_02.log",
+      "raw_log_digest": "sha256:a47e70f86d71d84017d669dcb774f36b5b6a7eadb239084441be99b3646068bb",
+      "native_qualified": false,
+      "authorizes": false,
+      "passed": 3,
+      "registered_locales": [
+        "en",
+        "de"
+      ],
+      "metadata_path": "COMPLETION_LOCALIZATION_VERIFICATION_02.json",
+      "metadata_digest": "sha256:04c5bb95ef4cb940aef44f5873e13db21afc3c6145433793ace9a01c7571abb7"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/cli/scripts/copilot-profile-test.js",
+        "packages/cli/scripts/interaction-catalog-test.js",
+        "packages/cli/scripts/payload-budget-test.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "generated_payload_and_copy_budget_regression",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "COMPLETION_COPY_PAYLOAD_VERIFICATION_01.log",
+      "raw_log_digest": "sha256:914e8680c1807fe9d5808f4784e93af4580398fe6ef7a714fb4359bcb7830cab",
+      "native_qualified": false,
+      "authorizes": false,
+      "passed": 3,
+      "metadata_path": "COMPLETION_COPY_PAYLOAD_VERIFICATION_01.json",
+      "metadata_digest": "sha256:a27aed8188f6dc84a9bd626e593aa41e87f56ec9c9c58733b1c496a6189af046"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/sync-package-assets.js"
+      ],
+      "exit_code": 0,
+      "evidence_class": "generated_assets",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "COMPLETION_COPY_ASSETS_01.log",
+      "raw_log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "COMPLETION_COPY_ASSETS_01.json",
+      "metadata_digest": "sha256:4b30168c5b43687dcfc59e9db76db0709168b6d6ff807f197b562e3fc63e35cd"
+    },
+    {
+      "schema_version": "1",
+      "observed_completed_at": "2026-10-11T07:30:29.069654+00:00",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/control-ui/scripts/build-mcp.mjs"
+      ],
+      "exit_code": 0,
+      "evidence_class": "generated_ui_build",
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "raw_log": "COMPLETION_COPY_UI_BUILD_01.log",
+      "raw_log_digest": "sha256:a0423d7f242ba64d4d016a0a5d959f8a2c305a0cd8cbd23a70a442ad4085835a",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "COMPLETION_COPY_UI_BUILD_01.json",
+      "metadata_digest": "sha256:dba0fc1adb984b0027ae2f84f7c589a7c9d6edc4ceaaa355f2c4df60a0e7bbc5"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=2",
+        "packages/mcp-server/test/whole-flow.test.js",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "observed_completed_at": "2026-10-11T07:33:19.601382+00:00",
+      "exit_code": 0,
+      "evidence_class": "actual_reassembled_stdio_synthetic_disposable_decisions",
+      "raw_log": "COMPLETION_COPY_MCP_VERIFICATION_01.log",
+      "raw_log_digest": "sha256:c5320dca4835850eac68dc3e2195a3bf0468f6e86285c1365656e2e5eaa85f46",
+      "candidate_identity": "CANDIDATE_IDENTITY_COMPLETION_COPY_01.json",
+      "source_delta": "QA_CONTINUATION_SOURCE_DELTA_01.json",
+      "native_qualified": false,
+      "authorizes": false,
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-completion-copy"
+      },
+      "ui_source_build_binding": "The initial copy assembly used the prior UI resource; command policy/locale results qualify this dispatcher. The fully rebuilt UI resource is separately qualified by COMPLETION_COPY_UI_MCP_VERIFICATION_01.",
+      "metadata_path": "COMPLETION_COPY_MCP_VERIFICATION_01.json",
+      "metadata_digest": "sha256:e139bdbbaf6daaffe5b01cccc8db37c8f386636c99da5811f3df32b366770b6f"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "observed_completed_at": "2026-10-11T07:33:19.601382+00:00",
+      "exit_code": 0,
+      "evidence_class": "actual_reassembled_stdio_synthetic_disposable_decisions",
+      "raw_log": "COMPLETION_COPY_UI_MCP_VERIFICATION_01.log",
+      "raw_log_digest": "sha256:02c668f709f66698209554a71756c6837c1eddf46fbbd45007c6b3cd3e2045dd",
+      "candidate_identity": "CANDIDATE_IDENTITY_COMPLETION_COPY_01.json",
+      "source_delta": "QA_CONTINUATION_SOURCE_DELTA_01.json",
+      "native_qualified": false,
+      "authorizes": false,
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server"
+      },
+      "ui_source_build_binding": "decision-resource suite over both SDK eras after COMPLETION_COPY_UI_BUILD_01 and COMPLETION_COPY_ASSEMBLY_02; not a native Codex observation.",
+      "metadata_path": "COMPLETION_COPY_UI_MCP_VERIFICATION_01.json",
+      "metadata_digest": "sha256:7b72aea71efaffe8fa00a8833ce2572dc32cbe4a4b498ccdb15fdca902ddb806"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-qa-next-probe-preparer.mjs"
+      ],
+      "evidence_class": "prepared_disposable_native_probe",
+      "metadata_path": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+      "raw_log": "NATIVE_PROBE_NEXT_PREPARATION_01.log",
+      "exit_code": 0,
+      "native_qualified": false,
+      "observed_at": "2026-10-11T07:45:19.040Z",
+      "metadata_digest": "sha256:05673770a649aaa3ad185dec82284f6c44135680081f2df7220551024dadf9c0",
+      "raw_log_digest": "sha256:e6ec3797b3e4126782498d8047de7f16a227e0f5682c0c763e7465607fd394e4"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-next-probe-preflight.mjs"
+      ],
+      "evidence_class": "synthetic_actual_stdio_preflight",
+      "metadata_path": "NATIVE_PROBE_NEXT_PREFLIGHT_01.json",
+      "raw_log": "NATIVE_PROBE_NEXT_PREFLIGHT_01.log",
+      "exit_code": 0,
+      "native_qualified": false,
+      "observed_at": "2026-10-11T07:45:19.040Z",
+      "metadata_digest": "sha256:6847fdf34234f5b9532e56b0f8006a2dcc536c6795ff70ed82d20adb3b4efef5",
+      "raw_log_digest": "sha256:be7684398e599da3d57a89cd07d883967ca903560801125db63b5c0cbc0b1e3c"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/cli/bin/create-agdf.js",
+        "agdf-record",
+        "--command-file",
+        "/private/tmp/agdf-qa-continuation-evidence-command.json"
+      ],
+      "evidence_class": "canonical_live_evidence_only",
+      "metadata_path": "QA_CONTINUATION_RECORD_RESULT_01.json",
+      "exit_code": 0,
+      "native_qualified": false,
+      "observed_at": "2026-10-11T07:45:19.041Z",
+      "metadata_digest": "sha256:be04836a6f9a2183aebd98a8ccf7906a66b957c39b6b121b10b312ac61a75ebc"
+    },
+    {
+      "command": [
+        "/Users/arndtgold/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/private/tmp/agdf-select-next-probe.py"
+      ],
+      "evidence_class": "authorized_temporary_probe_configuration",
+      "metadata_path": "NATIVE_PROBE_NEXT_CONFIGURATION_01.json",
+      "exit_code": 0,
+      "native_qualified": false,
+      "observed_at": "2026-10-11T07:45:19.041Z",
+      "metadata_digest": "sha256:4c074245c260c3c6b00e4f87f5db2194901a39b1e0e8be741d8b65d17290dcc6"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/cli/bin/create-agdf.js",
+        "agdf-record",
+        "--command-file",
+        "/private/tmp/agdf-inspect-module-evidence-command.json"
+      ],
+      "evidence_class": "canonical_live_evidence_only",
+      "metadata_path": "INSPECT_MODULE_RECORD_RESULT_01.json",
+      "exit_code": 0,
+      "native_qualified": false,
+      "metadata_digest": "sha256:e46014baab4f681194db6036178280aa6c5a660bdd49bd3d3b98d1a4d75f7c7f"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/cli/bin/create-agdf.js",
+        "agdf-record",
+        "--command-file",
+        "/private/tmp/agdf-native-de-milestone-command.json"
+      ],
+      "evidence_class": "canonical_live_evidence_only",
+      "metadata_path": "NATIVE_DE_MILESTONE_RECORD_RESULT_01.json",
+      "metadata_digest": "sha256:05e7ee7bbe0096b990de7250009aef6c7609108c57e805c735b164e79aa0e094",
+      "exit_code": 0,
+      "native_qualified": false
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=4",
+        "packages/core/test/run-command-service-test.js",
+        "packages/core/test/run-flow-coherence-test.js",
+        "packages/core/test/presentation-decision-test.js",
+        "packages/core/test/decision-action-test.js",
+        "packages/core/test/evidence-bindings-test.js",
+        "packages/core/test/run-owned-output-recovery-test.js",
+        "packages/core/test/run-closeout-command-test.js",
+        "packages/core/test/quick-closeout-command-test.js",
+        "packages/core/test/approval-command-recovery-test.js",
+        "packages/core/test/run-closeout-slice-test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T08:52:15.334560+00:00",
+      "observed_at": "2026-10-11T08:54:22.327659+00:00",
+      "elapsed_seconds": 126.994,
+      "exit_code": 0,
+      "raw_log": "FINAL_SOURCE_SCENARIO_CHECK_01.log",
+      "raw_log_digest": "sha256:2e03b205cfad59d2525c504150a59d1f7d1445d9484c3980c35e6a82ce5dc728",
+      "evidence_class": "isolated_current_source_process_tests",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "FINAL_SOURCE_SCENARIO_CHECK_01.json",
+      "metadata_digest": "sha256:5b632d3614624f7d002ff0b0f19441abfc1aa36a16b9a59f9535691d14153156"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=3",
+        "packages/mcp-server/test/whole-flow.test.js",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-final-scenario"
+      },
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T08:55:23.785084+00:00",
+      "observed_at": "2026-10-11T08:59:27.661502+00:00",
+      "elapsed_seconds": 243.837,
+      "exit_code": 0,
+      "raw_log": "FINAL_TRANSPORT_SCENARIO_CHECK_01.log",
+      "raw_log_digest": "sha256:890b0aab302dd7c083c714f5870ba838686e296e6e15f0bf2d00323b8f877b15",
+      "test_source_hashes": {
+        "packages/mcp-server/test/whole-flow.test.js": "sha256:b33e80eac8790bad02f93d10f4954b9ceda1acdb3f9d5bea575285a63a774936",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:6746e5fdcf8d7c4632affdadf49fd4f62dcf46c4fb5a4edff814b86449715e02",
+        "packages/mcp-server/test/revision-command.test.js": "sha256:7609449f705f80fa7617747a2fde4e4d5989bd9252ff4ed43e0766dfe6cc54ca"
+      },
+      "evidence_class": "actual_generated_stdio_synthetic_bound_intents",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "FINAL_TRANSPORT_SCENARIO_CHECK_01.json",
+      "metadata_digest": "sha256:b0790e8e5ec55e8a74b0de0e222e7a2e7f3cc7dbb1ae2db160dca43ddbc60d5c"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/core/test/decision-action-test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:14:14.681213+00:00",
+      "observed_at": "2026-10-11T09:16:08.876707+00:00",
+      "elapsed_seconds": 114.195,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_SOURCE_01.log",
+      "raw_log_digest": "sha256:fd3c954be847a5189ed6ea6f0bb42d98b921b8dd1a43aa03a99f74688c939693",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:26509715219f14c404649249b9063875a3eb2cca7fe640a22b3bd59db0032b48",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:4a9b21d404b030f57f2a8e7352d1a6cfb49ced0112f3f1d10fa01adbf3a90b4b"
+      },
+      "candidate_environment": {},
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_SOURCE_01.json",
+      "metadata_digest": "sha256:05ec6b120b1345592f2c4302ac932277d7510fab67030e348094fc6c68afe491"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=2",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:14:58.200054+00:00",
+      "observed_at": "2026-10-11T09:18:53.467790+00:00",
+      "elapsed_seconds": 235.267,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_TRANSPORT_01.log",
+      "raw_log_digest": "sha256:737ccc3d997c1fd8fe53f4a6b27e02ec9b1980025e4f7a8939755b7da9c54b3a",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:26509715219f14c404649249b9063875a3eb2cca7fe640a22b3bd59db0032b48",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:4a9b21d404b030f57f2a8e7352d1a6cfb49ced0112f3f1d10fa01adbf3a90b4b"
+      },
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-uat-reading"
+      },
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_TRANSPORT_01.json",
+      "metadata_digest": "sha256:2a072ddf25474edfe3011543065deb6ca9b76a2aa31c8d86b92c14dd7dca2ae0"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/sync-package-assets.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:14:15.995735+00:00",
+      "observed_at": "2026-10-11T09:14:24.280293+00:00",
+      "elapsed_seconds": 8.284,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_BUILD_01.log",
+      "raw_log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:26509715219f14c404649249b9063875a3eb2cca7fe640a22b3bd59db0032b48",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:4a9b21d404b030f57f2a8e7352d1a6cfb49ced0112f3f1d10fa01adbf3a90b4b"
+      },
+      "candidate_environment": {},
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_BUILD_01.json",
+      "metadata_digest": "sha256:dadc560ef737b490e97a3b8d135aeff20f42705358f9df391aecad3c73737402"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--input-type=module",
+        "-e",
+        "import {assembleNpm} from './scripts/assemble-npm.mjs'; console.log(JSON.stringify(assembleNpm({surface:'codex'})))"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:14:24.284253+00:00",
+      "observed_at": "2026-10-11T09:14:27.426456+00:00",
+      "elapsed_seconds": 3.142,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_BUILD_02.log",
+      "raw_log_digest": "sha256:85c784269837320b0b156019499f3ca607a4dbd5dc4c58a0e64a1b8a59f87e98",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:26509715219f14c404649249b9063875a3eb2cca7fe640a22b3bd59db0032b48",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:4a9b21d404b030f57f2a8e7352d1a6cfb49ced0112f3f1d10fa01adbf3a90b4b"
+      },
+      "candidate_environment": {},
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_BUILD_02.json",
+      "metadata_digest": "sha256:9e79282fc4ebc94aacded4e064b363f9afee0a7afc976908e3f846b85799d2aa"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/core/test/decision-action-test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:24:23.914078+00:00",
+      "observed_at": "2026-10-11T09:27:06.843556+00:00",
+      "elapsed_seconds": 162.929,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_SOURCE_FINAL_01.log",
+      "raw_log_digest": "sha256:818797b2e1c3b3f2528cbd358333ef58aabd390cbab60309357acb16ba5cae4e",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:f33dbf9a00515f9f99cfc9f2996b9a67cade4a8d3357dd74303074e71a7f1576",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:ff0ce524c481f1d7ca06e85ce678cb4a317bee63ddfb4a2c095df05b90f7d31e"
+      },
+      "candidate_environment": {},
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_SOURCE_FINAL_01.json",
+      "metadata_digest": "sha256:7480b9b776b25ae934ba869f6ec55170667878dcb854858a96c89b62fa0819de"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/sync-package-assets.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:24:25.090715+00:00",
+      "observed_at": "2026-10-11T09:24:29.943136+00:00",
+      "elapsed_seconds": 4.852,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_BUILD_FINAL_01.log",
+      "raw_log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:f33dbf9a00515f9f99cfc9f2996b9a67cade4a8d3357dd74303074e71a7f1576",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:ff0ce524c481f1d7ca06e85ce678cb4a317bee63ddfb4a2c095df05b90f7d31e"
+      },
+      "candidate_environment": {},
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_BUILD_FINAL_01.json",
+      "metadata_digest": "sha256:d54a501ba738657315fdbfa90ed5b0f59810a3fc7f783fa7ee1bb7f04a32455a"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--input-type=module",
+        "-e",
+        "import {assembleNpm} from './scripts/assemble-npm.mjs'; console.log(JSON.stringify(assembleNpm({surface:'codex'})))"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:24:29.944839+00:00",
+      "observed_at": "2026-10-11T09:24:43.559580+00:00",
+      "elapsed_seconds": 13.615,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_BUILD_FINAL_02.log",
+      "raw_log_digest": "sha256:85c784269837320b0b156019499f3ca607a4dbd5dc4c58a0e64a1b8a59f87e98",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:f33dbf9a00515f9f99cfc9f2996b9a67cade4a8d3357dd74303074e71a7f1576",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:ff0ce524c481f1d7ca06e85ce678cb4a317bee63ddfb4a2c095df05b90f7d31e"
+      },
+      "candidate_environment": {},
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_BUILD_FINAL_02.json",
+      "metadata_digest": "sha256:e16cadfbaefb3d93e584e66c0216f9317a8c6acc2b3cf4f8e2e8479455ad76e7"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=2",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/decision-resource.test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:25:11.993702+00:00",
+      "observed_at": "2026-10-11T09:31:24.616245+00:00",
+      "elapsed_seconds": 372.621,
+      "exit_code": 0,
+      "raw_log": "UAT_READING_TRANSPORT_FINAL_01.log",
+      "raw_log_digest": "sha256:21771f716326cd5a75e9bda964a8fa8ed377c35ef3fa95d7603ea59e4ea255d8",
+      "source_hashes": {
+        "packages/core/lib/control-inspect/decision-session.js": "sha256:f33dbf9a00515f9f99cfc9f2996b9a67cade4a8d3357dd74303074e71a7f1576",
+        "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+        "packages/mcp-server/test/structured-flow.test.js": "sha256:ff0ce524c481f1d7ca06e85ce678cb4a317bee63ddfb4a2c095df05b90f7d31e"
+      },
+      "candidate_environment": {
+        "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+        "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-uat-reading-final"
+      },
+      "evidence_class": "source_or_generated_stdio_synthetic_verification",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "UAT_READING_TRANSPORT_FINAL_01.json",
+      "metadata_digest": "sha256:23a318821c66e8952f2ea2257267c801cb9223549059b0f964f4eb4a47772722"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/native-probes/core-mcp-decision.mjs",
+        "--all-gates"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:16:30.268664+00:00",
+      "observed_at": "2026-10-11T09:32:25.586151+00:00",
+      "elapsed_seconds": 955.314,
+      "exit_code": 0,
+      "raw_log": "NATIVE_GATE_PREPARATION_02.log",
+      "raw_log_digest": "sha256:def781d12457910533cbed980e969d36f42f64fb8bdbb80a980fab271de60f59",
+      "native_qualified": false,
+      "authorizes": false,
+      "harness_digest_observed_at_completion": "sha256:fd2f954c1c117f56eaf42a277315ed1f520893826a0190e02ce6a8a89d3eaa96",
+      "harness_source_binding": "Digest was sampled after the process completed; the harness was extended during this long preparation, so this is not proof of the exact loaded start-time script. Candidate 02 records its actual generated wrapper/packages. Final candidate 03 retains exact wrapper digest and explicit owner assembly.",
+      "metadata_path": "NATIVE_GATE_PREPARATION_02.json",
+      "metadata_digest": "sha256:42e0b5307d3cb590243760fcfea1b067b07307b971825e82555160f10f7988d0"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-gate-matrix-preflight-02.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:33:55.355798+00:00",
+      "observed_at": "2026-10-11T09:34:18.009538+00:00",
+      "elapsed_seconds": 22.654,
+      "exit_code": 1,
+      "raw_log": "NATIVE_GATE_MATRIX_PREFLIGHT_02.log",
+      "raw_log_digest": "sha256:aeb32bebe91e6ab35d9cc779e3db720c86df21d6d674a8173467e844c3b325eb",
+      "preflight_script_digest": "sha256:4e54a9a24940a9ca01d16829aaaced4cc3c43c83450008d6b361d84bd6706e26",
+      "candidate_descriptor": "NATIVE_PROBE_CANDIDATE_GATE_MATRIX_03.json",
+      "candidate_descriptor_digest": "sha256:321d39cae112a4c7719c8c0ddef245729e70cebf5da3a5245762077048d97a39",
+      "candidate_environment": {
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-gate-matrix-02"
+      },
+      "evidence_class": "actual_generated_stdio_disposable_gate_locale_preparation_and_reader",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "NATIVE_GATE_MATRIX_PREFLIGHT_COMMAND_02.json",
+      "metadata_digest": "sha256:5419b8a0e04222807450e05a26393c419ace8d326f56ef8fdb8eaeec9ccd0815"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-gate-matrix-preflight-03.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:50:49.835692+00:00",
+      "observed_at": "2026-10-11T09:52:20.149818+00:00",
+      "elapsed_seconds": 90.314,
+      "exit_code": 1,
+      "raw_log": "NATIVE_GATE_MATRIX_PREFLIGHT_03.log",
+      "raw_log_digest": "sha256:000f9c97e5262f3a167f50d05e6b90da36407a02419ed324ed4982c5dfee4d3e",
+      "preflight_script_digest": "sha256:a9f3155df0ca81c19525bfda8e74ebcad5380a701c5a2b758401ac09fa0f252c",
+      "candidate_descriptor": "NATIVE_PROBE_CANDIDATE_GATE_MATRIX_05.json",
+      "candidate_descriptor_digest": "sha256:b4702803fc1ca17b9847d533e3851399ee2146b3d3fab3e5af5761b28190c9b1",
+      "candidate_environment": {
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-gate-matrix-03"
+      },
+      "evidence_class": "actual_generated_stdio_disposable_gate_locale_preparation_and_reader",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "NATIVE_GATE_MATRIX_PREFLIGHT_COMMAND_03.json",
+      "metadata_digest": "sha256:336216b954fa09edd0550213ba36cde7d0e0578945f5af39ddd8f49a9e41d582"
+    },
+    {
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-gate-matrix-preflight-04.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T09:53:36.305878+00:00",
+      "observed_at": "2026-10-11T10:01:42.322387+00:00",
+      "elapsed_seconds": 486.064,
+      "exit_code": 0,
+      "raw_log": "NATIVE_GATE_MATRIX_PREFLIGHT_04.log",
+      "raw_log_digest": "sha256:f34098d0cd6d157d70666553a9292a5722b0de14c9376638333a6993713ad2e1",
+      "preflight_script_digest": "sha256:f74b0afbf2abf1132492a67cfce7374d8b9267be6bf764c07a45632bcc77154a",
+      "candidate_descriptor": "NATIVE_PROBE_CANDIDATE_GATE_MATRIX_05.json",
+      "candidate_descriptor_digest": "sha256:b4702803fc1ca17b9847d533e3851399ee2146b3d3fab3e5af5761b28190c9b1",
+      "candidate_environment": {
+        "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-gate-matrix-04"
+      },
+      "evidence_class": "actual_generated_stdio_disposable_gate_locale_preparation_and_reader",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "NATIVE_GATE_MATRIX_PREFLIGHT_COMMAND_04.json",
+      "metadata_digest": "sha256:944800f6883683057cf6a59d998ff4573b955217decff84a8c0f6eec47e8bc92"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/cli/scripts/sync-package-assets.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:05:49.901150+00:00",
+      "observed_at": "2026-10-11T11:05:58.583054+00:00",
+      "elapsed_seconds": 8.682,
+      "exit_code": 1,
+      "raw_log": "PARALLEL_BUILD_01.log",
+      "raw_log_digest": "sha256:2a8053cb1a12b5e876c7f65c02e7e8ca236940ae4aef4135b664f6e329e60873",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_BUILD_01.json",
+      "metadata_digest": "sha256:d71c58630e966e7bbafecf12f49c5896977ebe10bc30bc59d0396366a6d6bb53"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=4",
+        "packages/core/test/control-scoped-capture-test.js",
+        "packages/core/test/control-read-provider-test.js",
+        "packages/core/test/control-read-snapshot-test.js",
+        "packages/core/test/cockpit-scoped-read-test.js",
+        "packages/core/test/cockpit-session-test.js",
+        "packages/core/test/run-command-service-test.js",
+        "packages/core/test/run-flow-coherence-test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:05:48.625986+00:00",
+      "observed_at": "2026-10-11T11:07:46.667760+00:00",
+      "elapsed_seconds": 118.041,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_READER_REGRESSION_01.log",
+      "raw_log_digest": "sha256:99e9a7a27c3bdf1f0e3179470324d48f77488cfbaec7668328086706fa9dff53",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_READER_REGRESSION_01.json",
+      "metadata_digest": "sha256:278f191778c252bc3645857250913ca36dde84fead9782b1207a9f6255cc8ce0"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--input-type=module",
+        "-e",
+        "import {syncPackageAssets} from './scripts/sync-package-assets.js'; syncPackageAssets({surface:'codex'});"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:06:43.965430+00:00",
+      "observed_at": "2026-10-11T11:06:48.140015+00:00",
+      "elapsed_seconds": 4.174,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_BUILD_CODEX_01.log",
+      "raw_log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_BUILD_CODEX_01.json",
+      "metadata_digest": "sha256:c81ddfc045f8c98f7276aadac49b24bb47ef1734a4431f3ec47624b0e3d01db0"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--input-type=module",
+        "-e",
+        "import {assembleNpm} from './scripts/assemble-npm.mjs'; console.log(JSON.stringify(assembleNpm({surface:'codex'})));"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:07:02.543714+00:00",
+      "observed_at": "2026-10-11T11:07:05.281747+00:00",
+      "elapsed_seconds": 2.738,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_BUILD_CODEX_02.log",
+      "raw_log_digest": "sha256:85c784269837320b0b156019499f3ca607a4dbd5dc4c58a0e64a1b8a59f87e98",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_BUILD_CODEX_02.json",
+      "metadata_digest": "sha256:08e22cdf4877de4001d91f42c3f872f9be4bde2e6d92f979de5acb77c88a5950"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "--test-concurrency=3",
+        "packages/mcp-server/test/whole-flow.test.js",
+        "packages/mcp-server/test/structured-flow.test.js",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:07:43.725482+00:00",
+      "observed_at": "2026-10-11T11:11:55.043734+00:00",
+      "elapsed_seconds": 251.317,
+      "exit_code": 1,
+      "raw_log": "PARALLEL_TRANSPORT_REGRESSION_01.log",
+      "raw_log_digest": "sha256:dc9f3af3abf5f226494d99fe09ea3526af9d3ca382ea354537b9d840819a8975",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_TRANSPORT_REGRESSION_01.json",
+      "metadata_digest": "sha256:c475bdc4ad096313325614fbefe0e9a345bca9847768d1758ccd502655d25e71"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-parallel-candidate.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:08:25.365797+00:00",
+      "observed_at": "2026-10-11T11:08:41.391863+00:00",
+      "elapsed_seconds": 16.026,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_CANDIDATE_BUILD_01.log",
+      "raw_log_digest": "sha256:e7113bd409a38f2f3a9c25edaa8ec8190d9bdd3d55ade631585b7cbd274e9cb2",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_CANDIDATE_BUILD_01.json",
+      "metadata_digest": "sha256:e6325e00bba3dbddff85f94c3981459678643ed606df6e8dca9a2048e46f7ff6"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-parallel-mcp-matrix.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:09:10.671889+00:00",
+      "observed_at": "2026-10-11T11:11:03.883238+00:00",
+      "elapsed_seconds": 113.211,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_MCP_MATRIX_COMMAND_01.log",
+      "raw_log_digest": "sha256:ba86ca80315f61934c1368089ffab283068661014f5a7827ba2105e27e4203b9",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_MCP_MATRIX_COMMAND_01.json",
+      "metadata_digest": "sha256:ecf56215a3df0ac09db7be3f8d7dad1841392f558e9c7085bd9b94904ce052f2"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-flow-reference-matrix.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:10:40.380213+00:00",
+      "observed_at": "2026-10-11T11:11:05.037529+00:00",
+      "elapsed_seconds": 24.657,
+      "exit_code": 0,
+      "raw_log": "FLOW_REFERENCE_GATE_MATRIX_COMMAND_01.log",
+      "raw_log_digest": "sha256:16855d1d10bf5ae1dfca5b528170f184798a5ffd845029719e09eb5a0d1d6a94",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "FLOW_REFERENCE_GATE_MATRIX_COMMAND_01.json",
+      "metadata_digest": "sha256:4a499e5a8d97a20e5411ef07b937bc5e57a39c41c3b15c34ce6cfb0c704071c8"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "/private/tmp/agdf-renewed-flow-comparison.mjs"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:13:37.750606+00:00",
+      "observed_at": "2026-10-11T11:14:05.139460+00:00",
+      "elapsed_seconds": 27.389,
+      "exit_code": 0,
+      "raw_log": "FLOW_RENEWED_UX_COMPARISON_COMMAND_01.log",
+      "raw_log_digest": "sha256:7348bddb22485ef744d24b0b555c92c324bdaf29cc215edb8eeac68397aee5a2",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "FLOW_RENEWED_UX_COMPARISON_COMMAND_01.json",
+      "metadata_digest": "sha256:fb25ba7d0f74aab6c775ad4a5e4b571daa222b76fc196b4f73dea3a738d339b6"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "--test",
+        "packages/mcp-server/test/structured-flow.test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:12:39.924149+00:00",
+      "observed_at": "2026-10-11T11:16:28.445001+00:00",
+      "elapsed_seconds": 228.52,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_STRUCTURED_ISOLATED_01.log",
+      "raw_log_digest": "sha256:991745765be609e160ca30ce8b173f5e560ddb75a5afaeb7e5755c5c532fa826",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_STRUCTURED_ISOLATED_01.json",
+      "metadata_digest": "sha256:052afcce9ea9a342093e272d7caeed5c28f937dca6fe07f12766f1fc99b17d46"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/sync-package-assets.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:14:15.021368+00:00",
+      "observed_at": "2026-10-11T11:14:17.486489+00:00",
+      "elapsed_seconds": 2.465,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_BUILD_ALL_02.log",
+      "raw_log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_BUILD_ALL_02.json",
+      "metadata_digest": "sha256:de2b7211d3a3db6543f7ed5c8f0d62e3632438254a5be36a401325544fcf8429"
+    },
+    {
+      "schema_version": "1",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "packages/cli/scripts/copilot-profile-test.js"
+      ],
+      "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-11T11:15:08.648748+00:00",
+      "observed_at": "2026-10-11T11:15:11.136941+00:00",
+      "elapsed_seconds": 2.488,
+      "exit_code": 0,
+      "raw_log": "PARALLEL_COPILOT_PROFILE_01.log",
+      "raw_log_digest": "sha256:e94dd11c5922a481583b7f930f32a2dccee4da9c29b8839afd462cc441d10b41",
+      "evidence_class": "scoped_source_or_generated_candidate_execution",
+      "native_qualified": false,
+      "authorizes": false,
+      "metadata_path": "PARALLEL_COPILOT_PROFILE_01.json",
+      "metadata_digest": "sha256:737d957055f667ab5993b2cde884f3966d8f87c5d7f7d74f26a89e78b5c88cd1"
+    }
+  ],
+  "source_build_binding": "CANDIDATE_IDENTITY.json; final reassembled MCP verification supplements earlier package iterations",
+  "native_qualified": false,
+  "verification_supplements": [
+    {
+      "metadata_path": "INSPECT_MODULE_FIX_VERIFICATION_01.json",
+      "metadata_digest": "sha256:7d115962e8e90e9161b2cfce66a6818f23a906cb88df7b6fe0c6c0022ff5fd4c",
+      "result": "pass_for_scoped_fix",
+      "passing": [
+        {
+          "suites": [
+            "control-inspect-test.js",
+            "interaction-presentation-test.js",
+            "run-command-contract-test.js"
+          ],
+          "raw_log": "INSPECT_MODULE_DIAGNOSTIC_FIX_01.log",
+          "source_only": true
+        },
+        {
+          "suites": [
+            "run-command.test.js"
+          ],
+          "raw_log": "INSPECT_MODULE_DIAGNOSTIC_FIX_02.log",
+          "protocols": [
+            "legacy_negotiation",
+            "2026-07-28"
+          ],
+          "raw_exchanges": "stdio-exchanges-inspect-module",
+          "note": "Node selected one existing MCP test; a mistakenly named nonexisting budget path did not execute. Real payload checks ran separately below."
+        },
+        {
+          "suites": [
+            "copilot-profile-test.js",
+            "payload-budget-test.js"
+          ],
+          "raw_log": "INSPECT_MODULE_PAYLOAD_VERIFICATION_01.log"
+        }
+      ],
+      "original_failure": {
+        "source_suites_passed": 3,
+        "mcp_fixture_failed": 1,
+        "reason": "Default dist/npm dispatcher stale; rejected current locale registry before testing fix.",
+        "raw_log": "INSPECT_MODULE_DIAGNOSTIC_FIX_01.log"
+      },
+      "log_digests": {
+        "INSPECT_MODULE_DIAGNOSTIC_FIX_01.log": "sha256:6cfdc7b2b275281935111b3e35308187513a7ba94dfdb35a75d043945718980a",
+        "INSPECT_MODULE_DIAGNOSTIC_FIX_02.log": "sha256:c549bd7b2affca22039e1022aea1bbb0f4d2d76e798bdeebd9d41676986f8660",
+        "INSPECT_MODULE_PAYLOAD_VERIFICATION_01.log": "sha256:0e4e619801e8cf9002b55200e01da78f76744a5900103a064f7b1bd6fa48bb6d",
+        "INSPECT_MODULE_ASSETS_01.log": "sha256:9bcc32c02f701e5543803ed9fb11a98d153c084bb4f74ad1c777c505257671a4",
+        "INSPECT_MODULE_ASSETS_02.log": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "INSPECT_MODULE_ASSEMBLY_01.log": "sha256:85c784269837320b0b156019499f3ca607a4dbd5dc4c58a0e64a1b8a59f87e98",
+        "INSPECT_MODULE_UI_BUILD_01.log": "sha256:7fb4b48356b81e8ece247a6cd212e1e6c94f90a2fec08a8f3cd09098129d9889"
+      },
+      "qualification": "Scoped source/generated STDIO tests only; actual native predecessor identity remains separate."
+    }
+  ],
+  "native_mcp_calls": [
+    {
+      "tool": "agdf_prepare",
+      "request_and_result": "NATIVE_NEXT_DE_CHANGE_PREPARE_01.json",
+      "result": "accepted",
+      "business_decision": false
+    },
+    {
+      "tool": "agdf_inspect",
+      "request_scope": "operation-status native-de-approve",
+      "result_evidence": "NATIVE_NEXT_DE_APPROVE_01.json",
+      "observed_status": "recorded",
+      "agent_issued_business_action": false
+    },
+    {
+      "tool": "agdf_inspect",
+      "request_scope": "operation-status native-en-request-change e034f114-1e57-4a9d-9e08-4c656ef86e88",
+      "result_evidence": "NATIVE_NEXT_EN_CHANGE_01.json",
+      "observed_status": "recorded",
+      "agent_issued_business_action": false
+    },
+    {
+      "tool": "agdf_prepare",
+      "request_and_result": "NATIVE_NEXT_EN_REJECT_PREPARE_01.json",
+      "result": "accepted",
+      "business_decision": false
+    },
+    {
+      "tool": "agdf_prepare",
+      "request_and_result": "NATIVE_NEXT_EN_REJECT_REPLAY_01.json",
+      "result": "already_applied",
+      "business_decision": false
+    },
+    {
+      "tool": "agdf_inspect",
+      "request_scope": "operation-status native-en-reject d55f3f0f-38d4-4a1c-a849-ae838b37faaf",
+      "result_evidence": "NATIVE_NEXT_EN_REJECT_01.json",
+      "observed_status": "recorded",
+      "agent_issued_business_action": false
+    },
+    {
+      "tool": "agdf_prepare",
+      "request_scope": "native-de-uat-approve UAT exact disposable revision 7e235d4f-817a-49fb-8284-92cb5e06ed14",
+      "operation_id": "a3545737-52de-4b99-8599-71507b9d981a",
+      "result_evidence": "NATIVE_RESTART_CAPABILITY_01.json",
+      "observed_status": "accepted presentation; host_ui_unsupported; no view",
+      "agent_issued_business_action": false
+    }
+  ]
+}

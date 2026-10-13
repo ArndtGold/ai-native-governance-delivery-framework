@@ -12,7 +12,9 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+// Exercise the same assembled package whose transitive graph is scanned below.
+// A same-version npm copy can retain obsolete generated resources after a rebuild.
+import { createMcpDispatchRuntime } from "../../../dist/npm/create-agdf/lib/mcp-dispatch-runtime.js";
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../../core/lib/runtime/plugin-provenance.js";
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "../src/worker.js";
 import { tryLinkFile } from "../../../scripts/support/symlinks.js";
@@ -23,10 +25,22 @@ const sources = readdirSync(sourceRoot)
   .map((name) => readFileSync(new URL(name, sourceRoot), "utf8"))
   .join("\n");
 for (const prohibited of [
-  "node:child_process", "node:net", "node:http", "node:https", "node:http2",
+  "node:net", "node:http", "node:https", "node:http2",
   "node:tls", "node:dgram", "node:dns", "writeFile", "rename(", "unlink(", "rm(", "fetch(",
 ]) {
   assert.equal(sources.includes(prohibited), false, `reachable server source includes prohibited capability: ${prohibited}`);
+}
+// The approved facade owns only direct private children. No other server module
+// gains a process capability, arbitrary execution, process discovery or kill.
+for (const name of readdirSync(sourceRoot).filter(name => name.endsWith('.js'))) {
+  const content = readFileSync(new URL(name, sourceRoot), 'utf8');
+  if (name === 'generation.js') {
+    assert.match(content, /import \{ fork \} from 'node:child_process'/u);
+    assert.match(content, /Fork\(join\(packageInfo\.packageRoot, 'src\/generation-entry\.js'\)/u);
+    assert.match(content, /stdio: \['ignore', 'ignore', 'ignore', 'ipc'\]/u);
+    for (const prohibited of ['.kill(', 'process.kill(', 'exec(', 'execFile(', 'spawn(', 'pgrep']) assert.equal(content.includes(prohibited), false, prohibited);
+    assert.doesNotMatch(content, /\bps\b/u);
+  } else assert.equal(content.includes('node:child_process'), false, name);
 }
 assert.equal(sources.includes("McpServer.connect(new StdioServerTransport"), false);
 assert.match(sources, /serveStdio\(/);
@@ -64,6 +78,9 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/fs-swap.js", ["renameSync"]],
   ["runtime/core/lib/control-read/snapshot.js", ["openSync"]],
+  ["runtime/core/lib/control-state/run-presentation.js", ["writeFileSync", "mkdirSync", "openSync", "fsyncSync"]],
+  ["runtime/core/lib/control-state/run-step-transaction.js", ["renameSync", "unlinkSync", "rmSync", "mkdirSync"]],
+  ["runtime/core/lib/control-state/run-owned-outputs.js", ["unlinkSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => content.includes(symbol)), owners.get(packagePath) ?? [],
@@ -71,11 +88,13 @@ function assertWriteBoundary(packagePath, content, owners = continuationWriteOwn
 }
 for (const [path, content] of visited) {
   for (const prohibited of [
-    "node:child_process", "node:net", "node:http", "node:https", "node:http2",
+    "node:net", "node:http", "node:https", "node:http2",
     "node:tls", "node:dgram", "node:dns", "fetch(",
   ]) {
     assert.equal(content.includes(prohibited), false, `reachable module ${path} includes ${prohibited}`);
   }
+  assert.equal(content.includes('node:child_process') && path !== fileURLToPath(new URL('generation.js', sourceRoot)), false,
+    `No transitive module may acquire arbitrary process capability: ${path}`);
   const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
   assertWriteBoundary(packagePath, content);
   if (path.startsWith(`${dispatcherRoot}${sep}`)) {
@@ -92,13 +111,19 @@ const readOnlyGraph = new Map();
 for (const owner of ["skill-dispatch/service.js", "control-inspect/service.js"]) {
   visit(resolve(dispatcherRoot, "runtime/core/lib", owner), readOnlyGraph);
 }
-const readDescriptors = new Map([["runtime/core/lib/control-read/snapshot.js", ["openSync"]]]);
+// Inspect imports the shared immutable presentation reader and pending-journal
+// observation from these same Core owner modules. Import reachability is not
+// function authority: the closed read route never invokes their publish/recovery
+// functions. Keep a finite reviewed symbol boundary, plus actual no-write tests.
+const readDescriptors = continuationWriteOwners;
 for (const [path, content] of readOnlyGraph) {
   assertWriteBoundary(relative(dispatcherRoot, path).replaceAll("\\", "/"), content, readDescriptors);
 }
 const snapshotSource = readOnlyGraph.get(resolve(dispatcherRoot, 'runtime/core/lib/control-read/snapshot.js'));
 assert.match(snapshotSource, /fs\.openSync\(path, fs\.constants\.O_RDONLY \| \(fs\.constants\.O_NOFOLLOW/);
 assert.equal((snapshotSource.match(/fs\.openSync\(/g) ?? []).length, 1, 'The bounded snapshot may open only the checked read-only descriptor.');
+const presentationReader = readOnlyGraph.get(resolve(dispatcherRoot, 'runtime/core/lib/control-state/run-presentation.js'));
+assert.match(presentationReader, /openSync\(path, constants\.O_RDONLY \| \(constants\.O_NOFOLLOW/u);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/unexpected-writer.js", "writeFileSync()"), /write boundary/);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync(); mkdirSync()"), /write boundary/);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync()", new Map()), /write boundary/);

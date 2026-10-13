@@ -1,0 +1,55 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "expected_revision_id": "089a504e-29b4-42a9-8b1c-3558cfa34996",
+  "operation_id": "fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d",
+  "source_gate": "UR",
+  "reason": "User requests bounded server exchange. Approved UR explicitly excludes automatic reconnection/restart and new orchestration store. Process-generation ownership and controlled retirement extend approved intent.",
+  "intended_change": "Revise this same Run to include bounded, connection-owned server lifecycle: qualify new generation before new traffic, retain active views and in-flight decision identity on the original owner, retire oldest eligible idle generation with acknowledged close, and reject replacement at exhausted capacity. No process-age-only kill, cross-chat eviction, external process ownership, automatic business replay or inferred UI capability. Resolve Codex-host versus repository ownership in renewed Brownfield/PRD before implementation. See SERVER_LIFECYCLE_CHANGE_PROPOSAL.md for scope and tests.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+      "digest": "sha256:b937eb29e750758c842d8abf42325cf3ada6869198b197247e31a7eefd9b2a1b"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+      "digest": "sha256:4d876d26b7bcc207bf2b6067ca5d5a1c0acf81999949044c41eedefca1cce2db"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md",
+      "digest": "sha256:6cef01ba44934f991f3e6701e9d386fe084f6c8a3386e5e6d3d060b2c606a619"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+      "digest": "sha256:696823b836b074243a48f90fe2a4a6dbbfea61682ad86fdbf6a919fdc7354b91"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex (source impact review; cooperative, not an independent implementation review)",
+    "earliest_source": "UR",
+    "implementation_evidence": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/QA_INDEX.json",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:86a293190c72446c36d20b69fa55ee93b4f316e449df879e0ed9710e4a8e0f48",
+        "disposition": "reassess",
+        "reason": "New process-generation and ownership boundary, capacity and draining states need reassessment after renewed UR approval."
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:84a4b8b360c9be6b200f6e36b4d0644c21cbc9e788b556d35ef7ffa9c05b2404",
+        "disposition": "reassess",
+        "reason": "New process-generation and ownership boundary, capacity and draining states need reassessment after renewed UR approval."
+      }
+    ],
+    "unresolved": []
+  }
+}

@@ -1,0 +1,34 @@
+native-de-ur-approve unapproved locale summary registered
+native-de-ur-request-change unapproved locale summary registered
+native-de-ur-reject unapproved locale summary registered
+native-de-ur-text unapproved locale summary registered
+native-de-tp-approve unapproved locale summary registered
+native-de-tp-request-change unapproved locale summary registered
+native-de-tp-reject unapproved locale summary registered
+native-de-tp-text unapproved locale summary registered
+node:internal/errors:983
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /usr/local/Cellar/node@22/22.22.3/bin/node /var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-FBbnUN/node_modules/create-agdf/bin/create-agdf.js agdf-record --command-file /var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-r2Q8jw/governance-target/.agdf/control/artefacts/native-de-qa-approve/NATIVE_LOCALE_COMMAND.json
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:916:11)
+    at execFileSync (node:child_process:952:15)
+    at file:///private/tmp/agdf-gate-fixture-locales.mjs:5:1505
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  status: 2,
+  signal: null,
+  output: [
+    null,
+    '{"schema_version":"1","outcome":"rejected","reason":"seal_invalid","operation_id":"f06677a0-e504-4cf3-875d-7f53b630d738","request_digest":"sha256:29ba1708f8a2391fbbed9b9aa269b59eb54ef44048119e3fba8d347a951f8b84","binding":{"target_id":"sha256:3b8b33beddd435868970813e2f7eaaa770801baf1f724ec731614fa96656fe06","run_id":"native-de-qa-approve","expected_revision_id":"82562fa6-aea6-499f-a173-6b1caac0be19","kind":"artefact.record"},"effect":null,"receipt":null,"historical_effect":false,"current":{"available":false,"reason":"seal_invalid"},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"authorizes":false,"recovery":null,"family_result":{"schema_version":"1","outcome":"rejected","run_id":"native-de-qa-approve","reason":"seal_invalid"}}\n',
+    ''
+  ],
+  pid: 46305,
+  stdout: '{"schema_version":"1","outcome":"rejected","reason":"seal_invalid","operation_id":"f06677a0-e504-4cf3-875d-7f53b630d738","request_digest":"sha256:29ba1708f8a2391fbbed9b9aa269b59eb54ef44048119e3fba8d347a951f8b84","binding":{"target_id":"sha256:3b8b33beddd435868970813e2f7eaaa770801baf1f724ec731614fa96656fe06","run_id":"native-de-qa-approve","expected_revision_id":"82562fa6-aea6-499f-a173-6b1caac0be19","kind":"artefact.record"},"effect":null,"receipt":null,"historical_effect":false,"current":{"available":false,"reason":"seal_invalid"},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"authorizes":false,"recovery":null,"family_result":{"schema_version":"1","outcome":"rejected","run_id":"native-de-qa-approve","reason":"seal_invalid"}}\n',
+  stderr: ''
+}
+
+Node.js v22.22.3

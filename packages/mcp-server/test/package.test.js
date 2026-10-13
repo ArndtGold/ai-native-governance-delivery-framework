@@ -27,6 +27,9 @@ assert.equal(lock.packages["node_modules/@modelcontextprotocol/client"].dev, tru
 assert.equal(lock.version, manifest.version);
 assert.equal(lock.packages[""].version, manifest.version);
 assert.equal(lock.packages[""].dependencies["create-agdf"], manifest.version);
+// Repository consumers install the self-contained Core projection produced by assembly.
+// The published dependency remains version-pinned; it must not acquire a checkout path.
+assert.equal(lock.packages["node_modules/create-agdf"].resolved, "file:../../dist/npm/create-agdf");
 // Windows file modes carry no execute bits; npm creates the bin shim there instead.
 if (process.platform !== "win32") assert.equal(statSync(new URL("bin/agdf-mcp.js", root)).mode & 0o111, 0o111);
 assert.equal(capability.release_version, manifest.version);

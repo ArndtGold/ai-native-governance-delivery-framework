@@ -4,7 +4,8 @@ import * as fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { captureControl, captureControlScope } from '../lib/control-read/snapshot.js';
-import { readFileSync, existsSync, readdirSync } from '../lib/control-read/fs.js';
+import { readFileSync, existsSync, readdirSync, lstatSync, lstatKindSync } from '../lib/control-read/fs.js';
+import { symlinkOrSkip } from './control-cockpit-fixtures.js';
 
 function fixture() {
   const root = fs.realpathSync(fs.mkdtempSync(join(tmpdir(), 'agdf-scoped-capture-')));
@@ -14,6 +15,26 @@ function fixture() {
   fs.writeFileSync(backlog, '# Master Backlog\n');
   return { root, control, backlog, close: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
+
+test('type-only directory checks survive transient locks while observed stats and identity remain guarded', () => {
+  const f = fixture();
+  try {
+    const path = join(f.control, 'history');
+    const type = captureControlScope(f.root, () => lstatKindSync(path));
+    const stats = captureControlScope(f.root, () => lstatSync(path).mtimeMs);
+    const listing = captureControlScope(f.root, () => readdirSync(path));
+    fs.writeFileSync(join(path, 'transient.lock'), 'temporary owner');
+    assert.equal(type.view.revalidate(), true);
+    assert.throws(() => stats.view.revalidate(), /source_changed/);
+    assert.throws(() => listing.view.revalidate(), /source_changed/);
+    fs.unlinkSync(join(path, 'transient.lock'));
+    assert.equal(type.view.revalidate(), true);
+    fs.renameSync(path, path + '-old'); fs.mkdirSync(path);
+    assert.throws(() => type.view.revalidate(), /source_changed/);
+    if (symlinkOrSkip(path + '-old', join(f.control, 'alias')))
+      assert.throws(() => captureControlScope(f.root, () => lstatKindSync(join(f.control, 'alias'))), /resource_denied/);
+  } finally { f.close(); }
+});
 
 test('SCN-061/063: scoped recording and replay ignore over 64 MiB of unrelated history', () => {
   const f = fixture();

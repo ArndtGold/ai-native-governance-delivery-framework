@@ -7,6 +7,11 @@ import { existsSync } from "node:fs";
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
 const WRITE_REJECTIONS = new Map([
+  ['AGDF_OPERATION_PAYLOAD_CONFLICT', 'operation_payload_conflict'],
+  ['AGDF_OPERATION_BINDING_INVALID', 'operation_binding_invalid'],
+  ['AGDF_OPERATION_IDENTITY_UNCONFIRMED', 'operation_identity_unconfirmed'],
+  ['AGDF_RUN_OPERATION_SOURCE_INVALID', 'operation_source_invalid'],
+  ['AGDF_RUN_OPERATION_SOURCE_CHANGED', 'operation_source_changed'],
   ["AGDF_RUN_PATH_INVALID", "run_path_invalid"],
   ["AGDF_BACKLOG_PATH_INVALID", "backlog_path_invalid"],
   ["AGDF_BACKLOG_LAYOUT_UNSUPPORTED", "backlog_layout_unsupported"],
@@ -76,7 +81,7 @@ export function tableCells(line) {
 
 // The table parser splits on every pipe, so cell text must not contain one.
 export function tableLine(cells) {
-  return `| ${cells.map((cell) => String(cell).replaceAll("|", "/").replace(/\r?\n/gu, " ")).join(" | ")} |`;
+  return `| ${cells.map((cell) => String(cell).replaceAll("|", "/").replace(/\r\n?|\n/gu, " ")).join(" | ")} |`;
 }
 
 function padded(cells, width) {

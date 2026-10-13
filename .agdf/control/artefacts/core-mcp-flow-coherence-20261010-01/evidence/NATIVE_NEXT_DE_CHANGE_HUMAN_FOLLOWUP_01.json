@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:19:49.067Z",
+  "evidence_class": "actual_user_followup_report",
+  "run_id": "native-de-request-change",
+  "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+  "report_verbatim": "Hast du die Fehlermeldung bei leerem Kommentar gesehen : nein;  das Dokument gelesen: nein per Tab/Enter gesendet: ja; Erschien eine technische Toolabfrage : nein",
+  "observations": {
+    "document_read": false,
+    "empty_comment_message_seen": false,
+    "request_change_via_tab_enter": true,
+    "technical_prompt_seen": false
+  },
+  "not_established": [
+    "whether_empty_comment_submission_was_attempted",
+    "document_read_and_return",
+    "both_views_closed"
+  ],
+  "interpretation": "Saved request-change and keyboard gesture confirmed; document reading was not performed. Absence of reported blank-comment message alone does not establish a product defect. Fresh reject case includes explicit blank-comment attempt and document read before decision.",
+  "authorizes": false
+}

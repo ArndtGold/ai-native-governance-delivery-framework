@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "evidence_class": "explicit_backend_test_cleanup",
+  "probe_run_id": "native-de-request-change",
+  "native_qualified": false,
+  "human_teardown": false,
+  "checks": [
+    {
+      "session_id": "1f07ee78-4481-427d-8057-58bf69dfb575",
+      "closed": {
+        "schema_version": "1",
+        "state": "available",
+        "data": {
+          "closed": true
+        },
+        "authorizes": false
+      },
+      "after_close": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "reason": "session_expired",
+        "authorizes": false
+      }
+    },
+    {
+      "session_id": "8c04a25d-3704-411f-b322-6a64c337e3eb",
+      "closed": {
+        "schema_version": "1",
+        "state": "available",
+        "data": {
+          "closed": true
+        },
+        "authorizes": false
+      },
+      "after_close": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "reason": "session_expired",
+        "authorizes": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-10T18:26:12.489718+00:00",
+  "evidence_class": "native_host_automated_read_and_return",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-de-approve",
+  "presentation_id": "7b5ac8c4-ed8f-4d1a-a791-0a6cc9c79b24",
+  "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "human_decision": false,
+  "driver": "CUA DOM synthetic click in real Codex side panel",
+  "tab_id": "2",
+  "raw_exchange": {
+    "path": "native-document-exchange-01.json",
+    "digest": "sha256:6bffe88b90716d127cf2e7f288e8eeb49eae148339d2ed6426c1abdd18e1376c"
+  },
+  "document": {
+    "state": "available",
+    "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+    "visible_heading": "Vorgelegtes Dokument \u00b7 SD",
+    "visible_final_section": "Native observation scope",
+    "all_source_sections_visible_in_dom": true
+  },
+  "return": {
+    "button": "Zur Entscheidung zur\u00fcck",
+    "focus_after_return": "Vorgelegtes Dokument lesen",
+    "status": "Eine Speicherung ist nicht best\u00e4tigt. Lesen und Diskussion entscheiden nichts."
+  },
+  "sources": {
+    "opened_and_closed": true,
+    "visible_gate_sources": [
+      "UR",
+      "PRD",
+      "SD"
+    ],
+    "visible_revision_matches": true
+  },
+  "canonical_before_decision": {
+    "gate": "SD",
+    "sd_approval": "missing"
+  },
+  "unobserved": [
+    "deliberate human action",
+    "technical permission UI",
+    "native pointer and keyboard",
+    "width and scroll stability",
+    "UI initialize trace",
+    "UI/backend teardown",
+    "other gates and locales"
+  ],
+  "interpretation": "Actual served document and return in native side panel observed with synthetic read-only actions. No synthetic decision is counted as human action. Native qualification and formal QA remain open."
+}

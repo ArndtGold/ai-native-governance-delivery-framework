@@ -64,3 +64,10 @@
 .draft-check dd { margin-inline-start: 0; }
 .draft-check pre { max-width: 100%; }
 .draft-check [aria-disabled="true"] { opacity: .7; cursor: progress; }
+.decision-card { max-width: 72rem; padding: clamp(1rem, 3vw, 2rem); margin: 0 auto; overflow-wrap: anywhere; }
+.decision-summary { max-width: 100%; }
+.decision-summary.document { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.decision-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0; }
+.decision-comment { display: grid; gap: .5rem; margin-top: 1rem; }
+.decision-comment textarea { min-height: 6rem; width: 100%; resize: vertical; font: inherit; padding: .75rem; }
+.decision-card button:focus-visible, .decision-card textarea:focus-visible { outline: 3px solid var(--agdf-accent, #0c7975); outline-offset: 3px; }

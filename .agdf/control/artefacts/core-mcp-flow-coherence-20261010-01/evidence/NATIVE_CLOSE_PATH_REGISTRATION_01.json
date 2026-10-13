@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T06:51:46.804337+00:00",
+  "evidence_class": "authorized_test_probe_candidate_refresh",
+  "user_authorization": "Ja, Testaufbau zus\u00e4tzlich registrieren; automated checks delegated",
+  "server": "agdf-decision-probe",
+  "configuration_before_digest": "sha256:93ea61f0cf6e3c1866e58d0007b7925bc2b2a893e391d70d7181bef28c5983c4",
+  "configuration_after_digest": "sha256:69fcbd36ce2a5fb1ace611224bbda57b8e52f3db575881fc30ff821c136ffea4",
+  "only_probe_argument_changed": true,
+  "other_configuration_bytes_preserved": true,
+  "backup_path": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9TmbVJ/codex-config-before-close-path-probe.toml",
+  "previous_entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-s7yb4k/native-decision-entry.mjs",
+  "configuration": {
+    "name": "agdf-decision-probe",
+    "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "args": [
+      "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9TmbVJ/native-decision-entry.mjs"
+    ]
+  },
+  "dispatcher_digest": "2aa602864b023b309edfe4da9fd3473d1f22d804ff3168acb045ae52f9a3257d",
+  "server_digest": "429c9f2616055440e872b9af82f1f09e6bd70c113137b0df5c2d4e17d9d22cde",
+  "candidate_loaded_in_current_host": false,
+  "restart_required": true,
+  "production_installation_changed": false,
+  "native_qualified": false,
+  "authorizes": false,
+  "cleanup": "Remove only agdf-decision-probe after observation; preserve unrelated settings."
+}

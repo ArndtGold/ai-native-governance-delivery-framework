@@ -1,5 +1,5 @@
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { ChildProcess, execFileSync } from "node:child_process";
+import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
   lstatSync,
@@ -10,6 +10,8 @@ import {
   readFileSync,
   rmSync,
   writeFileSync,
+  unlinkSync,
+  openSync, closeSync, fsyncSync,
 } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
@@ -20,9 +22,65 @@ import {
 } from "#agdf-core/runtime/plugin-provenance.js";
 import { defaultNpmInstallRoot, npmInvocation } from "../npm-invocation.js";
 import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
+import { fsyncDirectory, withOwnedFileLock } from '#agdf-core/control-state/run-state-writer.js';
 
 const OWNER = "create-agdf:mcp-runtime";
 const MARKER = ".agdf-mcp-owned.json";
+const CLAIMS = '.agdf-executable-claims';
+
+// Claims are package-local retention evidence, never a PID liveness ledger.
+// An absent legacy marker, malformed record or uncertain owner retains bytes.
+export function mcpRuntimeRetirementState(root) {
+  try {
+    if (lstatSync(root).isSymbolicLink() || realpathSync(root) !== resolve(root)) return 'retained';
+    const marker = readJson(join(root, MARKER), 'AGDF_MCP_RUNTIME_MARKER_INVALID');
+    if (marker.owner !== OWNER || marker.executable_retention !== 'claimed_immutable') return 'retained';
+    if (inspectPackageRoot(root, marker.version).status !== 'matched'
+      || readdirSync(root).some(name => !['package.json', 'package-lock.json', 'node_modules', MARKER, CLAIMS].includes(name))) return 'retained';
+    const dir = join(root, CLAIMS);
+    if (!existsSync(dir)) return 'eligible';
+    if (lstatSync(dir).isSymbolicLink() || !lstatSync(dir).isDirectory() || readdirSync(dir).length) return 'retained';
+    return 'eligible';
+  } catch { return 'retained'; }
+}
+
+export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), generation = 1 } = {}) {
+  const root = resolve(runtime.root);
+  if (runtime.status !== 'matched' || !Number.isSafeInteger(generation) || generation < 1
+    || !/^[0-9a-f-]{36}$/u.test(ownerEpoch)) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+  return withOwnedFileLock(join(dirname(root), '.agdf-publication'), () => {
+    if (realpathSync(root) !== root || lstatSync(root).isSymbolicLink()) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+    const fresh = inspectMcpServerPackage({ dataRoot: dirname(root), expectedVersion: runtime.version });
+    if (fresh.status !== 'matched' || fresh.digest !== runtime.digest || fresh.dispatcherDigest !== runtime.dispatcherDigest
+      || fresh.sdkDigest !== runtime.sdkDigest) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+    const marker = readJson(runtime.markerPath, 'AGDF_MCP_RUNTIME_MARKER_INVALID');
+    if (marker.owner !== OWNER || marker.executable_retention !== 'claimed_immutable'
+      || marker.server_digest !== runtime.digest || marker.dispatcher_digest !== runtime.dispatcherDigest
+      || marker.sdk_digest !== runtime.sdkDigest) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+    const dir = join(root, CLAIMS);
+    if (existsSync(dir) && lstatSync(dir).isSymbolicLink()) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+    mkdirSync(dir, { recursive: true });
+    if (lstatSync(dir).isSymbolicLink() || realpathSync(dir) !== dir) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+    const token = randomUUID(), path = join(dir, `${token}.json`);
+    const body = JSON.stringify({ schema_version: 1, owner: OWNER, token, owner_epoch: ownerEpoch, generation,
+      root, server_digest: runtime.digest, dispatcher_digest: runtime.dispatcherDigest, sdk_digest: runtime.sdkDigest });
+    const fd = openSync(path, 'wx', 0o600);
+    try { writeFileSync(fd, body); fsyncSync(fd); } finally { closeSync(fd); }
+    fsyncDirectory(dir);
+    let bound = false;
+    const releaseConfirmed = () => withOwnedFileLock(join(dirname(root), '.agdf-publication'), () => {
+      if (!lstatSync(path).isSymbolicLink() && readFileSync(path, 'utf8') === body) { unlinkSync(path); fsyncDirectory(dir); }
+    });
+    return Object.freeze({ token, owner_epoch: ownerEpoch, generation,
+      bindOwnedChild(child, { confirmedEnd = () => true } = {}) {
+        if (bound || !(child instanceof ChildProcess)) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+        bound = true;
+        child.once('exit', () => { try { if (confirmedEnd() === true) releaseConfirmed(); } catch {} });
+        child.once('error', () => { if (child.pid === undefined) { try { releaseConfirmed(); } catch {} } });
+      },
+    });
+  });
+}
 
 export function mcpRuntimeDataRoot({ dataRoot, scope, target } = {}) {
   if (!dataRoot || !["project", "user"].includes(scope)) {
@@ -60,6 +118,12 @@ function nodeMajor(version = process.versions.node) {
 
 export function inspectMcpServerPackage({ dataRoot, expectedVersion } = {}) {
   const root = defaultNpmInstallRoot(resolve(dataRoot), expectedVersion);
+  return inspectPackageRoot(root, expectedVersion);
+}
+
+// Retirement checks the same verified package after its owned atomic rename.
+// It must not accidentally inspect a new package at the former version path.
+function inspectPackageRoot(root, expectedVersion) {
   const markerPath = join(root, MARKER);
   if (!existsSync(root)) return Object.freeze({ status: "absent", root, entrypoint: null, digest: null });
   if (!lstatSync(root).isDirectory() || lstatSync(root).isSymbolicLink() || !existsSync(markerPath)) {
@@ -169,7 +233,14 @@ function verifyStageSdk({ stage, expectedSdk }) {
   }
 }
 
-export function prepareMcpServerPackage({
+export function prepareMcpServerPackage(options = {}) {
+  if (!options.dataRoot) throw Error('AGDF_MCP_PACKAGE_INPUT_INVALID');
+  if (existsSync(resolve(options.dataRoot)) && lstatSync(resolve(options.dataRoot)).isSymbolicLink()) throw Error('AGDF_MCP_RUNTIME_UNOWNED');
+  mkdirSync(resolve(options.dataRoot), { recursive: true });
+  return withOwnedFileLock(join(resolve(options.dataRoot), '.agdf-publication'), () => preparePackageLocked(options));
+}
+
+function preparePackageLocked({
   dataRoot,
   expectedVersion,
   execPath = process.execPath,
@@ -186,6 +257,7 @@ export function prepareMcpServerPackage({
   expectedSdk = null,
   // Recorded in the marker as sdk_verification when set ("verified" | "unverified_override").
   sdkVerification = null,
+  immutable = false,
 } = {}) {
   if (!dataRoot || !expectedVersion || typeof packageSpec !== "string" || !packageSpec.trim()
       || (dispatcherPackageSpec !== null && (typeof dispatcherPackageSpec !== "string" || !dispatcherPackageSpec.trim()))) {
@@ -264,6 +336,7 @@ export function prepareMcpServerPackage({
       ...(sdkVerification ? { sdk_verification: sdkVerification } : {}),
       node_executable: execPath,
       references: [],
+      ...(immutable ? { executable_retention: 'claimed_immutable' } : {}),
     }, null, 2)}\n`, "utf8");
     renameSyncWithRetry(stage, stableRoot);
     movedToStable = true;
@@ -275,7 +348,10 @@ export function prepareMcpServerPackage({
       changed: true,
       commit() { committed = true; },
       rollback() {
-        if (!committed && existsSync(stableRoot)) rmSync(stableRoot, { recursive: true, force: true });
+        if (!committed && existsSync(stableRoot)) withOwnedFileLock(join(installRoot, '.agdf-publication'), () => {
+          if (immutable && mcpRuntimeRetirementState(stableRoot) !== 'eligible') throw Error('AGDF_MCP_RUNTIME_RETAINED');
+          rmSync(stableRoot, { recursive: true, force: true });
+        });
       },
     });
   } catch (error) {
@@ -327,26 +403,56 @@ export function createMcpRuntimeRetirementTransaction(runtime) {
   return Object.freeze({
     retiredRoot,
     apply() {
-      if (!existsSync(runtime.root) || existsSync(retiredRoot)) {
-        throw new Error("AGDF_MCP_RUNTIME_RETIRE_INVALID");
-      }
-      renameSyncWithRetry(runtime.root, retiredRoot);
-      applied = true;
+      withOwnedFileLock(join(dirname(runtime.root), '.agdf-publication'), () => {
+        if (mcpRuntimeRetirementState(runtime.root) !== 'eligible') throw Error('AGDF_MCP_RUNTIME_RETAINED');
+        if (!existsSync(runtime.root) || existsSync(retiredRoot)) throw new Error("AGDF_MCP_RUNTIME_RETIRE_INVALID");
+        renameSyncWithRetry(runtime.root, retiredRoot); applied = true;
+      });
     },
     commit() {
       if (!applied) return;
-      rmSync(retiredRoot, { recursive: true, force: true });
-      applied = false;
+      withOwnedFileLock(join(dirname(runtime.root), '.agdf-publication'), () => {
+        if (mcpRuntimeRetirementState(retiredRoot) !== 'eligible') throw Error('AGDF_MCP_RUNTIME_RETAINED');
+        rmSync(retiredRoot, { recursive: true, force: true }); applied = false;
+      });
     },
     rollback() {
       if (!applied) return;
-      if (!existsSync(retiredRoot) || existsSync(runtime.root)) {
-        throw new Error("AGDF_MCP_RUNTIME_RETIRE_ROLLBACK_FAILED");
-      }
-      renameSyncWithRetry(retiredRoot, runtime.root);
-      applied = false;
+      withOwnedFileLock(join(dirname(runtime.root), '.agdf-publication'), () => {
+        if (!existsSync(retiredRoot) || existsSync(runtime.root)) {
+          throw new Error("AGDF_MCP_RUNTIME_RETIRE_ROLLBACK_FAILED");
+        }
+        renameSyncWithRetry(retiredRoot, runtime.root);
+        applied = false;
+      });
     },
   });
 }
 
 export const mcpPackageConstants = Object.freeze({ owner: OWNER, marker: MARKER });
+
+// Package selectors are resolved only by the existing publisher. The serving
+// facade supplies its own verified publication root; inputs never select paths.
+export function createMcpGenerationPublisher(base) {
+  const canonical = realpathSync(base.publisher_root);
+  if (canonical !== base.publisher_root || !base.immutable) throw Error('runtime_publication_unowned');
+  return Object.freeze({
+    initial: base,
+    resolve(candidate) {
+      const keys = ['schema_version', 'publication_id', 'version', 'server_digest', 'dispatcher_digest', 'sdk_digest'];
+      if (!candidate || Object.keys(candidate).sort().join() !== keys.sort().join()
+        || candidate.schema_version !== '1' || !/^[0-9a-f]{64}$/u.test(candidate.publication_id ?? '')
+        || candidate.version !== base.version) throw Error('runtime_candidate_manifest_invalid');
+      const dataRoot = join(canonical, 'generations', candidate.publication_id);
+      for (const path of [canonical, join(canonical, 'generations'), dataRoot]) {
+        if (lstatSync(path).isSymbolicLink() || realpathSync(path) !== path) throw Error('runtime_candidate_unowned');
+      }
+      const runtime = inspectMcpServerPackage({ dataRoot, expectedVersion: base.version });
+      if (runtime.status !== 'matched' || runtime.digest !== candidate.server_digest
+        || runtime.dispatcherDigest !== candidate.dispatcher_digest || runtime.sdkDigest !== candidate.sdk_digest
+        || runtime.sdkVerification !== 'verified') throw Error('runtime_candidate_digest_mismatch');
+      return Object.freeze({ ...runtime, immutable: true, publication_id: candidate.publication_id, publisher_root: canonical });
+    },
+    acquire: (runtime, ownership) => acquireMcpExecutableClaim(runtime, ownership),
+  });
+}

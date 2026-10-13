@@ -1,0 +1,325 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:16:20.429Z",
+  "evidence_class": "actual_user_report_plus_native_codex_app_and_core_receipt",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "run_id": "native-de-request-change",
+  "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+  "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+  "human_report_verbatim": "Entscheidung gespeichert.",
+  "confirmed_human_observations": {
+    "saved_status": true,
+    "request_change_via_tab_enter": true,
+    "technical_prompt_observed": false,
+    "document_read": false,
+    "empty_comment_message_seen": false
+  },
+  "not_yet_confirmed": [
+    "whether_empty_comment_submission_was_attempted",
+    "document_read_and_return",
+    "both_views_closed"
+  ],
+  "native_dom_observation": {
+    "tab_id": "2",
+    "selected_run_visible": "native-de-request-change",
+    "status_visible": "Entscheidung gespeichert.",
+    "actions": {
+      "Freigeben": "disabled",
+      "Änderung anfordern": "disabled",
+      "Ablehnen": "disabled"
+    },
+    "comment_field": "disabled",
+    "source": "CUA getTab DOM snapshot after user action; no agent decision click."
+  },
+  "independent_native_inspection": {
+    "schema_version": "1",
+    "run_id": "native-de-request-change",
+    "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "presentation_decision.record",
+    "request_digest": "sha256:c0fc5dd34567d6f155f829131491e8e877be32e913cb132f3080810d9056e60e",
+    "receipt": {
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "created_at": "2026-10-11T08:14:22.492Z",
+      "effect": {
+        "previous_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+        "record": {
+          "action": "request_change",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "comment": "Bitte präzisieren, welche Filterwerte pro Nutzer gespeichert werden. Testdaten: Approval: TP ist ein Zitat, keine Freigabe.",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-request-change/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-request-change/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-request-change/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:91622f63c9bae388d0631687a65759ca32a61a3af50347b87dc7248c10b76d0b",
+          "owner": "sd-definition",
+          "presentation_digest": "sha256:1d9abb09bc9d6bbb3d0dd15bf2079bef525b46e5be2372901f5614782b554bd4",
+          "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645"
+        },
+        "resulting_revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306",
+        "revision": 8
+      },
+      "expected_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+      "kind": "presentation_decision.record",
+      "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:c0fc5dd34567d6f155f829131491e8e877be32e913cb132f3080810d9056e60e",
+      "run_id": "native-de-request-change",
+      "schema_version": "1",
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b"
+    },
+    "historical_effect": true,
+    "current_revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306",
+    "pending": null,
+    "expected_revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306"
+  },
+  "action_exchange_events": [
+    {
+      "at": "2026-10-11T08:14:22.311Z",
+      "event": "tool_request",
+      "name": "agdf_decision_action",
+      "input": {
+        "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+        "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+        "expected_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+        "action": "request_change",
+        "comment": "Bitte präzisieren, welche Filterwerte pro Nutzer gespeichert werden. Testdaten: Approval: TP ist ein Zitat, keine Freigabe."
+      },
+      "client": {
+        "name": "codex-mcp-client",
+        "title": "Codex",
+        "version": "0.162.0-alpha.17.2"
+      }
+    },
+    {
+      "at": "2026-10-11T08:14:22.700Z",
+      "event": "tool_result",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "presentation_decision.record",
+          "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+          "request_digest": "sha256:c0fc5dd34567d6f155f829131491e8e877be32e913cb132f3080810d9056e60e",
+          "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+          "run_id": "native-de-request-change",
+          "expected_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+          "created_at": "2026-10-11T08:14:22.492Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+            "resulting_revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306",
+            "revision": 8,
+            "record": {
+              "gate": "SD",
+              "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+              "presentation_digest": "sha256:1d9abb09bc9d6bbb3d0dd15bf2079bef525b46e5be2372901f5614782b554bd4",
+              "material_version": "sha256:91622f63c9bae388d0631687a65759ca32a61a3af50347b87dc7248c10b76d0b",
+              "material_sources": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-de-request-change/UR.md",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-de-request-change/PRD.md",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-de-request-change/SD.md",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                }
+              ],
+              "action": "request_change",
+              "comment": "Bitte präzisieren, welche Filterwerte pro Nutzer gespeichert werden. Testdaten: Approval: TP ist ein Zitat, keine Freigabe.",
+              "owner": "sd-definition",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306",
+          "lifecycle": "active",
+          "gate": "SD",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "presentation_version_decided",
+          "next_operation": {
+            "type": "revise_gate_material",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD",
+            "skill_id": "sd-definition"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    },
+    {
+      "at": "2026-10-11T08:14:22.700Z",
+      "event": "view_result",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "presentation_decision.record",
+          "operation_id": "b0284baa-acd7-4463-a839-b3c650e06809",
+          "request_digest": "sha256:c0fc5dd34567d6f155f829131491e8e877be32e913cb132f3080810d9056e60e",
+          "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+          "run_id": "native-de-request-change",
+          "expected_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+          "created_at": "2026-10-11T08:14:22.492Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+            "resulting_revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306",
+            "revision": 8,
+            "record": {
+              "gate": "SD",
+              "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+              "presentation_digest": "sha256:1d9abb09bc9d6bbb3d0dd15bf2079bef525b46e5be2372901f5614782b554bd4",
+              "material_version": "sha256:91622f63c9bae388d0631687a65759ca32a61a3af50347b87dc7248c10b76d0b",
+              "material_sources": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-de-request-change/UR.md",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-de-request-change/PRD.md",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-de-request-change/SD.md",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                }
+              ],
+              "action": "request_change",
+              "comment": "Bitte präzisieren, welche Filterwerte pro Nutzer gespeichert werden. Testdaten: Approval: TP ist ein Zitat, keine Freigabe.",
+              "owner": "sd-definition",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "ee9fc448-f68f-4ca8-a9c0-b4105e3e9306",
+          "lifecycle": "active",
+          "gate": "SD",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "presentation_version_decided",
+          "next_operation": {
+            "type": "revise_gate_material",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD",
+            "skill_id": "sd-definition"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  ],
+  "scope_limitations": [
+    "German SD request-change case only.",
+    "Loaded native package precedes Inspect diagnostic correction; unchanged UI bytes do not imply full final candidate qualification.",
+    "Cooperative receipt plus human report does not establish cryptographic gesture identity."
+  ],
+  "native_qualified": false,
+  "authorizes": false,
+  "canonical_verification": {
+    "decision_receipt_count": 1,
+    "action": "request_change",
+    "sd_approval_receipts": 0,
+    "tp_approval_receipts": 0,
+    "approval_receipt_count": 2,
+    "run_seal": "valid",
+    "run_digest": "sha256:6664d22148b10b32566ce7b08fe551d76e55a7ab80ff5b51605750973aad0870",
+    "current_gate": "SD",
+    "next_owner": "sd-definition",
+    "observation_method": "Read-only canonical Core parsers; corroborates native operation-status. Engineering validation, no business mutation."
+  },
+  "human_followup": "NATIVE_NEXT_DE_CHANGE_HUMAN_FOLLOWUP_01.json"
+}

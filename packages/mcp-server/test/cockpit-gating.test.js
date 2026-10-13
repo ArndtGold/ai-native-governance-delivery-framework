@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMcpCockpitRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { createMcpCockpitRuntime } from "../../../dist/npm/create-agdf/lib/mcp-dispatch-runtime.js";
 import { COCKPIT_MIME, COCKPIT_UI_URI } from "../../core/lib/control-inspect/cockpit-contract.js";
 import { declaresMcpAppUi, MCP_APP_UI_EXTENSION } from "../src/ui-capability.js";
 import { withStdioClient } from "./helpers.js";

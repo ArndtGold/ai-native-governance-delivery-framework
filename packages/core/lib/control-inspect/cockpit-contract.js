@@ -1,5 +1,6 @@
 // One wire-schema owner for the bounded cockpit connection. No filesystem selectors.
-export const COCKPIT_UI_URI = 'ui://agdf/cockpit/v1.html';
+import { COCKPIT_UI_URI } from '../mcp-resource-contract.js';
+export { COCKPIT_UI_URI, DECISION_UI_URI } from '../mcp-resource-contract.js';
 export const COCKPIT_MIME = 'text/html;profile=mcp-app';
 export const COCKPIT_LIMITS = Object.freeze({ html: 4 * 1024 ** 2, idle: 30 * 60_000, lifetime: 8 * 60 * 60_000,
   sessions: 4, capture: 64 * 1024 ** 2, workerOldGeneration: 256 });

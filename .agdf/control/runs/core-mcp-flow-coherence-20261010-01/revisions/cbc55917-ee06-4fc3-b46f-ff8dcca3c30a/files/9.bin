@@ -1,0 +1,103 @@
+# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: core-mcp-flow-coherence-20261010-01
+- lifecycle: active
+- revision: 9
+- revision_id: eeda271d-cf03-4430-9701-5ec61410062d
+- content_seal: sha256:643cfde16d1d33dcf66c3464809603893075c0555e650115cbc79cacb384490f
+- approval_seal: sha256:a1b1922a5336c18491ed96a6d5e26361d4dd7eb543c0963696a7dcecc3e1bc3c
+- updated_at: 2026-10-10T11:23:40.779Z
+- mode: structured_delivery
+- current_gate: SD
+- decision: in_progress
+- owner: agent
+
+## Objective
+
+Consistent Core and MCP flow from artefact/evidence recording through deliberate gate decisions, supported revision and structured governance closeout; one bound current state across Core/CLI/MCP/cockpit.
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | SD artefact and reviewed source binding recorded together. |
+| What is approved? | Approval: UR, Approval: PRD |
+| What is missing? | Exact Approval: SD. |
+| What is the next allowed action? | Draft or refine the Solution Design; do not implement before SD and TP are approved. |
+| What is explicitly forbidden right now? | create TP; implement code; claim QA or release readiness |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | `Approval: UR` · 2026-10-10 · revision 2 · `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md` sha256:db349e32ec24d995 · presentation 66c0f45a-704b-4b27-8c10-599159cd7e2f sha256:ef775063e5865263e2eb578b473f3654f39da1d6e2e54082b7d9f36a6ace2739 |
+| PRD | approved | `Approval: PRD` · 2026-10-10 · revision 6 · `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md` sha256:579386038f52a54f · presentation 0e8cdaa4-861c-40c9-a8ff-51c892bb01ae sha256:320c303d8c594dcc0efbf7507de89906ac43bf984268f2ddd73fc18987ff454f |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md` | approved |  |
+| Brownfield Review | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md` | done |  |
+| UX Intent Definition | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md` | done | ready; analytical PRD input, not approval |
+| Verified Change |  | missing |  |
+| PRD | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md | approved | Reviewed source binding recorded atomically |
+| SD | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md | draft | Reviewed source binding recorded atomically |
+| TP |  | missing |  |
+| Brownfield Analysis |  | missing |  |
+| CD+Tests |  | missing |  |
+| CR |  | missing |  |
+| QA |  | missing |  |
+| Binding proof 8cb739fa-b3dd-48bc-9f71-201d10f9a14b | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD_MAPPING_01.json | done | Subordinate reviewed mapping evidence |
+| Binding proof 081e3a69-0d98-4f4a-8fac-c0ca19d2087a | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD_MAPPING_01.json | done | Subordinate reviewed mapping evidence |
+| Binding proof 31ce866f-8dbe-4e0d-bec7-31c0dc31de01 | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD_MAPPING_02.json | done | Subordinate reviewed mapping evidence |
+
+## Mode/Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: external_contract_depth: qualified MCP write contracts, CLI compatibility and durable closeout recovery; architecture_runtime_depth and persistence_migration_depth also apply. Reject structured_slice because full-depth boundary effects are evidenced; no file-count proxy.
+- evidence: .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-10 · revision 2 · `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md` sha256:db349e32ec24d995 · presentation 66c0f45a-704b-4b27-8c10-599159cd7e2f sha256:ef775063e5865263e2eb578b473f3654f39da1d6e2e54082b7d9f36a6ace2739 |
+| PRD | derived_from | UR | binding 8cb739fa-b3dd-48bc-9f71-201d10f9a14b; reviewed by Codex; .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD_MAPPING_01.json |
+| SD | derived_from | PRD | binding 31ce866f-8dbe-4e0d-bec7-31c0dc31de01; reviewed by Codex; .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD_MAPPING_02.json |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Run creation | run-create | Control initialization | direct |
+| UR draft | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+| Brownfield Review | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_delivery` | direct |
+| UX intent ready | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md` | current/effect/approval/history/recovery distinctions before PRD | direct |
+| Read-only Brownfield reproduction | `.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/EVIDENCE_BROWNFIELD.md` | inconsistent writer model and completed open-OR projection; no live writer/host qualification | direct |
+| Artefact source binding | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD_MAPPING_01.json | PRD derived_from UR; binding 8cb739fa-b3dd-48bc-9f71-201d10f9a14b; operation a99fe468-9691-4abb-954a-58185f39ea06; c54989b5-7be9-4a85-a5fb-e651540fc3a2 -> 340fbf93-5e39-4649-aa3a-08f9f3075580 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD_MAPPING_01.json | SD derived_from PRD; binding 081e3a69-0d98-4f4a-8fac-c0ca19d2087a; operation e54131a4-5e61-42a3-9cde-95f9115e7e4e; 8a5b473f-7aee-472b-835c-5f2a91494c87 -> c1831c61-4b9e-4a3b-9ba7-628f8f038917 | reviewed cooperative mapping |
+| Artefact source binding | .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD_MAPPING_02.json | SD derived_from PRD; binding 31ce866f-8dbe-4e0d-bec7-31c0dc31de01; operation fd7402d2-d74f-46e8-ae22-37477d53dc1d; c1831c61-4b9e-4a3b-9ba7-628f8f038917 -> eeda271d-cf03-4430-9701-5ec61410062d | reviewed cooperative mapping |
+
+## Closeout
+
+- next_allowed_action: Draft or refine the Solution Design; do not implement before SD and TP are approved.
+- quality_outlook:
+
+## Artefact Bindings
+
+- schema_version: 1
+
+| binding_id | receipt_digest | receipt |
+|---|---|---|
+| 8cb739fa-b3dd-48bc-9f71-201d10f9a14b | sha256:658a2824d0f0678e99c527773f36ba9e757ee9fe48f84adb16396f90500f5e1f | eyJiaW5kaW5nX2lkIjoiOGNiNzM5ZmEtYjNkZC00OGJjLTlmNzEtMjAxZDEwZjlhMTRiIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjU3OTM4NjAzOGY1MmE1NGZkMjNkMmEyNTNlNDkyN2JiZGU3NTUzODBlNjM4NDkzNjE0ZTdhZTY5NTM5YTkwOTciLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29yZS1tY3AtZmxvdy1jb2hlcmVuY2UtMjAyNjEwMTAtMDEvUFJELm1kIiwic3RhdHVzIjoiZHJhZnQiLCJ0eXBlIjoiUFJEIn0sIm9wZXJhdGlvbiI6eyJpZCI6ImE5OWZlNDY4LTk2OTEtNGFiYi05NTRhLTU4MTg1ZjM5ZWEwNiIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiYzU0OTg5YjUtN2JlOS00YTg1LWE1ZmItZTY1MTU0MGZjM2EyIiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiMzQwZmJmOTMtNWUzOS00NjQ5LWFhM2EtMDhmOWYzMDc1NTgwIiwicmV2aXNpb24iOjZ9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJQUkQiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlVSIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6ZTU1MzU1ZTg3NGY4YzVlMzA1Y2ZkOTRhMGE5MDE5ZTJkMGQ2NWZiZGExNDJkNDkzMzdkYmI1Zjk0ODhkNWYzMSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMS9QUkRfTUFQUElOR18wMS5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCJ9LCJydW5faWQiOiJjb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6ZGIzNDllMzJlYzI0ZDk5NTY4ZjU3MzQ3NDQ5Njk0YWQzN2YzYTc0YmJhZTQ4YmM2MjBkNzhiYTQyODFjMTNlNSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMS9VUi5tZCIsInR5cGUiOiJVUiJ9LCJzdXBlcnNlZGVzIjpudWxsLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |
+| 081e3a69-0d98-4f4a-8fac-c0ca19d2087a | sha256:f6f7228002dbab7953e118aacdfe8e8d13155d754ca91db2f968d9edd54d21fd | eyJiaW5kaW5nX2lkIjoiMDgxZTNhNjktMGQ5OC00ZjRhLThmYWMtYzBjYTE5ZDIwODdhIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OmI3Y2YwODE3NzZhZDRjNTg2NjFkMDFhMzJkNGNiMWNlYjE4ZGYyYzk5MWUzNzBiZWExZTI0YTEwZWRiMzY3ZjQiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29yZS1tY3AtZmxvdy1jb2hlcmVuY2UtMjAyNjEwMTAtMDEvU0QubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJTRCJ9LCJvcGVyYXRpb24iOnsiaWQiOiJlNTQxMzFhNC01ZTYxLTQyYTMtOWNkZS05NWY5MTE1ZTdlNGUiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6IjhhNWI0NzNmLTdhZWUtNDcyYi04MzVjLTVmMmE5MTQ5NGM4NyIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImMxODMxYzYxLTRiOWUtNGEzYi05YmE3LTYyOGY4ZjAzODkxNyIsInJldmlzaW9uIjo4fSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiU0QiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlBSRCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2OmRkN2VkNWIxODJjYjU1ZWFhNGI0NmE4MjkxODQ4YmFhYjlhNzQwOTA4M2Q1YzE0YjViMTUwZGRjMTM2YmYzNzkiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29yZS1tY3AtZmxvdy1jb2hlcmVuY2UtMjAyNjEwMTAtMDEvU0RfTUFQUElOR18wMS5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCJ9LCJydW5faWQiOiJjb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6NTc5Mzg2MDM4ZjUyYTU0ZmQyM2QyYTI1M2U0OTI3YmJkZTc1NTM4MGU2Mzg0OTM2MTRlN2FlNjk1MzlhOTA5NyIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMS9QUkQubWQiLCJ0eXBlIjoiUFJEIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1NjphNWMxZGFlZTc4ODZmODFkMjdiMmI3NzE4NzE4ZmE3YTM4MjJiMjdhNGJjMWQwNTdmOTlhZjAxYmU3Njg4YTE5In0 |
+| 31ce866f-8dbe-4e0d-bec7-31c0dc31de01 | sha256:a6f701615322cda1b31785fd89bb5282c57cb9a80ccb00a7cf3e19c7ca015d9b | eyJiaW5kaW5nX2lkIjoiMzFjZTg2NmYtOGRiZS00ZTBkLWJlYzctMzFjMGRjMzFkZTAxIiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjRlMDg2OTVhOTBlOWMwMzM4NmJiZTYxOWY1NjU5YTFjZWE1ZmRhOTViZWQ3YjA4ODdmN2IxYTEzMTM1NzM2MzMiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29yZS1tY3AtZmxvdy1jb2hlcmVuY2UtMjAyNjEwMTAtMDEvU0QubWQiLCJzdGF0dXMiOiJkcmFmdCIsInR5cGUiOiJTRCJ9LCJvcGVyYXRpb24iOnsiaWQiOiJmZDc0MDJkMi1kNzRmLTQ2ZTgtYWUyMi0zNzQ3N2Q1M2RjMWQiLCJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImMxODMxYzYxLTRiOWUtNGEzYi05YmE3LTYyOGY4ZjAzODkxNyIsInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6ImVlZGEyNzFkLWNmMDMtNDQzMC05NzAxLTVlYzYxNDEwMDYyZCIsInJldmlzaW9uIjo5fSwib3JpZ2luIjoicmV2aWV3ZWRfbWFwcGluZyIsInJlbGF0aW9uc2hpcCI6eyJmcm9tIjoiU0QiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlBSRCJ9LCJyZXZpZXciOnsiZGlnZXN0Ijoic2hhMjU2OjlhZTc2ODZjYzMxYmE2YzZlNDZlZTNjOTYwODkwMGJmNDAxMmM3NDY1ZWM2MzI3YTczMmI5NTE2YTI0M2FlMTYiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29yZS1tY3AtZmxvdy1jb2hlcmVuY2UtMjAyNjEwMTAtMDEvU0RfTUFQUElOR18wMi5qc29uIiwicmV2aWV3ZXIiOiJDb2RleCJ9LCJydW5faWQiOiJjb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInNvdXJjZSI6eyJkaWdlc3QiOiJzaGEyNTY6NTc5Mzg2MDM4ZjUyYTU0ZmQyM2QyYTI1M2U0OTI3YmJkZTc1NTM4MGU2Mzg0OTM2MTRlN2FlNjk1MzlhOTA5NyIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb3JlLW1jcC1mbG93LWNvaGVyZW5jZS0yMDI2MTAxMC0wMS9QUkQubWQiLCJ0eXBlIjoiUFJEIn0sInN1cGVyc2VkZXMiOiIwODFlM2E2OS0wZDk4LTRmNGEtOGZhYy1jMGNhMTlkMjA4N2EiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YTVjMWRhZWU3ODg2ZjgxZDI3YjJiNzcxODcxOGZhN2EzODIyYjI3YTRiYzFkMDU3Zjk5YWYwMWJlNzY4OGExOSJ9 |

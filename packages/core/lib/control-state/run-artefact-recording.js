@@ -1,3 +1,4 @@
+import { readOperationSource } from "./run-operation-proof.js";
 import { randomUUID } from "node:crypto";
 import { canonicalJson, exactObject, resolveControlCommandTarget } from "./approval-command-contract.js";
 import { appendArtefactBinding, artefactBindingKey, readArtefactBindings, validArtefactBinding } from "./artefact-bindings.js";
@@ -8,16 +9,20 @@ import { relationshipForGate, sameRelationship } from "../control-evaluation/del
 import { readFileSync } from "node:fs";
 import { containedRegularFile } from "./contained-file.js";
 import { readSourceRevisions } from "./run-source-revisions.js";
+import { REVIEWED_REQUEST_FIELDS } from './recording-formats.js';
 
 // Called by run-step with Run and Backlog locks already held. No approval or QA decision owner.
 export function prepareArtefactRecording(root, run, input, control, before) {
   const fail = reason => { throw new Error(reason); };
   const expected = relationshipForGate(input.gate);
-  if (readSourceRevisions(run.content).present && before.missing_approval !== `Approval: ${input.gate}`) fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
-  if (!expected || input.gate === "UR" || before.current_gate !== input.gate || before.status !== "open"
+  const qaRecording = input.gate === 'QA' && before.current_gate === 'QA'
+    && (before.status === 'open' || before.status === 'blocked' && control.artefacts.get('QA')?.status === 'block');
+  if (readSourceRevisions(run.content).present && !qaRecording && before.missing_approval !== `Approval: ${input.gate}` && before.next_operation?.type !== "revise_gate_material") fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
+  if (!expected || input.gate === "UR" || before.current_gate !== input.gate || before.status !== "open" && !qaRecording
       || control.approvals.get(input.gate)?.status === "approved") fail("AGDF_ARTEFACT_RECORDING_GATE_INVALID");
+  const sourceRequest = input.requestBinding ? readOperationSource(root, input.runId, input.requestBinding) : null;
   const command = readContainedJson(root, input.evidence);
-  if (!exactObject(command, ["schema_version", "target_id", "run_id", "expected_revision_id", "destination", "source", "relationship", "review", "update_draft"])
+  if (!exactObject(command, REVIEWED_REQUEST_FIELDS)
       || command.schema_version !== "1" || command.target_id !== resolveControlCommandTarget(root).target_id
       || command.run_id !== input.runId || command.expected_revision_id !== input.revisionId
       || typeof command.update_draft !== "boolean" || !exactObject(command.relationship, ["from", "relationship", "to"])
@@ -25,9 +30,9 @@ export function prepareArtefactRecording(root, run, input, control, before) {
   const bindings = readArtefactBindings(run.content);
   if (!bindings.valid) fail("AGDF_ARTEFACT_BINDINGS_INVALID");
   const candidate = {
-    schema_version: "1", binding_id: randomUUID(), target_id: command.target_id, run_id: input.runId,
+    schema_version: input.operationId ? "2" : "1", binding_id: randomUUID(), target_id: command.target_id, run_id: input.runId,
     relationship: command.relationship, destination: command.destination, source: command.source, review: command.review,
-    origin: "reviewed_mapping", operation: { id: randomUUID(), previous_revision_id: input.revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1 }, supersedes: null,
+    origin: "reviewed_mapping", operation: { id: input.operationId ?? randomUUID(), previous_revision_id: input.revisionId, resulting_revision_id: randomUUID(), revision: Number(run.meta.revision) + 1, ...(input.operationId ? { request_digest: input.requestDigest } : {}) }, supersedes: null,
   };
   const prior = bindings.latest.filter(item => artefactBindingKey(item) === artefactBindingKey(candidate));
   if (prior.length > 1) fail("AGDF_ARTEFACT_BINDINGS_INVALID");
@@ -44,7 +49,8 @@ export function prepareArtefactRecording(root, run, input, control, before) {
   if (old?.path && old.path !== candidate.destination.path) fail("AGDF_ARTEFACT_RECORDING_INPUT_INVALID");
   const seal = runSealState(root, run.content);
   let draftChange = false;
-  if (seal.status === "content_changed" && command.update_draft && input.gate !== "QA" && old?.status === "draft"
+  if (seal.status === "content_changed" && command.update_draft && (old?.status === "draft"
+      || qaRecording && ['pass', 'revise', 'block'].includes(old?.status))
       && prior.length === 1 && old.path === prior[0].destination.path && prior[0].destination.digest !== candidate.destination.digest) {
     // Reconstruct the old aggregate seal using only the previously sealed draft digest.
     // Every other bound file and the complete recorded body must still match that seal.
@@ -66,6 +72,7 @@ export function prepareArtefactRecording(root, run, input, control, before) {
   const snapshot = canonicalJson([candidate, command]);
   return { text, receipt: candidate, nextRevisionId: candidate.operation.resulting_revision_id, allowContentChange: draftChange,
     validateBeforeWrite: () => {
+      sourceRequest?.validate();
       if (!validateBindingProof(root, candidate) || !exactApprovedArtefacts(root, control)
           || canonicalJson([candidate, readContainedJson(root, input.evidence)]) !== snapshot
           || artefactFileDigest(root, candidate.destination.path) !== candidate.destination.digest) fail("AGDF_ARTEFACT_BINDING_PROOF_INVALID");

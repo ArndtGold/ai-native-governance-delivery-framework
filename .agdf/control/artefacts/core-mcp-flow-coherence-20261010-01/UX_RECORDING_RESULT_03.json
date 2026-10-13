@@ -1,0 +1,142 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "0017a1c6-656d-4547-97db-a279d17d1450",
+  "request_digest": "sha256:303112aa0df58caa22c1ce5a577885dd3b500e2bee9bc8f6c8c76ef9004a33c1",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "resulting_revision_id": "36ef67fd-0c0c-4576-b839-f8b2b47c9bb9",
+    "revision": 30,
+    "record": {
+      "step": "UX Intent Definition",
+      "source": {
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:dbff510ee4f4dc78b9ff5c0cf78cac0b0b1a75242fce82b7182c923702f90ca2"
+      },
+      "status": "done",
+      "covers": "Renewed approved UR AC-001..016; analytical UX intent including connection-owned replacement and explicit native dependency",
+      "source_set_digest": "sha256:52f198cbd69b2853d5f949d2e957677064d26f128c72f0afc72ec2a6f24052cd"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "0017a1c6-656d-4547-97db-a279d17d1450",
+    "request_digest": "sha256:303112aa0df58caa22c1ce5a577885dd3b500e2bee9bc8f6c8c76ef9004a33c1",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "created_at": "2026-10-11T12:56:23.215Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+      "resulting_revision_id": "36ef67fd-0c0c-4576-b839-f8b2b47c9bb9",
+      "revision": 30,
+      "record": {
+        "step": "UX Intent Definition",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+          "digest": "sha256:dbff510ee4f4dc78b9ff5c0cf78cac0b0b1a75242fce82b7182c923702f90ca2"
+        },
+        "status": "done",
+        "covers": "Renewed approved UR AC-001..016; analytical UX intent including connection-owned replacement and explicit native dependency",
+        "source_set_digest": "sha256:52f198cbd69b2853d5f949d2e957677064d26f128c72f0afc72ec2a6f24052cd"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 30,
+    "revision_id": "36ef67fd-0c0c-4576-b839-f8b2b47c9bb9",
+    "lifecycle": "active",
+    "gate": "PRD",
+    "status": "open",
+    "missing_approval": "Approval: PRD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "gate": "PRD",
+      "skill_id": "gate-check",
+      "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+        ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "step": "internal",
+    "previous_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "revision": "30",
+    "revision_id": "36ef67fd-0c0c-4576-b839-f8b2b47c9bb9",
+    "current_gate": "PRD",
+    "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+    "backlog": "updated",
+    "operation_id": "0017a1c6-656d-4547-97db-a279d17d1450",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "0017a1c6-656d-4547-97db-a279d17d1450",
+      "request_digest": "sha256:303112aa0df58caa22c1ce5a577885dd3b500e2bee9bc8f6c8c76ef9004a33c1",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+      "created_at": "2026-10-11T12:56:23.215Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+        "resulting_revision_id": "36ef67fd-0c0c-4576-b839-f8b2b47c9bb9",
+        "revision": 30,
+        "record": {
+          "step": "UX Intent Definition",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+            "digest": "sha256:dbff510ee4f4dc78b9ff5c0cf78cac0b0b1a75242fce82b7182c923702f90ca2"
+          },
+          "status": "done",
+          "covers": "Renewed approved UR AC-001..016; analytical UX intent including connection-owned replacement and explicit native dependency",
+          "source_set_digest": "sha256:52f198cbd69b2853d5f949d2e957677064d26f128c72f0afc72ec2a6f24052cd"
+        }
+      }
+    }
+  }
+}

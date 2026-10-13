@@ -1,0 +1,122 @@
+{
+  "recorded_at": "2026-10-11T12:55:36.373Z",
+  "read_only": true,
+  "references": [
+    {
+      "run_id": "cockpit-documented-approvals-20261009-01",
+      "digest": "sha256:567186ca35233c2ccf2a04cac7800950a31a1cd06d3400e77b4bf5bed87e7dd0",
+      "revision_id": "c771e0c8-e537-41f0-8581-c571c36c686d",
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "status": "blocked",
+      "next_operation": {
+        "type": "resolve_control_blocker",
+        "operation_key": "control.resolve",
+        "actor": "agent",
+        "effect": "none",
+        "gate": "OR"
+      },
+      "ux": "done",
+      "or": "done"
+    },
+    {
+      "run_id": "cockpit-draft-check-integration-20261009-01",
+      "digest": "sha256:1db658c38fc3e8ccaf8ccd20c0522070675492c3311a3d9721d2ce321eb4541a",
+      "revision_id": "af3a4ef5-ef64-4572-8245-3ffc2818c405",
+      "lifecycle": "completed",
+      "current_gate": "OR",
+      "status": "blocked",
+      "next_operation": {
+        "type": "resolve_control_blocker",
+        "operation_key": "control.resolve",
+        "actor": "agent",
+        "effect": "none",
+        "gate": "OR"
+      },
+      "ux": "done",
+      "or": "done"
+    },
+    {
+      "run_id": "gate-internal-continuation-recovery-20261008-01",
+      "digest": "sha256:41707d8f77b439b9969858186f2f178d5dc1e7a7c1c803a9c480b12434542225",
+      "revision_id": "f3c8f3c3-094f-42fd-940f-5c4094a4718f",
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "status": "open",
+      "next_operation": {
+        "type": "evaluate_quality",
+        "skill_id": "qa-gate",
+        "operation_key": "quality.evaluate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA"
+      }
+    },
+    {
+      "run_id": "status-card-stale-next-action-20261008-01",
+      "digest": "sha256:a819ea76aaea966fd6a43024d0bf3b2a0270cace0b68e01c03b99ae67304691d",
+      "revision_id": "9bc744d6-1b6e-41ae-8cce-5eb66ec0293d",
+      "lifecycle": "active",
+      "current_gate": "CD+Tests",
+      "status": "open",
+      "next_operation": {
+        "type": "implement_approved_plan",
+        "skill_id": "gate-check",
+        "operation_key": "implementation.execute",
+        "actor": "agent",
+        "effect": "implementation",
+        "gate": "CD+Tests"
+      }
+    },
+    {
+      "run_id": "backlog-status-flow-clarity-20261009-01",
+      "digest": "sha256:01275df655c0389536b2f8c19513a3b2f4f5c4b5cedaa34542465d77b7223448",
+      "revision_id": "54ddccde-907b-4137-91db-f3fcf4716899",
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "status": "open",
+      "next_operation": {
+        "type": "evaluate_quality",
+        "skill_id": "qa-gate",
+        "operation_key": "quality.evaluate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA"
+      },
+      "ux": "done"
+    },
+    {
+      "run_id": "agdf-intake-continuation-repair",
+      "digest": "sha256:d63276d5cd4f653a289ea80c8dda8846ab2571f6b10590b6278e70110a79e46b",
+      "revision_id": "e48e8253-04c9-4639-ae15-e9062233c100",
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "status": "open",
+      "next_operation": {
+        "type": "evaluate_quality",
+        "skill_id": "qa-gate",
+        "operation_key": "quality.evaluate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA"
+      },
+      "ux": "ready"
+    },
+    {
+      "run_id": "agent-control-dispatcher-mcp-concept-20261002-01",
+      "digest": "sha256:1bfb18ae9acffc6d01204027b2a78561930560fbd1bdf83ea9740a63f7bc92d2",
+      "revision_id": "3d9a7a03-ea22-4ae0-8c29-edd175ebf0b1",
+      "lifecycle": "active",
+      "current_gate": "QA",
+      "status": "open",
+      "next_operation": {
+        "type": "evaluate_quality",
+        "skill_id": "qa-gate",
+        "operation_key": "quality.evaluate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA"
+      }
+    }
+  ]
+}

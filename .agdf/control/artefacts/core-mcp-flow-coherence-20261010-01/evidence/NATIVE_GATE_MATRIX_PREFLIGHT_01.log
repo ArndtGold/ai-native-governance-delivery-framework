@@ -1,0 +1,43 @@
+native-en-ur-approve legacy preparation/document/close passed
+native-en-ur-request-change legacy preparation/document/close passed
+native-en-ur-reject legacy preparation/document/close passed
+native-en-ur-text legacy preparation/document/close passed
+native-en-prd-approve legacy preparation/document/close passed
+native-en-prd-request-change legacy preparation/document/close passed
+native-en-prd-reject legacy preparation/document/close passed
+native-en-prd-text legacy preparation/document/close passed
+native-en-sd-approve legacy preparation/document/close passed
+native-en-sd-request-change legacy preparation/document/close passed
+native-en-sd-reject legacy preparation/document/close passed
+native-en-sd-text legacy preparation/document/close passed
+native-en-tp-approve legacy preparation/document/close passed
+native-en-tp-request-change legacy preparation/document/close passed
+native-en-tp-reject legacy preparation/document/close passed
+native-en-tp-text legacy preparation/document/close passed
+native-en-qa-approve legacy preparation/document/close passed
+native-en-qa-request-change legacy preparation/document/close passed
+native-en-qa-reject legacy preparation/document/close passed
+native-en-qa-text legacy preparation/document/close passed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- 'available'
+
+    at file:///private/tmp/agdf-gate-matrix-preflight.mjs:36:89
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///private/tmp/agdf-gate-matrix-preflight.mjs:16:36 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 'available',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

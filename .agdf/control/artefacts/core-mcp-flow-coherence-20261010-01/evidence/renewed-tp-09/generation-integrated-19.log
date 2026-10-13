@@ -1,0 +1,17 @@
+Retained diagnostic fixture after unconfirmed cleanup: /var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-Ih0SXN
+file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-Ih0SXN/runtime/mcp/generations/0c5c7be60189b2f1945b048143add68ab1022f7231bac261c0ec818af8148cd7/0.14.5/node_modules/@agdf/mcp-server/src/generation.js:30
+    if (!validGenerationMessage(message, { epoch, generation: row.id })) return Promise.reject(new DispatchExecutionError('generation_input_limit', 'not_dispatched'));
+                                                                                               ^
+
+DispatchExecutionError: generation_input_limit
+    at request (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-Ih0SXN/runtime/mcp/generations/0c5c7be60189b2f1945b048143add68ab1022f7231bac261c0ec818af8148cd7/0.14.5/node_modules/@agdf/mcp-server/src/generation.js:30:96)
+    at invoke (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-Ih0SXN/runtime/mcp/generations/0c5c7be60189b2f1945b048143add68ab1022f7231bac261c0ec818af8148cd7/0.14.5/node_modules/@agdf/mcp-server/src/generation.js:168:29)
+    at tool.execute (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-Ih0SXN/runtime/mcp/generations/0c5c7be60189b2f1945b048143add68ab1022f7231bac261c0ec818af8148cd7/0.14.5/node_modules/@agdf/mcp-server/src/generation.js:190:69)
+    at invoke (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/generation.test.js:46:53)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/generation.test.js:79:26
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  code: 'generation_input_limit',
+  dispatch: 'not_dispatched'
+}
+
+Node.js v22.22.3

@@ -1,0 +1,18 @@
+node:fs:2430
+    return binding.writeFileUtf8(
+                   ^
+
+Error: ENOENT: no such file or directory, open '/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-U9edPr/governance-target/.agdf/control/artefacts/native-en-ur-approve/UR.md'
+    at writeFileSync (node:fs:2430:20)
+    at prepareGate (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/native-probes/core-mcp-decision.mjs:31:5)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/native-probes/core-mcp-decision.mjs:98:26
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-U9edPr/governance-target/.agdf/control/artefacts/native-en-ur-approve/UR.md'
+}
+
+Node.js v22.22.3

@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
 import { createLateSourceRevisionTestRun } from "../../cli/scripts/fixtures/late-source-revision.js";
+import { createEarlyUrRevisionTestRun } from "../../cli/scripts/fixtures/early-ur-revision.js";
 import { byteDigest } from "../../core/lib/control-state/run-revision-history.js";
 
 const candidate = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? resolve(import.meta.dirname, "../../../dist/npm/create-agdf");
@@ -23,9 +24,13 @@ const args = input => ["--revision", input.revisionId, "--source-gate", input.so
 const observations = [];
 try {
   await withStdioClient(fixture, async client => {
-    const { tools } = await client.listTools(); assert.deepEqual(tools.map(tool => tool.name), ["agdf_dispatch", "agdf_inspect"]);
-    for (const tool of tools) for (const name of ["source_gate", "preview_digest", "revision_mode", "operation_id"])
+    const { tools } = await client.listTools(); assert.deepEqual(tools.map(tool => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
+    for (const tool of tools.filter(tool => ['agdf_dispatch', 'agdf_inspect'].includes(tool.name))) for (const name of ["source_gate", "preview_digest", "revision_mode", "operation_id"])
       assert.equal(Object.hasOwn(tool.inputSchema.properties, name), false);
+    for (const tool of tools.filter(tool => !['agdf_dispatch', 'agdf_inspect'].includes(tool.name))) {
+      assert.ok(tool.inputSchema.required.includes('operation_id'), 'Every new write group requires the original operation UUID.');
+      for (const name of ['source_gate', 'preview_digest', 'revision_mode']) assert.equal(Object.hasOwn(tool.inputSchema.properties, name), false);
+    }
     const target = { presentation_language: "de", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: f.runId };
     for (const gate of ["UR", "PRD", "SD", "TP"]) {
       reset(); const p = f.proposal(gate);
@@ -43,6 +48,24 @@ try {
       assert.notEqual(continued.continuation?.phase, "implementation"); assert.deepEqual(tree(), before);
       observations.push({ gate, dispatch: dispatch.control, inspect: { current_gate: inspected.report.current_gate, missing_approval: inspected.report.missing_approval, source_revisions: inspected.report.source_revisions }, authorizes: false });
     }
+    reset(); const early = createEarlyUrRevisionTestRun(root, validator, "early-ur-mcp-test"), request = early.proposal();
+    const earlyPreview = early.run("run-revise", "--preview", ...args(request.input)).value;
+    assert.equal(earlyPreview.outcome, "preview");
+    assert.equal(early.run("run-revise", "--apply", ...args(request.input), "--preview-digest", earlyPreview.preview_digest).value.outcome, "reopened");
+    const earlyBefore = tree(), earlyTarget = { ...target, run_id: early.runId };
+    const earlyDispatch = (await client.callTool({ name: "agdf_dispatch", arguments: { ...earlyTarget, skill_id: "gate-check" } })).structuredContent;
+    const earlyInspect = (await client.callTool({ name: "agdf_inspect", arguments: { ...earlyTarget, operation: "gate-check" } })).structuredContent;
+    const earlyCli = early.run("gate-check").value;
+    assert.equal(earlyDispatch.control.current_gate, "UR"); assert.equal(earlyInspect.report.current_gate, "UR");
+    assert.deepEqual(earlyDispatch.control.source_revisions, earlyCli.source_revisions);
+    assert.deepEqual(earlyInspect.report.source_revisions, earlyCli.source_revisions);
+    const earlyAuthoring = (await client.callTool({ name: "agdf_dispatch", arguments: { ...earlyTarget, skill_id: "gate-check",
+      intake: true, intake_mode: "resume", expected_revision_id: early.revision(), ur_action: "revise" } })).structuredContent;
+    assert.equal(earlyAuthoring.continuation?.phase, "ur_definition", JSON.stringify(earlyAuthoring));
+    assert.equal(earlyAuthoring.authorizes, false); assert.deepEqual(tree(), earlyBefore);
+    observations.push({ boundary: "approved UR/PRD with linked draft SD", gate: "UR", dispatch: earlyDispatch.control,
+      inspect: earlyInspect.report.current_gate, authoring: earlyAuthoring.continuation.phase, authorizes: false });
+
     reset(); const p = f.proposal("TP"), preview = f.run("run-revise", "--preview", ...args(p.input)).value;
     const program = `import {applySourceRevision} from ${JSON.stringify(pathToFileURL(join(fixture.dispatcherRoot, "runtime/core/lib/control-state/run-revision.js")).href)};
       applySourceRevision(process.argv[1],JSON.parse(process.argv[2]),{afterWrite(stage){if(stage==='archive_file')process.exit(71)}});`;

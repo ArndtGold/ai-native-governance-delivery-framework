@@ -81,8 +81,11 @@ abgeleitete Ressourcenprojektion unter `packages/core/generated/`. CLI, npm- und
 Offline-Komposition binden ihre eigenen Ressourcen. Ein MCP-Aufrufer kann weder
 Resource-URLs noch geerbte Plugin-Pfade ersetzen.
 
-`createCoreServices({ resources, observers, runtimeBinding })` komponiert Dispatch
-und Inspektion. Es gibt kein veränderliches globales Providerregister. Gitabfragen,
+`createCoreServices({ resources, observers, runtimeBinding })` komponiert Dispatch,
+Inspektion und im nachgeführten Entwicklungsstand den begrenzten Befehlsdienst `command`.
+Der [Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md) beschreibt dessen Bindungen,
+Delegation an Writer und getrennte Decision-App-Sitzungen. Es gibt kein veränderliches globales
+Providerregister. Gitabfragen,
 Runtime-Probe, Startup-Prozess und Terminal-I/O gehören zur CLI. Recovery prüft die
 Providerdaten im Core und übernimmt daraus keine historische Freigabeautorität.
 Die öffentlichen synchronen `create-agdf/control-command`- und
@@ -99,6 +102,8 @@ Es entstehen kein weiterer MCP-Endpunkt und kein globales Register für Sichtbar
 
 | Core-Quelle | Verantwortung |
 |---|---|
+| [run-command-contract.js](../../packages/core/lib/control-state/run-command-contract.js) | Feste Befehlsgruppen, erlaubte Operationsarten, exakte Eingaben und Größenbudgets des Entwicklungsstands. |
+| [run-command-service.js](../../packages/core/lib/control-state/run-command-service.js) | Gebundene Befehle prüfen und an zuständige Writer oder den eigenen Runtime-Controller delegieren; keine eigene Gate-Policy. |
 | [skill-dispatch/service.js](../../packages/core/lib/skill-dispatch/service.js) | Eingaben validieren, Ziel binden, Kontrollzustand lesen und Route samt Präsentation bestimmen; keine Beziehungskorrektur. |
 | [delivery-continuation/service.js](../../packages/core/lib/delivery-continuation/service.js) | Am gemeinsamen [Core-Einstieg](../../packages/core/lib/index.js) höchstens eine Korrektur einer validierten gebundenen Fortsetzung koordinieren, danach Routing mit frischer Auswertung aufrufen und das Ergebnis ausgeben. |
 | [delivery-relationships.js](../../packages/core/lib/control-evaluation/delivery-relationships.js) | Gemeinsames Beziehungsregister und Anwendbarkeit anhand übergebener Policy-Fakten; keine Abhängigkeit von Writer, Siegel oder Gate-Policy. |

@@ -161,6 +161,7 @@ export function captureControl(rootInput, options = {}) {
     },
     statSync(input, options) { return statCopy(get(input).entry, options?.bigint); },
     lstatSync(input, options) { return statCopy(get(input).entry, options?.bigint); },
+    lstatKindSync(input) { return get(input).entry.kind; },
     realpathSync(input) { return get(input).path; },
     readdirSync(input, options) {
       const { path, entry } = get(input); if (entry.kind !== 'directory') throw Object.assign(Error('Not directory'), { code: 'ENOTDIR' });
@@ -292,6 +293,7 @@ export function captureControlScope(rootInput, project, options = {}) {
       return statCopy(entry, opts?.bigint);
     },
     lstatSync(value, opts) { return methods.statSync(value, opts); },
+    lstatKindSync(value) { return get(value).entry.kind; },
     realpathSync(value) { return get(value).path; },
     readdirSync(value, opts) {
       const { path, entry } = get(value);

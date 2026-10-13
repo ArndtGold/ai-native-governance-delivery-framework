@@ -1,0 +1,136 @@
+# Brownfield Review
+Type: Brownfield Review
+Mode: post_ur_review
+Status: done
+
+## Run
+
+- run_id: core-mcp-flow-coherence-20261010-01
+- related_ur: .agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md
+- current_gate: Brownfield Review
+- reviewer: Codex
+- reviewed_at: 2026-10-10
+- decision: pass
+- review_scope: sizing and routing complete; required UX input is ready in UX_INTENT_DEFINITION.md; no retained-debt acceptance or implementation judgement
+
+## Objective
+
+Size the approved integrated lifecycle scope: one current Core meaning, usable authoring/operation contracts, existing bound writers, supported source revision, structured closeout, MCP access and appropriate current evidence/app projection. The assessment remains an input; the approved UR is authoritative need. Avoid independent candidate fixes and duplicated policy.
+
+## UI / UX Impact Routing
+
+- delivery_context: brownfield
+- ui_ux_impact: high
+- ui_ux_impact_reason: The scope changes effective state, next action, blocked/retry/recovery feedback, current decision evidence and completion across agent/CLI/MCP/cockpit surfaces. Existing deliberate decision authority is retained.
+- ux_intent_definition_required: yes
+- ux_intent_definition_result: ready
+- ux_intent_evidence: UX_INTENT_DEFINITION.md; analysis prepared through the bound existing owner before PRD authoring and registered in the same canonical revision as this updated review
+
+## Existing-System View
+
+| Area | Existing owner or artefact | Evidence | Impact |
+|---|---|---|---|
+| Product semantics | Approved UR; gate policy and dispatcher | UR scope/AC-001..009; EVIDENCE_BROWNFIELD.md | high: same state/action/completion meaning across surfaces |
+| Source of truth | Sealed Run, artefacts, source revisions, presentations, existing backlog writer | control-state/run-recording, run-source-revisions, run-presentation, run-backlog-writer | high: coherent durable effects/current observations; no new store |
+| Runtime path | Core evaluation/step policy, existing typed approval command, CLI and MCP adapters | control-evaluation/run-state, run-step-policy; control-state/approval-command; cli/validation-handlers | high: expose writes only after shared semantics/recovery are qualified |
+| UI / UX | Core cockpit projection and existing app | control-inspect/cockpit; docs/architecture/06-agdf-cockpit.md; completed cockpit UR scope | high: current evidence/next step/closeout; protect exact document and draft checks |
+| Persistence / data | Existing Run/backlog transactions and receipts | control-state/run-steps, run-backlog-writer, approval-operations | high: structured completion and interrupted synchronization |
+| Tests / QA | Existing command, transaction, revision, artefact-recording and cockpit suites | core/test/control-state-test.js, run-step-transaction-test.js, run-source-revisions-test.js, artefact-recording-test.js, cockpit-document-state-test.js | high: new full-chain and negative/recovery evidence required |
+| Release / operations | Existing packaged CLI/MCP and host resource identity | EVIDENCE_BROWNFIELD.md runtime identities; architecture R-04/R-05 | medium: compatibility and actual candidate qualification; no install/publication granted |
+
+## Architecture Impact
+
+- architecture_relevance: relevant
+- architecture_impact: high
+- architecture_reason: Externally consumed write contracts, current-state versus receipt interpretation and multi-record completion/recovery cross existing runtime/persistence boundaries. Publicly described inputs must match their canonical owners.
+- architecture_evidence: EVIDENCE_BROWNFIELD.md; docs/reviews/ARCHITEKTUR_FLOW_MCP_KANDIDATEN_20261010.md sections 3-9; docs/architecture/03-agentenkontrolle-zielbild.md OP-01/02/04/05/06/07/09 and R-04
+- architecture_missing_evidence: Exact new contract shape, compatibility plan, closeout recovery and supported evidence association require SD; fresh writer/transport/host qualification requires approved TP. Their boundaries are known sufficiently for full structured routing.
+- architecture_next_owner_and_action: prd-definition defines supported lifecycle outcomes; sd-definition resolves shared owner/contracts/recovery before implementation; no new orchestration authority
+
+## Reuse And Parallel-Structure Risk
+
+| Finding | Evidence | Risk | Required action |
+|---|---|---|---|
+| problem: incomplete writer state | EVIDENCE_BROWNFIELD.md reproduces done UX omitted and PRD fallback; run-recording/run-state | revise | SD: reuse complete existing state-preparation/catalog owners; qualify real writers after TP |
+| problem: prose-dependent routing | skill-dispatch/service.js exact CD+Tests sentence comparison | revise | SD: canonical typed operation meaning; compatible derived display text; no MCP policy mapping |
+| problem: structured completion gap | run-steps rejects structured closeout; completed OR evaluates open | revise | PRD: completion meaning; SD: existing writer/transaction owner and recoverable backlog synchronization |
+| problem: format/evidence interpretation | criterion parsers differ; UAT summary selects first rows | revise | PRD: current-versus-history behavior; SD: common owner interpretation, unknown applicability handling |
+| unresolved: exposure and compatibility details | Existing typed approval/legacy route and source revision; current transport descriptions | revise | SD must resolve before presenting design: operation-specific schema, assurance, retries, compatibility and rollback; no accepted technical debt |
+| problem: overlapping active scope | Related URs named below share dispatcher/state/backlog owners | warn | Reuse repository baseline; this run owns integrated new contracts/flow, preserves all foreign artefacts/approvals and leaves their completion to their own owners |
+| problem: duplicate document/app authority | Completed document/draft-check slice and Core cockpit projector already implement exact-bound reads | warn | Extend projections only where lifecycle evidence/next-state needs it; regression existing behavior; no app evaluator or new draft validator |
+
+No deliberate retained-debt trade-off is accepted. Open design details above are mandatory SD decisions, not permission to retain duplicate authority. The initial pending UX-input condition is resolved by UX_INTENT_DEFINITION.md. This review passes sizing and routing only, not implementation or QA.
+
+### Related-scope boundary
+
+| Run | Reuse / shared interest | Boundary in this run |
+|---|---|---|
+| gate-internal-continuation-recovery-20261008-01 | prerequisite/QA-revise handoffs and diagnostics | Reuse existing contracts; do not claim its findings or native qualification completed |
+| status-card-stale-next-action-20261008-01 | derived next-step consistency and exact sentence issue | Baseline already includes refreshMovedGateFields; this scope adds consistent full model and typed lifecycle contracts, not a second repair owner |
+| backlog-status-flow-clarity-20261009-01 | saved summaries and QA obligations | Reuse current work-summary projection; structured closeout/current evidence integration does not close that run |
+| agdf-intake-continuation-repair | initial assignment/post-UR routing | Preserve intake semantics; no new intake router |
+| agent-control-dispatcher-mcp-concept-20261002-01 | concept/OP catalogue/R-04 | Implement only this approved operational outcome; do not infer stronger enforcement or rewrite the concept's approval |
+| completed cockpit draft/document runs | exact read proof, readiness and reported findings | Protected regression inputs; no reopened run, transferred approval or retrospective QA change |
+
+Shared code paths are not conflicting live implementation diffs in this planning turn. Before implementation, the approved TP preparation must recheck current source/worktree and relevant owner changes. The review does not choose or rewrite another run.
+
+## Mode / Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: external_contract_depth: qualified MCP write/recording contracts, public CLI compatibility, exact operation/result semantics and durable structured closeout recovery require a shared contract/compatibility design. architecture_runtime_depth and persistence_migration_depth also apply. Reject structured_slice because full-depth external/runtime/persistence effects are evidenced, not because of file or owner counts.
+- evidence: EVIDENCE_BROWNFIELD.md; approved UR scope 1-6 and AC-001..009; existing R-04; complete Structured Depth Evidence below
+- transparency_note: One coherent outcome remains feasible as one Run, with dependent stages. Quick/Compact and Verified Change are ineligible because this is a new externally usable write-contract and persistence/recovery capability; full PRD/SD/TP depth is necessary. UX analysis is required before PRD readiness, and implementation-preparation Brownfield Analysis remains required after TP.
+
+## Structured Depth Evidence
+
+- depth_policy_version: 1
+- depth_facts_status: complete
+- primary_reason_code: external_contract_depth
+- decisive_full_depth_triggers: external/public contract (qualified MCP writers and CLI compatibility); architecture/runtime (shared state/operation and multi-record recovery); persistence/data meaning (structured completed state and backlog synchronization)
+- rejected_alternative: structured_slice; Quick/Compact and Verified Change were evaluated first and are ineligible because their no-contract/persistence-expansion boundaries are not met
+- missing_or_conflicting_facts: none decisive for mode selection; exact operation design and host evidence remain later owned obligations, not missing route facts
+- depth_evidence_refs: UR.md sections 3/5/7; EVIDENCE_BROWNFIELD.md; architecture/03-agentenkontrolle-zielbild.md R-04; repository source paths in Existing-System View
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | pass | Approved UR defines one bound lifecycle through completion; AC-009 whole-flow acceptance |
+| authority_boundary | pass | Existing evaluation/approval/QA authority retained; cooperative assurance explicit; no new independent response-proof claim |
+| owner_consumer_coordination | pass | Existing Core/CLI/MCP/cockpit owners identified; stages coordinated within this Run; no foreign-run edits or external cutover authorized |
+| full_depth_impacts_absent | fail | New externally consumed write capability, stable operation semantics and closeout persistent meaning are full-depth effects |
+| migration_propagation_bounded | unknown | Existing CLI paths/receipts and structured completion require explicit SD compatibility plan; external-contract trigger is already decisive |
+| failure_recovery_local | fail | Structured OR/run/backlog persistence and lost-write responses require coordinated durable recovery across existing boundaries |
+| independently_acceptable | pass | Approved coherent scope has end-to-end acceptance; general inventory, isolated test profile and universal code API excluded |
+
+## PRD / SD Open Questions
+
+| Question | Required gate | Impact |
+|---|---|---|
+| Which concrete current-state/blocked/retry/recovery/current-evidence situations are presented to users and agents? | PRD | revise |
+| Which writer capabilities belong to the supported first whole-flow contract, and which existing unsupported revision states remain explicit? | PRD | revise |
+| How are baseline search/manual steps and truthful benefit evidence collected without conflating host/model qualifications? | PRD | revise |
+| Which existing preparation entry/catalog carries persisted/proposed state and typed operation meaning? | SD | revise |
+| Which format interpretation serves checks, authoring metadata and presentation, without a third parser? | SD | revise |
+| Which per-operation retry/conflict/locking/recovery and compatibility path covers approval, recording, source revision and closeout? | SD | revise |
+| How are current applicable QA/UAT evidence and unknown historical associations represented? | SD | revise |
+| Which exact runtime/host scenarios are necessary for claims, without all-host guarantees? | TP | revise |
+
+## Context Graph Impact
+
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Run-specific findings persisted in this review/evidence and linked to existing architecture; no graph/SoT owner changed during sizing
+- memory_target: scope_artifact
+- memory_reason: preserve concrete candidate/reproduction and overlap evidence here; curate reusable architecture changes only after design/implementation evidence
+- memory_refs: BROWNFIELD_REVIEW.md; EVIDENCE_BROWNFIELD.md; MCP_CANDIDATES.md
+
+## Next Permissible Step
+
+- next_allowed_action: Record review and full route together through run-step route; execute required ux-intent-definition via fresh routing, then draft PRD through its existing owner.
+- forbidden_until_then: implementation, later-gate artefacts, fabricated readiness, foreign-run changes, Git/publication actions
+
+## Quality Outlook
+
+- quality_outlook: Source findings and two fresh read-only policy/model reproductions support sizing. Real writer transactions, retry/concurrency, installed MCP and native app qualification remain later evidence obligations. No QA outcome is claimed.

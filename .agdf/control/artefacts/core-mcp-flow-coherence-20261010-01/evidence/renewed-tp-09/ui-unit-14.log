@@ -1,0 +1,389 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/decision-card.test.tsx (29 tests | 2 failed) 2805ms
+   ❯ Decision card en (14)
+     × puts the shared authored brief and consequence before choices, with technical evidence disclosed on demand 205ms
+   ❯ Decision card de (14)
+     × puts the shared authored brief and consequence before choices, with technical evidence disclosed on demand 47ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/decision-card.test.tsx > Decision card en > puts the shared authored brief and consequence before choices, with technical evidence disclosed on demand
+TestingLibraryElementError: Found multiple elements with the role "heading"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h1>[39m
+  [0mReview solution design[0m
+[36m</h1>[39m
+
+Ignored nodes: comments, script, style
+[36m<h1>[39m
+  [0mPresented summary[0m
+[36m</h1>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Review and decide"[39m
+      [33mclass[39m=[32m"decision-card agdf-surface mcp-entry"[39m
+    [36m>[39m
+      [36m<h1>[39m
+        [0mReview solution design[0m
+      [36m</h1>[39m
+      [36m<p>[39m
+        [0mSynthetic decision fixture[0m
+      [36m</p>[39m
+      [36m<article[39m
+        [33mclass[39m=[32m"decision-summary document"[39m
+      [36m>[39m
+        [36m<ul>[39m
+          [0m
+[0m
+          [36m<li>[39m
+            [0mGoal: Preserve the selected filter.[0m
+          [36m</li>[39m
+          [0m
+[0m
+          [36m<li>[39m
+            [0mProposal: Reuse the existing filter store.[0m
+          [36m</li>[39m
+          [0m
+[0m
+        [36m</ul>[39m
+      [36m</article>[39m
+      [36m<p>[39m
+        [0mNo verified previous applicable version is available for comparison.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mThe task plan is prepared next.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mSource language is shown in the presentation.[0m
+      [36m</p>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0mRead presented document[0m
+      [36m</button>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mDetails and evidence[0m
+        [36m</summary>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"document"[39m
+        [36m>[39m
+          [36m<h1>[39m
+            [0mPresented summary[0m
+          [36m</h1>[39m
+          [0m
+[0m
+          [36m<p>[39m
+            [0mFull intended change.[0m
+          [36m</p>[39m
+          [0m
+[0m
+          [36m<h2>[39m
+            [0mOpen points[0m
+          [36m</h2>[39m
+          [0m
+[0m
+          [36m<p>[39m
+            [0mNo applicable open issue.[0m
+          [36m</p>[39m
+          [0m
+[0m
+          [0m
+[0m
+          [36m<p>[39m
+            [0mAC-001 technical coverage remains complete.[0m
+          [36m</p>[39m
+        [36m</article>[39m
+        [36m<dl>[39m
+          [36m<dt>[39m
+            [0mRun[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0msynthetic-run[0m
+          [36m</dd>[39m
+          [36m<dt>[39m
+            [0mPresented revision[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [36m<code>[39m
+              [0m11111111-1111-4111-8111-111111111111[0m
+            [36m</code>[39m
+          [36m</dd>[39m
+          [36m<div>[39m
+            [36m<dt>[39m
+              [0mSD[0m
+            [36m</dt>[39m
+            [36m<dd>[39m
+              [36m<code>[39m
+                [0m.agdf/control/artefacts/synthetic-run/SD.md[0m
+              [36m</code>[39m
+              [36m<br />[39m
+              [36m<code>[39m
+                [0msha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[0m
+              [36m</code>[39m
+            [36m</dd>[39m
+          [36m</div>[39m
+        [36m</dl>[39m
+      [36m</details>[39m
+      [36m<label[39m
+        [33mclass[39m=[32m"decision-comment"[39m
+      [36m>[39m
+        [0mComment[0m
+        [36m<textarea[39m
+          [33maria-describedby[39m=[32m"decision-comment-help"[39m
+        [36m/>[39m
+      [36m</label>[39m
+      [36m<p[39m
+        [33mid[39m=[32m"decision-comment-help"[39m
+      [36m>[39m
+        [0mA comment is required when requesting changes. Closing the view discards an unsent comment. Maximum 8 KiB.[0m
+      [36m</p>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"decision-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mApprove[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mRequest changes[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mReject[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mTechnical tool permission and this decision are separate. A host prompt may still appear.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mNo saved effect is confirmed. Reading and discussion do not decide.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ test/decision-card.test.tsx:32:19
+     30|     view.summary += '\nAC-001 technical coverage remains complete.\n';
+     31|     render(<DecisionCard view={view} port={p}/>);
+     32|     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe…
+       |                   ^
+     33|     expect(screen.getByText(view.approval_effect)).toBeTruthy();
+     34|     const evidence = screen.getByText(/AC-001 technical/).closest('det…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/decision-card.test.tsx > Decision card de > puts the shared authored brief and consequence before choices, with technical evidence disclosed on demand
+TestingLibraryElementError: Found multiple elements with the role "heading"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h1>[39m
+  [0mLösungsdesign prüfen und entscheiden[0m
+[36m</h1>[39m
+
+Ignored nodes: comments, script, style
+[36m<h1>[39m
+  [0mPresented summary[0m
+[36m</h1>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Prüfen und entscheiden"[39m
+      [33mclass[39m=[32m"decision-card agdf-surface mcp-entry"[39m
+    [36m>[39m
+      [36m<h1>[39m
+        [0mLösungsdesign prüfen und entscheiden[0m
+      [36m</h1>[39m
+      [36m<p>[39m
+        [0mSynthetic decision fixture[0m
+      [36m</p>[39m
+      [36m<article[39m
+        [33mclass[39m=[32m"decision-summary document"[39m
+      [36m>[39m
+        [36m<ul>[39m
+          [0m
+[0m
+          [36m<li>[39m
+            [0mGoal: Preserve the selected filter.[0m
+          [36m</li>[39m
+          [0m
+[0m
+          [36m<li>[39m
+            [0mProposal: Reuse the existing filter store.[0m
+          [36m</li>[39m
+          [0m
+[0m
+        [36m</ul>[39m
+      [36m</article>[39m
+      [36m<p>[39m
+        [0mFür einen Vergleich liegt keine bestätigte vorherige anwendbare Fassung vor.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mDanach wird der Aufgabenplan vorbereitet.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mDie Quellsprache steht in der Vorlage.[0m
+      [36m</p>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0mVorgelegtes Dokument lesen[0m
+      [36m</button>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mDetails und Nachweise[0m
+        [36m</summary>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"document"[39m
+        [36m>[39m
+          [36m<h1>[39m
+            [0mPresented summary[0m
+          [36m</h1>[39m
+          [0m
+[0m
+          [36m<p>[39m
+            [0mFull intended change.[0m
+          [36m</p>[39m
+          [0m
+[0m
+          [36m<h2>[39m
+            [0mOpen points[0m
+          [36m</h2>[39m
+          [0m
+[0m
+          [36m<p>[39m
+            [0mNo applicable open issue.[0m
+          [36m</p>[39m
+          [0m
+[0m
+          [0m
+[0m
+          [36m<p>[39m
+            [0mAC-001 technical coverage remains complete.[0m
+          [36m</p>[39m
+        [36m</article>[39m
+        [36m<dl>[39m
+          [36m<dt>[39m
+            [0mRun[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0msynthetic-run[0m
+          [36m</dd>[39m
+          [36m<dt>[39m
+            [0mVorgelegte Revision[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [36m<code>[39m
+              [0m11111111-1111-4111-8111-111111111111[0m
+            [36m</code>[39m
+          [36m</dd>[39m
+          [36m<div>[39m
+            [36m<dt>[39m
+              [0mSD[0m
+            [36m</dt>[39m
+            [36m<dd>[39m
+              [36m<code>[39m
+                [0m.agdf/control/artefacts/synthetic-run/SD.md[0m
+              [36m</code>[39m
+              [36m<br />[39m
+              [36m<code>[39m
+                [0msha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[0m
+              [36m</code>[39m
+            [36m</dd>[39m
+          [36m</div>[39m
+        [36m</dl>[39m
+      [36m</details>[39m
+      [36m<label[39m
+        [33mclass[39m=[32m"decision-comment"[39m
+      [36m>[39m
+        [0mKommentar[0m
+        [36m<textarea[39m
+          [33maria-describedby[39m=[32m"decision-comment-help"[39m
+        [36m/>[39m
+      [36m</label>[39m
+      [36m<p[39m
+        [33mid[39m=[32m"decision-comment-help"[39m
+      [36m>[39m
+        [0mFür eine Änderungsanforderung ist ein Kommentar nötig. Beim Schließen verfällt ein ungesendeter Kommentar. Höchstens 8 KiB.[0m
+      [36m</p>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"decision-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mFreigeben[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mÄnderung anfordern[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mAblehnen[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mTechnische Toolerlaubnis und diese Entscheidung sind getrennt. Der Host kann zusätzlich nachfragen.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mEine Speicherung ist nicht bestätigt. Lesen und Diskussion entscheiden nichts.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ test/decision-card.test.tsx:32:19
+     30|     view.summary += '\nAC-001 technical coverage remains complete.\n';
+     31|     render(<DecisionCard view={view} port={p}/>);
+     32|     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe…
+       |                   ^
+     33|     expect(screen.getByText(view.approval_effect)).toBeTruthy();
+     34|     const evidence = screen.getByText(/AC-001 technical/).closest('det…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 19 passed (20)
+      Tests  2 failed | 194 passed (196)
+   Start at  18:15:59
+   Duration  26.05s (environment 38%, tests 38%, import 19%, transform 5%)
+
+Environment  jsdom was created 20 times · 25.04s total, 38% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

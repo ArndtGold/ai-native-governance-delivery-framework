@@ -1,0 +1,49 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T09:30:20.452105+00:00",
+  "evidence_class": "actual_probe_read_rejection_after_idle_interval_with_unresolved_process_continuity",
+  "run_id": "native-en-reject",
+  "presentation_id": "b8b87680-7bc4-48dd-867a-c348350a83a8",
+  "last_actual_action_at": "2026-10-11T08:44:35.481Z",
+  "elapsed_since_action_seconds": 2744.971105,
+  "production_idle_limit_ms": 1800000,
+  "snapshot_outcome": "session_expired",
+  "original_document_outcome": "session_expired",
+  "model_explicit_close_requests": 0,
+  "native_action_requests_for_presentation": 1,
+  "run_digest": "sha256:40f110a58d46782a7946e18b126cf03f481b4c966100e4a3806d2fdddb8a80d4",
+  "run_unchanged_since_decision": true,
+  "candidate_scope": "uCKria prior served probe; final UAT-reading candidate and automatic Host teardown not qualified by this observation",
+  "host_views_closed": "not inferred; user last reported card open",
+  "native_qualified": false,
+  "authorizes": false,
+  "natural_idle_expiry_qualified": false,
+  "process_continuity": "Multiple matching probe processes exist, including instances started after the observed rejection. The old wrapper did not record PID/producer; the currently called endpoint cannot be positively tied to the original action process. session_expired alone is not natural-timeout proof.",
+  "process_check": {
+    "command": "ps -axo pid,lstart,command | rg '[/]agdf-mcp-owned-uCKria/native-decision-entry.mjs'",
+    "observed_processes": [
+      {
+        "pid": 30972,
+        "started_local": "2026-10-11 09:52:39"
+      },
+      {
+        "pid": 31762,
+        "started_local": "2026-10-11 09:56:18"
+      },
+      {
+        "pid": 34457,
+        "started_local": "2026-10-11 10:16:54"
+      },
+      {
+        "pid": 39822,
+        "started_local": "2026-10-11 10:58:52"
+      },
+      {
+        "pid": 44855,
+        "started_local": "2026-10-11 11:27:16"
+      }
+    ],
+    "timezone": "Europe/Berlin",
+    "qualified_original_endpoint": false
+  }
+}

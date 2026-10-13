@@ -110,7 +110,7 @@ assert.match(nativeText, /refs\/tags\/agdf-v\*/u);
 assert.doesNotMatch(nativeText, /refs\/tags\/create-agdf-v\*/u);
 const cliLock = JSON.parse(readFileSync(new URL("../distribution/agdf/package-lock.json", import.meta.url), "utf8"));
 const serverLock = JSON.parse(readFileSync(new URL("../../mcp-server/package-lock.json", import.meta.url), "utf8"));
-for (const [lock, localPath] of [[cliLock, "file:../.."], [serverLock, "file:../cli"]]) {
+for (const [lock, localPath] of [[cliLock, "file:../.."], [serverLock, "file:../../dist/npm/create-agdf"]]) {
   assert.equal(lock.packages["node_modules/create-agdf"].resolved, localPath);
 }
 console.log("Coupled release workflow contract passed.");

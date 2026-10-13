@@ -21,7 +21,7 @@ try {
     const started = process.hrtime.bigint();
     await withStdioClient(fixture, async (client) => {
       const result = await client.listTools();
-      assert.deepEqual(result.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect"]);
+      assert.deepEqual(result.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
       cold.push(milliseconds(started));
     });
   }

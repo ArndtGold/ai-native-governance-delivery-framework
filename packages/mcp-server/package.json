@@ -24,9 +24,11 @@
     "test:provenance": "node ./test/provenance.test.js",
     "test:performance": "node ./test/performance.test.js",
     "test:package": "node ./test/package.test.js",
-    "test": "npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:protocol && npm run test:cockpit-gating && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest",
+    "test": "npm run test:contract && npm run test:continuation && npm run test:late-source-revision && npm run test:run-command-flow && npm run test:protocol && npm run test:cockpit-gating && npm run test:generation && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest",
     "test:sdk-digest": "node ./test/sdk-digest.test.js",
-    "test:late-source-revision": "node ./test/late-source-revision.test.js"
+    "test:late-source-revision": "node ./test/late-source-revision.test.js",
+    "test:run-command-flow": "node ./test/run-command.test.js && node ./test/decision-resource.test.js && node ./test/whole-flow.test.js && node ./test/structured-flow.test.js && node ./test/revision-command.test.js && node ./test/expanded-source-revision.test.js",
+    "test:generation": "node ./test/generation.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",

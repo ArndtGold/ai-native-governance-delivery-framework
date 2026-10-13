@@ -87,7 +87,7 @@ try {
   const malformed = bound("--continue-delivery");
   assert.equal(malformed.continuation.skill_id, "ux-intent-definition");
   assert.equal(malformed.diagnostics[0].code, "ux_decision_malformed");
-  assert.match(malformed.continuation.instruction, /exact field absent/);
+  assert.match(malformed.continuation.instruction, /exact unambiguous field required/);
   assert.match(malformed.continuation.instruction, /unchanged failure stops/);
   assert.equal(bound("--continue-delivery").diagnostics[0].code, "ux_decision_malformed", "unchanged condition grants no new kind of work");
   writeFileSync(f.file("UX_INTENT_DEFINITION.md"), "- decision: ready\n- decision: blocked\n");
@@ -128,8 +128,12 @@ try {
     assert.equal(bound("--continue-delivery").terminal, true);
     assert.equal(readFileSync(outside, "utf8"), "outside"); unlinkSync(f.file("PRD.md"));
   }
-  assert.equal(bound("--intake", "--intake-mode", "resume", "--revision", f.revision(), "--ur-action", "revise").terminal, true,
-    "declined UR revision must not create a PRD assignment");
+  const declinedUr = bound("--intake", "--intake-mode", "resume", "--revision", f.revision(), "--ur-action", "revise");
+  assert.equal(declinedUr.terminal, true, "declined UR revision must not create a PRD assignment");
+  assert.equal(declinedUr.presentation, null, "a wrong revision route must not be disguised as an ordinary status card");
+  assert.equal(declinedUr.diagnostics[0].code, "draft_revision_route_unavailable");
+  assert.equal(declinedUr.recovery.operation_contract, "agdf_revise/source_revision.preview");
+  assert.equal(declinedUr.host_action.mode, "transmit_recovery_verbatim_and_stop");
   const foreignId = "foreign-ur";
   assert.equal(f.call("run-create", "--run", foreignId).code, 0);
   const foreignState = join(root, `.agdf/control/runs/${foreignId}/RUN_STATE.md`);

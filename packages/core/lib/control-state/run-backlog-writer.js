@@ -3,11 +3,13 @@ import { join, relative, sep } from "node:path";
 import { parseRunState } from "./run-state-parser.js";
 import { runSealState } from "./run-seal.js";
 import { atomicWrite, withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
-import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
+import { commitRunStepLocked, recoverPendingRunStepLocked, readPendingRunStepJournal } from "./run-step-transaction.js";
 import { pendingRunStepIds } from "./run-step-pending.js";
 import { BACKLOG_RELATIVE_PATH, prepareRunBacklogOrSkip } from "./run-backlog.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { randomUUID } from "node:crypto";
+import { existsSync } from 'node:fs';
+import { pendingRunStepPath } from './run-step-pending.js';
 import { assertSummarySources } from "../control-evaluation/run-work-summary.js";
 
 export function withRunBacklogLock(root, path, work, options = {}) {
@@ -21,6 +23,11 @@ export function withRunBacklogLock(root, path, work, options = {}) {
       if (!run.valid) throw Error("AGDF_RUN_STATE_INVALID");
       const other = pendingRunStepIds(root).find(id => id !== run.meta.run_id);
       if (other) { const error = Error("AGDF_RUN_STEP_RECOVERY_REQUIRED"); error.pending_run_id = other; throw error; }
+      if (options.operationContext && existsSync(pendingRunStepPath(root, run.meta.run_id))) {
+        const pending = readPendingRunStepJournal(root, run.meta.run_id), expected = options.operationContext;
+        if (pending.schema_version !== 3 || pending.operation_id !== expected.operation_id || pending.kind !== expected.kind
+          || pending.target_id !== expected.target_id || pending.request_digest !== expected.request_digest) throw Error('AGDF_RUN_STEP_RECOVERY_REQUIRED');
+      }
       recoverPendingRunStepLocked(root, run.meta.run_id);
       return work();
     });
@@ -37,13 +44,14 @@ export function writeRunWithBacklogLocked(root, path, content, revisionId, optio
   const plan = prepareRunBacklogOrSkip(root, run.meta.run_id, content, path, nextRevisionId);
   const withBacklog = state => ({ ...state, backlog: plan.status, backlog_reason: plan.reason ?? null });
   const guard = () => { if (plan.summary) assertSummarySources(root, plan.summary); };
-  if (!plan.update) return withBacklog(writeRunLocked(path, content, revisionId, { ...options, nextRevisionId,
+  if (!plan.update && !options.operationContext) return withBacklog(writeRunLocked(path, content, revisionId, { ...options, nextRevisionId,
     validateBeforeWrite: () => { options.validateBeforeWrite?.(); guard(); } }));
   // Full gate/presentation evaluation still sees the original sealed Run, under both
   // locks. The journal then rechecks its captured source digests and envelope at commit.
   options.validateBeforeWrite?.();
   return withBacklog(commitRunStepLocked(root, { runId: run.meta.run_id, runPath: path, content,
     revisionId, expectedContent: old, backlog: plan.update, or: null,
+    operationContext: options.operationContext,
     nextRevisionId,
     writeOptions: { ...options, validateBeforeWrite: () => { options.validateDuringTransaction?.(); guard(); } }, afterWrite: options.afterWrite }));
 }

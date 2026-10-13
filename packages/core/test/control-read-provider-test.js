@@ -9,6 +9,33 @@ import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { resolveControlCommandTarget } from '../lib/control-state/approval-command-contract.js';
 import { evaluateQaFollowUp } from '../lib/control-evaluation/qa-follow-up.js';
 import { readRunState } from '../lib/control-evaluation/run-state.js';
+import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
+import { withOwnedFileLock } from '../lib/control-state/run-state-writer.js';
+
+test('SCN-034/035: another presentation lock does not invalidate an unchanged document capture', () => {
+  for (const lockedRun of ['fixture-a', 'fixture-completed']) {
+    const f = fixture();
+    try {
+      let inject = false, applied = false;
+      const reader = createCockpitReader(f.root, { checkpoint(stage) {
+        if (stage === 'captured' && inject && !applied) {
+          applied = true;
+          withOwnedFileLock(join(f.root, '.agdf/control/runs', lockedRun, 'RUN_STATE.md'), () => {});
+        }
+      } });
+      const before = fs.readFileSync(f.runPath, 'utf8');
+      const snapshot = reader.snapshot('fixture-a'); assert.equal(snapshot.state, 'available');
+      const resource = snapshot.data.run.resources.find(row => row.type === 'UR'); assert.ok(resource);
+      inject = true;
+      const document = reader.document(resource.resource_id, snapshot.snapshot_id, 'fixture-a');
+      assert.ok(applied); assert.equal(document.state, 'available', JSON.stringify(document));
+      assert.equal(document.data.document.content, fs.readFileSync(join(f.root, f.documentPath), 'utf8'));
+      assert.equal(fs.readFileSync(f.runPath, 'utf8'), before);
+      fs.writeFileSync(join(f.root, f.documentPath), 'real source change');
+      assert.throws(() => reader.freshness(document.snapshot_id), /source_changed/);
+    } finally { f.close(); }
+  }
+});
 test('SCN-019: async contexts isolate two targets and restore live behavior', async () => {
   const a = fixture(), b = fixture(); try {
     fs.writeFileSync(join(b.root, b.documentPath), 'target b'); const av = captureControl(a.root), bv = captureControl(b.root);

@@ -84,6 +84,20 @@ for (const findings of [[], [{ severity: "warn" }], [{ severity: "revise" }], [{
   }
 }
 assert.equal(PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE, "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$");
+// Canonical completion/recovery copy must render in every registered locale.
+for (const state of [
+  { status: "pass", allowed: ["prepare an explicitly requested VCS handoff"], forbidden: ["repeat completed Run work", "perform VCS or release actions automatically"], next: "Run completed; prepare a VCS handoff only when explicitly requested.", blocker: "none" },
+  { status: "blocked", allowed: ["inspect the inconsistent completion and route it to its existing recovery owner"], forbidden: ["repeat completed work automatically", "claim clean completion", "perform VCS or release actions automatically"], next: "Resolve the inconsistent completed Run obligations before claiming a clean closeout.", blocker: "completed_run_obligations_unconfirmed" },
+]) {
+  for (const locale of Object.keys(sourceRegistry.locales)) {
+    const card = { run_id: "completion-copy", current_gate: "OR", presentation_language: locale, status: state.status,
+      allowed_now: state.allowed, forbidden_now: state.forbidden, blocking_condition: state.blocker,
+      allowed_after_approval: "none", next_step: state.next, quality_outlook: "none" };
+    const rendered = renderOperationalStatusCard(card, { registry: sourceRegistry, humanPresentation: {} });
+    assert.ok(rendered, `${locale} ${state.status}: ${JSON.stringify(validateOperationalStatusCardPreconditions(card, { registry: sourceRegistry }))}`);
+    if (locale === "de") assert.doesNotMatch(rendered.markdown, /inspect the inconsistent|perform VCS or release|Run completed;/u);
+  }
+}
 for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
   assert.equal(canonicalizeLanguageTag(row.omit ? undefined : row.value), "", `${row.id} must fail strict canonicalization`);
 }
@@ -1041,6 +1055,14 @@ assert.equal(validateLocaleRegistry(longLocale).valid, true);
 assert.ok(gateOptions(longLocale, "fr", "TP").every((option) => option.label && option.description));
 longLocale.locales.fr.interaction.reviseLabel += "R";
 assert.equal(validateLocaleRegistry(longLocale).valid, false);
+
+for (const [key, category] of [['approve', 'label'], ['comparison', 'title'], ['commentHelp', 'description']]) {
+  const boundedCard = structuredClone(registry);
+  boundedCard.locales.en.decisionCard[key] = 'X'.repeat(registry.lengthBudgets[category]);
+  assert.equal(validateLocaleRegistry(boundedCard).valid, true, `${key} accepts its existing ${category} budget`);
+  boundedCard.locales.en.decisionCard[key] += 'X';
+  assert.ok(validateLocaleRegistry(boundedCard).errors.includes(`length_budget:en:decisionCard.${key}`));
+}
 
 // IPP: single identity owner — presentation consumes the canonical pattern, no second regex
 {

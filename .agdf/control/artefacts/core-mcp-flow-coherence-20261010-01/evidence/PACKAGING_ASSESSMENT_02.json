@@ -1,0 +1,232 @@
+{
+  "observed_at": "2026-10-10T17:29:12.167779+00:00",
+  "evidence_class": "generated_inventory_verified_report",
+  "profile": {
+    "profile": "copilot-runtime-plugin",
+    "observed": {
+      "files": 229,
+      "bytes": 2000370
+    },
+    "limits": {
+      "files": 217,
+      "bytes": 1820386
+    },
+    "headroom": {
+      "files": -12,
+      "bytes": -179984
+    },
+    "components": {
+      "license": {
+        "files": 1,
+        "bytes": 11357
+      },
+      "hook": {
+        "files": 1,
+        "bytes": 273
+      },
+      "mcp_runtime": {
+        "files": 14,
+        "bytes": 26955
+      },
+      "mcp_declaration": {
+        "files": 1,
+        "bytes": 322
+      },
+      "runtime_support": {
+        "files": 5,
+        "bytes": 45851
+      },
+      "manifest": {
+        "files": 1,
+        "bytes": 526
+      },
+      "runtime": {
+        "files": 178,
+        "bytes": 1488837
+      },
+      "skill": {
+        "files": 13,
+        "bytes": 98861
+      },
+      "locale_registry": {
+        "files": 1,
+        "bytes": 165637
+      },
+      "runtime_contract": {
+        "files": 1,
+        "bytes": 1977
+      },
+      "runtime_contract_module": {
+        "files": 13,
+        "bytes": 159774
+      }
+    },
+    "largest": [
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+        "bytes": 165637
+      },
+      {
+        "destination": "skills/agdf-interaction-locales.json",
+        "bytes": 165637
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+        "bytes": 66815
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+        "bytes": 48941
+      },
+      {
+        "destination": "skills/contracts/interaction.md",
+        "bytes": 48923
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/service.js",
+        "bytes": 44380
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/gate-check.js",
+        "bytes": 40736
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-steps.js",
+        "bytes": 35391
+      }
+    ]
+  },
+  "new_shared_runtime_entries": [
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/closeout-readiness.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "405bd163292123a98e831338c60c2a3d3dfa1322f78b7fe9cfb487aedf145f26",
+      "bytes": 8876,
+      "source": "packages/core/lib/control-evaluation/closeout-readiness.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/evidence-bindings.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "3a05450e6089180f1677b6e97e4b59a8c1d3263c4081947513ec0fc776a05011",
+      "bytes": 8168,
+      "source": "packages/core/lib/control-state/evidence-bindings.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/presentation-decision.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "6c2af67796d8f62a926d3e1a3fa9f3ff7ce7084cbd1105b68f84748971c4d08b",
+      "bytes": 5707,
+      "source": "packages/core/lib/control-state/presentation-decision.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/recording-formats.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "a0c6d89c5eaac18c3f50e8fb8221abeb928fbdbb9c168ffe370364532cfca46a",
+      "bytes": 3033,
+      "source": "packages/core/lib/control-state/recording-formats.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-command-contract.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "1e3513aa70e02ef813974a41e99c74d9d0ea3e8e2bfa93cbb4a465444a0c4713",
+      "bytes": 12249,
+      "source": "packages/core/lib/control-state/run-command-contract.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-command-service.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "43a0fc3654c455fc2322caa43652e1d8b191b9c22bccb52287ffffe98c08ddda",
+      "bytes": 12817,
+      "source": "packages/core/lib/control-state/run-command-service.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operation-identity.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "ddf097912d3c1e0552059ae6abcc4358c5158d75ab55cde70a926613839f30ec",
+      "bytes": 2437,
+      "source": "packages/core/lib/control-state/run-operation-identity.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operation-proof.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "12c4528f23b0f58ec38f1a445a5ebc5ea07e715321847f560b8d63a8446ab2d8",
+      "bytes": 4108,
+      "source": "packages/core/lib/control-state/run-operation-proof.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operation-status.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "3c2201eb416a9d7e362293fe0b82cc4775928a607756e4c1820d2bc31b2b9261",
+      "bytes": 5449,
+      "source": "packages/core/lib/control-state/run-operation-status.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operations.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "f327406e25985ca4a1e06d6eec43c31678cc4933cb3378d4a3430ef89aa01b09",
+      "bytes": 7817,
+      "source": "packages/core/lib/control-state/run-operations.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-owned-outputs.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "50e9dab1b6cc43088b83c780fe7f385c1e2ecea08484793bbab130d152e22999",
+      "bytes": 3714,
+      "source": "packages/core/lib/control-state/run-owned-outputs.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-revision-boundary.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "dd17b8b12283c22cc7bfa23ae274920713336075e30935230941d019ea348317",
+      "bytes": 2008,
+      "source": "packages/core/lib/control-state/run-revision-boundary.js"
+    },
+    {
+      "destination": "runtime/create-agdf/runtime/core/lib/mcp-resource-contract.js",
+      "component": "runtime",
+      "owner": "scripts/sync-plugin-runtime.js",
+      "rule": "generated_exact_runtime",
+      "requirement": "offline exact-version validator and session check",
+      "digest": "36bd76b2754cbb33dc54d7477ffe13172f41ea448f190bcf98364e1baca49c1c",
+      "bytes": 277,
+      "source": "packages/core/lib/mcp-resource-contract.js"
+    }
+  ],
+  "assessment": "Bounded shared command/evidence/receipt/recovery owners and pure resource identities are required by default Core/CLI/MCP; private decision session/service/action contract, cockpit/UI, dependencies and type-only catalog declaration are excluded. Exact enforced inventory only; no speculative headroom. Native host evidence is separate."
+}

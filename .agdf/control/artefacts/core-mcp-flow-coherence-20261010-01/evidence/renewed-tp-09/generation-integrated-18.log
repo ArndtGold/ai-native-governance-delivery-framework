@@ -1,0 +1,14 @@
+Retained diagnostic fixture after unconfirmed cleanup: /var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-5nECN8
+file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-5nECN8/runtime/mcp/generations/0c5c7be60189b2f1945b048143add68ab1022f7231bac261c0ec818af8148cd7/0.14.5/node_modules/@agdf/mcp-server/src/generation.js:32
+      const timer = setTimeout(() => { row.pending.delete(id); reject(new DispatchExecutionError('generation_response_unknown')); }, timeout);
+                                                                      ^
+
+DispatchExecutionError: generation_response_unknown
+    at Timeout._onTimeout (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-5nECN8/runtime/mcp/generations/0c5c7be60189b2f1945b048143add68ab1022f7231bac261c0ec818af8148cd7/0.14.5/node_modules/@agdf/mcp-server/src/generation.js:32:71)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7) {
+  code: 'generation_response_unknown',
+  dispatch: 'unknown'
+}
+
+Node.js v22.22.3

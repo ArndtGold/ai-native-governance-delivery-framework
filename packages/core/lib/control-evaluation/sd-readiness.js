@@ -2,6 +2,9 @@ import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
 
 export const SD_DECISIONS_CONTRACT = "Design Decisions contract: sd-decisions-v1";
+export const SD_DECISION_FORMAT = Object.freeze({ contract: SD_DECISIONS_CONTRACT, section: "Design Decisions",
+  columns: Object.freeze(["Decision", "Timing", "Status", "Resolution", "Owner"]), timings: Object.freeze(["before_sd", "later_tp"]),
+  statuses: Object.freeze(["resolved", "open", "deferred"]) });
 
 // Explicit declared decision state only; semantic completeness still needs review.
 export function evaluateSdDecisionContent(markdown) {
@@ -16,14 +19,14 @@ export function evaluateSdDecisionContent(markdown) {
   const body = content.slice(headings[0].index + headings[0][0].length).split(/^## /mu)[0];
   const lines = body.split("\n").filter(line => line.trim().startsWith("|"));
   const rows = lines.map(line => line.trim().slice(1, -1).split("|").map(cell => cell.trim()));
-  if (rows.length < 3 || rows[0].join("|") !== "Decision|Timing|Status|Resolution|Owner"
+  if (rows.length < 3 || rows[0].join("|") !== SD_DECISION_FORMAT.columns.join("|")
       || !/^\|[\s:|-]+\|$/u.test(lines[1].trim()) || lines.some(line => !line.trim().endsWith("|")))
     return fail("Design Decisions table is empty or malformed");
   const incomplete = value => !value || /^(?:<|tbd\b|todo\b|to confirm\b|none\b)/iu.test(value);
   const open = [], seen = new Set();
   for (const [decision, timing, status, resolution, owner, ...extra] of rows.slice(2)) {
     if (incomplete(decision) || seen.has(decision) || extra.length
-        || !["before_sd", "later_tp"].includes(timing) || !["resolved", "open", "deferred"].includes(status)) {
+        || !SD_DECISION_FORMAT.timings.includes(timing) || !SD_DECISION_FORMAT.statuses.includes(status)) {
       open.push(decision || "Malformed design decision row");
       continue;
     }

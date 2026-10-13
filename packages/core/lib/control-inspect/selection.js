@@ -1,6 +1,6 @@
 // Shared read-only selection policy for CLI and MCP; evaluation never writes control state.
 
-export const CONTROL_INSPECT_OPERATIONS = Object.freeze(["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness"]);
+export const CONTROL_INSPECT_OPERATIONS = Object.freeze(["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "runtime-generations"]);
 export const ALL_ACTIVE_OPERATIONS = Object.freeze(["doctor", "delivery-map"]);
 export const VARIANT_OPERATION = "gate-check";
 export const MODULE_OPERATION = "contract";
@@ -20,10 +20,10 @@ export function validateReadSelection({ operation, allActive = false, contractMo
   if (allActive && !ALL_ACTIVE_OPERATIONS.includes(operation)) {
     throw new ReadSelectionError("all_active", "--all-active is supported only by doctor and delivery-map");
   }
-  if (contractModule !== undefined && operation !== MODULE_OPERATION) {
+  if (contractModule !== undefined && ![MODULE_OPERATION, 'operation-contract', 'operation-status'].includes(operation)) {
     throw new ReadSelectionError("module", "--module is supported only by contract");
   }
-  if (operation === MODULE_OPERATION && !contractModule) {
+  if ([MODULE_OPERATION, 'operation-contract', 'operation-status'].includes(operation) && !contractModule) {
     throw new ReadSelectionError("module", "contract requires --module");
   }
   if (variant !== undefined && operation !== VARIANT_OPERATION) {

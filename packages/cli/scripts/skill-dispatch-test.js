@@ -510,8 +510,8 @@ assert.match(brownfieldContinuation.continuation.instruction, /before CD\+Tests/
 assert.match(brownfieldContinuation.continuation.instruction, /without continue_delivery/u);
 assert.equal(runtimeContractReads.at(-1), "brownfield-analysis");
 // After a recorded Brownfield Analysis the implementation continuation depends on the effective
-// next step equalling the shared CD+Tests constant; run-specific same-gate text still stops it.
-const implementationDispatch = (nextAllowedAction) => createSkillDispatchService({
+// typed operation supplied by policy, independent of presentation wording.
+const implementationDispatch = (nextAllowedAction, nextOperation = { type: "implement_approved_plan" }) => createSkillDispatchService({
   resolveTaskTarget: () => resolved,
   renderTaskTargetOrientation: () => orientation,
   evaluateGateCheck: () => ({
@@ -520,6 +520,7 @@ const implementationDispatch = (nextAllowedAction) => createSkillDispatchService
     blocking_reason: "none",
     missing_approval: "none",
     next_allowed_action: nextAllowedAction,
+    next_operation: nextOperation,
     revision_id: "analysed-revision",
     status_presentation: { markdown: "## AGDF-Statuskarte" },
     status_card: {
@@ -536,8 +537,42 @@ const implementation = implementationDispatch(CD_TESTS_NEXT_ALLOWED_ACTION);
 assert.equal(implementation.outcome, "skill_continuation");
 assert.equal(implementation.continuation.phase, "implementation");
 assert.equal(implementation.continuation.revision_id, "analysed-revision");
-const pendingDecision = implementationDispatch("Choose whether AC-006 stays open under this TP.");
+assert.equal(implementationDispatch("Freigegebenen Plan umsetzen.").continuation.phase, "implementation");
+assert.notEqual(implementationDispatch(CD_TESTS_NEXT_ALLOWED_ACTION, null).continuation?.phase, "implementation");
+const pendingDecision = implementationDispatch("Choose whether AC-006 stays open under this TP.", { type: "human_gate_decision" });
 assert.notEqual(pendingDecision.continuation?.phase, "implementation", "a pending same-gate decision must not start implementation");
+// Reproduce a revision-bound draft action on an already approved source. It must
+// diagnose the wrong route, without publishing an ordinary success/status card.
+for (const language of ["de", "en"]) {
+  for (const sourceGate of ["UR", "PRD", "SD"]) {
+    const revision = "11111111-1111-4111-8111-111111111111";
+    const report = { status: "open", current_gate: "CD+Tests", blocking_reason: "none",
+      missing_approval: "none", next_allowed_action: CD_TESTS_NEXT_ALLOWED_ACTION,
+      doctor_status: "pass", next_operation: { type: "implement_approved_plan" },
+      status_presentation: { markdown: "ordinary status must not mask revision intent" },
+      status_card: { run_id: "delivery-run", runState: { content: `- revision_id: ${revision}`,
+        approvals: new Map([[sourceGate, { status: "approved" }]]) } } };
+    const before = JSON.stringify(report, (_key, value) => value instanceof Map ? [...value] : value);
+    const result = createSkillDispatchService({ resolveTaskTarget: () => resolved,
+      renderTaskTargetOrientation: () => orientation, evaluateGateCheck: () => report,
+      readDeliveryRunInventory: () => [{ run_id: "delivery-run", revision_id: revision }], env: {},
+    })({ ...base, presentationLanguage: language, skillId: "gate-check", targetSource: "continued_target",
+      primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", intake: true, intakeMode: "resume",
+      expectedRevisionId: revision, [`${sourceGate.toLowerCase()}Action`]: "revise" });
+    assert.equal(result.terminal, true);
+    assert.equal(result.presentation, null);
+    assert.equal(result.continuation, null);
+    assert.equal(result.authorizes, false);
+    assert.equal(result.diagnostics[0].code, "draft_revision_route_unavailable");
+    assert.equal(result.diagnostics[0].source_gate, sourceGate);
+    assert.equal(result.diagnostics[0].source_status, "approved");
+    assert.equal(result.recovery.operation_contract, "agdf_revise/source_revision.preview");
+    assert.equal(result.host_action.mode, "transmit_recovery_verbatim_and_stop");
+    assert.match(result.host_action.text, /CD\+Tests/u);
+    assert.match(result.host_action.text, language === "de" ? /Ungültige Dispatcher-Eingabe/u : /Invalid dispatcher input/u);
+    assert.equal(JSON.stringify(report, (_key, value) => value instanceof Map ? [...value] : value), before);
+  }
+}
 let orStatus = "missing";
 const postUatDispatch = createSkillDispatchService({
   resolveTaskTarget: () => resolved,

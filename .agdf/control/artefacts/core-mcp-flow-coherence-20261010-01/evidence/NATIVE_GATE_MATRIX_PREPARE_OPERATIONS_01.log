@@ -1,0 +1,47 @@
+native-en-ur-approve exact presentation prepared
+native-en-ur-request-change exact presentation prepared
+native-en-ur-reject exact presentation prepared
+native-en-ur-text exact presentation prepared
+native-en-prd-approve exact presentation prepared
+native-en-prd-request-change exact presentation prepared
+native-en-prd-reject exact presentation prepared
+native-en-prd-text exact presentation prepared
+native-en-sd-approve exact presentation prepared
+native-en-sd-request-change exact presentation prepared
+native-en-sd-reject exact presentation prepared
+native-en-sd-text exact presentation prepared
+native-en-tp-approve exact presentation prepared
+native-en-tp-request-change exact presentation prepared
+native-en-tp-reject exact presentation prepared
+native-en-tp-text exact presentation prepared
+native-en-qa-approve exact presentation prepared
+native-en-qa-request-change exact presentation prepared
+native-en-qa-reject exact presentation prepared
+native-en-qa-text exact presentation prepared
+native-en-uat-approve exact presentation prepared
+native-en-uat-request-change exact presentation prepared
+native-en-uat-reject exact presentation prepared
+native-en-uat-text exact presentation prepared
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"rejected","reason":"approval_summary_locale_missing","operation_id":"38a34449-7fde-47f4-b3cc-655f8e175be9","request_digest":"sha256:382fc2540dde1addbc5e6b5c165132def5f2007ce8c7cf5248b19ee035359f91","binding":{"target_id":"sha256:3b8b33beddd435868970813e2f7eaaa770801baf1f724ec731614fa96656fe06","run_id":"native-de-ur-approve","expected_revision_id":"d6d84a5c-31e6-4e00-ae2f-a01869d3e074","kind":"presentation.prepare"},"effect":null,"receipt":null,"historical_effect":false,"current":{"available":true,"revision":2,"revision_id":"d6d84a5c-31e6-4e00-ae2f-a01869d3e074","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","blocking_reason":"none","next_operation":{"type":"human_gate_decision","operation_key":"approval.record","actor":"human","effect":"decision","gate":"UR"},"completion":{"status":"pending","gate":"OR","fulfilled":false}},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"authorizes":false,"recovery":null,"family_result":{"schema_version":"1","outcome":"rejected","run_id":"native-de-ur-approve","reason":"approval_summary_locale_missing","recovery":"## Freigabezusammenfassung korrigieren\n\nRun: `native-de-ur-approve` · Gate: `UR` · Revision: `d6d84a5c-31e6-4e00-ae2f-a01869d3e074`\n\nFreigabezusammenfassung korrigieren: `/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-r2Q8jw/governance-target/.agdf/control/artefacts/native-de-ur-approve/UR.md`\nPrüfgrund: `approval_summary_locale_missing`\nErwartetes Feld: `AGDF Approval Summary (de; source=en)`\n\nEs wird keine Freigabe angefragt. Korrigiere die angegebene Zusammenfassungsanforderung auf Deutsch; erhalte sämtliche Inhalte.\n\nErforderlicher Abschnitt: `AGDF Approval Summary (de; source=en)`\n\nArtefakt: [UR.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-r2Q8jw/governance-target/.agdf/control/artefacts/native-de-ur-approve/UR.md>)\n\nErgänze die vollständige lokalisierte Zusammenfassung im verlinkten Artefakt, erfasse eine neue Revision und erstelle eine neue Freigabepräsentation."},"app_capability":"unavailable","app_reason":"host_ui_unsupported"}
++ actual - expected
+
++ 'rejected'
+- 'accepted'
+
+    at file:///private/tmp/agdf-gate-matrix-prepare-operations.mjs:3:784
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///private/tmp/agdf-gate-matrix-prepare-operations.mjs:3:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'rejected',
+  expected: 'accepted',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

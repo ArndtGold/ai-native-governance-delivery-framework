@@ -1,0 +1,63 @@
+TAP version 13
+# [cli-gates] START new-ur
+# [cli-gates] PASS new-ur (6.9s)
+# [cli-gates] START duplicate-prd
+# [cli-gates] PASS duplicate-prd (6.4s)
+# [cli-gates] START bound-ur
+# [cli-gates] PASS bound-ur (11.5s)
+# [cli-gates] START stale-next-step
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+# + actual - expected
+# + 'Resolve the inconsistent completed Run obligations before claiming a clean closeout.'
+# - 'No run work remains; VCS actions require a separate explicit instruction.'
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:324:14
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:257:5
+#     at withFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:50:9)
+#     at withInternalStepRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:254:3)
+#     at staleNextStep (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:318:5)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:450:24
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: true,
+#   code: 'ERR_ASSERTION',
+#   actual: 'Resolve the inconsistent completed Run obligations before claiming a clean closeout.',
+#   expected: 'No run work remains; VCS actions require a separate explicit instruction.',
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/cli/scripts/cli-gate-scenarios-test.js
+not ok 1 - packages/cli/scripts/cli-gate-scenarios-test.js
+  ---
+  duration_ms: 48098.208972
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# interaction presentation tests passed
+# gate rationale and why tests passed
+# scope classification card tests passed
+# task target orientation tests passed
+# Subtest: packages/core/test/interaction-presentation-test.js
+ok 2 - packages/core/test/interaction-presentation-test.js
+  ---
+  duration_ms: 5368.055099
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 48125.028123

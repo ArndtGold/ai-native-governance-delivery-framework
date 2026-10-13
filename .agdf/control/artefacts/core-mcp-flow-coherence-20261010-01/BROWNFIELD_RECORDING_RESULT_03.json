@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "3baa4841-9bf2-43bc-a921-d1f53b1a4fc6",
+  "request_digest": "sha256:5932717b14e6ab29b82331280b7300cacb34c58f446b5559e1dbf39b8d342fc1",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+    "resulting_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "revision": 29,
+    "record": {
+      "step": "route",
+      "source": {
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:21441a87a9a5c76f1d0ec5e8d0e0a380dcea453d137a60404c3c3794a8d3fb37"
+      },
+      "status": "done",
+      "covers": "selected Run scope",
+      "source_set_digest": "sha256:66fc01a181524b18ef8cb85a6c8f442f85ee6976f126959c74055bb32af23181"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "3baa4841-9bf2-43bc-a921-d1f53b1a4fc6",
+    "request_digest": "sha256:5932717b14e6ab29b82331280b7300cacb34c58f446b5559e1dbf39b8d342fc1",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+    "created_at": "2026-10-11T12:55:52.352Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+      "resulting_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+      "revision": 29,
+      "record": {
+        "step": "route",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:21441a87a9a5c76f1d0ec5e8d0e0a380dcea453d137a60404c3c3794a8d3fb37"
+        },
+        "status": "done",
+        "covers": "selected Run scope",
+        "source_set_digest": "sha256:66fc01a181524b18ef8cb85a6c8f442f85ee6976f126959c74055bb32af23181"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 29,
+    "revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "lifecycle": "active",
+    "gate": "PRD",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "reassess_source_analysis",
+      "skill_id": "ux-intent-definition",
+      "analysis": "UX Intent Definition",
+      "operation_key": "reassess_source_analysis",
+      "actor": "agent",
+      "effect": "preparation"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "step": "route",
+    "previous_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+    "revision": "29",
+    "revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+    "current_gate": "PRD",
+    "next_allowed_action": "Reassess UX intent under the current approved UR before dependent source authoring.",
+    "backlog": "updated",
+    "operation_id": "3baa4841-9bf2-43bc-a921-d1f53b1a4fc6",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "3baa4841-9bf2-43bc-a921-d1f53b1a4fc6",
+      "request_digest": "sha256:5932717b14e6ab29b82331280b7300cacb34c58f446b5559e1dbf39b8d342fc1",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+      "created_at": "2026-10-11T12:55:52.352Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+        "resulting_revision_id": "c1aae06b-f769-42f4-a77a-56862710aedf",
+        "revision": 29,
+        "record": {
+          "step": "route",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:21441a87a9a5c76f1d0ec5e8d0e0a380dcea453d137a60404c3c3794a8d3fb37"
+          },
+          "status": "done",
+          "covers": "selected Run scope",
+          "source_set_digest": "sha256:66fc01a181524b18ef8cb85a6c8f442f85ee6976f126959c74055bb32af23181"
+        }
+      }
+    }
+  }
+}

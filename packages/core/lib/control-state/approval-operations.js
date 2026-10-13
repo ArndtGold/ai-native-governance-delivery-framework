@@ -1,3 +1,4 @@
+import { validDecisionMaterial, decisionMaterialVersion } from './presentation-decision.js';
 import { TextDecoder } from "node:util";
 import { APPROVAL_GATES, REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 import { canonicalJson, COOPERATIVE_ASSURANCE, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";
@@ -7,11 +8,21 @@ const BINDING_FIELDS = ["target_id", "run_id", "gate", "expected_revision_id", "
 const EFFECT_FIELDS = ["previous_revision_id", "resulting_revision_id", "revision", "gate", "approval", "artefact_digest", "presentation_digest", "next_gate_after_approval", "allowed_after_approval"];
 
 export function validApprovalReceipt(receipt) {
-  if (!exactObject(receipt, RECEIPT_FIELDS) || receipt.schema_version !== "1" || receipt.action !== "record_gate_approval"
+  const modern = ['2', '3'].includes(receipt.schema_version);
+  if (!exactObject(receipt, modern ? [...RECEIPT_FIELDS, "command_digest"] : RECEIPT_FIELDS) || !["1", "2", "3"].includes(receipt.schema_version) || receipt.action !== "record_gate_approval"
       || !REVISION_ID_PATTERN.test(receipt.operation_id ?? "") || !DIGEST_PATTERN.test(receipt.request_digest ?? "")
-      || !exactObject(receipt.binding, BINDING_FIELDS) || !exactObject(receipt.effect, EFFECT_FIELDS)
+      || !exactObject(receipt.binding, BINDING_FIELDS) || !exactObject(receipt.effect, modern ? [...EFFECT_FIELDS, "material_version", "material_sources", ...(receipt.schema_version === '3' ? ['qa_acceptance'] : [])] : EFFECT_FIELDS)
       || !exactObject(receipt.producer, ["contract", "package_version"])) return false;
   const binding = receipt.binding, effect = receipt.effect;
+  if (modern && (!DIGEST_PATTERN.test(effect.material_version ?? "") || !validDecisionMaterial(effect.material_sources, binding.run_id) || effect.material_version !== decisionMaterialVersion(binding.run_id, binding.gate, effect.material_sources) || receipt.command_digest !== null && !DIGEST_PATTERN.test(receipt.command_digest ?? ""))) return false;
+  if (receipt.schema_version === '3') {
+    const acceptance = effect.qa_acceptance;
+    if (binding.gate !== 'QA' || !exactObject(acceptance, ['kind', 'digest', 'deviation_ids', 'qa_outcome'])
+      || acceptance.kind !== 'accepted_with_deviations' || acceptance.qa_outcome !== 'revise' || !DIGEST_PATTERN.test(acceptance.digest ?? '')
+      || !Array.isArray(acceptance.deviation_ids) || !acceptance.deviation_ids.length || acceptance.deviation_ids.length > 16
+      || new Set(acceptance.deviation_ids).size !== acceptance.deviation_ids.length
+      || !acceptance.deviation_ids.every(id => /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(id ?? ''))) return false;
+  }
   return DIGEST_PATTERN.test(binding.target_id ?? "") && RUN_ID_PATTERN.test(binding.run_id ?? "")
     && APPROVAL_GATES.includes(binding.gate)
     && [binding.expected_revision_id, binding.presentation_id, effect.resulting_revision_id].every((id) => typeof id === "string" && REVISION_ID_PATTERN.test(id))

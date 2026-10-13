@@ -1,0 +1,418 @@
+{
+  "schema_version": "1",
+  "evidence_class": "native_host_model_tool_observation",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "candidate_file": "NATIVE_PROBE_CANDIDATE.json",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "authorizes": false,
+  "host_client": {
+    "name": "codex-mcp-client",
+    "title": "Codex",
+    "version": "0.162.0-alpha.17.2"
+  },
+  "observed_tools": [
+    "mcp__agdf_decision_probe__agdf_approve",
+    "mcp__agdf_decision_probe__agdf_cockpit_read",
+    "mcp__agdf_decision_probe__agdf_dispatch",
+    "mcp__agdf_decision_probe__agdf_inspect",
+    "mcp__agdf_decision_probe__agdf_prepare",
+    "mcp__agdf_decision_probe__agdf_record"
+  ],
+  "contract_result": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "inspect_result",
+    "terminal": false,
+    "authorizes": false,
+    "operation": "operation-contract",
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/node_modules/create-agdf/",
+      "runtime_digest": "bc25d420d1c57a88d32622aef1d0eee4fa9de94d2c68b29b7e125aec1253fe5f",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "report": {
+      "schema_version": "1",
+      "available": true,
+      "group": "agdf_prepare",
+      "kind": "presentation.prepare",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gate": {
+            "enum": [
+              "UR",
+              "PRD",
+              "SD",
+              "TP",
+              "QA",
+              "UAT"
+            ]
+          }
+        },
+        "required": [
+          "gate"
+        ]
+      },
+      "owner": "run-presentation.prepareRunPresentation",
+      "effects": [
+        "create immutable exact presentation"
+      ],
+      "confirmation": "no_gate_approval",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "1"
+          },
+          "presentation_language": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+          },
+          "working_directory": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "target_source": {
+            "enum": [
+              "explicit_target",
+              "continued_target",
+              "current_repository"
+            ]
+          },
+          "primary_target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "target_id": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+          },
+          "expected_revision_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "assurance": {
+            "const": "cooperative_local"
+          },
+          "command": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "presentation.prepare"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "gate": {
+                    "enum": [
+                      "UR",
+                      "PRD",
+                      "SD",
+                      "TP",
+                      "QA",
+                      "UAT"
+                    ]
+                  }
+                },
+                "required": [
+                  "gate"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "payload"
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "presentation_language",
+          "working_directory",
+          "target_source",
+          "primary_target",
+          "target_id",
+          "run_id",
+          "expected_revision_id",
+          "operation_id",
+          "assurance",
+          "command"
+        ]
+      },
+      "retry_class": "inspect_original_operation_after_dispatch",
+      "assurance": "cooperative_local",
+      "reference_limits": {
+        "input_bytes": 65536,
+        "source_file_bytes": 131072,
+        "result_bytes": 1048576
+      },
+      "authorizes": false,
+      "authoring_format": null,
+      "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+      "binding": {
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de"
+      },
+      "current": {
+        "current_gate": "SD",
+        "lifecycle": "active",
+        "status": "open",
+        "missing_approval": "Approval: SD",
+        "next_operation": {
+          "type": "author_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "SD"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "artefacts": [
+          {
+            "type": "UR",
+            "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "status": "approved",
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+            "status": "done",
+            "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "PRD",
+            "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "status": "approved",
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "SD",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "status": "draft",
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "TP",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "Brownfield Analysis",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "CD+Tests",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "CR",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "QA",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          }
+        ],
+        "source_bindings": [
+          {
+            "binding_id": "ed66ad24-826d-4829-ace4-d9e5592e1ea7",
+            "source": {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+              "type": "UR"
+            },
+            "destination": {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "status": "draft",
+              "type": "PRD"
+            },
+            "relationship": {
+              "from": "PRD",
+              "relationship": "derived_from",
+              "to": "UR"
+            }
+          },
+          {
+            "binding_id": "08ae1d6e-bfa2-490f-b464-1d54858480e4",
+            "source": {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "type": "PRD"
+            },
+            "destination": {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "status": "draft",
+              "type": "SD"
+            },
+            "relationship": {
+              "from": "SD",
+              "relationship": "derived_from",
+              "to": "PRD"
+            }
+          }
+        ]
+      }
+    },
+    "presentation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "consume_report_and_continue",
+      "source": "report",
+      "allow_surrounding_text": true,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 9.362,
+      "target_ms": 1.876,
+      "control_ms": 50.294,
+      "render_ms": 0,
+      "total_ms": 61.656
+    },
+    "diagnostics": []
+  },
+  "prepare_result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "c2e7a3b1-8619-4922-8a9d-71c6c562d2a4",
+    "request_digest": "sha256:5baa8adfe48a656b864fc72b700a3c46667e283ecd7fd12ab6602ada85fd84ff",
+    "binding": {
+      "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 2,
+      "presentation_id": "c2e7a3b1-8619-4922-8a9d-71c6c562d2a4",
+      "operation_id": "c2e7a3b1-8619-4922-8a9d-71c6c562d2a4",
+      "request_digest": "sha256:5baa8adfe48a656b864fc72b700a3c46667e283ecd7fd12ab6602ada85fd84ff",
+      "created_at": "2026-10-10T18:15:48.056Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+      "content_digest": "sha256:aecf8df59a132901a0a7a2ce13757e3c401d262b97291e01eb13164ee34921e9",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:79c00f7dc4a3ae60ab026862f23c9ae393c3972b272af923fd1ae0264c8ab330",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:22dd30dc4d9049a450281a995f11d254772e9151d13b20412994681c5b906a85"
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "c2e7a3b1-8619-4922-8a9d-71c6c562d2a4",
+      "operation_id": "c2e7a3b1-8619-4922-8a9d-71c6c562d2a4",
+      "request_digest": "sha256:5baa8adfe48a656b864fc72b700a3c46667e283ecd7fd12ab6602ada85fd84ff",
+      "created_at": "2026-10-10T18:15:48.056Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+      "content_digest": "sha256:aecf8df59a132901a0a7a2ce13757e3c401d262b97291e01eb13164ee34921e9",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:79c00f7dc4a3ae60ab026862f23c9ae393c3972b272af923fd1ae0264c8ab330",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:22dd30dc4d9049a450281a995f11d254772e9151d13b20412994681c5b906a85",
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\nAusgewählter Run: SD: Synthetic saved filter · `native-de-approve`\nAGDF-Statuskarte: Bereit für deine Entscheidung\nAktuelles Gate: Lösungsdesign (`SD`)\nErforderliche Entscheidung: Freigabe des Lösungsdesigns\nNächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option.\n\n## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | SD: Synthetic saved filter · `native-de-approve` |\n| Pfad | ✓ UR · ✓ PRD · ● SD · ○ TP · ○ QA · ○ UAT · ○ OR |\n| Status | offen |\n| Aktuelles Gate | Lösungsdesign (`SD`) |\n| Deine Entscheidung | Approval: SD · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | das Lösungsdesign entwerfen oder überarbeiten<br>die Architektur festlegen<br>Verantwortlichkeiten festlegen<br>die exakte SD-Freigabe anfordern |\n| Aktuell verboten | den Aufgaben- und Testplan erstellen<br>Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten |\n| Wartet auf | Approval: SD |\n\n## Kurzfassung · SD\n\nRun: `native-de-approve` · Gate: `SD` · Revision: `6903677f-eb07-4658-9b8e-353cc7b9d3de`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n## Prüfartefakt · SD\n\nRun: `native-de-approve` · Gate: `SD` · Revision: `6903677f-eb07-4658-9b8e-353cc7b9d3de`\n\nArtefakt: [SD.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target/.agdf/control/artefacts/native-de-approve/SD.md>)\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.\n\nLösungsdesign · SD: Synthetic saved filter · `native-de-approve`\n[UR](.agdf/control/artefacts/native-de-approve/UR.md) · [PRD](.agdf/control/artefacts/native-de-approve/PRD.md) · [SD](.agdf/control/artefacts/native-de-approve/SD.md) · TP (noch nicht erstellt)\nBereit für deine Entscheidung\n\nJetzt freigeben\n`Approval: SD` Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nDanach\nAgent entwirft als Nächstes den Aufgaben- und Testplan. Aufgaben- und Testplan ist die nächste Nutzerentscheidung.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+      "record_digest": "sha256:1cb3f9fffee52943f8ac9abaf209a643e5c8e83e7478858a3588e23089f11520",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available"
+  },
+  "ui_observation": {
+    "side_panel_tabs": [],
+    "inline_rendering": "awaiting_user_observation",
+    "ui_initialize": "not_observed",
+    "human_choice": "not_observed",
+    "permission_ui": "not_observed",
+    "teardown": "not_observed"
+  },
+  "interpretation": "Actual host-discovered model tool and exact bound presentation accepted. App capability available is not visual rendering, human decision, app mediation qualification or production authorization. Full unclassified native events remain in the probe; session metadata is private."
+}

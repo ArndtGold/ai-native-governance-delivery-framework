@@ -38,7 +38,7 @@ function expandVerificationSteps(steps) {
 }
 const sharedGuardrails = guardrails.jobs.verify.steps.filter(step => String(step.run ?? '').includes('scripts/verify-ci.mjs'));
 assert.equal(sharedGuardrails.length, 1, 'Guardrails must execute the complete shared plan once');
-assert.equal(sharedGuardrails[0].run, "node scripts/verify-ci.mjs --lane ${{ matrix.repository_checks && 'repository' || 'runtime' }}");
+assert.equal(sharedGuardrails[0].run, "node scripts/verify-ci.mjs --lane ${{ matrix.repository_checks && 'repository' || 'runtime' }} ${{ matrix.smoke_shard && format('--smoke-shard {0}', matrix.smoke_shard) || '' }}");
 const guardrailPlan = verificationPlan().flatMap(stage => stage.commands.map(command => ({
   run: `${command.tool} ${command.args.join(' ')}`, ...(command.cwd ? { 'working-directory': command.cwd } : {}),
 })));

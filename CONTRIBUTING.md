@@ -170,8 +170,11 @@ before rerunning. Verification never raises payload limits or refreshes evidence
 
 For diagnosis in the current working copy, `npm run verify:ci` runs the same plan in place;
 it does not establish that the staged commit is complete. Node 22 is the local baseline.
-Guardrails also runs Windows with Node 22 and Linux with Node 24. Local success proves only the
-current Node/OS lane; all three GitHub jobs must pass before merge. The repository lane retains
+Guardrails also runs Windows with Node 22 and Linux with Node 24. Windows divides the same npm
+smoke suite into installation, package and governance jobs; together they run every original command
+in order within each partition. Each job retains the 45-minute limit and the complete build and
+package prerequisites. Local success proves only the current Node/OS lane; all five GitHub jobs
+must pass before merge. The repository lane retains
 Pages, community and compatibility checks; both runtime lanes retain package consumers and smoke
 tests. The compatibility-evidence workflow shares the same dependency preparation stages.
 

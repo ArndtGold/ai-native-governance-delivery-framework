@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { npmInvocation } from '../packages/cli/lib/npm-invocation.js';
 
@@ -42,19 +42,49 @@ const stages = [
   { id: 'pages', repository: true, commands: [npm(['--prefix', 'pages', 'run', 'check']), npm(['--prefix', 'pages', 'run', 'test:landing']), npm(['--prefix', 'pages', 'run', 'test:public-documents'])] },
 ];
 
-export function verificationPlan({ lane = 'repository', stage, profile = 'ci' } = {}) {
+export const SMOKE_SHARDS = Object.freeze(['installation', 'package', 'governance']);
+
+// The existing npm smoke-test remains the only test inventory. Windows partitions
+// that same ordered chain at stable suite boundaries; no command is omitted.
+export function smokeShardCommands(shard, repository = root) {
+  if (!SMOKE_SHARDS.includes(shard)) throw new Error(`Unknown smoke shard: ${shard}`);
+  const suite = JSON.parse(readFileSync(join(repository, 'packages/cli/package.json'), 'utf8')).scripts?.['smoke-test'];
+  if (typeof suite !== 'string') throw new Error('Smoke test inventory is missing');
+  const commands = suite.split(' && ');
+  const boundaries = ['npm run test:local-validator', 'npm run test:run-command-flow'].map(command => {
+    if (commands.filter(item => item === command).length !== 1) throw new Error(`Smoke boundary must occur once: ${command}`);
+    return commands.indexOf(command);
+  });
+  if (boundaries[0] <= 0 || boundaries[1] <= boundaries[0]) throw new Error('Smoke boundaries are out of order');
+  const parsed = commands.map(command => {
+    if (/^npm run [a-z0-9:-]+$/.test(command)) return npm(command.split(' ').slice(1), { cwd: 'packages/cli' });
+    if (/^node scripts\/[a-zA-Z0-9./-]+\.m?js$/.test(command)) return node(command.slice(5), [], { cwd: 'packages/cli' });
+    throw new Error(`Unsupported smoke command: ${command}`);
+  });
+  const offsets = [0, ...boundaries, commands.length], index = SMOKE_SHARDS.indexOf(shard);
+  return parsed.slice(offsets[index], offsets[index + 1]);
+}
+
+export function verificationPlan({ lane = 'repository', stage, profile = 'ci', smokeShard, repository = root } = {}) {
   if (!['repository', 'runtime'].includes(lane)) throw new Error(`Unknown verification lane: ${lane}`);
   if (!['ci', 'build', 'prepare'].includes(profile)) throw new Error(`Unknown verification profile: ${profile}`);
   if (profile !== 'ci' && (stage || lane !== 'repository')) throw new Error('Build and prepare profiles require the complete repository profile; no stage or runtime lane override.');
   if (stage && !stages.some(item => item.id === stage)) throw new Error(`Unknown verification stage: ${stage}`);
+  if (smokeShard && (lane !== 'runtime' || profile !== 'ci' || stage)) throw new Error('Smoke shards require the complete runtime CI lane; no stage or build override.');
   // Return independent data so consumers cannot modify the shared policy.
-  return structuredClone(stages.filter(item => (!item.repository || lane === 'repository') && (!stage || item.id === stage) && (profile === 'ci' || item[profile])));
+  const plan = structuredClone(stages.filter(item => (!item.repository || lane === 'repository') && (!stage || item.id === stage) && (profile === 'ci' || item[profile])));
+  if (smokeShard) {
+    const item = plan.find(item => item.id === 'cli-smoke');
+    item.commands = smokeShardCommands(smokeShard, repository);
+    item.label = `cli-smoke (${smokeShard})`;
+  }
+  return plan;
 }
 
-export function runVerification({ lane, stage, profile, execute = spawnSync, repository = root } = {}) {
-  for (const item of verificationPlan({ lane, stage, profile })) {
+export function runVerification({ lane, stage, profile, smokeShard, execute = spawnSync, repository = root } = {}) {
+  for (const item of verificationPlan({ lane, stage, profile, smokeShard, repository })) {
     const started = performance.now();
-    console.log(`[verify-ci] ${item.id}`);
+    console.log(`[verify-ci] ${item.label ?? item.id}`);
     for (const command of item.commands) {
       const invocation = command.tool === 'npm' ? npmInvocation(command.args) : { executable: process.execPath, args: command.args };
       const env = { ...process.env, ...command.env };
@@ -63,7 +93,7 @@ export function runVerification({ lane, stage, profile, execute = spawnSync, rep
       if (result.error) throw result.error;
       if (result.status !== 0) throw new Error(`Verification failed at ${item.id}: ${command.tool} ${command.args.join(' ')} (${result.signal ?? result.status})${item.failureHint ? `\n${item.failureHint}` : ''}`);
     }
-    console.log(`[verify-ci] ${item.id} passed (${((performance.now() - started) / 1000).toFixed(1)}s)`);
+    console.log(`[verify-ci] ${item.label ?? item.id} passed (${((performance.now() - started) / 1000).toFixed(1)}s)`);
   }
 }
 
@@ -72,8 +102,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === realpathSync(process.a
     const options = {};
     for (let i = 2; i < process.argv.length; i += 2) {
       const name = process.argv[i];
-      if (!['--lane', '--stage', '--profile'].includes(name) || !process.argv[i + 1] || Object.hasOwn(options, name.slice(2))) throw new Error('Usage: verify-ci.mjs [--lane repository|runtime] [--stage <id>] [--profile ci|build|prepare]');
-      options[name.slice(2)] = process.argv[i + 1];
+      const key = name === '--smoke-shard' ? 'smokeShard' : name.slice(2);
+      if (!['--lane', '--stage', '--profile', '--smoke-shard'].includes(name) || !process.argv[i + 1] || Object.hasOwn(options, key)) throw new Error('Usage: verify-ci.mjs [--lane repository|runtime] [--stage <id>] [--profile ci|build|prepare] [--smoke-shard installation|package|governance]');
+      options[key] = process.argv[i + 1];
     }
     runVerification(options);
   } catch (error) { console.error(error.message); process.exitCode = 1; }

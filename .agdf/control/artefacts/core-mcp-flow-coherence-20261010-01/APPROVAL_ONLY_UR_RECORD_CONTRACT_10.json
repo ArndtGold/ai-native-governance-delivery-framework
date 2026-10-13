@@ -1,0 +1,849 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "operation-contract",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "schema_version": "1",
+    "available": true,
+    "group": "agdf_record",
+    "kind": "step.record",
+    "payload_schema": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "ur"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "route"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "route": {
+              "enum": [
+                "quick_task",
+                "structured_slice",
+                "structured_delivery"
+              ]
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "reason",
+            "route"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "review"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "decision": {
+              "enum": [
+                "pass",
+                "revise",
+                "block"
+              ]
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "decision"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "evidence"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "covers": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "reason",
+            "covers"
+          ]
+        },
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "step": {
+                  "const": "internal"
+                },
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "digest": {
+                      "type": "string",
+                      "pattern": "^sha256:[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "digest"
+                  ]
+                },
+                "internal_step": {
+                  "const": "UX Intent Definition"
+                },
+                "decision": {
+                  "enum": [
+                    "ready",
+                    "blocked",
+                    "not_applicable"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                },
+                "covers": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "step",
+                "source",
+                "internal_step",
+                "decision"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "step": {
+                  "const": "internal"
+                },
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "digest": {
+                      "type": "string",
+                      "pattern": "^sha256:[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "digest"
+                  ]
+                },
+                "internal_step": {
+                  "enum": [
+                    "Brownfield Analysis",
+                    "CD+Tests",
+                    "TP Review",
+                    "Clean Implementation Review",
+                    "CR"
+                  ]
+                },
+                "decision": {
+                  "enum": [
+                    "pass",
+                    "revise",
+                    "block",
+                    "not_applicable"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                },
+                "covers": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "step",
+                "source",
+                "internal_step",
+                "decision"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "owner": "run-steps.recordRunStep",
+    "effects": [
+      "register bounded actual internal/evidence result; update Run/backlog"
+    ],
+    "confirmation": "authorized_recording",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1"
+        },
+        "presentation_language": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+        },
+        "working_directory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "target_source": {
+          "enum": [
+            "explicit_target",
+            "continued_target",
+            "current_repository"
+          ]
+        },
+        "primary_target": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "target_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+        },
+        "expected_revision_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "assurance": {
+          "const": "cooperative_local"
+        },
+        "command": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "step.record"
+            },
+            "payload": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "ur"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "title"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "route"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "route": {
+                      "enum": [
+                        "quick_task",
+                        "structured_slice",
+                        "structured_delivery"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "reason",
+                    "route"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "review"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "decision": {
+                      "enum": [
+                        "pass",
+                        "revise",
+                        "block"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "decision"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "evidence"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "covers": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "reason",
+                    "covers"
+                  ]
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "step": {
+                          "const": "internal"
+                        },
+                        "source": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "digest": {
+                              "type": "string",
+                              "pattern": "^sha256:[0-9a-f]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "digest"
+                          ]
+                        },
+                        "internal_step": {
+                          "const": "UX Intent Definition"
+                        },
+                        "decision": {
+                          "enum": [
+                            "ready",
+                            "blocked",
+                            "not_applicable"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "covers": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "source",
+                        "internal_step",
+                        "decision"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "step": {
+                          "const": "internal"
+                        },
+                        "source": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "digest": {
+                              "type": "string",
+                              "pattern": "^sha256:[0-9a-f]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "digest"
+                          ]
+                        },
+                        "internal_step": {
+                          "enum": [
+                            "Brownfield Analysis",
+                            "CD+Tests",
+                            "TP Review",
+                            "Clean Implementation Review",
+                            "CR"
+                          ]
+                        },
+                        "decision": {
+                          "enum": [
+                            "pass",
+                            "revise",
+                            "block",
+                            "not_applicable"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "covers": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "source",
+                        "internal_step",
+                        "decision"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "payload"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "presentation_language",
+        "working_directory",
+        "target_source",
+        "primary_target",
+        "target_id",
+        "run_id",
+        "expected_revision_id",
+        "operation_id",
+        "assurance",
+        "command"
+      ]
+    },
+    "retry_class": "inspect_original_operation_after_dispatch",
+    "assurance": "cooperative_local",
+    "reference_limits": {
+      "input_bytes": 65536,
+      "source_file_bytes": 131072,
+      "result_bytes": 1048576
+    },
+    "internal_result_formats": {
+      "UX Intent Definition": {
+        "declaration": "- decision: ready | blocked | not_applicable",
+        "values": [
+          "ready",
+          "blocked",
+          "not_applicable"
+        ],
+        "readiness_value": "ready"
+      },
+      "reviews": {
+        "declaration": "- decision: pass | revise | block | not_applicable",
+        "result_scope": "actual current owner report; no generated judgement or approval"
+      }
+    },
+    "authorizes": false,
+    "authoring_format": {
+      "sections": [
+        "Problem",
+        "Goal",
+        "Affected Users",
+        "Scope",
+        "Non-Goals",
+        "Acceptance Signals",
+        "Existing Source Of Truth",
+        "Risks And Unknowns",
+        "Next Step"
+      ],
+      "readiness_contract": "Requirements clarification: complete",
+      "legacy": "legacy documents remain subject to their existing readiness rules"
+    },
+    "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc"
+    },
+    "current": {
+      "current_gate": "UR",
+      "lifecycle": "active",
+      "status": "open",
+      "missing_approval": "Approval: UR",
+      "next_operation": {
+        "type": "author_gate_artifact",
+        "operation_key": "artefact.author",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "UR"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      },
+      "artefacts": [
+        {
+          "type": "UR",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "Brownfield Review",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "UX Intent Definition",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "superseded"
+        },
+        {
+          "type": "PRD",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "SD",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "TP",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "Brownfield Analysis",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "superseded"
+        },
+        {
+          "type": "CD+Tests",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "CR",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "QA",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        }
+      ],
+      "source_bindings": []
+    }
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.834,
+    "target_ms": 1.15,
+    "control_ms": 338.295,
+    "render_ms": 0,
+    "total_ms": 348.426
+  },
+  "diagnostics": []
+}

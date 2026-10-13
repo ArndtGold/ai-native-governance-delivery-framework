@@ -1,0 +1,38 @@
+{
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "classification": "caller_input_error",
+  "cause": "expected_revision_id and intake_mode belong to intake/resume and are incompatible with continue_delivery; the UUID was valid",
+  "rejected_mcp": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Input validation error: Invalid arguments for tool agdf_dispatch: data must NOT be valid, data must match \"then\" schema, data/intake must be equal to constant, data/intake must be equal to constant"
+      }
+    ],
+    "isError": true
+  },
+  "rejected_cli_diagnostics": [
+    {
+      "code": "dispatch_input_invalid",
+      "field": "expected_revision_id"
+    }
+  ],
+  "corrected_request": {
+    "skill_id": "gate-check",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "continue_delivery": true
+  },
+  "corrected_result": {
+    "terminal": false,
+    "outcome": "skill_continuation",
+    "phase": "post_ur_review",
+    "revision_id": "8eade2ba-6409-4c6f-ae4f-e55b5fb8661e"
+  },
+  "approval_preserved": "d3ce91fa-cb3b-48ee-b87f-6be5369cfc28",
+  "core_change_required": false,
+  "authorizes": false
+}

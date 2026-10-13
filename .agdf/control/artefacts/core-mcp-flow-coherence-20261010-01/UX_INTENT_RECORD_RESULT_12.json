@@ -1,0 +1,142 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "b18bd548-20b8-4e46-984d-f1c810771f10",
+  "request_digest": "sha256:38cbc30e417ab8b4d66dffbd7a1d6034241a300f0fb3f992c205a4d6d03b9989",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+    "resulting_revision_id": "03a91243-9673-4353-8c0f-5586859dcd1f",
+    "revision": 48,
+    "record": {
+      "step": "UX Intent Definition",
+      "source": {
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:8ab71e3edb81a66882f4fd41f14c59d6c9f90e59d8e6f4cff8c7eca506e555d1"
+      },
+      "status": "done",
+      "covers": "approved UR AC-001..017 and renewed cross-surface primary action/revision intent",
+      "source_set_digest": "sha256:09c39ccd30e6e56349c2ec2b1950383a8c2ff9b9100585cae01a788ecd0e2689"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "b18bd548-20b8-4e46-984d-f1c810771f10",
+    "request_digest": "sha256:38cbc30e417ab8b4d66dffbd7a1d6034241a300f0fb3f992c205a4d6d03b9989",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+    "created_at": "2026-10-11T20:33:07.734Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+      "resulting_revision_id": "03a91243-9673-4353-8c0f-5586859dcd1f",
+      "revision": 48,
+      "record": {
+        "step": "UX Intent Definition",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+          "digest": "sha256:8ab71e3edb81a66882f4fd41f14c59d6c9f90e59d8e6f4cff8c7eca506e555d1"
+        },
+        "status": "done",
+        "covers": "approved UR AC-001..017 and renewed cross-surface primary action/revision intent",
+        "source_set_digest": "sha256:09c39ccd30e6e56349c2ec2b1950383a8c2ff9b9100585cae01a788ecd0e2689"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 48,
+    "revision_id": "03a91243-9673-4353-8c0f-5586859dcd1f",
+    "lifecycle": "active",
+    "gate": "PRD",
+    "status": "open",
+    "missing_approval": "Approval: PRD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "gate": "PRD",
+      "skill_id": "gate-check",
+      "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+        ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "step": "internal",
+    "previous_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+    "revision": "48",
+    "revision_id": "03a91243-9673-4353-8c0f-5586859dcd1f",
+    "current_gate": "PRD",
+    "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+    "backlog": "updated",
+    "operation_id": "b18bd548-20b8-4e46-984d-f1c810771f10",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "b18bd548-20b8-4e46-984d-f1c810771f10",
+      "request_digest": "sha256:38cbc30e417ab8b4d66dffbd7a1d6034241a300f0fb3f992c205a4d6d03b9989",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+      "created_at": "2026-10-11T20:33:07.734Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "59f81d3d-0cf3-4e41-99c7-dbd5582f5e13",
+        "resulting_revision_id": "03a91243-9673-4353-8c0f-5586859dcd1f",
+        "revision": 48,
+        "record": {
+          "step": "UX Intent Definition",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+            "digest": "sha256:8ab71e3edb81a66882f4fd41f14c59d6c9f90e59d8e6f4cff8c7eca506e555d1"
+          },
+          "status": "done",
+          "covers": "approved UR AC-001..017 and renewed cross-surface primary action/revision intent",
+          "source_set_digest": "sha256:09c39ccd30e6e56349c2ec2b1950383a8c2ff9b9100585cae01a788ecd0e2689"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,417 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "operation-contract",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "schema_version": "1",
+    "available": true,
+    "group": "agdf_revise",
+    "kind": "source_revision.preview",
+    "payload_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_gate": {
+          "enum": [
+            "UR",
+            "PRD",
+            "SD",
+            "TP"
+          ]
+        },
+        "proposal": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "digest"
+          ]
+        }
+      },
+      "required": [
+        "source_gate",
+        "proposal"
+      ]
+    },
+    "owner": "run-revision.previewSourceRevision",
+    "effects": [
+      "read exact revision impact"
+    ],
+    "confirmation": "no_mutation",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1"
+        },
+        "presentation_language": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+        },
+        "working_directory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "target_source": {
+          "enum": [
+            "explicit_target",
+            "continued_target",
+            "current_repository"
+          ]
+        },
+        "primary_target": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "target_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+        },
+        "expected_revision_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "assurance": {
+          "const": "cooperative_local"
+        },
+        "command": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "source_revision.preview"
+            },
+            "payload": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source_gate": {
+                  "enum": [
+                    "UR",
+                    "PRD",
+                    "SD",
+                    "TP"
+                  ]
+                },
+                "proposal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "digest": {
+                      "type": "string",
+                      "pattern": "^sha256:[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "digest"
+                  ]
+                }
+              },
+              "required": [
+                "source_gate",
+                "proposal"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "payload"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "presentation_language",
+        "working_directory",
+        "target_source",
+        "primary_target",
+        "target_id",
+        "run_id",
+        "expected_revision_id",
+        "operation_id",
+        "assurance",
+        "command"
+      ]
+    },
+    "retry_class": "inspect_original_operation_after_dispatch",
+    "assurance": "cooperative_local",
+    "reference_limits": {
+      "input_bytes": 65536,
+      "source_file_bytes": 131072,
+      "result_bytes": 1048576
+    },
+    "proposal_format": {
+      "schema_version": "1",
+      "fields": [
+        "schema_version",
+        "target_id",
+        "run_id",
+        "expected_revision_id",
+        "operation_id",
+        "source_gate",
+        "reason",
+        "intended_change",
+        "sources",
+        "impact_assessment"
+      ],
+      "impact_assessment": {
+        "fields": [
+          "reviewer",
+          "earliest_source",
+          "upstream",
+          "analyses",
+          "implementation_evidence",
+          "unresolved"
+        ],
+        "upstream": [
+          "type",
+          "path",
+          "digest",
+          "rationale"
+        ],
+        "analyses": [
+          "type",
+          "disposition",
+          "path",
+          "digest",
+          "reason"
+        ],
+        "dispositions": [
+          "retain",
+          "reassess"
+        ],
+        "unresolved": [],
+        "earliest_source": "Must match source_gate; unchanged upstream needs actual rationale. UR requires reassess for both applicable analyses."
+      },
+      "sources": "Use the exact current sources returned by the existing preview boundary, in UR/PRD/SD/TP order; the eligible boundary determines the subset.",
+      "preview": "Read-only preview returns actual impact, preview_digest and the exact confirmation_selector. Do not derive authorization from a preview.",
+      "recovery": "Keep the original UUID, proposal and inspected pending digest/current recovery revision; never submit a new intent to repair the original."
+    },
+    "authorizes": false,
+    "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "9063bc02-1fa7-4d00-95e2-b3dc05e0d44f"
+    },
+    "current": {
+      "current_gate": "CD+Tests",
+      "lifecycle": "active",
+      "status": "open",
+      "missing_approval": "none",
+      "next_operation": {
+        "type": "implement_approved_plan",
+        "skill_id": "gate-check",
+        "operation_key": "implementation.execute",
+        "actor": "agent",
+        "effect": "implementation",
+        "gate": "CD+Tests"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      },
+      "artefacts": [
+        {
+          "type": "UR",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+          "status": "approved",
+          "digest": "sha256:aa34d410513866e46718be708f0b9e245df447c8136b003e46d3dc194e367af4",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "Brownfield Review",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "digest": "sha256:21441a87a9a5c76f1d0ec5e8d0e0a380dcea453d137a60404c3c3794a8d3fb37",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "UX Intent Definition",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "digest": "sha256:dbff510ee4f4dc78b9ff5c0cf78cac0b0b1a75242fce82b7182c923702f90ca2",
+          "association": "current"
+        },
+        {
+          "type": "PRD",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+          "status": "approved",
+          "digest": "sha256:e79d198d9bc6041bb0a855d021271745f104f34ba5e1f724d1d6025867e08a6d",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md",
+          "status": "approved",
+          "digest": "sha256:c9fdc53466a90f59b04a6106ea312848554c08978dcb0818daddc3341ceada1a",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+          "status": "approved",
+          "digest": "sha256:81d3b952710074dd02d5e0c1f77e8a4ac48b0f5155309d07979529ecb86e1ee8",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "Brownfield Analysis",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "digest": "sha256:3f210f456828500e5b6396cc08fa02eee36367d97933ec383243bb4f7301ca11",
+          "association": "current"
+        },
+        {
+          "type": "CD+Tests",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "CR",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "QA",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        }
+      ],
+      "source_bindings": [
+        {
+          "binding_id": "8fbf8211-b0e6-4279-a93e-20fa80fbb264",
+          "source": {
+            "digest": "sha256:aa34d410513866e46718be708f0b9e245df447c8136b003e46d3dc194e367af4",
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+            "type": "UR"
+          },
+          "destination": {
+            "digest": "sha256:e79d198d9bc6041bb0a855d021271745f104f34ba5e1f724d1d6025867e08a6d",
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+            "status": "draft",
+            "type": "PRD"
+          },
+          "relationship": {
+            "from": "PRD",
+            "relationship": "derived_from",
+            "to": "UR"
+          }
+        },
+        {
+          "binding_id": "facc81e1-6bf0-449f-897d-6956f4949e56",
+          "source": {
+            "digest": "sha256:e79d198d9bc6041bb0a855d021271745f104f34ba5e1f724d1d6025867e08a6d",
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+            "type": "PRD"
+          },
+          "destination": {
+            "digest": "sha256:c9fdc53466a90f59b04a6106ea312848554c08978dcb0818daddc3341ceada1a",
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md",
+            "status": "draft",
+            "type": "SD"
+          },
+          "relationship": {
+            "from": "SD",
+            "relationship": "derived_from",
+            "to": "PRD"
+          }
+        },
+        {
+          "binding_id": "8a2bd58c-dbfc-48f7-a57c-277c8c3a9a74",
+          "source": {
+            "digest": "sha256:c9fdc53466a90f59b04a6106ea312848554c08978dcb0818daddc3341ceada1a",
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md",
+            "type": "SD"
+          },
+          "destination": {
+            "digest": "sha256:81d3b952710074dd02d5e0c1f77e8a4ac48b0f5155309d07979529ecb86e1ee8",
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+            "status": "draft",
+            "type": "TP"
+          },
+          "relationship": {
+            "from": "TP",
+            "relationship": "derived_from",
+            "to": "SD"
+          }
+        }
+      ]
+    }
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 7.811,
+    "target_ms": 1.172,
+    "control_ms": 254.589,
+    "render_ms": 0,
+    "total_ms": 263.709
+  },
+  "diagnostics": []
+}

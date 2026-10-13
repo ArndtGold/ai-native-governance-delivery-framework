@@ -1,0 +1,139 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "02b235b5-9c66-4f88-8360-dec645fec423",
+  "request_digest": "sha256:d8c60616b78b1966b1e0c3b8bdb2ad3dac450f2db9eec095a96a960426b46439",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "resulting_revision_id": "e78c09ea-2186-42f8-9341-c36d177e6841",
+    "revision": 44,
+    "record": {
+      "step": "ur",
+      "source": {
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+        "digest": "sha256:da633c3cf6b7faf6b044a5c64e8f4b130c5849c60011fad41bc49d381c656196"
+      },
+      "status": "done",
+      "covers": "selected Run scope",
+      "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "02b235b5-9c66-4f88-8360-dec645fec423",
+    "request_digest": "sha256:d8c60616b78b1966b1e0c3b8bdb2ad3dac450f2db9eec095a96a960426b46439",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "created_at": "2026-10-11T20:02:22.063Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+      "resulting_revision_id": "e78c09ea-2186-42f8-9341-c36d177e6841",
+      "revision": 44,
+      "record": {
+        "step": "ur",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+          "digest": "sha256:da633c3cf6b7faf6b044a5c64e8f4b130c5849c60011fad41bc49d381c656196"
+        },
+        "status": "done",
+        "covers": "selected Run scope",
+        "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 44,
+    "revision_id": "e78c09ea-2186-42f8-9341-c36d177e6841",
+    "lifecycle": "active",
+    "gate": "UR",
+    "status": "open",
+    "missing_approval": "Approval: UR",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "UR"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "step": "ur",
+    "previous_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "revision": "44",
+    "revision_id": "e78c09ea-2186-42f8-9341-c36d177e6841",
+    "current_gate": "UR",
+    "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
+    "backlog": "updated",
+    "operation_id": "02b235b5-9c66-4f88-8360-dec645fec423",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "02b235b5-9c66-4f88-8360-dec645fec423",
+      "request_digest": "sha256:d8c60616b78b1966b1e0c3b8bdb2ad3dac450f2db9eec095a96a960426b46439",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+      "created_at": "2026-10-11T20:02:22.063Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+        "resulting_revision_id": "e78c09ea-2186-42f8-9341-c36d177e6841",
+        "revision": 44,
+        "record": {
+          "step": "ur",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+            "digest": "sha256:da633c3cf6b7faf6b044a5c64e8f4b130c5849c60011fad41bc49d381c656196"
+          },
+          "status": "done",
+          "covers": "selected Run scope",
+          "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69"
+        }
+      }
+    }
+  }
+}

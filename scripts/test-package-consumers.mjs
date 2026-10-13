@@ -84,7 +84,8 @@ for(const key of ['spawn','exec','execSync','execFile','execFileSync','fork']) c
   }
   writeFileSync(join(fixture.root, '.agdf-mcp-owned.json'), JSON.stringify({ schema_version: 1, owner: 'create-agdf:mcp-runtime', version: version, server_digest: digestDirectory(fixture.serverRoot), dispatcher_digest: digestMcpDispatcherPackage(fixture.dispatcherRoot), sdk_digest: digestMcpSdkRuntime(fixture.root), references: [] }));
   for (const modern of [false, true]) await withStdioClient({ command: process.execPath, args: fixture.args, cwd: fixture.root, modern }, async client => {
-    const { tools } = await client.listTools(); assert.deepEqual(tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect']);
+    const { tools } = await client.listTools();
+    assert.deepEqual(tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
     const dispatch = await client.callTool({ name: 'agdf_dispatch', arguments: { skill_id: 'gate-check', presentation_language: 'de', working_directory: fixture.root } });
     assert.equal(dispatch.structuredContent.authorizes, false); assert.equal(dispatch.structuredContent.runtime.provenance_status, 'matched');
     const inspect = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'de', working_directory: fixture.root } });

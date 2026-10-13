@@ -116,7 +116,9 @@ The repository install covers the Core/CLI workspace. The separate MCP lock supp
 also copied by host-compatibility fixtures and used by the CLI smoke suite. Its development
 lock packs `file:../cli`, which must already contain the generated plugin payload at installation.
 
-`npm run build` generates all profiles, checks source and generated gate-contract references,
+`npm run build` installs the separate Control UI lock and builds its MCP resources before
+generating any profiles, so clean checkouts do not depend on ignored local UI build files.
+The same prerequisite runs in the CI and preparation profiles. It then checks source and generated gate-contract references,
 runs the 14 late-gate transition scenarios and deterministic skill evals, and verifies the stored
 host-compatibility snapshot before assembling the npm packages. Any failure returns a nonzero
 exit code and stops before assembly. Guardrails uses these same commands before its installer,
@@ -197,6 +199,11 @@ scenarios, checks the new evidence and community health, and creates or updates 
 workflow-owned `codex/host-compatibility-evidence` branch. Current evidence produces no update.
 Other evidence errors fail the workflow rather than being overwritten. The verified patch is
 available as the `host-compatibility-update` artifact for 14 days.
+
+Runtime-selected module imports need an exact reviewed `dynamic_imports` binding in
+`evals/host-compatibility/manifest.json`. Each binding names the source expression and its
+canonical entrypoints; the source snapshot follows their transitive dependencies. Unknown,
+changed, duplicate or unused bindings fail rather than silently omitting runtime code.
 
 Enable **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create
 and approve pull requests** for automatic PR creation. The workflow uses `GITHUB_TOKEN` and

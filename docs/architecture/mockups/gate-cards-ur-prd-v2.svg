@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1060" viewBox="0 0 1200 1060" role="img" aria-labelledby="title desc">
+  <title id="title">Produktnahe Gate-Karten für UR und PRD</title>
+  <desc id="desc">Zwei große Karten zeigen unterschiedliche Inhaltskomponenten für Ziel und Umfang sowie Produktverhalten und Akzeptanzkriterien.</desc>
+  <style>
+    .bg { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .soft { fill: #f1f3f3; }
+    .white { fill: #ffffff; stroke: #dde0e0; stroke-width: 1.5; }
+    .effect { fill: #e8f5f3; }
+    .chip { fill: #e7eeee; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrow { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 28px Inter, Arial, sans-serif; }
+    .status { fill: #66686a; font: 400 16px Inter, Arial, sans-serif; }
+    .label { fill: #66686a; font: 700 14px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 17px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 17px Inter, Arial, sans-serif; }
+    .effectText { fill: #185e58; font: 700 16px Inter, Arial, sans-serif; }
+    .button { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 16px Inter, Arial, sans-serif; }
+    .link { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; }
+    .binding { fill: #4b4d50; font: 600 14px "JetBrains Mono", Consolas, monospace; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="bg" width="1200" height="1060"/>
+  <text class="title" x="40" y="50">Gate-spezifische Karten · UR und PRD</text>
+  <text class="subtitle" x="40" y="80">Gleicher Rahmen, andere Entscheidungskomponenten</text>
+
+  <g transform="translate(40 112)">
+    <rect class="card" width="1120" height="430" rx="20"/>
+    <text class="eyebrow" x="30" y="40">ZIEL UND UMFANG KLÄREN</text>
+    <text class="heading" x="30" y="78">Haben wir deinen Wunsch richtig verstanden?</text>
+    <text class="status" x="30" y="108">Fassung 2 · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="132" width="1068" height="150" rx="14"/>
+    <text class="label" x="48" y="162">ZIEL</text>
+    <text class="strong" x="48" y="194">Eine klare Meldung bei falschen Zugangsdaten.</text>
+    <rect class="white" x="48" y="216" width="480" height="50" rx="10"/>
+    <text class="label" x="66" y="246">IM UMFANG</text>
+    <text class="body" x="172" y="246">Anmeldung und Fehlerrückmeldung</text>
+    <rect class="white" x="548" y="216" width="520" height="50" rx="10"/>
+    <text class="label" x="566" y="246">AUSSERHALB</text>
+    <text class="body" x="686" y="246">Passwort-Reset und Registrierung</text>
+
+    <rect class="effect" x="26" y="296" width="1068" height="54" rx="12"/>
+    <text class="effectText" x="48" y="329">Danach: Brownfield Review und Routenwahl · Umsetzung bleibt gesperrt</text>
+
+    <rect class="button" x="30" y="368" width="170" height="44" rx="9"/>
+    <text class="buttonText" x="67" y="396">So stimmt es</text>
+    <text class="link" x="230" y="396">Anforderung lesen</text>
+    <text class="link" x="425" y="396">Änderung besprechen</text>
+    <text class="binding" x="824" y="396">› Technische Bindung</text>
+  </g>
+
+  <g transform="translate(40 566)">
+    <rect class="card" width="1120" height="430" rx="20"/>
+    <text class="eyebrow" x="30" y="40">VERHALTEN FESTLEGEN</text>
+    <text class="heading" x="30" y="78">Soll das Ergebnis so funktionieren?</text>
+    <text class="status" x="30" y="108">Fassung 1 · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="132" width="1068" height="150" rx="14"/>
+    <text class="label" x="48" y="162">VORGESCHLAGENES VERHALTEN</text>
+    <text class="strong" x="48" y="194">Die Meldung erscheint direkt am Formular und verrät kein vorhandenes Konto.</text>
+    <rect class="chip" x="48" y="218" width="230" height="38" rx="19"/>
+    <text class="body" x="70" y="243">AC-001 · verständlich</text>
+    <rect class="chip" x="294" y="218" width="250" height="38" rx="19"/>
+    <text class="body" x="316" y="243">AC-002 · datensparsam</text>
+    <rect class="chip" x="560" y="218" width="288" height="38" rx="19"/>
+    <text class="body" x="582" y="243">AC-003 · barrierefrei</text>
+    <text class="label" x="874" y="243">OFFENE ENTSCHEIDUNGEN: 0</text>
+
+    <rect class="effect" x="26" y="296" width="1068" height="54" rx="12"/>
+    <text class="effectText" x="48" y="329">Danach: Lösungsentwurf erstellen · TP und Umsetzung bleiben gesperrt</text>
+
+    <rect class="button" x="30" y="368" width="170" height="44" rx="9"/>
+    <text class="buttonText" x="67" y="396">So stimmt es</text>
+    <text class="link" x="230" y="396">Verhalten lesen</text>
+    <text class="link" x="405" y="396">Änderung besprechen</text>
+    <text class="binding" x="824" y="396">› Technische Bindung</text>
+  </g>
+
+  <text class="footer" x="40" y="1032">Produkt-Mock v2 · qualifizierter nativer Entscheidungsweg exemplarisch · Chat-Fallback separat dargestellt</text>
+</svg>

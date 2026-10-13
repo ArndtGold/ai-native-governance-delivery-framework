@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1320" viewBox="0 0 1200 1320" role="img" aria-labelledby="title desc">
+  <title id="title">Vertikaler QA-Abweichungsfluss bis UAT</title>
+  <desc id="desc">Drei große vertikale Karten unterscheiden technische QA-Revision, gebundene menschliche Abweichungsannahme und UAT mit sichtbarer übernommener Abweichung.</desc>
+  <style>
+    .bg { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .warn { fill: #fff1e8; }
+    .accept { fill: #fff8df; }
+    .success { fill: #e8f5f3; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrowWarn { fill: #9a3412; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .eyebrowAccept { fill: #8a5a00; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .eyebrowSuccess { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 27px Inter, Arial, sans-serif; }
+    .label { fill: #66686a; font: 700 14px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 17px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 17px Inter, Arial, sans-serif; }
+    .mono { fill: #4b4d50; font: 700 15px "JetBrains Mono", Consolas, monospace; }
+    .buttonWarn { fill: #9a3412; }
+    .buttonAccept { fill: #9a6a00; }
+    .buttonSuccess { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 16px Inter, Arial, sans-serif; }
+    .arrow { fill: #0f766e; font: 700 42px Inter, Arial, sans-serif; text-anchor: middle; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="bg" width="1200" height="1320"/>
+  <text class="title" x="40" y="50">QA-Abweichung bleibt bis UAT sichtbar</text>
+  <text class="subtitle" x="40" y="80">Drei getrennte Aussagen, drei getrennte Bestätigungen und Wirkungen</text>
+
+  <g transform="translate(80 118)">
+    <rect class="card" width="1040" height="330" rx="20"/>
+    <rect class="warn" x="22" y="22" width="300" height="286" rx="14"/>
+    <text class="eyebrowWarn" x="44" y="58">TECHNISCHE QA</text>
+    <text class="heading" x="44" y="96">Entscheidung: REVISE</text>
+    <text class="body" x="44" y="138">Host-Livetest fehlt.</text>
+    <text class="body" x="44" y="168">Andere Tests bestanden.</text>
+    <text class="body" x="44" y="198">Kein gewöhnliches Approve.</text>
+    <rect class="buttonWarn" x="44" y="238" width="220" height="46" rx="9"/>
+    <text class="buttonText" x="78" y="267">Befund bearbeiten</text>
+    <text class="label" x="360" y="58">SICHERER NÄCHSTER WEG</text>
+    <text class="strong" x="360" y="94">Befund beheben und QA erneut ausführen</text>
+    <text class="body" x="360" y="132">Nur wenn die Qualitätsregeln die Abweichung ausdrücklich erlauben,</text>
+    <text class="body" x="360" y="162">darf Core eine gebundene Annahme mit vollständigem Material vorlegen.</text>
+    <text class="label" x="360" y="210">NICHT ERLAUBT</text>
+    <text class="body" x="360" y="244">`revise` als technischen Pass darstellen oder UAT ohne Grundlage öffnen.</text>
+  </g>
+
+  <text class="arrow" x="600" y="500">↓</text>
+
+  <g transform="translate(80 536)">
+    <rect class="card" width="1040" height="330" rx="20"/>
+    <rect class="accept" x="22" y="22" width="996" height="286" rx="14"/>
+    <text class="eyebrowAccept" x="44" y="58">MENSCHLICHE ABWEICHUNGSANNAHME</text>
+    <text class="heading" x="44" y="96">Mit dieser Abweichung zu UAT weitergehen?</text>
+    <text class="label" x="44" y="134">SCOPE</text>
+    <text class="body" x="126" y="134">fehlender Livetest für genau einen Host</text>
+    <text class="label" x="44" y="166">RISIKO</text>
+    <text class="body" x="126" y="166">native Darstellung dort unbestätigt</text>
+    <text class="label" x="44" y="198">FOLGEARBEIT</text>
+    <text class="body" x="164" y="198">vor Release nachholen · Owner: Host-Qualifizierung</text>
+    <text class="strong" x="44" y="238">Technische QA bleibt `revise`; nur UAT-Vorbereitung wird erlaubt.</text>
+    <rect class="buttonAccept" x="44" y="258" width="272" height="46" rx="9"/>
+    <text class="buttonText" x="69" y="287">Mit Abweichung freigeben</text>
+    <text class="mono" x="782" y="287">Approval: QA</text>
+  </g>
+
+  <text class="arrow" x="600" y="918">↓</text>
+
+  <g transform="translate(80 954)">
+    <rect class="card" width="1040" height="300" rx="20"/>
+    <rect class="success" x="22" y="22" width="996" height="256" rx="14"/>
+    <text class="eyebrowSuccess" x="44" y="58">ERGEBNIS ABNEHMEN</text>
+    <text class="heading" x="44" y="96">Erfüllt das Ergebnis trotz sichtbarer Restgrenze den Wunsch?</text>
+    <text class="strong" x="44" y="138">Geliefert:</text>
+    <text class="body" x="142" y="138">vereinbartes Verhalten und belegte Tests</text>
+    <text class="strong" x="44" y="170">Übernommen:</text>
+    <text class="body" x="166" y="170">fehlender Host-Livetest · Release bis Exit-Kriterium gesperrt</text>
+    <text class="body" x="44" y="210">Zustimmung erlaubt OR und Closeout, aber keine automatische VCS- oder Release-Aktion.</text>
+    <rect class="buttonSuccess" x="44" y="226" width="180" height="42" rx="9"/>
+    <text class="buttonText" x="88" y="253">Abnehmen</text>
+    <text class="mono" x="802" y="253">Approval: UAT</text>
+  </g>
+
+  <text class="footer" x="40" y="1294">Produkt-Mock v2 · vertikale Lesereihenfolge für Dokumentation und schmale Hostflächen</text>
+</svg>

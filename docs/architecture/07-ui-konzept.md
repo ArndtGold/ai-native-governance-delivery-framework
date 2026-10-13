@@ -158,6 +158,71 @@ gebundene Entscheidungsoperation nachvollziehbar.
 | Qualität prüfen | Sind die nötigen Prüfungen belegt und offene Mängel geklärt? | QA: Entscheidung durch die dafür zuständige Prüfungsinstanz |
 | Ergebnis abnehmen | Erfüllt das Ergebnis deinen vereinbarten Wunsch? | UAT: menschliche Abnahme |
 
+### Durchgehender Vertrag für alle menschlichen Gates
+
+Die kanonischen menschlichen Gates sind `UR`, `PRD`, `SD`, `TP`, `QA` und `UAT`. Ein
+strukturierter Run durchläuft sie in dieser Reihenfolge; kompakte oder anders geroutete Runs
+zeigen nur die tatsächlich anwendbaren Gates. Brownfield Review, Mode/Slice Decision,
+Brownfield Analysis, CD+Tests, Code Review und OR bleiben interne Analyse-, Nachweis- oder
+Abschlussschritte. Sie werden nicht als zusätzliche menschliche Freigaben dargestellt.
+
+Jede menschliche Gate-Karte besitzt dieselbe Anatomie:
+
+1. **Orientierung:** Vorhaben, verständliche Aufgabe, Gate in Details, Fassung und Revision.
+2. **Entscheidungsgrundlage:** gate-spezifische Zusammenfassung, genaue Quelle und offene Punkte.
+3. **Wirkung:** Was die Zustimmung als Nächstes erlaubt und was weiterhin ausdrücklich gesperrt bleibt.
+4. **Entscheidungsweg:** verfügbare Leseaktion, qualifizierte native Aktion oder exakte Chat-Antwort.
+5. **Bindung:** Run, Gate, Revision, relevante Digests und Identität der vorbereiteten Präsentation.
+6. **Ergebnis:** bestätigte Speicherung, Revision und nächste tatsächliche Verpflichtung ohne
+   Behauptung automatisch gestarteter Arbeit.
+
+![Anatomie einer menschlichen Gate-Karte](mockups/gate-card-anatomy-v2.svg)
+
+Der stabile Rahmen enthält nicht für jedes Gate denselben generischen Mittelteil. Die folgenden
+Produkt-Mocks zeigen die jeweils passende fachliche Komponente:
+
+![Gate-Karten für UR und PRD](mockups/gate-cards-ur-prd-v2.svg)
+
+![Gate-Karten für SD und TP](mockups/gate-cards-sd-tp-v2.svg)
+
+![Gate-Karten für QA und UAT](mockups/gate-cards-qa-uat-v2.svg)
+
+| Gate | Sichtbare Leitfrage | Zwingende Entscheidungszusammenfassung | Zustimmung erlaubt | Bleibt gesperrt |
+|---|---|---|---|---|
+| `UR` | Haben wir deinen Wunsch richtig verstanden? | Ziel, Umfang, Ausschlüsse, betroffene Nutzer und offene Klärungen | Brownfield Review und proportionale Routenwahl | PRD-Tiefe, Umsetzung, QA und Release |
+| `PRD` | Soll das Ergebnis so funktionieren? | Produktverhalten, Akteure, Kriterien, Produktentscheidungen, UX-Auswirkungen und offene Punkte | Lösungsentwurf für die bestätigten Kriterien | TP, Umsetzung, QA und Release |
+| `SD` | Ist dieser Lösungsweg passend und nachvollziehbar? | Architektur, Owner, Wiederverwendung, Schnittstellen, Alternativen, Risiken und Fallbacks | Task- und Testplan für den bestätigten Entwurf | Umsetzung, QA und Release |
+| `TP` | Sind diese Schritte geeignet, die vereinbarte Lösung umzusetzen? | Aufgaben, Kriterien- und Designabdeckung, Tests, Nachweise, Reihenfolge, Owner und Risiken | Brownfield Analysis; danach Umsetzung nur bei deren erfolgreichem Ergebnis | Ungeprüfte Umsetzung, QA und Release |
+| `QA` | Sind Qualität und Nachweise ausreichend? | Technische QA-Entscheidung, Test- und Reviewstand, Befunde, Restgrenzen und gegebenenfalls exakt vorgelegte Abweichung | UAT bei technischem Pass oder ausdrücklich zulässiger gebundener Abweichungsannahme | Behandlung eines `revise` als Pass, Release und automatische VCS-Aktionen |
+| `UAT` | Erfüllt das Ergebnis deinen vereinbarten Wunsch? | Geliefert, bewusst nicht geliefert, Akzeptanzkriterien, Restrisiken und übernommene QA-Abweichungen | OR und Closeout | Automatischer Commit, Push, PR oder Release |
+
+Die positive native Aktion folgt der Aufgabe: „So stimmt es“ für UR, PRD, SD und TP,
+„Freigeben“ für einen entscheidungsreifen QA-Pass und „Abnehmen“ für UAT. Die kanonische
+Chat-Antwort bleibt `Approval: <Gate>`. `revise`, `decline` und `cancel` sind getrennte
+bewusste Ergebnisse; sie erteilen keine Berechtigung und werden nicht aus einer Diskussion,
+einem Schließen der App oder ausbleibender Antwort abgeleitet.
+
+MCP-App-UI und Portable Markdown verwenden dieselbe Gate-Matrix. Das App-Layout darf Inhalte
+gliedern oder technische Bindungen nachrangig zeigen. Portable Markdown ordnet dieselben
+Inhalte linear und zeigt die exakte Antwort unmittelbar, wenn das Gespräch der einzige
+Entscheidungsweg ist. Eine geänderte Quelle oder Revision entwertet beide Darstellungen
+gleichermaßen und verlangt eine neue Präsentation.
+
+#### QA-Abweichung und Übergabe an UAT
+
+QA ist das einzige menschliche Gate mit zwei fachlich verschiedenen positiven Situationen:
+gewöhnliche Zustimmung zu einem technischen QA-Pass und ausdrückliche Annahme einer dafür
+zugelassenen Abweichung. Die zweite Situation ändert die technische QA-Entscheidung nicht.
+Die Karte muss Scope, Risiko, Folgen, Folgearbeit und Owner der Abweichung vollständig zeigen.
+UAT und OR übernehmen diese Angaben sichtbar.
+
+![QA-Abweichungsannahme und Übergabe an UAT](mockups/qa-deviation-uat-v2.svg)
+
+Die [Quelldokumentation der Produkt-Mocks](mockups/human-gate-mocks-v2.md) beschreibt Zweck,
+Grenzen und Beispieldaten. Die SVGs konkretisieren Informationshierarchie und Zustände; sie
+belegen weder fertige Komponenten noch einen qualifizierten nativen Entscheidungsweg. Die
+frühere [v1-Systemübersicht](mockups/human-gate-mocks-v1.md) bleibt historisch nachvollziehbar.
+
 Im schmalen Ablaufbalken können die Kurzformen „Ziel klären“, „System untersuchen“,
 „Verhalten festlegen“, „Lösung planen“, „Umsetzen“, „Prüfen“ und „Abnehmen“ stehen. Der
 Orientierungskopf nennt die vollständige aktuelle Aufgabe. „Umsetzungsschritte prüfen“ ist
@@ -166,15 +231,15 @@ kommen aus dem ausgewählten Run; der Balken führt keine zusätzlichen Gates ei
 keine erforderliche Entscheidung aus. Technische Werte und gespeicherte Artefakte werden
 durch die verständlichen Anzeigenamen nicht umbenannt.
 
-Die Aktionen heißen im Zielkonzept „Anforderung lesen“, „So stimmt es“ und „Änderung nötig“.
-Bei Verhalten und Lösung verwendet der Lesezugang den passenden Dokumentnamen. Vor einer
-Bestätigung muss die Karte klar benennen, welche Fassung angenommen wird und was danach
-erlaubt ist. „So stimmt es“ bedeutet die bewusste Freigabe genau dieser Fassung. „Änderung
-nötig“ führt zur Klärung des Änderungswunsches. Die Beschriftungen aktivieren keine technisch
-nicht verfügbare Aktion. Die aktuellen Mocks zeigen deshalb den deaktivierten Bestätigungsweg
-und verweisen auf den bestehenden Chat. Die exakte Antwortformel ist erst in den
-Entscheidungsdetails sichtbar. Nach bestätigter Speicherung lautet die Rückmeldung zum
-Beispiel „Anforderung bestätigt · Fassung 2“; im Verlauf wird dieselbe Bezeichnung verwendet.
+Die Leseaktion folgt dem Gegenstand: „Anforderung lesen“, „Verhalten lesen“, „Lösung lesen“,
+„Plan lesen“, „QA-Bericht lesen“ oder „Ergebnis ansehen“. „Änderung nötig“ führt zur Klärung
+des Änderungswunsches und erfasst keine Zustimmung. Vor einer Bestätigung muss die Karte klar
+benennen, welche Fassung angenommen wird und was danach erlaubt ist. Die Beschriftungen
+aktivieren keine technisch nicht verfügbare Aktion. Ist der native Bestätigungsweg nicht
+qualifiziert und der Chat der einzige Entscheidungsweg, steht die exakte Antwortformel direkt
+beim Handlungshinweis. Bei verfügbarem qualifiziertem Klickweg darf sie in Details stehen.
+Nach bestätigter Speicherung lautet die Rückmeldung zum Beispiel „Anforderung bestätigt ·
+Fassung 2“; im Verlauf wird dieselbe Bezeichnung verwendet.
 
 ## Gestaltungsgrundlage des vorhandenen Cockpits
 
@@ -259,10 +324,12 @@ Eine Rückkehr zum Run oder zur Entscheidung ist davon getrennte Navigation inne
 Die aktuellen Mockups zeigen einen ausdrücklich unqualifizierten Klickweg. Das Lesen ist
 verfügbar; „So stimmt es“ bleibt deaktiviert. Die Oberfläche erklärt: „Bestätigung hier noch
 nicht verfügbar. Entscheide im bestehenden Codex-Chat.“ Die erforderliche exakte Antwort
-steht unter „Details zur Entscheidung“; bei einer Anforderung ist sie weiterhin `Approval: UR`.
-Sie erfolgt im vorhandenen Codex-Chat und wird über die bestehende Bindung geprüft. Die neue
-Beschriftung ändert die Antwortregel nicht. Das Anzeigen der Formel erzeugt keine Antwort
-und keine Freigabe. Änderungswünsche und Ablehnung werden
+steht in den gerenderten v4-Bildern noch unter „Details zur Entscheidung“; bei einer Anforderung
+ist sie weiterhin `Approval: UR`. Für die nächste Serie steht sie unmittelbar beim Hinweis
+auf das Gespräch, solange dieses der einzige verfügbare Entscheidungsweg ist. Die Antwort
+erfolgt im vorhandenen Codex-Chat und wird über die bestehende Bindung geprüft. Die neue
+Position ändert die Antwortregel nicht. Das Anzeigen der Formel erzeugt keine Antwort und
+keine Freigabe. Änderungswünsche und Ablehnung werden
 im bestehenden Gespräch geklärt. Der derzeitige UI-Code rendert nur den Freigabebutton;
 separate Klickaktionen für Änderung und Ablehnung sind eine noch umzusetzende Ergänzung.
 
@@ -307,6 +374,55 @@ Platzhalter für das bestehende Codex-Gespräch. Der Platzhalter ist keine zusä
 Die große Appfläche ist im Diagramm seitlich angeordnet; ihre tatsächliche Position bestimmt
 der Host. Der Ablaufbalken fasst den beispielhaften strukturierten Weg zusammen.
 Die konkrete Folge von Schritten und Gates kommt weiterhin aus dem ausgewählten Run.
+
+Die fünf gerenderten Bilder zeigen ausschließlich das Format MCP-App-UI. Sie sind kein
+vollständiger Nachweis des Zwei-Format-Konzepts. Die folgende Portable-Markdown-Darstellung
+verwendet deshalb denselben Entscheidungsgegenstand wie die erste App-Ansicht. Sie ist kein
+sechster fachlicher Zustand, sondern der zweite Renderer derselben gebundenen Präsentation.
+
+### Dieselbe Entscheidung als Portable Markdown
+
+Wenn MCP-App-UI nicht verfügbar oder nicht bestätigt angezeigt ist oder der Host ausdrücklich
+Portable Markdown bevorzugt, muss der vollständige Entscheidungsgegenstand im Gespräch
+verständlich bleiben. Das folgende Strukturbeispiel zeigt die inhaltliche Entsprechung zur
+ersten App-Ansicht; reale Revisionen und Digests werden vollständig aus der gebundenen
+Präsentation übernommen.
+
+```text
+## Anmeldung verbessern
+
+**Aufgabe:** Ziel und Umfang klären
+**Fassung:** 1 · Entscheidung ausstehend
+**Du bist dran:** Prüfe Ziel und Umfang dieser Fassung.
+
+### Haben wir deinen Wunsch richtig verstanden?
+
+- Ziel: Klare Meldung bei falschen Zugangsdaten.
+- Außerhalb: Passwort-Reset und Registrierung.
+- Danach erlaubt: Bestehendes System untersuchen.
+- Noch nicht erlaubt: Umsetzung.
+
+### Zulässige Antwort
+
+Antworte im bestehenden Gespräch exakt mit:
+`Approval: UR`
+
+### Bindung
+
+- Run: `<run-id>`
+- Gate: `UR`
+- Revision: `<vollständige revision-id>`
+- Dokument-Digest: `sha256:<vollständiger digest>`
+```
+
+![Vergleich von großer MCP-App, kompakter MCP-App und Portable Markdown](mockups/presentation-formats-responsive-v2.svg)
+
+Portable Markdown zeigt die exakte Antwort unmittelbar, wenn das Gespräch der einzige
+verfügbare Entscheidungsweg ist. Es darf sie nicht ausschließlich hinter einer
+hostabhängigen Aufklappfunktion verbergen. Die menschenverständliche Aufgabe führt weiterhin;
+technische Bindungsangaben stehen danach kompakt und vollständig. Unterstützt eine konkrete
+Entscheidung ausschließlich einen stärker abgesicherten Eingabekanal, beschreibt Portable
+Markdown die Blockade und den erforderlichen Weg, statt eine nutzbare Chat-Antwort vorzutäuschen.
 
 ### Ansicht 1 Die Anforderung erscheint im Gespräch
 
@@ -405,6 +521,32 @@ Aufgabe. Suche und Auswahl bleiben bei der Rückkehr erhalten. Der Wechsel öffn
 neuen Codex-Chat und ersetzt keinen laufenden Auftrag. Die Verlaufsvorschau im Hub
 ist dieselbe fachliche Historie, die im Run-Cockpit über „Verlauf“ erreichbar ist.
 
+### Produkt-Mock-Serie v2
+
+Die v4-Bilder bleiben als gerenderter Stand vom 12. Oktober 2026 erhalten. Die Produkt-Mock-
+Serie v2 übernimmt ihre visuelle Richtung, trennt aber gemeinsame Kartenanatomie,
+gate-spezifische Inhalte, Darstellungsformate und Recovery-Zustände.
+
+| Ansicht oder Zustand | Umsetzung in v2 |
+|---|---|
+| Alle App-Ansichten | Der sichtbare Hostname stammt aus der bestätigten Hostidentität. Ohne geeigneten Anzeigenamen lautet der neutrale Text „bestehendes Gespräch“ beziehungsweise „Host“. Codex darf als beschriftetes Beispiel erscheinen, aber nicht fest in die gemeinsame App-Terminologie eingebaut werden. |
+| Kompakte Entscheidungskarte | Die Karte priorisiert Frage, Fassung, Wirkung und genau eine verfügbare Hauptaktion. Ein deaktivierter Entscheidungsbutton konkurriert nicht optisch mit „Anforderung lesen“. Ist der Chat der einzige Entscheidungsweg, steht die exakte zulässige Antwort unmittelbar beim Hinweis auf das Gespräch. |
+| Große Appfläche | Der Ablaufbalken wird aus der tatsächlichen Route des Runs gebildet. Nicht anwendbare Schritte werden nicht als erwartete Gates dargestellt. Bei vielen Schritten bleibt die aktuelle Aufgabe lesbar, ohne sieben feste Phasen vorauszusetzen. |
+| Dokument und Kontext | „Kontext für Codex“ wird hostabhängig oder neutral beschriftet. Die Ansicht unterscheidet angeforderte Übergabe, bestätigte Kontextaufnahme und eine tatsächlich gesendete Nachricht. |
+| Bestätigung und Fortsetzung | „Stand aktualisieren“ wird nur gezeigt, wenn eine bewusste Neuladung erforderlich ist, und heißt dann „Aktuellen Stand laden“. Ein passiver Wartezustand besitzt keine dominante Scheinaktion und behauptet keine laufende KI-Arbeit. |
+| Hub und Verlauf | Die ausgewählte Zeile ist zusätzlich zu Farbe und Fläche semantisch erkennbar. Suchumfang, Datenquelle und Unvollständigkeit bleiben zugänglich. Der Verlauf trennt historischen Stand und aktuelle Aufgabe. |
+| Portable Markdown | Mindestens ein Mock bildet denselben gebundenen Entscheidungsgegenstand wie eine App-Ansicht vollständig als Portable Markdown ab. Reihenfolge, Folgen und zulässige Antwort werden formatübergreifend verglichen. |
+| Recovery | Eigene Zustände zeigen mindestens geänderte Fassung, unklare Speicherung und den sichtbaren Wechsel von nicht bestätigter MCP-App-Anzeige zu Portable Markdown. Keine dieser Situationen erhält eine Erfolgsgestalt. |
+| Zugänglichkeit | Hilfs- und Metatexte erfüllen die Kontrastanforderungen; die Karte bleibt bei 200 Prozent Vergrößerung und schmaler Hostfläche ohne horizontales Scrollen bedienbar. Deaktivierung wird nicht nur über geringe Deckkraft vermittelt. |
+
+![Recovery-Zustände für menschliche Gate-Entscheidungen](mockups/recovery-states-v2.svg)
+
+Die v2-Serie verdichtet diese Zustände bewusst nicht in einem einzigen Bild. Normalweg,
+Portable-Markdown-Äquivalenz und Recovery bleiben getrennt prüfbar. Dokumentationsrahmen wie
+„Von AGDF gestaltet“ und der schematische Hostbereich erklären die Architektur; sie sind
+keine Bestandteile der ausgelieferten App. Alle v2-Dateien und ihre Grenzen stehen in der
+[Quelldokumentation der Produkt-Mocks](mockups/human-gate-mocks-v2.md).
+
 ### Was in allen Ansichten gleich bleibt
 
 Die Geschichte führt immer denselben Beispiel-Run weiter. Inhalt und Entscheidungsgrundlage
@@ -418,12 +560,15 @@ Der Wechsel der Fläche allein verändert weder Fassung noch Freigabe.
 | Fassung 1 zur überarbeiteten Fassung 2 | Vorhaben und Änderungswunsch | Neue konkrete Fassung; erneut erforderliche Entscheidung |
 | Entscheidung zum nächsten Schritt | Gespeicherte Freigabe und Umfang | Bestätigter Effekt; passende nächste Arbeit statt alter Entscheidungsaktionen |
 | Hub-Verlauf zur aktuellen Aufgabe | Ausgewählter Run und nachvollziehbare Historie | Im Cockpit wieder an der heutigen Aufgabe weiterarbeiten |
+| MCP-App-UI zu Portable Markdown | Run, Gate, Revision, Digests, Zusammenfassung, Folgen und zulässige Antwort | Andere Darstellung und Interaktion; keine andere fachliche Bedeutung |
 
 Die folgenden Abschnitte vertiefen die Bedienung und ihre architektonischen Zuständigkeiten.
 Die [Prompts der verständlichen Mockups](mockups/07-ui-prompts-v4.md) halten die Bildvorgaben
-und gezielten Präzisierungen fest. Die [erste](mockups/07-ui-prompts.md),
-[zweite](mockups/07-ui-prompts-v2.md) und [dritte](mockups/07-ui-prompts-v3.md) Serie bleiben
-historische Entwürfe. Ihre früheren Beschriftungen sind keine Vorgaben für die aktuelle Oberfläche.
+und gezielten Präzisierungen der gerenderten v4-Serie fest. Die dortige Vorgabe, die exakte
+Antwort stets hinter geschlossenen Details zu halten, ist für einen allein verfügbaren
+Chat-Entscheidungsweg durch die heutige Schärfung ersetzt. Die früheren drei Serien bleiben
+historische Entwürfe; ihre gelöschten Prompt-Dateien werden nicht wiederhergestellt. Frühere
+Beschriftungen sind keine Vorgaben für die aktuelle Oberfläche.
 
 ### Zuordnung der Mockups zum heutigen Implementierungsstand
 
@@ -519,17 +664,18 @@ den Einstieg über die Chatkarte exemplarisch.
 | Anforderung lesen | Chatkarte oder großes Cockpit | Dokumentansicht — Ansicht 3 | Liest die konkret zugeordnete Fassung innerhalb der App; ein erforderlicher größerer Anzeigemodus bleibt hostabhängig |
 | Zur Entscheidung | Dokumentansicht | Auslösende Chatkarte oder großes Cockpit — Ansicht 1 beziehungsweise 2 | Erhält Vorhaben, Fassung und Zusammenhang; bei inzwischen geänderter Quelle wird der aktuelle Stand erklärt |
 | Frage stellen oder Änderung nötig | Aktuelle Entscheidung oder Dokument | Diskussion im bestehenden Codex-Chat; danach überarbeitete Entscheidungskarte | Öffnet keinen eigenen Chat. Im gezeigten Zustand erfolgt der Änderungswunsch direkt im bestehenden Gespräch; eine Ersatzfassung benötigt erneut eine Entscheidung |
-| Entscheidung bewusst bestätigen | Bestehender Codex-Chat; künftig auch qualifizierte Klickaktion | Bestätigung und nächste Aufgabe im Cockpit — Ansicht 4 | Erst nach bestätigter Erfassung; „So stimmt es“ ist in den aktuellen Mocks deaktiviert. Die exakte Antwortregel bleibt in Details zugänglich |
+| Entscheidung bewusst bestätigen | Bestehender Codex-Chat; künftig auch qualifizierte Klickaktion | Bestätigung und nächste Aufgabe im Cockpit — Ansicht 4 | Erst nach bestätigter Erfassung; „So stimmt es“ ist in den aktuellen Mocks deaktiviert. Ist der Chat der einzige Weg, steht die exakte Antwort direkt beim Handlungshinweis; bei qualifiziertem Klickweg darf das Protokoll in Details stehen |
 | Bestätigte Anforderung lesen | Bestätigung | Dokumentansicht — Ansicht 3 | Zeigt die bestätigte historische Fassung mit ihrem belegten Status; zurück geht es zum auslösenden Aufgabenstand |
 | Alle Vorhaben oder Übersicht anfordern | Großes Cockpit oder bestehender Chat | Hub — Ansicht 5 | Zeigt den definierten Projektumfang; Darstellung über MCP-UI setzt die entsprechende Host-Fähigkeit voraus |
 | Suchen, filtern oder Verlauf aufklappen | Hub | Treffer und Verlauf innerhalb des Hubs — Ansicht 5 | Ändert die Leseauswahl; bestätigt keine Fassung und beauftragt keine Arbeit |
 | Vorhaben ansehen oder Zur aktuellen Aufgabe | Hub | Aktueller Aufgabenstand im großen Cockpit — Ansicht 2 beziehungsweise 4 | Lesender Wechsel zum ausgewählten Run; erhält den bestehenden Codex-Chat und startet keine automatische Fortsetzung |
-| Stand aktualisieren | Cockpit | Frisch gelesener Aufgabenstand in derselben Darstellung | Kann Inhalt und Handlungserwartung ändern; erzeugt keine Entscheidung und keinen neuen Chat |
+| Aktuellen Stand laden | Cockpit mit veralteter oder bewusst manuell zu aktualisierender Beobachtung | Frisch gelesener Aufgabenstand in derselben Darstellung | Erscheint nur bei erforderlicher bewusster Neuladung; kann Inhalt und Handlungserwartung ändern, erzeugt aber keine Entscheidung und keinen neuen Chat |
 
 Die große Ansicht kann je nach Host rechts, bildschirmfüllend oder in einem anderen
 angebotenen Modus erscheinen. Der Flow beschreibt die Navigation innerhalb des Konzepts,
-keine garantierte Codex-Fensteraufteilung. Bei fehlender MCP-UI bleiben die gebundenen
-Informationen und der unterstützte Entscheidungsweg als Text im bestehenden Chat verfügbar.
+keine garantierte Codex-Fensteraufteilung. Bei fehlender MCP-App-UI bleiben die gebundenen
+Informationen und der unterstützte Entscheidungsweg vollständig als Portable Markdown im
+bestehenden Chat verfügbar.
 
 ## 2 Hub für Überblick und Wiederaufnahme
 
@@ -892,11 +1038,15 @@ Das Konzept ist in folgenden Situationen nachvollziehbar zu prüfen:
 7. Frühere Chat-Karten und ältere Dokumente bleiben als damalige Stände lesbar. Aus dem Verlauf
    führt ein klarer Weg zur aktuellen Aufgabe.
 8. Fehlende UI-Fähigkeit, abgelaufene Sitzung und fehlende aktuelle Quelle bieten verständliche
-   Wiederherstellung. Der gebundene Textweg bleibt verfügbar, soweit ihn der bestehende Ablauf unterstützt.
+   Wiederherstellung. Der gebundene Weg bleibt vollständig als Portable Markdown verfügbar,
+   soweit ihn der bestehende Ablauf unterstützt; der Fallback-Grund ist sichtbar.
 9. Die Auswahl eines anderen Runs im Hub erzeugt keinen Chat und keine automatische
    Fortsetzung. Eine neue Arbeitsbeauftragung benennt den ausgewählten Run und sein Ziel.
-10. Die App gestaltet keine Codex-Nachrichten, kein natives Eingabefeld und kein Host-Schließen.
+10. Die App gestaltet keine Host-Nachrichten, kein natives Eingabefeld und kein Host-Schließen.
     Kontextaufnahme, Nachrichtenzustellung und bestätigte Entscheidung bleiben getrennte beobachtbare Wirkungen.
+11. Eine gebundene Entscheidung wird einmal als MCP-App-UI und einmal als Portable Markdown
+    dargestellt. Run, Gate, Revision, Digests, Zusammenfassung, Folgen und zulässige Antwort
+    stimmen überein; nur Darstellung und verfügbare Interaktion unterscheiden sich.
 
 Tastaturbedienung, Fokus, schmale und große Flächen sowie tatsächliches Host-Verhalten gehören
 zur Prüfung dieser Situationen. Sichtbarer Fortschritt, wirksame menschliche Entscheidung und

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="700" viewBox="0 0 1600 700" role="img" aria-labelledby="title desc">
+  <title id="title">QA-Abweichungsannahme und Übergabe an UAT</title>
+  <desc id="desc">Drei Karten unterscheiden eine technische QA-Entscheidung revise, die ausdrückliche menschliche Annahme einer zulässigen Abweichung und die spätere UAT-Abnahme mit übernommener Abweichung.</desc>
+  <style>
+    .canvas { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .warn { fill: #fff1e8; }
+    .accept { fill: #fff8df; }
+    .success { fill: #e8f5f3; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrowWarn { fill: #9a3412; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .eyebrowAccept { fill: #8a5a00; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .eyebrowSuccess { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 24px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 16px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 16px Inter, Arial, sans-serif; }
+    .mono { fill: #4b4d50; font: 700 15px "JetBrains Mono", Consolas, monospace; }
+    .buttonWarn { fill: #9a3412; }
+    .buttonAccept { fill: #9a6a00; }
+    .buttonSuccess { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 15px Inter, Arial, sans-serif; }
+    .arrow { fill: #0f766e; font: 700 42px Inter, Arial, sans-serif; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="canvas" width="1600" height="700"/>
+  <text class="title" x="40" y="54">QA mit Abweichungen bleibt von UAT unterscheidbar</text>
+  <text class="subtitle" x="40" y="84">Technische QA-Entscheidung, menschliche Abweichungsannahme und Ergebnisabnahme sind drei getrennte Aussagen</text>
+
+  <g transform="translate(30 120)">
+    <rect class="card" width="470" height="510" rx="18"/>
+    <rect class="warn" x="16" y="16" width="438" height="72" rx="12"/>
+    <text class="eyebrowWarn" x="32" y="44">TECHNISCHE QA</text>
+    <text class="heading" x="32" y="74">Entscheidung: REVISE</text>
+    <text class="strong" x="28" y="128">Warum noch kein QA-Pass?</text>
+    <text class="body" x="28" y="160">Ein vorgesehener Host-Livetest fehlt.</text>
+    <text class="body" x="28" y="188">Die übrigen Tests und Reviews sind bestanden.</text>
+    <text class="strong" x="28" y="232">Was ist jetzt erlaubt?</text>
+    <text class="body" x="28" y="264">Befund beheben und QA erneut ausführen.</text>
+    <text class="body" x="28" y="292">Keine gewöhnliche QA-Freigabe anbieten.</text>
+    <text class="strong" x="28" y="336">Alternative nur bei Eignung</text>
+    <text class="body" x="28" y="368">Core kann eine eng begrenzte Abweichungsannahme</text>
+    <text class="body" x="28" y="396">mit Scope, Risiko, Folgearbeit und Owner vorlegen.</text>
+    <rect class="buttonWarn" x="28" y="438" width="220" height="44" rx="8"/>
+    <text class="buttonText" x="61" y="466">Befund bearbeiten</text>
+  </g>
+
+  <text class="arrow" x="510" y="385">→</text>
+
+  <g transform="translate(565 120)">
+    <rect class="card" width="470" height="510" rx="18"/>
+    <rect class="accept" x="16" y="16" width="438" height="72" rx="12"/>
+    <text class="eyebrowAccept" x="32" y="44">MENSCHLICHE ABWEICHUNGSANNAHME</text>
+    <text class="heading" x="32" y="74">Mit Abweichung freigeben?</text>
+    <text class="strong" x="28" y="128">Technische QA bleibt</text>
+    <text class="mono" x="220" y="128">revise</text>
+    <text class="body" x="28" y="162">Scope: fehlender Livetest für genau einen Host.</text>
+    <text class="body" x="28" y="190">Risiko: native Darstellung dort unbestätigt.</text>
+    <text class="body" x="28" y="218">Folge: vor Release nachholen.</text>
+    <text class="body" x="28" y="246">Owner: Host-Qualifizierung.</text>
+    <text class="strong" x="28" y="294">Wirkung der Annahme</text>
+    <text class="body" x="28" y="326">UAT darf vorbereitet werden.</text>
+    <text class="body" x="28" y="354">Die Abweichung gilt nicht als technischer Pass.</text>
+    <text class="mono" x="28" y="400">Approval: QA</text>
+    <rect class="buttonAccept" x="28" y="438" width="250" height="44" rx="8"/>
+    <text class="buttonText" x="54" y="466">Mit Abweichung freigeben</text>
+  </g>
+
+  <text class="arrow" x="1045" y="385">→</text>
+
+  <g transform="translate(1100 120)">
+    <rect class="card" width="470" height="510" rx="18"/>
+    <rect class="success" x="16" y="16" width="438" height="72" rx="12"/>
+    <text class="eyebrowSuccess" x="32" y="44">ERGEBNIS ABNEHMEN</text>
+    <text class="heading" x="32" y="74">Erfüllt das Ergebnis den Wunsch?</text>
+    <text class="strong" x="28" y="128">Geliefert</text>
+    <text class="body" x="28" y="160">Vereinbartes Verhalten und belegte Tests.</text>
+    <text class="strong" x="28" y="204">Übernommene QA-Abweichung</text>
+    <text class="body" x="28" y="236">Der fehlende Host-Livetest bleibt sichtbar.</text>
+    <text class="body" x="28" y="264">Release bleibt bis zum Exit-Kriterium gesperrt.</text>
+    <text class="strong" x="28" y="308">Wirkung der Abnahme</text>
+    <text class="body" x="28" y="340">OR und Closeout dürfen erstellt werden.</text>
+    <text class="body" x="28" y="368">Keine automatische VCS- oder Release-Aktion.</text>
+    <text class="mono" x="28" y="412">Approval: UAT</text>
+    <rect class="buttonSuccess" x="28" y="438" width="200" height="44" rx="8"/>
+    <text class="buttonText" x="91" y="466">Abnehmen</text>
+  </g>
+
+  <text class="footer" x="40" y="672">Semantischer Architektur-Mock · QA-Abweichung bleibt in UAT und OR sichtbar · keine native Hostqualifizierung</text>
+</svg>

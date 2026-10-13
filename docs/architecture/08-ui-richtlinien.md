@@ -51,6 +51,10 @@ wesentliche offene Punkte sowie den erlaubten nächsten Schritt. Die genaue Quel
 lesbar. „So stimmt es“ bestätigt ausschließlich die gebundene Fassung. Eine Ersatzfassung
 benötigt erneut eine Entscheidung. „Änderung nötig“ klärt den Änderungswunsch und erfasst
 keine Zustimmung. Eine Bestätigung wird erst nach erfolgreich bestätigter Speicherung gezeigt.
+Ist das bestehende Gespräch der einzige verfügbare Entscheidungsweg, steht die exakt zulässige
+Antwort direkt bei dieser Handlungsanweisung. Sie darf nicht ausschließlich hinter
+geschlossenen Details verborgen sein. Bei einem verfügbaren qualifizierten Klickweg kann
+das technische Antwortprotokoll nachrangig in Details stehen.
 
 **Beispiel:** „Fassung 2 · Entscheidung ausstehend. Danach darf die KI das bestehende System
 untersuchen. Umsetzung ist noch nicht freigegeben.“ Nach erfolgreicher Erfassung:
@@ -61,6 +65,26 @@ erlaubt wird. Während der Erfassung, nach bestätigtem Erfolg und bei unklarer 
 unterschiedliche Zustände sichtbar. Eine verlorene Antwort führt zur Prüfung des ursprünglichen
 Vorgangs; ein wiederholter Klick erzeugt keine zweite wirksame Entscheidung.
 
+### Gate-spezifische Mindestinhalte
+
+Der [gemeinsame Gate-Kartenvertrag](07-ui-konzept.md#durchgehender-vertrag-für-alle-menschlichen-gates)
+gilt für alle anwendbaren menschlichen Gates. Die gemeinsame Form darf ihre fachlichen
+Unterschiede nicht verdecken.
+
+| Gate | Vor der Entscheidung sichtbar und prüfbar |
+|---|---|
+| `UR` | Ziel, Umfang, Ausschlüsse, betroffene Nutzer, offene Klärungen und Wirkung auf Brownfield Review und Routenwahl |
+| `PRD` | Verhalten, Akteure, Akzeptanzkriterien, Produktentscheidungen, UX-Auswirkungen und weiterhin gesperrte Umsetzung |
+| `SD` | Architektur, Owner, Wiederverwendung, Schnittstellen, Alternativen, Risiken, Fallbacks und Wirkung auf den TP |
+| `TP` | Aufgaben, Kriterien- und Designabdeckung, Tests, Nachweise, Reihenfolge, Owner, Risiken und vorgeschaltete Brownfield Analysis |
+| `QA` | Technische Entscheidung, Tests, Reviews, Befunde, Restgrenzen und bei Abweichungsannahme deren Scope, Risiko, Folge, Owner und unveränderter technischer QA-Status |
+| `UAT` | Geliefert, nicht geliefert, erfüllte Akzeptanzkriterien, Restrisiken, übernommene QA-Abweichungen und Grenze zu VCS/Release |
+
+**Prüfkriterium:** Eine generische Gate-Karte ohne diese gate-spezifischen Angaben ist nicht
+entscheidungsreif. QA-Pass und QA-Abweichungsannahme besitzen unterscheidbare Überschrift,
+Zusammenfassung und Bestätigung. UAT übernimmt jede akzeptierte Abweichung sichtbar. Ein
+kompakter oder anders gerouteter Run zeigt nur seine tatsächlich anwendbaren menschlichen Gates.
+
 ## 4 Aktionen nach Aufgabe und Verfügbarkeit
 
 **Regel:** Eine aktuell nutzbare Hauptaktion führt die Ansicht. Weitere Aktionen sind nachrangig
@@ -70,11 +94,13 @@ Die Oberfläche zeigt nur Aktionen, die für den aktuellen Zustand sinnvoll sind
 
 **Beispiel:** Solange die Bestätigung per Klick nicht verfügbar ist, führt „Anforderung lesen“.
 „So stimmt es“ bleibt deaktiviert; daneben steht „Bestätigung hier noch nicht verfügbar“ und
-„Entscheide im bestehenden Codex-Chat“. Die exakte Antwortregel steht in Entscheidungsdetails.
+„Entscheide im bestehenden Gespräch“. Unmittelbar darunter steht die exakt zulässige
+Chat-Antwort. Ein deaktivierter Button ist visuell nachrangiger als die verfügbare Hauptaktion.
 
 **Prüfkriterium:** Der erste Blick zeigt die wichtigste verfügbare Aktion. Zwei gleichwertige
 Primärbuttons konkurrieren nicht. Ein deaktivierter Button lässt den Anwender nicht ohne
-Erklärung zurück. Nach bestätigter Entscheidung bleiben keine alten Entscheidungsaktionen aktiv.
+Erklärung zurück. Der einzige verfügbare Entscheidungsweg ist ohne Suche in geschlossenen
+Details ausführbar. Nach bestätigter Entscheidung bleiben keine alten Entscheidungsaktionen aktiv.
 
 ## 5 Gemeinsames Bedienmodell für Chat und große Ansicht
 
@@ -83,6 +109,9 @@ und Bedeutung der Zustände. Vergrößern ändert die verfügbare Fläche, keine
 Chatkarte bleibt kurz und einspaltig; ihr Inhalt benötigt keinen eigenen Scrollbereich. Die
 große Ansicht bietet dauerhaft sichtbare Orientierung und einen darunter scrollenden Inhalt.
 Zusatzinformationen öffnen über eindeutig benannte Zugänge und zunächst geschlossene Details.
+Ein Ablaufbalken zeigt ausschließlich Schritte, die aus der tatsächlichen Run-Route stammen.
+Er bildet keine feste universelle Gate-Folge und stellt nicht anwendbare Schritte nicht als
+zukünftige Pflicht dar.
 
 **Beispiel:** „Groß öffnen“ übernimmt „Anmeldung verbessern · Fassung 1“. „Zur Entscheidung“
 kehrt nach dem Lesen zur auslösenden Karte und ihrem aktuellen Stand zurück.
@@ -93,11 +122,14 @@ Navigation; in der großen Ansicht verdeckt das Scrollen die Orientierung nicht.
 
 ## 6 Grenzen der Host-Integration
 
-**Regel:** AGDF gestaltet ausschließlich seinen App-Inhalt. Codex beziehungsweise der konkrete
+**Regel:** AGDF gestaltet ausschließlich seinen App-Inhalt. Der konkrete
 Host besitzt Gespräch, natives Eingabefeld, äußere Navigation und Fenstersteuerung. Die App
 erzeugt keinen eigenen Chat und bildet das native Gespräch nicht nach. Vergrößerung,
 Kontextaufnahme und Nachrichtenzustellung setzen die jeweils angebotene Host-Fähigkeit und
 deren bestätigte Wirkung voraus. Die Auswahl eines Runs im Hub ist zunächst ein lesender Wechsel.
+Hostnamen stammen aus bestätigter Clientidentität oder vertrauenswürdiger Hostkonfiguration.
+Gemeinsame Texte verwenden andernfalls „Host“ oder „bestehendes Gespräch“ statt eines
+fest eingebauten Produktnamens.
 
 Die [zentrale Architekturentscheidung](07-ui-konzept.md#architekturentscheidung-zur-gemeinsamen-host-schnittstelle)
 bestimmt MCP/MCP Apps als gemeinsame Schnittstelle. Ansichten sollen über kompatible Hosts
@@ -166,7 +198,10 @@ geht nicht durch abgeschnittene Beschriftungen verloren.
 **Prüfkriterium:** Der Kernweg lässt sich mit Tastatur und assistiver Technik bedienen.
 Fokus wird weder verdeckt noch eingeschlossen. Bei schmaler Fläche und vergrößertem Text
 bleiben Aufgabe und Aktionen erreichbar; der Kerninhalt verlangt kein horizontales Scrollen.
-Farbe, Hover und Animation sind keine alleinigen Informationsträger.
+Farbe, Hover und Animation sind keine alleinigen Informationsträger. Hilfs-, Zeit- und
+Metatexte erfüllen mindestens WCAG AA für den jeweiligen Textumfang. Bei 200 Prozent
+Textvergrößerung bleiben Frage, Fassung, Wirkung, Hauptaktion und nächster Weg vollständig
+erkennbar. Deaktivierte Elemente bleiben lesbar und unterscheiden sich zusätzlich semantisch.
 
 ## 9 Aktualität, Laden, leere Ergebnisse und Fehler
 
@@ -179,12 +214,16 @@ Entscheidungsstatus. Suchergebnisse benennen ihren tatsächlichen Umfang.
 **Beispiel:** „Diese Fassung hat sich geändert. Lade den aktuellen Stand, bevor du entscheidest.“
 Im Hub: „Keine Treffer in den bisher gelesenen Einträgen“ bei begrenzter Suchabdeckung.
 „Als Nächstes ist die KI dran“ bezeichnet die nächste Aufgabe; „Die KI arbeitet“ verlangt
-eine bestätigte Beobachtung tatsächlicher Aktivität.
+eine bestätigte Beobachtung tatsächlicher Aktivität. Kann eine angeforderte MCP-App nicht
+bestätigt angezeigt werden, erklärt die Portable-Markdown-Ausgabe den Fallback. Bei unklarer
+Speicherung zeigt die Oberfläche weder „bestätigt“ noch einen freigegebenen Folgeschritt.
 
 **Prüfkriterium:** Der Anwender erkennt Ursache, verbleibende Lesemöglichkeiten und nächste
 Handlung. Ein leerer Hub behauptet ohne ausreichende Abdeckung keine vollständige Suche.
 Eine veraltete Ansicht ermöglicht keine vermeintlich aktuelle Entscheidung. Ein gespeicherter
 Freigabevermerk allein wird nicht als Beleg für die heute gelesene Dokumentfassung ausgegeben.
+Geänderte Fassung, unklare Speicherung und Format-Fallback besitzen unterscheidbare
+Recovery-Zustände mit genau einer sicheren nächsten Handlung.
 
 ## 10 Prüfung, Nachweise und Pflege
 
@@ -194,15 +233,23 @@ Darstellungsstand. Aussagen über Host-Fähigkeiten benötigen die Beobachtung d
 verwendeten Fassung im betreffenden Host. Die vorhandenen Qualifizierungsvoraussetzungen
 bleiben erhalten. Eine dokumentierte Abweichung nennt Grund, betroffene Ansicht und Nutzerfolge.
 
-**Beispiel:** Die fünf Imagegen-Mocks zeigen den gewünschten Ablauf. Für „Groß öffnen“ wird
-zusätzlich im echten Host beobachtet, ob der angeforderte Modus bestätigt wird und die
-ausgewählte Fassung erhalten bleibt. Ein Mockup belegt keine erfolgreiche Klickfreigabe.
+**Beispiel:** Die fünf Imagegen-Mocks zeigen den App-Ablauf. Die eingebettete
+[Übersicht aller menschlichen Gates](07-ui-konzept.md#durchgehender-vertrag-für-alle-menschlichen-gates)
+und der QA-/UAT-Sonderfall zeigen die gateübergreifende Informationsstruktur. Eine ergänzende
+Portable-Markdown-Referenz zeigt denselben Entscheidungsgegenstand ohne App. Für „Groß öffnen“
+wird zusätzlich im echten Host beobachtet, ob der angeforderte Modus bestätigt wird und die
+ausgewählte Fassung erhalten bleibt. Separate Recovery-Ansichten zeigen geänderte Fassung,
+unklare Speicherung und Format-Fallback. Ein Mockup belegt keine erfolgreiche Klickfreigabe.
 
 **Prüfkriterium:** Beim Review sind Ansicht, geprüfter Stand und verwendete Nachweise benannt.
 Die Prüfung umfasst die [beobachtbaren Nutzererlebnisse](07-ui-konzept.md#10-beobachtbare-nutzererlebnisse)
 und den [Aktionsfluss](07-ui-konzept.md#welche-aktion-führt-zu-welcher-ansicht), einschließlich
 Rückwegen und fehlender Host-Fähigkeit. Erfolgreiche Quell- oder Browserprüfungen werden nicht
-als native Host-Abnahme ausgegeben.
+als native Host-Abnahme ausgegeben. Der Review vergleicht mindestens ein semantisch identisches
+Paar aus MCP-App-UI und Portable Markdown und prüft Hosttexte mit neutralem Fallback sowie
+mit den konkret unterstützten Hostanzeigenamen. Für jedes anwendbare menschliche Gate wird
+zusätzlich geprüft, dass Mindestinhalt, Zustimmungswirkung, weiterhin gesperrte Arbeit und
+post-decision receipt dem gemeinsamen Kartenvertrag entsprechen.
 
 Die UI-Richtlinien besitzen die übergreifenden Gestaltungsregeln. Das UI-Konzept besitzt
 Nutzerweg, Begriffsliste und Mockups; die gemeinsamen Tokens besitzen die exakten Designwerte.

@@ -8,6 +8,15 @@ für `ui-mockup`. Layout, Cockpit-Stil und Codex-Grenzen bleiben erhalten. Techn
 und exakte Antwortformeln stehen im Zielkonzept hinter geschlossenen Details. Die vorhandene
 Klickqualifizierung wird durch die neuen Beschriftungen nicht geändert.
 
+> **Historischer Renderstand:** Die Prompts und Bilder dokumentieren die am 12. Oktober 2026
+> erzeugte v4-Serie. Die am 13. Oktober geschärften Regeln zu Portable Markdown,
+> Host-Neutralität, routenbasiertem Ablauf, Recovery und zur direkt sichtbaren exakten
+> Chat-Antwort ändern diese Renderings nicht rückwirkend. Für eine Nachfolgeserie gelten
+> die [Schärfung im UI-Konzept](../07-ui-konzept.md#schärfung-für-die-nächste-mockup-serie)
+> und die [UI-Richtlinien](../08-ui-richtlinien.md). Insbesondere ist die unten wiederholte
+> v4-Vorgabe, das Antwortprotokoll stets hinter geschlossenen Details zu halten, nicht mehr
+> gültig, wenn das Gespräch der einzige verfügbare Entscheidungsweg ist.
+
 ## 01 chat karte
 
 Datei: `01-chat-karte-v4.png`
@@ -84,3 +93,34 @@ CRITICAL: No visible standalone UR, PRD, SD, TP, QA, UAT, Gate, Approval: UR or 
 Keep read-only hub, source style, header, search Anmeldung, tabs Aktiv/Geplant/Abgeschlossen, 2 results, expanded three-row timeline. Top annotation title "05 · Vorhaben finden und den Verlauf ansehen". Row1 title Anmeldung verbessern, subtitle "System untersuchen · Als Nächstes ist die KI dran", status "Anforderung · Fassung 2 bestätigt", link "Vorhaben ansehen". Row2 title Anmeldung barrierefrei machen, subtitle "Verhalten festlegen · Deine Entscheidung steht aus", link "Vorhaben ansehen". Timeline rows "09:15 · Anforderung vorbereitet · Fassung 1", "09:27 · Meldung präzisiert · Fassung 2", "09:28 · Anforderung bestätigt · Fassung 2". Current line "Jetzt: Bestehendes System untersuchen"; "Zur aktuellen Aufgabe" link unchanged. Info at bottom "Ein Vorhaben anzusehen wechselt den bestehenden Chat nicht." Keep header Nur Lesen. All row text must remain readable; modest row-height increases allowed. No technical abbreviations or additional chat UI visible.
 ```
 
+## Anforderungen an eine Nachfolgeserie
+
+Eine neue Serie übernimmt die visuelle Sprache der v4-Bilder, behandelt deren Komposition
+aber nicht als unveränderliche Vorlage. Sie muss mindestens folgende Änderungen sichtbar
+machen:
+
+1. Ein Portable-Markdown-Mock bildet dieselbe Entscheidung wie die kompakte App-Karte mit
+   vollständiger Bindung, Folgen und exakt zulässiger Antwort ab.
+2. Hosttexte verwenden einen bestätigten Anzeigenamen oder die neutrale Form „bestehendes
+   Gespräch“. Codex ist ein Beispielhost, kein fest eingebauter Produktbegriff der App.
+3. Ist der Chat der einzige Entscheidungsweg, steht die exakte zulässige Antwort direkt beim
+   Handlungsweg. Bei qualifiziertem Klickweg darf das Protokoll in Details bleiben.
+4. Der Ablaufbalken folgt den tatsächlichen Schritten des Beispiel-Runs und behauptet keine
+   universelle Folge aus sieben Gates.
+5. Die kompakte Karte zeigt eine verfügbare Hauptaktion; deaktivierte Optionen sind klar
+   nachrangig und bleiben lesbar.
+6. „Aktuellen Stand laden“ erscheint nur bei erforderlicher manueller Aktualisierung.
+   Passive Wartezustände erhalten keine dominante Scheinaktion.
+7. Separate Recovery-Mocks zeigen eine geänderte Fassung, unklare Speicherung und den
+   sichtbaren Fallback von nicht bestätigter MCP-App-UI zu Portable Markdown.
+8. Hilfs- und Metatexte werden mit WCAG-AA-Kontrast sowie bei schmaler Fläche und
+   200 Prozent Textvergrößerung geprüft.
+
+Neue Bilder erhalten eine eigene Versionsnummer und eigene Quelldatei. Diese v4-Prompts
+bleiben mit ihren ursprünglichen Promptblöcken als Herkunftsnachweis der vorhandenen
+PNG-Dateien erhalten.
+
+Die später ergänzten [Produkt-Mocks v2](human-gate-mocks-v2.md) erweitern die v4-Serie um
+Kartenanatomie, gate-spezifische Komponenten, Darstellungsvarianten, QA-Abweichung und
+Recovery. Sie ersetzen die fünf gerenderten Cockpit-Bilder nicht. Die
+[v1-Systemübersicht](human-gate-mocks-v1.md) bleibt als historische Zwischenstufe erhalten.

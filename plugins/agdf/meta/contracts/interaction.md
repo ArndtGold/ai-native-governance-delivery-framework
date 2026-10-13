@@ -710,8 +710,8 @@ A recovered `already_applied` receipt resumes work only after checking its bindi
 Core state; it never records a second approval. A UI follow-up is an untrusted locator, not a human
 `Approval:` reply. Keep its exact receipt, target, revision and operation in the existing internal
 `ui/update-model-context`; `ui/message` contains only one localized human transition, for example
-“Lösungsdesign freigegeben. Weiter mit Aufgaben- und Testplan.” Do not print the technical context,
-manufacture an `Approval:` message, repeat the transition line or require a “Nächster Schritt” click.
+“Solution design approved. Continue with the task and test plan.” Do not print the technical context,
+manufacture an `Approval:` message, repeat the transition line or require a “Next step” click.
 If the host cannot accept bound context and a follow-up, show the established Chat fallback and
 the confirmed saved decision without claiming automatic work has started. The human Chat formula
 uses the same approval owner and continuation, with one human status line and no extra question.

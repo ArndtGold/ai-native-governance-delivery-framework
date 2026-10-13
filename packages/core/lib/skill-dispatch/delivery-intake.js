@@ -5,13 +5,12 @@ import { runPath } from "../control-state/run-state-reader.js";
 import { isDurableApprovalArtefactPresent } from "../control-evaluation/gate-check.js";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
+import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "../resources/artefact-templates.js";
 
 export const DELIVERY_INTAKE_OPERATION = "delivery.start";
 
 // POSIX preview only; hosts should execute structured argv using their own command adapter.
 export const quoteDispatchArgument = (value) => "'" + String(value).replaceAll("'", "'\"'\"'") + "'";
-
-const UR_TEMPLATE = ".agdf/control/templates/artefacts/UR.md";
 
 // Run assignment precedes this phase. Bookkeeping addresses one concrete new or resumed run;
 // candidate count never establishes the original request's scope.
@@ -73,7 +72,7 @@ export function urDefinitionPhase(targetDir, control, input) {
     phase: "ur_definition", skill_id: "ur-definition", governance_target: targetDir,
     run_id: input.run_id, revision_id: revisionId,
     ...resolveArtifactPresentationLanguages(targetDir, input.presentation_language),
-    artifact_path: canonicalPath, template_path: UR_TEMPLATE, draft_registered: registered,
+    artifact_path: canonicalPath, template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.UR), draft_registered: registered,
     ...(input.intake ? { operation_id: DELIVERY_INTAKE_OPERATION } : {}),
     instruction: "Execute ur-definition with the original request and answered context for this exact unapproved UR. Follow the focused contract, record through the existing canonical writer, then redispatch gate-check. Dispatch approves no gate; a changed draft requires a new presentation and a new deliberate response.",
   });

@@ -917,7 +917,11 @@
      "intake_scaffold_required": "Inspect and restore the canonical control scaffold before creating the run.",
      "run_assignment_inventory_invalid": "Run inventory is incomplete or invalid. Resolve the listed control findings and retry intake; this failure does not establish a new scope.",
      "prd_authoring_inputs_invalid": "PRD authoring blocked: check approved UR, Brownfield source, required ready UX input and contained PRD path. Repair inputs with their owner, then retry.",
-     "sd_authoring_inputs_invalid": "SD authoring blocked: check approved PRD, Brownfield/ready analysis and contained SD path. Repair inputs with their owner, then retry."
+     "sd_authoring_inputs_invalid": "SD authoring blocked: check approved PRD, Brownfield/ready analysis and contained SD path. Repair inputs with their owner, then retry.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSUPPORTED": "Authoring blocked: unsupported canonical template. Repair the authoring owner and retry once.",
+     "AGDF_ARTEFACT_TEMPLATE_ROOT_UNAVAILABLE": "Authoring blocked: trusted plugin template root missing. Reinstall the matched AGDF plugin and retry once.",
+     "AGDF_ARTEFACT_TEMPLATE_UNAVAILABLE": "Authoring blocked: required plugin template missing. Reinstall the matched AGDF plugin and retry once.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSAFE": "Authoring blocked: unsafe plugin template path. Repair or reinstall the matched plugin; no fallback."
     },
     "sourceInput": {
      "source": "Source",
@@ -2177,7 +2181,11 @@
      "intake_scaffold_required": "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen.",
      "run_assignment_inventory_invalid": "Das Run-Inventar ist unvollständig oder ungültig. Die genannten Kontrollbefunde beheben und Intake erneut prüfen; der Fehler begründet keinen neuen Umfang.",
      "prd_authoring_inputs_invalid": "PRD-Erstellung gesperrt: freigegebene UR, Brownfield-Quelle, bereite UX-Eingabe und PRD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen.",
-     "sd_authoring_inputs_invalid": "SD-Erstellung gesperrt: freigegebenes PRD, Brownfield/bereite Analyse und SD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen."
+     "sd_authoring_inputs_invalid": "SD-Erstellung gesperrt: freigegebenes PRD, Brownfield/bereite Analyse und SD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSUPPORTED": "Authoring gesperrt: kanonisches Template nicht unterstützt. Den Authoring-Owner korrigieren und erneut versuchen.",
+     "AGDF_ARTEFACT_TEMPLATE_ROOT_UNAVAILABLE": "Authoring gesperrt: vertrauenswürdiger Plugin-Template-Root fehlt. Passendes AGDF-Plugin neu installieren.",
+     "AGDF_ARTEFACT_TEMPLATE_UNAVAILABLE": "Authoring gesperrt: erforderliches Plugin-Template fehlt. Passendes AGDF-Plugin neu installieren.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSAFE": "Authoring gesperrt: unsicherer Plugin-Template-Pfad. Passendes Plugin reparieren; kein Fallback."
     },
     "sourceInput": {
      "source": "Quelle",

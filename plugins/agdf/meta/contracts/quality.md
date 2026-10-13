@@ -2,6 +2,11 @@
 
 ## Quality Readiness Projection
 
+When `qa-gate` authors or refines `QA_REPORT.md`, it uses only the bound absolute plugin-owned
+`template_path`. Repository scaffold copies are derived review references, not an authoring source.
+An unavailable or unsafe template blocks QA report authoring without mutation or success-shaped
+fallback; it does not turn missing evidence into a QA decision.
+
 After CD+Tests, when any of the four review/QA artefacts exists, surfaces may show one compact
 derived `Quality Readiness` projection. It answers the user-facing question "what is the current
 quality outcome and what should happen next?" without replacing evidence or creating another

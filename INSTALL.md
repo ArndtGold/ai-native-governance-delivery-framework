@@ -195,6 +195,16 @@ Claude permission rule or receipt and removes those written by earlier releases.
 `permission.bash`.
 Copilot uses the plugin's `sessionStart` hook and keeps hook review under Copilot control. AGDF records
 only the user's content-bound intent until a restarted session provides direct host evidence.
+The Copilot plugin payload also carries the canonical control templates. Bound authoring uses the
+version-matched installed-plugin template as its single source; `.agdf/control/templates/` contains
+only derived, reviewable scaffold copies created by repository setup. Plugin installation does not
+silently create or overwrite repository control files.
+This authority applies exactly to `UR.md`, `PRD.md`, `SD.md`, `TP.md`,
+`UX_INTENT_DEFINITION.md`, `BROWNFIELD_REVIEW.md`, `VERIFIED_CHANGE.md`, `QA_REPORT.md` and
+`OR.md`. Run state, backlog, context graph, source-of-truth registry and quality-contract files keep
+their existing scaffold/control writers. If the trusted plugin root or one of these nine templates
+is missing or unsafe, authoring fails closed with an explicit repair/reinstall action; AGDF does not
+fall back to repository or generated copies and does not mutate repository control during recovery.
 
 For Codex, install completion and `runtime-checks status --surface codex` query native `hooks/list`
 metadata through the local Codex CLI. Only a modified or untrusted hook asks for native review in

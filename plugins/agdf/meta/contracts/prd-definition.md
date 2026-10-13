@@ -10,7 +10,11 @@ resolve_delivery_run candidate inventory, matching the original request to appro
 then gate-check resume intake with run_id and expected_revision_id. Never select AGDF_RUN_ID,
 invent a replacement run/UR or use discovery, skill selection or cwd as editing intent.
 
-Use the returned governance_target, run_id, revision_id, contained artifact_path and exact sources.
+Use the returned governance_target, run_id, revision_id, contained artifact_path, absolute
+plugin-owned template_path and exact sources. The installed, version-matched plugin is the sole
+authoring-template authority. Repository `.agdf/control/templates/` copies are derived scaffold
+references and never override template_path. If template_path is unavailable or unsafe, stop
+without writing or falling back and route the explicit plugin repair/reinstall recovery.
 Read the approved UR, completed Brownfield Review/Mode-Slice result and required ready UX Intent
 Definition, original request and confirmed answers. Invalid/stale/foreign/approved bindings,
 missing prerequisites, source proof or integrity blockers require fresh canonical control.

@@ -42,6 +42,17 @@ function fixture(name, action) {
 
 try {
   const first = validate(generatedRoot);
+  const inventoryEntries = inventory(generatedRoot).entries;
+  for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "UX_INTENT_DEFINITION.md",
+    "BROWNFIELD_REVIEW.md", "VERIFIED_CHANGE.md", "QA_REPORT.md", "OR.md"]) {
+    const destination = `control/templates/artefacts/${name}`;
+    const source = `plugins/agdf/control/templates/artefacts/${name}`;
+    assert.equal(readFileSync(join(generatedRoot, destination), "utf8"), readFileSync(join(repoRoot, source), "utf8"),
+      `Copilot payload must ship the canonical ${name} template`);
+    const bound = inventoryEntries.filter((entry) => entry.destination === destination);
+    assert.equal(bound.length, 1, `Copilot inventory must contain ${name} exactly once`);
+    assert.equal(bound[0].source, source, `Copilot inventory must bind ${name} to its canonical source`);
+  }
   for (const module of ['control-inspect/cockpit.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
     'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-inspect/decision-session.js', 'control-state/decision-action-service.js', 'control-state/decision-action-contract.js', 'interaction-catalog.d.ts']) {
     assert.equal(existsSync(join(generatedRoot, 'runtime/create-agdf/runtime/core/lib', module)), false,

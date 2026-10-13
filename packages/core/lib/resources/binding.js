@@ -2,3 +2,4 @@
 export const packageURL = new URL("../../", import.meta.url);
 export const generatedURL = new URL("../../generated/", import.meta.url);
 export const contractsURL = new URL("plugins/agdf/meta/contracts/", generatedURL);
+export const templatesURL = new URL("../../plugins/agdf/control/templates/", packageURL);

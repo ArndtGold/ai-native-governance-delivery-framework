@@ -41,6 +41,7 @@ const required = [
   "generated/plugins/copilot/agdf/skills/agdf-gate-check/SKILL.md",
   "generated/plugins/copilot/agdf/skills/agdf-runtime-contract.md",
   "generated/plugins/copilot/agdf/skills/contracts/interaction.md",
+  "generated/plugins/copilot/agdf/control/templates/artefacts/UR.md",
   "generated/plugins/copilot/agdf/.agdf-payload-inventory.json",
   "generated/plugins/copilot/agdf/runtime/agdf-local.js",
   "generated/plugins/copilot/agdf/runtime/runtime-manifest.json",
@@ -63,6 +64,11 @@ const required = [
   "generated/submissions/openai/agdf/submission/openai/readiness.json",
   "generated/submissions/openai/agdf/submission/openai/readiness.md",
 ];
+for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "UX_INTENT_DEFINITION.md",
+  "BROWNFIELD_REVIEW.md", "VERIFIED_CHANGE.md", "QA_REPORT.md", "OR.md"]) {
+  required.push(`generated/plugins/copilot/agdf/control/templates/artefacts/${name}`);
+  required.push(`generated/plugins/agdf/control/templates/artefacts/${name}`);
+}
 for (const path of required) {
   assert.equal(files.filter((candidate) => candidate === path).length, 1, `package must contain ${path} exactly once`);
 }

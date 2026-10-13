@@ -6,8 +6,11 @@ Run State, gate evaluation and exact approval remain authoritative.
 
 ## Common Route
 
-- Use only the supplied `gate`, `artifact_path`, `source_artifacts`, `target`, `run_id` and
-  `revision_id`. Do not rediscover or substitute a run, target, or source artifact.
+- Use only the supplied `gate`, `artifact_path`, `template_path`, `source_artifacts`, `target`,
+  `run_id` and `revision_id`. `template_path` is the absolute canonical authoring template from the
+  installed, version-matched plugin for PRD, SD, TP or QA Report preparation. Repository scaffold
+  copies are derived references only. Do not rediscover or substitute a run, target, source
+  artifact or template. A missing or unsafe template blocks authoring without fallback or mutation.
 - Prepare only the named current-gate artifact. Keep it derived from the supplied approved sources
   and record it with the current runtime's `run-step --step artefact --gate <PRD|SD|TP|QA>
   --evidence <recording-input.json> --run <run_id> --revision <revision_id>` operation below.

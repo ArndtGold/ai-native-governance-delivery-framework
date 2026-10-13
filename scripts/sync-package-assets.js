@@ -510,6 +510,29 @@ function writeCopilotSupportFiles() {
   }
 }
 
+function writeCopilotControlFiles(sourceRoot = sourceControlRoot, targetRoot = join(generatedCopilotPluginRoot, "control"), prefix = "plugins/agdf/control") {
+  for (const entry of readdirSync(sourceRoot).sort()) {
+    const sourcePath = join(sourceRoot, entry);
+    const targetPath = join(targetRoot, entry);
+    const source = `${prefix}/${entry}`;
+    const stats = lstatSync(sourcePath);
+    if (stats.isSymbolicLink()) throw new Error(`Copilot control scaffold must not traverse symbolic links: ${sourcePath}`);
+    if (stats.isDirectory()) {
+      writeCopilotControlFiles(sourcePath, targetPath, source);
+      continue;
+    }
+    if (stats.isFile()) {
+      writeCopilot(targetPath, read(sourcePath), {
+        component: "control_scaffold",
+        owner: "plugins/agdf/control",
+        rule: "copy",
+        requirement: "canonical control templates for bound artefact authoring",
+        source,
+      });
+    }
+  }
+}
+
 function writeCodexMarketplace() {
   const repositoryMarketplaceName = pluginDefinition.distributionProfiles.marketplaceIdentities.generatedRepository;
   const marketplace = {
@@ -614,6 +637,7 @@ export function syncPackageAssets({
   if (copilot) {
     writeCopilotPluginFiles();
     writeCopilotSupportFiles();
+    writeCopilotControlFiles();
     for (const skillSlug of skillSlugs) syncCopilotPluginSkill(skillSlug);
     const generatedCopilotRuntimeRoot = assertGeneratedPathSafe(join(generatedCopilotPluginRoot, "runtime"), "generated Copilot runtime");
     syncPluginRuntime({ outputRoot: generatedCopilotRuntimeRoot, mcpRuntime: true, copilot: true });

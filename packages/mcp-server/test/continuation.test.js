@@ -27,7 +27,8 @@ try {
   const sdRun = createSdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "sd-definition-mcp-test");
   execFileSync(process.execPath, [join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "run-create", "--dir", fixture.governanceTarget, "--run", urRun], { stdio: "pipe" });
   // A real stdio server, with no SessionStart hook or executable binding.
-  await withStdioClient(fixture, async client => {
+  const pluginRoot = join(fixture.dispatcherRoot, "generated", "plugins", "agdf");
+  await withStdioClient({ ...fixture, env: { AGDF_DISPATCH_PLUGIN_ROOT: pluginRoot } }, async client => {
     for (const skill of definition.skillSet.filter(s => s.dispatch.mode === "judgement_required")) {
       const response = await client.callTool({ name: "agdf_dispatch", arguments: {
         skill_id: skill.slug, presentation_language: "de", working_directory: fixture.governanceTarget,
@@ -47,17 +48,28 @@ try {
       if (skill.slug === "ur-definition") {
         assert.equal(result.continuation.phase, "ur_definition");
         assert.equal(result.continuation.artifact_path, `.agdf/control/artefacts/${urRun}/UR.md`);
+        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "UR.md"));
         assert.equal(result.continuation.draft_registered, false);
       }
       if (skill.slug === "prd-definition") {
         assert.equal(result.continuation.phase, "prd_definition");
+        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "PRD.md"));
         assert.equal(result.continuation.draft_registered, false);
         assert.equal(result.continuation.sources[0].path, prdRun.prefix + "UR.md");
       }
       if (skill.slug === "sd-definition") {
         assert.equal(result.continuation.phase, "sd_definition");
+        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "SD.md"));
         assert.equal(result.continuation.draft_registered, false);
         assert.equal(result.continuation.sources[0].path, sdRun.prefix + "PRD.md");
+      }
+      if (skill.slug === "ux-intent-definition") {
+        assert.equal(result.continuation.template_path,
+          join(pluginRoot, "control", "templates", "artefacts", "UX_INTENT_DEFINITION.md"));
+      }
+      if (skill.slug === "qa-gate") {
+        assert.equal(result.continuation.template_path,
+          join(pluginRoot, "control", "templates", "artefacts", "QA_REPORT.md"));
       }
       const contracts = result.continuation.runtime_contracts;
       assert.deepEqual(contracts.map(c => c.module), skill.runtimeContractModules);

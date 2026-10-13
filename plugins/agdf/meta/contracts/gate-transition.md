@@ -87,6 +87,20 @@ They must not override AGDF gates, approvals or the Runtime Contract.
 - `release-or` reports the run, but does not replace QA or produce the operative commit/PR handoff.
 - `delivery-closeout` owns the operative Git handoff text when QA/OR/UAT state allows it.
 
+## Canonical Authoring Templates
+
+Bound authoring continuations use only their supplied absolute `template_path` from the installed,
+version-matched plugin. This applies exactly to UR, PRD, SD, TP, UX Intent Definition, Brownfield
+Review, Verified Change, QA Report and OR. `RUN_STATE.md`, `AGDF_RUN.md`, `MASTER_BACKLOG.md`,
+`CONTEXT_GRAPH.md`, `SOT_REGISTRY.md` and `AGENT_QUALITY_CONTRACTS.json` remain owned by their
+existing scaffold/control writers. Repository `.agdf/control/templates/` files are derived,
+reviewable references and never a runtime fallback.
+
+UX Intent Definition and Brownfield Review consume the supplied template only at their existing
+analytical owner. Verified Change consumes it only through the existing gate-check/evaluator compact
+record owner. Missing, unsupported or unsafe plugin templates stop authoring before any repository
+mutation and require explicit plugin repair or reinstall; status and inspection remain available.
+
 
 ## Brownfield Review After G-00
 

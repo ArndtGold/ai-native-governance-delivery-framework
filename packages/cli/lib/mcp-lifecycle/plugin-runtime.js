@@ -211,7 +211,10 @@ export async function launchPluginMcpServer({
   ensure = ensurePluginMcpRuntime,
   acquireClaim = acquireMcpExecutableClaim,
   execPath = process.execPath,
-  startFacade = async ({ runtime, surface, cockpitDir }) => {
+  startFacade = async ({ runtime, surface, cockpitDir, pluginRoot, env }) => {
+    // The facade's Core resource binding reads the plugin root from the environment it is
+    // loaded under; bind it on the injected environment before the dynamic import.
+    env.AGDF_DISPATCH_PLUGIN_ROOT = pluginRoot;
     const { runMcpServer } = await import(pathToFileURL(join(runtime.packageRoot, "src/main.js")));
     return runMcpServer({ surface, cockpitDir, ownedPublication: runtime, ownedPublisher: createMcpGenerationPublisher(runtime) });
   },
@@ -245,7 +248,7 @@ export async function launchPluginMcpServer({
   // separate claims released only after an acknowledged, actual child exit.
   try { acquireClaim(runtime); }
   catch { stderr.write('AGDF_MCP_EXECUTABLE_CLAIM_INVALID\n'); process.exitCode = 1; return null; }
-  try { return await startFacade({ runtime, surface, cockpitDir }); }
+  try { return await startFacade({ runtime, surface, cockpitDir, pluginRoot, env }); }
   catch { stderr.write('AGDF_MCP_PLUGIN_RUNTIME_FAILED\n'); process.exitCode = 1; return null; }
 
 }

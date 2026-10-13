@@ -3,14 +3,16 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalizeLanguageTag, resolvePresentationLocale } from "../interaction-presentation.js";
 import { validateInteractionCatalog } from "../interaction-catalog-validation.js";
-import { packageURL, generatedURL, contractsURL } from "./binding.js";
+import { packageURL, generatedURL, contractsURL, templatesURL } from "./binding.js";
 
 function freeze(value) {
   if (value && typeof value === "object") { for (const entry of Object.values(value)) freeze(entry); Object.freeze(value); }
   return value;
 }
-export function createResourceContext({ packageURL, generatedURL, contractsURL, expectedVersion } = {}) {
-  if (![packageURL, generatedURL, contractsURL].every(value => value instanceof URL && value.protocol === "file:")) throw new Error("runtime_resources_unavailable");
+export function createResourceContext({ packageURL, generatedURL, contractsURL, templatesURL, expectedVersion } = {}) {
+  if (![packageURL, generatedURL, contractsURL].every(value => value instanceof URL && value.protocol === "file:")
+      || (templatesURL !== null && templatesURL !== undefined
+        && (!(templatesURL instanceof URL) || templatesURL.protocol !== "file:"))) throw new Error("runtime_resources_unavailable");
   const packageRoot = fileURLToPath(packageURL), generatedRoot = fileURLToPath(generatedURL);
   expectedVersion ??= JSON.parse(readFileSync(new URL("package.json", packageURL), "utf8")).version;
   const pluginDefinition = JSON.parse(readFileSync(new URL("plugins/agdf/meta/agdf-plugin.definition.json", generatedURL), "utf8"));
@@ -21,9 +23,16 @@ export function createResourceContext({ packageURL, generatedURL, contractsURL, 
       || pluginDefinition.runtimeContract.modules.some(path => !/^meta\/contracts\/[a-z0-9-]+\.md$/u.test(path))
       || !Array.isArray(pluginDefinition.skillSet) || !interactionLocales.locales?.[interactionLocales.fallbackLocale]) throw new Error("runtime_resources_unavailable");
   validateInteractionCatalog(interactionLocales);
-  return freeze({ packageRoot, generatedRoot, contractsRoot: fileURLToPath(contractsURL), pluginDefinition, interactionLocales });
+  return freeze({
+    packageRoot,
+    generatedRoot,
+    contractsRoot: fileURLToPath(contractsURL),
+    templatesRoot: templatesURL instanceof URL ? fileURLToPath(templatesURL) : null,
+    pluginDefinition,
+    interactionLocales,
+  });
 }
-export const resources = createResourceContext({ packageURL, generatedURL, contractsURL });
+export const resources = createResourceContext({ packageURL, generatedURL, contractsURL, templatesURL });
 export const { packageRoot, generatedRoot, pluginDefinition, interactionLocales } = resources;
 export function configuredLanguage(value, context = resources) {
   const normalized = canonicalizeLanguageTag(value);

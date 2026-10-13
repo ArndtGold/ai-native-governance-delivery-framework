@@ -6,6 +6,7 @@ import { RUN_COMMAND_LIMITS } from '#agdf-core/control-state/run-command-contrac
 import { executeControlMaintenance } from "./control-maintenance-command.js";
 import { createRun } from "#agdf-core/control-state/run-state-repository.js";
 import { extractField } from "#agdf-core/control-evaluation/verified-change.js";
+import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "#agdf-core/resources/artefact-templates.js";
 import { prepareRunPresentation } from "#agdf-core/control-state/run-presentation.js";
 import {
   buildStatusCard,
@@ -70,7 +71,14 @@ export function createValidationHandlers(io = console) {
         const revisionId = extractField(readFileSync(path, "utf8"), "revision_id");
         io.log(path);
         io.log(`revision_id: ${revisionId}`);
-        io.log(`Next: write .agdf/control/artefacts/${options.runId}/UR.md from .agdf/control/templates/artefacts/UR.md, then record it with run-step --run ${options.runId} --revision ${revisionId} --step ur --title "<short requirement title>".`);
+        // The plugin-owned template is the only authoring source; repository scaffold copies are
+        // derived references. Run creation itself never fails on template availability.
+        let urTemplate = null;
+        try { urTemplate = resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.UR); } catch {}
+        const templateSource = urTemplate
+          ? `the plugin-owned UR template at ${urTemplate}`
+          : "the plugin-owned UR template supplied as template_path by the bound ur-definition dispatch";
+        io.log(`Next: write .agdf/control/artefacts/${options.runId}/UR.md from ${templateSource}, then record it with run-step --run ${options.runId} --revision ${revisionId} --step ur --title "<short requirement title>".`);
         return 0;
       } catch (error) {
         io.error(error instanceof Error ? error.message : String(error));

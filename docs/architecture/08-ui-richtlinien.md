@@ -4,7 +4,7 @@ AGDF soll dem Anwender helfen, sein Vorhaben zu verstehen, die nächste Aufgabe 
 und eine konkrete Entscheidung bewusst zu treffen. Diese Richtlinien gelten für den Hub,
 das Run-Cockpit im Chat, die große Appfläche sowie Dokumente und Verlauf innerhalb der App.
 
-**Dokumentrolle: Gestaltungsgrundlage für die UI-Weiterentwicklung, Stand 12. Oktober 2026.**
+**Dokumentrolle: Gestaltungsgrundlage für die UI-Weiterentwicklung, Stand 13. Oktober 2026.**
 Die beschriebenen Regeln sind Anforderungen an neue und überarbeitete Ansichten. Sie sind
 kein Nachweis, dass der heutige Bestand sie vollständig erfüllt. Das
 [UI-Konzept](07-ui-konzept.md) beschreibt Nutzerweg, Ansichten und Mockups; diese Seite
@@ -104,15 +104,32 @@ bestimmt MCP/MCP Apps als gemeinsame Schnittstelle. Ansichten sollen über kompa
 dieselbe fachliche Bedeutung besitzen. CopilotKit bleibt optional; fehlende UI-Fähigkeiten
 führen zu den unterstützten Text- oder Navigationswegen, nicht zu veränderten Entscheidungsregeln.
 
+AGDF verwendet für nutzerseitige Präsentationen ausschließlich
+[MCP-App-UI und Portable Markdown](07-ui-konzept.md#verbindliche-darstellungsformate).
+Eine automatische Auswahl ist eine Strategie, kein zusätzliches Format. Beide Darstellungen
+führen aus derselben gebundenen Grundlage mit Vorhaben, aktuellem Schritt, Fassung,
+Entscheidungsfolgen und zulässiger Antwort. Fehlt eine bestätigte MCP-App-Darstellung, muss
+Portable Markdown die vollständige Entscheidungsgrundlage liefern und auch ungerendert
+verständlich bleiben. Ein Fallback darf keine Host-Fähigkeit, Klickqualifizierung oder
+stärkere Herkunftsabsicherung vortäuschen.
+
 **Beispiel:** „Groß öffnen“ fordert einen angebotenen Modus an. „Rechts öffnen“ wird ohne
 entsprechenden Host-Nachweis nicht als zugesicherte Wirkung versprochen. „Vorhaben ansehen“
 öffnet den ausgewählten Kontrollstand, ohne den bestehenden Chat oder seinen Auftrag zu ersetzen.
+Kann die MCP-App nicht bestätigt angezeigt werden, erscheint derselbe Entscheidungsgegenstand
+vollständig als Portable Markdown. Fachliche Antwortregel und Gate-Wirkung ändern sich dadurch
+nicht; ein erforderlicher stärker abgesicherter Eingabekanal wird jedoch nicht ersetzt.
 
 **Prüfkriterium:** App und Host sind eindeutig getrennt. Die App enthält keinen nachgebauten
 Codex-Composer und kein eigenes Host-Schließen-X. Kontextübergabe behauptet weder eine
 gesendete Frage noch eine Freigabe. Run-Auswahl startet keine automatische Fortsetzung.
 Für jeden unterstützten Host sind Version, Fähigkeiten und die tatsächlichen Interaktionen
 belegt; ein Erfolg in einem anderen Host genügt dafür nicht.
+Conformance-Tests vergleichen beide Formate auf dieselbe Run-, Gate-, Revisions- und
+Digest-Bindung, dieselben Konsequenzen und dieselbe zulässige Antwort. Portable Markdown
+verlangt keine HTML-Details, Diagramme, lokalen Links oder nativen Bedienelemente, um den
+Kerninhalt zu verstehen. Die Formatauswahl stammt aus vertrauenswürdiger Host-Konfiguration
+und beobachteten Fähigkeiten, nicht aus frei modellierbaren Werkzeugeingaben.
 
 ## 7 Gemeinsame Gestaltung und bestehende Komponenten
 

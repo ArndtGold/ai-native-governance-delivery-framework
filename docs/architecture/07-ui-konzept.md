@@ -13,7 +13,7 @@ erforderlichen Entscheidungen. Die KI führt die jeweils zulässige Arbeit aus. 
 verständlich sichtbar, was vereinbart ist, was bereits belegt wurde und was jetzt passieren
 muss, damit das Vorhaben weiterkommt.
 
-**Dokumentrolle: UI-Zielkonzept, Stand 12. Oktober 2026.** Die folgenden Abschnitte beschreiben
+**Dokumentrolle: UI-Zielkonzept, Stand 13. Oktober 2026.** Die folgenden Abschnitte beschreiben
 das gemeinsame Bedienmodell. Bestehende Komponenten bilden seine Grundlage; die vollständige
 Zusammenführung ist eine Weiterentwicklung. Die [Cockpit-Referenz](06-agdf-cockpit.md) beschreibt
 die vorhandene Leseintegration. Der [Befehlsfluss](core-mcp-command-flow.md) beschreibt die
@@ -26,7 +26,8 @@ enthält ein Beispiel und ein prüfbares Kriterium für die Weiterentwicklung de
 
 ## Architekturentscheidung zur gemeinsamen Host-Schnittstelle
 
-**Entscheidung für die UI-Weiterentwicklung, 12. Oktober 2026:** AGDF verwendet MCP für
+**Entscheidung für die UI-Weiterentwicklung, 12. Oktober 2026; Darstellungsformate geschärft
+am 13. Oktober 2026:** AGDF verwendet MCP für
 Werkzeuge, Daten und Ressourcen sowie die MCP-Apps-Erweiterung für interaktive Oberflächen
 und deren Kommunikation mit dem Host. Dieselbe AGDF-App soll in jedem Host funktionieren,
 der die erforderlichen Protokollversionen, Transportwege und Fähigkeiten unterstützt.
@@ -46,13 +47,67 @@ angeforderten Aktion. Grundlage ist der [offizielle MCP-Apps-Standard](https://g
 | Entscheidung per Klick | Gebundene Entscheidungsfassade und kanonische Core-Operation | Erforderliche Tool-Fähigkeit und Qualifizierung des konkreten Entscheidungswegs; derselbe Klick bestätigt dieselbe gebundene Fassung |
 | Automatische Fortsetzung | Frische Bestimmung des erlaubten Schritts und Übergabe an das bestehende Gespräch | Bestätigte Kontextaufnahme und Nachrichtenvermittlung; Zeitpunkt der tatsächlichen Agentenübernahme bestimmt der Host |
 
-Fehlt MCP-UI, verwendet AGDF den unterstützten gebundenen Textweg im vorhandenen Gespräch.
+### Verbindliche Darstellungsformate
+
+AGDF besitzt genau zwei nutzerseitige Darstellungsformate:
+
+1. **MCP-App-UI** stellt die gebundene Präsentation als interaktive MCP-App-Resource dar.
+   Sie setzt die erforderliche MCP-Apps-Fähigkeit, die Qualifizierung des konkreten Hosts und
+   für kompakte native Auslieferung die bestätigte Anzeige voraus.
+2. **Portable Markdown** stellt dieselbe gebundene Präsentation vollständig im vorhandenen
+   Gespräch dar. Es ist der universelle Fallback und bleibt auch als unformatierter Text
+   verständlich.
+
+`auto` ist eine Auswahlstrategie und kein drittes Darstellungsformat. Die wirksame Auswahl
+berücksichtigt die tatsächlich angebotenen Host-Fähigkeiten, eine vertrauenswürdige
+Host-Konfiguration, die Qualifizierung der konkreten Host-Fassung und die beobachtete Anzeige.
+Ein gewöhnliches, vom Modell befüllbares Werkzeugargument darf das Format nicht umschalten.
+Eine Präferenz für MCP-App-UI führt bei fehlender oder unbestätigter Unterstützung zu Portable
+Markdown und einem verständlichen Fallback-Hinweis; sie erzeugt weder eine leere Darstellung
+noch eine stillschweigend als nativ ausgegebene Textantwort.
+
+Die vertrauenswürdige Host-Konfiguration verwendet folgende Auswahlwerte:
+
+| `presentation_preference` | Auswahlregel |
+|---|---|
+| `auto` | MCP-App-UI nur bei vorhandener, qualifizierter und bestätigt angezeigter Unterstützung; sonst Portable Markdown |
+| `mcp_app_ui` | MCP-App-UI bevorzugen; bei fehlender oder unbestätigter Unterstützung sichtbar auf Portable Markdown zurückfallen |
+| `portable_markdown` | Portable Markdown unabhängig von einer zusätzlich verfügbaren MCP-App-Fähigkeit verwenden |
+
+Das daraus bestimmte `effective_format` ist ausschließlich `mcp_app_ui` oder
+`portable_markdown`. Die Konfiguration kann im Host-Adapter oder in vertrauenswürdigen
+namespaced Client-Metadaten transportiert werden. Sie gehört nicht in das fachliche
+Eingabeschema eines normalen AGDF-Werkzeugs.
+
+Beide Renderer erhalten dasselbe kanonische semantische Präsentationsmodell. Mindestens
+Vorhaben, Run, Gate beziehungsweise sichtbare Aufgabe, Revision, Entscheidungsgrundlage,
+relevante Digests, Zusammenfassung, Entscheidungsfolgen, nächster erlaubter Schritt und exakt
+zulässige Antwort bleiben in beiden Formaten inhaltlich gleich gebunden. Layout, Navigation
+und Bedienelemente dürfen sich unterscheiden; Bedeutung, Auslassungsregeln und Aktualität
+dürfen es nicht. Eine kurze Chat-Begleitnachricht zu einer angezeigten MCP-App wird aus
+derselben Grundlage abgeleitet und bildet keine dritte Präsentation.
+
+Portable Markdown verwendet einen bewusst kleinen, hostübergreifend prüfbaren Umfang:
+Überschriften, Absätze, Listen, Hervorhebung, Inline-Code, Codeblöcke und normale HTTPS-Links.
+Einfache Tabellen sind nur zulässig, wenn ihr Inhalt auch ohne Tabellenlayout eindeutig bleibt
+und für die unterstützten Hosts geprüft ist. Der portable Vertrag stützt sich nicht auf
+beliebiges HTML, aufklappbare `<details>`-Blöcke, Mermaid, lokale Dateisystemlinks,
+hosteigene Widgets oder Buttons und komplexe Tabellenlayouts.
+
+Fehlt MCP-App-UI, verwendet AGDF Portable Markdown für den unterstützten gebundenen Textweg
+im vorhandenen Gespräch.
 Fehlt nur eine einzelne Fähigkeit, bleibt die unterstützte Darstellung nutzbar: Ohne größeren
 Anzeigemodus bleibt die kompakte Karte verfügbar; ohne qualifizierten Klickweg erfolgt die
 Entscheidung im Chat; ohne bestätigte Fortsetzungsübergabe wird die notwendige Prüfung oder
 Weiterbeauftragung im Chat erklärt. Eine fehlende UI-Fähigkeit verändert keine Gate-Regel
 und ersetzt keine notwendige Entscheidung. Die dabei verfügbaren Text- und Werkzeugwege
 müssen ebenfalls für den konkreten Host eingerichtet und geprüft sein.
+
+Das Darstellungsformat und der Absicherungsweg der Antwort bleiben getrennt. Portable Markdown
+erhält den bestehenden kooperativen Antwortweg, hebt ihn aber nicht auf das Vertrauensniveau
+eines unabhängig qualifizierten nativen Eingabekanals. Verlangt eine Operation einen solchen
+Kanal, bleibt sie trotz vollständiger Portable-Markdown-Darstellung blockiert, bis der
+erforderliche Eingabeweg verfügbar und qualifiziert ist.
 
 ### CopilotKit als optionale Host-Implementierung
 

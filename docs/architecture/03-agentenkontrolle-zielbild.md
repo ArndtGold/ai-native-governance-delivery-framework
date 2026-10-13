@@ -152,7 +152,18 @@ Ein Entscheidungsgegenstand umfasst Ziel, Run, Gate und Revision, Artefakt-Diges
 
 Bei einer entscheidungsreifen Vorlage werden der exakte Entscheidungsgegenstand und das Artefakt, die vollständige Entscheidungszusammenfassung, Konsequenzen und nächste Aktion gezeigt. Danach wird auf eine neue bewusste Antwort gewartet. Bei der Speicherung prüft der Validator denselben Gegenstand und Zustand erneut. Überarbeitung, Ablehnung, Abbruch, Zeitüberschreitung oder Schweigen führen niemals zu einem Fortschritt im Ablauf. Ein geändertes Artefakt oder eine geänderte Revision erfordert eine neue Darstellung und eine neue Antwort; die vorherige Antwort darf nicht an den neuen Gegenstand gebunden werden.
 
-Die portable Darstellung besteht aus kanonischem Text und exakter menschlicher Antwort. Ein qualifiziertes natives Auswahlformular kann lokalisierte Beschriftungen auf stabile Werte abbilden; kein Standardwert und keine vorausgewählte Option wird als Freigabe übermittelt. Auch die Annahme einer Formularübermittlung muss den erwarteten Entscheidungswert und einen gültigen gebundenen Antwortkontext enthalten. UI-Funktionalität und Absicherung der Herkunft werden getrennt bewertet. Für einfache Auswahlentscheidungen ist keine React-Anwendung erforderlich. Ein umfangreicheres eigenes Panel benötigt einen gesonderten begründeten Produktumfang.
+Die sichtbare Entscheidungsgrundlage besitzt genau zwei Darstellungsformate:
+[MCP-App-UI und Portable Markdown](07-ui-konzept.md#verbindliche-darstellungsformate).
+Beide bilden denselben kanonischen Entscheidungsgegenstand ab. Portable Markdown enthält den
+vollständigen kanonischen Text und die exakte menschliche Antwort und benötigt keine
+React-Anwendung. MCP-App-UI darf lokalisierte Beschriftungen und Bedienelemente verwenden,
+ohne stabile Entscheidungswerte oder Bindungen umzudeuten.
+
+Ein qualifiziertes natives Auswahlformular oder Standard-MCP-Elicitation ist ein Eingabe- und
+Absicherungsweg, kein drittes Darstellungsformat. Kein Standardwert und keine vorausgewählte
+Option wird als Freigabe übermittelt. Auch die Annahme einer Formularübermittlung muss den
+erwarteten Entscheidungswert und einen gültigen gebundenen Antwortkontext enthalten.
+UI-Funktionalität und Absicherung der Herkunft werden getrennt bewertet.
 
 Standard-MCP-Elicitation kann Formularunterstützung aushandeln und unterschiedliche Optionswerte und Titel darstellen; nicht unterstützte Modi dürfen nicht angefordert werden. Dies erfasst Eingaben und stellt keine AGDF-Freigaberichtlinie dar. [MCP-Elicitation-Spezifikation](https://modelcontextprotocol.io/specification/2025-11-25/client/elicitation). OpenAI dokumentiert umfangreichere native ChatGPT-Formulare und UI-Einstiegspunkte mit const/title-Optionen sowie MRTR-Anforderungen für registrierte Server. Das belegt nicht ihre Verfügbarkeit in dieser lokalen Codex-Sitzung. [Plugin Extensions](https://developers.openai.com/plugins/build/extensions).
 

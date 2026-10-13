@@ -134,13 +134,14 @@ try {
   const p = present();
   assert.equal(p.outcome, "prepared", JSON.stringify(p));
   assert.equal(p.schema_version, "1", "CLI envelope uses the canonical string version");
-  assert.match(p.text, /## Kurzfassung · UR/u);
-  assert.match(p.text, /## Prüfartefakt · UR/u);
-  assert.match(p.text, /Artefakt: \[UR\.md\]\(<[^>]+[\\/]UR\.md>\)/u, "the exact UR file must be clickable");
+  assert.match(p.text, /## Nutzeranforderungen prüfen und entscheiden/u);
+  assert.match(p.text, /Antworte „Dokument lesen“/u, "the complete presented UR must be accessible before approval");
+  assert.equal(readFileSync(join(root, '.agdf/control/runs/new-run/presentations', `${p.presentation_id}.document`), 'utf8'),
+    readFileSync(ur, 'utf8'), "document access binds the exact revised UR rather than a later mutable file");
   assert.match(p.text, /SHA-256: `sha256:[0-9a-f]{64}`/u);
   assert.match(p.text, /- Problem: Ein neuer Umfang wird gebunden\./u, "the German presentation uses the embedded localized summary");
   assert.doesNotMatch(p.text, /A new scope\./u, "no unmarked English source excerpt in the German summary");
-  assert.ok(p.text.indexOf("## Kurzfassung · UR") < p.text.indexOf("Jetzt freigeben"), "summary appears before the approval action");
+  assert.ok(p.text.indexOf('Antworte „Dokument lesen“') < p.text.indexOf('Freigeben kannst du diese Fassung'), "document review precedes the approval instruction");
   assert.match(p.artefact_digest, /^sha256:[0-9a-f]{64}$/u);
   assert.match(p.summary_digest, /^sha256:[0-9a-f]{64}$/u);
   assert.match(p.text, /Approval: UR/u);

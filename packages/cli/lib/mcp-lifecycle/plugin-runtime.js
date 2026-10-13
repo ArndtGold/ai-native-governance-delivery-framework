@@ -104,6 +104,7 @@ export function ensurePluginMcpRuntime({
     && runtime.digest === sourceServerDigest
     && runtime.dispatcherDigest === sourceDispatcherDigest
     && (override || (runtime.sdkDigest === expected.sdk_digest && runtime.sdkVerification !== SDK_VERIFICATION.override));
+  const replacementDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
   // After a plugin update several launchers replace the same runtime at once (Claude's version probe and
   // respawn, every plugin server, reconnecting sessions); states they cause each other are retried briefly.
   for (let attempt = 1; ; attempt += 1) {
@@ -137,14 +138,21 @@ export function ensurePluginMcpRuntime({
       // A concurrent launcher may have installed the same runtime first.
       const settled = inspectMcpServerPackage({ dataRoot: publicationRoot, expectedVersion: version });
       if (usable(settled)) return published({ ...settled, changed: false });
-      if (attempt >= CONCURRENT_REPLACEMENT_ATTEMPTS || !concurrentReplacementError(error)) throw error;
-      sleepSync(CONCURRENT_REPLACEMENT_DELAY_MS * attempt);
+      const publicationLocked = error?.message === 'AGDF_RUN_WRITE_LOCKED';
+      if (!concurrentReplacementError(error)
+          || (publicationLocked ? performance.now() >= replacementDeadline : attempt >= CONCURRENT_REPLACEMENT_ATTEMPTS)) throw error;
+      sleepSync(publicationLocked
+        ? Math.min(CONCURRENT_REPLACEMENT_DELAY_MS, Math.max(0, replacementDeadline - performance.now()))
+        : CONCURRENT_REPLACEMENT_DELAY_MS * attempt);
     }
   }
 }
 
 const CONCURRENT_REPLACEMENT_ATTEMPTS = 6;
 const CONCURRENT_REPLACEMENT_DELAY_MS = 150;
+// SDK acquisition and copying can exceed the old 2.25-second retry window on
+// Windows. Wait for the publication owner without taking or removing its lock.
+const CONCURRENT_PUBLICATION_WAIT_MS = 30_000;
 
 // Only states another launcher can cause: a runtime moved away mid-inspection or a lost stage rename.
 // npm, SDK and verification failures are never retried.

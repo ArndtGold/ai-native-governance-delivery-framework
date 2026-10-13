@@ -219,13 +219,25 @@ try {
     ensurePluginMcpRuntime({ pluginRoot: updatedPlugin, dataRoot, exec: offlineNpm });
     writeFileSync(join(updatedPlugin, "mcp", "server", "README.md"), `${readFileSync(join(updatedPlugin, "mcp", "server", "README.md"), "utf8")}\nUpdated plugin build.\n`);
     const worker = join(import.meta.dirname, "fixtures", "plugin-mcp-ensure-worker.js");
-    const results = await Promise.all(Array.from({ length: 6 }, () => new Promise((resolveRun, reject) => {
-      const child = spawn(process.execPath, [worker, updatedPlugin, dataRoot], { stdio: ["ignore", "pipe", "pipe"] });
+    const holdingMarker = join(updateRoot, 'publication-held');
+    const launch = (marker) => new Promise((resolveRun, reject) => {
+      const child = spawn(process.execPath, [worker, updatedPlugin, dataRoot, ...(marker ? [marker] : [])], { stdio: ["ignore", "pipe", "pipe"] });
       let stdout = "";
       child.stdout.on("data", (chunk) => { stdout += chunk; });
       child.once("error", reject);
       child.once("exit", () => resolveRun(JSON.parse(stdout)));
-    })));
+    });
+    const owner = launch(holdingMarker);
+    const deadline = performance.now() + 30_000;
+    while (!existsSync(holdingMarker) && performance.now() < deadline)
+      await new Promise(resolve => setTimeout(resolve, 25));
+    if (!existsSync(holdingMarker)) {
+      await owner;
+      assert.fail('publication owner must reach the SDK acquisition barrier');
+    }
+    // Five contenders start only after the owner holds the lock, and must wait
+    // through a preparation longer than the former retry window on every OS.
+    const results = await Promise.all([owner, ...Array.from({ length: 5 }, () => launch())]);
     assert.deepEqual(results.filter((row) => row.error), [], JSON.stringify(results));
     assert.equal(ensurePluginMcpRuntime({ pluginRoot: updatedPlugin, dataRoot, exec() { throw new Error("must reuse"); } }).changed, false);
     assert.deepEqual(readdirSync(join(dataRoot, "mcp")).filter((name) => name.startsWith(".")), [], "no retired or staged leftovers");

@@ -5,7 +5,7 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
-import { prepareRunContentState } from "../control-evaluation/run-state.js";
+import { prepareRunContentState, userGateOrder } from "../control-evaluation/run-state.js";
 import { containedRegularFile, hasSymlinkComponent } from "./contained-file.js";
 import { duplicateArtefactRowTypes, parseControlState, parseRunState, scalarFields, sectionTableRows } from "./run-state-parser.js";
 import { applyRunSeals, artefactFileDigest, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths, runSealState } from "./run-seal.js";

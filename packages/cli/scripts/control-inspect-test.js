@@ -32,14 +32,14 @@ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES,
   `agdf_inspect definition is ${controlInspectDefinitionBytes()} bytes, cap ${CONTROL_INSPECT_MAX_DEFINITION_BYTES}`);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, [...CONTROL_INSPECT_OPERATIONS]);
-assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document"]);
+assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "runtime-generations"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /module=agdf_prepare\/presentation\.prepare/);
 
 // Published operation dependencies agree with the shared runtime policy.
 const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
-for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document"].includes(operation))) {
+for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "runtime-generations"].includes(operation))) {
   for (const allActive of [undefined, false, true]) {
     for (const variant of [undefined, "status-card", "approval-envelope"]) {
       for (const contractModule of [undefined, "quality"]) {
@@ -70,6 +70,14 @@ for (const field of ['run_id', 'expected_revision_id', 'target_source', 'primary
   const incomplete = { ...nativeBinding }; delete incomplete[field]; assert.equal(validateInspectSchema(incomplete), false, field);
 }
 assert.equal(validateInspectSchema({ ...nativeBinding, module: 'quality' }), false);
+const generationsBinding = { ...nativeBinding, operation: 'runtime-generations' };
+assert.equal(validateInspectSchema(generationsBinding), true);
+for (const field of ['run_id', 'expected_revision_id', 'target_source', 'primary_target']) {
+  const incomplete = { ...generationsBinding }; delete incomplete[field];
+  assert.equal(validateInspectSchema(incomplete), false, `runtime-generations requires ${field}`);
+}
+for (const fields of [{ gate: 'PRD' }, { module: 'quality' }, { all_active: true }, { variant: 'status-card' }])
+  assert.equal(validateInspectSchema({ ...generationsBinding, ...fields }), false, JSON.stringify(fields));
 const documentBinding = { ...draftBinding, operation: 'presentation-document', presentation_id: draftBinding.expected_revision_id,
   target_id: 'sha256:' + 'a'.repeat(64) };
 assert.equal(validateInspectSchema(documentBinding), true);
@@ -271,7 +279,9 @@ try {
   const present = JSON.parse(presentRun.stdout);
   assert.equal(present.summary_digest, presented.presentation.summary_digest);
   assert.equal(present.artefact_digest, presented.presentation.artefact_digest);
-  assert.ok(present.text.includes(presented.presentation.markdown), "run-present text contains the exact preview");
+  assert.equal(present.text, gate.approval_presentation.markdown, "run-present binds the exact decision text rather than embedding the read-only status preview");
+  assert.equal(readFileSync(join(root, '.agdf/control/runs/inspect-run/presentations', `${present.presentation_id}.document`), 'utf8'),
+    gate.approval_presentation.document_content, "the bound document snapshot remains the exact reviewed source");
   const approveWithoutPresentation = spawnSync(process.execPath, [cli, "run-approve", "--dir", root, "--run", "inspect-run", "--gate", "UR", "--revision", gate.approval_presentation.revision_id, "--response", "Approval: UR"], { encoding: "utf8" });
   assert.notEqual(approveWithoutPresentation.status, 0, "approval without a presentation id stays rejected");
 

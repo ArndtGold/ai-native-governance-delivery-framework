@@ -1,0 +1,479 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_native_post_approval_session_retirement",
+  "authorizes": false,
+  "native_full_matrix_qualified": false,
+  "candidate": {
+    "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8",
+    "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+    "dispatcher_digest": "28dd188577facb0b35eaa258519dda15ea26dc0c255dd8acd3c366764b06b15d",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/decision/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 924766,
+      "digest": "sha256:b923b7e85b98fb87242cd268a091ee9c2444ab3c266a7ba786908b39d64c4edf",
+      "source_digest": "sha256:3eb6eb8f840e19ca15d5be4061d4f8f19454d3a4fdbd6e84113d032768ae8014"
+    }
+  },
+  "producer": {
+    "process_id": 6323,
+    "server_started_at": "2026-10-12T12:09:01.792Z"
+  },
+  "presentation_id": "9e78ebdd-7ad2-42a5-a271-1328ec7b52b7",
+  "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+  "human_observation": "Freigegeben; instructed to leave the card open",
+  "automatically_closed": true,
+  "assistant_close_calls": 0,
+  "close_ack": "closed:true",
+  "subsequent_read": "session_expired",
+  "expiry_at_ms": 1791835792709,
+  "close_at": "2026-10-12T12:10:08.660Z",
+  "limits": [
+    "User did not reconfirm all keyboard/layout/document points in this test",
+    "No actual native independent-view test claimed; that dimension has assembled-Core evidence",
+    "Undecided native host disposal is still open",
+    "iPad, permission-denial and complete corpus remain open"
+  ],
+  "exchange": [
+    {
+      "at": "2026-10-12T12:10:07.299Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_decision_action",
+        "input": {
+          "session_id": "2d15ca04-dea5-42da-a0bf-df7083a99de0",
+          "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+          "presentation_id": "9e78ebdd-7ad2-42a5-a271-1328ec7b52b7",
+          "expected_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+          "action": "approve"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:08.136Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_decision_action",
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+          "receipt": {
+            "action": "record_gate_approval",
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "binding": {
+              "expected_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+              "gate": "SD",
+              "presentation_id": "9e78ebdd-7ad2-42a5-a271-1328ec7b52b7",
+              "run_id": "native-de-approve",
+              "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8"
+            },
+            "command_digest": "sha256:b9c46555e98eea57c57ad5587f98fcb00be8ffbdb9b598e95c665bb29c6e067b",
+            "created_at": "2026-10-12T12:10:07.678Z",
+            "effect": {
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "gate": "SD",
+              "material_sources": [
+                {
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "type": "UR"
+                },
+                {
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "type": "PRD"
+                },
+                {
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "type": "SD"
+                }
+              ],
+              "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+              "next_gate_after_approval": "TP",
+              "presentation_digest": "sha256:58ecc229d9b391c4efb52aaedce52dcff7fafe7569ded64da657918973be5d60",
+              "previous_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+              "resulting_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+              "revision": 8
+            },
+            "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+            "producer": {
+              "contract": "approval-service/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:705927569450931a0222884b4576118f53f0b099ecb286f6c463f6ee2bd90bec",
+            "schema_version": "2"
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+            "lifecycle": "active",
+            "gate": "TP",
+            "status": "open",
+            "missing_approval": "Approval: TP",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "prepare_gate_artifact",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "TP",
+              "skill_id": "gate-check",
+              "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+              "source_artifacts": [
+                ".agdf/control/artefacts/native-de-approve/PRD.md",
+                ".agdf/control/artefacts/native-de-approve/SD.md"
+              ]
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:08.136Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_decision_action",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+          "receipt": {
+            "action": "record_gate_approval",
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "binding": {
+              "expected_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+              "gate": "SD",
+              "presentation_id": "9e78ebdd-7ad2-42a5-a271-1328ec7b52b7",
+              "run_id": "native-de-approve",
+              "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8"
+            },
+            "command_digest": "sha256:b9c46555e98eea57c57ad5587f98fcb00be8ffbdb9b598e95c665bb29c6e067b",
+            "created_at": "2026-10-12T12:10:07.678Z",
+            "effect": {
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "gate": "SD",
+              "material_sources": [
+                {
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "type": "UR"
+                },
+                {
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "type": "PRD"
+                },
+                {
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "type": "SD"
+                }
+              ],
+              "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+              "next_gate_after_approval": "TP",
+              "presentation_digest": "sha256:58ecc229d9b391c4efb52aaedce52dcff7fafe7569ded64da657918973be5d60",
+              "previous_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+              "resulting_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+              "revision": 8
+            },
+            "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+            "producer": {
+              "contract": "approval-service/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:705927569450931a0222884b4576118f53f0b099ecb286f6c463f6ee2bd90bec",
+            "schema_version": "2"
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+            "lifecycle": "active",
+            "gate": "TP",
+            "status": "open",
+            "missing_approval": "Approval: TP",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "prepare_gate_artifact",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "TP",
+              "skill_id": "gate-check",
+              "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+              "source_artifacts": [
+                ".agdf/control/artefacts/native-de-approve/PRD.md",
+                ".agdf/control/artefacts/native-de-approve/SD.md"
+              ]
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:08.660Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "input": {
+          "operation": "close",
+          "session_id": "404cf819-9b40-45ee-8901-887b72234dc6"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:08.668Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "result": {
+          "schema_version": "1",
+          "state": "available",
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:08.668Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "state": "available",
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:29.354Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "input": {
+          "operation": "snapshot",
+          "session_id": "404cf819-9b40-45ee-8901-887b72234dc6",
+          "run_id": "native-de-approve"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:29.354Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:10:29.354Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:11:03.376Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "input": {
+          "operation": "snapshot",
+          "session_id": "404cf819-9b40-45ee-8901-887b72234dc6",
+          "run_id": "native-de-approve"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:11:03.377Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T12:11:03.377Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 6323,
+        "server_started_at": "2026-10-12T12:09:01.792Z"
+      },
+      "data": {
+        "name": "agdf_cockpit_read",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      }
+    }
+  ]
+}

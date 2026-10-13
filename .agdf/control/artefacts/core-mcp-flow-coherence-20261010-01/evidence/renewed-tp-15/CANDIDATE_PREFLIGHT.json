@@ -1,0 +1,103 @@
+{
+  "evidence_class": "synthetic_owned_stdio_preflight",
+  "source_candidate": "NATIVE_PROBE_CANDIDATE.json",
+  "native_qualified": false,
+  "production_qualification": false,
+  "tools": [
+    "agdf_dispatch",
+    "agdf_inspect",
+    "agdf_prepare",
+    "agdf_record",
+    "agdf_approve"
+  ],
+  "request": {
+    "operation": "native-qualification",
+    "presentation_language": "en",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target",
+    "target_source": "explicit_target",
+    "run_id": "native-en-approve",
+    "expected_revision_id": "a673c5b8-df89-438d-9830-d74104176a1d"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"schema_version\": \"1\",\n  \"contract_version\": 1,\n  \"outcome\": \"inspect_result\",\n  \"terminal\": false,\n  \"authorizes\": false,\n  \"operation\": \"native-qualification\",\n  \"runtime\": {\n    \"machine_validation\": \"local_exact_version_digest\",\n    \"expected_version\": \"0.14.5\",\n    \"plugin_root\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/node_modules/create-agdf/\",\n    \"runtime_digest\": \"c601f042bc0a411195e69cf319d79a6a234a0d4a439ec6be01a0e7c46efc1423\",\n    \"provenance_status\": \"matched\"\n  },\n  \"target\": {\n    \"schema_version\": \"1\",\n    \"resolution_state\": \"resolved\",\n    \"reason_code\": \"explicit_target\",\n    \"primary_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target\",\n    \"evidence_sources\": [],\n    \"working_directory\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target\",\n    \"governance_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target\",\n    \"target_source\": \"explicit_target\",\n    \"target_changed\": false,\n    \"next_action\": \"\",\n    \"authorizes\": false\n  },\n  \"report\": {\n    \"available\": true,\n    \"run_id\": \"native-en-approve\",\n    \"revision_id\": \"a673c5b8-df89-438d-9830-d74104176a1d\",\n    \"ui_rendering_support\": \"unsupported\",\n    \"action_qualification\": {\n      \"qualified\": false,\n      \"reason\": \"qualification_record_missing\",\n      \"authorizes\": false\n    },\n    \"business_readiness\": {\n      \"current_gate\": \"SD\",\n      \"status\": \"open\",\n      \"next_operation\": {\n        \"type\": \"author_gate_artifact\",\n        \"operation_key\": \"artefact.author\",\n        \"actor\": \"agent\",\n        \"effect\": \"preparation\",\n        \"gate\": \"SD\"\n      }\n    },\n    \"authorizes\": false,\n    \"enabled_command_groups\": [\n      \"agdf_prepare\",\n      \"agdf_record\",\n      \"agdf_approve\"\n    ]\n  },\n  \"presentation\": null,\n  \"recovery\": null,\n  \"host_action\": {\n    \"mode\": \"consume_report_and_continue\",\n    \"source\": \"report\",\n    \"allow_surrounding_text\": true,\n    \"may_request_run_or_evidence\": false\n  },\n  \"timing\": {\n    \"wrapper_ms\": 0,\n    \"input_ms\": 10.38,\n    \"target_ms\": 4.453,\n    \"control_ms\": 47.223,\n    \"render_ms\": 0,\n    \"total_ms\": 62.183\n  },\n  \"diagnostics\": []\n}"
+      }
+    ],
+    "structuredContent": {
+      "schema_version": "1",
+      "contract_version": 1,
+      "outcome": "inspect_result",
+      "terminal": false,
+      "authorizes": false,
+      "operation": "native-qualification",
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/node_modules/create-agdf/",
+        "runtime_digest": "c601f042bc0a411195e69cf319d79a6a234a0d4a439ec6be01a0e7c46efc1423",
+        "provenance_status": "matched"
+      },
+      "target": {
+        "schema_version": "1",
+        "resolution_state": "resolved",
+        "reason_code": "explicit_target",
+        "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target",
+        "evidence_sources": [],
+        "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target",
+        "target_source": "explicit_target",
+        "target_changed": false,
+        "next_action": "",
+        "authorizes": false
+      },
+      "report": {
+        "available": true,
+        "run_id": "native-en-approve",
+        "revision_id": "a673c5b8-df89-438d-9830-d74104176a1d",
+        "ui_rendering_support": "unsupported",
+        "action_qualification": {
+          "qualified": false,
+          "reason": "qualification_record_missing",
+          "authorizes": false
+        },
+        "business_readiness": {
+          "current_gate": "SD",
+          "status": "open",
+          "next_operation": {
+            "type": "author_gate_artifact",
+            "operation_key": "artefact.author",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "SD"
+          }
+        },
+        "authorizes": false,
+        "enabled_command_groups": [
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_approve"
+        ]
+      },
+      "presentation": null,
+      "recovery": null,
+      "host_action": {
+        "mode": "consume_report_and_continue",
+        "source": "report",
+        "allow_surrounding_text": true,
+        "may_request_run_or_evidence": false
+      },
+      "timing": {
+        "wrapper_ms": 0,
+        "input_ms": 10.38,
+        "target_ms": 4.453,
+        "control_ms": 47.223,
+        "render_ms": 0,
+        "total_ms": 62.183
+      },
+      "diagnostics": []
+    }
+  }
+}

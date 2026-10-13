@@ -1,0 +1,154 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+    "operation_id": "ae52e315-828a-4259-9c6c-c0d7a473a322",
+    "command": {
+      "kind": "artefact.record",
+      "payload": {
+        "gate": "QA",
+        "reviewed_request": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/QA_RECORDING_INPUT_24.json",
+          "digest": "sha256:e1d06faf49e6afe448581462de89950a325febe5a92a93e058d961207389a0b7"
+        }
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "ae52e315-828a-4259-9c6c-c0d7a473a322",
+    "request_digest": "sha256:0e597ac0a27686ccafcf606eed99d31b7f29b30a34b323f9fd1bc747bd2127b6",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+      "kind": "artefact.record"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": "2",
+      "binding_id": "8af00da0-d936-46b3-8324-d871aa99fe31",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "relationship": {
+        "from": "QA_REPORT",
+        "relationship": "tests",
+        "to": "TP"
+      },
+      "destination": {
+        "type": "QA_REPORT",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/QA_REPORT.md",
+        "digest": "sha256:152bd39cd883927af1a28411bfa94b7ec317baeaf09afa6af500e39665ac3d3b",
+        "status": "revise"
+      },
+      "source": {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+        "digest": "sha256:f64d2aa07acead86ce8176a9062f43c87b0d2df7b4d7df82851db1b18fcb5ce3"
+      },
+      "review": {
+        "reviewer": "Codex / bound qa-gate exact-source evidence review",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/QA_SOURCE_MAPPING_REVIEW_24.json",
+        "digest": "sha256:408fa32d09a8c342217a5d5bd0764f81bd6e92879177d8f2c92ca7923853c871"
+      },
+      "origin": "reviewed_mapping",
+      "operation": {
+        "id": "ae52e315-828a-4259-9c6c-c0d7a473a322",
+        "previous_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+        "resulting_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+        "revision": 61,
+        "request_digest": "sha256:0e597ac0a27686ccafcf606eed99d31b7f29b30a34b323f9fd1bc747bd2127b6"
+      },
+      "supersedes": null
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 61,
+      "revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+      "lifecycle": "active",
+      "gate": "QA",
+      "status": "open",
+      "missing_approval": "none",
+      "blocking_reason": "qa_revise_required",
+      "next_operation": {
+        "type": "remediate_quality_findings",
+        "operation_key": "quality.remediate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA",
+        "routing": "evidence"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "step": "artefact",
+      "previous_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+      "revision": "61",
+      "revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "updated",
+      "operation_id": "ae52e315-828a-4259-9c6c-c0d7a473a322",
+      "receipt": {
+        "schema_version": "2",
+        "binding_id": "8af00da0-d936-46b3-8324-d871aa99fe31",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "run_id": "core-mcp-flow-coherence-20261010-01",
+        "relationship": {
+          "from": "QA_REPORT",
+          "relationship": "tests",
+          "to": "TP"
+        },
+        "destination": {
+          "type": "QA_REPORT",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/QA_REPORT.md",
+          "digest": "sha256:152bd39cd883927af1a28411bfa94b7ec317baeaf09afa6af500e39665ac3d3b",
+          "status": "revise"
+        },
+        "source": {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+          "digest": "sha256:f64d2aa07acead86ce8176a9062f43c87b0d2df7b4d7df82851db1b18fcb5ce3"
+        },
+        "review": {
+          "reviewer": "Codex / bound qa-gate exact-source evidence review",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/QA_SOURCE_MAPPING_REVIEW_24.json",
+          "digest": "sha256:408fa32d09a8c342217a5d5bd0764f81bd6e92879177d8f2c92ca7923853c871"
+        },
+        "origin": "reviewed_mapping",
+        "operation": {
+          "id": "ae52e315-828a-4259-9c6c-c0d7a473a322",
+          "previous_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+          "resulting_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+          "revision": 61,
+          "request_digest": "sha256:0e597ac0a27686ccafcf606eed99d31b7f29b30a34b323f9fd1bc747bd2127b6"
+        },
+        "supersedes": null
+      }
+    }
+  }
+}

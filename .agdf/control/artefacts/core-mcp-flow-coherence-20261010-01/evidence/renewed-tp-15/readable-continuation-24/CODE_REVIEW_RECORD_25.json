@@ -1,0 +1,167 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+    "operation_id": "b5232c78-656f-4075-9b9a-3d048b2ed0a3",
+    "command": {
+      "kind": "step.record",
+      "payload": {
+        "step": "internal",
+        "internal_step": "CR",
+        "decision": "pass",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/CODE_REVIEW_REPORT_24.md",
+          "digest": "sha256:cece9e605312d5d4e087d3393640930f4b74b9c88fb47403772c098cdea43eee"
+        },
+        "covers": "Actual scoped implementation diff, owners and regressions; missing native/remote evidence remains TP/QA input"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "b5232c78-656f-4075-9b9a-3d048b2ed0a3",
+    "request_digest": "sha256:e360c3b7f5b92838ed017486a5016e7ac634d018edb44638e44e664dd5c6b962",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+      "kind": "step.record"
+    },
+    "effect": {
+      "previous_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+      "resulting_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+      "revision": 60,
+      "record": {
+        "step": "CR",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/CODE_REVIEW.md",
+          "digest": "sha256:cece9e605312d5d4e087d3393640930f4b74b9c88fb47403772c098cdea43eee"
+        },
+        "status": "done",
+        "covers": "Actual scoped implementation diff, owners and regressions; missing native/remote evidence remains TP/QA input",
+        "source_set_digest": "sha256:e1e745846b2e6afbdd74f5ae471cc1ffe133452159aee524c2f38505e5c6cd32"
+      }
+    },
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "b5232c78-656f-4075-9b9a-3d048b2ed0a3",
+      "request_digest": "sha256:e360c3b7f5b92838ed017486a5016e7ac634d018edb44638e44e664dd5c6b962",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+      "created_at": "2026-10-12T10:06:52.112Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+        "resulting_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+        "revision": 60,
+        "record": {
+          "step": "CR",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/CODE_REVIEW.md",
+            "digest": "sha256:cece9e605312d5d4e087d3393640930f4b74b9c88fb47403772c098cdea43eee"
+          },
+          "status": "done",
+          "covers": "Actual scoped implementation diff, owners and regressions; missing native/remote evidence remains TP/QA input",
+          "source_set_digest": "sha256:e1e745846b2e6afbdd74f5ae471cc1ffe133452159aee524c2f38505e5c6cd32"
+        }
+      }
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 60,
+      "revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+      "lifecycle": "active",
+      "gate": "QA",
+      "status": "open",
+      "missing_approval": "Approval: QA",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "evaluate_quality",
+        "skill_id": "qa-gate",
+        "operation_key": "quality.evaluate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "step": "internal",
+      "previous_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+      "revision": "60",
+      "revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+      "current_gate": "QA",
+      "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+      "backlog": "updated",
+      "operation_id": "b5232c78-656f-4075-9b9a-3d048b2ed0a3",
+      "receipt": {
+        "schema_version": "1",
+        "kind": "step.record",
+        "operation_id": "b5232c78-656f-4075-9b9a-3d048b2ed0a3",
+        "request_digest": "sha256:e360c3b7f5b92838ed017486a5016e7ac634d018edb44638e44e664dd5c6b962",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "run_id": "core-mcp-flow-coherence-20261010-01",
+        "expected_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+        "created_at": "2026-10-12T10:06:52.112Z",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "effect": {
+          "previous_revision_id": "97ba7370-6709-4a2d-a961-23ce21e5c96d",
+          "resulting_revision_id": "b5625f19-1f62-4559-a0e8-35dddc027e5b",
+          "revision": 60,
+          "record": {
+            "step": "CR",
+            "source": {
+              "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/CODE_REVIEW.md",
+              "digest": "sha256:cece9e605312d5d4e087d3393640930f4b74b9c88fb47403772c098cdea43eee"
+            },
+            "status": "done",
+            "covers": "Actual scoped implementation diff, owners and regressions; missing native/remote evidence remains TP/QA input",
+            "source_set_digest": "sha256:e1e745846b2e6afbdd74f5ae471cc1ffe133452159aee524c2f38505e5c6cd32"
+          }
+        }
+      }
+    }
+  }
+}

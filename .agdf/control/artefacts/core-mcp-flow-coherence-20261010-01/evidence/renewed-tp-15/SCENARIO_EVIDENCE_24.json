@@ -1,0 +1,1144 @@
+{
+  "schema_version": "1",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "revision_id": "9ba84a5f-35c0-46f7-be2b-9f17b190f55e",
+  "approved_tp_digest": "sha256:f64d2aa07acead86ce8176a9062f43c87b0d2df7b4d7df82851db1b18fcb5ce3",
+  "assessment_class": "evidence_review_not_new_test_execution",
+  "scenarios": [
+    {
+      "scenario_id": "SCN-001",
+      "task_id": "T-001",
+      "stimulus": "Snapshot current checkout/installation/active shared scopes and two completed reference Runs without writes",
+      "expected_result": "Baseline hashes and runtime identity retained; overlap is resolved by existing preparation owner before edits",
+      "status": "partial",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "The protected baseline is complete; the matched entire before transition corpus was never retained.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-002",
+      "task_id": "T-002",
+      "stimulus": "Evaluate revised-UR chain after completed UX and each new registration/approval using full reader and every writer/result surface",
+      "expected_result": "Same current gate, fulfilled UX/source dependencies, actor and revision across Core/CLI/MCP/dispatcher/backlog/cockpit; no PRD fallback",
+      "status": "partial",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "Core/writer/Inspect parity passes; complete current cross-view native traversal is pending.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-003",
+      "task_id": "T-002",
+      "stimulus": "Repeat comparison for non-revised structured modes, valid completed OR and contradictory completed Run",
+      "expected_result": "Valid completed result has no repeat OR/approval; contradictory completion explicitly unconfirmed/blocked; Quick regression unchanged",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-004",
+      "task_id": "T-002",
+      "stimulus": "Change equivalent next-step display wording; inject unmet prerequisite and stale revision",
+      "expected_result": "Typed routing unchanged by wording; actual missing/stale prerequisite still prevents continuation",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-005",
+      "task_id": "T-003",
+      "stimulus": "Fetch selected authoring/command contract and exercise all supported legacy/new forms and invalid/duplicate IDs",
+      "expected_result": "Descriptor/readiness/presenter share accepted form and concrete source/field/form diagnostics; no second parser or silent acceptance",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-006",
+      "task_id": "T-003",
+      "stimulus": "Generate definitions/schema examples from shared owner, then compare actual positive/negative Core inputs",
+      "expected_result": "Five group/facade allowlists match actual validators, unknown fields/actions reject; Inspect stays within 5000 bytes, each write within 8192 and aggregate including facade within 24576",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-007",
+      "task_id": "T-004",
+      "stimulus": "Execute actual disposable UR/Review+route/UX/preparation/CD+Tests/review/artefact/evidence recording in eligible order",
+      "expected_result": "Pointers, reviewed source relationship and seal publish coherently; no manual control-table edit or fabricated QA result",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-008",
+      "task_id": "T-004",
+      "stimulus": "Attempt wrong-order, false-ready result, foreign/unsafe path, wrong source/mapping/digest and unknown internal type",
+      "expected_result": "Concrete rejection with unchanged protected bytes; record actual revise/block does not satisfy prerequisite or grant QA approval",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-009",
+      "task_id": "T-004",
+      "stimulus": "For every exposed write family replay same UUID/input, change payload/action, reuse UUID across families and race writers",
+      "expected_result": "One effect/receipt for identical request; changed/cross-family request conflicts; stale race does not produce second effect; historical receipt and freshly available/unavailable current state remain distinct",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-010",
+      "task_id": "T-004",
+      "stimulus": "Inject failures at durable journal intent, owned staging/archive/output publication and Run commit rename boundaries",
+      "expected_result": "Before confirmed Run commit recover exact prior owned outputs; after commit finish forward from sealed receipt; rename ambiguity resolved by reread",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-011",
+      "task_id": "T-004",
+      "stimulus": "Interrupt backlog replacement/final verification/journal retirement; inject malformed pending paths/symlink/foreign shared-backlog operation",
+      "expected_result": "Exact inspected owner recovery completes one effect or blocks interference; read-only Inspect never recovers another Run",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-012",
+      "task_id": "T-004",
+      "stimulus": "Recover retained v1 Quick and v2 source journals; inspect v3/receipt changes with known legacy clients",
+      "expected_result": "Each version follows qualified owner; original bytes readable; no fabricated v3 ownership or promise for old writer binaries",
+      "status": "partial",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "Retained journal compatibility is tested; no claim for old writer binaries or native-platform durability.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-013",
+      "task_id": "T-005",
+      "stimulus": "Prepare exact current presentation then supply deliberate exact new human text; inspect effect and fresh current state",
+      "expected_result": "Preparation alone undecided; approval is one exact gate/material receipt and current next operation, with cooperative assurance",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-014",
+      "task_id": "T-005",
+      "stimulus": "Try absent/stale/foreign presentation or reply, questions/quotes/examples/negation, old reply and agent-only confirmed flag",
+      "expected_result": "No gate approval; trusted source/revision/gate checks and exact human-response contract remain intact",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-015",
+      "task_id": "T-005",
+      "stimulus": "Through retained explicit Core consumer only, submit bound request_change with concrete comment; also test empty/whitespace/oversized comment and untrusted embedded instructions",
+      "expected_result": "One distinct non-approval receipt/comment; empty/oversized rejects, instructions stay data; authoring/QA/UAT owner route matches current permission",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-016",
+      "task_id": "T-005",
+      "stimulus": "Through retained explicit Core consumer only, reject current version; try another envelope over unchanged rejected bytes, then register materially changed eligible version",
+      "expected_result": "Rejected version remains unapprovable in card/text; changed registered material needs fresh presentation/new decision; no upstream invalidation or Run closure from reject",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-017",
+      "task_id": "T-005",
+      "stimulus": "Race repeated native approval and native/text approval using two UUIDs on one version; separately race retained explicit Core approve/change/reject consumers",
+      "expected_result": "Only first locked eligible effect commits; loser receives original proven receipt or stale/conflict; no second approval or retained formal outcome",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-018",
+      "task_id": "T-005",
+      "stimulus": "Drop decision acknowledgement or fail current reader; inspect/replay original identity after later revision",
+      "expected_result": "Historical effect remains separate from current availability; no old next-step permission, new decision or duplicate effect is invented",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-019",
+      "task_id": "T-006",
+      "stimulus": "Exercise legacy early PRD reopen, original CD+Tests source revision and protected early UR-at-SD proof readers alongside versioned new policy",
+      "expected_result": "Legacy proof retains original phase/predicate and exact bytes; expanded policy is never applied retroactively; new cases require their own versioned proof",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-020",
+      "task_id": "T-006",
+      "stimulus": "Execute early UR-at-SD with approved UR/PRD and linked reviewed unapproved SD on disposable target through Core/CLI/actual MCP",
+      "expected_result": "Read-only preview and exact separate apply return same Run to UR; renewed analyses and new UR/PRD/SD decisions enforced before TP",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-021",
+      "task_id": "T-006",
+      "stimulus": "Try original-policy early UR invocation outside its original phase; exercise foreign/stale/changed preview, invalid source/phase, approved UAT/closed/OR-done and concurrent applications",
+      "expected_result": "Original legacy restrictions remain; newly supported cells require versioned policy proof; invalid/out-of-scope cases reject unchanged; one exact application, changed UUID payload conflicts",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-022",
+      "task_id": "T-006",
+      "stimulus": "Interrupt early archive and every v2 source transaction Run/backlog boundary, then inspect/recover exact original operation",
+      "expected_result": "Archive manifests/source/mapping/presentation/approval bytes preserved; pre-commit restore or post-commit finish follows existing v2 owner",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-023",
+      "task_id": "T-006",
+      "stimulus": "Read actual cbc55917-ee06-4fc3-b46f-ff8dcca3c30a archive and this renewed Run without another live revision",
+      "expected_result": "Exact historical SD/UR/PRD/analyses/approvals/presentations remain non-authorizing; renewed source decisions/current state verified without modifying old archive",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-024",
+      "task_id": "T-007",
+      "stimulus": "Close eligible structured_slice, structured_delivery and Quick targets; vary missing QA/UAT/reviews/context/OR and parent obligation",
+      "expected_result": "Valid OR/Run/backlog complete consistently; missing mandatory obligation rejects; parent/foreign Run not closed and no Git command occurs",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-025",
+      "task_id": "T-007",
+      "stimulus": "Interrupt OR publication, Run commit and backlog synchronization, recover/replay original closeout operation",
+      "expected_result": "One exact completion; fulfilled decisions never repeated; uncertain/pending synchronization is visible with no clean-completion claim",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-026",
+      "task_id": "T-007",
+      "stimulus": "Prepare QA/UAT and cockpit with current exact evidence, superseded first rows and unbound historical rows",
+      "expected_result": "Shared projection selects current proven associations, groups history/unknown explicitly; presence/order alone never creates current pass",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-027",
+      "task_id": "T-008",
+      "stimulus": "Call every exposed allowed action through shared Core, legacy CLI, generated STDIO MCP and Inspect contract/status",
+      "expected_result": "Same semantic effect/rejection/current observation, exact UUID/producer/assurance; no transport policy or routine raw Run update",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-028",
+      "task_id": "T-008",
+      "stimulus": "Disable each group/action and attempt cross-group/action via discovery, direct Core, app facade or cockpit read channel",
+      "expected_result": "Disabled effects absent/rejected across all routes; facade shares approve/record capabilities; no broad read-session writer",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-029",
+      "task_id": "T-008",
+      "stimulus": "Test allowed/denied/remembered host permission with absent actual decision, changed source/OR intent and injected tool/document content",
+      "expected_result": "Technical consent alone never approves or expands target/effect; required concrete confirmation remains distinct and bound",
+      "status": "partial",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "Technical group/consent boundaries pass synthetically; actual host permission denial is not observed.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-030",
+      "task_id": "T-008",
+      "stimulus": "Kill/cancel/disconnect worker or exceed serialized result after dispatch; separately trigger busy/pre-dispatch rejection",
+      "expected_result": "Pre-dispatch explicitly not-dispatched; post-dispatch effect_unknown with original operation ID/status route, not false rollback",
+      "status": "automated_pass",
+      "evidence": [
+        "host-queue-20/agdf-core-final-19.log",
+        "host-queue-20/agdf-mcp-final-19.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-031",
+      "task_id": "T-009",
+      "stimulus": "Render bound card with complete localized summary/change comparison/open points/consequence; remove prior version/exact document/summary readiness",
+      "expected_result": "Complete ready material shown or truthful unavailable/comparison-unavailable; no substituted current bytes or truncated approvable summary",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-032",
+      "task_id": "T-009",
+      "stimulus": "Open exact large document, return, discuss and request editing in Chat; later use new exact Approval text only if same presentation remains current",
+      "expected_result": "Read/view/discussion alone undecided; ordinary edits do not record Core request_change/reject; exact unchanged context permits later formula, changed source requires fresh presentation",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-033",
+      "task_id": "T-009",
+      "stimulus": "Use facade with wrong session/target/presentation, unknown action, model-visible call, UI init/notification or synthetic follow-up Approval message",
+      "expected_result": "No decision from mere model invocation/flag/notification; app-only cooperative routing and strict current binding enforced without claimed independent gesture proof",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-034",
+      "task_id": "T-009",
+      "stimulus": "Refresh/replace material, close/expire session, delay success/check/read and expire before versus after write dispatch",
+      "expected_result": "Before dispatch session rejects; afterwards original effect inspectable but delayed result cannot revive retired view; close alone undecided, text validity separately evaluated",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-035",
+      "task_id": "T-009",
+      "stimulus": "Regression of general cockpit documents, draft-check busy/retry, snapshots/source change, evidence counts and focus/selection",
+      "expected_result": "Existing exact document/check proof and Core projection preserved; no general cockpit command access or stale result revival",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-036",
+      "task_id": "T-010",
+      "stimulus": "Build exact candidate and inspect generated package/runtime/resources; exercise actual served MCP permissions and resource lifecycle",
+      "expected_result": "Source/build/served resource digests recorded separately; installed/served mismatch or inaccessible capability is explicit failure, not source-only success",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Exact build and STDIO preflight pass; this immutable candidate has not yet been loaded by the host.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-037",
+      "task_id": "T-010",
+      "stimulus": "Run registered-language render matrix for every changed card/read/result/error/pending/recovery/history state and supported widths",
+      "expected_result": "Complete locale meaning/readable actions; no missing fallback hides decision context; locale list captured from canonical registry",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Registered en/de decision rendering passes; actual locale/accessibility and all affected native surfaces remain pending.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-038",
+      "task_id": "T-010",
+      "stimulus": "Verify protected foreign/reference hashes and old readable source/approval/document/result corpus before/after whole chain",
+      "expected_result": "No foreign approval/lifecycle/source or history rewrite; additive compatibility and write-disable transition proven",
+      "status": "automated_pass",
+      "evidence": [
+        "PROTECTED_HASHES.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-039",
+      "task_id": "T-011",
+      "stimulus": "Human opens exact native candidate, reads/expands document and returns; discusses in Chat on disposable UR/PRD/SD/TP/QA/UAT cases",
+      "expected_result": "Complete context and undecided reading observed; only eligible Freigeben primary action appears; retained Core change/reject buttons and comment form absent",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json",
+        "host-queue-20/NATIVE_AUTOMATIC_FLOW_23.json",
+        "host-queue-20/NATIVE_EXPIRY_AND_REFRESH_22.json"
+      ],
+      "missing_evidence": "Prior exact German native observations are retained; current candidate/all-gate observations are missing.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-040",
+      "task_id": "T-011",
+      "stimulus": "Human deliberately activates the single Freigeben/Approve action; another version receives later exact Chat Approval after discussion; on a no-approval state observe supported Core-permitted continuation",
+      "expected_result": "Native/text approval receipts bind same material and at most one effect; supported next step routes exact freshly validated operation without fabricated Approval; no three-action UI",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json",
+        "host-queue-20/NATIVE_AUTOMATIC_FLOW_23.json",
+        "host-queue-20/NATIVE_EXPIRY_AND_REFRESH_22.json"
+      ],
+      "missing_evidence": "Actual German UI handoff is retained for queue20; current readable context handoff and both native/text locales still need human observations.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-041",
+      "task_id": "T-011",
+      "stimulus": "Observe actual host technical permission allow/deny, pending/uncertain/retry outcome and unavailable app-only mediation case where reproducible",
+      "expected_result": "Host controls/limits recorded; permission denial preserves undecided or honest dispatched uncertainty; no repeated business decision or inferred independent origin",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "No actual host permission denial was observed. A remembered permission or absence of a query does not prove denial.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-042",
+      "task_id": "T-011",
+      "stimulus": "Human uses Tab/Enter/Space on document/source controls and focused primary action, composes ordinary Chat, resizes and scrolls each registered native locale",
+      "expected_result": "Focus/content/readability stable; composition Enter/default selection cannot approve; no decision comment form, change/reject control or second primary action",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Historical bounded human keyboard/layout observations exist; current candidate must be checked independently.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-043",
+      "task_id": "T-011",
+      "stimulus": "Human closes inline and large view; observe UI lifecycle, backend close/expiry and rejected subsequent calls independently",
+      "expected_result": "View closure undecided; actual backend teardown/session_expired evidence recorded; tab closure alone never substitutes for teardown",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json",
+        "host-queue-20/NATIVE_AUTOMATIC_FLOW_23.json",
+        "host-queue-20/NATIVE_EXPIRY_AND_REFRESH_22.json"
+      ],
+      "missing_evidence": "Natural idle expiry is actually observed for queue20. Graceful native close-before-disconnect remains an external host gap.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-044",
+      "task_id": "T-012",
+      "stimulus": "Execute fixed before/after lifecycle corpus with same or explicitly separated model/runtime/host conditions",
+      "expected_result": "Zero routine undocumented invocation/parser searches and control-table hand-edits, no false next-step or weakened negative protections; observed metrics retained; protected foreign/reference hashes unchanged",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Whole matched before/after model traces and routine workflow counters were not retained; values remain null, never invented zero.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-045",
+      "task_id": "T-012",
+      "stimulus": "Review actual diff/task fulfillment/structure and aggregate criterion/decision/scenario evidence including gaps",
+      "expected_result": "Required reviews have actual outcomes/current binding; qa-gate alone decides pass/revise/block, native gap or whole-flow contradiction prevents pass",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Mandatory source-bound TP/Clean/Code outcomes and final qa-gate decision must still be recorded in canonical order.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-046",
+      "task_id": "T-013",
+      "stimulus": "Use two actual owned facade connections; attempt replacement with caller PID/name/path, foreign handle and standalone CLI lacking the owner capability",
+      "expected_result": "Only the direct serving connection handle authorizes its own control; foreign/current business state is unchanged; CLI reports connection_control_unavailable",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-047",
+      "task_id": "T-013",
+      "stimulus": "Reserve/start/qualify one compatible private-IPC candidate, inspect startup/package/resource/actual capability, then admit new views",
+      "expected_result": "Qualification completes within 30 seconds before one serialized current switch; existing manifest stays identical; new views use new generation",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-048",
+      "task_id": "T-013",
+      "stimulus": "Fail startup, digest, tool/resource/SDK manifest, actual required capability or 30-second qualification; repeat when old current is already dead",
+      "expected_result": "No failed candidate is admitted; a usable prior path is retained when actually usable, otherwise its unavailability is explicit; no incompatible hot upgrade",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-049",
+      "task_id": "T-013",
+      "stimulus": "Race two replacements, delay/loss of acknowledgement, replay original control UUID and reuse it with changed manifest",
+      "expected_result": "One qualifying candidate and one serialized switch; identical control replay is historical plus current status, changed request conflicts; no business gate effect",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-050",
+      "task_id": "T-013",
+      "stimulus": "Keep old document/read/decision/command and uncertain operation active during switch; request subsequent reads and original operation status",
+      "expected_result": "Each original owner routes to its pinned generation and UUID; exact resources remain usable; no migration, decision replay or forced eviction",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-051",
+      "task_id": "T-013",
+      "stimulus": "Fill all three slots with starting/current/draining/closing or uncertain work; race admission and attempt a fourth spawn",
+      "expected_result": "Reservation serializes occupancy; all counted states remain within three; occupied active/uncertain owners survive explicit refusal",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-052",
+      "task_id": "T-013",
+      "stimulus": "At capacity make several non-current direct children idle; close the oldest eligible one and inspect sessions/executors/readers/child exit",
+      "expected_result": "Only eligible own non-current idle child retires; slot released only after confirmed orderly end with no owned worker/readers; current is retained until candidate qualified",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-053",
+      "task_id": "T-013",
+      "stimulus": "Delay/lose shutdown acknowledgement, acknowledge before child exits, fail cleanup/exit, exceed ten-second close wait and recheck",
+      "expected_result": "close_unconfirmed remains counted and executable claims retained; acknowledgement alone is not end; no SIGKILL, force-eviction deadline or fourth child",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-054",
+      "task_id": "T-014",
+      "stimulus": "Publish digest-addressed runtime under existing lock; interleave another connection and pointer update with delayed module/resource load",
+      "expected_result": "Claims are acquired before load/spawn; immutable real paths retain exact bytes for every owner; pointer only affects future launches, no mutable symlink substitution",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-055",
+      "task_id": "T-014",
+      "stimulus": "Exercise unknown/foreign/legacy claims, crashed or restarted owner, unclaimed legacy root, failure before claim release and shared cleanup",
+      "expected_result": "Unproven ends conservatively retain claims/bytes; no age/PID pruning or foreign cleanup; actual confirmed owner end only releases its own claim",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-056",
+      "task_id": "T-015",
+      "stimulus": "Inspect missing qualification record, exact host/candidate/resource/SDK mismatch, missing evidence, unsupported mediation and host tools; separately vary Core readiness",
+      "expected_result": "Read-only causes come from existing validator; rendering support, native action qualification and business readiness are independent; no flag write or approval",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-057",
+      "task_id": "T-015",
+      "stimulus": "Attempt provenance qualification publication with incomplete/synthetic/foreign evidence, then actual matched observations; alter any exact tuple member",
+      "expected_result": "Incomplete proof stays unqualified; existing publisher accepts only matched actual evidence; changed tuple invalidates qualification; test activation never qualifies production",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Guarded incomplete/foreign qualification negatives pass; actual matched production qualification publication is absent.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-058",
+      "task_id": "T-016",
+      "stimulus": "Render prepare/dispatch and actual forwarded text with display confirmed/unconfirmed/unavailable on current surface, qualified/render-only/unsupported UI; include all human gates",
+      "expected_result": "Only qualified actually displayed native approval gets brief click-or-formula companion; unconfirmed/unavailable/unusable native gets one full Chat card, no invisible-button guidance/legacy duplicate; Mac fact never inherits to iPad",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Unconfirmed/unsupported native uses full Chat. Confirmed current-surface native-plus-Chat has no actual current display observation.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-059",
+      "task_id": "T-016",
+      "stimulus": "Read exact presentation snapshots via bounded Inspect document cursor, all chunks and registered-language summaries; use wrong target/revision/presentation, unsafe path and incomplete chunks",
+      "expected_result": "Only contained bound immutable material is readable; digest/bytes/language/completeness are explicit; no arbitrary path/URL/current mutable substitute; missing exact access blocks remote readiness",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-060",
+      "task_id": "T-011",
+      "stimulus": "On actual private synchronized iPad Chat read complete exact material and proposal/change/consequence/risks, discuss and later deliberately supply exact Approval on disposable versions; include unconfirmed native display",
+      "expected_result": "Complete exact remote access corroborated; discussion records no formal outcome, later formula approves same current material once; no Mac sidebar dependency or claimed local-link access",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Actual current iPad complete material, discussion and deliberate text decision are not observed.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-061",
+      "task_id": "T-016",
+      "stimulus": "Race native/text approval; close native then decide still-current text; discuss requested edits; try quoted/old/future/ambiguous/changed-source replies; separately regress retained Core formal decisions",
+      "expected_result": "Same material guard gives one approval; discussion creates no automatic formal change/reject; unchanged text remains eligible independently of view, changed/ambiguous/non-deliberate replies reject; unknown effect resolves original UUID",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-062",
+      "task_id": "T-016",
+      "stimulus": "Validate source-authored brief with semantic review and structural negatives, absent comparison, material risks, misleading zero counts, incomplete remote context; inspect complete details",
+      "expected_result": "Single canonical summary/presentation owner preserves all decision-relevant meaning; no parallel paraphrase; missing meaningful context fails or stays honestly unavailable; technical details do not hide risks",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-063",
+      "task_id": "T-017",
+      "stimulus": "Traverse list/detail/exact document/return/native-or-Chat approval/fresh next step at matched observations, across changed and reused surfaces",
+      "expected_result": "Same undertaking/phase/actor/meaning and preserved focus/selection/return context; exactly one contextual approval or supported Core-permitted next step, no private policy or duplicate request",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Shared projections and browser return/focus pass; complete current native/iPad cross-view sequence is missing.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-064",
+      "task_id": "T-017",
+      "stimulus": "Compare source revision/history, unknown evidence, valid/invalid drafts, partial/filtered counts, disabled native, missing remote material, stale/expiry/delayed result and uncertain recovery",
+      "expected_result": "Saved work, current gate, draft check, exact approval, eligibility, host consent and view lifetime remain distinct; differences show identity/time; no fake all-ready or all-open-points-zero, stale revival or automatic replay",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Automated partial/error/history/expiry states pass; current whole affected-surface native comparison is missing.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-065",
+      "task_id": "T-011",
+      "stimulus": "Perform actual native initialize/render/read-return/actions/keyboard/layout/scroll/locales before/after relevant compatible replacement; independently close, naturally expire and restart",
+      "expected_result": "Exact host/resource/effect evidence is bound to each actual candidate; missing native observation or host teardown remains open, pool/protocol/text/tab closure cannot certify it",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json",
+        "host-queue-20/NATIVE_AUTOMATIC_FLOW_23.json",
+        "host-queue-20/NATIVE_EXPIRY_AND_REFRESH_22.json"
+      ],
+      "missing_evidence": "No current candidate native before/after replacement/lifecycle sequence exists. Old candidates are not transferable evidence.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-066",
+      "task_id": "T-018",
+      "stimulus": "Run exact B-01..12 corpus including complete approved-source pre-UAT matrix and post-QA renewal; compare matched states/actors and protected hashes",
+      "expected_result": "No routine undocumented invocation/parser search, control hand edit, false next step or duplicate prompt; all applicable cells and quality withdrawal checked; model/host differences and unmeasured model benefit explicit",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "All twelve families inventoried; complete matched before transition corpus and model workflow counters are absent.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-067",
+      "task_id": "T-018",
+      "stimulus": "Read protected completed historical Runs under newer validation, missing newer associations and old receipts; compare bytes/current reader results before/after",
+      "expected_result": "Stored historical completion remains history; newer missing validation is explicit, no new authorized OR task, approval transfer, invented binding or retroactive reseal",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-068",
+      "task_id": "T-013",
+      "stimulus": "Inject pre-dispatch busy/rejection and post-dispatch Inspect/worker timeout, cancellation/result limit/disconnection/external host termination on owned disposable connections",
+      "expected_result": "Original UUID remains inspectable with honest not-dispatched/effect_unknown classification; no timeout increase or restart claims a rollback, no new business replay; external termination is distinct from voluntary safe end",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-generation-15.log",
+        "agdf-retention-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-069",
+      "task_id": "T-019",
+      "stimulus": "For every applicable approved-source/initiating-phase cell in section 3.9 run pure preview then separate exactly confirmed apply through Core, legacy CLI and actual generated MCP; include pending UAT with approved QA",
+      "expected_result": "All 18 cells use one versioned owner; preview read-only, apply same Run/earliest source, exact upstream retained, selected/dependent approvals superseded; affected QA/UAT material withdrawn",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-070",
+      "task_id": "T-019",
+      "stimulus": "Review concrete need/behavior/architecture/task changes against upstream statements; exercise lower-source choice conflicting with earlier constraint and ambiguous rationale",
+      "expected_result": "Earliest locatable changed binding statement wins; contradiction requires earlier source or clarification; no keyword/current-phase classifier or silent source substitution",
+      "status": "partial",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "Concrete source/phase and contradiction proof negatives pass; semantic earliest-statement review is case-bound, not a blanket classifier proof.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-071",
+      "task_id": "T-019",
+      "stimulus": "Exercise unapproved initial/reopened UR/PRD/SD/TP at selected owner; separately repair pure implementation defect with all sources unchanged on a disposable eligible TP",
+      "expected_result": "Draft uses existing authoring/update owner without approved-source reset; pure defect stays in valid TP/checks, no new Run or requirement revision merely for a failed test",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-072",
+      "task_id": "T-019",
+      "stimulus": "Vary verified upstream, downstream bindings, Brownfield/UX affected/retained proof, independent quality evidence and unknown/unbound association",
+      "expected_result": "Source-chain closure and consumed dependency proof control retain/reassess; UR analyses reassess, lower-source retention needs exact proof; unknown cannot remain fulfilled; no universal UR/all-gate reset",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-073",
+      "task_id": "T-019",
+      "stimulus": "Change PRD/SD/TP with a prior bound pass report and QA approval; archive/apply then renew sources/preparation/CD+Tests/reviews/QA and prepare UAT in disposable full flow",
+      "expected_result": "Affected QA report/approval archived and current authority withdrawn together; stale pass cannot reach UAT/OR; only fresh applicable reviews and deliberate QA allow new UAT; unchanged upstream bytes preserved",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-074",
+      "task_id": "T-019",
+      "stimulus": "Check new proposal schema 2/receipt schema 3 policy_version 2 with initiating phase, changed statements and exact quality/impact proofs; read old receipt/schema proofs and try older unsupported writer",
+      "expected_result": "New archive verifier recomputes original initiating facts with pinned policy; legacy bytes/predicate unchanged, malformed or unsupported version rejects concretely without retroactive legalisation",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-075",
+      "task_id": "T-019",
+      "stimulus": "After preview change proposal/source/quality facts; race same/different UUIDs and source revisions; inject each archive/Run/backlog/journal checkpoint, inspect/recover original operation",
+      "expected_result": "Changed facts invalidate confirmation; no silent widened impact, one effect and exact receipt; pre/post-commit recovery preserves archive closure, selective invalidation and history; protected foreign bytes unchanged",
+      "status": "automated_pass",
+      "evidence": [
+        "agdf-expanded-revision-15.log",
+        "agdf-expanded-mcp-15.log",
+        "agdf-expanded-recovery-15.log"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-076",
+      "task_id": "T-016",
+      "stimulus": "Change actual display fact while retaining same presentation; open optional native after full Chat, remote iPad with Mac-only display, render-only disabled native and unavailable document chunk",
+      "expected_result": "Current-surface fact selects honest full or compact route without new version/request; no inherited iPad display, invisible click instruction or blind approval; complete exact access required",
+      "status": "automated_pass",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "",
+      "evidence_strength": "high_automated",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-077",
+      "task_id": "T-009",
+      "stimulus": "At eligible human gate activate explicit approval; at no-approval state activate supported exact next_operation through host continuation; remove host continuation and race stale/busy/current change",
+      "expected_result": "Only one primary contextual action; next step freshly validates bound Core operation and never fabricates approval; unsupported facility shows named information/Chat path, repeated or stale activation has no extra effect",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Fresh operation/actor guard and automatic human-gate presentation pass; current actual no-pending-approval handoff observation remains pending.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    },
+    {
+      "scenario_id": "SCN-078",
+      "task_id": "T-016",
+      "stimulus": "Discuss/question/request edits normally in Chat, quote approval inside content, then issue new exact formula on unchanged versus renewed presentation; inspect rendered native and fallback",
+      "expected_result": "No automatic Core formal change/reject or decision from composition; retained contracts/history unaffected; later current formula valid once, renewed version needs fresh reply; UI has no formal comment form or extra outcome",
+      "status": "partial",
+      "evidence": [
+        "readable-continuation-24/VERIFICATION.json"
+      ],
+      "missing_evidence": "Inert quoted text and later exact approval are covered in Core; actual current iPad discussion/formula sequence remains pending.",
+      "evidence_strength": "bounded_partial",
+      "native_pass": false
+    }
+  ],
+  "retained_log_identity": {
+    "host-queue-20/agdf-core-final-19.log": {
+      "path": "host-queue-20/agdf-core-final-19.log",
+      "sha256": "4836fd478326ad89b29470cad606dc4e22ebea0f2fb96728c1efc4112fd12e35"
+    },
+    "host-queue-20/agdf-mcp-final-19.log": {
+      "path": "host-queue-20/agdf-mcp-final-19.log",
+      "sha256": "7c734b984ca6685f45c3763de5a37b56e8891244f7277f08d772a86742852ac0"
+    },
+    "agdf-expanded-revision-15.log": {
+      "path": "agdf-expanded-revision-15.log",
+      "sha256": "e55877e540ee30de6f245c0add6d06f499ddf7f33236d48a33d6951d2b3fc72d"
+    },
+    "agdf-expanded-mcp-15.log": {
+      "path": "agdf-expanded-mcp-15.log",
+      "sha256": "ac2b76f1135ab7f5a0839a48eec1e876a3c64d241715e7b8797a636f15145273"
+    },
+    "agdf-expanded-recovery-15.log": {
+      "path": "agdf-expanded-recovery-15.log",
+      "sha256": "e8d37967cab02b825ea4b7310f4ab538f116415f159720aba06866f60f008ff1"
+    },
+    "agdf-generation-15.log": {
+      "path": "agdf-generation-15.log",
+      "sha256": "ca350359c821c28785b148b17963d55bf8c78e2aa6f04a707ab5a94e16e4e75f"
+    },
+    "agdf-retention-15.log": {
+      "path": "agdf-retention-15.log",
+      "sha256": "44a5e6ead3202e2fe514f0d4c5cd5839f5e67de2e9f6214c9cf84e440c6e44e1"
+    },
+    "readable-continuation-24/VERIFICATION.json": {
+      "path": "readable-continuation-24/VERIFICATION.json",
+      "sha256": "7e7fb4f435b8bd9cbccc11ffda87f32747ad05fa7b241e66ffc067e2e157e3d2"
+    },
+    "host-queue-20/NATIVE_AUTOMATIC_FLOW_23.json": {
+      "path": "host-queue-20/NATIVE_AUTOMATIC_FLOW_23.json",
+      "sha256": "fe76fab4c7e8a8651394baf4a14afdb035b2fa1521de92098a7899902a91f09d"
+    },
+    "host-queue-20/NATIVE_EXPIRY_AND_REFRESH_22.json": {
+      "path": "host-queue-20/NATIVE_EXPIRY_AND_REFRESH_22.json",
+      "sha256": "d2822c564eeac9176e38d012c32bd914ca05f2f521c6efa1811d320217dcd4c2"
+    }
+  },
+  "routine_model_metrics": {
+    "invocation_searches": null,
+    "parser_searches": null,
+    "manual_control_table_edits": null,
+    "invalid_schema_attempts": null,
+    "redundant_prompts": null,
+    "false_next_steps": null,
+    "weaker_model_comparison": null
+  },
+  "whole_run_pass": false,
+  "authorizes": false
+}

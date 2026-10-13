@@ -1,0 +1,11 @@
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/[eval1]:8
+ if(result.isError||result.structuredContent?.report?.available!==true)throw Error(JSON.stringify(result));
+                                                                             ^
+
+Error: {"content":[{"type":"text","text":"Input validation error: Invalid arguments for tool agdf_inspect: data/operation must be equal to one of the allowed values, data/operation must be equal to one of the allowed values"}],"isError":true}
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/[eval1]:8:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/[eval1]:4:1
+
+Node.js v22.22.3

@@ -1,0 +1,4 @@
+# Clean Implementation Review: canonical archive bounds
+- decision: pass
+
+The existing history owner fixes the rejected archival primary path; no alternative archive store, replacement Run, manual reseal or new state writer is introduced. A private bounded reader is shared by live control-record reads and exact archival snapshots. Normal material limits and manifest format remain unchanged. The larger byte bound applies only to the canonical control record admitted for the selected revision; foreign/ordinary rows retain their original bound. No new decision authority, waiver or retry policy is present. Tests prove exact preservation and negative bounds. Previous broader assessment is preserved separately. Required next step: retain mandatory CR and renew source intent before implementing the new QA acceptance policy.

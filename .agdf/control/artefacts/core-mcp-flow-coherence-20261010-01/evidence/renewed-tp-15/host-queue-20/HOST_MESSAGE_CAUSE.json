@@ -1,0 +1,21 @@
+{
+  "diagnosis": "Host ui/message admission waits for the active composer execution to be idle; the old bridge request cancelled that wait at the ten-second server-tool deadline.",
+  "host_bundle": "/Applications/ChatGPT.app/Contents/Resources/app.asar",
+  "inspected_modules": [
+    "webview/assets/widget-e1674d393867.js",
+    "webview/assets/app-initial-6350d04672d0.js",
+    "webview/assets/app-primary-6f60e9ac4103.js"
+  ],
+  "observed_binding": {
+    "presentation": "b9e53f0f-20ef-47c9-8b40-90f5b7dd6931",
+    "approval_operation": "42e4d4dd-3279-42d9-be0e-09dd236e6116",
+    "resulting_revision": "b7e5fbb8-76d5-4b9f-a69c-fae7c5746fa0",
+    "next_operation": "artefact.author"
+  },
+  "before_ui_digest": "sha256:538856f4ab3b35991f0e4074cad0c004b61d76bf787b5318c68c6047ae7725bc",
+  "user_report": "Decision saved and Next step: Task/test plan; no observed automatic continuation.",
+  "fix": "Use the existing SDK host-message channel directly, with request lifetime bound to the view expiration and cancellation on teardown/replacement. Keep server-tool deadlines unchanged, single original approval and no automatic host-message retry.",
+  "reproduction": "Built SDK browser host keeps ui/message queued beyond 10000ms; it is delivered exactly once when released. English and German both pass.",
+  "native_after_fix": "Not yet observed; fresh exact candidate prepared.",
+  "official_standard": "https://developers.openai.com/plugins/build/chatgpt-ui#prefer-shared-fields-and-methods"
+}

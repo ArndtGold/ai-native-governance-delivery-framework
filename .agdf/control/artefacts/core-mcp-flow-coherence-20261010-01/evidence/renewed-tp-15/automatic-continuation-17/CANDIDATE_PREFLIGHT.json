@@ -1,0 +1,1050 @@
+{
+  "evidence_class": "synthetic_owned_stdio_preflight",
+  "native_qualified": false,
+  "candidate": {
+    "schema_version": "1",
+    "evidence_class": "prepared_disposable_native_probe",
+    "observed_at": "2026-10-12T06:23:52.577Z",
+    "production_entrypoint": false,
+    "installed": false,
+    "native_qualified": false,
+    "assurance": "cooperative_local",
+    "authorizes": false,
+    "runtime_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM",
+    "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+    "target_id": "sha256:a1f915b9d2a15e5e10343a2eb8c1347665194a0828ded3d29c962af59b7fb911",
+    "runs": [
+      {
+        "locale": "en",
+        "action": "approve",
+        "run_id": "native-en-approve",
+        "expected_revision_id": "f3b0d6fc-fcce-4270-b95d-114800e3333b",
+        "gate": "SD"
+      },
+      {
+        "locale": "en",
+        "action": "text",
+        "run_id": "native-en-text",
+        "expected_revision_id": "b159bc50-56fe-4d4c-9359-7364e9ec4fd1",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "approve",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "515e4873-eb82-4123-8441-4560e0d3202b",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "text",
+        "run_id": "native-de-text",
+        "expected_revision_id": "3cb596d5-fa46-4db5-9e3f-21ae2cb65be0",
+        "gate": "SD"
+      }
+    ],
+    "entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/native-decision-entry.mjs",
+    "entrypoint_digest": "sha256:860004d179c2b95e45a95e41927e5f89dcb62e2c97724dcc6eeba81fecf34040",
+    "server_digest": "da995859675736beb58f37911a70b37ef1aaceb3fc49e7f8cbd76eb488d96ce0",
+    "dispatcher_digest": "79e472d96fa2994168d17ef5d17a74de871d853335a6c5136ff483b3f9d54484",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/decision/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 921241,
+      "digest": "sha256:538856f4ab3b35991f0e4074cad0c004b61d76bf787b5318c68c6047ae7725bc",
+      "source_digest": "sha256:d1b84b69d5c05cb7b987b52b6e1afd9bc2eb017a1e39cbf02e9e86f63ee31afe"
+    },
+    "observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/native-observations.jsonl",
+    "configuration": {
+      "name": "agdf-decision-probe",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "args": [
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/native-decision-entry.mjs"
+      ]
+    }
+  },
+  "events": [
+    {
+      "args": {
+        "operation": "native-qualification",
+        "presentation_language": "de",
+        "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+        "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+        "target_source": "explicit_target",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "515e4873-eb82-4123-8441-4560e0d3202b"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"schema_version\": \"1\",\n  \"contract_version\": 1,\n  \"outcome\": \"inspect_result\",\n  \"terminal\": false,\n  \"authorizes\": false,\n  \"operation\": \"native-qualification\",\n  \"runtime\": {\n    \"machine_validation\": \"local_exact_version_digest\",\n    \"expected_version\": \"0.14.5\",\n    \"plugin_root\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/node_modules/create-agdf/\",\n    \"runtime_digest\": \"79e472d96fa2994168d17ef5d17a74de871d853335a6c5136ff483b3f9d54484\",\n    \"provenance_status\": \"matched\"\n  },\n  \"target\": {\n    \"schema_version\": \"1\",\n    \"resolution_state\": \"resolved\",\n    \"reason_code\": \"explicit_target\",\n    \"primary_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target\",\n    \"evidence_sources\": [],\n    \"working_directory\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target\",\n    \"governance_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target\",\n    \"target_source\": \"explicit_target\",\n    \"target_changed\": false,\n    \"next_action\": \"\",\n    \"authorizes\": false\n  },\n  \"report\": {\n    \"available\": true,\n    \"run_id\": \"native-de-approve\",\n    \"revision_id\": \"515e4873-eb82-4123-8441-4560e0d3202b\",\n    \"ui_rendering_support\": \"unsupported\",\n    \"action_qualification\": {\n      \"qualified\": false,\n      \"reason\": \"qualification_record_missing\",\n      \"authorizes\": false\n    },\n    \"business_readiness\": {\n      \"current_gate\": \"SD\",\n      \"status\": \"open\",\n      \"next_operation\": {\n        \"type\": \"human_gate_decision\",\n        \"operation_key\": \"approval.record\",\n        \"actor\": \"human\",\n        \"effect\": \"decision\",\n        \"gate\": \"SD\"\n      },\n      \"blocking_reason\": \"none\"\n    },\n    \"authorizes\": false,\n    \"enabled_command_groups\": [\n      \"agdf_prepare\",\n      \"agdf_record\",\n      \"agdf_approve\"\n    ]\n  },\n  \"presentation\": null,\n  \"recovery\": null,\n  \"host_action\": {\n    \"mode\": \"consume_report_and_continue\",\n    \"source\": \"report\",\n    \"allow_surrounding_text\": true,\n    \"may_request_run_or_evidence\": false\n  },\n  \"timing\": {\n    \"wrapper_ms\": 0,\n    \"input_ms\": 8.316,\n    \"target_ms\": 1.466,\n    \"control_ms\": 224.633,\n    \"render_ms\": 0,\n    \"total_ms\": 234.531\n  },\n  \"diagnostics\": []\n}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "contract_version": 1,
+          "outcome": "inspect_result",
+          "terminal": false,
+          "authorizes": false,
+          "operation": "native-qualification",
+          "runtime": {
+            "machine_validation": "local_exact_version_digest",
+            "expected_version": "0.14.5",
+            "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/node_modules/create-agdf/",
+            "runtime_digest": "79e472d96fa2994168d17ef5d17a74de871d853335a6c5136ff483b3f9d54484",
+            "provenance_status": "matched"
+          },
+          "target": {
+            "schema_version": "1",
+            "resolution_state": "resolved",
+            "reason_code": "explicit_target",
+            "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+            "evidence_sources": [],
+            "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+            "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+            "target_source": "explicit_target",
+            "target_changed": false,
+            "next_action": "",
+            "authorizes": false
+          },
+          "report": {
+            "available": true,
+            "run_id": "native-de-approve",
+            "revision_id": "515e4873-eb82-4123-8441-4560e0d3202b",
+            "ui_rendering_support": "unsupported",
+            "action_qualification": {
+              "qualified": false,
+              "reason": "qualification_record_missing",
+              "authorizes": false
+            },
+            "business_readiness": {
+              "current_gate": "SD",
+              "status": "open",
+              "next_operation": {
+                "type": "human_gate_decision",
+                "operation_key": "approval.record",
+                "actor": "human",
+                "effect": "decision",
+                "gate": "SD"
+              },
+              "blocking_reason": "none"
+            },
+            "authorizes": false,
+            "enabled_command_groups": [
+              "agdf_prepare",
+              "agdf_record",
+              "agdf_approve"
+            ]
+          },
+          "presentation": null,
+          "recovery": null,
+          "host_action": {
+            "mode": "consume_report_and_continue",
+            "source": "report",
+            "allow_surrounding_text": true,
+            "may_request_run_or_evidence": false
+          },
+          "timing": {
+            "wrapper_ms": 0,
+            "input_ms": 8.316,
+            "target_ms": 1.466,
+            "control_ms": 224.633,
+            "render_ms": 0,
+            "total_ms": 234.531
+          },
+          "diagnostics": []
+        }
+      }
+    },
+    {
+      "args": {
+        "operation": "operation-contract",
+        "presentation_language": "de",
+        "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+        "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+        "target_source": "explicit_target",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "515e4873-eb82-4123-8441-4560e0d3202b",
+        "module": "agdf_record/step.record"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"schema_version\": \"1\",\n  \"contract_version\": 1,\n  \"outcome\": \"inspect_result\",\n  \"terminal\": false,\n  \"authorizes\": false,\n  \"operation\": \"operation-contract\",\n  \"runtime\": {\n    \"machine_validation\": \"local_exact_version_digest\",\n    \"expected_version\": \"0.14.5\",\n    \"plugin_root\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/node_modules/create-agdf/\",\n    \"runtime_digest\": \"79e472d96fa2994168d17ef5d17a74de871d853335a6c5136ff483b3f9d54484\",\n    \"provenance_status\": \"matched\"\n  },\n  \"target\": {\n    \"schema_version\": \"1\",\n    \"resolution_state\": \"resolved\",\n    \"reason_code\": \"explicit_target\",\n    \"primary_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target\",\n    \"evidence_sources\": [],\n    \"working_directory\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target\",\n    \"governance_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target\",\n    \"target_source\": \"explicit_target\",\n    \"target_changed\": false,\n    \"next_action\": \"\",\n    \"authorizes\": false\n  },\n  \"report\": {\n    \"schema_version\": \"1\",\n    \"available\": true,\n    \"group\": \"agdf_record\",\n    \"kind\": \"step.record\",\n    \"payload_schema\": {\n      \"oneOf\": [\n        {\n          \"type\": \"object\",\n          \"additionalProperties\": false,\n          \"properties\": {\n            \"step\": {\n              \"const\": \"ur\"\n            },\n            \"source\": {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"properties\": {\n                \"path\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 4096\n                },\n                \"digest\": {\n                  \"type\": \"string\",\n                  \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                }\n              },\n              \"required\": [\n                \"path\",\n                \"digest\"\n              ]\n            },\n            \"title\": {\n              \"type\": \"string\",\n              \"minLength\": 1,\n              \"maxLength\": 1024\n            }\n          },\n          \"required\": [\n            \"step\",\n            \"source\",\n            \"title\"\n          ]\n        },\n        {\n          \"type\": \"object\",\n          \"additionalProperties\": false,\n          \"properties\": {\n            \"step\": {\n              \"const\": \"route\"\n            },\n            \"source\": {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"properties\": {\n                \"path\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 4096\n                },\n                \"digest\": {\n                  \"type\": \"string\",\n                  \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                }\n              },\n              \"required\": [\n                \"path\",\n                \"digest\"\n              ]\n            },\n            \"reason\": {\n              \"type\": \"string\",\n              \"minLength\": 1,\n              \"maxLength\": 8192\n            },\n            \"route\": {\n              \"enum\": [\n                \"quick_task\",\n                \"structured_slice\",\n                \"structured_delivery\"\n              ]\n            }\n          },\n          \"required\": [\n            \"step\",\n            \"source\",\n            \"reason\",\n            \"route\"\n          ]\n        },\n        {\n          \"type\": \"object\",\n          \"additionalProperties\": false,\n          \"properties\": {\n            \"step\": {\n              \"const\": \"review\"\n            },\n            \"source\": {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"properties\": {\n                \"path\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 4096\n                },\n                \"digest\": {\n                  \"type\": \"string\",\n                  \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                }\n              },\n              \"required\": [\n                \"path\",\n                \"digest\"\n              ]\n            },\n            \"decision\": {\n              \"enum\": [\n                \"pass\",\n                \"revise\",\n                \"block\"\n              ]\n            }\n          },\n          \"required\": [\n            \"step\",\n            \"source\",\n            \"decision\"\n          ]\n        },\n        {\n          \"type\": \"object\",\n          \"additionalProperties\": false,\n          \"properties\": {\n            \"step\": {\n              \"const\": \"evidence\"\n            },\n            \"source\": {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"properties\": {\n                \"path\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 4096\n                },\n                \"digest\": {\n                  \"type\": \"string\",\n                  \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                }\n              },\n              \"required\": [\n                \"path\",\n                \"digest\"\n              ]\n            },\n            \"reason\": {\n              \"type\": \"string\",\n              \"minLength\": 1,\n              \"maxLength\": 8192\n            },\n            \"covers\": {\n              \"type\": \"string\",\n              \"minLength\": 1,\n              \"maxLength\": 1024\n            }\n          },\n          \"required\": [\n            \"step\",\n            \"source\",\n            \"reason\",\n            \"covers\"\n          ]\n        },\n        {\n          \"oneOf\": [\n            {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"properties\": {\n                \"step\": {\n                  \"const\": \"internal\"\n                },\n                \"source\": {\n                  \"type\": \"object\",\n                  \"additionalProperties\": false,\n                  \"properties\": {\n                    \"path\": {\n                      \"type\": \"string\",\n                      \"minLength\": 1,\n                      \"maxLength\": 4096\n                    },\n                    \"digest\": {\n                      \"type\": \"string\",\n                      \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                    }\n                  },\n                  \"required\": [\n                    \"path\",\n                    \"digest\"\n                  ]\n                },\n                \"internal_step\": {\n                  \"const\": \"UX Intent Definition\"\n                },\n                \"decision\": {\n                  \"enum\": [\n                    \"ready\",\n                    \"blocked\",\n                    \"not_applicable\"\n                  ]\n                },\n                \"reason\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 8192\n                },\n                \"covers\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 1024\n                }\n              },\n              \"required\": [\n                \"step\",\n                \"source\",\n                \"internal_step\",\n                \"decision\"\n              ]\n            },\n            {\n              \"type\": \"object\",\n              \"additionalProperties\": false,\n              \"properties\": {\n                \"step\": {\n                  \"const\": \"internal\"\n                },\n                \"source\": {\n                  \"type\": \"object\",\n                  \"additionalProperties\": false,\n                  \"properties\": {\n                    \"path\": {\n                      \"type\": \"string\",\n                      \"minLength\": 1,\n                      \"maxLength\": 4096\n                    },\n                    \"digest\": {\n                      \"type\": \"string\",\n                      \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                    }\n                  },\n                  \"required\": [\n                    \"path\",\n                    \"digest\"\n                  ]\n                },\n                \"internal_step\": {\n                  \"enum\": [\n                    \"Brownfield Analysis\",\n                    \"CD+Tests\",\n                    \"TP Review\",\n                    \"Clean Implementation Review\",\n                    \"CR\"\n                  ]\n                },\n                \"decision\": {\n                  \"enum\": [\n                    \"pass\",\n                    \"revise\",\n                    \"block\",\n                    \"not_applicable\"\n                  ]\n                },\n                \"reason\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 8192\n                },\n                \"covers\": {\n                  \"type\": \"string\",\n                  \"minLength\": 1,\n                  \"maxLength\": 1024\n                }\n              },\n              \"required\": [\n                \"step\",\n                \"source\",\n                \"internal_step\",\n                \"decision\"\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    \"owner\": \"run-steps.recordRunStep\",\n    \"effects\": [\n      \"register bounded actual internal/evidence result; update Run/backlog\"\n    ],\n    \"confirmation\": \"authorized_recording\",\n    \"schema\": {\n      \"type\": \"object\",\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"schema_version\": {\n          \"const\": \"1\"\n        },\n        \"presentation_language\": {\n          \"type\": \"string\",\n          \"maxLength\": 64,\n          \"pattern\": \"^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$\"\n        },\n        \"working_directory\": {\n          \"type\": \"string\",\n          \"minLength\": 1,\n          \"maxLength\": 4096\n        },\n        \"target_source\": {\n          \"enum\": [\n            \"explicit_target\",\n            \"continued_target\",\n            \"current_repository\"\n          ]\n        },\n        \"primary_target\": {\n          \"type\": \"string\",\n          \"minLength\": 1,\n          \"maxLength\": 4096\n        },\n        \"target_id\": {\n          \"type\": \"string\",\n          \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n        },\n        \"run_id\": {\n          \"type\": \"string\",\n          \"pattern\": \"^[a-z0-9][a-z0-9._-]{0,127}$\"\n        },\n        \"expected_revision_id\": {\n          \"type\": \"string\",\n          \"pattern\": \"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\"\n        },\n        \"operation_id\": {\n          \"type\": \"string\",\n          \"pattern\": \"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\"\n        },\n        \"assurance\": {\n          \"const\": \"cooperative_local\"\n        },\n        \"command\": {\n          \"type\": \"object\",\n          \"additionalProperties\": false,\n          \"properties\": {\n            \"kind\": {\n              \"const\": \"step.record\"\n            },\n            \"payload\": {\n              \"oneOf\": [\n                {\n                  \"type\": \"object\",\n                  \"additionalProperties\": false,\n                  \"properties\": {\n                    \"step\": {\n                      \"const\": \"ur\"\n                    },\n                    \"source\": {\n                      \"type\": \"object\",\n                      \"additionalProperties\": false,\n                      \"properties\": {\n                        \"path\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 4096\n                        },\n                        \"digest\": {\n                          \"type\": \"string\",\n                          \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                        }\n                      },\n                      \"required\": [\n                        \"path\",\n                        \"digest\"\n                      ]\n                    },\n                    \"title\": {\n                      \"type\": \"string\",\n                      \"minLength\": 1,\n                      \"maxLength\": 1024\n                    }\n                  },\n                  \"required\": [\n                    \"step\",\n                    \"source\",\n                    \"title\"\n                  ]\n                },\n                {\n                  \"type\": \"object\",\n                  \"additionalProperties\": false,\n                  \"properties\": {\n                    \"step\": {\n                      \"const\": \"route\"\n                    },\n                    \"source\": {\n                      \"type\": \"object\",\n                      \"additionalProperties\": false,\n                      \"properties\": {\n                        \"path\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 4096\n                        },\n                        \"digest\": {\n                          \"type\": \"string\",\n                          \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                        }\n                      },\n                      \"required\": [\n                        \"path\",\n                        \"digest\"\n                      ]\n                    },\n                    \"reason\": {\n                      \"type\": \"string\",\n                      \"minLength\": 1,\n                      \"maxLength\": 8192\n                    },\n                    \"route\": {\n                      \"enum\": [\n                        \"quick_task\",\n                        \"structured_slice\",\n                        \"structured_delivery\"\n                      ]\n                    }\n                  },\n                  \"required\": [\n                    \"step\",\n                    \"source\",\n                    \"reason\",\n                    \"route\"\n                  ]\n                },\n                {\n                  \"type\": \"object\",\n                  \"additionalProperties\": false,\n                  \"properties\": {\n                    \"step\": {\n                      \"const\": \"review\"\n                    },\n                    \"source\": {\n                      \"type\": \"object\",\n                      \"additionalProperties\": false,\n                      \"properties\": {\n                        \"path\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 4096\n                        },\n                        \"digest\": {\n                          \"type\": \"string\",\n                          \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                        }\n                      },\n                      \"required\": [\n                        \"path\",\n                        \"digest\"\n                      ]\n                    },\n                    \"decision\": {\n                      \"enum\": [\n                        \"pass\",\n                        \"revise\",\n                        \"block\"\n                      ]\n                    }\n                  },\n                  \"required\": [\n                    \"step\",\n                    \"source\",\n                    \"decision\"\n                  ]\n                },\n                {\n                  \"type\": \"object\",\n                  \"additionalProperties\": false,\n                  \"properties\": {\n                    \"step\": {\n                      \"const\": \"evidence\"\n                    },\n                    \"source\": {\n                      \"type\": \"object\",\n                      \"additionalProperties\": false,\n                      \"properties\": {\n                        \"path\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 4096\n                        },\n                        \"digest\": {\n                          \"type\": \"string\",\n                          \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                        }\n                      },\n                      \"required\": [\n                        \"path\",\n                        \"digest\"\n                      ]\n                    },\n                    \"reason\": {\n                      \"type\": \"string\",\n                      \"minLength\": 1,\n                      \"maxLength\": 8192\n                    },\n                    \"covers\": {\n                      \"type\": \"string\",\n                      \"minLength\": 1,\n                      \"maxLength\": 1024\n                    }\n                  },\n                  \"required\": [\n                    \"step\",\n                    \"source\",\n                    \"reason\",\n                    \"covers\"\n                  ]\n                },\n                {\n                  \"oneOf\": [\n                    {\n                      \"type\": \"object\",\n                      \"additionalProperties\": false,\n                      \"properties\": {\n                        \"step\": {\n                          \"const\": \"internal\"\n                        },\n                        \"source\": {\n                          \"type\": \"object\",\n                          \"additionalProperties\": false,\n                          \"properties\": {\n                            \"path\": {\n                              \"type\": \"string\",\n                              \"minLength\": 1,\n                              \"maxLength\": 4096\n                            },\n                            \"digest\": {\n                              \"type\": \"string\",\n                              \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                            }\n                          },\n                          \"required\": [\n                            \"path\",\n                            \"digest\"\n                          ]\n                        },\n                        \"internal_step\": {\n                          \"const\": \"UX Intent Definition\"\n                        },\n                        \"decision\": {\n                          \"enum\": [\n                            \"ready\",\n                            \"blocked\",\n                            \"not_applicable\"\n                          ]\n                        },\n                        \"reason\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 8192\n                        },\n                        \"covers\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 1024\n                        }\n                      },\n                      \"required\": [\n                        \"step\",\n                        \"source\",\n                        \"internal_step\",\n                        \"decision\"\n                      ]\n                    },\n                    {\n                      \"type\": \"object\",\n                      \"additionalProperties\": false,\n                      \"properties\": {\n                        \"step\": {\n                          \"const\": \"internal\"\n                        },\n                        \"source\": {\n                          \"type\": \"object\",\n                          \"additionalProperties\": false,\n                          \"properties\": {\n                            \"path\": {\n                              \"type\": \"string\",\n                              \"minLength\": 1,\n                              \"maxLength\": 4096\n                            },\n                            \"digest\": {\n                              \"type\": \"string\",\n                              \"pattern\": \"^sha256:[0-9a-f]{64}$\"\n                            }\n                          },\n                          \"required\": [\n                            \"path\",\n                            \"digest\"\n                          ]\n                        },\n                        \"internal_step\": {\n                          \"enum\": [\n                            \"Brownfield Analysis\",\n                            \"CD+Tests\",\n                            \"TP Review\",\n                            \"Clean Implementation Review\",\n                            \"CR\"\n                          ]\n                        },\n                        \"decision\": {\n                          \"enum\": [\n                            \"pass\",\n                            \"revise\",\n                            \"block\",\n                            \"not_applicable\"\n                          ]\n                        },\n                        \"reason\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 8192\n                        },\n                        \"covers\": {\n                          \"type\": \"string\",\n                          \"minLength\": 1,\n                          \"maxLength\": 1024\n                        }\n                      },\n                      \"required\": [\n                        \"step\",\n                        \"source\",\n                        \"internal_step\",\n                        \"decision\"\n                      ]\n                    }\n                  ]\n                }\n              ]\n            }\n          },\n          \"required\": [\n            \"kind\",\n            \"payload\"\n          ]\n        }\n      },\n      \"required\": [\n        \"schema_version\",\n        \"presentation_language\",\n        \"working_directory\",\n        \"target_source\",\n        \"primary_target\",\n        \"target_id\",\n        \"run_id\",\n        \"expected_revision_id\",\n        \"operation_id\",\n        \"assurance\",\n        \"command\"\n      ]\n    },\n    \"retry_class\": \"inspect_original_operation_after_dispatch\",\n    \"assurance\": \"cooperative_local\",\n    \"reference_limits\": {\n      \"input_bytes\": 65536,\n      \"source_file_bytes\": 131072,\n      \"result_bytes\": 1048576\n    },\n    \"internal_result_formats\": {\n      \"UX Intent Definition\": {\n        \"declaration\": \"- decision: ready | blocked | not_applicable\",\n        \"values\": [\n          \"ready\",\n          \"blocked\",\n          \"not_applicable\"\n        ],\n        \"readiness_value\": \"ready\"\n      },\n      \"reviews\": {\n        \"declaration\": \"- decision: pass | revise | block | not_applicable\",\n        \"result_scope\": \"actual current owner report; no generated judgement or approval\"\n      }\n    },\n    \"authorizes\": false,\n    \"authoring_format\": null,\n    \"confirmation_boundary\": \"host permission, concrete human intent and Core eligibility are separate\",\n    \"binding\": {\n      \"target_id\": \"sha256:a1f915b9d2a15e5e10343a2eb8c1347665194a0828ded3d29c962af59b7fb911\",\n      \"run_id\": \"native-de-approve\",\n      \"expected_revision_id\": \"515e4873-eb82-4123-8441-4560e0d3202b\"\n    },\n    \"current\": {\n      \"current_gate\": \"SD\",\n      \"lifecycle\": \"active\",\n      \"status\": \"open\",\n      \"missing_approval\": \"Approval: SD\",\n      \"next_operation\": {\n        \"type\": \"human_gate_decision\",\n        \"operation_key\": \"approval.record\",\n        \"actor\": \"human\",\n        \"effect\": \"decision\",\n        \"gate\": \"SD\"\n      },\n      \"completion\": {\n        \"status\": \"pending\",\n        \"gate\": \"OR\",\n        \"fulfilled\": false\n      },\n      \"artefacts\": [\n        {\n          \"type\": \"UR\",\n          \"path\": \".agdf/control/artefacts/native-de-approve/UR.md\",\n          \"status\": \"approved\",\n          \"digest\": \"sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56\",\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"Brownfield Review\",\n          \"path\": \".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md\",\n          \"status\": \"done\",\n          \"digest\": \"sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f\",\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"PRD\",\n          \"path\": \".agdf/control/artefacts/native-de-approve/PRD.md\",\n          \"status\": \"approved\",\n          \"digest\": \"sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2\",\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"SD\",\n          \"path\": \".agdf/control/artefacts/native-de-approve/SD.md\",\n          \"status\": \"draft\",\n          \"digest\": \"sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf\",\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"TP\",\n          \"path\": \"\",\n          \"status\": \"missing\",\n          \"digest\": null,\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"Brownfield Analysis\",\n          \"path\": \"\",\n          \"status\": \"missing\",\n          \"digest\": null,\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"CD+Tests\",\n          \"path\": \"\",\n          \"status\": \"missing\",\n          \"digest\": null,\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"CR\",\n          \"path\": \"\",\n          \"status\": \"missing\",\n          \"digest\": null,\n          \"association\": \"applicability_unknown\"\n        },\n        {\n          \"type\": \"QA\",\n          \"path\": \"\",\n          \"status\": \"missing\",\n          \"digest\": null,\n          \"association\": \"applicability_unknown\"\n        }\n      ],\n      \"source_bindings\": [\n        {\n          \"binding_id\": \"c527b570-de02-4e3b-94a9-3d58cce5c85c\",\n          \"source\": {\n            \"digest\": \"sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56\",\n            \"path\": \".agdf/control/artefacts/native-de-approve/UR.md\",\n            \"type\": \"UR\"\n          },\n          \"destination\": {\n            \"digest\": \"sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2\",\n            \"path\": \".agdf/control/artefacts/native-de-approve/PRD.md\",\n            \"status\": \"draft\",\n            \"type\": \"PRD\"\n          },\n          \"relationship\": {\n            \"from\": \"PRD\",\n            \"relationship\": \"derived_from\",\n            \"to\": \"UR\"\n          }\n        },\n        {\n          \"binding_id\": \"2d94863a-4c37-4371-8e42-e3faeefb0c73\",\n          \"source\": {\n            \"digest\": \"sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2\",\n            \"path\": \".agdf/control/artefacts/native-de-approve/PRD.md\",\n            \"type\": \"PRD\"\n          },\n          \"destination\": {\n            \"digest\": \"sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf\",\n            \"path\": \".agdf/control/artefacts/native-de-approve/SD.md\",\n            \"status\": \"draft\",\n            \"type\": \"SD\"\n          },\n          \"relationship\": {\n            \"from\": \"SD\",\n            \"relationship\": \"derived_from\",\n            \"to\": \"PRD\"\n          }\n        }\n      ]\n    }\n  },\n  \"presentation\": null,\n  \"recovery\": null,\n  \"host_action\": {\n    \"mode\": \"consume_report_and_continue\",\n    \"source\": \"report\",\n    \"allow_surrounding_text\": true,\n    \"may_request_run_or_evidence\": false\n  },\n  \"timing\": {\n    \"wrapper_ms\": 0,\n    \"input_ms\": 4.52,\n    \"target_ms\": 0.54,\n    \"control_ms\": 163.256,\n    \"render_ms\": 0,\n    \"total_ms\": 168.346\n  },\n  \"diagnostics\": []\n}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "contract_version": 1,
+          "outcome": "inspect_result",
+          "terminal": false,
+          "authorizes": false,
+          "operation": "operation-contract",
+          "runtime": {
+            "machine_validation": "local_exact_version_digest",
+            "expected_version": "0.14.5",
+            "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/node_modules/create-agdf/",
+            "runtime_digest": "79e472d96fa2994168d17ef5d17a74de871d853335a6c5136ff483b3f9d54484",
+            "provenance_status": "matched"
+          },
+          "target": {
+            "schema_version": "1",
+            "resolution_state": "resolved",
+            "reason_code": "explicit_target",
+            "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+            "evidence_sources": [],
+            "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+            "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+            "target_source": "explicit_target",
+            "target_changed": false,
+            "next_action": "",
+            "authorizes": false
+          },
+          "report": {
+            "schema_version": "1",
+            "available": true,
+            "group": "agdf_record",
+            "kind": "step.record",
+            "payload_schema": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "ur"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "title"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "route"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "route": {
+                      "enum": [
+                        "quick_task",
+                        "structured_slice",
+                        "structured_delivery"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "reason",
+                    "route"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "review"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "decision": {
+                      "enum": [
+                        "pass",
+                        "revise",
+                        "block"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "decision"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "evidence"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "covers": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "reason",
+                    "covers"
+                  ]
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "step": {
+                          "const": "internal"
+                        },
+                        "source": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "digest": {
+                              "type": "string",
+                              "pattern": "^sha256:[0-9a-f]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "digest"
+                          ]
+                        },
+                        "internal_step": {
+                          "const": "UX Intent Definition"
+                        },
+                        "decision": {
+                          "enum": [
+                            "ready",
+                            "blocked",
+                            "not_applicable"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "covers": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "source",
+                        "internal_step",
+                        "decision"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "step": {
+                          "const": "internal"
+                        },
+                        "source": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "digest": {
+                              "type": "string",
+                              "pattern": "^sha256:[0-9a-f]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "digest"
+                          ]
+                        },
+                        "internal_step": {
+                          "enum": [
+                            "Brownfield Analysis",
+                            "CD+Tests",
+                            "TP Review",
+                            "Clean Implementation Review",
+                            "CR"
+                          ]
+                        },
+                        "decision": {
+                          "enum": [
+                            "pass",
+                            "revise",
+                            "block",
+                            "not_applicable"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "covers": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "source",
+                        "internal_step",
+                        "decision"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "owner": "run-steps.recordRunStep",
+            "effects": [
+              "register bounded actual internal/evidence result; update Run/backlog"
+            ],
+            "confirmation": "authorized_recording",
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "schema_version": {
+                  "const": "1"
+                },
+                "presentation_language": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+                },
+                "working_directory": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "target_source": {
+                  "enum": [
+                    "explicit_target",
+                    "continued_target",
+                    "current_repository"
+                  ]
+                },
+                "primary_target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "target_id": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "run_id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+                },
+                "expected_revision_id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
+                "operation_id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
+                "assurance": {
+                  "const": "cooperative_local"
+                },
+                "command": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "step.record"
+                    },
+                    "payload": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "step": {
+                              "const": "ur"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 4096
+                                },
+                                "digest": {
+                                  "type": "string",
+                                  "pattern": "^sha256:[0-9a-f]{64}$"
+                                }
+                              },
+                              "required": [
+                                "path",
+                                "digest"
+                              ]
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1024
+                            }
+                          },
+                          "required": [
+                            "step",
+                            "source",
+                            "title"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "step": {
+                              "const": "route"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 4096
+                                },
+                                "digest": {
+                                  "type": "string",
+                                  "pattern": "^sha256:[0-9a-f]{64}$"
+                                }
+                              },
+                              "required": [
+                                "path",
+                                "digest"
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192
+                            },
+                            "route": {
+                              "enum": [
+                                "quick_task",
+                                "structured_slice",
+                                "structured_delivery"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "step",
+                            "source",
+                            "reason",
+                            "route"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "step": {
+                              "const": "review"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 4096
+                                },
+                                "digest": {
+                                  "type": "string",
+                                  "pattern": "^sha256:[0-9a-f]{64}$"
+                                }
+                              },
+                              "required": [
+                                "path",
+                                "digest"
+                              ]
+                            },
+                            "decision": {
+                              "enum": [
+                                "pass",
+                                "revise",
+                                "block"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "step",
+                            "source",
+                            "decision"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "step": {
+                              "const": "evidence"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 4096
+                                },
+                                "digest": {
+                                  "type": "string",
+                                  "pattern": "^sha256:[0-9a-f]{64}$"
+                                }
+                              },
+                              "required": [
+                                "path",
+                                "digest"
+                              ]
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 8192
+                            },
+                            "covers": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1024
+                            }
+                          },
+                          "required": [
+                            "step",
+                            "source",
+                            "reason",
+                            "covers"
+                          ]
+                        },
+                        {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "step": {
+                                  "const": "internal"
+                                },
+                                "source": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "path": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 4096
+                                    },
+                                    "digest": {
+                                      "type": "string",
+                                      "pattern": "^sha256:[0-9a-f]{64}$"
+                                    }
+                                  },
+                                  "required": [
+                                    "path",
+                                    "digest"
+                                  ]
+                                },
+                                "internal_step": {
+                                  "const": "UX Intent Definition"
+                                },
+                                "decision": {
+                                  "enum": [
+                                    "ready",
+                                    "blocked",
+                                    "not_applicable"
+                                  ]
+                                },
+                                "reason": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 8192
+                                },
+                                "covers": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "step",
+                                "source",
+                                "internal_step",
+                                "decision"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "step": {
+                                  "const": "internal"
+                                },
+                                "source": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "path": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 4096
+                                    },
+                                    "digest": {
+                                      "type": "string",
+                                      "pattern": "^sha256:[0-9a-f]{64}$"
+                                    }
+                                  },
+                                  "required": [
+                                    "path",
+                                    "digest"
+                                  ]
+                                },
+                                "internal_step": {
+                                  "enum": [
+                                    "Brownfield Analysis",
+                                    "CD+Tests",
+                                    "TP Review",
+                                    "Clean Implementation Review",
+                                    "CR"
+                                  ]
+                                },
+                                "decision": {
+                                  "enum": [
+                                    "pass",
+                                    "revise",
+                                    "block",
+                                    "not_applicable"
+                                  ]
+                                },
+                                "reason": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 8192
+                                },
+                                "covers": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "step",
+                                "source",
+                                "internal_step",
+                                "decision"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "payload"
+                  ]
+                }
+              },
+              "required": [
+                "schema_version",
+                "presentation_language",
+                "working_directory",
+                "target_source",
+                "primary_target",
+                "target_id",
+                "run_id",
+                "expected_revision_id",
+                "operation_id",
+                "assurance",
+                "command"
+              ]
+            },
+            "retry_class": "inspect_original_operation_after_dispatch",
+            "assurance": "cooperative_local",
+            "reference_limits": {
+              "input_bytes": 65536,
+              "source_file_bytes": 131072,
+              "result_bytes": 1048576
+            },
+            "internal_result_formats": {
+              "UX Intent Definition": {
+                "declaration": "- decision: ready | blocked | not_applicable",
+                "values": [
+                  "ready",
+                  "blocked",
+                  "not_applicable"
+                ],
+                "readiness_value": "ready"
+              },
+              "reviews": {
+                "declaration": "- decision: pass | revise | block | not_applicable",
+                "result_scope": "actual current owner report; no generated judgement or approval"
+              }
+            },
+            "authorizes": false,
+            "authoring_format": null,
+            "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+            "binding": {
+              "target_id": "sha256:a1f915b9d2a15e5e10343a2eb8c1347665194a0828ded3d29c962af59b7fb911",
+              "run_id": "native-de-approve",
+              "expected_revision_id": "515e4873-eb82-4123-8441-4560e0d3202b"
+            },
+            "current": {
+              "current_gate": "SD",
+              "lifecycle": "active",
+              "status": "open",
+              "missing_approval": "Approval: SD",
+              "next_operation": {
+                "type": "human_gate_decision",
+                "operation_key": "approval.record",
+                "actor": "human",
+                "effect": "decision",
+                "gate": "SD"
+              },
+              "completion": {
+                "status": "pending",
+                "gate": "OR",
+                "fulfilled": false
+              },
+              "artefacts": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "status": "approved",
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "Brownfield Review",
+                  "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+                  "status": "done",
+                  "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "status": "approved",
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "status": "draft",
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "TP",
+                  "path": "",
+                  "status": "missing",
+                  "digest": null,
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "Brownfield Analysis",
+                  "path": "",
+                  "status": "missing",
+                  "digest": null,
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "CD+Tests",
+                  "path": "",
+                  "status": "missing",
+                  "digest": null,
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "CR",
+                  "path": "",
+                  "status": "missing",
+                  "digest": null,
+                  "association": "applicability_unknown"
+                },
+                {
+                  "type": "QA",
+                  "path": "",
+                  "status": "missing",
+                  "digest": null,
+                  "association": "applicability_unknown"
+                }
+              ],
+              "source_bindings": [
+                {
+                  "binding_id": "c527b570-de02-4e3b-94a9-3d58cce5c85c",
+                  "source": {
+                    "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                    "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                    "type": "UR"
+                  },
+                  "destination": {
+                    "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                    "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                    "status": "draft",
+                    "type": "PRD"
+                  },
+                  "relationship": {
+                    "from": "PRD",
+                    "relationship": "derived_from",
+                    "to": "UR"
+                  }
+                },
+                {
+                  "binding_id": "2d94863a-4c37-4371-8e42-e3faeefb0c73",
+                  "source": {
+                    "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                    "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                    "type": "PRD"
+                  },
+                  "destination": {
+                    "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                    "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                    "status": "draft",
+                    "type": "SD"
+                  },
+                  "relationship": {
+                    "from": "SD",
+                    "relationship": "derived_from",
+                    "to": "PRD"
+                  }
+                }
+              ]
+            }
+          },
+          "presentation": null,
+          "recovery": null,
+          "host_action": {
+            "mode": "consume_report_and_continue",
+            "source": "report",
+            "allow_surrounding_text": true,
+            "may_request_run_or_evidence": false
+          },
+          "timing": {
+            "wrapper_ms": 0,
+            "input_ms": 4.52,
+            "target_ms": 0.54,
+            "control_ms": 163.256,
+            "render_ms": 0,
+            "total_ms": 168.346
+          },
+          "diagnostics": []
+        }
+      }
+    }
+  ]
+}

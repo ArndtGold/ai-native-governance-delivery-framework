@@ -1,0 +1,69 @@
+Prepared isolated native-en-approve
+Prepared isolated native-en-text
+Prepared isolated native-de-approve
+Prepared isolated native-de-text
+Candidate descriptor: NATIVE_PROBE_CANDIDATE.json
+{
+  "schema_version": "1",
+  "evidence_class": "prepared_disposable_native_probe",
+  "observed_at": "2026-10-12T06:23:52.577Z",
+  "production_entrypoint": false,
+  "installed": false,
+  "native_qualified": false,
+  "assurance": "cooperative_local",
+  "authorizes": false,
+  "runtime_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM",
+  "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/governance-target",
+  "target_id": "sha256:a1f915b9d2a15e5e10343a2eb8c1347665194a0828ded3d29c962af59b7fb911",
+  "runs": [
+    {
+      "locale": "en",
+      "action": "approve",
+      "run_id": "native-en-approve",
+      "expected_revision_id": "f3b0d6fc-fcce-4270-b95d-114800e3333b",
+      "gate": "SD"
+    },
+    {
+      "locale": "en",
+      "action": "text",
+      "run_id": "native-en-text",
+      "expected_revision_id": "b159bc50-56fe-4d4c-9359-7364e9ec4fd1",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "approve",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "515e4873-eb82-4123-8441-4560e0d3202b",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "text",
+      "run_id": "native-de-text",
+      "expected_revision_id": "3cb596d5-fa46-4db5-9e3f-21ae2cb65be0",
+      "gate": "SD"
+    }
+  ],
+  "entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/native-decision-entry.mjs",
+  "entrypoint_digest": "sha256:860004d179c2b95e45a95e41927e5f89dcb62e2c97724dcc6eeba81fecf34040",
+  "server_digest": "da995859675736beb58f37911a70b37ef1aaceb3fc49e7f8cbd76eb488d96ce0",
+  "dispatcher_digest": "79e472d96fa2994168d17ef5d17a74de871d853335a6c5136ff483b3f9d54484",
+  "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 921241,
+    "digest": "sha256:538856f4ab3b35991f0e4074cad0c004b61d76bf787b5318c68c6047ae7725bc",
+    "source_digest": "sha256:d1b84b69d5c05cb7b987b52b6e1afd9bc2eb017a1e39cbf02e9e86f63ee31afe"
+  },
+  "observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/native-observations.jsonl",
+  "configuration": {
+    "name": "agdf-decision-probe",
+    "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "args": [
+      "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-5S6EeM/native-decision-entry.mjs"
+    ]
+  }
+}

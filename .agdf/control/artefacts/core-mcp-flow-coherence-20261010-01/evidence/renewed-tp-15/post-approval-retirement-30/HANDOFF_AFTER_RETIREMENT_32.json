@@ -1,0 +1,371 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_native_saved_approval_followup_then_canonical_agent_tp_authoring",
+  "authorizes": false,
+  "closed_prior_view": "NATIVE_RETIREMENT_31.json",
+  "native_receipt": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "inspect_result",
+    "terminal": false,
+    "authorizes": false,
+    "operation": "operation-status",
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/node_modules/create-agdf/",
+      "runtime_digest": "28dd188577facb0b35eaa258519dda15ea26dc0c255dd8acd3c366764b06b15d",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "report": {
+      "schema_version": "1",
+      "run_id": "native-de-approve",
+      "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+      "authorizes": false,
+      "status": "recorded",
+      "family": "approval.record",
+      "request_digest": "sha256:b9c46555e98eea57c57ad5587f98fcb00be8ffbdb9b598e95c665bb29c6e067b",
+      "receipt": {
+        "action": "record_gate_approval",
+        "assurance": {
+          "independent_human_proof": "unavailable",
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply"
+        },
+        "binding": {
+          "expected_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+          "gate": "SD",
+          "presentation_id": "9e78ebdd-7ad2-42a5-a271-1328ec7b52b7",
+          "run_id": "native-de-approve",
+          "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8"
+        },
+        "command_digest": "sha256:b9c46555e98eea57c57ad5587f98fcb00be8ffbdb9b598e95c665bb29c6e067b",
+        "created_at": "2026-10-12T12:10:07.678Z",
+        "effect": {
+          "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "approval": "Approval: SD",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+          "next_gate_after_approval": "TP",
+          "presentation_digest": "sha256:58ecc229d9b391c4efb52aaedce52dcff7fafe7569ded64da657918973be5d60",
+          "previous_revision_id": "fe4dd7ae-27fb-4cc4-a02d-4e1106d512ae",
+          "resulting_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+          "revision": 8
+        },
+        "operation_id": "2bfefaf0-328d-4736-9522-1e5e7e110b29",
+        "producer": {
+          "contract": "approval-service/1",
+          "package_version": "0.14.5"
+        },
+        "request_digest": "sha256:705927569450931a0222884b4576118f53f0b099ecb286f6c463f6ee2bd90bec",
+        "schema_version": "2"
+      },
+      "historical_effect": true,
+      "current_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+      "pending": null,
+      "expected_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7"
+    },
+    "presentation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "consume_report_and_continue",
+      "source": "report",
+      "allow_surrounding_text": true,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 36.361,
+      "target_ms": 6.642,
+      "control_ms": 64.454,
+      "render_ms": 0,
+      "total_ms": 107.664
+    },
+    "diagnostics": []
+  },
+  "fresh_route": {
+    "control": {
+      "status": "open",
+      "current_gate": "TP",
+      "gate_route": {
+        "gate": "TP",
+        "skills": [
+          "gate-check"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "Approval: TP",
+      "next_operation": {
+        "type": "prepare_gate_artifact",
+        "operation_key": "artefact.author",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "TP",
+        "skill_id": "gate-check",
+        "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+        "source_artifacts": [
+          ".agdf/control/artefacts/native-de-approve/PRD.md",
+          ".agdf/control/artefacts/native-de-approve/SD.md"
+        ]
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      },
+      "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+      "run_id": "native-de-approve",
+      "revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+      "doctor_status": "warn"
+    },
+    "phase": "required_gate_artifact"
+  },
+  "tp_readiness": {
+    "run_id": "native-de-approve",
+    "gate": "TP",
+    "expected_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+    "revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+    "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+    "artifact_digest": "sha256:53ae3992d08449beb9afe89ac05dd94a516d468004f7f31f5fc393d527215c19",
+    "ready": true,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [
+      {
+        "name": "approval_summary",
+        "ready": true,
+        "required_heading": "AGDF Approval Summary (de; source=en)",
+        "reason": null
+      },
+      {
+        "name": "tp_traceability",
+        "ready": true,
+        "open_items": [],
+        "contract": "criteria-chain-v1"
+      }
+    ],
+    "diagnostics": [],
+    "next_action": "Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval."
+  },
+  "tp_record": {
+    "request": {
+      "schema_version": "1",
+      "assurance": "cooperative_local",
+      "presentation_language": "de",
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "target_source": "explicit_target",
+      "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+      "operation_id": "a53cd87e-b7f1-45b4-90b5-619bfa75632d",
+      "command": {
+        "kind": "artefact.record",
+        "payload": {
+          "gate": "TP",
+          "reviewed_request": {
+            "path": ".agdf/control/artefacts/native-de-approve/TP_RECORDING_INPUT_31.json",
+            "digest": "sha256:571e8a1e55b0c1505bbbdd02c9ad9694110fe45a02f0f89993a32b1ff992c57f"
+          }
+        }
+      }
+    },
+    "result": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "a53cd87e-b7f1-45b4-90b5-619bfa75632d",
+      "request_digest": "sha256:9ce6cae47a526781096c91db4ec222b53a0a963e09b8a1fb4be041fd585eb563",
+      "binding": {
+        "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+        "kind": "artefact.record"
+      },
+      "effect": null,
+      "receipt": {
+        "schema_version": "2",
+        "binding_id": "8f4c393c-6edf-4d66-8ffe-a13e63fca297",
+        "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8",
+        "run_id": "native-de-approve",
+        "relationship": {
+          "from": "TP",
+          "relationship": "derived_from",
+          "to": "SD"
+        },
+        "destination": {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/native-de-approve/TP.md",
+          "digest": "sha256:53ae3992d08449beb9afe89ac05dd94a516d468004f7f31f5fc393d527215c19",
+          "status": "draft"
+        },
+        "source": {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+          "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+        },
+        "review": {
+          "reviewer": "Codex / exact AC-001 and SDD-001 derivation review for the disposable native flow",
+          "path": ".agdf/control/artefacts/native-de-approve/TP_MAPPING_REVIEW_31.json",
+          "digest": "sha256:5368e42b513de16eeec1c260c41f2dd717b54bbbd51fb2a18b48247484d9fc69"
+        },
+        "origin": "reviewed_mapping",
+        "operation": {
+          "id": "a53cd87e-b7f1-45b4-90b5-619bfa75632d",
+          "previous_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+          "resulting_revision_id": "6cdcd9d9-ab72-46e8-a501-b825612613d1",
+          "revision": 9,
+          "request_digest": "sha256:9ce6cae47a526781096c91db4ec222b53a0a963e09b8a1fb4be041fd585eb563"
+        },
+        "supersedes": null
+      },
+      "historical_effect": false,
+      "current": {
+        "available": true,
+        "revision": 9,
+        "revision_id": "6cdcd9d9-ab72-46e8-a501-b825612613d1",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "human_gate_decision",
+          "operation_key": "approval.record",
+          "actor": "human",
+          "effect": "decision",
+          "gate": "TP"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "authorizes": false,
+      "recovery": null,
+      "family_result": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "native-de-approve",
+        "step": "artefact",
+        "previous_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+        "revision": "9",
+        "revision_id": "6cdcd9d9-ab72-46e8-a501-b825612613d1",
+        "current_gate": "TP",
+        "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "backlog": "updated",
+        "operation_id": "a53cd87e-b7f1-45b4-90b5-619bfa75632d",
+        "receipt": {
+          "schema_version": "2",
+          "binding_id": "8f4c393c-6edf-4d66-8ffe-a13e63fca297",
+          "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8",
+          "run_id": "native-de-approve",
+          "relationship": {
+            "from": "TP",
+            "relationship": "derived_from",
+            "to": "SD"
+          },
+          "destination": {
+            "type": "TP",
+            "path": ".agdf/control/artefacts/native-de-approve/TP.md",
+            "digest": "sha256:53ae3992d08449beb9afe89ac05dd94a516d468004f7f31f5fc393d527215c19",
+            "status": "draft"
+          },
+          "source": {
+            "type": "SD",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+          },
+          "review": {
+            "reviewer": "Codex / exact AC-001 and SDD-001 derivation review for the disposable native flow",
+            "path": ".agdf/control/artefacts/native-de-approve/TP_MAPPING_REVIEW_31.json",
+            "digest": "sha256:5368e42b513de16eeec1c260c41f2dd717b54bbbd51fb2a18b48247484d9fc69"
+          },
+          "origin": "reviewed_mapping",
+          "operation": {
+            "id": "a53cd87e-b7f1-45b4-90b5-619bfa75632d",
+            "previous_revision_id": "2e57196e-069f-4eef-a175-da2cea44edd7",
+            "resulting_revision_id": "6cdcd9d9-ab72-46e8-a501-b825612613d1",
+            "revision": 9,
+            "request_digest": "sha256:9ce6cae47a526781096c91db4ec222b53a0a963e09b8a1fb4be041fd585eb563"
+          },
+          "supersedes": null
+        }
+      }
+    }
+  },
+  "next_presentation": {
+    "request": {
+      "schema_version": "1",
+      "assurance": "cooperative_local",
+      "presentation_language": "de",
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-OoP8EF/governance-target",
+      "target_source": "explicit_target",
+      "target_id": "sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "6cdcd9d9-ab72-46e8-a501-b825612613d1",
+      "operation_id": "48865008-54a5-4344-8e61-eef3e9655c46",
+      "command": {
+        "kind": "presentation.prepare",
+        "payload": {
+          "gate": "TP"
+        }
+      }
+    },
+    "outcome": "accepted",
+    "presentation_delivery": {
+      "mode": "full_chat",
+      "display": "unconfirmed",
+      "text": "## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Save and restore a personal filter\n\n- Ziel: Einen benannten persönlichen Filter zuverlässig speichern und wiederherstellen.\n- Vorschlag: Den bestehenden Filterdienst verwenden und die Wiederherstellung sowie persönliche Eigentümerschaft prüfen.\n- Risiken und offene Punkte: Der vorhandene Dienst muss vor Umsetzung tatsächlich nachgewiesen werden. Nachweise sind erst geplant. Die TP-Freigabe dieses Wegwerf-Tests gilt ausschließlich für diesen Testlauf.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Einen benannten persönlichen Filter zuverlässig speichern und wiederherstellen.\n- Vorschlag: Den bestehenden Filterdienst verwenden und die Wiederherstellung sowie persönliche Eigentümerschaft prüfen.\n- Aufgaben: T-001 speichert und lädt den persönlichen Filter. T-002 prüft die gespeicherten Werte und die vorhandene Eigentumsgrenze.\n- Prüfung: SCN-001 vergleicht gespeicherte und wiederhergestellte Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den persönlichen Filter nicht erhält.\n- Risiken: Der vorhandene Dienst muss vor Umsetzung tatsächlich nachgewiesen werden. Nachweise sind erst geplant. Die TP-Freigabe dieses Wegwerf-Tests gilt ausschließlich für diesen Testlauf.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Aufgaben- und Testplan · Revision: `6cdcd9d9-ab72-46e8-a501-b825612613d1`\n\nSHA-256: `sha256:53ae3992d08449beb9afe89ac05dd94a516d468004f7f31f5fc393d527215c19`\n\n</details>",
+      "presentation_id": "48865008-54a5-4344-8e61-eef3e9655c46",
+      "revision_id": "6cdcd9d9-ab72-46e8-a501-b825612613d1",
+      "document_digest": "sha256:53ae3992d08449beb9afe89ac05dd94a516d468004f7f31f5fc393d527215c19",
+      "document_language": "en",
+      "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+      "authorizes": false
+    }
+  },
+  "result": "Original closed decision session did not prevent receipt verification or same-Run TP authoring. Fresh TP presentation awaits human decision; none was executed automatically.",
+  "limits": "This disposable SD-to-TP trace is not the complete native gate matrix, iPad/permission/undecided-host/corpus proof, or QA of the main Run."
+}

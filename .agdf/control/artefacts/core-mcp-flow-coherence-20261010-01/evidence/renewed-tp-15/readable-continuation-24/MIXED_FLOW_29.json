@@ -1,0 +1,309 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_mixed_Chat_SD_native_TP_readable_continuation",
+  "source": "mcp_app",
+  "source_id": "session:ce7bbb28-6ada-41ca-8e67-ef610438a028",
+  "visible_text": "Aufgaben- und Testplan freigegeben. Weiter mit Implementierungsvorbereitung.",
+  "prior_Chat_flow": "CHAT_APPROVAL_FLOW_28.json",
+  "receipt_verified": {
+    "schema_version": "1",
+    "run_id": "native-de-text",
+    "operation_id": "b7ad9f79-9b0e-439c-b06b-f93190c1fb42",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "approval.record",
+    "request_digest": "sha256:c340354dc83ccb727af33956a4ebb31d7c8ae2f20926c510a8a913743adbc911",
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "gate": "TP",
+        "presentation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+        "run_id": "native-de-text",
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2"
+      },
+      "command_digest": "sha256:c340354dc83ccb727af33956a4ebb31d7c8ae2f20926c510a8a913743adbc911",
+      "created_at": "2026-10-12T10:52:56.462Z",
+      "effect": {
+        "allowed_after_approval": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+        "approval": "Approval: TP",
+        "artefact_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+        "gate": "TP",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "type": "SD"
+          },
+          {
+            "digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+            "path": ".agdf/control/artefacts/native-de-text/TP.md",
+            "type": "TP"
+          }
+        ],
+        "material_version": "sha256:15b97b9084af0e9435f8ccabeadeb1cfed7507f5b2d42668c1136b68b0faba27",
+        "next_gate_after_approval": "Brownfield Analysis",
+        "presentation_digest": "sha256:d33d030ba65ce43eaf7e838dd03ed2afc46537d18e05b036f7a007fe281762d0",
+        "previous_revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "resulting_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+        "revision": 10
+      },
+      "operation_id": "b7ad9f79-9b0e-439c-b06b-f93190c1fb42",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:7020a3c3d29df8676b6dbad61ec2c3dedc57204d687a54b279e6a5e92716df88",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+    "pending": null,
+    "expected_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503"
+  },
+  "fresh_routing": {
+    "status": "open",
+    "current_gate": "Brownfield Analysis",
+    "gate_route": {
+      "gate": "Brownfield Analysis",
+      "skills": [
+        "brownfield-analysis"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "prepare_implementation",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_implementation",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Analysis"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    "run_id": "native-de-text",
+    "revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+    "doctor_status": "warn"
+  },
+  "analysis_record": {
+    "request": {
+      "schema_version": "1",
+      "assurance": "cooperative_local",
+      "presentation_language": "de",
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "target_source": "explicit_target",
+      "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+      "run_id": "native-de-text",
+      "expected_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+      "operation_id": "d7a36a54-6dc5-413f-9584-4bd25496af97",
+      "command": {
+        "kind": "step.record",
+        "payload": {
+          "step": "internal",
+          "internal_step": "Brownfield Analysis",
+          "decision": "block",
+          "source": {
+            "path": ".agdf/control/artefacts/native-de-text/BROWNFIELD_ANALYSIS_29.md",
+            "digest": "sha256:3f8575860ed9d8d55dff6531c7ca4de015c200fc6c65fcb673985639c386294c"
+          },
+          "covers": "Actual preparation after mixed human Chat SD/native TP approvals; independently confirmed absent required service, no implementation"
+        }
+      }
+    },
+    "result": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "d7a36a54-6dc5-413f-9584-4bd25496af97",
+      "request_digest": "sha256:75dcffa56d1c6f98e4f85a2c3e2e5810f8ec71fcb65a1d89310cf1d3c408ecc1",
+      "binding": {
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+        "run_id": "native-de-text",
+        "expected_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+        "kind": "step.record"
+      },
+      "effect": {
+        "previous_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+        "resulting_revision_id": "dcbea2b3-5e9b-497c-90ad-d572e9456041",
+        "revision": 11,
+        "record": {
+          "step": "Brownfield Analysis",
+          "source": {
+            "path": ".agdf/control/artefacts/native-de-text/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:3f8575860ed9d8d55dff6531c7ca4de015c200fc6c65fcb673985639c386294c"
+          },
+          "status": "block",
+          "covers": "Actual preparation after mixed human Chat SD/native TP approvals; independently confirmed absent required service, no implementation",
+          "source_set_digest": "sha256:48061491187f7c4279965d68dfb7803773abc0a17be25500c9560ae14b360a65"
+        }
+      },
+      "receipt": {
+        "schema_version": "1",
+        "kind": "step.record",
+        "operation_id": "d7a36a54-6dc5-413f-9584-4bd25496af97",
+        "request_digest": "sha256:75dcffa56d1c6f98e4f85a2c3e2e5810f8ec71fcb65a1d89310cf1d3c408ecc1",
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+        "run_id": "native-de-text",
+        "expected_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+        "created_at": "2026-10-12T11:00:04.218Z",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "effect": {
+          "previous_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+          "resulting_revision_id": "dcbea2b3-5e9b-497c-90ad-d572e9456041",
+          "revision": 11,
+          "record": {
+            "step": "Brownfield Analysis",
+            "source": {
+              "path": ".agdf/control/artefacts/native-de-text/BROWNFIELD_ANALYSIS.md",
+              "digest": "sha256:3f8575860ed9d8d55dff6531c7ca4de015c200fc6c65fcb673985639c386294c"
+            },
+            "status": "block",
+            "covers": "Actual preparation after mixed human Chat SD/native TP approvals; independently confirmed absent required service, no implementation",
+            "source_set_digest": "sha256:48061491187f7c4279965d68dfb7803773abc0a17be25500c9560ae14b360a65"
+          }
+        }
+      },
+      "historical_effect": false,
+      "current": {
+        "available": true,
+        "revision": 11,
+        "revision_id": "dcbea2b3-5e9b-497c-90ad-d572e9456041",
+        "lifecycle": "active",
+        "gate": "Brownfield Analysis",
+        "status": "open",
+        "missing_approval": "none",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "prepare_implementation",
+          "skill_id": "brownfield-analysis",
+          "operation_key": "analysis.brownfield_implementation",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "Brownfield Analysis"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "authorizes": false,
+      "recovery": null,
+      "family_result": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "native-de-text",
+        "step": "internal",
+        "previous_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+        "revision": "11",
+        "revision_id": "dcbea2b3-5e9b-497c-90ad-d572e9456041",
+        "current_gate": "Brownfield Analysis",
+        "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+        "backlog": "updated",
+        "operation_id": "d7a36a54-6dc5-413f-9584-4bd25496af97",
+        "receipt": {
+          "schema_version": "1",
+          "kind": "step.record",
+          "operation_id": "d7a36a54-6dc5-413f-9584-4bd25496af97",
+          "request_digest": "sha256:75dcffa56d1c6f98e4f85a2c3e2e5810f8ec71fcb65a1d89310cf1d3c408ecc1",
+          "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+          "run_id": "native-de-text",
+          "expected_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+          "created_at": "2026-10-12T11:00:04.218Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "16061831-0421-4c32-9dc5-2c0d90db1503",
+            "resulting_revision_id": "dcbea2b3-5e9b-497c-90ad-d572e9456041",
+            "revision": 11,
+            "record": {
+              "step": "Brownfield Analysis",
+              "source": {
+                "path": ".agdf/control/artefacts/native-de-text/BROWNFIELD_ANALYSIS.md",
+                "digest": "sha256:3f8575860ed9d8d55dff6531c7ca4de015c200fc6c65fcb673985639c386294c"
+              },
+              "status": "block",
+              "covers": "Actual preparation after mixed human Chat SD/native TP approvals; independently confirmed absent required service, no implementation",
+              "source_set_digest": "sha256:48061491187f7c4279965d68dfb7803773abc0a17be25500c9560ae14b360a65"
+            }
+          }
+        }
+      }
+    }
+  },
+  "final_control": {
+    "status": "open",
+    "current_gate": "Brownfield Analysis",
+    "gate_route": {
+      "gate": "Brownfield Analysis",
+      "skills": [
+        "brownfield-analysis"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "prepare_implementation",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_implementation",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Analysis"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    "run_id": "native-de-text",
+    "revision_id": "dcbea2b3-5e9b-497c-90ad-d572e9456041",
+    "doctor_status": "warn"
+  },
+  "conclusion": "One bound human Chat SD approval, then one native TP approval; readable internal-context handoff resumes preparation only. Independently refreshed target is governance-only, so missing required filter service is a concrete recorded preparation block. No code or later approval.",
+  "device_confirmed": false,
+  "production_qualified": false,
+  "main_qa": "revise",
+  "authorizes": false
+}

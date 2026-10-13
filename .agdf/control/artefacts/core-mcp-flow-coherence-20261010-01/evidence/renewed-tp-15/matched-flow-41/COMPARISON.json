@@ -1,0 +1,5087 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_controlled_exact_baseline_current_core_flow_comparison_not_model_or_host_benchmark",
+  "source_baseline": "BASELINE_SOURCE_MANIFEST.json and EXACT_BASELINE_SOURCE.tar.gz; all 574 original captured files verified",
+  "same_conditions": {
+    "node": "v22.22.3",
+    "platform": "Darwin",
+    "source_intent": "one private saved filter using the existing store; same neutral fixtures and synthetic gate replies",
+    "independent_owned_git_targets": true,
+    "runtime_source_mtime_changed_during_sequence": false
+  },
+  "coverage": [
+    {
+      "id": "no-source-revision-structured",
+      "case": "structured-no-revision"
+    },
+    {
+      "id": "revised-source-completed-ux",
+      "case": "revised-source-completed-ux"
+    },
+    {
+      "id": "supported-recording-two-caller-conflict",
+      "case": "revised-source-completed-ux",
+      "limit": "Synthetic Core callers; actual native click proof is separately retained."
+    },
+    {
+      "id": "early-ur-at-sd",
+      "case": "early-ur-at-sd"
+    },
+    {
+      "id": "lost-ack-original-uuid-recovery",
+      "case": "revised-source-completed-ux",
+      "limit": "Deterministic post-commit acknowledgement loss; not physical power-loss."
+    },
+    {
+      "id": "structured-and-quick-closeout",
+      "cases": [
+        "structured-no-revision",
+        "quick-closeout"
+      ]
+    },
+    {
+      "id": "current-history-inspection",
+      "case": "revised-source-completed-ux"
+    }
+  ],
+  "all_seven_fixed_core_flow_families_executed": true,
+  "full_B01_B12_native_host_model_qualification": false,
+  "cases": [
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "status": "executed",
+      "run": "structured-no-revision",
+      "manual_control_edits": 6,
+      "lifecycle": "completed",
+      "fixture_setup_control_edits": 1,
+      "routine_control_edits": 5
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "status": "executed",
+      "run": "structured-no-revision",
+      "manual_control_edits": 1,
+      "lifecycle": "completed",
+      "fixture_setup_control_edits": 1,
+      "routine_control_edits": 0
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "status": "executed",
+      "run": "revised-source-completed-ux",
+      "manual_control_edits": 9,
+      "lifecycle": "completed",
+      "history_preserved": true,
+      "decision": {
+        "recovery": "already_applied",
+        "conflict": "gate_not_ready",
+        "receipts": 1
+      },
+      "fixture_setup_control_edits": 2,
+      "routine_control_edits": 7
+    },
+    {
+      "lane": "before",
+      "case": "early-ur-at-sd",
+      "status": "executed",
+      "previous_revision": "f5117c36-b554-4c43-aee4-7dcd8ed995cf",
+      "gate": "Brownfield Review",
+      "history_preserved": true,
+      "manual_control_edits": 0,
+      "fixture_setup_control_edits": 0,
+      "routine_control_edits": 0
+    },
+    {
+      "lane": "after",
+      "case": "early-ur-at-sd",
+      "status": "executed",
+      "previous_revision": "89158764-1ba0-4d78-87c0-e13d05bd6dc3",
+      "gate": "Brownfield Review",
+      "history_preserved": true,
+      "manual_control_edits": 0,
+      "fixture_setup_control_edits": 0,
+      "routine_control_edits": 0
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "status": "executed",
+      "run": "revised-source-completed-ux",
+      "manual_control_edits": 2,
+      "lifecycle": "completed",
+      "history_preserved": true,
+      "decision": {
+        "recovery": "already_applied",
+        "conflict": "presentation_version_decided",
+        "receipts": 1
+      },
+      "fixture_setup_control_edits": 2,
+      "routine_control_edits": 0
+    },
+    {
+      "lane": "before",
+      "case": "quick-closeout",
+      "status": "executed",
+      "lifecycle": "completed",
+      "manual_control_edits": 0,
+      "fixture_setup_control_edits": 0,
+      "routine_control_edits": 0
+    },
+    {
+      "lane": "after",
+      "case": "quick-closeout",
+      "status": "executed",
+      "lifecycle": "completed",
+      "manual_control_edits": 0,
+      "fixture_setup_control_edits": 0,
+      "routine_control_edits": 0
+    }
+  ],
+  "events": [
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "full initial source chain",
+      "reader": {
+        "status": "open",
+        "gate": "CD+Tests",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CD+Tests",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "internal CD+Tests",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "internal TP Review",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "internal Clean Implementation Review",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "internal CR",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "record QA",
+      "outcome": "recorded",
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "approve QA",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "approve UAT",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "label": "structured closeout",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "full initial source chain",
+      "reader": {
+        "status": "open",
+        "gate": "CD+Tests",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CD+Tests",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "internal CD+Tests",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "internal TP Review",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "internal Clean Implementation Review",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "internal CR",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "record QA",
+      "outcome": "recorded",
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "approve QA",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "approve UAT",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "closeout original UUID replay",
+      "outcome": "already_applied",
+      "reason": null,
+      "reader": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "label": "structured closeout",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "source revision applied",
+      "outcome": "reopened",
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "source revision same UUID replay",
+      "outcome": "replayed",
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "current/history lookup",
+      "operation": "513b262e-babf-4a88-9820-e145272cf696",
+      "archive_digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32",
+      "archive_valid": true,
+      "authorizes": false
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "renewed route pending UX",
+      "reader": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "renewed completed UX before TP",
+      "reader": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "record TP",
+      "outcome": "recorded",
+      "reader": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "lost acknowledgement original UUID recovery",
+      "outcome": "already_applied",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Analysis",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Analysis",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "two caller same material conflict",
+      "outcome": "rejected",
+      "reason": "gate_not_ready",
+      "receipt_count": 1,
+      "evidence_class": "synthetic_core_callers_not_actual_native_click"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "internal CD+Tests",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "internal TP Review",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "internal Clean Implementation Review",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "internal CR",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "record QA",
+      "outcome": "recorded",
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "approve QA",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "approve UAT",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "label": "structured closeout",
+      "outcome": "updated",
+      "reader": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "before",
+      "case": "early-ur-at-sd",
+      "label": "source revision applied",
+      "outcome": "reopened",
+      "reader": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "early-ur-at-sd",
+      "label": "source revision same UUID replay",
+      "outcome": "replayed",
+      "reader": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "before",
+      "case": "early-ur-at-sd",
+      "label": "current/history lookup",
+      "operation": "cc00f47f-f0c6-4c19-b9dc-fbb52a8bac1d",
+      "archive_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+      "archive_valid": true,
+      "authorizes": false
+    },
+    {
+      "lane": "before",
+      "case": "early-ur-at-sd",
+      "label": "renewed UR approval",
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "early-ur-at-sd",
+      "label": "source revision applied",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "early-ur-at-sd",
+      "label": "source revision same UUID replay",
+      "outcome": "already_applied",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UR",
+        "missing_approval": "Approval: UR"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "early-ur-at-sd",
+      "label": "current/history lookup",
+      "operation": "3cc5db84-14fd-4e25-a1ff-4c18aae55524",
+      "archive_digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+      "archive_valid": true,
+      "authorizes": false
+    },
+    {
+      "lane": "after",
+      "case": "early-ur-at-sd",
+      "label": "renewed UR approval",
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "source revision applied",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "source revision same UUID replay",
+      "outcome": "already_applied",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Review",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "current/history lookup",
+      "operation": "2808eb24-285e-4be5-a2e4-d324a2337681",
+      "archive_digest": "sha256:93bc48b31bd1614bdce0c8b325549f43fbe328cf06a3fb762ef22cf826947a32",
+      "archive_valid": true,
+      "authorizes": false
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "renewed route pending UX",
+      "reader": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "renewed completed UX before TP",
+      "reader": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "record TP",
+      "outcome": "recorded",
+      "reader": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "TP",
+        "missing_approval": "Approval: TP"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "lost acknowledgement original UUID recovery",
+      "outcome": "already_applied",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "Brownfield Analysis",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "Brownfield Analysis",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "two caller same material conflict",
+      "outcome": "rejected",
+      "reason": "presentation_version_decided",
+      "receipt_count": 1,
+      "evidence_class": "synthetic_core_callers_not_actual_native_click"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "internal Brownfield Analysis",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CD+Tests",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CD+Tests",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "internal CD+Tests",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "internal TP Review",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "internal Clean Implementation Review",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "CR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "internal CR",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "record QA",
+      "outcome": "recorded",
+      "reader": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "QA",
+        "missing_approval": "Approval: QA"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "approve QA",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "UAT",
+        "missing_approval": "Approval: UAT"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "approve UAT",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "open",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "active"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "closeout original UUID replay",
+      "outcome": "already_applied",
+      "reason": null,
+      "reader": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "label": "structured closeout",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "before",
+      "case": "quick-closeout",
+      "label": "Quick closeout",
+      "outcome": "recorded",
+      "reader": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    },
+    {
+      "lane": "after",
+      "case": "quick-closeout",
+      "label": "Quick closeout",
+      "outcome": "accepted",
+      "reason": null,
+      "reader": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "writer": {
+        "status": "pass",
+        "gate": "OR",
+        "missing_approval": "none"
+      },
+      "parity": true,
+      "lifecycle": "completed"
+    }
+  ],
+  "cli_traces": [
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:51.600Z",
+      "command": "run-create",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:52.347Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:53.302Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:54.516Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "UR",
+      "step": null,
+      "operation": "94c85478-a886-4575-a03b-04e33a28e4cc",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:55.268Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:56.051Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "PRD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:57.038Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "PRD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:58.345Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "PRD",
+      "step": null,
+      "operation": "4fcd9474-2cef-4b73-bfb1-dfac2800973d",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:03:59.123Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "SD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:00.129Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "SD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:02.087Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "SD",
+      "step": null,
+      "operation": "7309e5e7-2b49-43c6-ac9e-3a5c4368aad2",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:02.914Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "TP",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:03.927Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "TP",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:05.195Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "TP",
+      "step": null,
+      "operation": "044eb8f9-abc3-4227-86cd-6ef31ee7528b",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:05.982Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:06.794Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": "evidence",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:07.607Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:08.379Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:09.150Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:09.936Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:10.777Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "QA",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:11.777Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "QA",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:13.120Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "QA",
+      "step": null,
+      "operation": "e60bf7ef-710a-4a3b-9147-4afa2c4c24ce",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:14.102Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "UAT",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:15.382Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "UAT",
+      "step": null,
+      "operation": "ac3c82d1-7abb-4bf3-a4e5-6105b38248ea",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:04:16.182Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "completed"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:18.109Z",
+      "command": "run-create",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:18.911Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:20.039Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:21.424Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "UR",
+      "step": null,
+      "operation": "73c2c6d9-f496-41f2-be64-7c8037129c9d",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:22.302Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:23.201Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "PRD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:24.343Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "PRD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:25.824Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "PRD",
+      "step": null,
+      "operation": "3506befc-b836-44e0-81ff-82656bd2b6f9",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:26.736Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "SD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:27.883Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "SD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:29.360Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "SD",
+      "step": null,
+      "operation": "3ab28f00-6fc1-4c3f-b9fb-439f6244ceb8",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:30.409Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "TP",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:31.575Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "TP",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:33.080Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "TP",
+      "step": null,
+      "operation": "0c1ec49d-6138-450e-9b9f-0a1439de9698",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:33.992Z",
+      "command": "run-update",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:35.002Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": null,
+      "step": "evidence",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:37.461Z",
+      "command": "run-step",
+      "run": "structured-no-revision",
+      "gate": "QA",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:38.838Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "QA",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:40.622Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "QA",
+      "step": null,
+      "operation": "30f58561-4d37-437c-b428-93602c126d36",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:42.149Z",
+      "command": "run-present",
+      "run": "structured-no-revision",
+      "gate": "UAT",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:04:43.907Z",
+      "command": "run-approve",
+      "run": "structured-no-revision",
+      "gate": "UAT",
+      "step": null,
+      "operation": "0f38402e-0e9e-47b8-90c6-c89ac4d8bbab",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:14.631Z",
+      "command": "run-create",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:15.482Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:16.718Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:18.307Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "UR",
+      "step": null,
+      "operation": "47e88074-076d-4133-9ba0-f02a5d323f86",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:19.158Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:20.110Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "PRD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:21.369Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "PRD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:22.934Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "PRD",
+      "step": null,
+      "operation": "36fb60a0-5168-400d-8fed-9c21cceedff7",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:23.825Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "SD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:25.059Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "SD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:26.456Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "SD",
+      "step": null,
+      "operation": "69f0f6af-8048-47b4-8ab6-540cdd80c4f6",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:27.330Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:28.545Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:30.091Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": null,
+      "operation": "08b8ef25-b6fd-401a-994c-cf2a2ba1d864",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:30.901Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:31.982Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "evidence",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:32.848Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:33.606Z",
+      "command": "run-revise",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": "513b262e-babf-4a88-9820-e145272cf696",
+      "outcome": "preview",
+      "reason": "Synthetic reviewed source revision test",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:34.883Z",
+      "command": "run-revise",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": "513b262e-babf-4a88-9820-e145272cf696",
+      "outcome": "reopened",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:35.737Z",
+      "command": "run-revise",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": "513b262e-babf-4a88-9820-e145272cf696",
+      "outcome": "replayed",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:36.716Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:37.633Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:38.754Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:40.010Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:42.665Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:43.547Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "evidence",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:44.449Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:45.512Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:46.402Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:47.304Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:48.327Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "QA",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:49.639Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "QA",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:51.638Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "QA",
+      "step": null,
+      "operation": "64d5f9ec-5b5c-4561-831f-17c23c03d115",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:52.971Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "UAT",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:54.850Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "UAT",
+      "step": null,
+      "operation": "b0e165c4-2d1e-49c3-aa8c-477639198f98",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:55.778Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "completed"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:57.426Z",
+      "command": "run-create",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:58.382Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:12:59.722Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:01.435Z",
+      "command": "run-approve",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": "5429b104-33e9-406a-8471-deca24d1c6e0",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:02.404Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:03.277Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": "PRD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:04.383Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "PRD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:05.646Z",
+      "command": "run-approve",
+      "run": "early-ur-at-sd",
+      "gate": "PRD",
+      "step": null,
+      "operation": "90a5b302-5f2c-416e-9d23-e98b316e7fb9",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:06.432Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": "SD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:07.657Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "SD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:08.897Z",
+      "command": "run-revise",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": null,
+      "operation": "cc00f47f-f0c6-4c19-b9dc-fbb52a8bac1d",
+      "outcome": "preview",
+      "reason": "Synthetic reviewed source revision test",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:12.260Z",
+      "command": "run-revise",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": null,
+      "operation": "cc00f47f-f0c6-4c19-b9dc-fbb52a8bac1d",
+      "outcome": "reopened",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:14.287Z",
+      "command": "run-revise",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": null,
+      "operation": "cc00f47f-f0c6-4c19-b9dc-fbb52a8bac1d",
+      "outcome": "replayed",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:15.594Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:17.118Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:13:18.634Z",
+      "command": "run-approve",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": "7c1a109a-2b2a-4f8b-b85a-99aa5efca9e1",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:36.757Z",
+      "command": "run-create",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:37.628Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:38.975Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:40.535Z",
+      "command": "run-approve",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": "ac8f6bbe-3fe9-4af5-9b06-8349b489a134",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:41.431Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:42.468Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": "PRD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:43.703Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "PRD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:45.358Z",
+      "command": "run-approve",
+      "run": "early-ur-at-sd",
+      "gate": "PRD",
+      "step": null,
+      "operation": "39b02870-8a19-47f8-87f0-b58ead5821a5",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:46.266Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": "SD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:47.423Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "SD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:49.541Z",
+      "command": "run-step",
+      "run": "early-ur-at-sd",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:50.945Z",
+      "command": "run-present",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:12:52.808Z",
+      "command": "run-approve",
+      "run": "early-ur-at-sd",
+      "gate": "UR",
+      "step": null,
+      "operation": "b032e827-a267-4752-afc2-05b3f6361788",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:27.022Z",
+      "command": "run-create",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:28.188Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:29.365Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:31.126Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "UR",
+      "step": null,
+      "operation": "648d94cb-9a19-4cda-962d-96475467e4f7",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Review",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:32.176Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:33.746Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "PRD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:35.109Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "PRD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "PRD",
+          "missing_approval": "Approval: PRD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:36.786Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "PRD",
+      "step": null,
+      "operation": "391e886c-af32-4ce7-bdfb-10c860aac7e4",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:37.981Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "SD",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:39.340Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "SD",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "SD",
+          "missing_approval": "Approval: SD"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:40.986Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "SD",
+      "step": null,
+      "operation": "f58dc619-2a36-4bc3-8060-e7bee5174fb2",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:42.005Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:43.345Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:45.970Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": null,
+      "operation": "cf7b4144-8841-4af1-8930-557ea77ea38f",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Brownfield Analysis",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:46.951Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:48.138Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "evidence",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:49.415Z",
+      "command": "run-update",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "outcome": "updated",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "CD+Tests",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:52.322Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:54.729Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:13:57.122Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "TP",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "TP",
+          "missing_approval": "Approval: TP"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:14:04.575Z",
+      "command": "run-step",
+      "run": "revised-source-completed-ux",
+      "gate": "QA",
+      "step": "artefact",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:14:06.127Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "QA",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "QA",
+          "missing_approval": "Approval: QA"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:14:08.436Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "QA",
+      "step": null,
+      "operation": "2305373c-8f58-4feb-8c64-6fdc0382aa4e",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:14:09.936Z",
+      "command": "run-present",
+      "run": "revised-source-completed-ux",
+      "gate": "UAT",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UAT",
+          "missing_approval": "Approval: UAT"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:14:12.136Z",
+      "command": "run-approve",
+      "run": "revised-source-completed-ux",
+      "gate": "UAT",
+      "step": null,
+      "operation": "ee97b79e-7788-445d-b151-9d067c8fad6c",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:17.725Z",
+      "command": "run-create",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:18.680Z",
+      "command": "run-step",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:19.524Z",
+      "command": "run-step",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:20.817Z",
+      "command": "run-present",
+      "run": "quick-closeout",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:22.554Z",
+      "command": "run-approve",
+      "run": "quick-closeout",
+      "gate": "UR",
+      "step": null,
+      "operation": "a5b44afb-f6f4-4c63-9963-4d16498532d5",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Quick Task Execution",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Quick Task Execution",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:23.752Z",
+      "command": "run-step",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": "review",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Quick Task Execution",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Quick Task Execution",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "before",
+      "at": "2026-10-12T16:15:24.797Z",
+      "command": "run-step",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": "closeout",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "pass",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "pass",
+          "gate": "OR",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "completed"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:15:17.883Z",
+      "command": "run-create",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": null,
+      "operation": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:15:18.976Z",
+      "command": "run-step",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": "ur",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:15:19.894Z",
+      "command": "run-step",
+      "run": "quick-closeout",
+      "gate": null,
+      "step": "route",
+      "operation": null,
+      "outcome": "recorded",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:15:21.370Z",
+      "command": "run-present",
+      "run": "quick-closeout",
+      "gate": "UR",
+      "step": null,
+      "operation": null,
+      "outcome": "prepared",
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "UR",
+          "missing_approval": "Approval: UR"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    },
+    {
+      "lane": "after",
+      "at": "2026-10-12T16:15:23.580Z",
+      "command": "run-approve",
+      "run": "quick-closeout",
+      "gate": "UR",
+      "step": null,
+      "operation": "7a53c49f-c34b-421c-a9ef-d9bb5daf48d9",
+      "outcome": "accepted",
+      "reason": null,
+      "exit": 0,
+      "observation": {
+        "reader": {
+          "status": "open",
+          "gate": "Quick Task Execution",
+          "missing_approval": "none"
+        },
+        "writer": {
+          "status": "open",
+          "gate": "Quick Task Execution",
+          "missing_approval": "none"
+        },
+        "parity": true,
+        "lifecycle": "active"
+      }
+    }
+  ],
+  "measured_driver_counters": [
+    {
+      "lane": "before",
+      "case": "structured-no-revision",
+      "cli_calls_excluding_init": 26,
+      "control_table_edits_total": 6,
+      "fixture_setup_control_table_edits": 1,
+      "routine_control_table_edits": 5
+    },
+    {
+      "lane": "after",
+      "case": "structured-no-revision",
+      "cli_calls_excluding_init": 21,
+      "control_table_edits_total": 1,
+      "fixture_setup_control_table_edits": 1,
+      "routine_control_table_edits": 0
+    },
+    {
+      "lane": "before",
+      "case": "revised-source-completed-ux",
+      "cli_calls_excluding_init": 36,
+      "control_table_edits_total": 9,
+      "fixture_setup_control_table_edits": 2,
+      "routine_control_table_edits": 7
+    },
+    {
+      "lane": "before",
+      "case": "early-ur-at-sd",
+      "cli_calls_excluding_init": 16,
+      "control_table_edits_total": 0,
+      "fixture_setup_control_table_edits": 0,
+      "routine_control_table_edits": 0
+    },
+    {
+      "lane": "after",
+      "case": "early-ur-at-sd",
+      "cli_calls_excluding_init": 13,
+      "control_table_edits_total": 0,
+      "fixture_setup_control_table_edits": 0,
+      "routine_control_table_edits": 0
+    },
+    {
+      "lane": "after",
+      "case": "revised-source-completed-ux",
+      "cli_calls_excluding_init": 25,
+      "control_table_edits_total": 2,
+      "fixture_setup_control_table_edits": 2,
+      "routine_control_table_edits": 0
+    },
+    {
+      "lane": "before",
+      "case": "quick-closeout",
+      "cli_calls_excluding_init": 7,
+      "control_table_edits_total": 0,
+      "fixture_setup_control_table_edits": 0,
+      "routine_control_table_edits": 0
+    },
+    {
+      "lane": "after",
+      "case": "quick-closeout",
+      "cli_calls_excluding_init": 5,
+      "control_table_edits_total": 0,
+      "fixture_setup_control_table_edits": 0,
+      "routine_control_table_edits": 0
+    }
+  ],
+  "totals": {
+    "before": {
+      "routine_control_table_edits": 12,
+      "fixture_setup_edits": 3,
+      "cli_calls_excluding_init": 85
+    },
+    "after": {
+      "routine_control_table_edits": 0,
+      "fixture_setup_edits": 3,
+      "cli_calls_excluding_init": 64
+    }
+  },
+  "model_metrics": {
+    "routine_undocumented_invocation_searches": null,
+    "parser_signature_searches": null,
+    "false_next_step_statements": null,
+    "redundant_business_or_continuation_prompts": null,
+    "weaker_model_improvement": null,
+    "explanation": "No bound before/current model comparison was run. Deterministic driver counts are not model behavior and do not prove these zeros."
+  },
+  "necessary_engineering_reads": "Original source recovery, contract/fixture/owner inspection and harness corrections are separately reported in COMPARISON.md. They are not business workflow counters.",
+  "synthetic_approvals_only": true,
+  "business_run_sources_or_approvals_changed": false
+}

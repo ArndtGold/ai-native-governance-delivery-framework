@@ -1,0 +1,118 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+    "target_source": "explicit_target",
+    "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+    "run_id": "native-de-text",
+    "expected_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+    "operation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+    "command": {
+      "kind": "presentation.prepare",
+      "payload": {
+        "gate": "SD"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+    "request_digest": "sha256:e237ce61f2fc7c54968907b3434981980aa7be6d603f4b4467a10dbbdf6498ba",
+    "binding": {
+      "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+      "run_id": "native-de-text",
+      "expected_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 3,
+      "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+      "operation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+      "request_digest": "sha256:e237ce61f2fc7c54968907b3434981980aa7be6d603f4b4467a10dbbdf6498ba",
+      "created_at": "2026-10-12T10:32:07.667Z",
+      "run_id": "native-de-text",
+      "gate": "SD",
+      "revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "content_digest": "sha256:a8cd0f9fdbb46dc65b451cb8c6a6e5fd0db50b8ea02f677ca7303d5106c597f8",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:1d4b6671bd931760d768b3c78bf8eb00c92a7239bfc62962c2d3a06ac448bafd",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+      "operation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+      "request_digest": "sha256:e237ce61f2fc7c54968907b3434981980aa7be6d603f4b4467a10dbbdf6498ba",
+      "created_at": "2026-10-12T10:32:07.667Z",
+      "run_id": "native-de-text",
+      "gate": "SD",
+      "revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "content_digest": "sha256:a8cd0f9fdbb46dc65b451cb8c6a6e5fd0db50b8ea02f677ca7303d5106c597f8",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:1d4b6671bd931760d768b3c78bf8eb00c92a7239bfc62962c2d3a06ac448bafd",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342,
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-text` · Lösungsdesign · Revision: `b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "summary": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.",
+      "companion_text": "Die AGDF-Karte ist geöffnet. Du kannst dort „Freigeben“ klicken oder hier `Approval: SD` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.\n\n## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-text` · Lösungsdesign · Revision: `b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "record_digest": "sha256:ba662abf8e4813c11ca96cd70b285b40855ea0aed8f0edfbce3010d66dad06ca",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available",
+    "presentation_delivery": {
+      "mode": "full_chat",
+      "display": "unconfirmed",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-text` · Lösungsdesign · Revision: `b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+      "revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_language": "en",
+      "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+      "authorizes": false
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+    "operation_id": "d4517ad2-2e46-46a2-97ce-22f076592732",
+    "command": {
+      "kind": "step.record",
+      "payload": {
+        "step": "internal",
+        "internal_step": "TP Review",
+        "decision": "revise",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP_REVIEW_REPORT_24.md",
+          "digest": "sha256:3d6a3f796cb1344f600f942516daced5efc50249357ee384ef929205a32da218"
+        },
+        "covers": "All 19 approved tasks and 78 scenarios; missing native/remote/host/corpus evidence remains explicit"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "d4517ad2-2e46-46a2-97ce-22f076592732",
+    "request_digest": "sha256:f6d42429fefbcca4aeb081f2fa67e535b5355ed528069a85a20c5b8b97fcb027",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+      "kind": "step.record"
+    },
+    "effect": {
+      "previous_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+      "resulting_revision_id": "2cd72e88-1b17-4f80-8ba1-d15e52d2b85a",
+      "revision": 58,
+      "record": {
+        "step": "TP Review",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP_REVIEW.md",
+          "digest": "sha256:3d6a3f796cb1344f600f942516daced5efc50249357ee384ef929205a32da218"
+        },
+        "status": "revise",
+        "covers": "All 19 approved tasks and 78 scenarios; missing native/remote/host/corpus evidence remains explicit",
+        "source_set_digest": "sha256:e1e745846b2e6afbdd74f5ae471cc1ffe133452159aee524c2f38505e5c6cd32"
+      }
+    },
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "d4517ad2-2e46-46a2-97ce-22f076592732",
+      "request_digest": "sha256:f6d42429fefbcca4aeb081f2fa67e535b5355ed528069a85a20c5b8b97fcb027",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+      "created_at": "2026-10-12T10:03:53.180Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+        "resulting_revision_id": "2cd72e88-1b17-4f80-8ba1-d15e52d2b85a",
+        "revision": 58,
+        "record": {
+          "step": "TP Review",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP_REVIEW.md",
+            "digest": "sha256:3d6a3f796cb1344f600f942516daced5efc50249357ee384ef929205a32da218"
+          },
+          "status": "revise",
+          "covers": "All 19 approved tasks and 78 scenarios; missing native/remote/host/corpus evidence remains explicit",
+          "source_set_digest": "sha256:e1e745846b2e6afbdd74f5ae471cc1ffe133452159aee524c2f38505e5c6cd32"
+        }
+      }
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 58,
+      "revision_id": "2cd72e88-1b17-4f80-8ba1-d15e52d2b85a",
+      "lifecycle": "active",
+      "gate": "CR",
+      "status": "open",
+      "missing_approval": "none",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "review_implementation",
+        "skill_id": "code-review",
+        "operation_key": "review.code",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "CR"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "step": "internal",
+      "previous_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+      "revision": "58",
+      "revision_id": "2cd72e88-1b17-4f80-8ba1-d15e52d2b85a",
+      "current_gate": "CR",
+      "next_allowed_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+      "backlog": "updated",
+      "operation_id": "d4517ad2-2e46-46a2-97ce-22f076592732",
+      "receipt": {
+        "schema_version": "1",
+        "kind": "step.record",
+        "operation_id": "d4517ad2-2e46-46a2-97ce-22f076592732",
+        "request_digest": "sha256:f6d42429fefbcca4aeb081f2fa67e535b5355ed528069a85a20c5b8b97fcb027",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "run_id": "core-mcp-flow-coherence-20261010-01",
+        "expected_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+        "created_at": "2026-10-12T10:03:53.180Z",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "effect": {
+          "previous_revision_id": "15f1bd25-9dff-43d3-9e39-3b5a12735d1b",
+          "resulting_revision_id": "2cd72e88-1b17-4f80-8ba1-d15e52d2b85a",
+          "revision": 58,
+          "record": {
+            "step": "TP Review",
+            "source": {
+              "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP_REVIEW.md",
+              "digest": "sha256:3d6a3f796cb1344f600f942516daced5efc50249357ee384ef929205a32da218"
+            },
+            "status": "revise",
+            "covers": "All 19 approved tasks and 78 scenarios; missing native/remote/host/corpus evidence remains explicit",
+            "source_set_digest": "sha256:e1e745846b2e6afbdd74f5ae471cc1ffe133452159aee524c2f38505e5c6cd32"
+          }
+        }
+      }
+    }
+  }
+}

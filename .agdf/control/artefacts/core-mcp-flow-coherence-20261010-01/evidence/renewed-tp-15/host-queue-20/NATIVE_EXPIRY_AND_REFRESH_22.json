@@ -1,0 +1,583 @@
+{
+  "evidence_class": "actual_native_test_session_expiry_and_fresh_bootstrap",
+  "events": [
+    {
+      "at": "2026-10-12T07:22:30.958Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 55712,
+        "server_started_at": "2026-10-12T07:20:34.861Z"
+      },
+      "data": {
+        "name": "agdf_prepare",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+          "request_digest": "sha256:5066170e8dbcbb3fd212aef550987c05b7666605c5c26e8b3574bb2e6caf5df3",
+          "binding": {
+            "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+            "run_id": "native-de-approve",
+            "expected_revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "kind": "presentation.prepare"
+          },
+          "effect": null,
+          "receipt": {
+            "schema_version": 3,
+            "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "operation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "request_digest": "sha256:5066170e8dbcbb3fd212aef550987c05b7666605c5c26e8b3574bb2e6caf5df3",
+            "created_at": "2026-10-12T07:22:25.509Z",
+            "run_id": "native-de-approve",
+            "gate": "SD",
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "content_digest": "sha256:5354c27f75195667ab1d77b54cac827c3db7fb5f2c3fd0c6c6aa6c7acb41e8b8",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+            "presentation_language": "de",
+            "presentation_digest": "sha256:901385120047555c9eb433410af75b96488b24d13c204cd435d03a31c8136a50",
+            "document_language": "en",
+            "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "document_bytes": 1342
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 7,
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "lifecycle": "active",
+            "gate": "SD",
+            "status": "open",
+            "missing_approval": "Approval: SD",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "human_gate_decision",
+              "operation_key": "approval.record",
+              "actor": "human",
+              "effect": "decision",
+              "gate": "SD"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "authorizes": false,
+          "recovery": null,
+          "family_result": {
+            "schema_version": "1",
+            "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "operation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "request_digest": "sha256:5066170e8dbcbb3fd212aef550987c05b7666605c5c26e8b3574bb2e6caf5df3",
+            "created_at": "2026-10-12T07:22:25.509Z",
+            "run_id": "native-de-approve",
+            "gate": "SD",
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "content_digest": "sha256:5354c27f75195667ab1d77b54cac827c3db7fb5f2c3fd0c6c6aa6c7acb41e8b8",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+            "presentation_language": "de",
+            "presentation_digest": "sha256:901385120047555c9eb433410af75b96488b24d13c204cd435d03a31c8136a50",
+            "document_language": "en",
+            "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "document_bytes": 1342,
+            "outcome": "prepared",
+            "text": "## L\u00f6sungsdesign pr\u00fcfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte \u201eDokument lesen\u201c, um diese Fassung vollst\u00e4ndig im Chat zu lesen. Fragen und \u00c4nderungsw\u00fcnsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` \u00b7 L\u00f6sungsdesign \u00b7 Revision: `798aeed2-9832-423b-afdf-2ad90805c0a9`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+            "summary": "- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.",
+            "companion_text": "Die AGDF-Karte ist ge\u00f6ffnet. Du kannst dort \u201eFreigeben\u201c klicken oder hier `Approval: SD` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.\n\n## L\u00f6sungsdesign pr\u00fcfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte \u201eDokument lesen\u201c, um diese Fassung vollst\u00e4ndig im Chat zu lesen. Fragen und \u00c4nderungsw\u00fcnsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` \u00b7 L\u00f6sungsdesign \u00b7 Revision: `798aeed2-9832-423b-afdf-2ad90805c0a9`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+            "record_digest": "sha256:e0718eff8b18d3f653fe5526acd5b3652fed7697a6dab84f25830024c72d227a",
+            "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+          },
+          "app_capability": "available",
+          "_meta": {
+            "agdf_decision": {
+              "schema_version": "1",
+              "session_id": "bfbda8be-6340-48ee-aa4c-986417656309",
+              "read_session_id": "b453e5ff-1d7f-46bf-b50d-645704545be9",
+              "owner_epoch": "bdc8c190-76fc-4647-895b-6f7446293829",
+              "generation": 1,
+              "expires_at": 1791818548597,
+              "binding": {
+                "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+                "run_id": "native-de-approve",
+                "gate": "SD",
+                "expected_revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+                "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+                "presentation_digest": "sha256:e0718eff8b18d3f653fe5526acd5b3652fed7697a6dab84f25830024c72d227a",
+                "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+                "material_sources": [
+                  {
+                    "type": "UR",
+                    "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                    "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                  },
+                  {
+                    "type": "PRD",
+                    "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                    "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                  },
+                  {
+                    "type": "SD",
+                    "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                    "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                  }
+                ],
+                "presentation_language": "de"
+              },
+              "target": {
+                "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+                "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target"
+              },
+              "title": "Synthetic saved-filter need",
+              "labels": {
+                "title": "Pr\u00fcfen und entscheiden",
+                "connecting": "Verbindung zu dieser Vorlage wird hergestellt \u2026",
+                "unavailable": "Diese genaue Vorlage ist nicht verf\u00fcgbar. Nutze die aktuelle genaue Textvorlage im Chat.",
+                "approve": "Freigeben",
+                "request_change": "\u00c4nderung anfordern",
+                "reject": "Ablehnen",
+                "openDocument": "Vorgelegtes Dokument lesen",
+                "back": "Zur Entscheidung zur\u00fcck",
+                "comment": "Kommentar",
+                "commentHelp": "F\u00fcr eine \u00c4nderungsanforderung ist ein Kommentar n\u00f6tig. Beim Schlie\u00dfen verf\u00e4llt ein ungesendeter Kommentar. H\u00f6chstens 8 KiB.",
+                "pending": "Entscheidung wird \u00fcbermittelt \u2026",
+                "uncertain": "Das Ergebnis ist ungewiss. Pr\u00fcfe den urspr\u00fcnglichen Vorgang vor einer weiteren \u00dcbermittlung.",
+                "checkOperation": "Gespeichertes Ergebnis pr\u00fcfen",
+                "retryOriginal": "Urspr\u00fcngliche \u00dcbermittlung wiederholen",
+                "confirmed": "Entscheidung gespeichert.",
+                "denied": "Die Entscheidung wurde nicht gespeichert.",
+                "notQualified": "Hier kannst du noch keine Entscheidung senden. Lies die vorgelegte Fassung und nutze die Entscheidung im Chat. Dort bleibt \u201eApproval: \u2026\u201c verf\u00fcgbar.",
+                "sourceChanged": "Die vorgelegte Quelle oder Revision hat sich ge\u00e4ndert. Vor einer Entscheidung ist eine aktuelle Vorlage n\u00f6tig.",
+                "expired": "Diese Entscheidungsansicht ist abgelaufen oder geschlossen.",
+                "comparison": "\u00c4nderungen gegen\u00fcber der vorherigen anwendbaren Fassung",
+                "comparisonUnavailable": "F\u00fcr einen Vergleich liegt keine best\u00e4tigte vorherige anwendbare Fassung vor.",
+                "machineComparison": "Vergleich der Dokumentbytes mit dem best\u00e4tigten Archiv; keine fachliche \u00c4nderungspr\u00fcfung.",
+                "documentUnchanged": "Die Dokumentbytes sind unver\u00e4ndert; andere Entscheidungsquellen k\u00f6nnen abweichen.",
+                "documentChanged": "Die Dokumentbytes unterscheiden sich. Pr\u00fcfe die vorgelegte und die archivierte Fassung bei der Bewertung.",
+                "previousDocument": "Archivierte vorherige Fassung ansehen",
+                "sources": "Details und Nachweise",
+                "run": "Run",
+                "gate": "Entscheidungsschritt",
+                "revision": "Vorgelegte Revision",
+                "consequence": "Eine Entscheidung gilt nur f\u00fcr dieses genaue Material. Nach dem Speichern best\u00e4tigt der Core den erlaubten n\u00e4chsten Schritt.",
+                "permission": "Technische Toolerlaubnis und diese Entscheidung sind getrennt. Der Host kann zus\u00e4tzlich nachfragen.",
+                "docUnavailable": "Das genaue vorgelegte Dokument ist nicht verf\u00fcgbar. Eine andere Fassung wird nicht stattdessen angezeigt.",
+                "commentRequired": "Beschreibe die gew\u00fcnschte \u00c4nderung vor dem \u00dcbermitteln.",
+                "commentTooLarge": "Der Kommentar \u00fcberschreitet 8 KiB.",
+                "documentTitle": "Vorgelegtes Dokument",
+                "notSaved": "Eine Speicherung ist nicht best\u00e4tigt. Lesen und Diskussion entscheiden nichts.",
+                "unknownCurrent": "Die Speicherung ist best\u00e4tigt; der aktuelle Stand ist nicht verf\u00fcgbar.",
+                "sourceLanguage": "Die Quellsprache steht in der Vorlage.",
+                "alreadyDecided": "Dieses Material wurde bereits entschieden. Folge dem aktuellen Core-Ergebnis.",
+                "initialize": "Das \u00d6ffnen dieser Ansicht erfasst keine Entscheidung.",
+                "discussionHint": "Fragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung hier oder im Chat mit Approval: {gate}.",
+                "nextStep": "N\u00e4chster Schritt",
+                "nextInformation": "N\u00e4chster Schritt: {step}.",
+                "nextChat": "Setze den Run im Chat fort, um diesen Schritt zu beginnen.",
+                "nextWaiting": "Freigabe gespeichert. Die Fortsetzung wartet auf das Ende der aktuellen KI-Antwort; ein weiterer Klick ist nicht n\u00f6tig.",
+                "nextRequested": "Die Fortsetzung wurde im Chat angefordert.",
+                "nextUnavailable": "Die Fortsetzung konnte nicht best\u00e4tigt werden. Pr\u00fcfe vor dem Weiterarbeiten den aktuellen Run im Chat.",
+                "chatApprovalHint": "Fragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: {gate}."
+              },
+              "approval_effect_label": "Nach Freigabe erlaubt",
+              "summary": "- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.",
+              "decision_brief": "- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.",
+              "gate_title": "L\u00f6sungsdesign",
+              "decision_heading": "L\u00f6sungsdesign pr\u00fcfen und entscheiden",
+              "approval_effect": "Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.",
+              "snapshot_id": "9442627e-b234-4f78-8f7c-c70d07a83a77",
+              "resource_id": "becc3ee4-8331-4c32-968e-a93c4b2458d3",
+              "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "enabled_actions": [
+                "approve"
+              ],
+              "capability": "available",
+              "comparison": {
+                "state": "unavailable",
+                "reason": "no_verified_prior_applicable_version"
+              }
+            }
+          },
+          "presentation_delivery": {
+            "mode": "full_chat",
+            "display": "unconfirmed",
+            "text": "## L\u00f6sungsdesign pr\u00fcfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte \u201eDokument lesen\u201c, um diese Fassung vollst\u00e4ndig im Chat zu lesen. Fragen und \u00c4nderungsw\u00fcnsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` \u00b7 L\u00f6sungsdesign \u00b7 Revision: `798aeed2-9832-423b-afdf-2ad90805c0a9`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+            "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "document_language": "en",
+            "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T08:13:05.636Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 55712,
+        "server_started_at": "2026-10-12T07:20:34.861Z"
+      },
+      "data": {
+        "name": "agdf_decision_action",
+        "result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T08:16:33.224Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 55712,
+        "server_started_at": "2026-10-12T07:20:34.861Z"
+      },
+      "data": {
+        "name": "agdf_prepare",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "already_applied",
+          "reason": null,
+          "operation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+          "request_digest": "sha256:5066170e8dbcbb3fd212aef550987c05b7666605c5c26e8b3574bb2e6caf5df3",
+          "binding": {
+            "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+            "run_id": "native-de-approve",
+            "expected_revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "kind": "presentation.prepare"
+          },
+          "effect": null,
+          "receipt": {
+            "schema_version": 3,
+            "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "operation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "request_digest": "sha256:5066170e8dbcbb3fd212aef550987c05b7666605c5c26e8b3574bb2e6caf5df3",
+            "created_at": "2026-10-12T07:22:25.509Z",
+            "run_id": "native-de-approve",
+            "gate": "SD",
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "content_digest": "sha256:5354c27f75195667ab1d77b54cac827c3db7fb5f2c3fd0c6c6aa6c7acb41e8b8",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+            "presentation_language": "de",
+            "presentation_digest": "sha256:901385120047555c9eb433410af75b96488b24d13c204cd435d03a31c8136a50",
+            "document_language": "en",
+            "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "document_bytes": 1342
+          },
+          "historical_effect": true,
+          "current": {
+            "available": true,
+            "revision": 7,
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "lifecycle": "active",
+            "gate": "SD",
+            "status": "open",
+            "missing_approval": "Approval: SD",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "human_gate_decision",
+              "operation_key": "approval.record",
+              "actor": "human",
+              "effect": "decision",
+              "gate": "SD"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "authorizes": false,
+          "recovery": null,
+          "family_result": {
+            "schema_version": "1",
+            "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "operation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "request_digest": "sha256:5066170e8dbcbb3fd212aef550987c05b7666605c5c26e8b3574bb2e6caf5df3",
+            "created_at": "2026-10-12T07:22:25.509Z",
+            "run_id": "native-de-approve",
+            "gate": "SD",
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "content_digest": "sha256:5354c27f75195667ab1d77b54cac827c3db7fb5f2c3fd0c6c6aa6c7acb41e8b8",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+            "presentation_language": "de",
+            "presentation_digest": "sha256:901385120047555c9eb433410af75b96488b24d13c204cd435d03a31c8136a50",
+            "document_language": "en",
+            "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "document_bytes": 1342,
+            "outcome": "already_prepared",
+            "record_digest": "sha256:e0718eff8b18d3f653fe5526acd5b3652fed7697a6dab84f25830024c72d227a",
+            "text": "## L\u00f6sungsdesign pr\u00fcfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte \u201eDokument lesen\u201c, um diese Fassung vollst\u00e4ndig im Chat zu lesen. Fragen und \u00c4nderungsw\u00fcnsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` \u00b7 L\u00f6sungsdesign \u00b7 Revision: `798aeed2-9832-423b-afdf-2ad90805c0a9`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+            "summary": "- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.",
+            "companion_text": "Die AGDF-Karte ist ge\u00f6ffnet. Du kannst dort \u201eFreigeben\u201c klicken oder hier `Approval: SD` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.\n\n## L\u00f6sungsdesign pr\u00fcfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte \u201eDokument lesen\u201c, um diese Fassung vollst\u00e4ndig im Chat zu lesen. Fragen und \u00c4nderungsw\u00fcnsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` \u00b7 L\u00f6sungsdesign \u00b7 Revision: `798aeed2-9832-423b-afdf-2ad90805c0a9`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+            "historical_effect": true,
+            "next_action": "Show the exact current text before waiting for a new deliberate reply."
+          },
+          "app_capability": "available",
+          "_meta": {
+            "agdf_decision": {
+              "schema_version": "1",
+              "session_id": "ef50dd5a-b8b1-4126-9d78-e45de450b99e",
+              "read_session_id": "1760a1ad-53ed-4e8b-8d1c-6e937bcd8932",
+              "owner_epoch": "bdc8c190-76fc-4647-895b-6f7446293829",
+              "generation": 2,
+              "expires_at": 1791821792772,
+              "binding": {
+                "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+                "run_id": "native-de-approve",
+                "gate": "SD",
+                "expected_revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+                "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+                "presentation_digest": "sha256:e0718eff8b18d3f653fe5526acd5b3652fed7697a6dab84f25830024c72d227a",
+                "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+                "material_sources": [
+                  {
+                    "type": "UR",
+                    "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                    "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+                  },
+                  {
+                    "type": "PRD",
+                    "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                    "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+                  },
+                  {
+                    "type": "SD",
+                    "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                    "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+                  }
+                ],
+                "presentation_language": "de"
+              },
+              "target": {
+                "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+                "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target"
+              },
+              "title": "Synthetic saved-filter need",
+              "labels": {
+                "title": "Pr\u00fcfen und entscheiden",
+                "connecting": "Verbindung zu dieser Vorlage wird hergestellt \u2026",
+                "unavailable": "Diese genaue Vorlage ist nicht verf\u00fcgbar. Nutze die aktuelle genaue Textvorlage im Chat.",
+                "approve": "Freigeben",
+                "request_change": "\u00c4nderung anfordern",
+                "reject": "Ablehnen",
+                "openDocument": "Vorgelegtes Dokument lesen",
+                "back": "Zur Entscheidung zur\u00fcck",
+                "comment": "Kommentar",
+                "commentHelp": "F\u00fcr eine \u00c4nderungsanforderung ist ein Kommentar n\u00f6tig. Beim Schlie\u00dfen verf\u00e4llt ein ungesendeter Kommentar. H\u00f6chstens 8 KiB.",
+                "pending": "Entscheidung wird \u00fcbermittelt \u2026",
+                "uncertain": "Das Ergebnis ist ungewiss. Pr\u00fcfe den urspr\u00fcnglichen Vorgang vor einer weiteren \u00dcbermittlung.",
+                "checkOperation": "Gespeichertes Ergebnis pr\u00fcfen",
+                "retryOriginal": "Urspr\u00fcngliche \u00dcbermittlung wiederholen",
+                "confirmed": "Entscheidung gespeichert.",
+                "denied": "Die Entscheidung wurde nicht gespeichert.",
+                "notQualified": "Hier kannst du noch keine Entscheidung senden. Lies die vorgelegte Fassung und nutze die Entscheidung im Chat. Dort bleibt \u201eApproval: \u2026\u201c verf\u00fcgbar.",
+                "sourceChanged": "Die vorgelegte Quelle oder Revision hat sich ge\u00e4ndert. Vor einer Entscheidung ist eine aktuelle Vorlage n\u00f6tig.",
+                "expired": "Diese Entscheidungsansicht ist abgelaufen oder geschlossen.",
+                "comparison": "\u00c4nderungen gegen\u00fcber der vorherigen anwendbaren Fassung",
+                "comparisonUnavailable": "F\u00fcr einen Vergleich liegt keine best\u00e4tigte vorherige anwendbare Fassung vor.",
+                "machineComparison": "Vergleich der Dokumentbytes mit dem best\u00e4tigten Archiv; keine fachliche \u00c4nderungspr\u00fcfung.",
+                "documentUnchanged": "Die Dokumentbytes sind unver\u00e4ndert; andere Entscheidungsquellen k\u00f6nnen abweichen.",
+                "documentChanged": "Die Dokumentbytes unterscheiden sich. Pr\u00fcfe die vorgelegte und die archivierte Fassung bei der Bewertung.",
+                "previousDocument": "Archivierte vorherige Fassung ansehen",
+                "sources": "Details und Nachweise",
+                "run": "Run",
+                "gate": "Entscheidungsschritt",
+                "revision": "Vorgelegte Revision",
+                "consequence": "Eine Entscheidung gilt nur f\u00fcr dieses genaue Material. Nach dem Speichern best\u00e4tigt der Core den erlaubten n\u00e4chsten Schritt.",
+                "permission": "Technische Toolerlaubnis und diese Entscheidung sind getrennt. Der Host kann zus\u00e4tzlich nachfragen.",
+                "docUnavailable": "Das genaue vorgelegte Dokument ist nicht verf\u00fcgbar. Eine andere Fassung wird nicht stattdessen angezeigt.",
+                "commentRequired": "Beschreibe die gew\u00fcnschte \u00c4nderung vor dem \u00dcbermitteln.",
+                "commentTooLarge": "Der Kommentar \u00fcberschreitet 8 KiB.",
+                "documentTitle": "Vorgelegtes Dokument",
+                "notSaved": "Eine Speicherung ist nicht best\u00e4tigt. Lesen und Diskussion entscheiden nichts.",
+                "unknownCurrent": "Die Speicherung ist best\u00e4tigt; der aktuelle Stand ist nicht verf\u00fcgbar.",
+                "sourceLanguage": "Die Quellsprache steht in der Vorlage.",
+                "alreadyDecided": "Dieses Material wurde bereits entschieden. Folge dem aktuellen Core-Ergebnis.",
+                "initialize": "Das \u00d6ffnen dieser Ansicht erfasst keine Entscheidung.",
+                "discussionHint": "Fragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung hier oder im Chat mit Approval: {gate}.",
+                "nextStep": "N\u00e4chster Schritt",
+                "nextInformation": "N\u00e4chster Schritt: {step}.",
+                "nextChat": "Setze den Run im Chat fort, um diesen Schritt zu beginnen.",
+                "nextWaiting": "Freigabe gespeichert. Die Fortsetzung wartet auf das Ende der aktuellen KI-Antwort; ein weiterer Klick ist nicht n\u00f6tig.",
+                "nextRequested": "Die Fortsetzung wurde im Chat angefordert.",
+                "nextUnavailable": "Die Fortsetzung konnte nicht best\u00e4tigt werden. Pr\u00fcfe vor dem Weiterarbeiten den aktuellen Run im Chat.",
+                "chatApprovalHint": "Fragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: {gate}."
+              },
+              "approval_effect_label": "Nach Freigabe erlaubt",
+              "summary": "- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.",
+              "decision_brief": "- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.",
+              "gate_title": "L\u00f6sungsdesign",
+              "decision_heading": "L\u00f6sungsdesign pr\u00fcfen und entscheiden",
+              "approval_effect": "Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.",
+              "snapshot_id": "ceb43359-bc25-4d0f-b13d-98da40a9ac43",
+              "resource_id": "8a513c2a-cb23-414c-a220-4fa8f34ad3c9",
+              "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "enabled_actions": [
+                "approve"
+              ],
+              "capability": "available",
+              "comparison": {
+                "state": "unavailable",
+                "reason": "no_verified_prior_applicable_version"
+              }
+            }
+          },
+          "presentation_delivery": {
+            "mode": "full_chat",
+            "display": "unconfirmed",
+            "text": "## L\u00f6sungsdesign pr\u00fcfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte \u201eDokument lesen\u201c, um diese Fassung vollst\u00e4ndig im Chat zu lesen. Fragen und \u00c4nderungsw\u00fcnsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und \u00c4nderungsw\u00fcnsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch \u00b7 Zusammenfassung in gew\u00e4hlter Sprache\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` \u00b7 L\u00f6sungsdesign \u00b7 Revision: `798aeed2-9832-423b-afdf-2ad90805c0a9`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+            "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+            "revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+            "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "document_language": "en",
+            "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+            "authorizes": false
+          }
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T08:16:51.902Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "producer": {
+        "process_id": 55712,
+        "server_started_at": "2026-10-12T07:20:34.861Z"
+      },
+      "data": {
+        "name": "agdf_decision_action",
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "a8ae71bc-a9d1-4641-b06b-5c5fcf306732",
+          "receipt": {
+            "action": "record_gate_approval",
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "binding": {
+              "expected_revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+              "gate": "SD",
+              "presentation_id": "23f72de8-cee2-44b5-a9ef-65a7a2770821",
+              "run_id": "native-de-approve",
+              "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da"
+            },
+            "command_digest": "sha256:bd22c81d4b14df8252b02313a8a69cbb219452aad88727871abd8db3702581d8",
+            "created_at": "2026-10-12T08:16:51.420Z",
+            "effect": {
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "gate": "SD",
+              "material_sources": [
+                {
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "type": "UR"
+                },
+                {
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "type": "PRD"
+                },
+                {
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "type": "SD"
+                }
+              ],
+              "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+              "next_gate_after_approval": "TP",
+              "presentation_digest": "sha256:e0718eff8b18d3f653fe5526acd5b3652fed7697a6dab84f25830024c72d227a",
+              "previous_revision_id": "798aeed2-9832-423b-afdf-2ad90805c0a9",
+              "resulting_revision_id": "6150e7fd-3a6f-49a5-bccd-006258cd4f0e",
+              "revision": 8
+            },
+            "operation_id": "a8ae71bc-a9d1-4641-b06b-5c5fcf306732",
+            "producer": {
+              "contract": "approval-service/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:987e952bfae733c322b825d0ee8457b9fa005e36f09135319f528e134f443aed",
+            "schema_version": "2"
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "6150e7fd-3a6f-49a5-bccd-006258cd4f0e",
+            "lifecycle": "active",
+            "gate": "TP",
+            "status": "open",
+            "missing_approval": "Approval: TP",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "prepare_gate_artifact",
+              "operation_key": "artefact.author",
+              "actor": "agent",
+              "effect": "preparation",
+              "gate": "TP",
+              "skill_id": "gate-check",
+              "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+              "source_artifacts": [
+                ".agdf/control/artefacts/native-de-approve/PRD.md",
+                ".agdf/control/artefacts/native-de-approve/SD.md"
+              ]
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    }
+  ],
+  "gate_approval_from_expired_click": false,
+  "qa_decision": null
+}

@@ -1,0 +1,422 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:3e59b2ce2d29dcd4a1123a8c06689743209f1d0bf506f48b6745e6e0cbb811de\",\"display_path\":\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target\"},\"snapshot_id\":\"df2db6d3-290e-4248-a0ba-caeef18459b0\",\"observed_as_of\":\"2026-10-12T05:44:52.488Z\",\"source_digest\":\"5a71041bca5f3ae15add6f4c1a4c902fb11d5591f0ae379e0121160cf18a4e7c\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"kind\":\"run\",\"run\":{\"run_id\":\"native-de-approve\",\"revision_id\":\"a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d\",\"lifecycle\":\"active\",\"work_summary\":{\"kind\":\"approval_pending\",\"phase\":\"SD\",\"qa_outcome\":\"not_applicable\",\"lifecycle\":\"active\",\"recorded_approvals\":[\"UR\",\"PRD\"],\"decisive_obligation\":null,\"open_obligation_count\":0,\"display_action\":\"Draft or refine the Solution Design; do not implement before SD and TP are approved.\",\"sources\":[],\"limitations\":[],\"authorizes\":false,\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"path\":\"run-create\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\"`.agdf/control/artefacts/native-de-approve/UR.md`\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\"`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\".agdf/control/artefacts/native-de-approve/mapping-4716b673-5ee3-43a3-8691-60fe4e86a26b.json\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\".agdf/control/artefacts/native-de-approve/sd-mapping-1d03b5e5-3e5e-4704-8707-13525fab4fb6.json\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null}]},\"status_label\":\"Approval pending\"},\"backlog_comparison\":{\"state\":\"matching\",\"reason\":\"same_revision_and_sources\",\"saved_revision_id\":\"a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d\",\"authorizes\":false},\"objective\":\"Describe the trustworthy outcome.\",\"title\":\"Synthetic saved-filter need\",\"evaluation\":{\"status\":\"open\",\"current_gate\":\"SD\",\"blocking_reason\":\"none\",\"missing_approval\":\"Approval: SD\",\"next_allowed_action\":\"Draft or refine the Solution Design; do not implement before SD and TP are approved.\",\"next_action_de\":\"Das Lösungsdesign entwerfen oder überarbeiten. Erst implementieren, nachdem SD und TP freigegeben sind.\",\"allowed\":[\"draft or refine Solution Design\",\"define architecture\",\"define ownership\",\"request exact SD approval\"],\"forbidden\":[\"create TP\",\"implement code\",\"claim QA or release readiness\"],\"control_assessment\":{\"state\":\"blocked\",\"authorizes\":false},\"doctor_status\":\"warn\",\"quality_outlook\":\"No additional quality follow-up identified from the current control state.\",\"diagnostics\":[{\"severity\":\"warn\",\"code\":\"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE\",\"message\":\"CONTEXT_GRAPH.md still contains the example node.\",\"path\":\".agdf/control/CONTEXT_GRAPH.md\",\"next_step\":\"Remove the example or replace it with an evidenced node that has an exit criterion.\"}],\"approvals\":[{\"gate\":\"UR\",\"status\":\"approved\",\"evidence\":\"`Approval: UR` · 2026-10-11 · revision 2 · `.agdf/control/artefacts/native-de-approve/UR.md` sha256:c0247c6d9ad354bd · presentation 84d67276-7ea4-47ac-bf6e-0cb2ab4ce95b sha256:be9e7f7c5c56a1031d3db13cad8bcb0ac200be495b84f2e9e7aa57d9ddc55a8f\"},{\"gate\":\"PRD\",\"status\":\"approved\",\"evidence\":\"`Approval: PRD` · 2026-10-11 · revision 5 · `.agdf/control/artefacts/native-de-approve/PRD.md` sha256:6885474fee584743 · presentation 8f300bb0-6dc7-4f36-881c-0546978cd183 sha256:e7ce8ad6bd3bba050ff6ed53b9976c6a429186bf934e6a9ca4c0a2d1bfc7f779\"},{\"gate\":\"SD\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"TP\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"QA\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"UAT\",\"status\":\"missing\",\"evidence\":\"\"}],\"missing_evidence\":[],\"next_operation\":{\"type\":\"human_gate_decision\",\"operation_key\":\"approval.record\",\"actor\":\"human\",\"effect\":\"decision\",\"gate\":\"SD\"},\"completion\":{\"status\":\"pending\",\"gate\":\"OR\",\"fulfilled\":false},\"git_evidence\":\"unavailable\"},\"persisted\":{\"current_gate\":\"SD\",\"next_allowed_action\":\"Draft or refine the Solution Design; do not implement before SD and TP are approved.\",\"decision\":\"in_progress\",\"artefacts\":[{\"type\":\"UR\",\"path\":\".agdf/control/artefacts/native-de-approve/UR.md\",\"status\":\"approved\",\"notes\":\"\",\"raw_path\":\"`.agdf/control/artefacts/native-de-approve/UR.md`\",\"path_format\":\"code_span\",\"path_reason\":\"none\"},{\"type\":\"Brownfield Review\",\"path\":\".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md\",\"status\":\"done\",\"notes\":\"\",\"raw_path\":\"`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`\",\"path_format\":\"code_span\",\"path_reason\":\"none\"},{\"type\":\"Verified Change\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"PRD\",\"path\":\".agdf/control/artefacts/native-de-approve/PRD.md\",\"status\":\"approved\",\"notes\":\"Reviewed source binding recorded atomically\",\"raw_path\":\".agdf/control/artefacts/native-de-approve/PRD.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"SD\",\"path\":\".agdf/control/artefacts/native-de-approve/SD.md\",\"status\":\"draft\",\"notes\":\"Reviewed source binding recorded atomically\",\"raw_path\":\".agdf/control/artefacts/native-de-approve/SD.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"TP\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"Brownfield Analysis\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CD+Tests\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"CR\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"QA\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"}]},\"context_graph\":{\"refs\":\"\"},\"resources\":[{\"resource_id\":\"3e740954-5d11-4567-92a1-2fb5fb1eab11\",\"run_id\":\"native-de-approve\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/native-de-approve/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/native-de-approve/RUN_STATE.md\",\"status\":\"registered\"},{\"resource_id\":\"f1009fb8-8204-4559-867a-f6299130350b\",\"run_id\":\"native-de-approve\",\"type\":\"UR\",\"path\":\".agdf/control/artefacts/native-de-approve/UR.md\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/UR.md\",\"status\":\"registered\"},{\"resource_id\":\"6249ffb5-d6fd-4a99-8b1b-c75261008e58\",\"run_id\":\"native-de-approve\",\"type\":\"Brownfield Review\",\"path\":\".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md\",\"status\":\"registered\"},{\"resource_id\":\"85aee427-c34e-48d3-9054-d37f4b396f18\",\"run_id\":\"native-de-approve\",\"type\":\"PRD\",\"path\":\".agdf/control/artefacts/native-de-approve/PRD.md\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/PRD.md\",\"status\":\"registered\"},{\"resource_id\":\"3e336199-73c0-4515-bb7d-5e5e27a99029\",\"run_id\":\"native-de-approve\",\"type\":\"SD\",\"path\":\".agdf/control/artefacts/native-de-approve/SD.md\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/SD.md\",\"status\":\"registered\"}],\"draft_check\":{\"source\":{\"run_id\":\"native-de-approve\",\"gate\":\"SD\",\"revision_id\":\"a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d\",\"artifact_path\":\".agdf/control/artefacts/native-de-approve/SD.md\",\"artifact_digest\":\"sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf\",\"available\":true,\"reason\":null},\"result\":null,\"display\":{\"state\":\"unchecked\",\"reason\":null,\"recovery\":\"check\"}},\"document_states\":[{\"schema_version\":\"1\",\"resource_id\":\"f1009fb8-8204-4559-867a-f6299130350b\",\"run_id\":\"native-de-approve\",\"revision_id\":\"a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d\",\"type\":\"UR\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/UR.md\",\"source_state\":\"available\",\"content_digest\":\"c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56\",\"state\":\"approved\",\"version_kind\":\"approved\",\"reason\":null,\"recorded_approval\":{\"status\":\"approved\",\"evidence\":\"`Approval: UR` · 2026-10-11 · revision 2 · `.agdf/control/artefacts/native-de-approve/UR.md` sha256:c0247c6d9ad354bd · presentation 84d67276-7ea4-47ac-bf6e-0cb2ab4ce95b sha256:be9e7f7c5c56a1031d3db13cad8bcb0ac200be495b84f2e9e7aa57d9ddc55a8f\"},\"check\":null,\"authorizes\":false},{\"schema_version\":\"1\",\"resource_id\":\"85aee427-c34e-48d3-9054-d37f4b396f18\",\"run_id\":\"native-de-approve\",\"revision_id\":\"a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d\",\"type\":\"PRD\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/PRD.md\",\"source_state\":\"available\",\"content_digest\":\"6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2\",\"state\":\"approved\",\"version_kind\":\"approved\",\"reason\":null,\"recorded_approval\":{\"status\":\"approved\",\"evidence\":\"`Approval: PRD` · 2026-10-11 · revision 5 · `.agdf/control/artefacts/native-de-approve/PRD.md` sha256:6885474fee584743 · presentation 8f300bb0-6dc7-4f36-881c-0546978cd183 sha256:e7ce8ad6bd3bba050ff6ed53b9976c6a429186bf934e6a9ca4c0a2d1bfc7f779\"},\"check\":null,\"authorizes\":false},{\"schema_version\":\"1\",\"resource_id\":\"3e336199-73c0-4515-bb7d-5e5e27a99029\",\"run_id\":\"native-de-approve\",\"revision_id\":\"a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d\",\"type\":\"SD\",\"registered_reference\":\".agdf/control/artefacts/native-de-approve/SD.md\",\"source_state\":\"available\",\"content_digest\":\"be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf\",\"state\":\"draft\",\"version_kind\":\"draft\",\"reason\":\"not_checked\",\"recorded_approval\":null,\"check\":null,\"authorizes\":false}],\"evidence_applicability\":{\"current\":[],\"superseded\":[],\"applicability_unknown\":[{\"step\":null,\"path\":\"run-create\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\"`.agdf/control/artefacts/native-de-approve/UR.md`\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\"`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\".agdf/control/artefacts/native-de-approve/mapping-4716b673-5ee3-43a3-8691-60fe4e86a26b.json\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\".agdf/control/artefacts/native-de-approve/sd-mapping-1d03b5e5-3e5e-4704-8707-13525fab4fb6.json\",\"reason\":\"no_writer_owned_association\",\"available\":null}]}}},\"authorizes\":false}"
+    }
+  ],
+  "structuredContent": {
+    "schema_version": "1",
+    "target": {
+      "target_id": "sha256:3e59b2ce2d29dcd4a1123a8c06689743209f1d0bf506f48b6745e6e0cbb811de",
+      "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target"
+    },
+    "snapshot_id": "df2db6d3-290e-4248-a0ba-caeef18459b0",
+    "observed_as_of": "2026-10-12T05:44:52.488Z",
+    "source_digest": "5a71041bca5f3ae15add6f4c1a4c902fb11d5591f0ae379e0121160cf18a4e7c",
+    "state": "available",
+    "code": null,
+    "retryable": false,
+    "data": {
+      "kind": "run",
+      "run": {
+        "run_id": "native-de-approve",
+        "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+        "lifecycle": "active",
+        "work_summary": {
+          "kind": "approval_pending",
+          "phase": "SD",
+          "qa_outcome": "not_applicable",
+          "lifecycle": "active",
+          "recorded_approvals": [
+            "UR",
+            "PRD"
+          ],
+          "decisive_obligation": null,
+          "open_obligation_count": 0,
+          "display_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+          "sources": [],
+          "limitations": [],
+          "authorizes": false,
+          "evidence_applicability": {
+            "current": [],
+            "superseded": [],
+            "applicability_unknown": [
+              {
+                "path": "run-create",
+                "step": null,
+                "reason": "no_writer_owned_association",
+                "available": null
+              },
+              {
+                "path": "`.agdf/control/artefacts/native-de-approve/UR.md`",
+                "step": null,
+                "reason": "no_writer_owned_association",
+                "available": null
+              },
+              {
+                "path": "`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`",
+                "step": null,
+                "reason": "no_writer_owned_association",
+                "available": null
+              },
+              {
+                "path": ".agdf/control/artefacts/native-de-approve/mapping-4716b673-5ee3-43a3-8691-60fe4e86a26b.json",
+                "step": null,
+                "reason": "no_writer_owned_association",
+                "available": null
+              },
+              {
+                "path": ".agdf/control/artefacts/native-de-approve/sd-mapping-1d03b5e5-3e5e-4704-8707-13525fab4fb6.json",
+                "step": null,
+                "reason": "no_writer_owned_association",
+                "available": null
+              }
+            ]
+          },
+          "status_label": "Approval pending"
+        },
+        "backlog_comparison": {
+          "state": "matching",
+          "reason": "same_revision_and_sources",
+          "saved_revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+          "authorizes": false
+        },
+        "objective": "Describe the trustworthy outcome.",
+        "title": "Synthetic saved-filter need",
+        "evaluation": {
+          "status": "open",
+          "current_gate": "SD",
+          "blocking_reason": "none",
+          "missing_approval": "Approval: SD",
+          "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+          "next_action_de": "Das Lösungsdesign entwerfen oder überarbeiten. Erst implementieren, nachdem SD und TP freigegeben sind.",
+          "allowed": [
+            "draft or refine Solution Design",
+            "define architecture",
+            "define ownership",
+            "request exact SD approval"
+          ],
+          "forbidden": [
+            "create TP",
+            "implement code",
+            "claim QA or release readiness"
+          ],
+          "control_assessment": {
+            "state": "blocked",
+            "authorizes": false
+          },
+          "doctor_status": "warn",
+          "quality_outlook": "No additional quality follow-up identified from the current control state.",
+          "diagnostics": [
+            {
+              "severity": "warn",
+              "code": "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
+              "message": "CONTEXT_GRAPH.md still contains the example node.",
+              "path": ".agdf/control/CONTEXT_GRAPH.md",
+              "next_step": "Remove the example or replace it with an evidenced node that has an exit criterion."
+            }
+          ],
+          "approvals": [
+            {
+              "gate": "UR",
+              "status": "approved",
+              "evidence": "`Approval: UR` · 2026-10-11 · revision 2 · `.agdf/control/artefacts/native-de-approve/UR.md` sha256:c0247c6d9ad354bd · presentation 84d67276-7ea4-47ac-bf6e-0cb2ab4ce95b sha256:be9e7f7c5c56a1031d3db13cad8bcb0ac200be495b84f2e9e7aa57d9ddc55a8f"
+            },
+            {
+              "gate": "PRD",
+              "status": "approved",
+              "evidence": "`Approval: PRD` · 2026-10-11 · revision 5 · `.agdf/control/artefacts/native-de-approve/PRD.md` sha256:6885474fee584743 · presentation 8f300bb0-6dc7-4f36-881c-0546978cd183 sha256:e7ce8ad6bd3bba050ff6ed53b9976c6a429186bf934e6a9ca4c0a2d1bfc7f779"
+            },
+            {
+              "gate": "SD",
+              "status": "missing",
+              "evidence": ""
+            },
+            {
+              "gate": "TP",
+              "status": "missing",
+              "evidence": ""
+            },
+            {
+              "gate": "QA",
+              "status": "missing",
+              "evidence": ""
+            },
+            {
+              "gate": "UAT",
+              "status": "missing",
+              "evidence": ""
+            }
+          ],
+          "missing_evidence": [],
+          "next_operation": {
+            "type": "human_gate_decision",
+            "operation_key": "approval.record",
+            "actor": "human",
+            "effect": "decision",
+            "gate": "SD"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          },
+          "git_evidence": "unavailable"
+        },
+        "persisted": {
+          "current_gate": "SD",
+          "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+          "decision": "in_progress",
+          "artefacts": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+              "status": "approved",
+              "notes": "",
+              "raw_path": "`.agdf/control/artefacts/native-de-approve/UR.md`",
+              "path_format": "code_span",
+              "path_reason": "none"
+            },
+            {
+              "type": "Brownfield Review",
+              "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+              "status": "done",
+              "notes": "",
+              "raw_path": "`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`",
+              "path_format": "code_span",
+              "path_reason": "none"
+            },
+            {
+              "type": "Verified Change",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "status": "approved",
+              "notes": "Reviewed source binding recorded atomically",
+              "raw_path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "status": "draft",
+              "notes": "Reviewed source binding recorded atomically",
+              "raw_path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "path_format": "plain",
+              "path_reason": "none"
+            },
+            {
+              "type": "TP",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            },
+            {
+              "type": "Brownfield Analysis",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            },
+            {
+              "type": "CD+Tests",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            },
+            {
+              "type": "CR",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            },
+            {
+              "type": "QA",
+              "path": "",
+              "status": "missing",
+              "notes": "",
+              "raw_path": "",
+              "path_format": "plain",
+              "path_reason": "empty"
+            }
+          ]
+        },
+        "context_graph": {
+          "refs": ""
+        },
+        "resources": [
+          {
+            "resource_id": "3e740954-5d11-4567-92a1-2fb5fb1eab11",
+            "run_id": "native-de-approve",
+            "type": "Run State",
+            "path": ".agdf/control/runs/native-de-approve/RUN_STATE.md",
+            "registered_reference": ".agdf/control/runs/native-de-approve/RUN_STATE.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "f1009fb8-8204-4559-867a-f6299130350b",
+            "run_id": "native-de-approve",
+            "type": "UR",
+            "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "6249ffb5-d6fd-4a99-8b1b-c75261008e58",
+            "run_id": "native-de-approve",
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "85aee427-c34e-48d3-9054-d37f4b396f18",
+            "run_id": "native-de-approve",
+            "type": "PRD",
+            "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "status": "registered"
+          },
+          {
+            "resource_id": "3e336199-73c0-4515-bb7d-5e5e27a99029",
+            "run_id": "native-de-approve",
+            "type": "SD",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "status": "registered"
+          }
+        ],
+        "draft_check": {
+          "source": {
+            "run_id": "native-de-approve",
+            "gate": "SD",
+            "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+            "artifact_path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "artifact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "available": true,
+            "reason": null
+          },
+          "result": null,
+          "display": {
+            "state": "unchecked",
+            "reason": null,
+            "recovery": "check"
+          }
+        },
+        "document_states": [
+          {
+            "schema_version": "1",
+            "resource_id": "f1009fb8-8204-4559-867a-f6299130350b",
+            "run_id": "native-de-approve",
+            "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+            "type": "UR",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "source_state": "available",
+            "content_digest": "c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "state": "approved",
+            "version_kind": "approved",
+            "reason": null,
+            "recorded_approval": {
+              "status": "approved",
+              "evidence": "`Approval: UR` · 2026-10-11 · revision 2 · `.agdf/control/artefacts/native-de-approve/UR.md` sha256:c0247c6d9ad354bd · presentation 84d67276-7ea4-47ac-bf6e-0cb2ab4ce95b sha256:be9e7f7c5c56a1031d3db13cad8bcb0ac200be495b84f2e9e7aa57d9ddc55a8f"
+            },
+            "check": null,
+            "authorizes": false
+          },
+          {
+            "schema_version": "1",
+            "resource_id": "85aee427-c34e-48d3-9054-d37f4b396f18",
+            "run_id": "native-de-approve",
+            "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+            "type": "PRD",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "source_state": "available",
+            "content_digest": "6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "state": "approved",
+            "version_kind": "approved",
+            "reason": null,
+            "recorded_approval": {
+              "status": "approved",
+              "evidence": "`Approval: PRD` · 2026-10-11 · revision 5 · `.agdf/control/artefacts/native-de-approve/PRD.md` sha256:6885474fee584743 · presentation 8f300bb0-6dc7-4f36-881c-0546978cd183 sha256:e7ce8ad6bd3bba050ff6ed53b9976c6a429186bf934e6a9ca4c0a2d1bfc7f779"
+            },
+            "check": null,
+            "authorizes": false
+          },
+          {
+            "schema_version": "1",
+            "resource_id": "3e336199-73c0-4515-bb7d-5e5e27a99029",
+            "run_id": "native-de-approve",
+            "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+            "type": "SD",
+            "registered_reference": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "source_state": "available",
+            "content_digest": "be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "state": "draft",
+            "version_kind": "draft",
+            "reason": "not_checked",
+            "recorded_approval": null,
+            "check": null,
+            "authorizes": false
+          }
+        ],
+        "evidence_applicability": {
+          "current": [],
+          "superseded": [],
+          "applicability_unknown": [
+            {
+              "step": null,
+              "path": "run-create",
+              "reason": "no_writer_owned_association",
+              "available": null
+            },
+            {
+              "step": null,
+              "path": "`.agdf/control/artefacts/native-de-approve/UR.md`",
+              "reason": "no_writer_owned_association",
+              "available": null
+            },
+            {
+              "step": null,
+              "path": "`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`",
+              "reason": "no_writer_owned_association",
+              "available": null
+            },
+            {
+              "step": null,
+              "path": ".agdf/control/artefacts/native-de-approve/mapping-4716b673-5ee3-43a3-8691-60fe4e86a26b.json",
+              "reason": "no_writer_owned_association",
+              "available": null
+            },
+            {
+              "step": null,
+              "path": ".agdf/control/artefacts/native-de-approve/sd-mapping-1d03b5e5-3e5e-4704-8707-13525fab4fb6.json",
+              "reason": "no_writer_owned_association",
+              "available": null
+            }
+          ]
+        }
+      }
+    },
+    "authorizes": false
+  }
+}

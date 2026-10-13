@@ -1,0 +1,76 @@
+{
+  "schema_version": "1",
+  "evidence_class": "source_automated_actual_sdk_assembled_core",
+  "authorizes": false,
+  "native_qualified": false,
+  "tests": {
+    "components": 226,
+    "service": 8,
+    "sdk_browser": 14,
+    "assembled_core_browser": 2,
+    "typecheck": "pass",
+    "interaction_catalog": "pass",
+    "build_prepare": "pass"
+  },
+  "logs": {
+    "prepare": {
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/post-approval-retirement-30/prepare.log",
+      "digest": "sha256:1156a319d2335f075f81050f9401a25c58201e4c71e2e62ed3b95327c95e6acc",
+      "bytes": 2638
+    },
+    "ui": {
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/post-approval-retirement-30/ui.log",
+      "digest": "sha256:616fb0a6e89869fdd25051dc4af0d2705720b94ac9a6e5b0a9c7331eb3479585",
+      "bytes": 945
+    },
+    "components": {
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/post-approval-retirement-30/components.log",
+      "digest": "sha256:fe3351d2271b002e59a31aff4153736a65ec8b537b13055fd51e91bd543a43bd",
+      "bytes": 635
+    },
+    "service": {
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/post-approval-retirement-30/service.log",
+      "digest": "sha256:b2d005cd709b960702e6ca8b57dea3639d33716b2a86bb6079f4177f02d23eba",
+      "bytes": 2282
+    },
+    "core_sdk": {
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/post-approval-retirement-30/core_sdk.json",
+      "digest": "sha256:1354d35fb9675427d18e2688b180129ac50354fc8a6e5444e3c53b9039161804",
+      "bytes": 150680
+    }
+  },
+  "source_hashes": {
+    "packages/control-ui/src/mcp/DecisionEntry.tsx": "sha256:46865bca46bcb81b1e53e293bf70a29bc62eb89b5250e871381bc4f2928e95e7",
+    "packages/control-ui/src/mcp/DecisionCard.tsx": "sha256:af72aff7e20772817cf7438f9b068ef88fb5917e2bc76f6c0d60c5f14ebc14a8",
+    "packages/core/lib/interaction-catalog.js": "sha256:ce758b7b0d78d7ac93e1398009d2f40a15f88ed5ddd5ed70bc8eeb566a028abf",
+    "plugins/agdf/meta/agdf-interaction-locales.json": "sha256:28c1e083fe82f936236baabcc27febb2e9e34cbb737a284bc7ebe3a9ae81abac",
+    "plugins/agdf/meta/copilot-payload-baseline.json": "sha256:2ccbaf324e0caeecee989b30ebf914107d92c003aa3756be48333414e2b8be36",
+    "packages/control-ui/test/decision-entry.test.tsx": "sha256:77c433c688a674023c8562a5b3c47fc129a02a4f670c8936455507148bf7aa28",
+    "packages/control-ui/test/browser/decision-host.ts": "sha256:c3ec549b60ca22effb4f57fb3993127c535e82d70f52e8c97a996fa67f641089",
+    "packages/control-ui/test/browser/decision-card.spec.mjs": "sha256:8091dc4fac0bea3dffb685613dc06f8fdc668515d8967ac8d793ffb5877ab0bf",
+    "packages/control-ui/test/browser/decision-core-host.ts": "sha256:16f7992e8a73e52c797e51545b89dac0cbbc942db9e5f1c10b31eaf26081c7eb",
+    "packages/control-ui/test/browser/decision-close-integration.spec.mjs": "sha256:8297f46f5a41c579d93277d187d153be8f8c56beb9813d8ce87051eab678f29d"
+  },
+  "core_result": {
+    "matched_saved_receipt": true,
+    "handoff_before_close": true,
+    "own_read_after_close": "session_expired",
+    "other_view": "available",
+    "one_decision": true,
+    "historical_document": "exact_stateless_read"
+  },
+  "deployment": {
+    "productive_entry_changed": false,
+    "test_entry_updated": true,
+    "active_connection": "previous_candidate_H3C1K2",
+    "fresh_native_connection_required": true
+  },
+  "remaining": [
+    "actual_new_candidate_native_post_approval_retirement",
+    "undecided_host_teardown",
+    "native_gate_matrix",
+    "iPad_complete_material",
+    "actual_host_permission_denial",
+    "matched_baseline_current_corpus"
+  ]
+}

@@ -1,0 +1,44 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/decision-card.spec.mjs test/browser/decision-close-integration.spec.mjs
+
+Running 5 tests using 1 worker
+
+(node:76582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/decision-card.spec.mjs:25:56 › SDK close: browser iframe removal fallback (synthetic host) (1.8s)
+  ✓  2 test/browser/decision-card.spec.mjs:25:56 › SDK close: host teardown before navigation (synthetic host) (1.8s)
+  ✓  3 test/browser/decision-card.spec.mjs:32:53 › Actual built resource + SDK bridge: en rendering/keyboard/read/recovery/teardown (synthetic host) (4.0s)
+  ✓  4 test/browser/decision-card.spec.mjs:32:53 › Actual built resource + SDK bridge: de rendering/keyboard/read/recovery/teardown (synthetic host) (3.0s)
+  ✘  5 test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) (40.4s)
+
+
+  1) test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: locator('iframe').contentFrame().getByRole('textbox')
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" locator('iframe').contentFrame().getByRole('textbox') with timeout 5000ms
+      - waiting for locator('iframe').contentFrame().getByRole('textbox')
+
+
+      58 |       await expect(frame.getByRole('heading', { name: `${view.labels.documentTitle} · ${view.gate_title ?? 'SD'}` }), JSON.stringify(exchange.filter(row => row.request.name === 'agdf_cockpit_read').map(row => row.result.structuredContent))).toBeVisible();
+      59 |       await frame.getByRole('button', { name: view.labels.back, exact: true }).click();
+    > 60 |       await expect(frame.getByRole('textbox')).toBeDisabled(); // Native mediation has not been qualified by this synthetic host.
+         |                                                ^
+      61 |       await page.locator('iframe').evaluate(frame => frame.remove());
+      62 |       await expect.poll(() => exchange.filter(row => row.request.arguments?.operation === 'close' && row.result.structuredContent?.data?.closed === true).length).toBe(1);
+      63 |       const expired = await call({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: view.read_session_id } });
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:60:48
+        at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:29:5
+
+    Error Context: test-results/decision-close-integration-d201e-ts-own-view-synthetic-host-/error-context.md
+
+  1 failed
+    test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) 
+  4 passed (1.1m)

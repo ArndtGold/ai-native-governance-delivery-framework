@@ -1,0 +1,17 @@
+# Vorschlag: QA mit Abweichungen freigeben
+
+Status: zur Quellenrevision vorbereitet, noch nicht umgesetzt oder freigegeben.
+
+Für den Anwender gibt es eine verständliche Vorlage und eine Entscheidung. Besteht QA, heißt die Aktion „Freigeben“. Liegen ausdrücklich akzeptierbare Restpunkte vor, heißt sie „Mit Abweichungen freigeben“. Ein harter Blocker zeigt den Grund und den nötigen nächsten Schritt. Keine zusätzlichen Kommentarformulare, Bestätigungs-Checklisten, weiteren Weiter-Klicks oder neuen Chatformeln.
+
+Im Chat bleibt die bewusste Antwort „Approval: QA“. Sie entscheidet ausschließlich die aktuelle, zuvor vollständig dargestellte Fassung. Bei Abweichungen muss diese Vorlage ausdrücklich erklären: „Mit dieser Freigabe akzeptierst du die folgenden Abweichungen und deren Folgen.“ Ein normales Approval: QA ohne aktuelle, ausdrücklich auf Abweichungsakzeptanz vorbereitete Vorlage akzeptiert keine Risiken. Frühere Antworten und die bereits nicht gespeicherte QA-Freigabe gelten nicht für eine neue Fassung.
+
+Die Vorlage enthält die konkrete Fassung, alle zur Annahme ausgewählten Abweichungen, deren bekannte Risiken, die erlaubte Nutzung und Folgen, verbleibende Einschränkungen sowie den zuständigen Nachweis- oder Folgearbeitsowner. Sie unterscheidet beobachtete Fehler, fehlende Prüfungen und unbestätigte externe Fähigkeiten. Nicht bewertete oder widersprüchliche Risiken sind nicht akzeptierbar. Integritäts-, Berechtigungs- und kritische Sicherheitsblocker sowie bekannte kritische Fehlfunktionen bleiben gesperrt.
+
+Core bleibt der einzige Entscheidungsowner. Die bestehende Freigabe-, Präsentations-, Transaktions- und Receipt-Kette wird erweitert; es entsteht kein zweiter Risikobelegspeicher und kein pauschaler Override. Bericht und ursprüngliche pass/revise/block-Befunde bleiben erhalten. Der zusätzliche Freigabestatus lautet „Mit Abweichungen akzeptiert“. Genau eine Entscheidung über die vorgelegte Fassung erlaubt den anschließenden UAT-Schritt; sie behauptet weder fehlende Tests als bestanden noch native Produktionsqualifikation. Klick und Chat verwenden denselben gebundenen Akzeptanzumfang und erzeugen auch bei Konkurrenz oder Retry nur einen Effekt.
+
+Auf dem aktuell text-only gemeldeten iPad wird alles entscheidungsrelevante im Chat dargestellt. Ein unsichtbarer Button oder eine Mac-Seitenleiste wird nicht vorausgesetzt. Die native Karte wird nur bei tatsächlicher geeigneter Anzeige erklärt. Nach akzeptierter Entscheidung beginnt die zulässige Arbeit automatisch; die nächste menschliche Gate-Freigabe wird nicht automatisch erteilt.
+
+Die vier offenen Gruppen dieses Runs müssen für eine spätere mögliche Akzeptanz einzeln in konkrete Abweichungen aufgeteilt werden. Nicht erhobene native Bedien- und Modellmessungen bleiben als fehlende Nachweise sichtbar, ohne Qualitäts- oder Modellleistungsbehauptung. Fehlende Host-Berechtigungsqualifikation darf geschützte Schreibfähigkeiten nicht verfügbar machen. Der erwartete Chat-Fallback am iPad ist getrennt von unbewiesenem nativem Host-Teardown zu bewerten. Dieser Vorschlag akzeptiert noch keinen dieser Punkte.
+
+Früheste Quelle ist UR: Ihre ausdrückliche Regel verlangt heute, QA bei fehlenden Pflichtnachweisen offen zu lassen. Die Änderung muss zunächst im selben Run mit erhaltener Historie geprüft werden; abhängige Produktregeln, Design und Plan müssen erneuert werden. Bestehender Code und Nachweise bleiben erhalten, ihre neue Gültigkeit muss geprüft werden. Kein Ersatzrun, keine pauschale manuelle Freigabe und kein Control-Handedit.

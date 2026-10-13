@@ -1,0 +1,23 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"rejected","reason":"revision_history_invalid","operation_id":"731956cd-b80a-4188-a6b5-59af1a27a16b","request_digest":"sha256:7fd49301b7a61e47c0d0f5bebb99b12e1faef0531b91624a9fcc2b5949a9fcd6","binding":{"target_id":"sha256:05e80b5c07f3333f7a87795cacafd8b7b87920b929f5c0f108a40f08f5ad9ea0","run_id":"expanded-revision","expected_revision_id":"a8209272-b071-4f74-8f52-625b9723fec9","kind":"source_revision.preview"},"effect":null,"receipt":null,"historical_effect":false,"current":{"available":true,"revision":15,"revision_id":"a8209272-b071-4f74-8f52-625b9723fec9","lifecycle":"active","gate":"QA","status":"open","missing_approval":"Approval: QA","blocking_reason":"none","next_operation":{"type":"evaluate_quality","skill_id":"qa-gate","operation_key":"quality.evaluate","actor":"agent","effect":"preparation","gate":"QA"},"completion":{"status":"pending","gate":"OR","fulfilled":false}},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"authorizes":false,"recovery":null,"family_result":{"schema_version":"1","outcome":"rejected","run_id":"expanded-revision","reason":"revision_history_invalid","authorizes":false}}
++ actual - expected
+
++ 'rejected'
+- 'accepted'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/large-run-revision-test.js:24:10
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'rejected',
+  expected: 'accepted',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

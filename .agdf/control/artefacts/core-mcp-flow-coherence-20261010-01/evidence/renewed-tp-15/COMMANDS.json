@@ -1,0 +1,126 @@
+{
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "revision_id": "9ba84a5f-35c0-46f7-be2b-9f17b190f55e",
+  "commands": [
+    {
+      "command": "npm run build:prepare",
+      "exit_code": 0,
+      "log": "agdf-prepare-build-final-15.log",
+      "log_sha256": "05782ddca62de13a240b43c2a7113a2848b831a0e7262508cc0b272dc8ae7d83",
+      "evidence_class": "build_package",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run typecheck",
+      "exit_code": 0,
+      "log": "agdf-ui-typecheck-15.log",
+      "log_sha256": "c00dbcc3f47bf332450b1ed6d7a70be30ba769903f01daa91b2b0d78174a871b",
+      "evidence_class": "source_types",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui test",
+      "exit_code": 0,
+      "log": "agdf-ui-tests-15.log",
+      "log_sha256": "004a156554c5d371f5f198f2d49044aaa6cb234a3b73dbf2ea68220ea0005785",
+      "evidence_class": "synthetic_ui_service",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run test:browser -- test/browser/decision-card.spec.mjs test/browser/decision-close-integration.spec.mjs",
+      "exit_code": 1,
+      "log": "agdf-browser-15.log",
+      "log_sha256": "ecf1ea18d68b7426299c09bfc761e83ff562fefc0db30f3fe3ef5e130dc6c810",
+      "evidence_class": "synthetic_browser",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run test:browser -- test/browser/decision-close-integration.spec.mjs",
+      "exit_code": 0,
+      "log": "agdf-browser-close-15.log",
+      "log_sha256": "7d5fdfdf9d7ad9fbfcd725a93eadc5cb3d01693fd31bc8f6beb28f0ac4641072",
+      "evidence_class": "synthetic_browser",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/cli run test:run-command-flow",
+      "exit_code": 0,
+      "log": "agdf-core-flow-15.log",
+      "log_sha256": "c3977648285a6f7695fea7a41abb5b1d2dfb180baf8b334bba766219649f1bcf",
+      "evidence_class": "synthetic_core_fault_transport",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/mcp-server run test:run-command-flow",
+      "exit_code": 0,
+      "log": "agdf-mcp-flow-15.log",
+      "log_sha256": "516673ff4f2ca4e3e27a87ac786967e6495013e5b41ad9d623a7afa1b171c606",
+      "evidence_class": "synthetic_owned_stdio",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/core/test/expanded-source-revision-test.js",
+      "exit_code": 0,
+      "log": "agdf-expanded-revision-15.log",
+      "log_sha256": "e55877e540ee30de6f245c0add6d06f499ddf7f33236d48a33d6951d2b3fc72d",
+      "evidence_class": "synthetic_core_matrix",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/core/test/expanded-revision-recovery-test.js",
+      "exit_code": 0,
+      "log": "agdf-expanded-recovery-15.log",
+      "log_sha256": "e8d37967cab02b825ea4b7310f4ab538f116415f159720aba06866f60f008ff1",
+      "evidence_class": "synthetic_fault_recovery",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/mcp-server/test/expanded-source-revision.test.js",
+      "exit_code": 0,
+      "log": "agdf-expanded-mcp-15.log",
+      "log_sha256": "ac2b76f1135ab7f5a0839a48eec1e876a3c64d241715e7b8797a636f15145273",
+      "evidence_class": "synthetic_owned_stdio_matrix",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/mcp-server run test:generation",
+      "exit_code": 0,
+      "log": "agdf-generation-15.log",
+      "log_sha256": "ca350359c821c28785b148b17963d55bf8c78e2aa6f04a707ab5a94e16e4e75f",
+      "evidence_class": "synthetic_owned_processes",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/cli/scripts/mcp-runtime-retention-test.js",
+      "exit_code": 0,
+      "log": "agdf-retention-15.log",
+      "log_sha256": "44a5e6ead3202e2fe514f0d4c5cd5839f5e67de2e9f6214c9cf84e440c6e44e1",
+      "evidence_class": "owned_process_source",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/core/test/early-ur-revision-test.js",
+      "exit_code": 0,
+      "log": "agdf-early-legacy-15.log",
+      "log_sha256": "73b88493c99a5c7ab0a29f8568cdee59c591f31ff8719a971e87425d354f7b6f",
+      "evidence_class": "synthetic_legacy_compatibility",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/core/test/run-source-revisions-test.js",
+      "exit_code": 0,
+      "log": "agdf-source-legacy-15.log",
+      "log_sha256": "a08181a3bb0a18ddbfa900eca70806b1303f2f53817129246e1efe6e182bd8c9",
+      "evidence_class": "synthetic_legacy_compatibility",
+      "native_host_proof": false
+    }
+  ],
+  "resolved_failures": [
+    "Initial generated resource differed from fresh source build; complete build/assembly fixed it",
+    "Catalog additions required canonical locale asset propagation before consumers",
+    "Browser close test still expected removed comment form; updated to absent form plus unavailable approval; final close test passes",
+    "Reviewed exact Copilot payload increased by source changes; final budget equals measured 232 files/2087729 bytes, tool/schema ceilings unchanged",
+    "Native helper selected stale dist/local/codex by default; canonical dist/npm selection and actual candidate preflight fix this"
+  ],
+  "overall_qa_decision": null
+}

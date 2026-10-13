@@ -1,0 +1,65 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "presentation-document",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/node_modules/create-agdf/",
+    "runtime_digest": "c789a5ee2969d45a39fb4ab0e339a376fc142e9cfdd5caee93e86fc0472e7b7a",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "available": true,
+    "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+    "run_id": "native-de-text",
+    "gate": "SD",
+    "revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+    "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+    "applicability": "current",
+    "presentation_digest": "sha256:ba662abf8e4813c11ca96cd70b285b40855ea0aed8f0edfbce3010d66dad06ca",
+    "content_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+    "presentation_language": "de",
+    "document_language": "en",
+    "content": "# SD: Synthetic saved filter\nStatus: draft\nGate: SD\nGate approval: open\nOwner: Test design owner\nTraceability contract: criteria-chain-v1\nDesign Decisions contract: sd-decisions-v1\n\n## Solution Overview\nReuse the existing user-owned filter store.\n\n## Ownership And Source Of Truth\nExisting filter service retains ownership; the approved PRD remains product authority.\n\n## Architecture Decisions\n- SDD-001: Reuse the existing filter service; rationale: retain user ownership; consequence: no shared filters.\n\n## Acceptance Traceability\n| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |\n|---|---|---|---|---|\n| AC-001 | Existing store saves/restores owned filter values | Filter service and approved PRD owner | SDD-001 | Existing personal ownership retained |\n\n## Design Decisions\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Store boundary | before_sd | resolved | Existing filter service | Test design owner |\n\n## AGDF Approval Summary (de; source=en)\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n## Native observation scope\nDisposable synthetic Run. No real undertaking is approved or changed by this probe.\n",
+    "byte_start": 0,
+    "byte_end": 1342,
+    "total_bytes": 1342,
+    "complete": true,
+    "next_cursor": null,
+    "authorizes": false
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 3.682,
+    "target_ms": 0.672,
+    "control_ms": 7.359,
+    "render_ms": 0,
+    "total_ms": 11.737
+  },
+  "diagnostics": []
+}

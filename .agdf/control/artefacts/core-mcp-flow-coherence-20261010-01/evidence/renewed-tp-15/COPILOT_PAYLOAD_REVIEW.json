@@ -1,0 +1,2187 @@
+{
+  "evidence_class": "source_package_review",
+  "previous_bytes": 2066476,
+  "measured_stats": {
+    "files": 232,
+    "bytes": 2087729
+  },
+  "approved_scope": "T-003/T-006/T-016/T-019",
+  "rationale": "Exact reviewed renewed TP-15 source revision proof, contextual-action locale propagation and registered MCP transport regression: 232 existing payload files, 21253 additional bytes. Existing owners extended; no extra runtime modules, speculative headroom or changed tool/schema discovery ceilings.",
+  "extra_files": 0,
+  "tool_budget_changed": false,
+  "inventory": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "version": "0.14.5",
+    "baseline": {
+      "max_files": 232,
+      "max_bytes": 2087729
+    },
+    "stats": {
+      "files": 232,
+      "bytes": 2087729
+    },
+    "entries": [
+      {
+        "destination": "LICENSE",
+        "component": "license",
+        "owner": "LICENSE",
+        "rule": "copy",
+        "requirement": "license notice",
+        "source": "LICENSE",
+        "source_digest": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "digest": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "bytes": 11357
+      },
+      {
+        "destination": "com.github.copilot/hooks/hooks.json",
+        "component": "hook",
+        "owner": "plugins/agdf/meta/agdf-plugin.definition.json",
+        "rule": "render_copilot_hook",
+        "requirement": "consent-bound session start check",
+        "source": "plugins/agdf/meta/agdf-plugin.definition.json",
+        "source_digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+        "digest": "60d7cd31d6c9483c720c5e775c10d94ba7fd214a0b15b046703ced3953bd489f",
+        "bytes": 273
+      },
+      {
+        "destination": "mcp/agdf-mcp-launch.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "ae61f18f40af65dfc446683ed86873682ccf956b5517ae4b0fbff86baf77f9b7",
+        "bytes": 314
+      },
+      {
+        "destination": "mcp/sdk/expected-sdk.json",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "fc60b56c3874b2cb32df9b9292840a4ab5858965dc1dbeafe7e329db682b73f1",
+        "bytes": 709
+      },
+      {
+        "destination": "mcp/sdk/package-lock.json",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "7d830fbae2db405a332081c5f572ae847ae6a1b0d916e33ef0af5044981b4af5",
+        "bytes": 1485
+      },
+      {
+        "destination": "mcp/sdk/package.json",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "f8fde690f584de52152817b2571d095f274ae7f0dadd57f7a7adec6cde2eaa23",
+        "bytes": 124
+      },
+      {
+        "destination": "mcp/server/NOTICE",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "2ac5ac67f9a43fd6b1afede71085120f6067450436551cbf8dda58fbdf77f919",
+        "bytes": 521
+      },
+      {
+        "destination": "mcp/server/README.md",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "d79b3b8a3d5f37afd2358dadac9c69a65cd0dab8e8f5eb5b85f306511d8f4e19",
+        "bytes": 5282
+      },
+      {
+        "destination": "mcp/server/bin/agdf-mcp.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "6b667b6a2805739b864b14e78027aa99e5c26ad85ed5a439ec77158bc81ca8f9",
+        "bytes": 1034
+      },
+      {
+        "destination": "mcp/server/package.json",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "1dc521346e4c86042fe61877d7cf0de4d7ed0c0d7757e5cef5949f23a180b07d",
+        "bytes": 2226
+      },
+      {
+        "destination": "mcp/server/src/cockpit-resource.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "c1501b2ea909f5eb6ed5da1afb030dfff9a4e060ad3702596be5ffa715d87bb4",
+        "bytes": 1365
+      },
+      {
+        "destination": "mcp/server/src/generation-entry.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "48f2d3852a14b9adc3456b7422996d95eb2822db797470a2782d4f40b655d2bd",
+        "bytes": 5807
+      },
+      {
+        "destination": "mcp/server/src/generation-protocol.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "5a9b7100398c165050fd3c36869aeda2773ce261a898876c98922d2656393ae4",
+        "bytes": 2314
+      },
+      {
+        "destination": "mcp/server/src/generation.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "e9fb6e14b6dbccee77e25301f0a7762f385bce594dde33e29d7a98c07445dde6",
+        "bytes": 16253
+      },
+      {
+        "destination": "mcp/server/src/main.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "37e85a9b46c37b0aeb88994372c12a83cae2b8aadb0f013c1e52b104846a7e48",
+        "bytes": 2768
+      },
+      {
+        "destination": "mcp/server/src/server.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "2ac3b833a3350914470f91a8e42e8a972e91c9fc4797ee83cfd6d14a786241c9",
+        "bytes": 7058
+      },
+      {
+        "destination": "mcp/server/src/ui-capability.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "977626df5889277760d7ad9c0f5645cf763c023dcabeeb2a5daecfbe7db91405",
+        "bytes": 1030
+      },
+      {
+        "destination": "mcp/server/src/worker-entry.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "f801cecec5ce4a32dc173f48a7c8a7b47bff0be94402e569c7a4b03ad98d5915",
+        "bytes": 1060
+      },
+      {
+        "destination": "mcp/server/src/worker.js",
+        "component": "mcp_runtime",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "generated_exact_mcp_runtime",
+        "requirement": "plugin-managed MCP runtime",
+        "digest": "76d13ee605fa7172a4a77578a381ab7247536b81f9de1605de11e8b773e1633b",
+        "bytes": 2730
+      },
+      {
+        "destination": "mcp.json",
+        "component": "mcp_declaration",
+        "owner": "scripts/sync-plugin-mcp.js",
+        "rule": "render_agent_plugins_mcp",
+        "requirement": "Agent Plugins 1.0 MCP discovery",
+        "digest": "e6d59b356d98cbb48217ada01b4e0cf8268249fbcae502bcefe21f0aa9110049",
+        "bytes": 322
+      },
+      {
+        "destination": "meta/agdf-agent-router.md",
+        "component": "runtime_support",
+        "owner": "plugins/agdf/meta/agdf-agent-router.md",
+        "rule": "copy",
+        "requirement": "local validator and session orientation dependency",
+        "source": "plugins/agdf/meta/agdf-agent-router.md",
+        "source_digest": "8b69b3f319ce07eba1e360021d4848d72f5fe0f515f15d85b91af496724ed628",
+        "digest": "8b69b3f319ce07eba1e360021d4848d72f5fe0f515f15d85b91af496724ed628",
+        "bytes": 12317
+      },
+      {
+        "destination": "meta/agdf-constitution.md",
+        "component": "runtime_support",
+        "owner": "plugins/agdf/meta/agdf-constitution.md",
+        "rule": "copy",
+        "requirement": "local validator and session orientation dependency",
+        "source": "plugins/agdf/meta/agdf-constitution.md",
+        "source_digest": "6c33529cb72b0cd10b19537c810233d30c6494e48e883878fdfe9ceeeed0055b",
+        "digest": "6c33529cb72b0cd10b19537c810233d30c6494e48e883878fdfe9ceeeed0055b",
+        "bytes": 8709
+      },
+      {
+        "destination": "meta/agdf-plugin.definition.json",
+        "component": "runtime_support",
+        "owner": "plugins/agdf/meta/agdf-plugin.definition.json",
+        "rule": "copy",
+        "requirement": "local validator and session orientation dependency",
+        "source": "plugins/agdf/meta/agdf-plugin.definition.json",
+        "source_digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+        "digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+        "bytes": 18450
+      },
+      {
+        "destination": "meta/agdf-runtime-contract.md",
+        "component": "runtime_support",
+        "owner": "plugins/agdf/meta/agdf-runtime-contract.md",
+        "rule": "copy",
+        "requirement": "local validator and session orientation dependency",
+        "source": "plugins/agdf/meta/agdf-runtime-contract.md",
+        "source_digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+        "digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+        "bytes": 1977
+      },
+      {
+        "destination": "meta/distribution-profile-history.json",
+        "component": "runtime_support",
+        "owner": "plugins/agdf/meta/distribution-profile-history.json",
+        "rule": "copy",
+        "requirement": "local validator and session orientation dependency",
+        "source": "plugins/agdf/meta/distribution-profile-history.json",
+        "source_digest": "c746c93daa3ee3d229c2e33f46f0235cb512953cf9229df773725dde3ebb8033",
+        "digest": "c746c93daa3ee3d229c2e33f46f0235cb512953cf9229df773725dde3ebb8033",
+        "bytes": 4398
+      },
+      {
+        "destination": "plugin.json",
+        "component": "manifest",
+        "owner": "plugins/agdf/meta/agdf-plugin.definition.json",
+        "rule": "render_copilot_manifest",
+        "requirement": "Copilot plugin discovery",
+        "source": "plugins/agdf/meta/agdf-plugin.definition.json",
+        "source_digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+        "digest": "e22e45bb75b22fc24ac5fec8f9ca39ad34d16cd2c772bc4bf34bfc1bd036ce7f",
+        "bytes": 526
+      },
+      {
+        "destination": "runtime/agdf-local.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "90628ade81f47b45dc20cce5819d7aaa5258851c75cc3c2b6f688e20f5e25aa5",
+        "bytes": 843
+      },
+      {
+        "destination": "runtime/agdf-session-check.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ba5ca30e120369ec81c281eba1236301b4bfbf35d57679282346b20a28db786a",
+        "bytes": 9303
+      },
+      {
+        "destination": "runtime/create-agdf/NOTICE",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "02b6db380af7d83c6193ff8974147a77509b0b1d46a0216f6dbb82250c65fc78",
+        "bytes": 422
+      },
+      {
+        "destination": "runtime/create-agdf/bin/agdf-validator.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "0d92020ee7b3d4033b24f66be81941814fc773e4f3058e96c66ca2de2e3c61c0",
+        "bytes": 323
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-interaction-locales.json",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ebe6cfc8b4ab5c8be47c62af067dfc954e266fc8d8bab4d0b779014fac28b148",
+        "bytes": 168906
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "df679ab5b07e28967b4295b67744200261ecd6d7c875193ff9c27ed90a3f3a1e",
+        "bytes": 18450
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/closeout.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "66cc81d6dfd319b3342eda7568f5c0a59efa6c007b56bd48ba43d7be82c22ecf",
+        "bytes": 4196
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/context-graph.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65",
+        "bytes": 2512
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/control-scaffold.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b14a97bceda4b299ddac503645fbe90c373bb219640170b818747abf973bd8b4",
+        "bytes": 11789
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8b6d1e788857a386bf5d38bb820d386deaa48fc8628c4ca98c451944aeb99182",
+        "bytes": 9305
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/gate-transition.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ce1cd99e2af5b7613234e489c51ee8483a917f0b70fa5886370c9bdff7b5f71f",
+        "bytes": 20384
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/interaction.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "5b0a8bc74f8ce108b2d3f547ad53493c05a0b0fbc799879fa71db22080703a74",
+        "bytes": 51839
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/modes.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8d503382536952febd54aa004d1ec38b7296d6b79610172b4ba8ec8dc1bae5cf",
+        "bytes": 12906
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/prd-definition.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9af80775eb10aa14a31a77e6cc4edccdd203954841946d4759529ef75cb374a6",
+        "bytes": 5880
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/quality.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4",
+        "bytes": 8692
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/request-activation.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e77e61654091e4eeed7eb991ce523204e8fe5d25ea4ca41f3cb1c9c2bb1da8e8",
+        "bytes": 18822
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/sd-definition.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ca4a08cebad00689407a8c246f71d2587dfe8eb29f7728de64ab462a83fc6144",
+        "bytes": 4879
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/task-target-resolution.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6903bd0d427c2e57e4aaa24ae9782df454efa6be5ef81d5a2f85bbf8a373d6af",
+        "bytes": 8919
+      },
+      {
+        "destination": "runtime/create-agdf/generated/plugins/agdf/meta/contracts/ur-definition.md",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d606e4279b3443ac2bd2d91d4b2c156695acc2348ed8127f5313e37d7cbc1583",
+        "bytes": 4397
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/command-registry.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "0caa2e00df0dd2595c411915c7346afdc9cd19cf6738fd21db6380d355b187e8",
+        "bytes": 26057
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/contract-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "93f4c791e1cc54ad027b1c1fe3f2dfab907081f4fd23fe5a36616ee1a7cf0d19",
+        "bytes": 1796
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/control-maintenance-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9601b8f689964416c336769746a3b3f48c580e35f68468ea59f1c055410615f4",
+        "bytes": 2514
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/delivery-path-search-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "2cb66063212ee965e2894a93def1cf71efd7d8fd83ea09357f68383510210f71",
+        "bytes": 9065
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/parse-args.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "956227ca9f852ccdd83710f55cf9111a28a1511c732b0eeef5c8582096ab84a7",
+        "bytes": 14476
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/runtime-context.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "c3dfdcbdbe1e966bb6dfdd3b6b51cc5f52114ac1472e59a753d8ea65b509a4ad",
+        "bytes": 2217
+      },
+      {
+        "destination": "runtime/create-agdf/lib/cli/validation-handlers.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3ab1dac24e2c80f29cffcf4d5081f62449b8f2e79b4e98de24c7eb1cad674816",
+        "bytes": 13091
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8a72387a281a688506edab51d830e64170ceeea19c29c30ddb1aeb78f710600c",
+        "bytes": 413
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-evaluation/git-observation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "f917979a37a4e6ada9620361a1b48cab6602025f5e01b8ed2aa2a3667cc4fc24",
+        "bytes": 641
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-maintenance/interaction.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "beb3c0c72611cdeb151e1512d4870b212edc048e9b2dd69fbc63654cbf276ad1",
+        "bytes": 1279
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-maintenance/repair.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "780ca9a152c06a877a9a315659dbf676fb173a2e8994d94f241c36a96cd04d2e",
+        "bytes": 421
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-maintenance/service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b25766bf4320d3fa8773d5b291a03501be4b762a4e9112f78b86216b57ffb5cc",
+        "bytes": 264
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-maintenance/startup.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "680ad9be0b8c8d52d54ee186f27b9a6e85f50930fc5225e148cab122d1f267e5",
+        "bytes": 1683
+      },
+      {
+        "destination": "runtime/create-agdf/lib/control-state/run-recovery.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "56f3cae8ff4e70d7d69337ccf067fa9dd7516f57f83ee6c4733bda6844c89dcc",
+        "bytes": 526
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/evaluators/claude.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "580b2f8a8e68ec8a70e9314dc0e17d7fdf5e9d68171d282e62803f5e87e05655",
+        "bytes": 1525
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/evaluators/codex.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "bf6cf1a7c446adc9d8908c469a96a1cd487cf4ad55e61ef6a0c902c3a75f8d6c",
+        "bytes": 1919
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/evaluators/opencode.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "a58850265a131a16511e81a6af78075550541969209740f391a8f3bc641d61e2",
+        "bytes": 8924
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/evaluators/prompt.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d07f0129a150a673d2f8c7a704040b4b0138b032463cd08c9ffd1175b81fdfa0",
+        "bytes": 753
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/evaluators/protocol.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3a629b0217807a6b38af485b4b18b42b07230d0bb1738b841f071f3c3894ab9c",
+        "bytes": 470
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/generators/claude.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "0b3476a4d50d726f5937700e3941d39a71e0c7db15253948adc7c067995294ba",
+        "bytes": 2203
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/generators/codex.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "39d3af5adbf4fe0bbf00a8b56a8e2b66a52b7aa217b0a47c620dbc017069c671",
+        "bytes": 2187
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/generators/protocol.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "cc9a9354a97183501a3fa34a4b5d5ad3c6e7f6fff565a1ec7cd55b84a7fed40c",
+        "bytes": 389
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/surfaces/capabilities.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "1a05a9607022be003725a99d1468f4775fffbb4f816448dc0fb279212f21213b",
+        "bytes": 1161
+      },
+      {
+        "destination": "runtime/create-agdf/lib/delivery-path-search/transports/read-only-guard.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d1a428f69c8cebcd5c1b850a30c9fbfa171d704e00ad32dd45b02a537fc4f241",
+        "bytes": 1271
+      },
+      {
+        "destination": "runtime/create-agdf/lib/host-adapters/claude/session-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "fc705975f1378497bae641f9d679ae13ccf7f48032da6e2eb3cb0f7b0927cd35",
+        "bytes": 165
+      },
+      {
+        "destination": "runtime/create-agdf/lib/host-adapters/codex/session-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "64035f8eb12dd968f4401cbfd91d9a9e34588ca93d64f24af731cf1971267003",
+        "bytes": 455
+      },
+      {
+        "destination": "runtime/create-agdf/lib/host-adapters/copilot/session-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "eaf1e9b41afc50941234aee7b7ae9c429edde396612397238ac16db33f79ff87",
+        "bytes": 91
+      },
+      {
+        "destination": "runtime/create-agdf/lib/host-adapters/opencode/session-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6c93d33e2d6361c4bc929ee755e9d7b992d5f6ae94841c665713e6516d69915b",
+        "bytes": 76
+      },
+      {
+        "destination": "runtime/create-agdf/lib/host-adapters/session-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b85809f049be9d285f3db5c9b23ccc99c735ebf2ac4a40eacae345d382c73010",
+        "bytes": 609
+      },
+      {
+        "destination": "runtime/create-agdf/lib/host-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3794812eee3bac2ebd49c70da27be279ce31c5330ea6d992160aaa5b36a77aa6",
+        "bytes": 5591
+      },
+      {
+        "destination": "runtime/create-agdf/lib/mcp-dispatch-runtime.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "dfc523a4857b26703063a15fa5935cbda6ba7c16cbbc3bca31ccd28fa48666e4",
+        "bytes": 18578
+      },
+      {
+        "destination": "runtime/create-agdf/lib/mcp-lifecycle/package.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "46b3eb2f2b906f87469c2743785be8a3167730a93624fab1bbaaca8e4078f564",
+        "bytes": 23300
+      },
+      {
+        "destination": "runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "93b80be86ca144dab41d9e9aabcdfa48ce0a2a00f8c142d767e78c6b856b041c",
+        "bytes": 15630
+      },
+      {
+        "destination": "runtime/create-agdf/lib/npm-invocation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "958177d886bebb7d2b9a1b55fa46b8f7f1663a2cfdc76969db41868cc66e8c34",
+        "bytes": 969
+      },
+      {
+        "destination": "runtime/create-agdf/lib/repository-context.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6d27ed2e29278466306bf54316fd3714399b45dabd9bb357bd3118c82016ae82",
+        "bytes": 3033
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/control-command-service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "05a0a85077eef1418cbdd1b5d5bedf70bc094291a4ae89d232eb98d750a1c376",
+        "bytes": 607
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/control-context.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "74b7543e826e448e6754a719d15a895be9cfe4a1119eceda016ab8eba2f555c9",
+        "bytes": 904
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/git-history.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "33f00607ab129a66afe80f76c6da7db62035525b78b09a68fa6057d21b8d8556",
+        "bytes": 510
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/git-originals.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3ccf5805215251f06f14a95a3a1d938e4942b7546ac65dc04300bbcc7be38cce",
+        "bytes": 2213
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/local-validator.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d81697d7200761592a59d3ba8509b860a96b5fce3c0f8ca18a450bd981b883c5",
+        "bytes": 14029
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/plugin-provenance.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3cfa9cfe356c36cb2331a4988eeea93648805360fa505dd9f3e8073d9f3a70b6",
+        "bytes": 57
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/runtime-probe.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "f0c01b171169a3f619392543c1ac9dcb4d7ec66a92fec9306ed0bf2644ad4151",
+        "bytes": 3045
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime/validator-application.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "793f379cfd2bb6aac6cc79bd831dba217033835032e35154b0d6c3a323f64ff5",
+        "bytes": 1879
+      },
+      {
+        "destination": "runtime/create-agdf/lib/runtime-check-consent/contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "41842832e785d712cab479dc1b0b1b1590940924f5f5793c4e1a15b0703d2733",
+        "bytes": 3925
+      },
+      {
+        "destination": "runtime/create-agdf/lib/skill-dispatch/binding.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "2051b5ac592c46faedeb5f415964ea5fe86cbd83729cd2c2cfa76a1f7faf29e1",
+        "bytes": 642
+      },
+      {
+        "destination": "runtime/create-agdf/package.json",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "aa6e4bf4d3c619eb72e820fc242055a3560883a5dc7f9bb3f368433ee124ab2d",
+        "bytes": 220
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/backlog-vocabulary.d.ts",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "4d31a8e08b9f4a21900d663edac4a67e59dcb2ab7e3faea7b8f6d794afd10522",
+        "bytes": 192
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/backlog-vocabulary.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b5b8b41ff784c3db6931f945645d1c5d28f7c3016270eeabb667db4a6304cea3",
+        "bytes": 1236
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/closeout-readiness.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "405bd163292123a98e831338c60c2a3d3dfa1322f78b7fe9cfb487aedf145f26",
+        "bytes": 8876
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/definition-sources.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "37cb3a20971fc9ed3c8f526fcecf146ef1ec0699b9d16ca7636f6ebd02b5bfd7",
+        "bytes": 3203
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/delivery-map.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "18399039b42039a27fc602e1099f4288986cd96b95f3cdb19a6b047121da9cdf",
+        "bytes": 13104
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/delivery-relationships.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b5cb5c25bada9b059a3278a37cad46dc9cc9e5b7b634d8b6c5d439a529435b76",
+        "bytes": 1370
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/doctor.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b8c4460e22fa479f201971b445e9df568f881045240f4b16741dade1210fdb62",
+        "bytes": 14407
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/gate-check.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "c62fa611f1a805c19428ba199105a557ed362b7677aaa59df050fce179224dba",
+        "bytes": 40736
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/gate-policy.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6e22a9966fc6d210f3055c154be9c8a01ec7d0553242094f20c3b24ad0f5d85e",
+        "bytes": 23894
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/next-action.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8140058f3ae34f425a71acf7c987661762de7f983c39508a0523fc6b41b12ed5",
+        "bytes": 2054
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/parent-reconciliation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9715873b770876f6ef8926f8104711254fe844ea0a9632b0e79932f2bf7849b7",
+        "bytes": 10121
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/prd-readiness.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "0da9264071f4718fe1bb7769df5640d2bddc7015404dd9670da0495dfc157ba9",
+        "bytes": 3317
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/qa-follow-up.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "04831a20af939f42f527c6a17387b0bd6a2d44aba8bbb5bc4180240d4a08ba9a",
+        "bytes": 7754
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/required-files.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "722ac21c5983b9566363bd0e37d142081a8d6877fcf45fe3d22742e7bd9e9fb5",
+        "bytes": 337
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/run-state.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "a00bc4ffe9969d53af169618b12f9bd80a02e6ea3a36a171fa861baf58af4dbf",
+        "bytes": 15728
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/run-step-policy.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d8ef44140537e387029cb3eb31712fd33f545760294752516a683be36cd2dc93",
+        "bytes": 1114
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/run-work-summary.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8f4c1a5132c9b68bdab3a28af7e371eaffff3127c5a70fe395efa2f71243ca23",
+        "bytes": 6922
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/sd-readiness.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "f392207b5c1ae65545976b8d9a57e5ef3ec7bcc52b677fcbfe219b4acd3c1f52",
+        "bytes": 2876
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/shared.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "043cd44c8f71eb197e957154ba40eefea057ca7a54f389b2ef28c688098b8aa1",
+        "bytes": 11336
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/traceability-readiness.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "7c49876536a34031d8c6ddff06d3d260e4ab304c1ebc2a427dd0f0ecafc30827",
+        "bytes": 17319
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/ur-readiness.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b306fc2b88e39fe9710c0fcbc749f06f589070780a8439d7f4916eb99f2a7063",
+        "bytes": 2745
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-evaluation/verified-change.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "393b82a45c5434af233d2b6e74a335d8dc6b3906510eb25df50eba284b232c3c",
+        "bytes": 12133
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-inspect/artifact-readiness.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "69ec90f9598625fd12c91ddea3e5fee319ab7a5c744fce6e602ace6a32af7d45",
+        "bytes": 9720
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-inspect/contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6fb64dff4a41036e43de3cf32d016d6108e5ca5b54af7ebcc2b8b835c4765e0d",
+        "bytes": 18937
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-inspect/selection.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e2b461549e376faf8cdc69d250a74d7a53c7a6ab1b3dd522d8883307081fe095",
+        "bytes": 2025
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-inspect/service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "811b406fa481e265294865c955aaeb717d539d93600e40ed7191d5ecca43e250",
+        "bytes": 18722
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/compatibility.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6d2b224fdcb233a8ec13047b2cd58235dff8f87f8417ea025231739c2dab2511",
+        "bytes": 8412
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "785b343a8a44a5e3bd22499c0401346443e273fdf9598b4784cee9c78c917b6d",
+        "bytes": 2342
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/interaction.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9d1ed9e49f1ce66e9de30ccaf2a813b7e8a1c4728432f75d4e8016609239b539",
+        "bytes": 3207
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/migration.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "0c5bb18cef422837bf2b4dc10935f7d8300eb4193f4a25f9780831ca3cf67ad7",
+        "bytes": 5383
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/presentation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "aa70c91e35f118b44fcd7229068512dda3a811db0ddb39312c39654010b18081",
+        "bytes": 8246
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/repair.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "1f134bc6f136f34e2dab82ef9d507beb76684d0aacd2d50b42591f5426f19b1a",
+        "bytes": 13216
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-maintenance/service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3e1975c5219f1873e975eb8d8252f413387c9ae6c862f4a81f7d2b699cdea2b8",
+        "bytes": 2412
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-read/fs.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3c0d11eb8fdb54f4a92e89c61001c34dff29b3572b41f31777a6f7d1e9d362ca",
+        "bytes": 2293
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-read/snapshot.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d793e337e7f7c4d81515cfe91da92dfabf61dbfafd373a1261790498f23fda6c",
+        "bytes": 20034
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-read-boundary.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "50ee73aa9ea7a5506f3ed98c7da215bea538b2c1914d9c09989512ecaa8e9896",
+        "bytes": 906
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/aggregate.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "80b566cac04555ecc24593c81903e8cbe31a4e11e5242f456b39ff01978d4a6f",
+        "bytes": 503
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/approval-command-contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "eca2ede566c561e358c15625161df544f6161be54343f1a50b92714237b9fb55",
+        "bytes": 3762
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/approval-command.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "aadd657c654bc14bd2cfb4049660d9e24eaa917b52b81ac9ac536ca0eaf44cd5",
+        "bytes": 9953
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/approval-operations.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "1083a59a02bae8aef2d07887c8155dc957a86b24e06c85ebd921e5d83d5fbd7e",
+        "bytes": 6737
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/artefact-binding-proof.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "11732d13cbc0f15ac23e2433a426a1a9eac0dc15a536038f682bd4ef74464fa4",
+        "bytes": 6398
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/artefact-bindings.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9691cff1b1ee7b484e58261e2c1c62295822d8892e604e948f6e45f2d27c39e4",
+        "bytes": 7164
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/backlog-summary-shape.d.ts",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "5043ef84502392bcedbe406530baa096891c0bb74e81fdab159f67847b46311d",
+        "bytes": 193
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/backlog-summary-shape.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3240e25f9f32494e220a6ee8e6d8dac6acc5d3c6913abefa262e7d8ad73bcef5",
+        "bytes": 3224
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/backlog-summary.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8afc7cf80a6dd1e70206daf495fdf68b363f015c4fe6119a9cd8186366d8eb33",
+        "bytes": 5289
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/contained-file.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "5ad497d1f5082272c5ecfc8a3f8c16af0c67061c554a46ee8ef48c1a1cbe7da9",
+        "bytes": 2223
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/control-configuration.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "40f1a5675666195bad3118a327a21c377b8ffa641d045fa22ebcebc9d12ec689",
+        "bytes": 1072
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/evidence-bindings.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3a05450e6089180f1677b6e97e4b59a8c1d3263c4081947513ec0fc776a05011",
+        "bytes": 8168
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/gate-approval-validator.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "071ab2bdad6012d1ee6ab4c7f95684e33332a33758d01db46bc2537b9efe0578",
+        "bytes": 1704
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/index.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d0970d4f3be3b20318b29e3d0a7c3ab474971a913b75356a505a8827aadfa50e",
+        "bytes": 346
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/legacy-migration.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e4ede072c7ff9018009430f364273c1ef2e21950657ad753c05d104b415380b9",
+        "bytes": 3088
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/legacy-projection-reader.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "032503c598c03378e8453d848b94c7f3952472dbbfbe88e1c1e1dcbc3b9c0ff4",
+        "bytes": 1998
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/presentation-decision.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6c2af67796d8f62a926d3e1a3fa9f3ff7ce7084cbd1105b68f84748971c4d08b",
+        "bytes": 5707
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/recording-formats.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8407f268b5834a4a996965d098cd30483b880a6d053a3b145544ef667f91c49b",
+        "bytes": 4118
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-artefact-recording.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3167a88b692ec8796d2b2f823586d6bca4e625f8bc3a83a49a32e581f6b5de3f",
+        "bytes": 6966
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-backlog-writer.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "a613a4f54e5dfa0b4d211d617420ca97cfc06d1d633090b40074aeb4ae28c46a",
+        "bytes": 5430
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-backlog.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "c4a78470f51c939c92a1d82879d6d17a0ee9423be985c37c9f80df7ceb8622b5",
+        "bytes": 5932
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-command-contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "afd6595c860a97a175527ef68a39ff3cfbf8de800b9dda41144eec37474b1fde",
+        "bytes": 14065
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-command-service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "593955d3d669cb511c97e8f7e91ab3f021dd210e59bf99457df58954b8a062ba",
+        "bytes": 14677
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-identity.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "f01a5e203755b7f5157087c9d8d15d544e81c43d7249263da7c2354a9cd90bae",
+        "bytes": 573
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operation-identity.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ddf097912d3c1e0552059ae6abcc4358c5158d75ab55cde70a926613839f30ec",
+        "bytes": 2437
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operation-proof.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "12c4528f23b0f58ec38f1a445a5ebc5ea07e715321847f560b8d63a8446ab2d8",
+        "bytes": 4108
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operation-status.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3c2201eb416a9d7e362293fe0b82cc4775928a607756e4c1820d2bc31b2b9261",
+        "bytes": 5449
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-operations.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "f327406e25985ca4a1e06d6eec43c31678cc4933cb3378d4a3430ef89aa01b09",
+        "bytes": 7817
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-owned-outputs.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "50e9dab1b6cc43088b83c780fe7f385c1e2ecea08484793bbab130d152e22999",
+        "bytes": 3714
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-presentation-render.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e1c51e2dbe62b55d1091439ecc5630491d335c2c82ec573680b39cf884bb5696",
+        "bytes": 25193
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-presentation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "c84e84136ca2aeaa6737b836516b3b706a5cf63c64f5bd9b1da4a475e4ba73a9",
+        "bytes": 16065
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-recording.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "bef6bb2bb00f57a9221e76934f065475adc1fca4b2746bddeb554ed66e73e6ae",
+        "bytes": 14311
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-recovery.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3fc0659b0fb22c175f93440f0027c603cc84de9d7213cd14f9a77a5e95d6724c",
+        "bytes": 18006
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-relationship-correction.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "36b9f61c482a5ffa63ec253938df6cb2ad7c1a7a968b28d9a4116fbdda3b958e",
+        "bytes": 5878
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-revision-boundary.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "08d7ed9804e93c2285314d9f5c164f9fa16305e3ede9938a8ed91dc41eb7310c",
+        "bytes": 3217
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-revision-history.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "eeafeafdfed6b7750120d6c5377e0bafb4b46bb23db89bd00823f2238f0e56b9",
+        "bytes": 12638
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-revision.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "359dc37b3a60dd1e182fcf7fd2b452548ce47d0a4eb611ea1c8744fcd87d572e",
+        "bytes": 36209
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-seal.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "1a2f9f7adfad9ab82a7a986d1baf4ab1512c94790c1575ea8c2725879f611294",
+        "bytes": 8035
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-source-revisions.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e8db0806eb625521446b9d43a6f6e0acf2d4bf1a7c1cbfd3590ea74e91ce27ba",
+        "bytes": 18281
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-state-edits.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9889812add2cfabefc4fd85bb9e0ad9e467e93054bff17ca3152db21109271eb",
+        "bytes": 6831
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-state-parser.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d42fa11352be37e7e29e651424499f95dcf6bfd21e0e3d2c4586f304c0d70573",
+        "bytes": 14222
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-state-reader.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ab6c839187dd08834949dcfba367dd64e448468b08d9a6e141bcc7cd667990c5",
+        "bytes": 1954
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-state-repository.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b53cf3cbc0b302f04b48a50fac04ef71301fd8af72b8f1b9f483fb7bc924d91c",
+        "bytes": 6390
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-state-resolver.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "5a6ddc40ade1b24b71260622b4782fcb4660551d75a6efdfff82f47664675505",
+        "bytes": 1371
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-state-writer.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "005a72cfa94997a988342fa3e4a0cd844717cb31ade03e505e878a20de4b5c8b",
+        "bytes": 17941
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-step-pending.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ab5e5686ff15afb8c899d2a8890938000134465b4696229a5af485ce5582b7e1",
+        "bytes": 634
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-step-transaction.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "839d8ff2c22200200993adf66356e8ff8be35b45a94d205d914c5da8271bb0c3",
+        "bytes": 23510
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-steps.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6a03ad10299a676510f88df748509ede2563eea2a37c2b7607c97f3eb3ee8c81",
+        "bytes": 35391
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/control-state/run-store-inspection.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6fa228971c8cd789ea21b723ca086cd0e08c51ebc1bb2233c79a834995ac8353",
+        "bytes": 2164
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-continuation/service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "75e9e5d4bdaf6a78229cc0dad2a38cc19bde6df53b84f8dc2cc2b56491a59733",
+        "bytes": 3947
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-path-search/candidate-policy.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "13c897ec73751f82d250faf962f95cff913fb7639e2d5f3ad466d5223876d658",
+        "bytes": 3919
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-path-search/contracts.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "02ebfb153815d22d2e67debe7d51b09e94416b3f86966c92db4621dfb984a3a8",
+        "bytes": 15955
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-path-search/persistence.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9629b8ff1fda2514baf03a99590d52a9379ad2505431634fd6fa953e553af9fd",
+        "bytes": 2521
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-path-search/scoring.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e5130d4421e3bcf04a3659513fad2de7e33a949177e57fce2c7a45ed30577694",
+        "bytes": 824
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-path-search/search-engine.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "4ac4d4bb11297f684a0161b03bb0d07909ee814e2687026f4d2c8059befb5990",
+        "bytes": 11244
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/delivery-path-search/state-adapter.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "8f7223d79f68c0321c502dab4c4083b08535c67c0e9d6b1420645af06f3f3d13",
+        "bytes": 4596
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/fs-swap.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "b093f02620c132318ebcfdc6f4e992557b1cf37c93ea532cfc86df36f55b8029",
+        "bytes": 916
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/index.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "d0e3a75bad2bf2d49d8bf4e9d52010252263ad2bb4a430226fdf84b3118c77c2",
+        "bytes": 1210
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/interaction-catalog-validation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "4847514c5994c810e6666ef93f00274bc3b9854f56cc40e4ab6d4a29e91b2391",
+        "bytes": 1673
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/interaction-catalog.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "4bd4fad4204f9a3e9ddc922dc080d0846ec0257675bf487a8d3bc25bf438411a",
+        "bytes": 5539
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/interaction-presentation.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "a97b6a303821404623495ca7541c09e81313e1a2120064c7a7ef632a8cd73b21",
+        "bytes": 66888
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/mcp-resource-contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "36bd76b2754cbb33dc54d7477ffe13172f41ea448f190bcf98364e1baca49c1c",
+        "bytes": 277
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/repository-context-reader.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "83f5d3d092cb079421ddd4ac0b2aaaed610abdc17722bbfa2a1b2db389932dc8",
+        "bytes": 3135
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/resources/binding.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6bbef725316978a50137e80ea34743670d7cdb29b9892502abf50aa29fd1b343",
+        "bytes": 296
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/resources/context.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "9154aedf2f8d26e3fc29c52eaba304f6e876648b5a9f44736ee1c4af924c731d",
+        "bytes": 4387
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/resources/contracts.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3415f51f3568591b5b4a1eaf667630e3e95c21dfbd2734994bcc975f1591b859",
+        "bytes": 1513
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/runtime/distribution-profile-history.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e8d31599333c95e2f397b3637303713a2a064a95ea464dcab6ad80a2528f68f9",
+        "bytes": 6077
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/runtime/plugin-provenance.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "6d4c4da632d49e887768df05b0173b916bd56f87c0e93032f6cf38cc22c89fda",
+        "bytes": 24742
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/binding.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "ea5c32e5f2e41c38d6990c490084f93d9e9c162ce91b7d73c697df17eaa3c243",
+        "bytes": 3647
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/contract.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "e37579987528c674e0ac289208a996598c464704986c2fca1e982ee68264e07a",
+        "bytes": 27887
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/delivery-intake.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "5f5c1841ccc30468ed4eea02a4d2f8327e1e3ef2516f3fd792fb04ed381aa94a",
+        "bytes": 4748
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/delivery-run-assignment.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "07b895b820461b86d4b61adfdc3b32ea70ac37ec173c6574f8814c5050d62b9e",
+        "bytes": 4578
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/prd-definition.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "95c2a131e820f522047269a430bb90cbcd6186d6ce6952f4d1a96e5894d59987",
+        "bytes": 3566
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/sd-definition.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3e2c5aa2986bce43b6fc9b05e782deb2c11b7c9c8b1ea3bd880393fff01da69b",
+        "bytes": 3013
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/skill-dispatch/service.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "3ffeb78a3932261bd5f5be480b077b745229fd2c20f68c991455dc161e1d92b3",
+        "bytes": 45419
+      },
+      {
+        "destination": "runtime/create-agdf/runtime/core/lib/task-target-resolution.js",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "dd8d135102f66bca6d32f4b46de25edd1cd68b4ea2dd6a980e8786ae603bb733",
+        "bytes": 8096
+      },
+      {
+        "destination": "runtime/runtime-manifest.json",
+        "component": "runtime",
+        "owner": "scripts/sync-plugin-runtime.js",
+        "rule": "generated_exact_runtime",
+        "requirement": "offline exact-version validator and session check",
+        "digest": "35c0b072469d96e1237db8460ea9930909a80158362a666b2b243071e66414e4",
+        "bytes": 236
+      },
+      {
+        "destination": "skills/agdf-brownfield-analysis/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/brownfield-analysis/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-brownfield-analysis",
+        "source": "plugins/agdf/skills/brownfield-analysis/SKILL.md",
+        "source_digest": "2d4edaf5333918a74781dee13d28f6783da9601d985c80256ce9907501bbf401",
+        "digest": "5d50772f823716cf1f5e66227f5fa42c431c50ca3c1b7a0395733ec4bb467830",
+        "bytes": 15460
+      },
+      {
+        "destination": "skills/agdf-clean-implementation-review/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/clean-implementation-review/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-clean-implementation-review",
+        "source": "plugins/agdf/skills/clean-implementation-review/SKILL.md",
+        "source_digest": "b89b5fb38560ebf49faf9444c1bd5816835fb4399d0fc4a8aab1e92527eb1ab7",
+        "digest": "fc5f1208dd73cc4088a6a2a61f031481d97e8db55e0b281592bd64ce29f1271d",
+        "bytes": 7501
+      },
+      {
+        "destination": "skills/agdf-code-review/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/code-review/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-code-review",
+        "source": "plugins/agdf/skills/code-review/SKILL.md",
+        "source_digest": "21870b51430849b30d3480aa28f0c6137ebcd41ea94b3ed6e57c0644bd45e9fe",
+        "digest": "6075815ebc40460a69329a76e2b3f03191dd2f110d13921f84199cfccb57ea8a",
+        "bytes": 7600
+      },
+      {
+        "destination": "skills/agdf-delivery-closeout/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/delivery-closeout/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-delivery-closeout",
+        "source": "plugins/agdf/skills/delivery-closeout/SKILL.md",
+        "source_digest": "f5f228756c972e4cfc1b21d3c4d39e17f34a60c4b8cbc633ba1d08a7c7e7ddb7",
+        "digest": "66acbf0864139810d7cf3af695119d0da0f1226fa409e852b34fd56cb44701a1",
+        "bytes": 7162
+      },
+      {
+        "destination": "skills/agdf-delivery-path-search/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/delivery-path-search/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-delivery-path-search",
+        "source": "plugins/agdf/skills/delivery-path-search/SKILL.md",
+        "source_digest": "4b7c472be5c771a75f231b7b136a14d6094d45032b5b0481afc759f770ae67ef",
+        "digest": "4f5678b316991c043121abf532db62391d71e901f5feb597d821637f260f47e5",
+        "bytes": 8000
+      },
+      {
+        "destination": "skills/agdf-gate-check/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/gate-check/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-gate-check",
+        "source": "plugins/agdf/skills/gate-check/SKILL.md",
+        "source_digest": "03cff718d5386eed2351cb398ebad4a881d67a60a762d952a2e8e0bdaf0e4011",
+        "digest": "4accbdc48f67ff7de1cab1000042162df4b0bd41db04433850fd35753dc25d7a",
+        "bytes": 5498
+      },
+      {
+        "destination": "skills/agdf-interaction-locales.json",
+        "component": "locale_registry",
+        "owner": "plugins/agdf/meta/agdf-interaction-locales.json",
+        "rule": "copy",
+        "requirement": "localized interaction presentation",
+        "source": "plugins/agdf/meta/agdf-interaction-locales.json",
+        "source_digest": "ebe6cfc8b4ab5c8be47c62af067dfc954e266fc8d8bab4d0b779014fac28b148",
+        "digest": "ebe6cfc8b4ab5c8be47c62af067dfc954e266fc8d8bab4d0b779014fac28b148",
+        "bytes": 168906
+      },
+      {
+        "destination": "skills/agdf-prd-definition/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/prd-definition/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-prd-definition",
+        "source": "plugins/agdf/skills/prd-definition/SKILL.md",
+        "source_digest": "9c659a1736da3429870155090e017640b61d6cf95282064126aa3e4ab2156461",
+        "digest": "d719450bf436a6e072e3e2aca5027d70fcac4ef82dd6b22a765a9d8b363ce064",
+        "bytes": 3815
+      },
+      {
+        "destination": "skills/agdf-qa-gate/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/qa-gate/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-qa-gate",
+        "source": "plugins/agdf/skills/qa-gate/SKILL.md",
+        "source_digest": "86cbde6bb1651e936acef5bf612d7ca586698b7fd601934a06abe621bd099cbd",
+        "digest": "7527b85a4029e039e5784df6ea0b8bc85658b8ceb5f1eb788fd1ab5cf8566bc8",
+        "bytes": 10731
+      },
+      {
+        "destination": "skills/agdf-release-or/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/release-or/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-release-or",
+        "source": "plugins/agdf/skills/release-or/SKILL.md",
+        "source_digest": "f54716998a5e9efd1df31ec4227b16c1df0204e31f4a4c8f8113fb702534acbc",
+        "digest": "cde14a5a17fc255bf92660150f629ef3e567045d01d539eb45c1fffd33478988",
+        "bytes": 9998
+      },
+      {
+        "destination": "skills/agdf-runtime-contract.md",
+        "component": "runtime_contract",
+        "owner": "plugins/agdf/meta/agdf-runtime-contract.md",
+        "rule": "copilot_name_projection",
+        "requirement": "shared gate and output contract",
+        "source": "plugins/agdf/meta/agdf-runtime-contract.md",
+        "source_digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+        "digest": "e0b9068ccbb8a2e066708b3c46b534a66990b62ae719dc36080d4af806a80616",
+        "bytes": 1977
+      },
+      {
+        "destination": "skills/agdf-sd-definition/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/sd-definition/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-sd-definition",
+        "source": "plugins/agdf/skills/sd-definition/SKILL.md",
+        "source_digest": "2949009ee3b435e7b4b710ee21362afcbe1cd4e1462e08383f1299a3297af6cf",
+        "digest": "e73cbec905e8d79d3c7a00d58f04f3263b9342bb4cfd4cac01adea153ce6e030",
+        "bytes": 3720
+      },
+      {
+        "destination": "skills/agdf-task-plan-review/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/task-plan-review/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-task-plan-review",
+        "source": "plugins/agdf/skills/task-plan-review/SKILL.md",
+        "source_digest": "145e9b7b3c9ea51e43a45031289ee3778ad468d8e7cce92cbdf65f9ae0e8ba1c",
+        "digest": "0ca69e63d70a496acc531f44cc66803c425cd22c13ed7a017bb0077ac1d50432",
+        "bytes": 8249
+      },
+      {
+        "destination": "skills/agdf-ur-definition/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/ur-definition/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-ur-definition",
+        "source": "plugins/agdf/skills/ur-definition/SKILL.md",
+        "source_digest": "e82f83165735955d7b294ea15af185fc513a7ea6cdc23c014d5af9b35a932c91",
+        "digest": "2512d6ac883fa37e8eeb8f9fa93ca0c0c47654c673873a83b72f1e97bf5f4ea8",
+        "bytes": 3701
+      },
+      {
+        "destination": "skills/agdf-ux-intent-definition/SKILL.md",
+        "component": "skill",
+        "owner": "plugins/agdf/skills/ux-intent-definition/SKILL.md",
+        "rule": "copilot_name_projection",
+        "requirement": "Copilot skill agdf-ux-intent-definition",
+        "source": "plugins/agdf/skills/ux-intent-definition/SKILL.md",
+        "source_digest": "62d8ece02080a22714b6a117118a39f81a8901b6c3add03a8e6d7b20bbde61e4",
+        "digest": "66fb16e4eadedd9ce85e7f30f399622067b440f5fd6c4e8e5f832b244b9de2b6",
+        "bytes": 7426
+      },
+      {
+        "destination": "skills/contracts/closeout.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/closeout.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/closeout.md",
+        "source_digest": "66cc81d6dfd319b3342eda7568f5c0a59efa6c007b56bd48ba43d7be82c22ecf",
+        "digest": "66cc81d6dfd319b3342eda7568f5c0a59efa6c007b56bd48ba43d7be82c22ecf",
+        "bytes": 4196
+      },
+      {
+        "destination": "skills/contracts/context-graph.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/context-graph.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/context-graph.md",
+        "source_digest": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65",
+        "digest": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65",
+        "bytes": 2512
+      },
+      {
+        "destination": "skills/contracts/control-scaffold.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/control-scaffold.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/control-scaffold.md",
+        "source_digest": "b14a97bceda4b299ddac503645fbe90c373bb219640170b818747abf973bd8b4",
+        "digest": "b14a97bceda4b299ddac503645fbe90c373bb219640170b818747abf973bd8b4",
+        "bytes": 11789
+      },
+      {
+        "destination": "skills/contracts/gate-artifact-preparation.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/gate-artifact-preparation.md",
+        "source_digest": "8b6d1e788857a386bf5d38bb820d386deaa48fc8628c4ca98c451944aeb99182",
+        "digest": "8b6d1e788857a386bf5d38bb820d386deaa48fc8628c4ca98c451944aeb99182",
+        "bytes": 9305
+      },
+      {
+        "destination": "skills/contracts/gate-transition.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/gate-transition.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/gate-transition.md",
+        "source_digest": "ce1cd99e2af5b7613234e489c51ee8483a917f0b70fa5886370c9bdff7b5f71f",
+        "digest": "ce1cd99e2af5b7613234e489c51ee8483a917f0b70fa5886370c9bdff7b5f71f",
+        "bytes": 20384
+      },
+      {
+        "destination": "skills/contracts/interaction.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/interaction.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/interaction.md",
+        "source_digest": "5b0a8bc74f8ce108b2d3f547ad53493c05a0b0fbc799879fa71db22080703a74",
+        "digest": "a5af8b32e1ba303cfec877e6b81d1963d18c49c4ff19f55960b701be257d7103",
+        "bytes": 51821
+      },
+      {
+        "destination": "skills/contracts/modes.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/modes.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/modes.md",
+        "source_digest": "8d503382536952febd54aa004d1ec38b7296d6b79610172b4ba8ec8dc1bae5cf",
+        "digest": "8d503382536952febd54aa004d1ec38b7296d6b79610172b4ba8ec8dc1bae5cf",
+        "bytes": 12906
+      },
+      {
+        "destination": "skills/contracts/prd-definition.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/prd-definition.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/prd-definition.md",
+        "source_digest": "9af80775eb10aa14a31a77e6cc4edccdd203954841946d4759529ef75cb374a6",
+        "digest": "9af80775eb10aa14a31a77e6cc4edccdd203954841946d4759529ef75cb374a6",
+        "bytes": 5880
+      },
+      {
+        "destination": "skills/contracts/quality.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/quality.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/quality.md",
+        "source_digest": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4",
+        "digest": "a2ecf5ee879b865a0b45cd0573b992c61126fc7a5c11fe82d77eae0ea266b0c4",
+        "bytes": 8692
+      },
+      {
+        "destination": "skills/contracts/request-activation.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/request-activation.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/request-activation.md",
+        "source_digest": "e77e61654091e4eeed7eb991ce523204e8fe5d25ea4ca41f3cb1c9c2bb1da8e8",
+        "digest": "e77e61654091e4eeed7eb991ce523204e8fe5d25ea4ca41f3cb1c9c2bb1da8e8",
+        "bytes": 18822
+      },
+      {
+        "destination": "skills/contracts/sd-definition.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/sd-definition.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/sd-definition.md",
+        "source_digest": "ca4a08cebad00689407a8c246f71d2587dfe8eb29f7728de64ab462a83fc6144",
+        "digest": "ca4a08cebad00689407a8c246f71d2587dfe8eb29f7728de64ab462a83fc6144",
+        "bytes": 4879
+      },
+      {
+        "destination": "skills/contracts/task-target-resolution.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/task-target-resolution.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/task-target-resolution.md",
+        "source_digest": "6903bd0d427c2e57e4aaa24ae9782df454efa6be5ef81d5a2f85bbf8a373d6af",
+        "digest": "6903bd0d427c2e57e4aaa24ae9782df454efa6be5ef81d5a2f85bbf8a373d6af",
+        "bytes": 8919
+      },
+      {
+        "destination": "skills/contracts/ur-definition.md",
+        "component": "runtime_contract_module",
+        "owner": "plugins/agdf/meta/contracts/ur-definition.md",
+        "rule": "copilot_name_projection",
+        "requirement": "focused runtime contract",
+        "source": "plugins/agdf/meta/contracts/ur-definition.md",
+        "source_digest": "d606e4279b3443ac2bd2d91d4b2c156695acc2348ed8127f5313e37d7cbc1583",
+        "digest": "d606e4279b3443ac2bd2d91d4b2c156695acc2348ed8127f5313e37d7cbc1583",
+        "bytes": 4397
+      }
+    ]
+  }
+}

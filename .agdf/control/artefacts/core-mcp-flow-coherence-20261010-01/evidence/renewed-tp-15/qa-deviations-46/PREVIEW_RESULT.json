@@ -1,0 +1,53 @@
+{
+  "schema_version": "1",
+  "outcome": "rejected",
+  "reason": "revision_history_invalid",
+  "operation_id": "9861fd1a-3c66-4acb-9b5f-e91fa7c9a546",
+  "request_digest": "sha256:45606c8421df8f0997fcd5d3ee3c18a12244381bced50b39e84de297e9f560a1",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "88288e47-c9bc-4867-a950-99bfed4396b8",
+    "kind": "source_revision.preview"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 87,
+    "revision_id": "88288e47-c9bc-4867-a950-99bfed4396b8",
+    "lifecycle": "active",
+    "gate": "QA",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "qa_revise_required",
+    "next_operation": {
+      "type": "remediate_quality_findings",
+      "operation_key": "quality.remediate",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "QA",
+      "routing": "evidence"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "reason": "revision_history_invalid",
+    "authorizes": false
+  }
+}

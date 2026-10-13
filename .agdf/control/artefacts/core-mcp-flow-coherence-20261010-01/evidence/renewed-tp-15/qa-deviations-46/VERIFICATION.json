@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "scope": "TP46-REVISION-ARCHIVE-SIZE only; no new QA acceptance implementation or approval",
+  "passed": {
+    "large_run_revision": true,
+    "read_bounds": true,
+    "expanded_18_cells": true,
+    "legacy_command_recovery": true,
+    "v2_command_recovery": true,
+    "early_ur_revision_recovery_concurrency": true,
+    "package_prepare": true,
+    "main_run_read_only_preview": true
+  },
+  "source_hashes": {
+    "packages/core/lib/control-state/run-revision-history.js": "sha256:af7983777e31706d584d376c285ff7d5199343d1033a403356bf53fd1a4ed24f",
+    "packages/core/test/large-run-revision-test.js": "sha256:e056a740f099965d199e94de4b29f176180b4366d364d8616313162ffda03aeb",
+    "packages/core/test/history-read-bounds-test.js": "sha256:edc4448d5d248b499719156586aeb6fd3382a4e05f8cd269244cc1104c1e980b",
+    "plugins/agdf/meta/copilot-payload-baseline.json": "sha256:73c2963cee49189837c1db7fa8dc43f4b802f3781025ba51f04df6a7e58c6701"
+  },
+  "bounds": {
+    "ordinary_document_and_manifest_bytes": 131072,
+    "exact_canonical_run_and_same_run_archive_bytes": 1048576,
+    "copilot_files": 232,
+    "copilot_bytes": 2094565,
+    "payload_growth": 974,
+    "headroom": 0
+  },
+  "limits": "Source/package/disposable process evidence; no native or productive loaded qualification; actual source revision not applied; original main approvals retained."
+}

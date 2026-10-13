@@ -12,6 +12,7 @@ import {
   validateCommandOptions,
 } from "../lib/cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
+import { createValidationHandlers } from "../lib/cli/validation-handlers.js";
 import { askRuntimeCheckDecisionByKey, failureEvidenceEntries, runCli as runApplicationCli } from "../lib/cli/application.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
 import { readRuntimeContract, runtimeContractModules } from "../lib/cli/contract-command.js";
@@ -40,6 +41,7 @@ const expectedCommands = [
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
   "run-migrate", "run-recovery", "run-render-legacy",
+  "agdf-prepare", "agdf-record", "agdf-approve", "agdf-revise", "agdf-closeout",
 ];
 
 assert.deepEqual(supportedCommandNames(), expectedCommands);
@@ -97,6 +99,7 @@ assert.deepEqual(parsed.options, {
   revisionId: undefined,
   response: undefined,
   contractModule: undefined,
+  commandFile: undefined,
   runStep: undefined,
   recoveryAction: undefined,
   recoveryPreviewId: undefined,
@@ -318,8 +321,10 @@ for (const [label, content] of [
   ["package README", packageReadme],
   ["MCP README", mcpReadme],
 ]) {
-  assert.match(content, /AGDF 0\.14\.5 (?:package\s+)?does\s+not include MCP support/, `${label} must keep the 0.14.5 MCP non-support boundary visible`);
-  assert.match(content, /unreleased development|development preview/, `${label} must identify MCP commands as unreleased development behavior`);
+  const prose = content.replace(/^>\s*/gm, '').replace(/\s+/g, ' ');
+  assert.match(prose, /(?:published AGDF 0\.14\.5 package does not include MCP support|previously published AGDF 0\.14\.5 release did not include the MCP support)/, `${label} must distinguish the published 0.14.5 release from newer repository MCP builds`);
+  assert.match(prose, /unreleased development|development preview|repository development build/, `${label} must identify MCP commands as development behavior`);
+  assert.match(prose, /(?:version equality does not establish payload or loaded-session equality|version alone does not identify the payload|compare payload digests and the loaded session rather than the version alone)/, `${label} must not infer the loaded MCP payload from version equality`);
 }
 assert.match(architectureReadme, /Repository-Quelle/, "architecture must identify its source-level scope");
 assert.match(architectureReadme, /Quellcode, installiertes Paket und live beobachtetes Host-Verhalten bleiben getrennte Nachweise/, "the architecture overview must distinguish source, distribution and host evidence");
@@ -335,9 +340,11 @@ assert.doesNotMatch(backlogTemplate, /create-agdf\/bin\/create-agdf\.js/);
 
 const application = readFileSync(join(packageRoot, "lib", "cli", "application.js"), "utf8");
 const validationHandlers = readFileSync(join(packageRoot, "lib", "cli", "validation-handlers.js"), "utf8");
+const validationHandlerNames = new Set(createValidationHandlers().keys());
 assert.doesNotMatch(application, /process\.(?:exit|exitCode)/);
 assert.doesNotMatch(application, /function (evaluateDoctor|evaluateGateCheck|evaluateDeliveryMap|executeDeliveryPathSearch)/);
 for (const { handler } of commandRegistry) {
+  if (validationHandlerNames.has(handler)) continue;
   assert.match(`${application}\n${validationHandlers}`, new RegExp(`\\["${handler.replaceAll("-", "\\-")}"`), `missing explicit handler ${handler}`);
 }
 

@@ -63,8 +63,8 @@ Missing/invalid input fails before governance evaluation.
 `target_source`: `explicit_target` for a named `primary_target`; `continued_target` for unambiguous
 confirmed continuation; `current_repository` for this/current repo with one matching active repo.
 Otherwise omit both fields; cwd has no target authority.
-Bind runs only by explicit selection, confirmed continuation or unequivocal UR scope.
-Never construct or repair a runtime.
+Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope
+assignment. Never construct or repair a runtime.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
 `gate-check` has deterministic-control dispatch. A read-only status request returns an artefact

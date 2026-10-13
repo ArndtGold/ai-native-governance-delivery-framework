@@ -1,0 +1,353 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:08:39.351Z",
+  "evidence_class": "actual_user_report_plus_native_codex_app_and_core_receipt",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "run_id": "native-de-approve",
+  "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+  "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+  "human_report_verbatim": "Bedienung/Fokus stabil? Enter ohne Freigabe? Toolabfrage nicht gesehen. Freigabe per Leertaste",
+  "confirmed_human_observations": {
+    "approval_via_space": true,
+    "technical_prompt_observed": false,
+    "focus_and_content_stability": true,
+    "comment_enter_no_approval": true
+  },
+  "not_yet_confirmed": [
+    "both_views_closed"
+  ],
+  "native_dom_observation": {
+    "tab_id": "1",
+    "title": "Agdf Decision Probe MCP Agdf prepare",
+    "selected_run_visible": "native-de-approve",
+    "status_visible": "Entscheidung gespeichert.",
+    "actions": {
+      "Freigeben": "disabled",
+      "Änderung anfordern": "disabled",
+      "Ablehnen": "disabled"
+    },
+    "comment_field": "disabled",
+    "source": "CUA getTab DOM snapshot after user action; read-only observation, no synthetic decision click performed"
+  },
+  "independent_native_inspection": {
+    "schema_version": "1",
+    "run_id": "native-de-approve",
+    "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "approval.record",
+    "request_digest": "sha256:9c2c834e9f35c2899e094a92f2ec276456a90716a74389c37bc1d70ce8677f41",
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+        "gate": "SD",
+        "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+        "run_id": "native-de-approve",
+        "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b"
+      },
+      "command_digest": "sha256:9c2c834e9f35c2899e094a92f2ec276456a90716a74389c37bc1d70ce8677f41",
+      "created_at": "2026-10-11T08:05:56.381Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:a1c6df77b0ecb5fd62dbcd0b5b9cbfb83e322a885f1a02b2546be65354329d8a",
+        "previous_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+        "resulting_revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2",
+        "revision": 8
+      },
+      "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:7f03007966649f4e91494d81a976a9557e5738056564979b048fc448cf739ade",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current_revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2",
+    "pending": null,
+    "expected_revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2"
+  },
+  "scope_limitations": [
+    "German SD approve case only.",
+    "No technical deny/remembered/retry qualification from absence of a prompt.",
+    "The exact loaded package precedes the Inspect diagnostic fix; resource bytes unchanged but no whole candidate transfer inferred.",
+    "Human report and cooperative Core receipt do not establish cryptographic independent gesture identity."
+  ],
+  "native_qualified": false,
+  "authorizes": false,
+  "canonical_verification": {
+    "sd_receipt_count": 1,
+    "approval_receipt_count": 3,
+    "run_seal": "valid",
+    "run_digest": "sha256:d09fc8cb432891cf8a4037cf3db638adfea9c2df5a9f377691253e2df7166f48"
+  },
+  "action_exchange_events": [
+    {
+      "at": "2026-10-11T08:05:55.911Z",
+      "event": "tool_request",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "input": {
+          "session_id": "[private nonce redacted]",
+          "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+          "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+          "expected_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+          "action": "approve",
+          "comment": "\n"
+        },
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-11T08:05:56.860Z",
+      "event": "tool_result",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+          "receipt": {
+            "action": "record_gate_approval",
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "binding": {
+              "expected_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+              "gate": "SD",
+              "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+              "run_id": "native-de-approve",
+              "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b"
+            },
+            "command_digest": "sha256:9c2c834e9f35c2899e094a92f2ec276456a90716a74389c37bc1d70ce8677f41",
+            "created_at": "2026-10-11T08:05:56.381Z",
+            "effect": {
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "gate": "SD",
+              "material_sources": [
+                {
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "type": "UR"
+                },
+                {
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "type": "PRD"
+                },
+                {
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "type": "SD"
+                }
+              ],
+              "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+              "next_gate_after_approval": "TP",
+              "presentation_digest": "sha256:a1c6df77b0ecb5fd62dbcd0b5b9cbfb83e322a885f1a02b2546be65354329d8a",
+              "previous_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+              "resulting_revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2",
+              "revision": 8
+            },
+            "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+            "producer": {
+              "contract": "approval-service/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:7f03007966649f4e91494d81a976a9557e5738056564979b048fc448cf739ade",
+            "schema_version": "2"
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2",
+            "lifecycle": "active",
+            "gate": "TP",
+            "status": "open",
+            "missing_approval": "Approval: TP",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "prepare_gate_artifact",
+              "gate": "TP",
+              "skill_id": "gate-check",
+              "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+              "source_artifacts": [
+                ".agdf/control/artefacts/native-de-approve/PRD.md",
+                ".agdf/control/artefacts/native-de-approve/SD.md"
+              ]
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    },
+    {
+      "at": "2026-10-11T08:05:56.861Z",
+      "event": "view_result",
+      "evidence_class": "native_probe_unclassified",
+      "data": {
+        "name": "agdf_decision_action",
+        "client": {
+          "name": "codex-mcp-client",
+          "title": "Codex",
+          "version": "0.162.0-alpha.17.2"
+        },
+        "result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+          "receipt": {
+            "action": "record_gate_approval",
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "binding": {
+              "expected_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+              "gate": "SD",
+              "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+              "run_id": "native-de-approve",
+              "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b"
+            },
+            "command_digest": "sha256:9c2c834e9f35c2899e094a92f2ec276456a90716a74389c37bc1d70ce8677f41",
+            "created_at": "2026-10-11T08:05:56.381Z",
+            "effect": {
+              "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+              "approval": "Approval: SD",
+              "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "gate": "SD",
+              "material_sources": [
+                {
+                  "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "type": "UR"
+                },
+                {
+                  "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "type": "PRD"
+                },
+                {
+                  "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "type": "SD"
+                }
+              ],
+              "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+              "next_gate_after_approval": "TP",
+              "presentation_digest": "sha256:a1c6df77b0ecb5fd62dbcd0b5b9cbfb83e322a885f1a02b2546be65354329d8a",
+              "previous_revision_id": "238b061a-aa0f-4035-8b80-2caebd26c488",
+              "resulting_revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2",
+              "revision": 8
+            },
+            "operation_id": "4f96a457-c87c-4877-a355-d5220b26cbea",
+            "producer": {
+              "contract": "approval-service/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:7f03007966649f4e91494d81a976a9557e5738056564979b048fc448cf739ade",
+            "schema_version": "2"
+          },
+          "historical_effect": false,
+          "current": {
+            "available": true,
+            "revision": 8,
+            "revision_id": "cfb01c73-53bd-44c9-a788-f7ceaf6a06c2",
+            "lifecycle": "active",
+            "gate": "TP",
+            "status": "open",
+            "missing_approval": "Approval: TP",
+            "blocking_reason": "none",
+            "next_operation": {
+              "type": "prepare_gate_artifact",
+              "gate": "TP",
+              "skill_id": "gate-check",
+              "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+              "source_artifacts": [
+                ".agdf/control/artefacts/native-de-approve/PRD.md",
+                ".agdf/control/artefacts/native-de-approve/SD.md"
+              ]
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            }
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "input_route": "app_only_cooperative",
+          "authorizes": false,
+          "recovery": null,
+          "view_state": "active"
+        }
+      }
+    }
+  ],
+  "human_followup": {
+    "report_verbatim": "Beides bestätigt",
+    "question_scope": [
+      "focus_and_content_stability",
+      "comment_enter_no_approval"
+    ],
+    "interpretation": "Confirms the two requested behavior observations only; no closure confirmation."
+  },
+  "updated_at": "2026-10-11T08:14:18.806398+00:00"
+}

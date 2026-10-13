@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, lstatSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 
 export const INSTALLATION_PROVENANCE_FILE = ".agdf-installation.json";
@@ -8,6 +8,53 @@ export const COPILOT_PAYLOAD_INVENTORY_FILE = ".agdf-payload-inventory.json";
 // Host-owned liveness markers written into the installed plugin root while a session holds it
 // (Claude Code: `.in_use/<pid>`). They are not plugin payload and must not affect provenance.
 export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
+
+// Private, owner-recorded qualification metadata, never a tool argument or a
+// gesture credential. Native observations must precede recording this tuple.
+export const DECISION_APP_OBSERVATIONS = Object.freeze(['initialize', 'app_only_visibility', 'model_call_denied',
+  'deliberate_approve', 'deliberate_change', 'deliberate_reject', 'permission_denial', 'document_return', 'teardown']);
+// The boolean and read-only diagnosis deliberately share one validator. Host/candidate
+// values are owner supplied, never caller credentials or qualification writes.
+export function inspectDecisionAppQualification(root, record, expected = {}) {
+  const fail = (reason, detail = {}) => Object.freeze({ qualified: false, reason, ...detail, authorizes: false });
+  const exact = (value, keys) => value && typeof value === 'object' && !Array.isArray(value)
+    && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
+  const hex = value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value);
+  try {
+    if (record == null) return fail('qualification_record_missing');
+    if (!exact(record, ['schema_version', 'result', 'surface', 'host', 'candidate', 'observations', 'evidence', 'assurance', 'authorizes'])
+      || record.schema_version !== 1 || record.result !== 'qualified' || record.surface !== 'codex'
+      || record.assurance !== 'cooperative_local' || record.authorizes !== false) return fail('qualification_record_invalid');
+    if (!expected.client) return fail('host_context_unavailable');
+    if (!exact(record.host, ['name', 'version', 'os', 'arch'])
+      || typeof record.host.name !== 'string' || !record.host.name || typeof record.host.version !== 'string' || !record.host.version)
+      return fail('qualification_host_invalid');
+    if (record.host.name !== expected.client.name || record.host.version !== expected.client.version
+      || record.host.os !== process.platform || record.host.arch !== process.arch) return fail('qualification_host_mismatch');
+    if (!exact(record.candidate, ['server_digest', 'dispatcher_digest', 'sdk_digest', 'resource_digest'])) return fail('qualification_candidate_invalid');
+    const mismatches = Object.keys(record.candidate).filter(key => !hex(record.candidate[key]) || record.candidate[key] !== expected[key]);
+    if (mismatches.length) return fail('qualification_candidate_mismatch', { fields: mismatches });
+    if (!Array.isArray(record.observations) || record.observations.length !== DECISION_APP_OBSERVATIONS.length
+      || new Set(record.observations).size !== record.observations.length || !DECISION_APP_OBSERVATIONS.every(key => record.observations.includes(key)))
+      return fail('qualification_observations_incomplete', { missing_observations: DECISION_APP_OBSERVATIONS.filter(key => !Array.isArray(record.observations) || !record.observations.includes(key)) });
+    if (!Array.isArray(record.evidence) || !record.evidence.length || record.evidence.length > 16) return fail('qualification_evidence_missing_or_invalid');
+    const paths = new Set();
+    for (const item of record.evidence) {
+      if (!exact(item, ['path', 'digest']) || !hex(item.digest) || typeof item.path !== 'string'
+        || !/^qualification\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:json|log|md)$/u.test(item.path) || paths.has(item.path)) return fail('qualification_evidence_reference_invalid');
+      paths.add(item.path); let path = root;
+      for (const component of item.path.split('/')) { path = join(path, component); if (lstatSync(path).isSymbolicLink()) return fail('qualification_evidence_symlink'); }
+      const stats = lstatSync(path);
+      if (!stats.isFile() || stats.size > 1048576) return fail('qualification_evidence_file_invalid');
+      const bytes = readFileSync(path);
+      if (bytes.length > 1048576 || createHash('sha256').update(bytes).digest('hex') !== item.digest) return fail('qualification_evidence_digest_mismatch');
+    }
+    return Object.freeze({ qualified: true, reason: null, authorizes: false });
+  } catch { return fail('qualification_evidence_unavailable'); }
+}
+export function evaluateDecisionAppQualification(root, record, expected) {
+  return inspectDecisionAppQualification(root, record, expected).qualified;
+}
 
 // Codex starts plugin MCP servers only from absolute paths and passes no plugin root or data directory
 // (native probe, Codex 0.145/0.157). The runtime plugin therefore ships a template that the installer

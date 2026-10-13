@@ -1,0 +1,32 @@
+{
+  "scope": "TP42-CLOSE-QUEUE only; no native Host or model qualification",
+  "red": "read-saturation close busy and duplicate dispatch failures reproduced before fix",
+  "passed": {
+    "ui_components": 230,
+    "sdk_browser_cases": 14,
+    "assembled_core_cases": 2,
+    "typecheck": true,
+    "prepare": true
+  },
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 925301,
+    "digest": "sha256:171a4a6dd777c440cdfc7d3aa9c87fb3c99c004088c1eecc6625aba51816dbf4",
+    "source_digest": "sha256:3197e9b6271d19c3d01057474750947a69179e35a12574850671fe59c4611683"
+  },
+  "source_files": {
+    "packages/control-ui/src/mcp/transport.ts": "sha256:4277a60f0fc6e8c573f3f97ed389a97c1dcf1ad9babb934cee03bde0adf9c778",
+    "packages/control-ui/test/transport-close.test.tsx": "sha256:6ff7c035f95211d7150efc4419dc9b47091848c6eae4e5735aabdf99ecec7861",
+    "plugins/agdf/meta/copilot-payload-baseline.json": "sha256:13bddd5ecfc65999dbaea857b52df155882930bb098d244cdbfb6ab47f4fdf22"
+  },
+  "engineering_diagnostics": [
+    "First browser sandbox denied localhost bind with EPERM; actual browser tests were subsequently run with approved local-server permission.",
+    "Old assembled resource b923 initially mismatched new 171a; full package preparation updated it before both Core tests passed.",
+    "Exact same 232-file Copilot payload grew 1212 bytes for the two rebuilt UI resources; baseline records measured growth with no headroom."
+  ],
+  "production_install_changed": false,
+  "host_binary_changed": false,
+  "business_approval_changed": false
+}

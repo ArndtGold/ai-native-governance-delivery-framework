@@ -31,18 +31,31 @@ export function safePath(root, path) {
   return result;
 }
 
-function localReferences(source, file) {
+function localReferences(source, file, dynamicImports) {
   const ast = parse(source, { ecmaVersion: "latest", sourceType: "module", allowHashBang: true });
   const refs = [];
+  const declared = dynamicImports.filter(item => item.file === file);
+  const used = new Set();
   const walk = node => {
     if (!node || typeof node !== "object") return;
     if (["ImportDeclaration", "ExportNamedDeclaration", "ExportAllDeclaration"].includes(node.type) && node.source) refs.push(node.source.value);
     if (node.type === "ImportExpression") {
-      if (node.source.type !== "Literal" || typeof node.source.value !== "string") throw new Error(`unresolved_dynamic_import:${file}`);
-      refs.push(node.source.value);
+      if (node.source.type === "Literal" && typeof node.source.value === "string") refs.push(node.source.value);
+      else {
+        const expression = source.slice(node.source.start, node.source.end);
+        const binding = declared.find(item => item.expression === expression);
+        if (!binding) throw new Error(`unresolved_dynamic_import:${file}`);
+        used.add(binding);
+        // The reviewed manifest binds runtime-loaded code to canonical source
+        // entrypoints. Never evaluate the expression or inspect live runtimes.
+        refs.push(...binding.entrypoints.map(path => ({ canonical: path })));
+      }
     }
     // File-backed entrypoints spawned by fixtures are dependencies too.
+    // Directory URLs are resource roots, not source files; directories were
+    // already excluded by visit(), including built MCP UI resources.
     if (node.type === "NewExpression" && node.callee?.name === "URL" && node.arguments[0]?.type === "Literal"
+        && typeof node.arguments[0].value === 'string' && !node.arguments[0].value.endsWith('/')
         && node.arguments[1]?.type === "MemberExpression" && node.arguments[1].object?.type === "MetaProperty") refs.push(node.arguments[0].value);
     for (const value of Object.values(node)) {
       if (Array.isArray(value)) value.forEach(walk);
@@ -50,10 +63,22 @@ function localReferences(source, file) {
     }
   };
   walk(ast);
-  return refs.filter(ref => typeof ref === "string" && (ref.startsWith(".") || ref === "#agdf-core" || ref.startsWith("#agdf-core/")));
+  if (declared.some(item => !used.has(item))) throw new Error(`unused_dynamic_import_binding:${file}`);
+  return refs.filter(ref => typeof ref === "object" || typeof ref === "string" && (ref.startsWith(".") || ref === "#agdf-core" || ref.startsWith("#agdf-core/")));
 }
 
-export function sourceClosure(root, entries) {
+export function sourceClosure(root, entries, { dynamicImports = [] } = {}) {
+  if (!Array.isArray(dynamicImports)) throw new Error('invalid_dynamic_import_binding');
+  const bindings = new Set();
+  for (const item of dynamicImports) {
+    if (!item || typeof item.file !== 'string' || typeof item.expression !== 'string' || !item.expression
+      || !Array.isArray(item.entrypoints) || !item.entrypoints.length || item.entrypoints.some(path => typeof path !== 'string')) throw new Error('invalid_dynamic_import_binding');
+    safePath(root, item.file);
+    for (const path of item.entrypoints) safePath(root, path);
+    const key = `${item.file}\0${item.expression}`;
+    if (bindings.has(key)) throw new Error('duplicate_dynamic_import_binding');
+    bindings.add(key);
+  }
   const files = new Set();
   const visit = file => {
     if (files.has(file)) return;
@@ -62,8 +87,9 @@ export function sourceClosure(root, entries) {
     if (lstatSync(path).isDirectory()) return;
     files.add(file);
     if (![".js", ".mjs", ".cjs"].includes(extname(file))) return;
-    for (const ref of localReferences(readFileSync(path, "utf8"), file)) {
-      if (ref === "#agdf-core" || ref.startsWith("#agdf-core/")) {
+    for (const ref of localReferences(readFileSync(path, "utf8"), file, dynamicImports)) {
+      if (typeof ref === 'object') visit(ref.canonical);
+      else if (ref === "#agdf-core" || ref.startsWith("#agdf-core/")) {
         const core = "packages/core";
         const manifest = readJson(safePath(root, `${core}/package.json`));
         const target = ref === "#agdf-core" ? manifest.exports["."] : manifest.exports["./*"].replace("*", ref.slice("#agdf-core/".length));
@@ -76,15 +102,16 @@ export function sourceClosure(root, entries) {
 }
 
 export function sourceSnapshot(root, manifest) {
+  const closureOptions = { dynamicImports: manifest.dynamic_imports ?? [] };
   const problems = validateInventory(manifest);
   if (canonical(manifest.scenarios) !== canonical(SCENARIOS)) problems.push("scenario_inventory_mismatch");
   if (problems.length) throw new Error(problems.join(","));
   // Explicit file inputs are copied/inspected by fixtures, not executed as repository modules.
   const hostFiles = Object.fromEntries(HOSTS.map(host => [host, [...new Set([
-    ...sourceClosure(root, manifest.source_entrypoints[host]), ...(manifest.source_files?.[host] ?? []),
+    ...sourceClosure(root, manifest.source_entrypoints[host], closureOptions), ...(manifest.source_files?.[host] ?? []),
   ])].sort()]));
   const owned = new Set(Object.values(hostFiles).flat());
-  const support = sourceClosure(root, manifest.common_entrypoints);
+  const support = sourceClosure(root, manifest.common_entrypoints, closureOptions);
   const common = [...new Set([...support.filter(file => !owned.has(file)), ...manifest.extra_sources, MANIFEST_PATH])].sort();
   const files = [...new Set([...common, ...Object.values(hostFiles).flat()])].sort();
   if (files.some(file => file.startsWith(`${OUTPUT}/`) || file.startsWith(`${OBSERVATIONS}/`) || file.startsWith(".agdf/control/"))) throw new Error("self_invalidating_source_set");

@@ -1,0 +1,147 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "10d50a97-8a43-4695-8ced-3be9e1ccc132",
+  "request_digest": "sha256:f47d64a08f5005c4b4b805f6bacb37a709de1d8a6ff05b4078edd43452912110",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "9063bc02-1fa7-4d00-95e2-b3dc05e0d44f",
+    "kind": "source_revision.apply"
+  },
+  "effect": null,
+  "receipt": {
+    "analyses": [
+      {
+        "digest": "sha256:21441a87a9a5c76f1d0ec5e8d0e0a380dcea453d137a60404c3c3794a8d3fb37",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+        "reason": "The primary user decision model changes from three actions to approval only, with discussion and requested changes handled in Chat; reassess routing, native/Chat consistency and source applicability.",
+        "type": "Brownfield Review"
+      },
+      {
+        "digest": "sha256:dbff510ee4f4dc78b9ff5c0cf78cac0b0b1a75242fce82b7182c923702f90ca2",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+        "reason": "The primary user decision model changes from three actions to approval only, with discussion and requested changes handled in Chat; reassess routing, native/Chat consistency and source applicability.",
+        "type": "UX Intent Definition"
+      }
+    ],
+    "archive": {
+      "digest": "sha256:dfc3fef05b22d50cb7ce9adca4c4943b26ead383202657d77c2d9857638e4aa3",
+      "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/10d50a97-8a43-4695-8ced-3be9e1ccc132/manifest.json"
+    },
+    "assurance": {
+      "independent_human_proof": "unavailable",
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply"
+    },
+    "command_digest": "sha256:f47d64a08f5005c4b4b805f6bacb37a709de1d8a6ff05b4078edd43452912110",
+    "confirmation_digest": "sha256:77e47dbda0989da3c0f8e176251e1a3f7f0aec85493f81e773918efbfd851d93",
+    "invalidated_bindings": [
+      "8fbf8211-b0e6-4279-a93e-20fa80fbb264",
+      "facc81e1-6bf0-449f-897d-6956f4949e56",
+      "8a2bd58c-dbfc-48f7-a57c-277c8c3a9a74"
+    ],
+    "operation_id": "10d50a97-8a43-4695-8ced-3be9e1ccc132",
+    "preview_digest": "sha256:cee69228dd28970f5a847ce73b9e9114c291b4865720caca0ac137a82e4e6f9e",
+    "previous_revision_id": "9063bc02-1fa7-4d00-95e2-b3dc05e0d44f",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "proposal_reference": {
+      "digest": "sha256:478eeada71a5df161f639b8819b98e1410d2a9a99240f2fc2f7af178b366cd72",
+      "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/APPROVAL_ONLY_REVISION_PROPOSAL_10.json"
+    },
+    "reason": "User explicitly accepted one approval action across native and Chat and requested the misleading revision flow be fixed in the existing Run.",
+    "request_digest": "sha256:63f055842fcf8839487b3f3e73f9c856a8576a6bf684644107b55d167bf1b7f5",
+    "resulting_revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "retained_sources": [],
+    "revision": 43,
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "schema_version": "2",
+    "source_gate": "UR",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 43,
+    "revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "lifecycle": "active",
+    "gate": "UR",
+    "status": "open",
+    "missing_approval": "Approval: UR",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "author_gate_artifact",
+      "operation_key": "artefact.author",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "UR"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "outcome": "reopened",
+    "authorizes": false,
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "operation_id": "10d50a97-8a43-4695-8ced-3be9e1ccc132",
+    "gate": "UR",
+    "revision_id": "b3e05cba-5328-47ad-a057-bae5af7123fc",
+    "revision": "43",
+    "impact": {
+      "source_gate": "UR",
+      "retained": [],
+      "superseded": [
+        "UR",
+        "PRD",
+        "SD",
+        "TP"
+      ],
+      "invalidated_bindings": [
+        "8fbf8211-b0e6-4279-a93e-20fa80fbb264",
+        "facc81e1-6bf0-449f-897d-6956f4949e56",
+        "8a2bd58c-dbfc-48f7-a57c-277c8c3a9a74"
+      ],
+      "analyses": [
+        {
+          "type": "Brownfield Review",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:21441a87a9a5c76f1d0ec5e8d0e0a380dcea453d137a60404c3c3794a8d3fb37",
+          "disposition": "reassess",
+          "reason": "The primary user decision model changes from three actions to approval only, with discussion and requested changes handled in Chat; reassess routing, native/Chat consistency and source applicability."
+        },
+        {
+          "type": "UX Intent Definition",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UX_INTENT_DEFINITION.md",
+          "digest": "sha256:dbff510ee4f4dc78b9ff5c0cf78cac0b0b1a75242fce82b7182c923702f90ca2",
+          "disposition": "reassess",
+          "reason": "The primary user decision model changes from three actions to approval only, with discussion and requested changes handled in Chat; reassess routing, native/Chat consistency and source applicability."
+        }
+      ],
+      "invalidated_steps": [
+        "Brownfield Analysis",
+        "CD+Tests",
+        "CR"
+      ],
+      "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+      "next_gate": "UR",
+      "implementation_authority": false
+    },
+    "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
+  }
+}

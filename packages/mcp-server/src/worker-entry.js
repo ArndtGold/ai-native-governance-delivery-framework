@@ -6,7 +6,7 @@ function send(message) {
 }
 
 try {
-  const runtime = createMcpDispatchRuntime({ surface: workerData.surface });
+  const runtime = createMcpDispatchRuntime({ surface: workerData.surface, ...(workerData.commandGroups !== undefined ? { commandGroups: workerData.commandGroups } : {}) });
   if (runtime.trustedContext.provenanceStatus !== "matched") {
     send({ type: "failure", code: "runtime_provenance_invalid" });
   } else if (runtime.trustedContext.expectedVersion !== workerData.expectedVersion) {

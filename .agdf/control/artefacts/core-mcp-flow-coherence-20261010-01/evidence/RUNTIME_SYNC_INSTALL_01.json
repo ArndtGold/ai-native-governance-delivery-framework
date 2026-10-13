@@ -1,0 +1,177 @@
+{
+  "schema_version": "1",
+  "recorded_at": "2026-10-11T12:36:31.115522Z",
+  "authorization": "Human explicitly authorized productive AGDF plugin/MCP synchronization; no gate approval inferred.",
+  "operation": "official local Codex plugin update",
+  "installation": {
+    "result": "success",
+    "version": {
+      "expected": "0.14.5+codex.local-5a8cdaa8bb4c",
+      "installed": "0.14.5+codex.local-5a8cdaa8bb4c",
+      "previous": null,
+      "status": "verified",
+      "transition": null
+    },
+    "verification": {
+      "status": "healthy",
+      "evidence": [
+        "durable_local_marketplace",
+        "marketplace:owned_local_current",
+        "codex plugin list",
+        "staged_plugin_root:/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+        "staged_installation_provenance:matched",
+        "source_digest:5a8cdaa8bb4cb23c2477a54a4dec0ccc5a124676be102f87c593c4a82b054109",
+        "plugin_digest:3928be2e22c84186dcf13ad82239692b28e92340732d372f289bdc6aac6df728",
+        "canonical_version:0.14.5",
+        "local_install_version:0.14.5+codex.local-5a8cdaa8bb4c",
+        "codex_plugin_mcp:prepared"
+      ]
+    },
+    "restart": {
+      "required": true,
+      "reasons": [
+        "plugin_reload"
+      ]
+    },
+    "runtime_checks": {
+      "requested": "manual",
+      "effective": "manual",
+      "reason": "consent_not_provided",
+      "capability_identity": "5f37ff7036bea7680ce79fdc91ad6b0672ec41d6488c71525097b60cbf5dbb0c",
+      "verification": "not_required",
+      "mutation": "receipt_written",
+      "rollback": "none"
+    }
+  },
+  "verification_query": {
+    "requested": [
+      "plugin",
+      "list"
+    ],
+    "actual": [
+      "plugin",
+      "list",
+      "--marketplace",
+      "agdf"
+    ],
+    "native_output": true,
+    "version_integrity_and_rollback_checks_unchanged": true,
+    "repository_source_changed": false
+  },
+  "earlier_attempts": {
+    "count": 2,
+    "result": "failed verification; marketplace filesystem/registration rollback reported",
+    "general_plugin_list_failure_cause": "not established; focused native inventory succeeded",
+    "durable_installer_fix_implemented": false
+  },
+  "protected_state": {
+    "config_unchanged": true,
+    "probe_and_foreign_mcp_entries_unchanged": true,
+    "run_unchanged": true,
+    "checkpoint": {
+      "config_digest": "sha256:c4d386cbe717d46596a0b6f0b66e9999ba598d9e1530db4f614b39cd671945c5",
+      "mcp_sections": {
+        "mcp_servers.playwright": "sha256:609adba936ff65aab8255ae860e7feb00c9c80cd3fbff744f6fcb0706bea8f9b",
+        "mcp_servers.playwright.tools.browser_click": "sha256:5836733fc5bd1fe5be62da0f145a916f918d7e3049dac9267ba2b004b2448688",
+        "mcp_servers.playwright.tools.browser_run_code_unsafe": "sha256:53811573fb099f1eb4ff017484f7767c9a1c8028ffc282fbcd20359430999f54",
+        "mcp_servers.playwright.tools.browser_tabs": "sha256:7417de3ecabc695afed1fa0d6e573d267015be999a07530159bbc0f439e35d08",
+        "mcp_servers.node_repl": "sha256:6b64b75c31c9d90594e629e3256328038e9eafbc01960f9024d3b4942a138a03",
+        "mcp_servers.node_repl.env": "sha256:a963d708b1cd71aa19a065da5099af2511cc285ef5d331ab99a0d767c4a1f058",
+        "mcp_servers.openaiDeveloperDocs": "sha256:bc81acd5a9704e125af3d9a97cd1c68ba2b67aa2ae42ef21e4ba2ec7afaae0e5",
+        "mcp_servers.agdf-decision-probe": "sha256:6c4b8f8d36b0d612dd847035f110a2a3b1b9a9aa5dcd33fbdc55b3b92cea8d30"
+      },
+      "run_digest": "sha256:26bd89cf6b0d896c4313cef5e4f054d6b44ede26d6e8cd385f1b8986a0409959"
+    }
+  },
+  "mcp_stdio_verification": {
+    "outcome": "skill_continuation",
+    "terminal": false,
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+      "provenance_status": "matched"
+    },
+    "control": {
+      "status": "open",
+      "current_gate": "Brownfield Review",
+      "gate_route": {
+        "gate": "Brownfield Review",
+        "skills": [
+          "brownfield-analysis"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "none",
+      "next_operation": {
+        "type": "analyse_existing_system",
+        "skill_id": "brownfield-analysis",
+        "operation_key": "analysis.brownfield_review",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "Brownfield Review"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      },
+      "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+      "doctor_status": "pass",
+      "source_revisions": {
+        "status": "verified",
+        "archive_authority": "historical_evidence_only",
+        "entries": [
+          {
+            "operation_id": "cbc55917-ee06-4fc3-b46f-ff8dcca3c30a",
+            "source_gate": "UR",
+            "previous_revision_id": "eeda271d-cf03-4430-9701-5ec61410062d",
+            "resulting_revision_id": "aed55a47-8153-45e2-b251-842c6d6c5811",
+            "archive": {
+              "digest": "sha256:3c167f288f52bb5fef799f360c17b1327e774a328973010cd23be76c1eec0dc0",
+              "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/cbc55917-ee06-4fc3-b46f-ff8dcca3c30a/manifest.json"
+            },
+            "superseded_sources": [
+              "UR",
+              "PRD",
+              "SD",
+              "TP"
+            ]
+          },
+          {
+            "operation_id": "fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d",
+            "source_gate": "UR",
+            "previous_revision_id": "089a504e-29b4-42a9-8b1c-3558cfa34996",
+            "resulting_revision_id": "9ae77b28-b071-417a-8d94-d130ddfd0c33",
+            "archive": {
+              "digest": "sha256:0cfd23b46b5068eb0516dbedf87d6ea42c4b0fc085ebbaa5e5db7555de7c2187",
+              "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d/manifest.json"
+            },
+            "superseded_sources": [
+              "UR",
+              "PRD",
+              "SD",
+              "TP"
+            ]
+          }
+        ]
+      }
+    },
+    "continuation_binding": {
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+      "skill_id": "brownfield-analysis"
+    },
+    "native_host_rendering_tested": false,
+    "write_requested": false,
+    "isolated_server_exit_code": 0,
+    "run_unchanged": true
+  },
+  "loaded_chat_connection_verified_after_update": false,
+  "native_ui_qualified": false,
+  "qa_closed": false,
+  "next_step": "Restart Codex on Mac, then verify actual reconnected MCP binding before Brownfield continuation; do not repeat UR approval."
+}

@@ -1,0 +1,45 @@
+digraph freigabe_ki_fortsetzung {
+  graph [rankdir=TB, bgcolor="#fcfcfc", pad=0.32, nodesep=0.38, ranksep=0.40,
+    fontname="Helvetica", fontsize=22, fontcolor="#3c3e40", labelloc=t,
+    label="10  /  VON DER FREIGABE ZUR WEITERARBEIT DER KI\nGespeichert, angefordert und tatsächlich begonnen sind getrennte Zustände"];
+  node [shape=box, style="rounded,filled", fillcolor="#f6f6f6", color="#b8c1c0",
+    fontname="Helvetica", fontsize=14, fontcolor="#3c3e40", margin="0.18,0.13", penwidth=1.2];
+  edge [color="#66686a", fontname="Helvetica", fontsize=11, fontcolor="#55585a", arrowsize=0.72];
+
+  click [label="1 · Mensch bestätigt die konkrete Fassung\nKlick auf „So stimmt es“\nNur bei qualifiziertem und verfügbarem Klickweg", color="#0f766e"];
+  record [label="2 · App → Core und zuständiger Writer\nZiel, Run, Fassung und Voraussetzungen prüfen\nEntscheidung mit ursprünglicher Operations-ID speichern\nUI: „Entscheidung wird gespeichert“"];
+  saved [label="3 · App prüft den passenden Speicherbeleg\nErst dann gilt die Speicherung als bestätigt\nUI: „Anforderung bestätigt · Fassung 2“", fillcolor="#e5f3ef", color="#0f766e"];
+  next [label="4 · Nächsten zulässigen Schritt frisch bestimmen\nBestehender Auftrag und erlaubter Umfang bleiben maßgeblich\nBeispiel: System untersuchen; Umsetzung noch nicht erlaubt"];
+  handoff [label="5 · App vermittelt Fortsetzung an denselben Chat\nHost-Fähigkeiten und aktuelle Bindung prüfen\nGebundenen Kontext übergeben, dann Fortsetzungsnachricht senden\nUI: „Fortsetzung wird angefordert / wartet“"];
+  host [label="6 · Host nimmt die Fortsetzung an und startet sie\nEine laufende KI-Antwort kann den Start verzögern\nBei bestätigter Übergabe ist kein zweiter Freigabeklick nötig"];
+  agent [label="7 · KI übernimmt im bestehenden Chat\nSpeicherbeleg und aktuellen Run erneut prüfen\nNächsten erlaubten Schritt über den Dispatcher bestimmen\nNur bereits beauftragte, zulässige Arbeit ausführen", fillcolor="#e5f3ef", color="#0f766e"];
+  human [label="8 · Nächste menschliche Entscheidung oder Blocker\nCockpit zeigt die konkrete Frage oder nötige Klärung\nDie KI entscheidet das nächste menschliche Gate nicht selbst", color="#0f766e"];
+
+  chat_only [label="Klickweg nicht verfügbar\nButton bleibt deaktiviert\nGebundene Entscheidung im bestehenden Chat\nExakte Antwortregel in Details", fillcolor="#fff4e5", color="#b38b48"];
+  rejected [label="Prüfung lehnt die Entscheidung ab\nKeine neue Freigabe erfasst\nAktuelle Fassung oder Voraussetzungen klären", fillcolor="#fff4e5", color="#b38b48"];
+  uncertain [label="Speicherantwort fehlt oder passt nicht\nErgebnis ist unklar\nUrsprünglichen Vorgang prüfen\nKeine neue Entscheidungs-ID erzeugen", fillcolor="#fff4e5", color="#b38b48"];
+  hold [label="Weiterarbeit braucht Klärung oder neuen Auftrag\nGespeicherte Entscheidung bleibt bestehen\nCockpit nennt die erforderliche Handlung", fillcolor="#fff4e5", color="#b38b48"];
+  unavailable [label="Host-Übergabe fehlt oder ist unbestätigt\nGespeicherte Entscheidung bleibt bestehen\nAktuellen Stand im Chat prüfen\nKeine automatische Nachrichtenwiederholung", fillcolor="#fff4e5", color="#b38b48"];
+  activity [shape=plaintext, style="", label="„KI arbeitet“ erscheint erst bei beobachtetem Arbeitsbeginn.\nEine gespeicherte Freigabe oder zugestellte Nachricht allein belegt ihn nicht.\nDas Diagramm beschreibt den vorgesehenen Ablauf, keine native Host-Qualifizierung.", fontsize=12, fontcolor="#66686a"];
+
+  click -> record [label="bewusster Klick"];
+  record -> saved [label="passender Beleg bestätigt"];
+  saved -> next;
+  next -> handoff [label="zulässige Fortsetzung im Auftrag"];
+  handoff -> host [label="Kontext bestätigt; Nachricht vermittelt"];
+  host -> agent [label="Host startet Fortsetzung"];
+  agent -> human [label="bis zur nächsten erforderlichen Entscheidung oder Klärung"];
+  human -> activity [style=invis];
+
+  click -> chat_only [label="nicht qualifiziert", style=dashed];
+  record -> rejected [label="abgelehnt", style=dashed];
+  record -> uncertain [label="Ergebnis unklar", style=dashed];
+  next -> hold [label="Voraussetzung fehlt", style=dashed];
+  handoff -> unavailable [label="Übergabe nicht bestätigt", style=dashed];
+  uncertain -> saved [label="ursprünglichen Beleg nachträglich bestätigt", style=dashed, constraint=false];
+
+  { rank=same; click; chat_only; }
+  { rank=same; record; rejected; uncertain; }
+  { rank=same; next; hold; }
+  { rank=same; handoff; unavailable; }
+}

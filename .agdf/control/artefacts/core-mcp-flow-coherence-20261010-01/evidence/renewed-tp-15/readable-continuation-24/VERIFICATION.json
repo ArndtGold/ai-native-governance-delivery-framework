@@ -1,0 +1,75 @@
+{
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "revision_id": "9ba84a5f-35c0-46f7-be2b-9f17b190f55e",
+  "commands": [
+    {
+      "command": "npm --prefix packages/control-ui run typecheck",
+      "exit_code": 0,
+      "log": "agdf-readable-types-24.log",
+      "sha256": "c00dbcc3f47bf332450b1ed6d7a70be30ba769903f01daa91b2b0d78174a871b",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui test",
+      "exit_code": 0,
+      "log": "agdf-readable-ui-24.log",
+      "sha256": "499d2770e9b57d3c39ba9ad80cef452ff73034183d653518f671f8db9ac39f6f",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run test:browser -- test/browser/decision-card.spec.mjs",
+      "exit_code": 0,
+      "log": "agdf-readable-browser-24.log",
+      "sha256": "63f9760fcdaad54ee8528a95a7283e6751010e1e27cec28924307a3579d93d6f",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run build:mcp",
+      "exit_code": 0,
+      "log": "agdf-readable-build-24.log",
+      "sha256": "21e5c553da1dde236c04547330a9121315e04cf11cd910de478e8f3d3aa70680",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm run build:prepare",
+      "exit_code": 0,
+      "log": "agdf-readable-prepare-24.log",
+      "sha256": "16ec8bdba62fbabf8c934242206293f721e388793375665f31b922ef606b1fbc",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/cli/scripts/interaction-catalog-test.js",
+      "exit_code": 0,
+      "log": "agdf-readable-contract-24.log",
+      "sha256": "4b91f0c62c31ddfd221341ca3d20c3bba75a099594d9bd6317e977dead694080",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/core/test/run-command-contract-test.js",
+      "exit_code": 0,
+      "log": "agdf-readable-core-contract-24.log",
+      "sha256": "4422c2d4da9f626fa43f257d36b64186b5b366aab5c95939169d78b2a02bf986",
+      "native_host_proof": false
+    },
+    {
+      "command": "node scripts/native-probes/core-mcp-decision.mjs --evidence-dir <this namespace>",
+      "exit_code": 0,
+      "log": "agdf-readable-native-24.log",
+      "sha256": "0c88819f65b571b09019abd13d033e1bf0a2dd6701183865297cc0b16acd2698",
+      "native_host_proof": false
+    }
+  ],
+  "tests": {
+    "components": 218,
+    "service": 8,
+    "browser_sdk": 14
+  },
+  "source_scope": "UI context/follow-up and same-owner forwarding; business approval/revision writers unchanged from final19 suites",
+  "qa_decision": null,
+  "candidate_native_qualified": false,
+  "package_budget": {
+    "files": 232,
+    "bytes": 2091755,
+    "headroom": 0
+  }
+}

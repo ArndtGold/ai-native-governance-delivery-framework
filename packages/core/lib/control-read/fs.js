@@ -16,6 +16,9 @@ export function memoizeControlRead(key, work) {
   }
   return cache.get(key);
 }
+// A mutation owner must not inherit a pre-write captured observation.
+export function withLiveControlReads(work) { return context.run(undefined, work); }
+
 export function withControlReadView(view, work) {
   const scope = { view, denied: false };
   const check = value => {
@@ -38,4 +41,15 @@ export const readFileSync = read('readFileSync');
 export const readdirSync = read('readdirSync');
 export const statSync = read('statSync');
 export const lstatSync = read('lstatSync');
+// Containment/type checks do not consume directory size or timestamps. Keep
+// their identity dependency separate from callers that actually inspect stats.
+export const lstatKindSync = path => {
+  const scope = context.getStore();
+  if (scope) {
+    try { return scope.view.lstatKindSync(path); }
+    catch (error) { if (error.code === 'resource_denied') scope.denied = true; throw error; }
+  }
+  const stat = native.lstatSync(path);
+  return stat.isSymbolicLink() ? 'symlink' : stat.isDirectory() ? 'directory' : stat.isFile() ? 'file' : 'other';
+};
 export const realpathSync = read('realpathSync');

@@ -1,0 +1,56 @@
+
+Running 5 tests using 1 worker
+
+(node:43870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/decision-card.spec.mjs:25:56 › SDK close: browser iframe removal fallback (synthetic host) (0ms)
+  -  2 test/browser/decision-card.spec.mjs:25:56 › SDK close: host teardown before navigation (synthetic host)
+  -  3 test/browser/decision-card.spec.mjs:33:53 › Actual built resource + SDK bridge: en rendering/keyboard/read/recovery/teardown (synthetic host)
+  -  4 test/browser/decision-card.spec.mjs:33:53 › Actual built resource + SDK bridge: de rendering/keyboard/read/recovery/teardown (synthetic host)
+(node:43877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) (3ms)
+
+
+  1) test/browser/decision-card.spec.mjs:25:56 › SDK close: browser iframe removal fallback (synthetic host) 
+
+    Error: listen EPERM: operation not permitted 127.0.0.1
+
+    Error Context: test-results/decision-card-SDK-close-br-3fb02-al-fallback-synthetic-host-/error-context.md
+
+    Error Context: test-results/decision-card-SDK-close-br-3fb02-al-fallback-synthetic-host-/error-context.md
+
+  2) test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) 
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    <launching> /Users/arndtgold/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-x64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/playwright_chromiumdev_profile-kJpjeZ --remote-debugging-pipe --no-startup-window
+    <launched> pid=43883
+    [pid=43883][err] [1011/183154.928528:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9
+    [pid=43883][err] [1011/183154.957933:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.
+    [pid=43883][err] [1011/183154.962702:WARNING:net/dns/dns_config_service_posix.cc:197] Failed to read DnsConfig.
+    [pid=43883][err] [1011/183154.973815:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.43883: Permission denied (1100)
+    Call log:
+      - <launching> /Users/arndtgold/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-x64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/playwright_chromiumdev_profile-kJpjeZ --remote-debugging-pipe --no-startup-window
+      - <launched> pid=43883
+      - [pid=43883][err] [1011/183154.928528:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9
+      - [pid=43883][err] [1011/183154.957933:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.
+      - [pid=43883][err] [1011/183154.962702:WARNING:net/dns/dns_config_service_posix.cc:197] Failed to read DnsConfig.
+      - [pid=43883][err] [1011/183154.973815:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.43883: Permission denied (1100)
+      - [pid=43883] <gracefully close start>
+      - [pid=43883] <kill>
+      - [pid=43883] <will force kill>
+      - [pid=43883] exception while trying to kill process: Error: kill EPERM
+      - [pid=43883] <process did exit: exitCode=null, signal=SIGTRAP>
+      - [pid=43883] starting temporary directories cleanup
+      - [pid=43883] finished temporary directories cleanup
+      - [pid=43883] <gracefully close end>
+
+
+    Error Context: test-results/decision-close-integration-d201e-ts-own-view-synthetic-host-/error-context.md
+
+  2 failed
+    test/browser/decision-card.spec.mjs:25:56 › SDK close: browser iframe removal fallback (synthetic host) 
+    test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) 
+  3 did not run

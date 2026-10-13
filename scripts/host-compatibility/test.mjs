@@ -123,6 +123,27 @@ try {
     writeFileSync(join(temp, "a.mjs"), 'import "./b.mjs";'); writeFileSync(join(temp, "b.mjs"), 'export * from "./a.mjs";');
     assert.deepEqual(sourceClosure(temp, ["a.mjs"]), ["a.mjs", "b.mjs"]);
     writeFileSync(join(temp, "b.mjs"), 'import(variable);'); assert.throws(() => sourceClosure(temp, ["a.mjs"]), /unresolved_dynamic_import/);
+    writeFileSync(join(temp, "b.mjs"), 'new URL("./built-resources/", import.meta.url);');
+    assert.deepEqual(sourceClosure(temp, ["a.mjs"]), ["a.mjs", "b.mjs"]);
+    writeFileSync(join(temp, "b.mjs"), 'new URL("./missing-worker.mjs", import.meta.url);');
+    assert.throws(() => sourceClosure(temp, ["a.mjs"]), /source_missing/);
+  });
+  check("runtime imports require exact reviewed source bindings and retain transitive inputs", () => {
+    const expression = 'pathToFileURL(join(runtime.packageRoot, "src/main.js"))';
+    const binding = { file: 'dynamic.mjs', expression, entrypoints: ['entry.mjs'] };
+    writeFileSync(join(temp, 'dynamic.mjs'), `await import(${expression});`);
+    writeFileSync(join(temp, 'entry.mjs'), 'import "./dependency.mjs";');
+    writeFileSync(join(temp, 'dependency.mjs'), 'export const value = 1;');
+    assert.throws(() => sourceClosure(temp, ['dynamic.mjs']), /unresolved_dynamic_import/);
+    assert.deepEqual(sourceClosure(temp, ['dynamic.mjs'], { dynamicImports: [binding] }), ['dependency.mjs', 'dynamic.mjs', 'entry.mjs']);
+    for (const entry of ['../outside.mjs', '/absolute.mjs', 'absent.mjs']) {
+      assert.throws(() => sourceClosure(temp, ['dynamic.mjs'], { dynamicImports: [{ ...binding, entrypoints: [entry] }] }));
+    }
+    assert.throws(() => sourceClosure(temp, ['dynamic.mjs'], { dynamicImports: [binding, binding] }), /duplicate_dynamic_import_binding/);
+    writeFileSync(join(temp, 'dynamic.mjs'), 'await import(otherRuntime);');
+    assert.throws(() => sourceClosure(temp, ['dynamic.mjs'], { dynamicImports: [binding] }), /unresolved_dynamic_import/);
+    writeFileSync(join(temp, 'dynamic.mjs'), 'export const noImport = true;');
+    assert.throws(() => sourceClosure(temp, ['dynamic.mjs'], { dynamicImports: [binding] }), /unused_dynamic_import_binding/);
   });
   const changed = "packages/cli/lib/host-adapters/codex/plugin.js"; const original = readFileSync(join(temp, changed), "utf8");
   const baseline = sourceSnapshot(temp, manifest);

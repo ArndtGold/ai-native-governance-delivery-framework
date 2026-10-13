@@ -1,0 +1,107 @@
+TAP version 13
+# [cli-gates] START new-ur
+# [cli-gates] PASS new-ur (6.8s)
+# [cli-gates] START duplicate-prd
+# [cli-gates] PASS duplicate-prd (7.1s)
+# [cli-gates] START bound-ur
+# [cli-gates] PASS bound-ur (7.0s)
+# [cli-gates] START stale-next-step
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: CLI skill-dispatch exited 2, expected 0
+# {
+#   "schema_version": "1",
+#   "contract_version": 1,
+#   "outcome": "evaluator_error",
+#   "terminal": true,
+#   "authorizes": false,
+#   "skill": {
+#     "skill_id": "gate-check",
+#     "dispatch_mode": "deterministic_control",
+#     "deterministic_command": "gate-check",
+#     "requires_control_snapshot": true,
+#     "contract_version": 1
+#   },
+#   "runtime": {
+#     "machine_validation": "unavailable",
+#     "expected_version": "0.14.5",
+#     "plugin_root": null,
+#     "runtime_digest": null,
+#     "provenance_status": null
+#   },
+#   "target": null,
+#   "control": null,
+#   "presentation": null,
+#   "continuation": null,
+#   "recovery": {
+#     "action": "Gate-Darstellung reparieren und einmal erneut versuchen."
+#   },
+#   "host_action": {
+#     "mode": "transmit_recovery_verbatim_and_stop",
+#     "source": "recovery.action",
+#     "text": "Gate-Darstellung reparieren und einmal erneut versuchen.",
+#     "allow_surrounding_text": false,
+#     "may_request_run_or_evidence": false
+#   },
+#   "timing": {
+#     "wrapper_ms": 0,
+#     "input_ms": 7.273,
+#     "target_ms": 72.732,
+#     "control_ms": 133.292,
+#     "render_ms": 10.497,
+#     "total_ms": 224.347
+#   },
+#   "diagnostics": [
+#     {
+#       "code": "dispatch_control_presentation_failed"
+#     }
+#   ]
+# }
+# 2 !== 0
+#     at invoke (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:22:10)
+#     at json (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:28:21)
+#     at dispatch (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:55:10)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:326:23
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:257:5
+#     at withFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:50:9)
+#     at withInternalStepRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:254:3)
+#     at staleNextStep (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:318:5)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:450:24
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25) {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 2,
+#   expected: 0,
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/cli/scripts/cli-gate-scenarios-test.js
+not ok 1 - packages/cli/scripts/cli-gate-scenarios-test.js
+  ---
+  duration_ms: 39898.887394
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# control-inspect parity, shared selection, read-only and preview tests passed.
+# Subtest: packages/cli/scripts/control-inspect-test.js
+ok 2 - packages/cli/scripts/control-inspect-test.js
+  ---
+  duration_ms: 34763.525647
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 39914.106912

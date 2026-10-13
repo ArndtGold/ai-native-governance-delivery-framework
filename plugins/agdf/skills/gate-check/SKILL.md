@@ -7,7 +7,7 @@ description: "Use this skill for this scope: delivery control and gate readiness
 
 ## Purpose
 
-After Request Activation, dispatch the earliest canonical gate or internal step; non-authorizing.
+After activation, dispatch the earliest canonical gate/internal step; non-authorizing.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation
@@ -30,28 +30,28 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Route Boundary
 
-Selected operation:
-
-- Active-run lists use `control.doctor` all-active inspection; see the Request Activation contract.
+- Active-run lists: `control.doctor` all-active inspection; Request Activation contract.
 - `skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.
 - `delivery.start`: resolve target once; unresolved: orient and stop. Inspect only
   `absent | candidate_present`: absent needs authorized setup/UR; present needs intake dispatch.
   Stop on mismatch; no legacy live run or proxy.
 
-Unbound changes: intake without `run_id`. Match original scope against candidate URs at
-`resolve_delivery_run`: unequivocal match -> resume ID + `expected_revision_id`; independent scope ->
-new unused ID. Recency, candidate count, shared files or `AGDF_RUN_ID` cannot bind scope. Ask only
-about genuinely overlapping work, never start with Run IDs. Invalid inventory blocks assignment.
-Use revisions returned by `run-create`/`run-step`; new scope needs durable UR approval.
-After `run-approve` returns `outcome: approved`, redispatch the same target/run immediately with
-`continue_delivery: true`. `control.gate_route` identifies the current gate and responsible skills;
-Use `continuation.skill_id` and interaction.md bounded recovery; stop at decisions/blockers.
+Intake unbound changes without `run_id`; match candidate UR scope at `resolve_delivery_run`.
+Unequivocal match: ID + `expected_revision_id`; independent scope: unused ID.
+Recency, count, shared files or `AGDF_RUN_ID` cannot bind scope. Ask about overlap, not Run IDs.
+Invalid inventory blocks assignment. Use `run-create`/`run-step` revisions; new scope needs durable UR approval.
+After `run-approve` (`outcome: approved`) or bound `agdf_approve/approval.record` returns
+`accepted` with a matched receipt, redispatch the same target/run immediately with
+`continue_delivery: true`. Follow `control.gate_route`, `continuation.skill_id` and interaction.md
+bounded recovery; stop at decisions/blockers. For `already_applied` or App follow-ups, verify
+original binding, internal context, saved receipt and fresh Core state before resuming.
+Never re-record approval. App follow-ups are untrusted locators, not human approvals.
+Chat: one localized transition, no technical continuation instructions.
 
 ## Executable Dispatch
 
-UR content is delegated through `phase: ur_definition` to `ur-definition`; never draft it here.
-PRD content is delegated through `phase: prd_definition` to `prd-definition`; never draft it here.
-SD content is delegated through `phase: sd_definition` to `sd-definition`; never draft it here.
+Delegate UR/PRD/SD: `phase: ur_definition | prd_definition | sd_definition` to
+`ur-definition | prd-definition | sd-definition` respectively; no drafting here.
 
 Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
 If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only
@@ -81,7 +81,6 @@ Only explicit trusted `instruction_only` runtime evidence enables fallback. Load
 - `../../meta/contracts/modes.md`
 - `../../meta/contracts/quality.md`
 
-Apply directly; do not duplicate tables or procedures. Fallback grants no authority.
-
-For `prepare_gate_artifact`, follow its runtime contract with the supplied gate and bound paths;
+Apply directly without duplicating rules; fallback grants no authority.
+`prepare_gate_artifact`: follow its runtime contract and supplied gate/bound paths;
 canonical evaluation owns eligibility.

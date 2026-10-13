@@ -15,14 +15,15 @@ export const artefactBindingDigest = receipt => digest(`agdf-artefact-binding/1\
 export const artefactBindingKey = receipt => canonicalJson([receipt.run_id, receipt.relationship]);
 
 export function validArtefactBinding(receipt) {
-  if (!exactObject(receipt, fields) || receipt.schema_version !== "1" || !uuid(receipt.binding_id)
+  if (!exactObject(receipt, fields) || !["1", "2"].includes(receipt.schema_version) || !uuid(receipt.binding_id)
       || !DIGEST_PATTERN.test(receipt.target_id ?? "") || !RUN_ID_PATTERN.test(receipt.run_id ?? "")
       || !exactObject(receipt.relationship, ["from", "relationship", "to"])
       || !file(receipt.destination, ["type", "path", "digest", "status"])
       || !file(receipt.source, ["type", "path", "digest"])
       || !exactObject(receipt.review, ["reviewer", "path", "digest"]) || !text(receipt.review.reviewer)
       || !isSafeControlRelativePath(receipt.review.path) || !DIGEST_PATTERN.test(receipt.review.digest ?? "")
-      || receipt.origin !== "reviewed_mapping" || !exactObject(receipt.operation, ["id", "previous_revision_id", "resulting_revision_id", "revision"])
+      || receipt.origin !== "reviewed_mapping" || !exactObject(receipt.operation, ["id", "previous_revision_id", "resulting_revision_id", "revision", ...(receipt.schema_version === "2" ? ["request_digest"] : [])])
+      || receipt.schema_version === "2" && !DIGEST_PATTERN.test(receipt.operation.request_digest ?? "")
       || ![receipt.operation.id, receipt.operation.previous_revision_id, receipt.operation.resulting_revision_id].every(uuid)
       || receipt.operation.previous_revision_id === receipt.operation.resulting_revision_id
       || !Number.isSafeInteger(receipt.operation.revision) || receipt.operation.revision < 2

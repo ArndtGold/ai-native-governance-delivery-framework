@@ -1,0 +1,109 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:37:25.446Z",
+  "evidence_class": "human_host_close_plus_separate_explicit_model_core_cleanup",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "human_followup": {
+    "approval_activation_method": "Per Leertaste",
+    "technical_prompt_observation": "Keine gesehen",
+    "all_test_views_closed": "Alle geschlossen"
+  },
+  "native_cua_inventory_after_human_close": {
+    "browser_id": "1",
+    "tabs": []
+  },
+  "before_explicit_cleanup": {
+    "native_close_requests_since_first_german_action": 0,
+    "observed_at": "2026-10-11T08:31:53.060397+00:00",
+    "new_english_change_prepare": "resource_limit"
+  },
+  "explicit_model_cleanup": [
+    {
+      "run_id": "native-de-approve",
+      "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+      "at": "2026-10-11T08:34:50.726Z",
+      "evidence_class": "explicit_model_scoped_reader_cleanup_after_human_host_close",
+      "state": "available",
+      "closed": true,
+      "reason": null
+    },
+    {
+      "run_id": "native-de-request-change",
+      "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+      "at": "2026-10-11T08:34:50.756Z",
+      "evidence_class": "explicit_model_scoped_reader_cleanup_after_human_host_close",
+      "state": "available",
+      "closed": true,
+      "reason": null
+    },
+    {
+      "run_id": "native-de-reject",
+      "presentation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "at": "2026-10-11T08:34:50.776Z",
+      "evidence_class": "explicit_model_scoped_reader_cleanup_after_human_host_close",
+      "state": "available",
+      "closed": true,
+      "reason": null
+    },
+    {
+      "run_id": "native-en-approve",
+      "presentation_id": "068ced77-d25a-42c9-86f9-d036ee1f4efe",
+      "at": "2026-10-11T08:34:50.792Z",
+      "evidence_class": "explicit_model_scoped_reader_cleanup_after_human_host_close",
+      "state": "available",
+      "closed": true,
+      "reason": null
+    }
+  ],
+  "subsequent_access": [
+    {
+      "run_id": "native-de-approve",
+      "presentation_id": "939d83bc-7643-48c2-8aee-678ae5b8c570",
+      "reason": "session_expired",
+      "after_explicit_model_cleanup": true,
+      "at": "2026-10-11T08:35:58.445Z"
+    },
+    {
+      "run_id": "native-de-request-change",
+      "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+      "reason": "session_expired",
+      "after_explicit_model_cleanup": true,
+      "at": "2026-10-11T08:35:58.457Z"
+    },
+    {
+      "run_id": "native-de-reject",
+      "presentation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "reason": "session_expired",
+      "after_explicit_model_cleanup": true,
+      "at": "2026-10-11T08:35:58.597Z"
+    },
+    {
+      "run_id": "native-en-approve",
+      "presentation_id": "068ced77-d25a-42c9-86f9-d036ee1f4efe",
+      "reason": "session_expired",
+      "after_explicit_model_cleanup": true,
+      "at": "2026-10-11T08:35:58.605Z"
+    }
+  ],
+  "claim_boundary": "Host views closed and explicit scoped Core cleanup verified. No automatic host teardown success or fresh idle-expiry proof inferred. Earlier real idle expiry and upstream host abort remain separate.",
+  "native_qualified": false,
+  "authorizes": false,
+  "business_states_after_cleanup": [
+    {
+      "run_id": "native-de-approve",
+      "run_digest_unchanged": true
+    },
+    {
+      "run_id": "native-de-request-change",
+      "run_digest_unchanged": true
+    },
+    {
+      "run_id": "native-de-reject",
+      "run_digest_unchanged": true
+    },
+    {
+      "run_id": "native-en-approve",
+      "run_digest_unchanged": true
+    }
+  ]
+}

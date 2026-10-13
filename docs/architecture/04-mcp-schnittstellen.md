@@ -7,23 +7,43 @@ vom 30. September 2026 ist seit der redaktionellen Zusammenführung am 2. Oktobe
 und die [Umsetzungsroadmap](03-agentenkontrolle-zielbild.md#10-abgleich-der-umfänge-und-umsetzungsroadmap).
 Diese Seite ordnet die früheren fachlichen Gruppen ein und hält verbleibende MCP-Fragen fest.
 
+**Abgleich: 12. Oktober 2026, Repository-Quelle.** Der konkrete Entwicklungsstand der begrenzten
+Befehlsgruppen steht im [Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md).
+Diese Ergänzung ersetzt weder den gemeinsamen Operationskatalog noch seine Roadmap.
+
 Der [Architektur-Einstieg](README.md) zeigt die Zusammenhänge. Die
 [Bestandsbeschreibung](01-systemarchitektur.md#32-mcp-werkzeugweg) und der
 [Dispatcher-Katalog](02-dispatcher.md#use-case-katalog) erklären das implementierte Verhalten.
 Eine Dokumentzuordnung beschließt keine neuen Tool-Namen, Schemata oder Schreibberechtigungen.
 
-## Ausgangspunkt: bestehende Schnittstelle
+## Gemeinsame Schnittstelle für UI Hosts
 
-Die folgende Beschreibung betrifft den regulären Dispatch-/Inspect-Server. Seit dem lokalen
+Die [Architekturentscheidung zur Host-Schnittstelle](07-ui-konzept.md#architekturentscheidung-zur-gemeinsamen-host-schnittstelle)
+legt MCP für Werkzeuge, Daten und Ressourcen sowie MCP Apps für interaktive Oberflächen fest.
+Fachliche Regeln und gebundene Entscheidungen bleiben über kompatible Hosts hinweg gleich;
+Darstellung und Fortsetzung nutzen die jeweils bestätigten Fähigkeiten. CopilotKit ist eine
+optionale Implementierung eines eigenen Webhosts, keine Voraussetzung für andere Hosts.
+Die zentrale Entscheidung beschreibt auch die unterstützten Textwege und den Nachweis pro
+Host und Fassung. Sie ist ein Portabilitätsziel und kein allgemeiner Kompatibilitätsnachweis.
+
+## Ausgangspunkt und nachgeführter Entwicklungsstand
+
+Der reguläre Server vermittelt Dispatch, Inspect und im Repository-Entwicklungsstand die
+aktivierten begrenzten Befehlsgruppen. Sie teilen sich die Core-Dienste mit der CLI. Seit dem lokalen
 Cockpit-Umsetzungsstand vom 6. Oktober 2026 besteht daneben eine separate private MCP-App mit
 `agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Ihre
 [Bestandsbeschreibung](06-agdf-cockpit.md) erklärt Run-Bindung, Leseansichten, Kontextübergabe
 und offene native Host-Nachweise. Diese lokale Implementierung verwirklicht nicht automatisch
 die übrigen Operationen des Zielbilds und ist keine allgemeine Schreib-/Approval-Schnittstelle.
 
-Im untersuchten Quellstand bestehen die Werkzeugverträge `agdf_dispatch` und `agdf_inspect`.
-Dispatch liefert nach Zielbindung eine Kontrollantwort oder begrenzte Fortsetzung; Inspect bietet
-lesende Abfragen für `doctor`, `gate-check`, `delivery-map` und `contract`.
+Die Ausgangsverträge `agdf_dispatch` und `agdf_inspect` bleiben bestehen. Dispatch liefert nach
+Zielbindung eine Kontrollantwort oder begrenzte Fortsetzung; Inspect liest Kontrollstand, Verträge,
+Präsentationsdokumente und Operationsstatus. Hinzu kommen `agdf_prepare`, `agdf_record`,
+`agdf_approve`, `agdf_revise` und `agdf_closeout` als konfigurierbare feste Befehlsgruppen.
+Sie vermitteln exakte Operationen für Vorbereitung, Erfassung, Entscheidung, Revision und Abschluss.
+Der [Befehlsvertrag](../../packages/core/lib/control-state/run-command-contract.js) besitzt ihre
+Schemas und Wirkungsgrenzen; der [Befehlsdienst](../../packages/core/lib/control-state/run-command-service.js)
+delegiert an die bestehenden Writer.
 Der [Dispatch-Vertrag](../../packages/core/lib/skill-dispatch/contract.js),
 [Inspect-Vertrag](../../packages/core/lib/control-inspect/contract.js) und die
 [Inspect-Auswahl](../../packages/core/lib/control-inspect/selection.js) besitzen ihre Semantik.
@@ -40,8 +60,13 @@ bleiben lesend. Die Voraussetzungen und Fehlergrenzen stehen in der
 Der MCP-Vertrag markiert `agdf_dispatch` deshalb mit `readOnlyHint: false`; diese Angabe
 beschreibt die mögliche Wirkung des gesamten Werkzeugs, auch wenn sein Routing-Service lesend
 bleibt. `agdf_inspect` behält `readOnlyHint: true`.
-Das ist keine allgemeine MCP-Schreib- oder Approval-API. Quellcode, Paket, Installation und
-frische Host-Sitzung benötigen getrennte Nachweise. Die ursprünglichen Quellenbeobachtungen vom
+Die begrenzte Dispatch-Korrektur und die zusätzlichen Befehlsgruppen sind getrennte Aufrufwege.
+Die Befehlsgruppen bieten keine beliebigen Datei-, Shell- oder Netzwerkaktionen. Der Codex-Decision-
+Zweig vermittelt eine an das exakte Material gebundene Ansicht. Die aktuelle Karte bietet nur
+den Freigabebutton; Änderungen und Ablehnung werden im Chat geklärt, obwohl die kanonischen
+Entscheidungsverträge diese Wirkungen unterstützen. Klickentscheidungen erfordern
+zusätzlich native Qualifizierung. Quellcode, Paket, Installation und frische Host-Sitzung benötigen
+getrennte Nachweise. Die ursprünglichen Quellenbeobachtungen vom
 30. September werden durch diese redaktionelle Zusammenführung nicht zu neuen Host-Nachweisen.
 
 Die Zuständigkeiten bleiben bei [Runtime-Verträgen](../../plugins/agdf/meta/contracts/),
@@ -70,7 +95,8 @@ war zu weit gefasst. Eine Vorschau des Evaluators ist lesend.
 [`run-present`](../../packages/core/lib/control-state/run-presentation.js) speichert dagegen einen
 Vorbereitungsbeleg mit einer Bindung an Run, Gate, Revision und Inhalt. Dies ist ein vorbereitender
 Schreibzugriff, aber keine Freigabe. Die menschliche Entscheidung wird danach durch einen eigenen
-Vorgang erfasst. Eine künftige MCP-Bereitstellung muss diese Wirkungen getrennt ausweisen.
+Vorgang erfasst. Im nachgeführten Entwicklungsstand vermittelt `agdf_prepare` diese Vorbereitung;
+`agdf_approve` erfasst die bewusste Freigabe separat. Die Wirkungen bleiben getrennt.
 
 Die damalige Forderung nach host-verifizierbarer menschlicher Eingabe ist eine Anforderung für einen
 stärkeren Entscheidungsweg, kein Nachweis einer vorhandenen Fähigkeit. Das Gesamtkonzept benennt
@@ -80,8 +106,11 @@ und [Host-Matrix](03-agentenkontrolle-zielbild.md#8-matrix-der-host-fähigkeiten
 
 ## Verbleibende Schnittstellenfragen
 
-Diese Fragen betreffen die spätere konkrete Vertragsgestaltung innerhalb des Zielbilds.
-Sie sind keine zweite Produktroadmap und setzen keine bereits festgelegte Kontrollpflicht außer Kraft.
+Diese Fragen stammen aus der Vertragsdiskussion des Zielbilds. Der
+[Befehlsfluss](core-mcp-command-flow.md) beschreibt die inzwischen konkretisierte Teilmenge:
+feste Befehlsgruppen, exakte Bindungen sowie Wiederholungs- und Wiederherstellungsregeln.
+Die folgende Tabelle bleibt für darüber hinausgehende Operationen und noch offene Host-Fähigkeiten
+relevant. Sie ist keine zweite Produktroadmap und setzt keine Kontrollpflicht außer Kraft.
 
 | Zu klärende Frage | Bezug im Zielbild | Erforderliche Grundlage |
 |---|---|---|
@@ -97,10 +126,10 @@ Resources, Prompts, Elicitation und UI-Erweiterungen werden nach Bedarf und qual
 gewählt. Ereignisse signalisieren Änderungen und lösen erneute Zustandsprüfung aus. Ein Empfang
 oder eine Transportbestätigung erteilt keine Arbeits- oder Gate-Freigabe.
 
-Die Umsetzung folgt R-04 bis R-06 und ihren Abhängigkeiten zu R-01 bis R-03. Die bestehenden
-Interfaces bleiben maßgeblich, bis ein eigener freigegebener Umsetzungsumfang ihren kanonischen
-Vertrag und Kompatibilitätspfad ändert. Hier werden weder eine Migrationsfrist noch eine Umstellung
-oder zusätzliche Runtime-Fähigkeiten festgelegt.
+Die Umsetzung folgt R-04 bis R-06 und ihren Abhängigkeiten zu R-01 bis R-03. Die kanonischen
+Verträge und ihr Kompatibilitätspfad bleiben maßgeblich. Neue Entwicklungsoperationen bestätigen
+für sich genommen keine veröffentlichte oder auf einem Host geladene Schnittstelle. Hier werden
+weder eine Migrationsfrist noch eine Umstellung oder zusätzliche Runtime-Fähigkeiten festgelegt.
 
 ## Historischer Diskussionsinput vom 29. September 2026
 

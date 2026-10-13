@@ -15,12 +15,26 @@ und die [Paketstruktur](05-paketstruktur.md). Die [UI-README](../../packages/con
 enthält die technischen Vorbereitungsbefehle und Fehlergrenzen; die bestehenden Core-Verträge
 bleiben Eigentümer der Daten- und Werkzeugsemantik.
 
+Das [UI-Zielkonzept für Hub und Run-Cockpit](07-ui-konzept.md) beschreibt die Weiterentwicklung
+aus Anwendersicht: alle Runs im Hub finden, mit der aktuellen Entscheidungsfrage im Chat einsteigen und
+denselben Run in einer vom Host bereitgestellten großen Appfläche mit dauerhafter Orientierung,
+Dokumenten und Verlauf bearbeiten. Die Position dieser Fläche und das Gespräch bleiben Host-Aufgaben.
+Die dort beschriebene visuelle Zusammenführung von Lesen und Entscheiden erhält die getrennten
+technischen Zuständigkeiten. Die Oberfläche verwendet Aufgaben wie „Ziel und Umfang klären“,
+„Verhalten festlegen“ und „Lösung planen“; die technischen Kürzel stehen in Details.
+Die folgenden Abschnitte bleiben die Referenz des Bestands.
+
 ## 1. Einordnung und Zuständigkeiten
 
 Die separate lokale Verbindung `agdf-cockpit-local` stellt `agdf_cockpit` und
 `agdf_cockpit_read` sowie die UI-Resource `ui://agdf/cockpit/v1.html` bereit. Der reguläre
-AGDF-Server mit `agdf_dispatch` und `agdf_inspect` bleibt ein eigener Zugang zur Ablaufsteuerung.
-Das Cockpit besitzt keine eigene Gate-Policy und keinen Writer für Freigaben oder Run-Zustand.
+AGDF-Server bleibt ein eigener Zugang zur Ablaufsteuerung und zu begrenzten Core-Operationen.
+Neben `agdf_dispatch` und `agdf_inspect` enthält sein nachgeführter Repository-Entwicklungsstand
+fünf konfigurierbare Befehlsgruppen. Die getrennte Decision App bindet eine Entscheidung an eine
+exakte Präsentation; ihre Aktionen und native Qualifizierung erklärt der
+[Befehlsfluss](core-mcp-command-flow.md#3-wie-der-mensch-die-gebundene-entscheidung-sieht).
+Das allgemeine Cockpit besitzt keine eigene Gate-Policy und keinen Writer für Freigaben oder Run-Zustand.
+Dieser Quellabgleich vom 11. Oktober 2026 aktualisiert nicht die oben abgegrenzten Host-Nachweise.
 
 ```text
 Codex / MCP-App                         Lokaler Browser

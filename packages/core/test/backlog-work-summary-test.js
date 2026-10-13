@@ -78,7 +78,12 @@ try {
   assert.equal(runWorkSummary(f.root, approvedQa, f.runPath).phase, 'UAT');
   approvedQa = upsertTableRow(approvedQa, 'Approvals', 0, 'UAT', ['UAT', 'approved', 'isolated fixture']);
   assert.equal(runWorkSummary(f.root, approvedQa, f.runPath).kind, 'closeout_pending');
-  assert.equal(runWorkSummary(f.root, replaceFirstScalar(approvedQa, 'lifecycle', 'completed'), f.runPath).kind, 'completed');
+  assert.equal(runWorkSummary(f.root, replaceFirstScalar(approvedQa, 'lifecycle', 'completed'), f.runPath).kind, 'unconfirmed', 'lifecycle alone cannot prove closeout');
+  writeFileSync(join(f.root, prefix, 'OR.md'), '# OR\n- decision: completed\n');
+  const closed = upsertTableRow(replaceFirstScalar(approvedQa, 'lifecycle', 'completed'), 'Artefacts', 0, 'OR', ['OR', prefix + 'OR.md', 'done', 'isolated closeout']);
+  assert.equal(runWorkSummary(f.root, closed, f.runPath).kind, 'unconfirmed', 'an OR registration alone cannot prove closeout');
+  writeFileSync(join(f.root, prefix, 'OR.md'), '# OR\n- run_id: fixture-a\n- report_mode: OR-full\n- status: pass\n- context_graph_reconciliation: not_applicable\n- context_graph_required_action: none\n- context_graph_gate_effect: none\n- context_graph_evidence: Isolated fixture has no durable context change.\n');
+  assert.equal(runWorkSummary(f.root, closed, f.runPath).kind, 'completed');
   writeFileSync(qa, report('block', [row('F1', 'evidence_gap', 'evidence_obligation')]));
   assert.equal(runWorkSummary(f.root, candidate('block'), f.runPath).kind, 'qa_blocked');
   pass('pass awaiting approval, approved QA/UAT, closeout and completed are distinct from block');

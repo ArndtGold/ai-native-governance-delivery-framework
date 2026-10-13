@@ -94,7 +94,8 @@ try {
     assert.equal(repeated.backlog, 'updated');
     f.omit(); const blocked = evaluateGateCheck(f.root, { runId });
     assert.equal(blocked.blocking_reason, "AGDF_DELIVERY_RELATIONSHIP_MISSING", JSON.stringify(blocked.doctor_report?.findings));
-    assert.equal(blocked.next_operation, null); assert.equal(blocked.approval_presentation, null);
+    assert.equal(blocked.next_operation.type, 'resolve_control_blocker');
+    assert.equal(blocked.next_operation.effect, 'none'); assert.equal(blocked.approval_presentation, null);
     assert.equal(prepareRunPresentation(f.root, { runId, gate, revisionId: f.revision() }, { evaluateGateCheck }).outcome, "rejected");
     assert.equal(approveRunGate(f.root, { runId, gate, revisionId: f.revision(), response: `Approval: ${gate}` }, { evaluateGateCheck }).outcome, "rejected");
     const stateBeforeRead = readFileSync(f.state, "utf8");
@@ -266,7 +267,9 @@ try {
   const phaseInput = { ...input, workingDirectory: implementing.root, primaryTarget: implementing.root };
   const phase = createSkillDispatchService({ env: {}, renderTaskTargetOrientation: targetOrientation, resolveTaskTarget: () => ({ schema_version: "1", resolution_state: "resolved", reason_code: "continued_target",
     primary_target: implementing.root, governance_target: implementing.root, working_directory: implementing.root, target_changed: false, next_action: "", authorizes: false }) });
-  assert.equal(phase({ ...phaseInput, continueDelivery: true }).terminal, true, "a distinct recorded action must not authorize generic implementation"); assertions++;
+  const semanticPhase = phase({ ...phaseInput, continueDelivery: true });
+  assert.equal(semanticPhase.continuation?.phase, "implementation", "descriptive text cannot replace the canonical approved-plan operation");
+  assert.equal(semanticPhase.control.next_operation.type, "implement_approved_plan"); assertions += 2;
   implementing.edit(text => text.replace("- next_allowed_action: Draft or refine the current artefact.", "- next_allowed_action: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR."));
   const phaseResult = phase({ ...phaseInput, continueDelivery: true });
   assert.equal(phaseResult.terminal, false); assert.equal(phaseResult.continuation.phase, "implementation"); assert.equal(phaseResult.presentation, null);

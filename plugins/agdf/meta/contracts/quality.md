@@ -124,6 +124,27 @@ It is not a seventh normalized finding type and must not appear in a normalized 
 A consumer may repeat the field order and allowed scalar values needed to emit valid output. It must
 reference this section for meanings and routes instead of maintaining a second complete mapping.
 
+## Human QA Acceptance With Deviations
+
+The technical QA decision remains exactly `pass | revise | block`. An explicit human acceptance
+of deviations is a separate disposition; it never changes `revise` to `pass`, resolves a finding,
+marks a missing test passed, or grants native production qualification.
+
+The existing unapproved QA report may contain one `QA Deviation Acceptance` JSON section,
+specified in `docs/qa-deviation-acceptance.md`. Core evaluates it through the normalized finding
+owner above. Only complete, current low/medium evidence-only findings may be proposed; every
+open finding must be covered exactly. Upstream or implementation gaps, malformed/conflicting
+findings, `block`, non-passing protected Code/Clean reviews, stale associations and hard Run
+blockers prevent this route. Existing required obligations are not silently waived.
+
+Before requesting a decision, show the bounded usage scope and each finding's risk, consequence,
+follow-up and owner. The sole contextual action is `Approve with deviations` (German:
+`Mit Abweichungen freigeben`); Chat uses the existing exact `Approval: QA` against that newly
+presented version. A previously rejected response is never transferred. The existing approval
+transaction, receipt and exact-material owner record one effect for both routes. UAT follows
+only after that deliberate acceptance; the original report and open findings remain intact.
+UAT and OR must carry the accepted deviations forward explicitly.
+
 ## UX Intent Fidelity
 
 When an approved PRD contains applicable UX criteria, `task-plan-review` produces an additional

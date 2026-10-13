@@ -8,7 +8,19 @@ import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTa
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
 import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput } from "./contract.js";
+import { operationContract } from '../control-state/run-command-contract.js';
+import { inspectRunOperation } from '../control-state/run-operation-status.js';
+import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
+import { readRunState } from '../control-evaluation/run-state.js';
 import { inspectArtifactReadiness } from "./artifact-readiness.js";
+import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
+import { parseRunState } from '../control-state/run-state-parser.js';
+import { artefactFileDigest, runSealState } from '../control-state/run-seal.js';
+import { readArtefactBindings } from '../control-state/artefact-bindings.js';
+import { readPresentationDocument } from '../control-state/run-presentation.js';
+import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.js';
+import { sourceRevisionQualityFacts } from '../control-state/run-source-revisions.js';
+import { readHistoryBytes } from '../control-state/run-revision-history.js';
 
 // The MCP read tool is a projection over the existing evaluators. It calls exactly the functions the
 // CLI handlers call and returns their --json report. Draft preflight additionally composes those
@@ -160,7 +172,9 @@ export function createControlInspectService(dependencies = {}) {
             { registry: rawInput.interactionLocales, requestedLocale: rawInput.presentationLanguage },
           ) ?? "Repair the installed locale registry and retry once.";
       result.recovery = { action };
-      result.diagnostics = [{ code: "inspect_input_invalid", field }];
+      result.diagnostics = [{ code: "inspect_input_invalid", field,
+        ...(inputError?.allowedValues?.length ? { allowed_values: [...inputError.allowedValues] } : {}),
+      }];
       return bindHostAction(result);
     }
     timing.input_ms = round(milliseconds(started, now()));
@@ -193,6 +207,48 @@ export function createControlInspectService(dependencies = {}) {
           ...(input.all_active ? { allActive: true } : {}),
         };
         switch (input.operation) {
+          case 'presentation-document':
+            return { report: readPresentationDocument(target.governance_target, {
+              runId: input.run_id, gate: input.gate, revisionId: input.expected_revision_id,
+              presentationId: input.presentation_id, targetId: input.target_id, cursor: input.cursor,
+            }), presentation: null };
+          case 'runtime-generations':
+          case 'native-qualification': {
+            const state = readRunState(target.governance_target, { runId: input.run_id });
+            const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
+              && runSealState(target.governance_target, state.content).status === 'valid';
+            if (!valid) return { report: { available: false, reason: 'operation_binding_stale_or_invalid', authorizes: false }, presentation: null };
+            if (input.operation === 'runtime-generations') return { report: dependencies.runtimeControl?.status()
+              ?? { available: false, reason: 'connection_control_unavailable', authorizes: false }, presentation: null };
+            const decision = gateCheck(target.governance_target, { runId: input.run_id, presentationLanguage: input.presentationLanguage });
+            return { report: { available: true, run_id: input.run_id, revision_id: state.meta.revision_id,
+              ui_rendering_support: 'unknown', action_qualification: { qualified: false, reason: 'host_context_unavailable', authorizes: false },
+              business_readiness: { current_gate: decision.current_gate, status: decision.status,
+                next_operation: decision.next_operation, blocking_reason: decision.blocking_reason }, authorizes: false }, presentation: null };
+          }
+          case 'operation-contract': {
+            const state = readRunState(target.governance_target, { runId: input.run_id });
+            const targetId = resolveControlCommandTarget(target.governance_target).target_id;
+            const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
+              && runSealState(target.governance_target, state.content).status === 'valid';
+            return { report: valid ? { ...operationContract(input.group, input.kind, { gate: input.gate }),
+              ...(input.kind.startsWith('source_revision.') ? { revision_facts: {
+                policy_version: 2, eligible_sources: ['UR', 'PRD', 'SD', 'TP'].filter(gate => sourceRevisionBoundary(state, gate, 2)),
+                initiating_phase: policyForRunContent(target.governance_target, state.content, state.path).current_gate,
+                quality_records: sourceRevisionQualityFacts(state, path => { try { return readHistoryBytes(target.governance_target, path).toString('utf8'); } catch { return undefined; } }),
+              } } : {}),
+              binding: { target_id: targetId, run_id: input.run_id, expected_revision_id: input.expected_revision_id },
+              current: (() => { const decision = gateCheck(target.governance_target, { runId: input.run_id, presentationLanguage: input.presentationLanguage });
+                return { current_gate: decision.current_gate, lifecycle: state.meta.lifecycle, status: decision.status, missing_approval: decision.missing_approval,
+                  next_operation: decision.next_operation, completion: decision.completion,
+                  artefacts: [...state.artefacts].filter(([type]) => ['UR', 'PRD', 'SD', 'TP', 'Brownfield Review', 'UX Intent Definition', 'Brownfield Analysis', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR', 'QA', 'OR'].includes(type))
+                    .map(([type, row]) => ({ type, path: row.path, status: row.status, digest: row.path ? artefactFileDigest(target.governance_target, row.path) : null,
+                      association: state.evidence_applicability.by_step.get(type)?.applicability ?? 'applicability_unknown' })),
+                  source_bindings: readArtefactBindings(state.content).active.map(row => ({ binding_id: row.binding_id, source: row.source, destination: row.destination, relationship: row.relationship })) }; })() }
+              : { available: false, authorizes: false, reason: 'operation_binding_stale_or_invalid' }, presentation: null };
+          }
+          case 'operation-status':
+            return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id, operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id }, presentation: null };
           case "artifact-readiness":
             return { report: inspectArtifactReadiness(target.governance_target, {
               runId: input.run_id, gate: input.gate, expectedRevisionId: input.expected_revision_id,

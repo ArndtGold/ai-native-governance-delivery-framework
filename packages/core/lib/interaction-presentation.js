@@ -1,6 +1,6 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
 import { memoizeControlRead } from "./control-read/fs.js";
-import { DISPATCH_RECOVERY_CODES } from "./interaction-catalog.js";
+import { DISPATCH_RECOVERY_CODES, DECISION_CARD_COPY_BUDGETS } from "./interaction-catalog.js";
 import { TASK_TARGET_SOURCES, TASK_TARGET_UNRESOLVED_REASONS } from "./task-target-resolution.js";
 
 const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -105,7 +105,9 @@ function validateReadLocaleRegistry(registry) {
         continue;
       }
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
-      const budget = key.startsWith("sourceRevision.") ? budgets.description
+      const cardBudget = key.startsWith("decisionCard.") ? DECISION_CARD_COPY_BUDGETS[key.slice("decisionCard.".length)] : null;
+      const budget = cardBudget ? budgets[cardBudget]
+        : key.startsWith("sourceRevision.") ? budgets.description
         : key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
         : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("skillDispatch.sourceInput.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
@@ -151,7 +153,8 @@ export function renderSkillDispatchInputRecovery({ field, allowedValues = [] } =
   requestedLocale,
 } = {}) {
   if (typeof field !== "string" || !/^[a-z_]{1,64}$/u.test(field)) return null;
-  const allowedValuePattern = field === "skill_id" ? /^[a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?$/u : /^[a-z_]{1,64}$/u;
+  const allowedValuePattern = field === "skill_id" ? /^[a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?$/u
+    : field === "module" ? /^[a-z][a-z0-9_-]*(?:\/[a-z][a-z0-9._-]*)?$/u : /^[a-z_]{1,64}$/u;
   if (!Array.isArray(allowedValues) || allowedValues.some((value) => typeof value !== "string" || value.length > 64 || !allowedValuePattern.test(value))) return null;
   let pack;
   try {

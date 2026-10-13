@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -18,7 +18,7 @@ try {
   const prepared = ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot, exec: offlineNpm });
   assert.equal(prepared.status, "matched");
   assert.equal(prepared.changed, true);
-  assert.equal(prepared.root, join(mcpRoot, version));
+  assert.equal(prepared.root, join(realpathSync(mcpRoot), 'generations', prepared.publication_id, version));
   assert.ok(existsSync(join(prepared.packageRoot, "bin", "agdf-mcp.js")), "the shipped server is installed");
   assert.equal(JSON.parse(readFileSync(join(prepared.dispatcherRoot, "package.json"), "utf8")).name, "create-agdf");
   // Exercise the assembled plugin package, not a fixture copying all source files.
@@ -30,7 +30,7 @@ try {
   const again = ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot, exec() { throw new Error("a matched runtime must not reinstall"); } });
   assert.equal(again.changed, false);
 
-  // Plugin updates keep the data root: owned runtimes of other versions and abandoned stages are retired.
+  // A version label or age cannot prove that executable bytes are unused.
   const retired = join(mcpRoot, "0.0.1");
   cpSync(prepared.root, retired, { recursive: true });
   const foreignSibling = join(mcpRoot, "notes");
@@ -40,8 +40,8 @@ try {
   const old = new Date(Date.now() - 60 * 60 * 1000);
   utimesSync(staleStage, old, old);
   ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot, exec: offlineNpm });
-  assert.equal(existsSync(retired), false, "an owned runtime of another version is retired");
-  assert.equal(existsSync(staleStage), false, "an abandoned stage is removed");
+  assert.equal(existsSync(retired), true, "an unclaimed older runtime is retained");
+  assert.equal(existsSync(staleStage), true, "age alone cannot remove an unknown stage");
   assert.equal(existsSync(foreignSibling), true, "unowned directories are never removed");
 
   // A plugin cachebuster can change source content while the canonical runtime version remains the same.
@@ -54,18 +54,20 @@ try {
   assert.notEqual(pluginUpdated.dispatcherDigest, again.dispatcherDigest);
   assert.equal(npmCalls.length, 1);
 
-  // A same-version runtime whose content drifted is owned and therefore rebuilt.
+  // A drifted previous immutable root is retained and never selected for replacement.
   writeFileSync(join(prepared.packageRoot, "src", "main.js"), "tampered\n");
   npmCalls.length = 0;
   const rebuilt = ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot, exec: offlineNpm });
-  assert.equal(rebuilt.changed, true);
-  assert.equal(npmCalls.length, 1);
+  assert.equal(rebuilt.changed, false);
+  assert.equal(npmCalls.length, 0);
+  assert.equal(existsSync(prepared.root), true);
   assert.equal(JSON.parse(readFileSync(join(rebuilt.root, mcpPackageConstants.marker), "utf8")).owner, mcpPackageConstants.owner);
 
   // A directory without the AGDF marker at the runtime path is never overwritten.
   const foreignData = join(root, "foreign");
   mkdirSync(join(foreignData, "mcp", version), { recursive: true });
-  assert.throws(() => ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot: foreignData, exec: offlineNpm }), /AGDF_MCP_RUNTIME_UNOWNED/);
+  assert.equal(ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot: foreignData, exec: offlineNpm }).status, 'matched');
+  assert.equal(existsSync(join(foreignData, 'mcp', version)), true, 'The legacy foreign path remains untouched.');
   assert.throws(() => ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot: null, exec: offlineNpm }), /AGDF_MCP_PLUGIN_DATA_MISSING/);
 
   // Ownership of a whole launcher data root, as uninstall inspects it.
@@ -102,25 +104,29 @@ for (const invalid of [["--cockpit-dir"], ["--cockpit-dir", "relative/project"],
   assert.equal(parseLauncherArguments(invalid, { CLAUDE_PLUGIN_DATA: "/claude/data" }), null, invalid.join(" "));
 }
 {
-  // The launcher passes the cockpit root as one argv element to the verified server.
-  const spawnRoot = mkdtempSync(join(tmpdir(), "agdf-launcher-argv-"));
-  try {
-    const entrypoint = join(spawnRoot, "record-argv.mjs"), recorded = join(spawnRoot, "argv.json");
-    writeFileSync(entrypoint, `import { writeFileSync } from "node:fs"; writeFileSync(${JSON.stringify(recorded)}, JSON.stringify(process.argv.slice(2)));\n`);
-    const runtime = { status: "matched", version, root: spawnRoot, entrypoint, changed: false, sdkVerification: "verified" };
-    for (const [argv, expected] of [[[], ["--surface", "claude"]], [["--cockpit-dir", project], ["--surface", "claude", "--cockpit-dir", project]]]) {
-      await launchPluginMcpServer({ pluginRoot, argv, env: { CLAUDE_PLUGIN_DATA: join(spawnRoot, "data") },
-        stdout: { write() {} }, stderr: { write(text) { throw new Error(text); } }, ensure: () => runtime });
-      assert.deepEqual(JSON.parse(readFileSync(recorded, "utf8")), expected);
-    }
-  } finally { rmSync(spawnRoot, { recursive: true, force: true }); }
+  // The stable launcher supplies the exact owned publication and cockpit root
+  // after retaining its executable bytes, before loading the SDK facade.
+  let retained = false;
+  const runtime = { status: 'matched', version, root: '/synthetic/runtime', changed: false, sdkVerification: 'verified' };
+  for (const [argv, cockpitDir] of [[[], undefined], [['--cockpit-dir', project], project]]) {
+    retained = false;
+    const result = await launchPluginMcpServer({ pluginRoot, argv, env: { CLAUDE_PLUGIN_DATA: '/synthetic/data' },
+      stdout: { write() {} }, stderr: { write(text) { throw Error(text); } }, ensure: () => runtime,
+      acquireClaim: value => { assert.equal(value, runtime); retained = true; },
+      startFacade: async input => { assert.equal(retained, true); assert.equal(input.runtime, runtime);
+        assert.equal(input.surface, 'claude'); assert.equal(input.cockpitDir, cockpitDir); return 'owned-facade'; } });
+    assert.equal(result, 'owned-facade');
+  }
 }
 
 // The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
 const sdkRoot = mkdtempSync(join(tmpdir(), "agdf-plugin-mcp-sdk-"));
 try {
   const markerOf = (runtime) => JSON.parse(readFileSync(join(runtime.root, mcpPackageConstants.marker), "utf8"));
-  const runtimeAt = (dataRoot) => join(dataRoot, "mcp", version);
+  const runtimeAt = dataRoot => {
+    const generations = join(dataRoot, 'mcp', 'generations');
+    return join(generations, readdirSync(generations)[0], version);
+  };
   const variant = (mutate) => (executable, args, options) => {
     const result = offlineNpm(executable, args, options);
     mutate(join(options.cwd, "node_modules"));
@@ -150,15 +156,14 @@ try {
   assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot: failed, exec() { throw new Error("EINTEGRITY"); }, env: {} }), /AGDF_MCP_PACKAGE_ACQUISITION_FAILED/);
   assert.equal(existsSync(runtimeAt(failed)), false);
 
-  // SCN-006 and SCN-007: a matching runtime is reused offline; a tampered SDK file forces one locked reinstall.
+  // A matching runtime is reused offline; a tampered immutable SDK is refused and retained.
   const reusedRoot = join(sdkRoot, "fresh");
   assert.equal(ensurePluginMcpRuntime({ pluginRoot, dataRoot: reusedRoot, exec() { throw new Error("no npm for a verified runtime"); }, env: {} }).changed, false);
   const zodPackage = join(runtimeAt(reusedRoot), "node_modules", "zod", "package.json");
   writeFileSync(zodPackage, `${readFileSync(zodPackage, "utf8")}\n`);
   npmCalls.length = 0;
-  const replaced = ensurePluginMcpRuntime({ pluginRoot, dataRoot: reusedRoot, exec: offlineNpm, env: {} });
-  assert.equal(replaced.changed, true);
-  assert.deepEqual(npmCalls, ["ci"]);
+  assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot: reusedRoot, exec: offlineNpm, env: {} }), /AGDF_MCP_IMMUTABLE_RUNTIME_MISMATCH/);
+  assert.deepEqual(npmCalls, []);
 
   // SCN-008: the explicit override installs without verification, is recorded and announced on stderr.
   const overrideRoot = join(sdkRoot, "override");
@@ -214,13 +219,25 @@ try {
     ensurePluginMcpRuntime({ pluginRoot: updatedPlugin, dataRoot, exec: offlineNpm });
     writeFileSync(join(updatedPlugin, "mcp", "server", "README.md"), `${readFileSync(join(updatedPlugin, "mcp", "server", "README.md"), "utf8")}\nUpdated plugin build.\n`);
     const worker = join(import.meta.dirname, "fixtures", "plugin-mcp-ensure-worker.js");
-    const results = await Promise.all(Array.from({ length: 6 }, () => new Promise((resolveRun, reject) => {
-      const child = spawn(process.execPath, [worker, updatedPlugin, dataRoot], { stdio: ["ignore", "pipe", "pipe"] });
+    const holdingMarker = join(updateRoot, 'publication-held');
+    const launch = (marker) => new Promise((resolveRun, reject) => {
+      const child = spawn(process.execPath, [worker, updatedPlugin, dataRoot, ...(marker ? [marker] : [])], { stdio: ["ignore", "pipe", "pipe"] });
       let stdout = "";
       child.stdout.on("data", (chunk) => { stdout += chunk; });
       child.once("error", reject);
       child.once("exit", () => resolveRun(JSON.parse(stdout)));
-    })));
+    });
+    const owner = launch(holdingMarker);
+    const deadline = performance.now() + 30_000;
+    while (!existsSync(holdingMarker) && performance.now() < deadline)
+      await new Promise(resolve => setTimeout(resolve, 25));
+    if (!existsSync(holdingMarker)) {
+      await owner;
+      assert.fail('publication owner must reach the SDK acquisition barrier');
+    }
+    // Five contenders start only after the owner holds the lock, and must wait
+    // through a preparation longer than the former retry window on every OS.
+    const results = await Promise.all([owner, ...Array.from({ length: 5 }, () => launch())]);
     assert.deepEqual(results.filter((row) => row.error), [], JSON.stringify(results));
     assert.equal(ensurePluginMcpRuntime({ pluginRoot: updatedPlugin, dataRoot, exec() { throw new Error("must reuse"); } }).changed, false);
     assert.deepEqual(readdirSync(join(dataRoot, "mcp")).filter((name) => name.startsWith(".")), [], "no retired or staged leftovers");

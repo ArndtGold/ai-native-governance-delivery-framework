@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readFileSync, readdirSync, memoizeControlRead } from "../control-read/fs.js";
+import { existsSync, lstatSync, lstatKindSync, readFileSync, readdirSync, memoizeControlRead } from "../control-read/fs.js";
 import { join } from "node:path";
 import { parseRunState, RUN_ID_PATTERN } from "./run-state-parser.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
@@ -24,8 +24,7 @@ export function discoverRuns(root) {
 function discoverCapturedRuns(root) {
   const dir = join(root, ".agdf", "control", "runs");
   if (!existsSync(dir)) return [];
-  const rootStats = lstatSync(dir);
-  if (rootStats.isSymbolicLink() || !rootStats.isDirectory()) {
+  if (lstatKindSync(dir) !== 'directory') {
     return [invalidRun("<repository>", dir)];
   }
   return readdirSync(dir)
@@ -34,10 +33,9 @@ function discoverCapturedRuns(root) {
     .map((id) => {
       const directory = join(dir, id);
       const path = join(directory, "RUN_STATE.md");
-      const directoryStats = lstatSync(directory);
+      const directoryKind = lstatKindSync(directory);
       if (!RUN_ID_PATTERN.test(id)
-          || directoryStats.isSymbolicLink()
-          || !directoryStats.isDirectory()
+          || directoryKind !== 'directory'
           || !existsSync(path)) {
         return invalidRun(id, path);
       }

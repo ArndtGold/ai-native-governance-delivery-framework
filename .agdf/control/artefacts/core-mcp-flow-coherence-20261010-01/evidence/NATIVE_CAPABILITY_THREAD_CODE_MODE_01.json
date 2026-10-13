@@ -1,0 +1,70 @@
+{
+  "feature_code_mode_host": true,
+  "feature_enable_mcp_apps": true,
+  "init": {
+    "id": 1,
+    "result": {
+      "userAgent": "Codex Desktop/0.162.0-alpha.17.2 (Mac OS 15.7.7; x86_64) dumb (agdf-capability-diagnostic; 1)",
+      "codexHome": "/Users/arndtgold/.codex",
+      "platformFamily": "unix",
+      "platformOs": "macos"
+    }
+  },
+  "status": {
+    "id": 3,
+    "result": {
+      "data": [
+        {
+          "name": "capability-probe",
+          "runtimeStatus": "connected",
+          "pluginId": null,
+          "httpOrigin": null,
+          "serverInfo": {
+            "name": "agdf-capability-read-only",
+            "title": null,
+            "version": "1",
+            "description": null,
+            "icons": null,
+            "websiteUrl": null
+          },
+          "serverCapabilities": {
+            "resources": {},
+            "tools": {}
+          },
+          "tools": {},
+          "toolsError": null,
+          "resources": [],
+          "resourceTemplates": [],
+          "authStatus": "unsupported"
+        }
+      ],
+      "nextCursor": null
+    }
+  },
+  "wire": {
+    "method": "initialize",
+    "capabilities": {
+      "experimental": {
+        "codex/auth-change": {}
+      },
+      "extensions": {
+        "io.modelcontextprotocol/ui": {
+          "mimeTypes": [
+            "text/html;profile=mcp-app",
+            "text/html+skybridge"
+          ]
+        }
+      },
+      "elicitation": {
+        "form": {},
+        "url": {}
+      }
+    },
+    "clientInfo": {
+      "name": "codex-mcp-client",
+      "title": "Codex",
+      "version": "0.162.0-alpha.17.2"
+    },
+    "protocolVersion": "2025-06-18"
+  }
+}

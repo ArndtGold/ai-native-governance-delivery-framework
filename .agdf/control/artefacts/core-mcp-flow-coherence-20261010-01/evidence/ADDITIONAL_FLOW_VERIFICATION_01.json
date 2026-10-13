@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "--test-concurrency=3",
+    "packages/core/test/approval-command-recovery-test.js",
+    "packages/core/test/run-closeout-slice-test.js",
+    "packages/mcp-server/test/whole-flow.test.js",
+    "packages/mcp-server/test/structured-flow.test.js",
+    "packages/mcp-server/test/revision-command.test.js"
+  ],
+  "candidate_environment": {
+    "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+    "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+    "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges"
+  },
+  "started_at": "2026-10-10T17:51:02.987159+00:00",
+  "observed_at": "2026-10-10T17:54:53.704210+00:00",
+  "exit_code": 0,
+  "evidence_class": "source_owner_and_actual_generated_stdio_synthetic_tests",
+  "native_qualified": false,
+  "raw_log": "ADDITIONAL_FLOW_VERIFICATION_01.log"
+}

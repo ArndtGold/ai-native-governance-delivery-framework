@@ -1,0 +1,535 @@
+{
+  "evidence_class": "actual_generated_stdio_synthetic_disposable_ur_revision",
+  "modern": true,
+  "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+  "run_id": "mcp-early-ur",
+  "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+  "expected_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+  "preview": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": "Synthetic reviewed source revision test",
+    "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+    "request_digest": "sha256:6c6f3a7baed31008bcc5dbec2d2a08c09a6d8786badd80ed100fed57464dab09",
+    "binding": {
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+      "run_id": "mcp-early-ur",
+      "expected_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "kind": "source_revision.preview"
+    },
+    "effect": null,
+    "receipt": null,
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "outcome": "preview",
+      "authority": "proposed_only",
+      "authorizes": false,
+      "schema_version": "1",
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+      "run_id": "mcp-early-ur",
+      "expected_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+      "request_digest": "sha256:a485021e3725719b392dcd5583a159898a3fa303fe87845790abb4a6504be5f9",
+      "reason": "Synthetic reviewed source revision test",
+      "intended_change": "Revise the selected source while preserving reviewed upstream intent",
+      "sources": [
+        {
+          "type": "UR",
+          "path": ".agdf/control/artefacts/mcp-early-ur/UR.md",
+          "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+        },
+        {
+          "type": "PRD",
+          "path": ".agdf/control/artefacts/mcp-early-ur/PRD.md",
+          "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+        },
+        {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/mcp-early-ur/SD.md",
+          "digest": "sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+        }
+      ],
+      "impact": {
+        "source_gate": "UR",
+        "retained": [],
+        "superseded": [
+          "UR",
+          "PRD",
+          "SD",
+          "TP"
+        ],
+        "invalidated_bindings": [
+          "71a29215-0798-4b9e-b813-be90dd316004",
+          "ee4c661f-0317-4719-a1a1-39c9eae33685"
+        ],
+        "analyses": [
+          {
+            "type": "Brownfield Review",
+            "disposition": "reassess",
+            "path": ".agdf/control/artefacts/mcp-early-ur/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+            "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+          }
+        ],
+        "invalidated_steps": [
+          "Brownfield Analysis",
+          "CD+Tests",
+          "CR"
+        ],
+        "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+        "next_gate": "UR",
+        "implementation_authority": false
+      },
+      "archive_digest": "sha256:6262951d7dc7e746b6c7da7fab31ec2c055607f6b04036b12e8131dec4c61919",
+      "current_run_digest": "sha256:55ad82bcc328b9825f9697bee18d69b0364441b4758a959e26e4baaf2c1eeaac",
+      "preview_digest": "sha256:bebd048e459aed524c2e041c925e867bfeed86077f358c66bfb9b1f94649d4fa",
+      "confirmation_selector": "Apply source revision: mcp-early-ur ee4093f8-b896-44b5-9630-452f5e0f272a 1f80f7e2-82cc-4129-8584-55a2e3b3d487 UR sha256:bebd048e459aed524c2e041c925e867bfeed86077f358c66bfb9b1f94649d4fa",
+      "next_action": "Review the bound impact; explicitly apply it or cancel without mutation."
+    }
+  },
+  "applied": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+    "request_digest": "sha256:e2efb3589dc2de6da5244cf9128ff2eac1e45a9005301e63f339d575df817276",
+    "binding": {
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+      "run_id": "mcp-early-ur",
+      "expected_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "kind": "source_revision.apply"
+    },
+    "effect": null,
+    "receipt": {
+      "analyses": [
+        {
+          "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+          "disposition": "reassess",
+          "path": ".agdf/control/artefacts/mcp-early-ur/BROWNFIELD_REVIEW.md",
+          "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR",
+          "type": "Brownfield Review"
+        }
+      ],
+      "archive": {
+        "digest": "sha256:6262951d7dc7e746b6c7da7fab31ec2c055607f6b04036b12e8131dec4c61919",
+        "path": ".agdf/control/runs/mcp-early-ur/revisions/1f80f7e2-82cc-4129-8584-55a2e3b3d487/manifest.json"
+      },
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "command_digest": "sha256:e2efb3589dc2de6da5244cf9128ff2eac1e45a9005301e63f339d575df817276",
+      "confirmation_digest": "sha256:7c77cec59ba6a3ee8c474ebabc9f30ec85788278ac4aa8bf2fa5fcc4d821bb1f",
+      "invalidated_bindings": [
+        "71a29215-0798-4b9e-b813-be90dd316004",
+        "ee4c661f-0317-4719-a1a1-39c9eae33685"
+      ],
+      "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+      "preview_digest": "sha256:bebd048e459aed524c2e041c925e867bfeed86077f358c66bfb9b1f94649d4fa",
+      "previous_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "proposal_reference": {
+        "digest": "sha256:5e5e5bc90e1720e2d466a88204821caa64137a160c9bb8135df11a225ab84d94",
+        "path": ".agdf/control/artefacts/mcp-early-ur/proposal-1f80f7e2-82cc-4129-8584-55a2e3b3d487.json"
+      },
+      "reason": "Synthetic reviewed source revision test",
+      "request_digest": "sha256:a485021e3725719b392dcd5583a159898a3fa303fe87845790abb4a6504be5f9",
+      "resulting_revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "retained_sources": [],
+      "revision": 8,
+      "run_id": "mcp-early-ur",
+      "schema_version": "2",
+      "source_gate": "UR",
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d"
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 8,
+      "revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "lifecycle": "active",
+      "gate": "UR",
+      "status": "open",
+      "missing_approval": "Approval: UR",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "author_gate_artifact",
+        "operation_key": "artefact.author",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "UR"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "outcome": "reopened",
+      "authorizes": false,
+      "run_id": "mcp-early-ur",
+      "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+      "gate": "UR",
+      "revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "revision": "8",
+      "impact": {
+        "source_gate": "UR",
+        "retained": [],
+        "superseded": [
+          "UR",
+          "PRD",
+          "SD",
+          "TP"
+        ],
+        "invalidated_bindings": [
+          "71a29215-0798-4b9e-b813-be90dd316004",
+          "ee4c661f-0317-4719-a1a1-39c9eae33685"
+        ],
+        "analyses": [
+          {
+            "type": "Brownfield Review",
+            "disposition": "reassess",
+            "path": ".agdf/control/artefacts/mcp-early-ur/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+            "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR"
+          }
+        ],
+        "invalidated_steps": [
+          "Brownfield Analysis",
+          "CD+Tests",
+          "CR"
+        ],
+        "retained_work": "Code and test files are retained; fulfillment and evidence require the renewed TP.",
+        "next_gate": "UR",
+        "implementation_authority": false
+      },
+      "next_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
+    }
+  },
+  "replay": {
+    "schema_version": "1",
+    "outcome": "already_applied",
+    "reason": null,
+    "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+    "request_digest": "sha256:e2efb3589dc2de6da5244cf9128ff2eac1e45a9005301e63f339d575df817276",
+    "binding": {
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+      "run_id": "mcp-early-ur",
+      "expected_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "kind": "source_revision.apply"
+    },
+    "effect": null,
+    "receipt": {
+      "analyses": [
+        {
+          "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+          "disposition": "reassess",
+          "path": ".agdf/control/artefacts/mcp-early-ur/BROWNFIELD_REVIEW.md",
+          "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR",
+          "type": "Brownfield Review"
+        }
+      ],
+      "archive": {
+        "digest": "sha256:6262951d7dc7e746b6c7da7fab31ec2c055607f6b04036b12e8131dec4c61919",
+        "path": ".agdf/control/runs/mcp-early-ur/revisions/1f80f7e2-82cc-4129-8584-55a2e3b3d487/manifest.json"
+      },
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "command_digest": "sha256:e2efb3589dc2de6da5244cf9128ff2eac1e45a9005301e63f339d575df817276",
+      "confirmation_digest": "sha256:7c77cec59ba6a3ee8c474ebabc9f30ec85788278ac4aa8bf2fa5fcc4d821bb1f",
+      "invalidated_bindings": [
+        "71a29215-0798-4b9e-b813-be90dd316004",
+        "ee4c661f-0317-4719-a1a1-39c9eae33685"
+      ],
+      "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+      "preview_digest": "sha256:bebd048e459aed524c2e041c925e867bfeed86077f358c66bfb9b1f94649d4fa",
+      "previous_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "proposal_reference": {
+        "digest": "sha256:5e5e5bc90e1720e2d466a88204821caa64137a160c9bb8135df11a225ab84d94",
+        "path": ".agdf/control/artefacts/mcp-early-ur/proposal-1f80f7e2-82cc-4129-8584-55a2e3b3d487.json"
+      },
+      "reason": "Synthetic reviewed source revision test",
+      "request_digest": "sha256:a485021e3725719b392dcd5583a159898a3fa303fe87845790abb4a6504be5f9",
+      "resulting_revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "retained_sources": [],
+      "revision": 8,
+      "run_id": "mcp-early-ur",
+      "schema_version": "2",
+      "source_gate": "UR",
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d"
+    },
+    "historical_effect": true,
+    "current": {
+      "available": true,
+      "revision": 8,
+      "revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "lifecycle": "active",
+      "gate": "UR",
+      "status": "open",
+      "missing_approval": "Approval: UR",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "author_gate_artifact",
+        "operation_key": "artefact.author",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "UR"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "outcome": "replayed",
+      "authorizes": false,
+      "historical_effect": true,
+      "receipt": {
+        "analyses": [
+          {
+            "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+            "disposition": "reassess",
+            "path": ".agdf/control/artefacts/mcp-early-ur/BROWNFIELD_REVIEW.md",
+            "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR",
+            "type": "Brownfield Review"
+          }
+        ],
+        "archive": {
+          "digest": "sha256:6262951d7dc7e746b6c7da7fab31ec2c055607f6b04036b12e8131dec4c61919",
+          "path": ".agdf/control/runs/mcp-early-ur/revisions/1f80f7e2-82cc-4129-8584-55a2e3b3d487/manifest.json"
+        },
+        "assurance": {
+          "independent_human_proof": "unavailable",
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply"
+        },
+        "command_digest": "sha256:e2efb3589dc2de6da5244cf9128ff2eac1e45a9005301e63f339d575df817276",
+        "confirmation_digest": "sha256:7c77cec59ba6a3ee8c474ebabc9f30ec85788278ac4aa8bf2fa5fcc4d821bb1f",
+        "invalidated_bindings": [
+          "71a29215-0798-4b9e-b813-be90dd316004",
+          "ee4c661f-0317-4719-a1a1-39c9eae33685"
+        ],
+        "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+        "preview_digest": "sha256:bebd048e459aed524c2e041c925e867bfeed86077f358c66bfb9b1f94649d4fa",
+        "previous_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "proposal_reference": {
+          "digest": "sha256:5e5e5bc90e1720e2d466a88204821caa64137a160c9bb8135df11a225ab84d94",
+          "path": ".agdf/control/artefacts/mcp-early-ur/proposal-1f80f7e2-82cc-4129-8584-55a2e3b3d487.json"
+        },
+        "reason": "Synthetic reviewed source revision test",
+        "request_digest": "sha256:a485021e3725719b392dcd5583a159898a3fa303fe87845790abb4a6504be5f9",
+        "resulting_revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+        "retained_sources": [],
+        "revision": 8,
+        "run_id": "mcp-early-ur",
+        "schema_version": "2",
+        "source_gate": "UR",
+        "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d"
+      },
+      "run_id": "mcp-early-ur",
+      "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+      "resulting_revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "current_revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb"
+    }
+  },
+  "source_revision_receipt": {
+    "analyses": [
+      {
+        "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/mcp-early-ur/BROWNFIELD_REVIEW.md",
+        "reason": "Synthetic reviewed applicability assessment under unchanged or renewed UR",
+        "type": "Brownfield Review"
+      }
+    ],
+    "archive": {
+      "digest": "sha256:6262951d7dc7e746b6c7da7fab31ec2c055607f6b04036b12e8131dec4c61919",
+      "path": ".agdf/control/runs/mcp-early-ur/revisions/1f80f7e2-82cc-4129-8584-55a2e3b3d487/manifest.json"
+    },
+    "assurance": {
+      "independent_human_proof": "unavailable",
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply"
+    },
+    "command_digest": "sha256:e2efb3589dc2de6da5244cf9128ff2eac1e45a9005301e63f339d575df817276",
+    "confirmation_digest": "sha256:7c77cec59ba6a3ee8c474ebabc9f30ec85788278ac4aa8bf2fa5fcc4d821bb1f",
+    "invalidated_bindings": [
+      "71a29215-0798-4b9e-b813-be90dd316004",
+      "ee4c661f-0317-4719-a1a1-39c9eae33685"
+    ],
+    "operation_id": "1f80f7e2-82cc-4129-8584-55a2e3b3d487",
+    "preview_digest": "sha256:bebd048e459aed524c2e041c925e867bfeed86077f358c66bfb9b1f94649d4fa",
+    "previous_revision_id": "ee4093f8-b896-44b5-9630-452f5e0f272a",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "proposal_reference": {
+      "digest": "sha256:5e5e5bc90e1720e2d466a88204821caa64137a160c9bb8135df11a225ab84d94",
+      "path": ".agdf/control/artefacts/mcp-early-ur/proposal-1f80f7e2-82cc-4129-8584-55a2e3b3d487.json"
+    },
+    "reason": "Synthetic reviewed source revision test",
+    "request_digest": "sha256:a485021e3725719b392dcd5583a159898a3fa303fe87845790abb4a6504be5f9",
+    "resulting_revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+    "retained_sources": [],
+    "revision": 8,
+    "run_id": "mcp-early-ur",
+    "schema_version": "2",
+    "source_gate": "UR",
+    "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d"
+  },
+  "archive_digest": "sha256:6262951d7dc7e746b6c7da7fab31ec2c055607f6b04036b12e8131dec4c61919",
+  "archived_presentations": [
+    "27eae397-169c-4a91-94fc-042ff0937802.document",
+    "27eae397-169c-4a91-94fc-042ff0937802.json",
+    "38f8a6e9-675a-4074-8d34-0d762ac756b6.document",
+    "38f8a6e9-675a-4074-8d34-0d762ac756b6.json",
+    "b4bdf4f0-c113-4849-83ee-8f94ea555242.document",
+    "b4bdf4f0-c113-4849-83ee-8f94ea555242.json"
+  ],
+  "stale_approval": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "reason": "decision_material_unavailable",
+    "operation_id": "ee55765f-43b9-4aeb-b607-9614fcc2e2ce",
+    "request_digest": "sha256:5b72f30ffbaff6805aa563d2ce7defd54a616e2b5947f9288935acbf5988ae79",
+    "binding": {
+      "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+      "run_id": "mcp-early-ur",
+      "expected_revision_id": "9a20d410-1bb7-4477-9237-43e5c4c74f6d",
+      "kind": "approval.record"
+    },
+    "effect": null,
+    "receipt": null,
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 8,
+      "revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+      "lifecycle": "active",
+      "gate": "UR",
+      "status": "open",
+      "missing_approval": "Approval: UR",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "author_gate_artifact",
+        "operation_key": "artefact.author",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "UR"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "rejected",
+      "reason": "decision_material_unavailable",
+      "operation_id": "ee55765f-43b9-4aeb-b607-9614fcc2e2ce",
+      "request_digest": "sha256:daf6eb1e16ab3ed5d32ad0ef2b1ae729e378373004f64dea6dfcbd0bd0f94a56",
+      "binding": {
+        "target_id": "sha256:2851dbb94e158075ebc9ec4f5f91fb4c604394e56d4018a74d81cffab750508d",
+        "run_id": "mcp-early-ur",
+        "gate": "UR",
+        "expected_revision_id": "9a20d410-1bb7-4477-9237-43e5c4c74f6d",
+        "presentation_id": "38f8a6e9-675a-4074-8d34-0d762ac756b6"
+      },
+      "effect": null,
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "current": {
+        "available": true,
+        "revision": 8,
+        "revision_id": "3875c768-2b51-41c4-9d0d-3052dae05cbb",
+        "approval_status": "missing",
+        "lifecycle": "active",
+        "gate": "UR",
+        "status": "open",
+        "missing_approval": "Approval: UR",
+        "next_allowed_action": "formulate and persist UR",
+        "blocking_reason": "none"
+      },
+      "observations": {
+        "commit": "no_receipt_acknowledged",
+        "durability": "unconfirmed",
+        "independent_human_proof": "unavailable"
+      },
+      "recovery": "Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."
+    }
+  },
+  "native_qualified": false,
+  "authorizes": false
+}

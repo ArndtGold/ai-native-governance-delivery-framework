@@ -14,6 +14,13 @@ export const sameJson = (a: unknown, b: unknown): boolean => {
 };
 const text = (v: unknown) => typeof v === 'string';
 const nullableText = (v: unknown) => v === null || text(v);
+const evidenceAssociations = (v: unknown) => object(v) && ['current', 'superseded', 'applicability_unknown'].every(key => {
+  const rows = v[key];
+  return Array.isArray(rows) && rows.every(row => object(row) && nullableText(row.step) && nullableText(row.path)
+    && text(row.reason) && (row.available === null || typeof row.available === 'boolean'));
+});
+const nextOperation = (v: unknown) => object(v) && ['type', 'operation_key', 'effect', 'gate'].every(key => text(v[key]))
+  && ['agent', 'human'].includes(String(v.actor));
 const savedSummary = (v: unknown, key: unknown, section: unknown) => object(v)
   && ['recorded', 'unverified', 'invalid'].includes(String(v.provenance_state)) && nullableText(v.code)
   && nullableText(v.label_de) && text(v.limitation_de) && v.authorizes === false
@@ -112,12 +119,16 @@ const detailData = (data: unknown, allowInvalid = false): boolean => {
     || data.work_summary !== undefined && data.work_summary !== null && !workSummary(data.work_summary, data.run_id)
     || data.draft_check !== undefined && !validDraftCheck(data.draft_check, data.run_id, data.revision_id)
     || !validDocumentStates(data)
+    || data.evidence_applicability !== undefined && !evidenceAssociations(data.evidence_applicability)
     || data.backlog_comparison !== undefined && !(object(data.backlog_comparison)
       && ['matching', 'different', 'unavailable'].includes(String(data.backlog_comparison.state))
       && text(data.backlog_comparison.reason) && nullableText(data.backlog_comparison.saved_revision_id) && data.backlog_comparison.authorizes === false)) return false;
   if (data.evaluation === undefined) return allowInvalid && diagnostics(data.diagnostics);
   const e = data.evaluation, p = data.persisted;
   return object(e) && ['status', 'current_gate', 'blocking_reason', 'missing_approval', 'next_allowed_action', 'doctor_status', 'git_evidence'].every(k => text(e[k]))
+    && (e.next_operation === undefined || e.next_operation === null || nextOperation(e.next_operation))
+    && (e.completion === undefined || object(e.completion) && ['pending', 'completed', 'unconfirmed'].includes(String(e.completion.status))
+      && text(e.completion.gate) && typeof e.completion.fulfilled === 'boolean' && (e.completion.status === 'completed') === e.completion.fulfilled)
     && nullableText(e.next_action_de) && diagnostics(e.diagnostics) && Array.isArray(e.missing_evidence)
     && (e.control_assessment === undefined || object(e.control_assessment) && ['open', 'blocked', 'unconfirmed', 'completed'].includes(String(e.control_assessment.state)) && e.control_assessment.authorizes === false)
     && Array.isArray(e.approvals) && e.approvals.every(a => object(a) && ['gate', 'status', 'evidence'].every(k => text(a[k])))

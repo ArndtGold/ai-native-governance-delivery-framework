@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Envelope, Detail, Resource } from './types';
 import { WorkStep } from './WorkStep';
+import { FlowEvidence } from './FlowEvidence';
 import { ReadState, label } from './feedback';
 import { documentName, documentPurpose, reportFindingsLabel } from './presentation';
 export function RunDetail({ result, onOpen, summaryOnly = false, current = true, draftCheck }: { result: Envelope<Detail>; onOpen: (resource: Resource, origin?: string) => void; summaryOnly?: boolean; current?: boolean; draftCheck?: ReactNode }) {
@@ -12,6 +13,7 @@ export function RunDetail({ result, onOpen, summaryOnly = false, current = true,
       {data?.objective && <p className="objective">{data.objective}</p>}</>}
     {data && <WorkStep data={data} onOpen={onOpen} condensed={summaryOnly} current={current && result.state === 'available' && !(e && p && (p.current_gate !== e.current_gate || p.next_allowed_action !== e.next_allowed_action))}/>}
     {draftCheck}
+    {data && <FlowEvidence data={data} onOpen={onOpen} current={current && result.state === 'available'}/>}
     {data?.work_summary && <section className="work-summary panel agdf-surface" aria-label="Offene Aufgabe"><h2>{data.work_summary.phase} · Offene Aufgabe und nächster Schritt</h2>
       <p>{data.work_summary.display_action}</p>{data.work_summary.open_obligation_count > 0 && <p>{reportFindingsLabel(data.work_summary.open_obligation_count)} in den registrierten Berichten.</p>}
       {!!data.work_summary.limitations.length && <p className="muted">Quellenbezug eingeschränkt: {data.work_summary.limitations.join(' · ')}</p>}

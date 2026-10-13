@@ -1366,7 +1366,7 @@ smokePhase("status card tp transition");
       throw new Error(`Ready gate-check cards must contain the exact approval value once, got ${cardApprovalCount}.`);
     }
     const envelope = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "tp-transition", "--approval-envelope"], { encoding: "utf8", stdio: "pipe" });
-    if (!envelope.includes("## Review summary · TP")
+    if (!envelope.includes(report.approval_presentation.summary_markdown)
       || !envelope.includes("## Review artefact · TP")
       || !envelope.includes("Artefact: [TP.md]")
       || envelope.includes("Approval: TP")) {

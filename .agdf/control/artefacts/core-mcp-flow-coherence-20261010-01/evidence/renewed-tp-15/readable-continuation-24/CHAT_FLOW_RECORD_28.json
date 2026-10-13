@@ -1,0 +1,166 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+    "operation_id": "ca2739a5-e9c6-4e60-8c69-42f88e9bbf55",
+    "command": {
+      "kind": "step.record",
+      "payload": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/CHAT_APPROVAL_FLOW_28.json",
+          "digest": "sha256:9b6a09a3b5a7883061e5ae22be72010cde5ecd1f1864c2953fa7965e4bd359bf"
+        },
+        "covers": "Current actual human German Chat approval and immediate once-only continuation to unapproved TP; exact source redisplayed without inferred iPad evidence",
+        "reason": "The new human response was exactly bound to the presented disposable SD, accepted by the same owner and followed automatically to the next human gate; no main QA approval or device visibility is inferred"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "ca2739a5-e9c6-4e60-8c69-42f88e9bbf55",
+    "request_digest": "sha256:694bba4d554a4bba698c116f56941ac4b25044945b7b56db3b94de7c5d15ca80",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "kind": "step.record"
+    },
+    "effect": {
+      "previous_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "resulting_revision_id": "79fb461b-8afb-4176-bab0-ff3c7fbb8b65",
+      "revision": 64,
+      "record": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/CHAT_APPROVAL_FLOW_28.json",
+          "digest": "sha256:9b6a09a3b5a7883061e5ae22be72010cde5ecd1f1864c2953fa7965e4bd359bf"
+        },
+        "status": "done",
+        "covers": "Current actual human German Chat approval and immediate once-only continuation to unapproved TP; exact source redisplayed without inferred iPad evidence",
+        "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+      }
+    },
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "ca2739a5-e9c6-4e60-8c69-42f88e9bbf55",
+      "request_digest": "sha256:694bba4d554a4bba698c116f56941ac4b25044945b7b56db3b94de7c5d15ca80",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "created_at": "2026-10-12T10:53:00.736Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+        "resulting_revision_id": "79fb461b-8afb-4176-bab0-ff3c7fbb8b65",
+        "revision": 64,
+        "record": {
+          "step": "evidence",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/CHAT_APPROVAL_FLOW_28.json",
+            "digest": "sha256:9b6a09a3b5a7883061e5ae22be72010cde5ecd1f1864c2953fa7965e4bd359bf"
+          },
+          "status": "done",
+          "covers": "Current actual human German Chat approval and immediate once-only continuation to unapproved TP; exact source redisplayed without inferred iPad evidence",
+          "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+        }
+      }
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 64,
+      "revision_id": "79fb461b-8afb-4176-bab0-ff3c7fbb8b65",
+      "lifecycle": "active",
+      "gate": "QA",
+      "status": "open",
+      "missing_approval": "none",
+      "blocking_reason": "qa_revise_required",
+      "next_operation": {
+        "type": "remediate_quality_findings",
+        "operation_key": "quality.remediate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA",
+        "routing": "evidence"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "step": "evidence",
+      "previous_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "revision": "64",
+      "revision_id": "79fb461b-8afb-4176-bab0-ff3c7fbb8b65",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "updated",
+      "operation_id": "ca2739a5-e9c6-4e60-8c69-42f88e9bbf55",
+      "receipt": {
+        "schema_version": "1",
+        "kind": "step.record",
+        "operation_id": "ca2739a5-e9c6-4e60-8c69-42f88e9bbf55",
+        "request_digest": "sha256:694bba4d554a4bba698c116f56941ac4b25044945b7b56db3b94de7c5d15ca80",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "run_id": "core-mcp-flow-coherence-20261010-01",
+        "expected_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+        "created_at": "2026-10-12T10:53:00.736Z",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "effect": {
+          "previous_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+          "resulting_revision_id": "79fb461b-8afb-4176-bab0-ff3c7fbb8b65",
+          "revision": 64,
+          "record": {
+            "step": "evidence",
+            "source": {
+              "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/CHAT_APPROVAL_FLOW_28.json",
+              "digest": "sha256:9b6a09a3b5a7883061e5ae22be72010cde5ecd1f1864c2953fa7965e4bd359bf"
+            },
+            "status": "done",
+            "covers": "Current actual human German Chat approval and immediate once-only continuation to unapproved TP; exact source redisplayed without inferred iPad evidence",
+            "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+          }
+        }
+      }
+    }
+  }
+}

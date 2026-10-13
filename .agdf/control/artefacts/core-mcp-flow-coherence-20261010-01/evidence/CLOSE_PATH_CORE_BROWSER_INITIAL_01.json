@@ -1,0 +1,150 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/node_modules/@playwright/test/cli.js",
+      "test",
+      "test/browser/decision-close-integration.spec.mjs"
+    ],
+    "configFile": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/playwright.config.mjs",
+    "rootDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/agdf-cockpit-browser-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "decision-close-integration.spec.mjs",
+      "file": "decision-close-integration.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 27946,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' })\u001b[22m\n\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:57:95\n    at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:29:5",
+                    "location": {
+                      "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs",
+                      "column": 95,
+                      "line": 57
+                    },
+                    "snippet": "  55 |       await expect(frame.getByRole('button', { name: view.labels.openDocument, exact: true })).toBeVisible();\n  56 |       await frame.getByRole('button', { name: view.labels.openDocument, exact: true }).click();\n> 57 |       await expect(frame.getByRole('heading', { name: `${view.labels.documentTitle} · SD` })).toBeVisible();\n     |                                                                                               ^\n  58 |       await frame.getByRole('button', { name: view.labels.back, exact: true }).click();\n  59 |       await frame.getByRole('textbox').fill('Unsent browser disposal comment');\n  60 |       await page.locator('iframe').evaluate(frame => frame.remove());"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs",
+                        "column": 95,
+                        "line": 57
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('iframe').contentFrame().getByRole('heading', { name: 'Presented document · SD' })\u001b[22m\n\n\n  55 |       await expect(frame.getByRole('button', { name: view.labels.openDocument, exact: true })).toBeVisible();\n  56 |       await frame.getByRole('button', { name: view.labels.openDocument, exact: true }).click();\n> 57 |       await expect(frame.getByRole('heading', { name: `${view.labels.documentTitle} · SD` })).toBeVisible();\n     |                                                                                               ^\n  58 |       await frame.getByRole('button', { name: view.labels.back, exact: true }).click();\n  59 |       await frame.getByRole('textbox').fill('Unsent browser disposal comment');\n  60 |       await page.locator('iframe').evaluate(frame => frame.remove());\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:57:95\n    at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:29:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T06:47:23.238Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/decision-close-integration-d201e-ts-own-view-synthetic-host-/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs",
+                    "column": 95,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3883e3044bf0c605046b-0eb082b2b5019fa02d0f",
+          "file": "decision-close-integration.spec.mjs",
+          "line": 15,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T06:47:19.542Z",
+    "duration": 32517.515,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

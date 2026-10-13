@@ -45,7 +45,7 @@ it('run detail makes evidence readable, preserves mismatch warnings and keeps or
   expect(screen.getByText('Aktuelle Voraussetzungen nicht bestätigt')).toBeTruthy();expect(screen.getByText('Abstimmung der Unterlagen fehlt.')).toBeTruthy();
   expect(screen.getByText(/Die gespeicherte Angabe weicht/).closest('details')).toBeNull();
   expect(screen.getByText('Kontrollstatus und Quellen').closest('details')?.hasAttribute('open')).toBe(false);
-  fireEvent.click(screen.getByRole('button',{name:/Anforderungen/}));expect(open).toHaveBeenCalledWith(resource);
+  fireEvent.click(screen.getByRole('button',{name:'Aktuelle Fassung ansehen: Anforderungen'}));expect(open).toHaveBeenCalledWith(resource,'document:source');
 });
 it('the document keeps exact source content and adds its undertaking and purpose',()=>{
   const resource={resource_id:'source',run_id:run.run_id,type:'UR',path:'UR.md',registered_reference:'UR.md',status:'registered'};

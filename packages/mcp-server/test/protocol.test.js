@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { artifactReadinessFixture, readyPrd } from '../../core/test/fixtures/artifact-readiness.js';
-import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "create-agdf/mcp-dispatch-runtime";
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "../../cli/lib/mcp-dispatch-runtime.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
   VALID_PRESENTATION_LANGUAGE_CASES,
@@ -15,8 +15,8 @@ for (const modern of [false, true]) {
     assert.equal(client.getNegotiatedProtocolVersion(), protocol);
     assert.equal(client.getProtocolEra(), modern ? "modern" : "legacy");
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 2);
-    assert.deepEqual(tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect"]);
+    assert.equal(tools.length, 7);
+    assert.deepEqual(tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
     for (const [label, path] of [
       ["repository README", "../../../README.md"],
       ["installation guide", "../../../INSTALL.md"],

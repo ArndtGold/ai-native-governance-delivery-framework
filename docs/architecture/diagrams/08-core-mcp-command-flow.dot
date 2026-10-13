@@ -1,0 +1,36 @@
+digraph core_mcp_command_flow {
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.48, fontname="Helvetica", label="08  /  VOM ARTEFAKT ZUR ENTSCHEIDUNG", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#5284AD", fillcolor="#E5F0FC", fontname="Helvetica", fontsize=14, margin="0.19,0.14", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
+
+  binding [label="Ziel, Run und aktuelle Revision binden\nZulässigen Schritt und Operationsvertrag lesen", fillcolor="#FFF2CF", color="#BF9840"];
+  author [label="Agent: Artefakt erstellen und tatsächlich prüfen\nQuellen und semantische Prüfung festhalten", fillcolor="#EEE9FF", color="#8270AE"];
+  record [label="agdf_record → Core und zuständiger Writer\nGeprüftes Material registrieren\nRegistrierung ist noch keine Freigabe", fillcolor="#DDF4EE", color="#2D8B7B"];
+  prepare [label="agdf_prepare → unveränderliche Präsentation\nExakter Run, Gate, Revision und Material\nVorbereitung speichert Bindung; Gate bleibt offen"];
+  human [label="Mensch: Vorschlag, Dokument und Konsequenz lesen\nBewusste Antwort auf genau diese Fassung\nChat oder entsprechend qualifizierte Decision App", fillcolor="#FFF2CF", color="#BF9840"];
+  approve [label="Freigeben\nagdf_approve / approval.record", fillcolor="#DDF4EE", color="#2D8B7B"];
+  change [label="Änderung anfordern oder ablehnen\nagdf_record / presentation_decision.record\nKeine Gate-Freigabe", fillcolor="#FFF2CF", color="#BF9840"];
+  write [label="Core und kanonischer Writer\nZulässigkeit und exakte Bindung erneut prüfen\nEntscheidung und ursprüngliche Operations-ID speichern", fillcolor="#DDF4EE", color="#2D8B7B"];
+  evaluate [label="Core: aktuellen Zustand frisch auswerten\nnext_operation mit Akteur und Wirkung", fillcolor="#DDF4EE", color="#2D8B7B"];
+  next [label="Nächster zulässiger Schritt\nWeitere Planung, Umsetzung, Reviews und Abnahme\nJeder Schritt behält seine Voraussetzungen"];
+  revise [label="Zuständige Überarbeitung\nMaterial ändern und erneut prüfen\nNeue Fassung braucht neue Entscheidung", fillcolor="#FFF2CF", color="#BF9840"];
+  closeout [label="agdf_closeout → zuständiger Writer\nExakten OR bestätigen, Verpflichtungen prüfen\nAusgewählten Run und Backlog-Verweis abschließen", fillcolor="#DDF4EE", color="#2D8B7B"];
+  boundary [label="Dargestellt ist der zulässige Ablauf; nicht jede Anfrage erreicht den Writer.\nLesen und Tool-Berechtigung entscheiden kein Gate. Git und Veröffentlichung haben eigene Zuständigkeiten.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
+
+  binding -> author;
+  author -> record;
+  record -> prepare;
+  prepare -> human;
+  human -> approve;
+  human -> change;
+  approve -> write;
+  change -> write;
+  write -> evaluate;
+  evaluate -> next [label="zulässige Fortsetzung"];
+  evaluate -> revise [label="Überarbeitung erforderlich"];
+  revise -> author [label="geändertes Material", style=dashed, constraint=false, tailport=e, headport=e];
+  next -> closeout [label="Abschlussvoraussetzungen erfüllt"];
+  closeout -> boundary [style=invis];
+  {rank=same; approve; change;}
+  {rank=same; next; revise;}
+}

@@ -1,0 +1,621 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_human_Chat_approval_and_automatic_disposable_progression",
+  "human_response": {
+    "question_id": "call_6357ea73bb974df88dd8a850c2899937/0",
+    "text": "Approval: SD",
+    "bound_run_id": "native-de-text",
+    "bound_presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed"
+  },
+  "reading_observation": {
+    "text": "Zeige es mit noch mal , was war es",
+    "device_confirmed": false,
+    "readability_confirmed": false,
+    "redisplayed_exact_document": {
+      "available": true,
+      "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+      "run_id": "native-de-text",
+      "gate": "SD",
+      "revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+      "applicability": "current",
+      "presentation_digest": "sha256:ba662abf8e4813c11ca96cd70b285b40855ea0aed8f0edfbce3010d66dad06ca",
+      "content_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "presentation_language": "de",
+      "document_language": "en",
+      "content": "# SD: Synthetic saved filter\nStatus: draft\nGate: SD\nGate approval: open\nOwner: Test design owner\nTraceability contract: criteria-chain-v1\nDesign Decisions contract: sd-decisions-v1\n\n## Solution Overview\nReuse the existing user-owned filter store.\n\n## Ownership And Source Of Truth\nExisting filter service retains ownership; the approved PRD remains product authority.\n\n## Architecture Decisions\n- SDD-001: Reuse the existing filter service; rationale: retain user ownership; consequence: no shared filters.\n\n## Acceptance Traceability\n| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |\n|---|---|---|---|---|\n| AC-001 | Existing store saves/restores owned filter values | Filter service and approved PRD owner | SDD-001 | Existing personal ownership retained |\n\n## Design Decisions\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Store boundary | before_sd | resolved | Existing filter service | Test design owner |\n\n## AGDF Approval Summary (de; source=en)\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n## Native observation scope\nDisposable synthetic Run. No real undertaking is approved or changed by this probe.\n",
+      "byte_start": 0,
+      "byte_end": 1342,
+      "total_bytes": 1342,
+      "complete": true,
+      "next_cursor": null,
+      "authorizes": false
+    }
+  },
+  "approval": {
+    "request": {
+      "schema_version": "1",
+      "assurance": "cooperative_local",
+      "presentation_language": "de",
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "target_source": "explicit_target",
+      "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+      "run_id": "native-de-text",
+      "expected_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+      "operation_id": "b928a8bf-d2df-47b6-bf3d-69dff4d56efe",
+      "command": {
+        "kind": "approval.record",
+        "payload": {
+          "gate": "SD",
+          "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+          "response": "Approval: SD"
+        }
+      }
+    },
+    "result": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "b928a8bf-d2df-47b6-bf3d-69dff4d56efe",
+      "request_digest": "sha256:0c995362d486efae123b822ace24c20010fcba0baca2678adcebd585dcfaa52e",
+      "binding": {
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+        "run_id": "native-de-text",
+        "expected_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+        "kind": "approval.record"
+      },
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:ba662abf8e4813c11ca96cd70b285b40855ea0aed8f0edfbce3010d66dad06ca",
+        "previous_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+        "resulting_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+        "revision": 8
+      },
+      "receipt": {
+        "action": "record_gate_approval",
+        "assurance": {
+          "independent_human_proof": "unavailable",
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply"
+        },
+        "binding": {
+          "expected_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+          "gate": "SD",
+          "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed",
+          "run_id": "native-de-text",
+          "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2"
+        },
+        "command_digest": "sha256:0c995362d486efae123b822ace24c20010fcba0baca2678adcebd585dcfaa52e",
+        "created_at": "2026-10-12T10:47:11.849Z",
+        "effect": {
+          "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "approval": "Approval: SD",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-text/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-text/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+          "next_gate_after_approval": "TP",
+          "presentation_digest": "sha256:ba662abf8e4813c11ca96cd70b285b40855ea0aed8f0edfbce3010d66dad06ca",
+          "previous_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+          "resulting_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+          "revision": 8
+        },
+        "operation_id": "b928a8bf-d2df-47b6-bf3d-69dff4d56efe",
+        "producer": {
+          "contract": "approval-service/1",
+          "package_version": "0.14.5"
+        },
+        "request_digest": "sha256:6b143ae802ceab0a21160582351bf8ebfd3d5945c5a8bd8183e2f56f7ab1dda6",
+        "schema_version": "2"
+      },
+      "historical_effect": false,
+      "current": {
+        "available": true,
+        "revision": 8,
+        "revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "prepare_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "TP",
+          "skill_id": "gate-check",
+          "artifact_path": ".agdf/control/artefacts/native-de-text/TP.md",
+          "source_artifacts": [
+            ".agdf/control/artefacts/native-de-text/PRD.md",
+            ".agdf/control/artefacts/native-de-text/SD.md"
+          ]
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "authorizes": false,
+      "recovery": null,
+      "family_result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "b928a8bf-d2df-47b6-bf3d-69dff4d56efe",
+        "request_digest": "sha256:6b143ae802ceab0a21160582351bf8ebfd3d5945c5a8bd8183e2f56f7ab1dda6",
+        "binding": {
+          "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+          "run_id": "native-de-text",
+          "gate": "SD",
+          "expected_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+          "presentation_id": "2d1b3ab4-84cb-4d50-be04-4f98e579c3ed"
+        },
+        "effect": {
+          "previous_revision_id": "b02ab5c7-46c7-4e81-99af-ba1cdbfa56fe",
+          "resulting_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+          "revision": 8,
+          "gate": "SD",
+          "approval": "Approval: SD",
+          "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+          "material_sources": [
+            {
+              "type": "UR",
+              "path": ".agdf/control/artefacts/native-de-text/UR.md",
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+            },
+            {
+              "type": "PRD",
+              "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+            },
+            {
+              "type": "SD",
+              "path": ".agdf/control/artefacts/native-de-text/SD.md",
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+            }
+          ],
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "presentation_digest": "sha256:ba662abf8e4813c11ca96cd70b285b40855ea0aed8f0edfbce3010d66dad06ca",
+          "next_gate_after_approval": "TP",
+          "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+          "approval_status": "approved",
+          "lifecycle": "active",
+          "gate": "TP",
+          "status": "open",
+          "missing_approval": "Approval: TP",
+          "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+          "blocking_reason": "none"
+        },
+        "observations": {
+          "commit": "canonical_receipt_observed",
+          "durability": "file_and_directory_sync_completed",
+          "independent_human_proof": "unavailable"
+        },
+        "recovery": null
+      }
+    }
+  },
+  "fresh_route": {
+    "status": "open",
+    "current_gate": "TP",
+    "gate_route": {
+      "gate": "TP",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: TP",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "operation_key": "artefact.author",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "TP",
+      "skill_id": "gate-check",
+      "artifact_path": ".agdf/control/artefacts/native-de-text/TP.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/native-de-text/PRD.md",
+        ".agdf/control/artefacts/native-de-text/SD.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "run_id": "native-de-text",
+    "revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+    "doctor_status": "warn"
+  },
+  "tp_readiness": {
+    "run_id": "native-de-text",
+    "gate": "TP",
+    "expected_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+    "revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+    "artifact_path": ".agdf/control/artefacts/native-de-text/TP.md",
+    "artifact_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+    "ready": true,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [
+      {
+        "name": "approval_summary",
+        "ready": true,
+        "required_heading": "AGDF Approval Summary (de; source=en)",
+        "reason": null
+      },
+      {
+        "name": "tp_traceability",
+        "ready": true,
+        "open_items": [],
+        "contract": "criteria-chain-v1"
+      }
+    ],
+    "diagnostics": [],
+    "next_action": "Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval."
+  },
+  "tp_record": {
+    "request": {
+      "schema_version": "1",
+      "assurance": "cooperative_local",
+      "presentation_language": "de",
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "target_source": "explicit_target",
+      "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+      "run_id": "native-de-text",
+      "expected_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+      "operation_id": "0d639c55-1b2e-4887-b4ec-8a53d6db7d23",
+      "command": {
+        "kind": "artefact.record",
+        "payload": {
+          "gate": "TP",
+          "reviewed_request": {
+            "path": ".agdf/control/artefacts/native-de-text/TP_RECORDING_INPUT_28.json",
+            "digest": "sha256:96e130b4dbba2e9ddd53e4d6df5cc406402761bc6d763cdcfefecf858e6d582d"
+          }
+        }
+      }
+    },
+    "result": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "0d639c55-1b2e-4887-b4ec-8a53d6db7d23",
+      "request_digest": "sha256:a7a7254308f73da35f02a75e7a4f046c0cc9477f3caafeafb94ad9a66a44cf32",
+      "binding": {
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+        "run_id": "native-de-text",
+        "expected_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+        "kind": "artefact.record"
+      },
+      "effect": null,
+      "receipt": {
+        "schema_version": "2",
+        "binding_id": "4f211648-9336-4e51-82d6-9d786f215ec9",
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+        "run_id": "native-de-text",
+        "relationship": {
+          "from": "TP",
+          "relationship": "derived_from",
+          "to": "SD"
+        },
+        "destination": {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/native-de-text/TP.md",
+          "digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+          "status": "draft"
+        },
+        "source": {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/native-de-text/SD.md",
+          "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+        },
+        "review": {
+          "reviewer": "Codex / exact approved filter-scope derivation review, disposable human Chat test",
+          "path": ".agdf/control/artefacts/native-de-text/TP_MAPPING_REVIEW_28.json",
+          "digest": "sha256:9e3d384d58dfb8521faf1a552c2c9844f984a6a348c71c7f36cea2e1eb65ef78"
+        },
+        "origin": "reviewed_mapping",
+        "operation": {
+          "id": "0d639c55-1b2e-4887-b4ec-8a53d6db7d23",
+          "previous_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+          "resulting_revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+          "revision": 9,
+          "request_digest": "sha256:a7a7254308f73da35f02a75e7a4f046c0cc9477f3caafeafb94ad9a66a44cf32"
+        },
+        "supersedes": null
+      },
+      "historical_effect": false,
+      "current": {
+        "available": true,
+        "revision": 9,
+        "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "human_gate_decision",
+          "operation_key": "approval.record",
+          "actor": "human",
+          "effect": "decision",
+          "gate": "TP"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "authorizes": false,
+      "recovery": null,
+      "family_result": {
+        "schema_version": "1",
+        "outcome": "recorded",
+        "run_id": "native-de-text",
+        "step": "artefact",
+        "previous_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+        "revision": "9",
+        "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "current_gate": "TP",
+        "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "backlog": "updated",
+        "operation_id": "0d639c55-1b2e-4887-b4ec-8a53d6db7d23",
+        "receipt": {
+          "schema_version": "2",
+          "binding_id": "4f211648-9336-4e51-82d6-9d786f215ec9",
+          "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+          "run_id": "native-de-text",
+          "relationship": {
+            "from": "TP",
+            "relationship": "derived_from",
+            "to": "SD"
+          },
+          "destination": {
+            "type": "TP",
+            "path": ".agdf/control/artefacts/native-de-text/TP.md",
+            "digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+            "status": "draft"
+          },
+          "source": {
+            "type": "SD",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+          },
+          "review": {
+            "reviewer": "Codex / exact approved filter-scope derivation review, disposable human Chat test",
+            "path": ".agdf/control/artefacts/native-de-text/TP_MAPPING_REVIEW_28.json",
+            "digest": "sha256:9e3d384d58dfb8521faf1a552c2c9844f984a6a348c71c7f36cea2e1eb65ef78"
+          },
+          "origin": "reviewed_mapping",
+          "operation": {
+            "id": "0d639c55-1b2e-4887-b4ec-8a53d6db7d23",
+            "previous_revision_id": "5d6d5b2b-b1a6-44be-84a0-70c36dfb049d",
+            "resulting_revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+            "revision": 9,
+            "request_digest": "sha256:a7a7254308f73da35f02a75e7a4f046c0cc9477f3caafeafb94ad9a66a44cf32"
+          },
+          "supersedes": null
+        }
+      }
+    }
+  },
+  "next_human_gate": {
+    "status": "open",
+    "current_gate": "TP",
+    "gate_route": {
+      "gate": "TP",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: TP",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "TP"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "run_id": "native-de-text",
+    "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+    "doctor_status": "warn"
+  },
+  "tp_presentation": {
+    "request": {
+      "schema_version": "1",
+      "assurance": "cooperative_local",
+      "presentation_language": "de",
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-H3C1K2/governance-target",
+      "target_source": "explicit_target",
+      "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+      "run_id": "native-de-text",
+      "expected_revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+      "operation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+      "command": {
+        "kind": "presentation.prepare",
+        "payload": {
+          "gate": "TP"
+        }
+      }
+    },
+    "result": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+      "request_digest": "sha256:236036eadc8413ed0d5e12b70bacc0f115a1971430981a61662cf0ef51c9720d",
+      "binding": {
+        "target_id": "sha256:61c4958ded6fa3849ef3d369e12d232deebb87471a30d62b4a6abed1d1b213e2",
+        "run_id": "native-de-text",
+        "expected_revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "kind": "presentation.prepare"
+      },
+      "effect": null,
+      "receipt": {
+        "schema_version": 3,
+        "presentation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+        "operation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+        "request_digest": "sha256:236036eadc8413ed0d5e12b70bacc0f115a1971430981a61662cf0ef51c9720d",
+        "created_at": "2026-10-12T10:51:02.363Z",
+        "run_id": "native-de-text",
+        "gate": "TP",
+        "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "content_digest": "sha256:7bf14bd866c88caac6dbf9b5000962671af041f6c1546fa96ac34f8b16693b18",
+        "artefact_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+        "summary_digest": "sha256:8a58937582c8bfceae9e2077233bae2fcd52dbbfec2ff5a85f3609309f2324fa",
+        "presentation_language": "de",
+        "presentation_digest": "sha256:8c0a5a1a4911f6b121318ea7a8f9a45ce005fb4d049bccad03238d7b2e0713f6",
+        "document_language": "en",
+        "document_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+        "document_bytes": 2862
+      },
+      "historical_effect": false,
+      "current": {
+        "available": true,
+        "revision": 9,
+        "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "human_gate_decision",
+          "operation_key": "approval.record",
+          "actor": "human",
+          "effect": "decision",
+          "gate": "TP"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "authorizes": false,
+      "recovery": null,
+      "family_result": {
+        "schema_version": "1",
+        "presentation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+        "operation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+        "request_digest": "sha256:236036eadc8413ed0d5e12b70bacc0f115a1971430981a61662cf0ef51c9720d",
+        "created_at": "2026-10-12T10:51:02.363Z",
+        "run_id": "native-de-text",
+        "gate": "TP",
+        "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "content_digest": "sha256:7bf14bd866c88caac6dbf9b5000962671af041f6c1546fa96ac34f8b16693b18",
+        "artefact_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+        "summary_digest": "sha256:8a58937582c8bfceae9e2077233bae2fcd52dbbfec2ff5a85f3609309f2324fa",
+        "presentation_language": "de",
+        "presentation_digest": "sha256:8c0a5a1a4911f6b121318ea7a8f9a45ce005fb4d049bccad03238d7b2e0713f6",
+        "document_language": "en",
+        "document_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+        "document_bytes": 2862,
+        "outcome": "prepared",
+        "text": "## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Save and restore a personal filter\n\n- Risiken und offene Punkte: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: Einen benannten persönlichen Filter mit dem bestehenden Dienst speichern und wiederherstellen; die genaue Wiederherstellung und persönliche Eigentümerschaft prüfen.\n- Prüfung: SCN-001 vergleicht gespeicherte und wiederhergestellte Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den persönlichen Filter nicht erhält.\n- Risiken: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-text` · Aufgaben- und Testplan · Revision: `ed27740a-53aa-4db5-bc61-b9fd7f4e9248`\n\nSHA-256: `sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987`\n\n</details>",
+        "summary": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: Einen benannten persönlichen Filter mit dem bestehenden Dienst speichern und wiederherstellen; die genaue Wiederherstellung und persönliche Eigentümerschaft prüfen.\n- Prüfung: SCN-001 vergleicht gespeicherte und wiederhergestellte Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den persönlichen Filter nicht erhält.\n- Risiken: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.",
+        "companion_text": "Die AGDF-Karte ist geöffnet. Du kannst dort „Freigeben“ klicken oder hier `Approval: TP` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.\n\n## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Save and restore a personal filter\n\n- Risiken und offene Punkte: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: Einen benannten persönlichen Filter mit dem bestehenden Dienst speichern und wiederherstellen; die genaue Wiederherstellung und persönliche Eigentümerschaft prüfen.\n- Prüfung: SCN-001 vergleicht gespeicherte und wiederhergestellte Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den persönlichen Filter nicht erhält.\n- Risiken: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-text` · Aufgaben- und Testplan · Revision: `ed27740a-53aa-4db5-bc61-b9fd7f4e9248`\n\nSHA-256: `sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987`\n\n</details>",
+        "record_digest": "sha256:d33d030ba65ce43eaf7e838dd03ed2afc46537d18e05b036f7a007fe281762d0",
+        "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+      },
+      "app_capability": "available",
+      "presentation_delivery": {
+        "mode": "full_chat",
+        "display": "unconfirmed",
+        "text": "## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Save and restore a personal filter\n\n- Risiken und offene Punkte: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: Einen benannten persönlichen Filter mit dem bestehenden Dienst speichern und wiederherstellen; die genaue Wiederherstellung und persönliche Eigentümerschaft prüfen.\n- Prüfung: SCN-001 vergleicht gespeicherte und wiederhergestellte Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den persönlichen Filter nicht erhält.\n- Risiken: Der vorhandene Dienst und seine Eigentumsgrenze werden wiederverwendet. Nachweise sind geplant und noch nicht ausgeführt; vor der TP-Freigabe beginnt keine Implementierung.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-text` · Aufgaben- und Testplan · Revision: `ed27740a-53aa-4db5-bc61-b9fd7f4e9248`\n\nSHA-256: `sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987`\n\n</details>",
+        "presentation_id": "a4604621-c3cb-4bfe-b409-699bc5d6bb1a",
+        "revision_id": "ed27740a-53aa-4db5-bc61-b9fd7f4e9248",
+        "document_digest": "sha256:07a55581316d4a261caf5d9ca63c77170b54cbdafdcc1c36169f7180d9479987",
+        "document_language": "en",
+        "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+        "authorizes": false
+      }
+    }
+  },
+  "automatic_continuation": "Immediate canonical redispatch and TP preparation/recording/presentation after the exact deliberate human reply; no additional continuation question or TP approval",
+  "production_qualified": false,
+  "main_run_qa": "revise",
+  "authorizes": false
+}

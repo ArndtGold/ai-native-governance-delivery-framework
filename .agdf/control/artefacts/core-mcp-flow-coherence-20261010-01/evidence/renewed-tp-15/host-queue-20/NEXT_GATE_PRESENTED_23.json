@@ -1,0 +1,254 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_post_approval_next_gate_presentation",
+  "run_id": "native-de-approve",
+  "dispatch": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"schema_version\": \"1\",\n  \"contract_version\": 1,\n  \"outcome\": \"intake_continuation\",\n  \"terminal\": false,\n  \"authorizes\": false,\n  \"skill\": {\n    \"skill_id\": \"gate-check\",\n    \"dispatch_mode\": \"deterministic_control\",\n    \"deterministic_command\": \"gate-check\",\n    \"requires_control_snapshot\": true,\n    \"contract_version\": 1\n  },\n  \"runtime\": {\n    \"machine_validation\": \"local_exact_version_digest\",\n    \"expected_version\": \"0.14.5\",\n    \"plugin_root\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/node_modules/create-agdf/\",\n    \"runtime_digest\": \"106cd6bb918b3cc3d42ed64b660c18e2d7ad252eb72389851a51d234734d2420\",\n    \"provenance_status\": \"matched\"\n  },\n  \"target\": {\n    \"schema_version\": \"1\",\n    \"resolution_state\": \"resolved\",\n    \"reason_code\": \"explicit_target\",\n    \"primary_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target\",\n    \"evidence_sources\": [],\n    \"working_directory\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target\",\n    \"governance_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target\",\n    \"target_source\": \"explicit_target\",\n    \"target_changed\": false,\n    \"next_action\": \"\",\n    \"authorizes\": false\n  },\n  \"control\": {\n    \"status\": \"open\",\n    \"current_gate\": \"TP\",\n    \"gate_route\": {\n      \"gate\": \"TP\",\n      \"skills\": [\n        \"gate-check\"\n      ]\n    },\n    \"blocking_reason\": \"none\",\n    \"missing_approval\": \"Approval: TP\",\n    \"next_operation\": {\n      \"type\": \"human_gate_decision\",\n      \"operation_key\": \"approval.record\",\n      \"actor\": \"human\",\n      \"effect\": \"decision\",\n      \"gate\": \"TP\"\n    },\n    \"completion\": {\n      \"status\": \"pending\",\n      \"gate\": \"OR\",\n      \"fulfilled\": false\n    },\n    \"next_allowed_action\": \"Draft or refine the Task/Test Plan; do not implement before TP is approved.\",\n    \"run_id\": \"native-de-approve\",\n    \"revision_id\": \"8cdfdb71-1216-4d64-9a7d-c3c57efa3153\",\n    \"doctor_status\": \"warn\"\n  },\n  \"presentation\": {\n    \"schema_version\": \"1\",\n    \"semantic_block\": \"approval_preview\",\n    \"run_id\": \"native-de-approve\",\n    \"revision_id\": \"8cdfdb71-1216-4d64-9a7d-c3c57efa3153\",\n    \"current_gate\": \"TP\",\n    \"presentation_language\": \"de\",\n    \"markdown\": \"- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\\n\\n## Prüfartefakt · TP\\n\\nRun: `native-de-approve` · Gate: `TP` · Revision: `8cdfdb71-1216-4d64-9a7d-c3c57efa3153`\\n\\nArtefakt: [TP.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target/.agdf/control/artefacts/native-de-approve/TP.md>)\\n\\nSHA-256: `sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554`\\n\\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.\",\n    \"artefact_digest\": \"sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554\",\n    \"summary_digest\": \"sha256:b4e176648be14693689c81ae9b2620350ca3203680631a87e0317cf8f2a2dbfe\",\n    \"authorizes\": false\n  },\n  \"continuation\": {\n    \"instruction\": \"Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.\",\n    \"phase\": \"presentation_required\",\n    \"governance_target\": \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target\",\n    \"run_id\": \"native-de-approve\",\n    \"revision_id\": \"8cdfdb71-1216-4d64-9a7d-c3c57efa3153\",\n    \"steps\": [\n      {\n        \"id\": \"prepare_presentation\",\n        \"argv\": [\n          \"run-present\",\n          \"--dir\",\n          \"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target\",\n          \"--run\",\n          \"native-de-approve\",\n          \"--gate\",\n          \"TP\",\n          \"--revision\",\n          \"8cdfdb71-1216-4d64-9a7d-c3c57efa3153\",\n          \"--language\",\n          \"de\"\n        ],\n        \"command\": \"run-present --dir '/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target' --run native-de-approve --gate TP --revision 8cdfdb71-1216-4d64-9a7d-c3c57efa3153 --language de\"\n      }\n    ]\n  },\n  \"recovery\": null,\n  \"host_action\": {\n    \"mode\": \"continue_delivery_intake\",\n    \"source\": \"continuation.steps\",\n    \"bound_to_target\": true\n  },\n  \"timing\": {\n    \"wrapper_ms\": 0,\n    \"input_ms\": 5.69,\n    \"target_ms\": 0.375,\n    \"control_ms\": 171.018,\n    \"render_ms\": 9.175,\n    \"total_ms\": 186.479\n  },\n  \"diagnostics\": []\n}"
+      }
+    ],
+    "structuredContent": {
+      "schema_version": "1",
+      "contract_version": 1,
+      "outcome": "intake_continuation",
+      "terminal": false,
+      "authorizes": false,
+      "skill": {
+        "skill_id": "gate-check",
+        "dispatch_mode": "deterministic_control",
+        "deterministic_command": "gate-check",
+        "requires_control_snapshot": true,
+        "contract_version": 1
+      },
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/node_modules/create-agdf/",
+        "runtime_digest": "106cd6bb918b3cc3d42ed64b660c18e2d7ad252eb72389851a51d234734d2420",
+        "provenance_status": "matched"
+      },
+      "target": {
+        "schema_version": "1",
+        "resolution_state": "resolved",
+        "reason_code": "explicit_target",
+        "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+        "evidence_sources": [],
+        "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+        "target_source": "explicit_target",
+        "target_changed": false,
+        "next_action": "",
+        "authorizes": false
+      },
+      "control": {
+        "status": "open",
+        "current_gate": "TP",
+        "gate_route": {
+          "gate": "TP",
+          "skills": [
+            "gate-check"
+          ]
+        },
+        "blocking_reason": "none",
+        "missing_approval": "Approval: TP",
+        "next_operation": {
+          "type": "human_gate_decision",
+          "operation_key": "approval.record",
+          "actor": "human",
+          "effect": "decision",
+          "gate": "TP"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "run_id": "native-de-approve",
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "doctor_status": "warn"
+      },
+      "presentation": {
+        "schema_version": "1",
+        "semantic_block": "approval_preview",
+        "run_id": "native-de-approve",
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "current_gate": "TP",
+        "presentation_language": "de",
+        "markdown": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\n## Prüfartefakt · TP\n\nRun: `native-de-approve` · Gate: `TP` · Revision: `8cdfdb71-1216-4d64-9a7d-c3c57efa3153`\n\nArtefakt: [TP.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target/.agdf/control/artefacts/native-de-approve/TP.md>)\n\nSHA-256: `sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+        "artefact_digest": "sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554",
+        "summary_digest": "sha256:b4e176648be14693689c81ae9b2620350ca3203680631a87e0317cf8f2a2dbfe",
+        "authorizes": false
+      },
+      "continuation": {
+        "instruction": "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
+        "phase": "presentation_required",
+        "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+        "run_id": "native-de-approve",
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "steps": [
+          {
+            "id": "prepare_presentation",
+            "argv": [
+              "run-present",
+              "--dir",
+              "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+              "--run",
+              "native-de-approve",
+              "--gate",
+              "TP",
+              "--revision",
+              "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+              "--language",
+              "de"
+            ],
+            "command": "run-present --dir '/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target' --run native-de-approve --gate TP --revision 8cdfdb71-1216-4d64-9a7d-c3c57efa3153 --language de"
+          }
+        ]
+      },
+      "recovery": null,
+      "host_action": {
+        "mode": "continue_delivery_intake",
+        "source": "continuation.steps",
+        "bound_to_target": true
+      },
+      "timing": {
+        "wrapper_ms": 0,
+        "input_ms": 5.69,
+        "target_ms": 0.375,
+        "control_ms": 171.018,
+        "render_ms": 9.175,
+        "total_ms": 186.479
+      },
+      "diagnostics": []
+    }
+  },
+  "prepare_request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-O49YrZ/governance-target",
+    "target_source": "explicit_target",
+    "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+    "run_id": "native-de-approve",
+    "expected_revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+    "operation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+    "command": {
+      "kind": "presentation.prepare",
+      "payload": {
+        "gate": "TP"
+      }
+    }
+  },
+  "prepare_result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Synthetic saved filter\n\n- Risiken und offene Punkte: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Aufgaben- und Testplan · Revision: `8cdfdb71-1216-4d64-9a7d-c3c57efa3153`\n\nSHA-256: `sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554`\n\n</details>"
+      }
+    ],
+    "structuredContent": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+      "request_digest": "sha256:58ba9c2da75f7fae19e9d2b9a47be1a849c08540f805cfd14c4b3fef6000b25f",
+      "binding": {
+        "target_id": "sha256:8264acb599e6c9c35761f4b637f088bb94fbdadb68e569c878d7ad80cc1693da",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "kind": "presentation.prepare"
+      },
+      "effect": null,
+      "receipt": {
+        "schema_version": 3,
+        "presentation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+        "operation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+        "request_digest": "sha256:58ba9c2da75f7fae19e9d2b9a47be1a849c08540f805cfd14c4b3fef6000b25f",
+        "created_at": "2026-10-12T08:24:34.463Z",
+        "run_id": "native-de-approve",
+        "gate": "TP",
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "content_digest": "sha256:c000fb41d5d9ddc4a07e8ba6813294b7b15de823a79f1a87a580f985beb70f04",
+        "artefact_digest": "sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554",
+        "summary_digest": "sha256:b4e176648be14693689c81ae9b2620350ca3203680631a87e0317cf8f2a2dbfe",
+        "presentation_language": "de",
+        "presentation_digest": "sha256:e9506422e7b61f585224d24faa38ca7aed880d52a6bfaeed03488df2394b27e7",
+        "document_language": "en",
+        "document_digest": "sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554",
+        "document_bytes": 2031
+      },
+      "historical_effect": false,
+      "current": {
+        "available": true,
+        "revision": 9,
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "human_gate_decision",
+          "operation_key": "approval.record",
+          "actor": "human",
+          "effect": "decision",
+          "gate": "TP"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "authorizes": false,
+      "recovery": null,
+      "family_result": {
+        "schema_version": "1",
+        "presentation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+        "operation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+        "request_digest": "sha256:58ba9c2da75f7fae19e9d2b9a47be1a849c08540f805cfd14c4b3fef6000b25f",
+        "created_at": "2026-10-12T08:24:34.463Z",
+        "run_id": "native-de-approve",
+        "gate": "TP",
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "content_digest": "sha256:c000fb41d5d9ddc4a07e8ba6813294b7b15de823a79f1a87a580f985beb70f04",
+        "artefact_digest": "sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554",
+        "summary_digest": "sha256:b4e176648be14693689c81ae9b2620350ca3203680631a87e0317cf8f2a2dbfe",
+        "presentation_language": "de",
+        "presentation_digest": "sha256:e9506422e7b61f585224d24faa38ca7aed880d52a6bfaeed03488df2394b27e7",
+        "document_language": "en",
+        "document_digest": "sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554",
+        "document_bytes": 2031,
+        "outcome": "prepared",
+        "text": "## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Synthetic saved filter\n\n- Risiken und offene Punkte: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Aufgaben- und Testplan · Revision: `8cdfdb71-1216-4d64-9a7d-c3c57efa3153`\n\nSHA-256: `sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554`\n\n</details>",
+        "summary": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.",
+        "companion_text": "Die AGDF-Karte ist geöffnet. Du kannst dort „Freigeben“ klicken oder hier `Approval: TP` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.\n\n## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Synthetic saved filter\n\n- Risiken und offene Punkte: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Aufgaben- und Testplan · Revision: `8cdfdb71-1216-4d64-9a7d-c3c57efa3153`\n\nSHA-256: `sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554`\n\n</details>",
+        "record_digest": "sha256:8caf6c7b9462571770c470f7492533a3f2d1935b648f48a0d7e2824338bec5fe",
+        "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+      },
+      "app_capability": "available",
+      "presentation_delivery": {
+        "mode": "full_chat",
+        "display": "unconfirmed",
+        "text": "## Aufgaben- und Testplan prüfen und entscheiden\n\nTP: Synthetic saved filter\n\n- Risiken und offene Punkte: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\nDie Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Aufgaben: T-001 plant Speichern und Wiederherstellen mit dem bestehenden persönlichen Filterservice. T-002 prüft die unveränderte persönliche Eigentümerschaft.\n- Prüfung: SCN-001 vergleicht alle gespeicherten und wiederhergestellten Werte desselben Nutzers. SCN-002 prüft, dass ein anderer Nutzer den privaten Filter nicht wiederherstellen kann.\n- Risiken: Isolierter Testlauf. Dieser Entwurf enthält keine Produktions-, QA- oder UAT-Freigabe; die geplanten Nachweise liegen noch nicht vor.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Aufgaben- und Testplan · Revision: `8cdfdb71-1216-4d64-9a7d-c3c57efa3153`\n\nSHA-256: `sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554`\n\n</details>",
+        "presentation_id": "411a794c-6bf3-44d9-a7f8-6f0cfb8470bb",
+        "revision_id": "8cdfdb71-1216-4d64-9a7d-c3c57efa3153",
+        "document_digest": "sha256:7a9ed80a32f6962b4632e828d3e4b9059e8b340a25f1dcea9b0cd142dfdb5554",
+        "document_language": "en",
+        "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+        "authorizes": false
+      }
+    }
+  },
+  "tp_approval": "not_recorded",
+  "main_run_qa": "unaffected"
+}

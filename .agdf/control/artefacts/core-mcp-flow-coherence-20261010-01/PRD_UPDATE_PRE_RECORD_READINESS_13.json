@@ -1,0 +1,67 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "artifact-readiness",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "gate": "PRD",
+    "expected_revision_id": "9b192695-f8ab-4bee-a029-881474a43459",
+    "revision_id": "9b192695-f8ab-4bee-a029-881474a43459",
+    "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+    "artifact_digest": null,
+    "ready": false,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [],
+    "diagnostics": [
+      {
+        "code": "artifact_run_integrity",
+        "message": "Resolve the existing run/source integrity issue before draft checks."
+      }
+    ],
+    "next_action": "Correct the reported issue through its existing owner, then recheck this run and revision."
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.68,
+    "target_ms": 1.163,
+    "control_ms": 792.256,
+    "render_ms": 0,
+    "total_ms": 802.275
+  },
+  "diagnostics": []
+}

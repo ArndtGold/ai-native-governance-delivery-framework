@@ -1,0 +1,79 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "99e74e87-e1ce-45ad-891e-a8c335f694e7",
+  "request_digest": "sha256:10ac56054f9f00f98329647cc574534cfd3eb9d8a9445950f44696c697126de2",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "8e398d9b-f3ed-45dc-8c92-6459f0601eb8",
+    "kind": "presentation.prepare"
+  },
+  "effect": null,
+  "receipt": {
+    "schema_version": 2,
+    "presentation_id": "99e74e87-e1ce-45ad-891e-a8c335f694e7",
+    "operation_id": "99e74e87-e1ce-45ad-891e-a8c335f694e7",
+    "request_digest": "sha256:10ac56054f9f00f98329647cc574534cfd3eb9d8a9445950f44696c697126de2",
+    "created_at": "2026-10-11T14:52:15.856Z",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "gate": "TP",
+    "revision_id": "8e398d9b-f3ed-45dc-8c92-6459f0601eb8",
+    "content_digest": "sha256:389cac9a0bd1968d8009484959f5b467cad83b9142ab694f6c58aa1adb4dd014",
+    "artefact_digest": "sha256:81d3b952710074dd02d5e0c1f77e8a4ac48b0f5155309d07979529ecb86e1ee8",
+    "summary_digest": "sha256:c309db60d9a2ce773612d929293755dd84c29f1cc482b73f054ca8c9627a739a",
+    "presentation_language": "de",
+    "presentation_digest": "sha256:b16fc4762898200911342d09149a0eee0fb60fa27ad26e74353d9c0adf9ac2a9"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 40,
+    "revision_id": "8e398d9b-f3ed-45dc-8c92-6459f0601eb8",
+    "lifecycle": "active",
+    "gate": "TP",
+    "status": "open",
+    "missing_approval": "Approval: TP",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "TP"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "presentation_id": "99e74e87-e1ce-45ad-891e-a8c335f694e7",
+    "operation_id": "99e74e87-e1ce-45ad-891e-a8c335f694e7",
+    "request_digest": "sha256:10ac56054f9f00f98329647cc574534cfd3eb9d8a9445950f44696c697126de2",
+    "created_at": "2026-10-11T14:52:15.856Z",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "gate": "TP",
+    "revision_id": "8e398d9b-f3ed-45dc-8c92-6459f0601eb8",
+    "content_digest": "sha256:389cac9a0bd1968d8009484959f5b467cad83b9142ab694f6c58aa1adb4dd014",
+    "artefact_digest": "sha256:81d3b952710074dd02d5e0c1f77e8a4ac48b0f5155309d07979529ecb86e1ee8",
+    "summary_digest": "sha256:c309db60d9a2ce773612d929293755dd84c29f1cc482b73f054ca8c9627a739a",
+    "presentation_language": "de",
+    "presentation_digest": "sha256:b16fc4762898200911342d09149a0eee0fb60fa27ad26e74353d9c0adf9ac2a9",
+    "outcome": "prepared",
+    "text": "## Aufgaben- und Testplan prüfen und entscheiden\nAusgewählter Run: TP: Consistent Core and MCP flow from artefact recording to closeout · `core-mcp-flow-coherence-20261010-01`\nAGDF-Statuskarte: Bereit für deine Entscheidung\nAktuelles Gate: Aufgaben- und Testplan (`TP`)\nErforderliche Entscheidung: Freigabe des Aufgaben- und Testplans\nNächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option.\n\n## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | TP: Consistent Core and MCP flow from artefact recording to closeout · `core-mcp-flow-coherence-20261010-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | offen |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Deine Entscheidung | Approval: TP · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | den Aufgaben- und Testplan entwerfen oder überarbeiten<br>Aufgaben-IDs festlegen<br>Testnachweise festlegen<br>die exakte TP-Freigabe anfordern |\n| Aktuell verboten | Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten |\n| Wartet auf | Approval: TP |\n\n## Kurzfassung · TP\n\nRun: `core-mcp-flow-coherence-20261010-01` · Gate: `TP` · Revision: `8e398d9b-f3ed-45dc-8c92-6459f0601eb8`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel: Den gemeinsamen Core-/MCP-Ablauf im bestehenden Vorhaben umsetzen: verständliche Karten, einmalige Entscheidungen, sichere Sitzungswechsel und ein konsistenter Ablauf bis zum Abschluss. Der Plan ordnet alle 26 PRD-Kriterien und 22 SD-Entscheidungen 18 Aufgaben und 68 Prüfszenarien zu.\n- Umfang: Vorhandene Core-, Schreib-, Freigabe-, Dokument-, Laufzeit- und UI-Verantwortungen erweitern. Alle betroffenen neuen und wiederverwendeten Ansichten werden gemeinsam geprüft. Frühere Umsetzung und Berichte zählen erst nach erneuter Prüfung ihrer konkreten Gültigkeit.\n- T-001: Nach TP-Freigabe die notwendige Brownfield-Vorbereitung durchführen, den tatsächlichen Ausgangsstand erfassen und fremde Quellen, Freigaben, Historie sowie den festen Vergleichskorpus schützen.\n- T-002: Gemeinsamen aktuellen Zustand und eindeutig typisierten Folgeschritt für Core, Writer, Dispatcher, CLI/MCP, Backlog und Cockpit herstellen. Quellenrevision mit erledigter UX und unveränderter Ablauf müssen übereinstimmen.\n- T-003: Vorhandene begrenzte Aufruf- und Autorenverträge mit konkreten Feldhinweisen vereinheitlichen. Schemas, gültige Formate, Prüfungen und Präsentation müssen denselben Owner und die freigegebenen Größenbudgets nutzen.\n- T-004: Tatsächliche Arbeit, Dokumente und Nachweise über ihre vorhandenen Writer erfassen; Belege und Recovery an echten Speichergrenzen prüfen. Keine Kontrolltabellen-Handedits oder erfundenen Prüfergebnisse.\n- T-005: Präsentation und bewusste Freigabe trennen; Änderung und Ablehnung als eigene Entscheidungen speichern. Klick/Text, Doppelklick und verlorene Antworten dürfen dieselbe Fassung höchstens einmal entscheiden.\n- T-006: Bestehende Revisionswege einschließlich begrenzter UR-Wiederöffnung am SD-Schritt integriert prüfen. Alte Fassungen und Freigaben bleiben Historie; betroffene Quellen brauchen erneuerte Analysen und Entscheidungen.\n- T-007: Abschluss, OR und Backlog konsistent und wiederherstellbar führen. Aktuelle, historische und unbekannt zugeordnete Nachweise wahrheitsgetreu anzeigen; historische Abschlüsse erzeugen keine neue Abschlussaufgabe.\n- T-008: CLI/MCP delegieren an dieselben Core-Owner. Deaktivierte/fremde Aktionen bleiben gesperrt; technische Toolerlaubnis ist keine fachliche Freigabe. Abgebrochene Aufrufe zeigen ihren tatsächlichen oder unbekannten Effekt.\n- T-009: Exakte Entscheidungskarte, große Dokumentansicht und Rückkehr mit klarer Versionsbindung umsetzen. Lesen, Diskussion und Schließen entscheiden nichts; alte Antworten beleben keine geschlossene Ansicht wieder.\n- T-010: Den tatsächlich erzeugten und geladenen Kandidaten, Transport, Kompatibilität, Sicherheit, Fehlerfälle und alle registrierten Sprachen prüfen. Quellen-, Build-, Protokoll- und native Nachweise bleiben unterscheidbar.\n- T-011: Echte Codex- und iPad-Bedienung am exakten Kandidaten beobachten: Dokument/Rückkehr, drei bewusste Entscheidungen, Tastatur/Fokus, Breite/Scrollen, Erlaubnis und Sitzungsende. Fehlende erforderliche Beobachtung hält QA offen.\n- T-012: Aufgabenprüfung, Strukturprüfung, verpflichtenden Code Review und abschließende QA aus den aktuellen Ergebnissen durchführen. Nur qa-gate entscheidet pass/revise/block; QA und UAT behalten ihre eigenen Freigaben.\n- T-013: Eigene Verbindung über vorhandenen Launcher/Server kontrolliert erneuern. Höchstens drei Generationen zählen gleichzeitig; aktive oder unklare Arbeit bleibt beim bisherigen Owner. Nur bestätigtes ordentliches Ende gibt einen Platz frei.\n- T-014: Verifizierte unveränderliche Laufzeitpakete und vor dem Laden erworbene Nutzungsansprüche schützen. Fremde, alte oder ungeklärte Ansprüche bleiben erhalten; keine Löschung nach Alter oder Prozessnummer.\n- T-015: Ursache gesperrter nativer Aktionen lesend anzeigen. UI-Darstellung, Aktionsqualifikation und fachliche Bereitschaft bleiben getrennt; echte passende Nachweise sind Pflicht, ein gesetztes Flag ersetzt sie nicht.\n- T-016: Gemeinsame verständliche Entscheidungszusammenfassung und passenden Chatweg umsetzen. Bei MCP-UI native Karte plus selbstständig entscheidbare iPad-Zusammenfassung; sonst vollständige Chatkarte. Exakter Dokumentzugriff und dieselbe einmalige Entscheidung gelten überall.\n- T-017: Cockpit, Listen, Details, Nachweise, Dokumente, Entwurfsprüfung, native/Chat-Entscheidung und Fehleranzeigen am selben Thema und denselben Begriffen ausrichten. Zustand, Handlung und Links bleiben für die jeweilige Ansicht passend.\n- T-018: Den vollständigen festen Vorher-/Nachher-Korpus einschließlich Sitzungswechsel, Recovery, historischer Daten und aller betroffenen Ansichten ausführen. Suchen, Handedits, falsche Folgeschritte und doppelte Aufforderungen messbar prüfen.\n- Bedienkonzept: Erst verständliches Vorhaben, Vorschlag, Änderungen, Konsequenz, Risiken und exaktes Dokument; technische Details danach. Eine Entscheidungsstelle im Chat. Gesperrte Aktionen nennen den Grund und den tatsächlich nutzbaren Weg.\n- Remotezugriff: Vollständigen exakten Dokumenttext privat im synchronisierten Chat bereitstellen und vom iPad tatsächlich prüfen. Ein lokaler Mac-Link genügt nicht. Fehlende Dokumentteile oder Kontext sperren die Remote-Freigabe.\n- Laufzeitgrenzen: Eine Kandidatenprüfung dauert höchstens 30 Sekunden; ein Schließversuch wartet höchstens 10 Sekunden. Unbestätigtes Ende bleibt belegt und belegt einen Platz. Kein vierter Start, kein erzwungenes Räumen oder Wiederholen unklarer Schreibaktionen.\n- Risiken: Ein widersprüchlicher Verbraucher, doppelter Effekt, beschädigte Bindung, gefährdete fremde Daten, fehlender nativer/Remote-Nachweis oder überschrittenes Budget verhindert vollständige Annahme. Widerspruch zur Architektur verlangt geregelte Revision.\n- Prüfgrenzen: Kein Modellnutzen aus synthetischen Tests behaupten, keine Textfreigabe als nativen Klicknachweis zählen, kein Sitzungsende aus geschlossenem Tab ableiten. Notwendige technische Recherche und externe Nutzeraktionen werden separat erfasst.\n- Nächster Schritt: Approval: TP gibt zuerst die notwendige Implementierungsvorbereitung frei. Danach darf die gebundene Umsetzung beginnen, wenn der Core die Voraussetzungen bestätigt. Installation, Neustart, Git und Veröffentlichung erfolgen nicht automatisch.\n\n## Prüfartefakt · TP\n\nRun: `core-mcp-flow-coherence-20261010-01` · Gate: `TP` · Revision: `8e398d9b-f3ed-45dc-8c92-6459f0601eb8`\n\nArtefakt: [TP.md](</Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md>)\n\nSHA-256: `sha256:81d3b952710074dd02d5e0c1f77e8a4ac48b0f5155309d07979529ecb86e1ee8`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.\n\nAufgaben- und Testplan · TP: Consistent Core and MCP flow from artefact recording to closeout · `core-mcp-flow-coherence-20261010-01`\n[UR](.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md) · [PRD](.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md) · [SD](.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md) · [TP](.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md)\nBereit für deine Entscheidung\n\nJetzt freigeben\n`Approval: TP` Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.\n\nDanach\nAgent führt Brownfield-Analyse vor Implementierung durch. Keine Nutzeraktion erforderlich.\n\nZur Freigabe exakt mit `Approval: TP` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+    "record_digest": "sha256:07a87424ae0ae78f51e98c7e37dbdeb3f1ef3c73efcd40378d430ce7d4b6b0d5",
+    "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+  },
+  "app_capability": "not_qualified"
+}

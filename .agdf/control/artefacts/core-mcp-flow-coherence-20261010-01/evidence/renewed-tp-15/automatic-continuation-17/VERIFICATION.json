@@ -1,0 +1,71 @@
+{
+  "observed_at": "2026-10-12T06:26:46.884261+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "revision_id": "9ba84a5f-35c0-46f7-be2b-9f17b190f55e",
+  "commands": [
+    {
+      "command": "npm --prefix packages/control-ui test",
+      "exit_code": 0,
+      "classification": "8 service tests and 211 component tests; local test service required sandbox escalation",
+      "log": "agdf-ui-auto-17.log",
+      "sha256": "d29016a70dd9cd3862d98af1a0c8e405f6bdd808f24c5b5947f157313f8ef894"
+    },
+    {
+      "command": "node node_modules/vitest/vitest.mjs run test/decision-card.test.tsx test/decision-entry.test.tsx",
+      "exit_code": 0,
+      "classification": "47 final focused tests including receipt recovery",
+      "log": "agdf-focused-auto-17.log",
+      "sha256": "bc8872278a1e99e74e570c43730c8409e2d544f3cbfe61fa4eb5a2ba20b88f1b"
+    },
+    {
+      "command": "npm --prefix packages/control-ui run typecheck",
+      "exit_code": 0,
+      "classification": "typecheck",
+      "log": "agdf-types-auto-17.log",
+      "sha256": "c00dbcc3f47bf332450b1ed6d7a70be30ba769903f01daa91b2b0d78174a871b"
+    },
+    {
+      "command": "npm --prefix packages/control-ui run build:mcp",
+      "exit_code": 0,
+      "classification": "actual resource build",
+      "log": "agdf-ui-build-auto-17.log",
+      "sha256": "c71722d43c9d1d110172806cc819ced0fc989a0f848c465c9b12fc6fc5d49227"
+    },
+    {
+      "command": "npm --prefix packages/control-ui run test:browser -- test/browser/decision-card.spec.mjs",
+      "exit_code": 0,
+      "classification": "12 built-resource SDK browser tests, synthetic host only",
+      "log": "agdf-browser-auto-17.log",
+      "sha256": "c1320f881c174cea00cc54a671afdd90fe79e424f6303ff4008cecceadad1ad0"
+    },
+    {
+      "command": "npm run build:prepare",
+      "exit_code": 0,
+      "classification": "assembled package preparation; 73.3s",
+      "log": "agdf-build-prepare-auto-17.log",
+      "sha256": "e900d6d37f0dba516eb659e6a8b0744f4b24f4d2cf0f73e8ef57a9937ff71e8c"
+    },
+    {
+      "command": "node scripts/native-probes/core-mcp-decision.mjs --evidence-dir <this namespace>",
+      "exit_code": 0,
+      "classification": "prepared isolated test candidate, not native qualification",
+      "log": "agdf-native-prepare-auto-17.log",
+      "sha256": "f65baa2f394ac1c6d0c8f20804caddff3cda14bbefde37436e48a0857fd9dfa4"
+    }
+  ],
+  "source_sha256": {
+    "packages/control-ui/src/mcp/DecisionCard.tsx": "93e269c36317ba1fc1663fbe40e1642f0480c7b3b2e3547cdcc4ec35e2269c2b",
+    "packages/control-ui/src/mcp/DecisionEntry.tsx": "2a8c953563d74d1e43a3fd757199aff6cbbe1c30185c4b45d82603b880e401c7",
+    "packages/control-ui/test/decision-card.test.tsx": "91c247d2cc24f464ee80e1b7455bd935de89497db5c8c4ec6a6cc4842c16a4db",
+    "packages/control-ui/test/decision-entry.test.tsx": "5ad2a1f52d772d390d7ef350f35719e04b1898fd8e7df1e63078ae3279be5f42",
+    "packages/control-ui/test/browser/decision-host.ts": "a2030056878db1b034e8b50718b94604566ce727d5cc914dc2d350e75ef88cc6",
+    "packages/control-ui/test/browser/decision-card.spec.mjs": "a5105b98b4063a589a573908055ad234d49e84ab0cfab014799466fb075cfbcd"
+  },
+  "native_qualified": false,
+  "qa_decision": null,
+  "initial_failures": [
+    "Sandbox denied localhost test service; authorized escalation succeeded.",
+    "Two new unavailable-state test expectations omitted the existing unknown-current suffix; fixed expectations, then all tests passed."
+  ],
+  "protected_sources": "../PROTECTED_HASHES.json"
+}

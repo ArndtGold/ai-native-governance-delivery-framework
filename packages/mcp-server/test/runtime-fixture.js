@@ -1,4 +1,4 @@
-import { createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { createMcpDispatchRuntime } from "../../cli/lib/mcp-dispatch-runtime.js";
 
 export function createTestRuntime(surface = "codex") {
   const sourceRuntime = createMcpDispatchRuntime({ surface });

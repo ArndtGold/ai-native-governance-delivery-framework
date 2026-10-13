@@ -1,0 +1,616 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_codex_tool_connection_before_native_open",
+  "dispatch": {
+    "control": {
+      "status": "open",
+      "current_gate": "CD+Tests",
+      "gate_route": {
+        "gate": "CD+Tests",
+        "skills": [
+          "gate-check"
+        ]
+      },
+      "blocking_reason": "none",
+      "missing_approval": "none",
+      "next_operation": {
+        "type": "implement_approved_plan",
+        "skill_id": "gate-check",
+        "operation_key": "implementation.execute",
+        "actor": "agent",
+        "effect": "implementation",
+        "gate": "CD+Tests"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      },
+      "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "revision_id": "9063bc02-1fa7-4d00-95e2-b3dc05e0d44f",
+      "doctor_status": "pass",
+      "source_revisions": {
+        "status": "verified",
+        "archive_authority": "historical_evidence_only",
+        "entries": [
+          {
+            "operation_id": "cbc55917-ee06-4fc3-b46f-ff8dcca3c30a",
+            "source_gate": "UR",
+            "previous_revision_id": "eeda271d-cf03-4430-9701-5ec61410062d",
+            "resulting_revision_id": "aed55a47-8153-45e2-b251-842c6d6c5811",
+            "archive": {
+              "digest": "sha256:3c167f288f52bb5fef799f360c17b1327e774a328973010cd23be76c1eec0dc0",
+              "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/cbc55917-ee06-4fc3-b46f-ff8dcca3c30a/manifest.json"
+            },
+            "superseded_sources": [
+              "UR",
+              "PRD",
+              "SD",
+              "TP"
+            ]
+          },
+          {
+            "operation_id": "fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d",
+            "source_gate": "UR",
+            "previous_revision_id": "089a504e-29b4-42a9-8b1c-3558cfa34996",
+            "resulting_revision_id": "9ae77b28-b071-417a-8d94-d130ddfd0c33",
+            "archive": {
+              "digest": "sha256:0cfd23b46b5068eb0516dbedf87d6ea42c4b0fc085ebbaa5e5db7555de7c2187",
+              "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d/manifest.json"
+            },
+            "superseded_sources": [
+              "UR",
+              "PRD",
+              "SD",
+              "TP"
+            ]
+          }
+        ]
+      }
+    },
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+      "provenance_status": "matched"
+    },
+    "continuation": {
+      "phase": "implementation",
+      "instruction": "Implement only the already approved TP scope, run its required checks, and maintain evidence for this bound run. Use the interaction event policy: routine internal checks need no standalone status card; meaningful events and explicit status remain visible. After recorded control changes, redispatch gate-check for this same target/run with continue_delivery. Stop at the next human decision or concrete blocker; never infer QA, UAT or release approval."
+    }
+  },
+  "test_contract": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "inspect_result",
+    "terminal": false,
+    "authorizes": false,
+    "operation": "operation-contract",
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/node_modules/create-agdf/",
+      "runtime_digest": "6add9571ea495ea1b0e69e927927f9fca5baf299e92c3a59b36606c9f40959e1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "report": {
+      "schema_version": "1",
+      "available": true,
+      "group": "agdf_prepare",
+      "kind": "presentation.prepare",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gate": {
+            "enum": [
+              "UR",
+              "PRD",
+              "SD",
+              "TP",
+              "QA",
+              "UAT"
+            ]
+          }
+        },
+        "required": [
+          "gate"
+        ]
+      },
+      "owner": "run-presentation.prepareRunPresentation",
+      "effects": [
+        "create immutable exact presentation"
+      ],
+      "confirmation": "no_gate_approval",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": "1"
+          },
+          "presentation_language": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+          },
+          "working_directory": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "target_source": {
+            "enum": [
+              "explicit_target",
+              "continued_target",
+              "current_repository"
+            ]
+          },
+          "primary_target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "target_id": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+          },
+          "expected_revision_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "assurance": {
+            "const": "cooperative_local"
+          },
+          "command": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "presentation.prepare"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "gate": {
+                    "enum": [
+                      "UR",
+                      "PRD",
+                      "SD",
+                      "TP",
+                      "QA",
+                      "UAT"
+                    ]
+                  }
+                },
+                "required": [
+                  "gate"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "payload"
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "presentation_language",
+          "working_directory",
+          "target_source",
+          "primary_target",
+          "target_id",
+          "run_id",
+          "expected_revision_id",
+          "operation_id",
+          "assurance",
+          "command"
+        ]
+      },
+      "retry_class": "inspect_original_operation_after_dispatch",
+      "assurance": "cooperative_local",
+      "reference_limits": {
+        "input_bytes": 65536,
+        "source_file_bytes": 131072,
+        "result_bytes": 1048576
+      },
+      "authorizes": false,
+      "authoring_format": {
+        "contract": "Design Decisions contract: sd-decisions-v1",
+        "section": "Design Decisions",
+        "columns": [
+          "Decision",
+          "Timing",
+          "Status",
+          "Resolution",
+          "Owner"
+        ],
+        "timings": [
+          "before_sd",
+          "later_tp"
+        ],
+        "statuses": [
+          "resolved",
+          "open",
+          "deferred"
+        ]
+      },
+      "presentation_format": {
+        "owner": "run-presentation-render",
+        "compact_brief_fields": [
+          "Goal/Ziel",
+          "Proposal/Vorschlag or Scope/Umfang",
+          "Changes/Änderungen",
+          "Risks/Risiken"
+        ],
+        "source": "source-authored canonical artefact or validated localized AGDF Approval Summary; no adapter paraphrase",
+        "missing_fields": "retain absence and the complete validated summary; do not fabricate a legacy brief",
+        "delivery": "native_plus_chat when actual UI support exists; otherwise full_chat; forward one exact decision request",
+        "remote_document": "presentation-document; exact binding and every cursor; local file links do not prove iPad access"
+      },
+      "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+      "binding": {
+        "target_id": "sha256:b24d72044a8356bfb9eba7d0c0a2baafe7e542115336f78230d1be74eecc6c8f",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4"
+      },
+      "current": {
+        "current_gate": "SD",
+        "lifecycle": "active",
+        "status": "open",
+        "missing_approval": "Approval: SD",
+        "next_operation": {
+          "type": "author_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "SD"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "artefacts": [
+          {
+            "type": "UR",
+            "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "status": "approved",
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "Brownfield Review",
+            "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+            "status": "done",
+            "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "PRD",
+            "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "status": "approved",
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "SD",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "status": "draft",
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "TP",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "Brownfield Analysis",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "CD+Tests",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "CR",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          },
+          {
+            "type": "QA",
+            "path": "",
+            "status": "missing",
+            "digest": null,
+            "association": "applicability_unknown"
+          }
+        ],
+        "source_bindings": [
+          {
+            "binding_id": "bae7fd5f-152f-45bb-8054-504dbce4bfa5",
+            "source": {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+              "type": "UR"
+            },
+            "destination": {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "status": "draft",
+              "type": "PRD"
+            },
+            "relationship": {
+              "from": "PRD",
+              "relationship": "derived_from",
+              "to": "UR"
+            }
+          },
+          {
+            "binding_id": "ce50b90f-d1b1-4b5f-94c9-1e3bfc8d6cc0",
+            "source": {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+              "type": "PRD"
+            },
+            "destination": {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "status": "draft",
+              "type": "SD"
+            },
+            "relationship": {
+              "from": "SD",
+              "relationship": "derived_from",
+              "to": "PRD"
+            }
+          }
+        ]
+      }
+    },
+    "presentation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "consume_report_and_continue",
+      "source": "report",
+      "allow_surrounding_text": true,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 11.545,
+      "target_ms": 1.989,
+      "control_ms": 57.102,
+      "render_ms": 0,
+      "total_ms": 70.804
+    },
+    "diagnostics": []
+  },
+  "native_qualification": {
+    "schema_version": "1",
+    "contract_version": 1,
+    "outcome": "inspect_result",
+    "terminal": false,
+    "authorizes": false,
+    "operation": "native-qualification",
+    "runtime": {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/node_modules/create-agdf/",
+      "runtime_digest": "6add9571ea495ea1b0e69e927927f9fca5baf299e92c3a59b36606c9f40959e1",
+      "provenance_status": "matched"
+    },
+    "target": {
+      "schema_version": "1",
+      "resolution_state": "resolved",
+      "reason_code": "explicit_target",
+      "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+      "evidence_sources": [],
+      "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+      "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+      "target_source": "explicit_target",
+      "target_changed": false,
+      "next_action": "",
+      "authorizes": false
+    },
+    "report": {
+      "available": true,
+      "run_id": "native-de-approve",
+      "revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+      "ui_rendering_support": "supported",
+      "action_qualification": {
+        "qualified": false,
+        "reason": "qualification_record_missing",
+        "authorizes": false
+      },
+      "business_readiness": {
+        "current_gate": "SD",
+        "status": "open",
+        "next_operation": {
+          "type": "author_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "SD"
+        }
+      },
+      "authorizes": false,
+      "enabled_command_groups": [
+        "agdf_prepare",
+        "agdf_record",
+        "agdf_approve"
+      ]
+    },
+    "presentation": null,
+    "recovery": null,
+    "host_action": {
+      "mode": "consume_report_and_continue",
+      "source": "report",
+      "allow_surrounding_text": true,
+      "may_request_run_or_evidence": false
+    },
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 8.71,
+      "target_ms": 0.879,
+      "control_ms": 35.028,
+      "render_ms": 0,
+      "total_ms": 44.657
+    },
+    "diagnostics": []
+  },
+  "presentation_request": {
+    "presentation_language": "de",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-DlXKIj/governance-target",
+    "target_source": "explicit_target",
+    "run_id": "native-de-approve",
+    "expected_revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+    "schema_version": "1",
+    "target_id": "sha256:b24d72044a8356bfb9eba7d0c0a2baafe7e542115336f78230d1be74eecc6c8f",
+    "operation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+    "assurance": "cooperative_local",
+    "command": {
+      "kind": "presentation.prepare",
+      "payload": {
+        "gate": "SD"
+      }
+    }
+  },
+  "presentation_result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+    "request_digest": "sha256:9380f29ffa7fabde987e50b8a1b26c5a2c1d9fc1eb3f847c1519a134a1cc48bc",
+    "binding": {
+      "target_id": "sha256:b24d72044a8356bfb9eba7d0c0a2baafe7e542115336f78230d1be74eecc6c8f",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 3,
+      "presentation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+      "operation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+      "request_digest": "sha256:9380f29ffa7fabde987e50b8a1b26c5a2c1d9fc1eb3f847c1519a134a1cc48bc",
+      "created_at": "2026-10-11T17:35:35.611Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+      "content_digest": "sha256:90ea9c2c8422f532856daa4e6e4782c48cfd11385b27f465ae76f96fdba98550",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:8314f1c800c02aaeb589b28728fb63cf16a53f6f73811dccace4e6e31201c085",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+      "operation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+      "request_digest": "sha256:9380f29ffa7fabde987e50b8a1b26c5a2c1d9fc1eb3f847c1519a134a1cc48bc",
+      "created_at": "2026-10-11T17:35:35.611Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+      "content_digest": "sha256:90ea9c2c8422f532856daa4e6e4782c48cfd11385b27f465ae76f96fdba98550",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:8314f1c800c02aaeb589b28728fb63cf16a53f6f73811dccace4e6e31201c085",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342,
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um die vorgelegte Fassung vollständig im Chat zu lesen. Du kannst anschließend freigeben, eine Änderung mit Kommentar anfordern oder ablehnen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `d74f8aa5-18b5-4e7f-a674-7b456a856bc4`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "summary": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.",
+      "companion_text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um die vorgelegte Fassung vollständig im Chat zu lesen. Du kannst anschließend freigeben, eine Änderung mit Kommentar anfordern oder ablehnen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `d74f8aa5-18b5-4e7f-a674-7b456a856bc4`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "record_digest": "sha256:643ec0a90fbb5ff4d6fe0d44e9517f579abeada4ccb0109d5d759125e961e38c",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available",
+    "presentation_delivery": {
+      "mode": "native_plus_chat",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um die vorgelegte Fassung vollständig im Chat zu lesen. Du kannst anschließend freigeben, eine Änderung mit Kommentar anfordern oder ablehnen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `d74f8aa5-18b5-4e7f-a674-7b456a856bc4`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "presentation_id": "aa07a3d7-48c1-445b-bf80-f0c5230753b1",
+      "revision_id": "d74f8aa5-18b5-4e7f-a674-7b456a856bc4",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_language": "en",
+      "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+      "authorizes": false
+    }
+  },
+  "native_open_observed": false,
+  "human_decision_observed": false,
+  "production_qualification": false,
+  "authorizes": false
+}

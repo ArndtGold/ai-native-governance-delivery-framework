@@ -1,0 +1,166 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+    "operation_id": "f904295b-97cc-42f0-883a-a1e0c0892047",
+    "command": {
+      "kind": "step.record",
+      "payload": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_TP_FLOW_27.json",
+          "digest": "sha256:b74affa0a2c0838d0ee8757c7e9eb625b6debfa20bdbf77d8d57dfcd26ecb208"
+        },
+        "covers": "Actual current TP native approval and readable automatic preparation; exact disposable-target blocker prevents implementation",
+        "reason": "Original TP receipt and current Core route verified, bounded Brownfield preparation recorded block for absent required service; no additional human gate, main QA or production qualification inferred"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "f904295b-97cc-42f0-883a-a1e0c0892047",
+    "request_digest": "sha256:148c01c2a542d31665262e191b48af1d53f375503a29e0270a9df6c148221aaf",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "kind": "step.record"
+    },
+    "effect": {
+      "previous_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "resulting_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "revision": 63,
+      "record": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_TP_FLOW_27.json",
+          "digest": "sha256:b74affa0a2c0838d0ee8757c7e9eb625b6debfa20bdbf77d8d57dfcd26ecb208"
+        },
+        "status": "done",
+        "covers": "Actual current TP native approval and readable automatic preparation; exact disposable-target blocker prevents implementation",
+        "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+      }
+    },
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "f904295b-97cc-42f0-883a-a1e0c0892047",
+      "request_digest": "sha256:148c01c2a542d31665262e191b48af1d53f375503a29e0270a9df6c148221aaf",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "created_at": "2026-10-12T10:41:36.438Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+        "resulting_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+        "revision": 63,
+        "record": {
+          "step": "evidence",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_TP_FLOW_27.json",
+            "digest": "sha256:b74affa0a2c0838d0ee8757c7e9eb625b6debfa20bdbf77d8d57dfcd26ecb208"
+          },
+          "status": "done",
+          "covers": "Actual current TP native approval and readable automatic preparation; exact disposable-target blocker prevents implementation",
+          "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+        }
+      }
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 63,
+      "revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "lifecycle": "active",
+      "gate": "QA",
+      "status": "open",
+      "missing_approval": "none",
+      "blocking_reason": "qa_revise_required",
+      "next_operation": {
+        "type": "remediate_quality_findings",
+        "operation_key": "quality.remediate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA",
+        "routing": "evidence"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "step": "evidence",
+      "previous_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "revision": "63",
+      "revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "updated",
+      "operation_id": "f904295b-97cc-42f0-883a-a1e0c0892047",
+      "receipt": {
+        "schema_version": "1",
+        "kind": "step.record",
+        "operation_id": "f904295b-97cc-42f0-883a-a1e0c0892047",
+        "request_digest": "sha256:148c01c2a542d31665262e191b48af1d53f375503a29e0270a9df6c148221aaf",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "run_id": "core-mcp-flow-coherence-20261010-01",
+        "expected_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+        "created_at": "2026-10-12T10:41:36.438Z",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "effect": {
+          "previous_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+          "resulting_revision_id": "3545bf01-0ca4-4480-b933-bbdcabfd93d7",
+          "revision": 63,
+          "record": {
+            "step": "evidence",
+            "source": {
+              "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_TP_FLOW_27.json",
+              "digest": "sha256:b74affa0a2c0838d0ee8757c7e9eb625b6debfa20bdbf77d8d57dfcd26ecb208"
+            },
+            "status": "done",
+            "covers": "Actual current TP native approval and readable automatic preparation; exact disposable-target blocker prevents implementation",
+            "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+          }
+        }
+      }
+    }
+  }
+}

@@ -116,7 +116,9 @@ The repository install covers the Core/CLI workspace. The separate MCP lock supp
 also copied by host-compatibility fixtures and used by the CLI smoke suite. Its development
 lock packs `file:../cli`, which must already contain the generated plugin payload at installation.
 
-`npm run build` generates all profiles, checks source and generated gate-contract references,
+`npm run build` installs the separate Control UI lock and builds its MCP resources before
+generating any profiles, so clean checkouts do not depend on ignored local UI build files.
+The same prerequisite runs in the CI and preparation profiles. It then checks source and generated gate-contract references,
 runs the 14 late-gate transition scenarios and deterministic skill evals, and verifies the stored
 host-compatibility snapshot before assembling the npm packages. Any failure returns a nonzero
 exit code and stops before assembly. Guardrails uses these same commands before its installer,
@@ -168,8 +170,11 @@ before rerunning. Verification never raises payload limits or refreshes evidence
 
 For diagnosis in the current working copy, `npm run verify:ci` runs the same plan in place;
 it does not establish that the staged commit is complete. Node 22 is the local baseline.
-Guardrails also runs Windows with Node 22 and Linux with Node 24. Local success proves only the
-current Node/OS lane; all three GitHub jobs must pass before merge. The repository lane retains
+Guardrails also runs Windows with Node 22 and Linux with Node 24. Windows divides the same npm
+smoke suite into installation, package and governance jobs; together they run every original command
+in order within each partition. Each job retains the 45-minute limit and the complete build and
+package prerequisites. Local success proves only the current Node/OS lane; all five GitHub jobs
+must pass before merge. The repository lane retains
 Pages, community and compatibility checks; both runtime lanes retain package consumers and smoke
 tests. The compatibility-evidence workflow shares the same dependency preparation stages.
 
@@ -197,6 +202,11 @@ scenarios, checks the new evidence and community health, and creates or updates 
 workflow-owned `codex/host-compatibility-evidence` branch. Current evidence produces no update.
 Other evidence errors fail the workflow rather than being overwritten. The verified patch is
 available as the `host-compatibility-update` artifact for 14 days.
+
+Runtime-selected module imports need an exact reviewed `dynamic_imports` binding in
+`evals/host-compatibility/manifest.json`. Each binding names the source expression and its
+canonical entrypoints; the source snapshot follows their transitive dependencies. Unknown,
+changed, duplicate or unused bindings fail rather than silently omitting runtime code.
 
 Enable **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create
 and approve pull requests** for automatic PR creation. The workflow uses `GITHUB_TOKEN` and

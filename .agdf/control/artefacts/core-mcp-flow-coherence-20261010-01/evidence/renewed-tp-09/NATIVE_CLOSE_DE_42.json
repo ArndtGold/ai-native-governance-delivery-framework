@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "evidence_class": "native_host_close_observation_with_readonly_core_check",
+  "user_report": "Freigabekarte geschlossen, keine Toolabfrage",
+  "tab_inventory": [],
+  "automatic_close_request_observed": false,
+  "read_session_check": {
+    "schema_version": "1",
+    "target": {
+      "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f",
+      "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target"
+    },
+    "snapshot_id": null,
+    "observed_as_of": null,
+    "source_digest": null,
+    "state": "blocked",
+    "code": "source_changed",
+    "retryable": true,
+    "data": null,
+    "authorizes": false
+  },
+  "native_teardown_complete": false,
+  "limitation": "Closed Host views are observed. Core freshness returned source_changed after the recorded approval, not session_expired. This does not prove automatic backend close or natural expiry.",
+  "authorizes": false,
+  "read_session_id": "a263cc54-11c1-4bea-8f7f-25bdd2aead11",
+  "expires_at_utc": "2026-10-12T01:52:46.293000+00:00",
+  "expiry_observation": "not_due_and_not_observed"
+}

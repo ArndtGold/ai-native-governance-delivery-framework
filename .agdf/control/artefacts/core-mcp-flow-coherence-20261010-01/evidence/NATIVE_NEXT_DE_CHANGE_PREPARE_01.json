@@ -1,0 +1,106 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:14:18.105Z",
+  "evidence_class": "actual_native_mcp_prepare_no_decision",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "args": {
+    "schema_version": "1",
+    "presentation_language": "de",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "target_source": "explicit_target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target",
+    "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+    "run_id": "native-de-request-change",
+    "expected_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+    "operation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+    "assurance": "cooperative_local",
+    "command": {
+      "kind": "presentation.prepare",
+      "payload": {
+        "gate": "SD"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+    "request_digest": "sha256:1328201294e4ac50e69f1e5368ae4ef1595f1c5dc35a1624df868e9c4d4dcb68",
+    "binding": {
+      "target_id": "sha256:71a7a5bb76cb341d9683dc9ef111b4111e55e462ef00b5cf7a43e2ed08ec557b",
+      "run_id": "native-de-request-change",
+      "expected_revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 2,
+      "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+      "operation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+      "request_digest": "sha256:1328201294e4ac50e69f1e5368ae4ef1595f1c5dc35a1624df868e9c4d4dcb68",
+      "created_at": "2026-10-11T08:13:25.267Z",
+      "run_id": "native-de-request-change",
+      "gate": "SD",
+      "revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+      "content_digest": "sha256:155c12820c0a3c1346ea7f2c6cee037ddd532ab90236ae1f59d221f40dbf22b7",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:0f6b6101bb608f07473db9a430d550a010f7f27ca014393f157b9418f68155fa",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:bf40ef6fcaefbd585f5ee4d42f4f7616759ccdd9126fd3294d6bf4b6b10e2f17"
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+      "operation_id": "702f4e89-3342-4e8d-80c5-a98c54b8b645",
+      "request_digest": "sha256:1328201294e4ac50e69f1e5368ae4ef1595f1c5dc35a1624df868e9c4d4dcb68",
+      "created_at": "2026-10-11T08:13:25.267Z",
+      "run_id": "native-de-request-change",
+      "gate": "SD",
+      "revision_id": "2f7cf000-8495-4996-9f28-b96e075d8ce7",
+      "content_digest": "sha256:155c12820c0a3c1346ea7f2c6cee037ddd532ab90236ae1f59d221f40dbf22b7",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:0f6b6101bb608f07473db9a430d550a010f7f27ca014393f157b9418f68155fa",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:bf40ef6fcaefbd585f5ee4d42f4f7616759ccdd9126fd3294d6bf4b6b10e2f17",
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\nAusgewählter Run: SD: Synthetic saved filter · `native-de-request-change`\nAGDF-Statuskarte: Bereit für deine Entscheidung\nAktuelles Gate: Lösungsdesign (`SD`)\nErforderliche Entscheidung: Freigabe des Lösungsdesigns\nNächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option.\n\n## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | SD: Synthetic saved filter · `native-de-request-change` |\n| Pfad | ✓ UR · ✓ PRD · ● SD · ○ TP · ○ QA · ○ UAT · ○ OR |\n| Status | offen |\n| Aktuelles Gate | Lösungsdesign (`SD`) |\n| Deine Entscheidung | Approval: SD · Überarbeiten · Ablehnen |\n| Der Agent darf jetzt | das Lösungsdesign entwerfen oder überarbeiten<br>die Architektur festlegen<br>Verantwortlichkeiten festlegen<br>die exakte SD-Freigabe anfordern |\n| Aktuell verboten | den Aufgaben- und Testplan erstellen<br>Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten |\n| Wartet auf | Approval: SD |\n\n## Kurzfassung · SD\n\nRun: `native-de-request-change` · Gate: `SD` · Revision: `2f7cf000-8495-4996-9f28-b96e075d8ce7`\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n## Prüfartefakt · SD\n\nRun: `native-de-request-change` · Gate: `SD` · Revision: `2f7cf000-8495-4996-9f28-b96e075d8ce7`\n\nArtefakt: [SD.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-uCKria/governance-target/.agdf/control/artefacts/native-de-request-change/SD.md>)\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.\n\nLösungsdesign · SD: Synthetic saved filter · `native-de-request-change`\n[UR](.agdf/control/artefacts/native-de-request-change/UR.md) · [PRD](.agdf/control/artefacts/native-de-request-change/PRD.md) · [SD](.agdf/control/artefacts/native-de-request-change/SD.md) · TP (noch nicht erstellt)\nBereit für deine Entscheidung\n\nJetzt freigeben\n`Approval: SD` Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nDanach\nAgent entwirft als Nächstes den Aufgaben- und Testplan. Aufgaben- und Testplan ist die nächste Nutzerentscheidung.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+      "record_digest": "sha256:1d9abb09bc9d6bbb3d0dd15bf2079bef525b46e5be2372901f5614782b554bd4",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available"
+  },
+  "human_decision_observed": false,
+  "native_qualified": false,
+  "authorizes": false
+}

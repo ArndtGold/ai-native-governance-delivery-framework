@@ -43,13 +43,13 @@ function fixture(name, action) {
 try {
   const first = validate(generatedRoot);
   for (const module of ['control-inspect/cockpit.js', 'control-inspect/cockpit-contract.js', 'control-inspect/cockpit-session.js', 'control-inspect/cockpit-context.js',
-    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js']) {
+    'control-read/cockpit-pool.js', 'control-read/cockpit-worker.js', 'control-inspect/decision-session.js', 'control-state/decision-action-service.js', 'control-state/decision-action-contract.js', 'interaction-catalog.d.ts']) {
     assert.equal(existsSync(join(generatedRoot, 'runtime/create-agdf/runtime/core/lib', module)), false,
       'private Codex cockpit read closure must stay outside the default Copilot payload');
   }
   const runtime = await import(new URL('../generated/plugins/copilot/agdf/runtime/create-agdf/lib/mcp-dispatch-runtime.js', import.meta.url));
   const dispatcher = runtime.createMcpDispatchRuntime({ surface:'copilot' });
-  assert.deepEqual(dispatcher.tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect']);
+  assert.deepEqual(dispatcher.tools.map(tool => tool.name), ['agdf_dispatch', 'agdf_inspect', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
   await assert.rejects(runtime.createMcpCockpitRuntime({ surface:'copilot', cockpitDir:fixtureRoot }), /AGDF_COCKPIT_TARGET_INVALID/);
   for (const max_bytes of [null, NaN, Infinity, -1, "9999999"]) {
     assert.throws(() => validate(generatedRoot, { baseline: { ...baseline, max_bytes } }), /BASELINE_INVALID/);

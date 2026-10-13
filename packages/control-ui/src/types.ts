@@ -21,12 +21,17 @@ export type ReadingScope = Inventory | { kind: 'run'; run: Detail | null; reques
   | { kind: 'document'; run: Detail; document: DocumentData | null }
   | { kind: 'context'; run: Detail; document: DocumentData | null; context: GraphData };
 export interface Resource { resource_id: string; run_id: string; type: string; path: string | null; registered_reference: string; status: string }
+export interface EvidenceAssociation { step: string | null; path: string | null; reason: string; available: boolean | null }
+export interface NextOperation { type: string; operation_key: string; actor: 'agent' | 'human'; effect: string; gate: string; skill_id?: string }
 export interface Detail { run_id: string; title?: string; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
+  evidence_applicability?: Record<'current' | 'superseded' | 'applicability_unknown', EvidenceAssociation[]>;
   document_states?: DocumentState[];
   draft_check?: DraftCheckData;
   work_summary?: WorkSummary | null; backlog_comparison?: { state: 'matching' | 'different' | 'unavailable'; reason: string; saved_revision_id: string | null; authorizes: false };
   evaluation?: { status: string; current_gate: string; blocking_reason: string; missing_approval: string; next_allowed_action: string; next_action_de: string | null; doctor_status: string; quality_outlook: string;
     control_assessment?: { state: 'open' | 'blocked' | 'unconfirmed' | 'completed'; authorizes: false };
+    next_operation?: NextOperation | null;
+    completion?: { status: 'pending' | 'completed' | 'unconfirmed'; gate: string; fulfilled: boolean; vcs_handoff?: string };
     diagnostics: Diagnostic[]; approvals: { gate: string; status: string; evidence: string }[]; missing_evidence: unknown[]; git_evidence: string };
   persisted?: { current_gate: string; next_allowed_action: string; decision: string; artefacts: unknown[] } }
 export interface Diagnostic { code: string; message?: string; path?: string; next_step?: string; severity?: string; section?: string; key?: string | null }

@@ -92,9 +92,9 @@ export function recoveryAttempt(exec, executable, recovery) {
   };
 }
 
-export function inspectPluginList({ surface, exec, executable, args, expectedVersion, selectPlugin, localVersion = () => false, isInstalled = pluginListHasPlugin }) {
+export function inspectPluginList({ surface, exec, executable, args, expectedVersion, selectPlugin, localVersion = () => false, isInstalled = pluginListHasPlugin, maxBuffer }) {
   try {
-    const output = exec(executable, args, captureOptions());
+    const output = exec(executable, args, { ...captureOptions(), ...(maxBuffer === undefined ? {} : { maxBuffer }) });
     const pluginId = selectPlugin(output);
     const installed = isInstalled(output, pluginId);
     const version = installed ? pluginVersionFromList(output, pluginId) : "";

@@ -1,0 +1,166 @@
+{
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+    "operation_id": "9ad6d003-d065-4a55-a9a0-c908e2536ccd",
+    "command": {
+      "kind": "step.record",
+      "payload": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_READABLE_FLOW_26.json",
+          "digest": "sha256:a0862d2cb0e8698c1a805ba2c834557a539e90b7eb94a3ad136af2adb59bb228"
+        },
+        "covers": "SCN-040/077 current German native readable message, internal bound context and automatic TP authoring stopping at the next human gate",
+        "reason": "Actual current native click and app follow-up verified against the exact original receipt and fresh Core route; no next-gate approval, main QA pass or production qualification is inferred"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "9ad6d003-d065-4a55-a9a0-c908e2536ccd",
+    "request_digest": "sha256:2454da72ea4d5aa903b69962515f32b9f77134344dea062bbd05773124aa9018",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+      "kind": "step.record"
+    },
+    "effect": {
+      "previous_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+      "resulting_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "revision": 62,
+      "record": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_READABLE_FLOW_26.json",
+          "digest": "sha256:a0862d2cb0e8698c1a805ba2c834557a539e90b7eb94a3ad136af2adb59bb228"
+        },
+        "status": "done",
+        "covers": "SCN-040/077 current German native readable message, internal bound context and automatic TP authoring stopping at the next human gate",
+        "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+      }
+    },
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "9ad6d003-d065-4a55-a9a0-c908e2536ccd",
+      "request_digest": "sha256:2454da72ea4d5aa903b69962515f32b9f77134344dea062bbd05773124aa9018",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+      "created_at": "2026-10-12T10:30:28.298Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+        "resulting_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+        "revision": 62,
+        "record": {
+          "step": "evidence",
+          "source": {
+            "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_READABLE_FLOW_26.json",
+            "digest": "sha256:a0862d2cb0e8698c1a805ba2c834557a539e90b7eb94a3ad136af2adb59bb228"
+          },
+          "status": "done",
+          "covers": "SCN-040/077 current German native readable message, internal bound context and automatic TP authoring stopping at the next human gate",
+          "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+        }
+      }
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 62,
+      "revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "lifecycle": "active",
+      "gate": "QA",
+      "status": "open",
+      "missing_approval": "none",
+      "blocking_reason": "qa_revise_required",
+      "next_operation": {
+        "type": "remediate_quality_findings",
+        "operation_key": "quality.remediate",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "QA",
+        "routing": "evidence"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "recorded",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "step": "evidence",
+      "previous_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+      "revision": "62",
+      "revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+      "current_gate": "QA",
+      "next_allowed_action": "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      "backlog": "updated",
+      "operation_id": "9ad6d003-d065-4a55-a9a0-c908e2536ccd",
+      "receipt": {
+        "schema_version": "1",
+        "kind": "step.record",
+        "operation_id": "9ad6d003-d065-4a55-a9a0-c908e2536ccd",
+        "request_digest": "sha256:2454da72ea4d5aa903b69962515f32b9f77134344dea062bbd05773124aa9018",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "run_id": "core-mcp-flow-coherence-20261010-01",
+        "expected_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+        "created_at": "2026-10-12T10:30:28.298Z",
+        "producer": {
+          "contract": "run-command/1",
+          "package_version": "0.14.5"
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "effect": {
+          "previous_revision_id": "f9cc8e2b-d6b3-4c3f-afa0-da8f39579174",
+          "resulting_revision_id": "29ddb34b-c505-4507-b5a9-e167b4653935",
+          "revision": 62,
+          "record": {
+            "step": "evidence",
+            "source": {
+              "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/renewed-tp-15/readable-continuation-24/NATIVE_READABLE_FLOW_26.json",
+              "digest": "sha256:a0862d2cb0e8698c1a805ba2c834557a539e90b7eb94a3ad136af2adb59bb228"
+            },
+            "status": "done",
+            "covers": "SCN-040/077 current German native readable message, internal bound context and automatic TP authoring stopping at the next human gate",
+            "source_set_digest": "sha256:3d2214a272671201b57f407cd8769fa6fcec5f3faa56d935d27fcd32fb4a85da"
+          }
+        }
+      }
+    }
+  }
+}

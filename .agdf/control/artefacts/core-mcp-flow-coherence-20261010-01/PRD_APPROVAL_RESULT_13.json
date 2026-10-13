@@ -1,0 +1,178 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "48c89fa7-7f56-4d89-8dfa-a447bed9868d",
+  "request_digest": "sha256:d4287098b939707c4768b974451bc4e9f6f4f211f77dbb85ee7eec3fb5cb9f5c",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "expected_revision_id": "ad8754ec-c226-47e4-967b-da8592d8f631",
+    "kind": "approval.record"
+  },
+  "effect": {
+    "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+    "approval": "Approval: PRD",
+    "artefact_digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614",
+    "gate": "PRD",
+    "material_sources": [
+      {
+        "digest": "sha256:1fd8023903193ec530433a5f9b0878e7dbf633c2a62b20552f370c0572f02313",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+        "type": "UR"
+      },
+      {
+        "digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614",
+        "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+        "type": "PRD"
+      }
+    ],
+    "material_version": "sha256:57be7e3569b0ae07d48cbcba20524758a558e2d8ed768decd37cf5116d63eafa",
+    "next_gate_after_approval": "SD",
+    "presentation_digest": "sha256:3a7c1a7bb4d714ee11d34b20477988f5ce7ade4f2083eefc62fe597db0f35998",
+    "previous_revision_id": "ad8754ec-c226-47e4-967b-da8592d8f631",
+    "resulting_revision_id": "35ed3d89-4c65-40a8-bdcc-49d3619e7fa1",
+    "revision": 51
+  },
+  "receipt": {
+    "action": "record_gate_approval",
+    "assurance": {
+      "independent_human_proof": "unavailable",
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply"
+    },
+    "binding": {
+      "expected_revision_id": "ad8754ec-c226-47e4-967b-da8592d8f631",
+      "gate": "PRD",
+      "presentation_id": "c0444acb-87de-4b21-8224-3de6a1607d50",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+    },
+    "command_digest": "sha256:d4287098b939707c4768b974451bc4e9f6f4f211f77dbb85ee7eec3fb5cb9f5c",
+    "created_at": "2026-10-11T20:43:32.747Z",
+    "effect": {
+      "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+      "approval": "Approval: PRD",
+      "artefact_digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614",
+      "gate": "PRD",
+      "material_sources": [
+        {
+          "digest": "sha256:1fd8023903193ec530433a5f9b0878e7dbf633c2a62b20552f370c0572f02313",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+          "type": "PRD"
+        }
+      ],
+      "material_version": "sha256:57be7e3569b0ae07d48cbcba20524758a558e2d8ed768decd37cf5116d63eafa",
+      "next_gate_after_approval": "SD",
+      "presentation_digest": "sha256:3a7c1a7bb4d714ee11d34b20477988f5ce7ade4f2083eefc62fe597db0f35998",
+      "previous_revision_id": "ad8754ec-c226-47e4-967b-da8592d8f631",
+      "resulting_revision_id": "35ed3d89-4c65-40a8-bdcc-49d3619e7fa1",
+      "revision": 51
+    },
+    "operation_id": "48c89fa7-7f56-4d89-8dfa-a447bed9868d",
+    "producer": {
+      "contract": "approval-service/1",
+      "package_version": "0.14.5"
+    },
+    "request_digest": "sha256:d3b41d4618490506967ad68d332bf812c43269c7e8d01e5badf433fe0723ed6e",
+    "schema_version": "2"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 51,
+    "revision_id": "35ed3d89-4c65-40a8-bdcc-49d3619e7fa1",
+    "lifecycle": "active",
+    "gate": "SD",
+    "status": "open",
+    "missing_approval": "Approval: SD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "gate": "SD",
+      "skill_id": "sd-definition",
+      "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/SD.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "48c89fa7-7f56-4d89-8dfa-a447bed9868d",
+    "request_digest": "sha256:d3b41d4618490506967ad68d332bf812c43269c7e8d01e5badf433fe0723ed6e",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "gate": "PRD",
+      "expected_revision_id": "ad8754ec-c226-47e4-967b-da8592d8f631",
+      "presentation_id": "c0444acb-87de-4b21-8224-3de6a1607d50"
+    },
+    "effect": {
+      "previous_revision_id": "ad8754ec-c226-47e4-967b-da8592d8f631",
+      "resulting_revision_id": "35ed3d89-4c65-40a8-bdcc-49d3619e7fa1",
+      "revision": 51,
+      "gate": "PRD",
+      "approval": "Approval: PRD",
+      "material_version": "sha256:57be7e3569b0ae07d48cbcba20524758a558e2d8ed768decd37cf5116d63eafa",
+      "material_sources": [
+        {
+          "type": "UR",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/UR.md",
+          "digest": "sha256:1fd8023903193ec530433a5f9b0878e7dbf633c2a62b20552f370c0572f02313"
+        },
+        {
+          "type": "PRD",
+          "path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/PRD.md",
+          "digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614"
+        }
+      ],
+      "artefact_digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614",
+      "presentation_digest": "sha256:3a7c1a7bb4d714ee11d34b20477988f5ce7ade4f2083eefc62fe597db0f35998",
+      "next_gate_after_approval": "SD",
+      "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved."
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "current": {
+      "available": true,
+      "revision": 51,
+      "revision_id": "35ed3d89-4c65-40a8-bdcc-49d3619e7fa1",
+      "approval_status": "approved",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+      "blocking_reason": "none"
+    },
+    "observations": {
+      "commit": "canonical_receipt_observed",
+      "durability": "file_and_directory_sync_completed",
+      "independent_human_proof": "unavailable"
+    },
+    "recovery": null
+  }
+}

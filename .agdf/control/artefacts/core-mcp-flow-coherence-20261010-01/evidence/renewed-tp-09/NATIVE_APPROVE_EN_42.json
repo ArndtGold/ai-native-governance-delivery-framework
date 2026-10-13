@@ -1,0 +1,117 @@
+{
+  "schema_version": "1",
+  "evidence_class": "native_host_action_user_observation",
+  "user_report": "erleidigt",
+  "instruction": "English document/sources Tab Enter, comment Enter no approval, widths scrolling, Space Approve.",
+  "native_app_result": {
+    "at": "2026-10-11T18:03:59.050Z",
+    "event": "tool_result",
+    "evidence_class": "native_probe_unclassified",
+    "producer": {
+      "process_id": 95605,
+      "server_started_at": "2026-10-11T17:49:15.500Z"
+    },
+    "data": {
+      "name": "agdf_decision_action",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "5179a873-a11c-4ebe-9d94-94b88f8961f8",
+        "receipt": {
+          "action": "record_gate_approval",
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "binding": {
+            "expected_revision_id": "a3134d36-1b31-4d59-924c-308a7c6cf06e",
+            "gate": "SD",
+            "presentation_id": "d875d048-d14b-48d9-9ad0-50c418cbb40e",
+            "run_id": "native-en-approve",
+            "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f"
+          },
+          "command_digest": "sha256:ebbd29712c90dea4de7e0d95396b094efb65132d728c404b7bc6fc2e3d6fdcc7",
+          "created_at": "2026-10-11T18:03:58.616Z",
+          "effect": {
+            "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+            "approval": "Approval: SD",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "gate": "SD",
+            "material_sources": [
+              {
+                "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                "path": ".agdf/control/artefacts/native-en-approve/UR.md",
+                "type": "UR"
+              },
+              {
+                "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                "path": ".agdf/control/artefacts/native-en-approve/PRD.md",
+                "type": "PRD"
+              },
+              {
+                "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                "path": ".agdf/control/artefacts/native-en-approve/SD.md",
+                "type": "SD"
+              }
+            ],
+            "material_version": "sha256:dcc71d28675b552bfc4284894ea3825725c2593fef12b24cafc70b11cc527ddd",
+            "next_gate_after_approval": "TP",
+            "presentation_digest": "sha256:892824d0d3635cc7362a7c69b13f754e8435f0ab8fb6c5943abab4a50a1cc08b",
+            "previous_revision_id": "a3134d36-1b31-4d59-924c-308a7c6cf06e",
+            "resulting_revision_id": "4b2bbfec-8c54-4bae-9bdc-871198df57d6",
+            "revision": 8
+          },
+          "operation_id": "5179a873-a11c-4ebe-9d94-94b88f8961f8",
+          "producer": {
+            "contract": "approval-service/1",
+            "package_version": "0.14.5"
+          },
+          "request_digest": "sha256:580bec1a92f4cabba9ef95038e197cf8336748fd117f98306ad83a6d89726c90",
+          "schema_version": "2"
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "4b2bbfec-8c54-4bae-9bdc-871198df57d6",
+          "lifecycle": "active",
+          "gate": "TP",
+          "status": "open",
+          "missing_approval": "Approval: TP",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "prepare_gate_artifact",
+            "gate": "TP",
+            "skill_id": "gate-check",
+            "artifact_path": ".agdf/control/artefacts/native-en-approve/TP.md",
+            "source_artifacts": [
+              ".agdf/control/artefacts/native-en-approve/PRD.md",
+              ".agdf/control/artefacts/native-en-approve/SD.md"
+            ]
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  },
+  "dom_heading": "Review and decide on solution design",
+  "dom_status": "Decision saved.",
+  "dom_actions_disabled": true,
+  "technical_permission_report": "pending",
+  "authorizes": false
+}

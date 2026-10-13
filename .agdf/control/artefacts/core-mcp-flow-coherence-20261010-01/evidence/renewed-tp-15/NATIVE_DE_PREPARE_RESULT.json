@@ -1,0 +1,106 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>"
+    }
+  ],
+  "structuredContent": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+    "request_digest": "sha256:d38c85c16f6032b9e189e790f7118a05b5526243b442b8c36fea7e73199eb3b8",
+    "binding": {
+      "target_id": "sha256:3e59b2ce2d29dcd4a1123a8c06689743209f1d0bf506f48b6745e6e0cbb811de",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": {
+      "schema_version": 3,
+      "presentation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+      "operation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+      "request_digest": "sha256:d38c85c16f6032b9e189e790f7118a05b5526243b442b8c36fea7e73199eb3b8",
+      "created_at": "2026-10-12T05:38:14.464Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+      "content_digest": "sha256:66080a3e1f14536241c848a964b92f28a9483f848428e777c87a7ab35edd1935",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:0e42db744f1a08293563936a49b86f475e5d8f78300a05c69b2b0bcd70644688",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 7,
+      "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "human_gate_decision",
+        "operation_key": "approval.record",
+        "actor": "human",
+        "effect": "decision",
+        "gate": "SD"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "presentation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+      "operation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+      "request_digest": "sha256:d38c85c16f6032b9e189e790f7118a05b5526243b442b8c36fea7e73199eb3b8",
+      "created_at": "2026-10-12T05:38:14.464Z",
+      "run_id": "native-de-approve",
+      "gate": "SD",
+      "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+      "content_digest": "sha256:66080a3e1f14536241c848a964b92f28a9483f848428e777c87a7ab35edd1935",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:55cd2d4d362d2781716f13e3a918d6c6d56912eba24fe3a41b4247ef56a66a85",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:0e42db744f1a08293563936a49b86f475e5d8f78300a05c69b2b0bcd70644688",
+      "document_language": "en",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_bytes": 1342,
+      "outcome": "prepared",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "summary": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.",
+      "companion_text": "Die AGDF-Karte ist geöffnet. Du kannst dort „Freigeben“ klicken oder hier `Approval: SD` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.\n\n## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "record_digest": "sha256:6704dad66972c8d4afeb8d8efa4b2ea6a5d8c4f71761c644bb8ac74219837bc3",
+      "next_action": "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response."
+    },
+    "app_capability": "available",
+    "presentation_delivery": {
+      "mode": "full_chat",
+      "display": "unconfirmed",
+      "text": "## Lösungsdesign prüfen und entscheiden\n\nSD: Synthetic saved filter\n\n- Vorschlag: Bestehenden persönlichen Filterspeicher wiederverwenden.\n\nDen Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.\n\nAntworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.\n\nZur Freigabe exakt mit `Approval: SD` antworten; andernfalls Überarbeitung anfordern oder ablehnen.\n\n<details><summary>Details und Nachweise</summary>\n\n- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Lösung: Bestehenden persönlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit persönlicher Eigentümerschaft.\n\n</details>\n\n<details><summary>Fassung und Quellen</summary>\n\nRun: `native-de-approve` · Lösungsdesign · Revision: `a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+      "presentation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+      "revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+      "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "document_language": "en",
+      "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+      "authorizes": false
+    }
+  }
+}

@@ -1,6 +1,8 @@
 import { isAbsolute } from "node:path";
 import { RUN_ID_PATTERN, REVISION_ID_PATTERN } from "../control-state/run-identity.js";
 import { ARTIFACT_READINESS_GATES } from "./artifact-readiness.js";
+import { RUN_COMMAND_GROUPS } from '../control-state/run-command-contract.js';
+import { APPROVAL_GATES } from '../control-state/run-identity.js';
 import {
   PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
   canonicalizeLanguageTag,
@@ -14,6 +16,8 @@ export const CONTROL_INSPECT_SCHEMA_VERSION = "1";
 export const CONTROL_INSPECT_CONTRACT_VERSION = 1;
 // Every byte of this definition is loaded into every session on every host (SDD-005).
 export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 5000;
+export const OPERATION_CONTRACT_MODULES = Object.freeze(Object.entries(RUN_COMMAND_GROUPS)
+  .flatMap(([group, kinds]) => kinds.map(kind => `${group}/${kind}`)));
 
 function deepFreeze(value) {
   if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
@@ -21,9 +25,9 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
-export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
+const inspectContract = {
   name: "agdf_inspect",
-  description: "artifact-readiness checks target/run/gate/revision drafts. Never writes, selects a run or grants approval; verified_change git observation is unavailable. cwd is not target.",
+  description: "Read-only. Contract module=agdf_prepare/presentation.prepare; status=UUID.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: {
     type: "object", additionalProperties: false,
@@ -35,8 +39,11 @@ export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
       target_source: { enum: [...TASK_TARGET_SOURCES] },
       primary_target: { type: "string", minLength: 1, maxLength: 4096 },
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source },
-      gate: { enum: [...ARTIFACT_READINESS_GATES] },
+      gate: { enum: [...APPROVAL_GATES] },
       expected_revision_id: { type: "string", pattern: REVISION_ID_PATTERN.source },
+      presentation_id: { type: 'string', pattern: REVISION_ID_PATTERN.source },
+      target_id: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' },
+      cursor: { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,5})$' },
       variant: { enum: [...GATE_CHECK_VARIANTS] },
       module: { type: "string", minLength: 1, maxLength: 64 },
       all_active: { type: "boolean" },
@@ -44,69 +51,66 @@ export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
     dependentSchemas: {
       variant: { properties: { operation: { const: VARIANT_OPERATION } } },
-      module: { properties: { operation: { const: MODULE_OPERATION } } },
-      gate: { properties: { operation: { const: "artifact-readiness" } }, required: ["run_id", "expected_revision_id", "target_source", "primary_target"] },
-      expected_revision_id: { required: ["gate"] },
+      module: { properties: { operation: { enum: [MODULE_OPERATION, 'operation-contract', 'operation-status'] } } },
+      gate: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'presentation-document'] } } },
+      expected_revision_id: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'runtime-generations'] } } },
+      presentation_id: { properties: { operation: { const: 'presentation-document' } } },
+      target_id: { properties: { operation: { const: 'presentation-document' } } },
+      cursor: { properties: { operation: { const: 'presentation-document' } } },
     },
     allOf: [
       { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
       { if: { properties: { operation: { const: MODULE_OPERATION } } }, then: { required: ["module"] } },
-      { if: { properties: { operation: { const: "artifact-readiness" } } }, then: { required: ["gate"] } },
+      { if: { properties: { operation: { enum: ['artifact-readiness', 'native-qualification', 'presentation-document', 'runtime-generations', 'operation-contract', 'operation-status'] } } }, then: { required: ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] } },
+      { if: { properties: { operation: { const: 'artifact-readiness' } } }, then: { required: ['gate'], properties: { gate: { enum: [...ARTIFACT_READINESS_GATES] } } } },
+      { if: { properties: { operation: { const: 'presentation-document' } } }, then: { required: ['gate', 'presentation_id', 'target_id'] } },
+      { if: { properties: { operation: { enum: ['operation-contract', 'operation-status'] } } }, then: { required: ['module'] } },
     ],
   },
   outputSchema: {
-    type: "object",
-    required: ["outcome", "terminal", "authorizes", "operation", "report", "presentation", "host_action", "target", "recovery"],
+    type: 'object', required: ['outcome', 'terminal', 'authorizes', 'operation', 'report', 'presentation', 'host_action', 'target', 'recovery'],
     properties: {
-      schema_version: { const: "1" }, contract_version: { const: 1 },
-      outcome: { enum: ["inspect_result", "target_unresolved", "invalid_input", "evaluator_error"] },
-      terminal: { type: "boolean" }, authorizes: { const: false },
-      operation: { type: ["string", "null"] },
-      runtime: { type: "object" }, target: { type: ["object", "null"] },
-      report: { type: ["object", "null"] },
-      presentation: { type: ["object", "null"], required: ["markdown"], properties: { markdown: { type: "string" } } },
-      recovery: { type: ["object", "null"], required: ["action"], properties: { action: { type: "string", minLength: 1 } } },
-      host_action: {
-        type: "object",
-        required: ["mode", "source", "allow_surrounding_text", "may_request_run_or_evidence"],
-        properties: {
-          mode: { type: "string" },
-          source: { type: "string" },
-          text: { type: "string", minLength: 1 }, allow_surrounding_text: { type: "boolean" }, may_request_run_or_evidence: { const: false },
-        },
-        if: { properties: { source: { not: { const: "report" } } } },
-        then: { required: ["text"] },
-      },
-      timing: { type: "object" }, diagnostics: { type: "array", items: { type: "object" } },
+      schema_version: { const: '1' }, contract_version: { const: 1 }, authorizes: { const: false },
+      operation: { type: ['string', 'null'] }, runtime: { type: 'object' }, target: { type: ['object', 'null'] },
+      report: { type: ['object', 'null'] }, recovery: { type: ['object', 'null'], required: ['action'], properties: { action: { type: 'string', minLength: 1 } } },
+      presentation: { type: ['object', 'null'], required: ['markdown'], properties: { markdown: { type: 'string' } } },
+      timing: { type: 'object' }, diagnostics: { type: 'array', items: { type: 'object' } },
+      host_action: { type: 'object', required: ['mode', 'source', 'allow_surrounding_text', 'may_request_run_or_evidence'],
+        properties: { text: { type: 'string', minLength: 1 }, may_request_run_or_evidence: { const: false } } },
     },
     oneOf: [
-      {
-        properties: {
-          outcome: { const: "inspect_result" }, terminal: { const: false },
-          operation: { enum: [...CONTROL_INSPECT_OPERATIONS] },
-          report: { type: "object" }, target: { type: "object", required: ["resolution_state"], properties: { resolution_state: { const: "resolved" } } }, recovery: { type: "null" },
-          host_action: { properties: { mode: { const: "consume_report_and_continue" }, source: { enum: ["report", "presentation.markdown"] }, allow_surrounding_text: { const: true } } },
-        },
-        if: { properties: { host_action: { properties: { source: { const: "presentation.markdown" } } } } },
-        then: { properties: { presentation: { type: "object", properties: { markdown: { minLength: 1 } } }, host_action: { required: ["text"] } } },
-        else: { properties: { presentation: { anyOf: [{ type: "null" }, { type: "object", properties: { markdown: { const: "" } } }] }, host_action: { not: { required: ["text"] } } } },
+      { properties: { outcome: { const: 'inspect_result' }, terminal: { const: false }, operation: { enum: [...CONTROL_INSPECT_OPERATIONS] },
+        report: { type: 'object' }, recovery: { type: 'null' }, target: { type: 'object', required: ['resolution_state'], properties: { resolution_state: { const: 'resolved' } } },
+        host_action: { properties: { mode: { const: 'consume_report_and_continue' }, source: { enum: ['report', 'presentation.markdown'] }, allow_surrounding_text: { const: true } } } },
+        if: { properties: { host_action: { properties: { source: { const: 'presentation.markdown' } } } } },
+        then: { properties: { presentation: { type: 'object', properties: { markdown: { minLength: 1 } } }, host_action: { required: ['text'] } } },
+        else: { properties: { presentation: { anyOf: [{ type: 'null' }, { properties: { markdown: { const: '' } } }] }, host_action: { not: { required: ['text'] } } } },
       },
-      {
-        properties: {
-          outcome: { const: "target_unresolved" }, terminal: { const: true }, report: { type: "null" },
-          target: { type: "object", required: ["resolution_state"], properties: { resolution_state: { const: "unresolved" } } }, recovery: { type: "object" },
-          presentation: { type: "object", properties: { markdown: { minLength: 1 } } },
-          host_action: { properties: { mode: { const: "transmit_presentation_verbatim_and_stop" }, source: { const: "presentation.markdown" }, allow_surrounding_text: { const: false } } },
-        },
-      },
-      {
-        properties: {
-          outcome: { enum: ["invalid_input", "evaluator_error"] }, terminal: { const: true },
-          report: { type: "null" }, presentation: { type: "null" }, recovery: { type: "object" },
-          host_action: { properties: { mode: { const: "transmit_recovery_verbatim_and_stop" }, source: { const: "recovery.action" }, allow_surrounding_text: { const: false } } },
-        },
-      },
+      { properties: { outcome: { const: 'target_unresolved' }, terminal: { const: true }, report: { type: 'null' }, recovery: { type: 'object' },
+        target: { type: 'object', required: ['resolution_state'], properties: { resolution_state: { const: 'unresolved' } } },
+        presentation: { type: 'object', properties: { markdown: { minLength: 1 } } },
+        host_action: { required: ['text'], properties: { mode: { const: 'transmit_presentation_verbatim_and_stop' }, source: { const: 'presentation.markdown' }, allow_surrounding_text: { const: false } } } } },
+      { properties: { outcome: { enum: ['invalid_input', 'evaluator_error'] }, terminal: { const: true }, report: { type: 'null' }, recovery: { type: 'object' }, presentation: { type: 'null' },
+        host_action: { required: ['text'], properties: { mode: { const: 'transmit_recovery_verbatim_and_stop' }, source: { const: 'recovery.action' }, allow_surrounding_text: { const: false } } } } },
     ],
+  },
+};
+
+// Detailed result semantics remain owned here. The discovered tool advertises the
+// bounded envelope; repeating every forwarding branch in each model session is
+// unnecessary. Both declarations derive from this same contract, without a
+// second evaluator or a larger discovery budget.
+export const CONTROL_INSPECT_OUTPUT_SCHEMA = deepFreeze(inspectContract.outputSchema);
+export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
+  ...inspectContract,
+  outputSchema: { type: 'object', required: inspectContract.outputSchema.required,
+    properties: { ...inspectContract.outputSchema.properties,
+      outcome: { enum: ['inspect_result', 'target_unresolved', 'invalid_input', 'evaluator_error'] },
+      terminal: { type: 'boolean' },
+    },
+    if: { properties: { outcome: { const: 'inspect_result' } } },
+    then: { properties: { terminal: { const: false }, report: { type: 'object' }, recovery: { type: 'null' } } },
+    else: { properties: { terminal: { const: true }, report: { type: 'null' }, recovery: { type: 'object' } } },
   },
 });
 
@@ -145,6 +149,9 @@ export function parseControlInspectFunctionArguments(argumentsValue, trustedCont
     runId: argumentsValue.run_id,
     ...(argumentsValue.gate !== undefined ? { gate: argumentsValue.gate } : {}),
     ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),
+    ...(argumentsValue.presentation_id !== undefined ? { presentationId: argumentsValue.presentation_id } : {}),
+    ...(argumentsValue.target_id !== undefined ? { targetId: argumentsValue.target_id } : {}),
+    ...(argumentsValue.cursor !== undefined ? { cursor: argumentsValue.cursor } : {}),
     ...(argumentsValue.variant !== undefined ? { variant: argumentsValue.variant } : {}),
     ...(argumentsValue.module !== undefined ? { contractModule: argumentsValue.module } : {}),
     ...(argumentsValue.all_active !== undefined ? { allActive: argumentsValue.all_active } : {}),
@@ -182,8 +189,22 @@ export function normalizeControlInspectInput(input) {
     if (!primaryTarget) throw new SkillDispatchInputError("primary_target", "artifact-readiness requires an explicit target binding");
     if (!ARTIFACT_READINESS_GATES.includes(input.gate)) throw new SkillDispatchInputError("gate", "Unsupported draft gate");
     if (!REVISION_ID_PATTERN.test(input.expectedRevisionId ?? "")) throw new SkillDispatchInputError("expected_revision_id", "A valid expected revision is required");
+  } else if (['operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'runtime-generations'].includes(operation)) {
+    if (!runId || !primaryTarget || !REVISION_ID_PATTERN.test(input.expectedRevisionId ?? '')) throw new SkillDispatchInputError('binding', 'An exact target, Run and expected revision binding is required');
+    if (operation === 'operation-contract' && !OPERATION_CONTRACT_MODULES.includes(input.contractModule)) {
+      throw new SkillDispatchInputError('module', 'Unsupported command group/operation module', { allowedValues: OPERATION_CONTRACT_MODULES });
+    }
+    if (operation === 'operation-status' && !REVISION_ID_PATTERN.test(input.contractModule ?? '')) throw new SkillDispatchInputError('operation_id', 'An original operation UUID is required');
+    if (input.gate !== undefined && (!['operation-contract', 'presentation-document'].includes(operation) || !APPROVAL_GATES.includes(input.gate))) throw new SkillDispatchInputError('gate', 'Unsupported operation gate');
   } else if (input.gate !== undefined || input.expectedRevisionId !== undefined) {
     throw new SkillDispatchInputError("gate", "Draft binding fields are supported only by artifact-readiness");
+  }
+  if (operation === 'presentation-document') {
+    if (!APPROVAL_GATES.includes(input.gate) || !REVISION_ID_PATTERN.test(input.presentationId ?? '')
+      || !/^sha256:[0-9a-f]{64}$/u.test(input.targetId ?? '')
+      || input.cursor !== undefined && !/^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,5})$/u.test(input.cursor)) throw new SkillDispatchInputError('presentation', 'An exact presentation binding and bounded cursor are required');
+  } else if (input.presentationId !== undefined || input.targetId !== undefined || input.cursor !== undefined) {
+    throw new SkillDispatchInputError('presentation', 'Document selectors require presentation-document');
   }
   if (input.allActive !== undefined && typeof input.allActive !== "boolean") throw new SkillDispatchInputError("all_active", "all_active is invalid");
   if (input.contractModule !== undefined) requireText(input.contractModule, "module", 64);
@@ -205,6 +226,9 @@ export function normalizeControlInspectInput(input) {
     run_id: runId,
     gate: input.gate,
     expected_revision_id: input.expectedRevisionId,
+    presentation_id: input.presentationId, target_id: input.targetId, cursor: input.cursor,
+    group: operation === 'operation-contract' ? input.contractModule.split('/')[0] : undefined,
+    kind: operation === 'operation-contract' ? input.contractModule.split('/')[1] : undefined, operation_id: operation === 'operation-status' ? input.contractModule : undefined,
     variant: input.variant,
     contract_module: input.contractModule,
     all_active: input.allActive === true,

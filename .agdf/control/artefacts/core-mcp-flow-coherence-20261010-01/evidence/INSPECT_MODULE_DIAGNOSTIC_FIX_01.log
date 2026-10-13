@@ -1,0 +1,66 @@
+TAP version 13
+# control-inspect parity, shared selection, read-only and preview tests passed.
+# Subtest: packages/cli/scripts/control-inspect-test.js
+ok 1 - packages/cli/scripts/control-inspect-test.js
+  ---
+  duration_ms: 71758.388259
+  type: 'test'
+  ...
+# interaction presentation tests passed
+# gate rationale and why tests passed
+# scope classification card tests passed
+# task target orientation tests passed
+# Subtest: packages/core/test/interaction-presentation-test.js
+ok 2 - packages/core/test/interaction-presentation-test.js
+  ---
+  duration_ms: 31163.084359
+  type: 'test'
+  ...
+# Bounded command schema/groups, side-effect annotations, accessor/injection rejection and generated definition budgets passed (16197 bytes; facade not yet included).
+# Subtest: packages/core/test/run-command-contract-test.js
+ok 3 - packages/core/test/run-command-contract-test.js
+  ---
+  duration_ms: 1167.542778
+  type: 'test'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: Invalid AGDF interaction locale registry: length_budget:en:decisionCard.unavailable,length_budget:en:decisionCard.commentHelp,length_budget:en:decisionCard.uncertain,length_budget:en:decisionCard.notQualified,length_budget:en:decisionCard.sourceChanged,length_budget:en:decisionCard.expired,length_budget:en:decisionCard.comparison,length_budget:en:decisionCard.comparisonUnavailable,length_budget:en:decisionCard.machineComparison,length_budget:en:decisionCard.documentUnchanged,length_budget:en:decisionCard.documentChanged,length_budget:en:decisionCard.consequence,length_budget:en:decisionCard.permission,length_budget:en:decisionCard.docUnavailable,length_budget:en:decisionCard.commentRequired,length_budget:en:decisionCard.notSaved,length_budget:en:decisionCard.unknownCurrent,length_budget:en:decisionCard.sourceLanguage,length_budget:en:decisionCard.alreadyDecided,length_budget:en:decisionCard.initialize,length_budget:de:decisionCard.connecting,length_budget:de:decisionCard.unavailable,length_budget:de:decisionCard.commentHelp,length_budget:de:decisionCard.uncertain,length_budget:de:decisionCard.denied,length_budget:de:decisionCard.notQualified,length_budget:de:decisionCard.sourceChanged,length_budget:de:decisionCard.expired,length_budget:de:decisionCard.comparison,length_budget:de:decisionCard.comparisonUnavailable,length_budget:de:decisionCard.machineComparison,length_budget:de:decisionCard.documentUnchanged,length_budget:de:decisionCard.documentChanged,length_budget:de:decisionCard.consequence,length_budget:de:decisionCard.permission,length_budget:de:decisionCard.docUnavailable,length_budget:de:decisionCard.commentRequired,length_budget:de:decisionCard.notSaved,length_budget:de:decisionCard.unknownCurrent,length_budget:de:decisionCard.alreadyDecided,length_budget:de:decisionCard.initialize
+# 1 !== 0
+#     at createPrdDefinitionTestRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/prd-definition.js:25:45)
+#     at createSdDefinitionTestRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/sd-definition.js:11:13)
+#     at createLateSourceRevisionTestRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/late-source-revision.js:30:13)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/run-command.test.js:36:15
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 1,
+#   expected: 0,
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/mcp-server/test/run-command.test.js
+not ok 4 - packages/mcp-server/test/run-command.test.js
+  ---
+  duration_ms: 20817.701841
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/run-command.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 3
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71780.70922

@@ -26,8 +26,8 @@ Traceability contract: criteria-chain-v1
 
 // Every positive approval is a new synthetic reply through canonical services/commands.
 // No production Run, approval or source is copied or revised by this fixture.
-export function createLateSourceRevisionTestRun(root, validator, runId = "late-source-test", env = process.env, { tpEncoding = "lf" } = {}) {
-  const f = createSdDefinitionTestRun(root, validator, runId, env, { typedApprovals: true });
+export function createLateSourceRevisionTestRun(root, validator, runId = "late-source-test", env = process.env, { tpEncoding = "lf", route = "structured_delivery" } = {}) {
+  const f = createSdDefinitionTestRun(root, validator, runId, env, { typedApprovals: true, route });
   const state = () => parseRunState(readFileSync(f.state, "utf8"), runId);
   const control = () => parseControlState(state().content, { userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"], internalSteps: ["Brownfield Review", "UX Intent Definition", "Brownfield Analysis", "CD+Tests", "CR"] });
   const recordSource = gate => {
@@ -58,9 +58,14 @@ export function createLateSourceRevisionTestRun(root, validator, runId = "late-s
   writeFileSync(f.file("SD.md"), syntheticSd()); recordSource("SD"); approveSource("SD");
   writeFileSync(f.file("TP.md"), tpEncoding === "crlf_bom" ? "\ufeff" + syntheticTp().replace(/\n/gu, "\r\n") : syntheticTp());
   recordSource("TP"); approveSource("TP"); prepareImplementation();
-  const proposal = (sourceGate, analyses = "retain", operationId = randomUUID()) => {
-    const c = control();
-    const sources = SOURCE_GATES.map(type => ({ type, path: c.artefacts.get(type).path, digest: artefactFileDigest(root, c.artefacts.get(type).path) }));
+  const proposal = (sourceGate, analyses = "retain", operationId = randomUUID()) => sourceRevisionTestProposal(root, { ...f, control }, sourceGate, analyses, operationId);
+  return { ...f, readState: state, control, recordSource, approveSource, prepareImplementation, proposal };
+}
+
+export function sourceRevisionTestProposal(root, f, sourceGate, analyses = "retain", operationId = randomUUID()) {
+    const c = f.control(), runId = f.runId;
+    const sources = SOURCE_GATES.filter(type => c.artefacts.get(type)?.path)
+      .map(type => ({ type, path: c.artefacts.get(type).path, digest: artefactFileDigest(root, c.artefacts.get(type).path) }));
     const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,
       expected_revision_id: f.revision(), operation_id: operationId, source_gate: sourceGate,
       reason: "Synthetic reviewed source revision test", intended_change: "Revise the selected source while preserving reviewed upstream intent",
@@ -72,6 +77,4 @@ export function createLateSourceRevisionTestRun(root, validator, runId = "late-s
         implementation_evidence: "Retain code/tests; reassess fulfillment and run fresh preparation/checks for renewed TP", unresolved: [] } };
     const evidence = f.prefix + `proposal-${operationId}.json`; writeFileSync(join(root, evidence), JSON.stringify(value));
     return { input: { runId, revisionId: f.revision(), operationId, sourceGate, evidence }, value };
-  };
-  return { ...f, readState: state, control, recordSource, approveSource, prepareImplementation, proposal };
 }

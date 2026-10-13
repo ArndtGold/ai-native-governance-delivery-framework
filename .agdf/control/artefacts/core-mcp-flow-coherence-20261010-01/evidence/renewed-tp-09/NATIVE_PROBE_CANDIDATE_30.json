@@ -1,0 +1,91 @@
+{
+  "schema_version": "1",
+  "evidence_class": "prepared_disposable_native_probe",
+  "observed_at": "2026-10-11T16:53:19.161Z",
+  "production_entrypoint": false,
+  "installed": false,
+  "native_qualified": false,
+  "assurance": "cooperative_local",
+  "authorizes": false,
+  "runtime_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-vHAKlP",
+  "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-vHAKlP/governance-target",
+  "target_id": "sha256:1f5b40bafb80320fdebead8dbb85e4a1509e0c7dddd59c7fadca3d93a7603a45",
+  "runs": [
+    {
+      "locale": "en",
+      "action": "approve",
+      "run_id": "native-en-approve",
+      "expected_revision_id": "3cf7804f-3717-478e-9faa-bdba5fe6ce68",
+      "gate": "SD"
+    },
+    {
+      "locale": "en",
+      "action": "request_change",
+      "run_id": "native-en-request-change",
+      "expected_revision_id": "0f35ea06-9874-4357-bc1a-17b6df4fb9e5",
+      "gate": "SD"
+    },
+    {
+      "locale": "en",
+      "action": "reject",
+      "run_id": "native-en-reject",
+      "expected_revision_id": "35dbca53-c966-449c-9a5b-1bcbeb03fe56",
+      "gate": "SD"
+    },
+    {
+      "locale": "en",
+      "action": "text",
+      "run_id": "native-en-text",
+      "expected_revision_id": "2014827b-fc28-40f0-a045-9f2dae10aee4",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "approve",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "654b19e1-427d-44b1-9183-a206190d0e54",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "request_change",
+      "run_id": "native-de-request-change",
+      "expected_revision_id": "7e38ccff-6025-42fd-875e-148674f7be64",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "reject",
+      "run_id": "native-de-reject",
+      "expected_revision_id": "fa9f04f5-a23f-4e31-a3a2-f3eb67fc6e2e",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "text",
+      "run_id": "native-de-text",
+      "expected_revision_id": "ea8d6d7a-572c-4f5e-9c87-7485b0a1881a",
+      "gate": "SD"
+    }
+  ],
+  "entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-vHAKlP/native-decision-entry.mjs",
+  "entrypoint_digest": "sha256:2581bcb0e26496e93a230fea51297b5b64f7221d95c6b602c482ade4cd22fad8",
+  "server_digest": "9e42ece60059e46b09c257eef6b628fc61f5284ab44f0f561d1c31397c20b915",
+  "dispatcher_digest": "6add9571ea495ea1b0e69e927927f9fca5baf299e92c3a59b36606c9f40959e1",
+  "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 776177,
+    "digest": "sha256:9daa4741ab4bd0dd0bbfafe79ff3f71238258f0f6e77aa7caaf129ac479c51b3"
+  },
+  "observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-vHAKlP/native-observations.jsonl",
+  "configuration": {
+    "name": "agdf-decision-probe",
+    "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "args": [
+      "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-vHAKlP/native-decision-entry.mjs"
+    ]
+  }
+}

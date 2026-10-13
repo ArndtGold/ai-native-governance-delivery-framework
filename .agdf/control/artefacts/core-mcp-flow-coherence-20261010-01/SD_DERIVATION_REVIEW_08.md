@@ -1,0 +1,9 @@
+# SD derivation review 08 — Localized summary correction
+
+Authorized request: “Leg los”, after the exact terminal approval_summary_field_overlong diagnostic for registered unapproved SD revision 449c97c5-1cd4-4582-b32a-88d7ac3c9bc6. Fresh SD revision dispatch supplies the same source authority. No code, approval, source scope or design change.
+
+Correction: split the overlong German SDD-022 field into one stable-ID field plus Remotezugriff, Chatdarstellung and Gemeinsame UI fields. Preserve each semantic obligation: first-view decision context, complete technical/criteria details, actual support native+remote/full fallback, same version, exact complete remote document and missing-access block, shared change/rejection owner/no public upload/second history, separately composed reviewed Chat, one decision area/no duplicates/fake buttons, actual returned Chat/iPad proof, common undertaking labels/status vocabulary across all affected views, role-appropriate next step and reused/cross-view evidence.
+
+English architecture, owner, cross-view matrix, traceability, decisions, limitations and test requirements remain byte-for-byte unchanged before the localized summary heading. All 26 criteria and 22 stable summary SDD IDs remain; each ID appears once. No weakening of field limits, parser, mandatory localized heading, source checks or QA/native evidence. Existing source size limit also retained. Exact previous bytes and sealed mapping remain separate history.
+
+The canonical summary is still editorial content of the same SD, not a second authority. The established approved PRD and analytical input hashes stay unchanged. This cooperative derivation review supports reviewed replacement only; Core authoring readiness/presentation checks still have to pass. A fresh exact presentation and new deliberate human SD response are required; old approvals do not apply.

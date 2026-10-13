@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "--test-concurrency=3",
+    "packages/core/test/run-command-contract-test.js",
+    "packages/mcp-server/test/run-command.test.js",
+    "packages/mcp-server/test/decision-resource.test.js"
+  ],
+  "candidate_environment": {
+    "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+    "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+    "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-final"
+  },
+  "started_at": "2026-10-10T17:56:20.964403+00:00",
+  "observed_at": "2026-10-10T17:57:11.560287+00:00",
+  "exit_code": 0,
+  "evidence_class": "source_contract_and_actual_generated_stdio_synthetic_tests",
+  "native_qualified": false,
+  "raw_log": "FINAL_CONTRACT_VERIFICATION_01.log"
+}

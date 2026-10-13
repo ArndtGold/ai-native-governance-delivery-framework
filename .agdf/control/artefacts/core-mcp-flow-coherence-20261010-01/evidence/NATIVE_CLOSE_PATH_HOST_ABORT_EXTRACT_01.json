@@ -1,0 +1,26 @@
+{
+  "source_log": "/Users/arndtgold/Library/Logs/com.openai.codex/2026/10/11/codex-desktop-48f5e6d1-0e7d-4210-87bb-a2d9b1fd5cd7-22547-t0-i1-065304-0.log",
+  "selection": "exact sandbox, disposal/teardown/MCP calls at 06:59:18 and 06:59:48 UTC; errorStack omitted",
+  "events": [
+    {
+      "source_line": 916,
+      "line": "2026-10-11T06:59:18.952Z info [electron-message-handler] mcp_app_sandbox.sandbox_disposal_started connectorId=null didRequestWidgetExecution=true hostId=local initId=45aeef5f-9863-4add-b2b3-2cae80890c94 mcpAppId=session:6e66c7c8-b176-46b8-a87f-76dc656d6d98 rendererWebContentsId=1 rendererWindowAppearance=primary rendererWindowFocused=true rendererWindowId=1 rendererWindowVisible=true sandboxId=source-f06924351ab20e02 server=agdf-decision-probe wasConnected=true"
+    },
+    {
+      "source_line": 917,
+      "line": "2026-10-11T06:59:18.953Z info [electron-message-handler] Sending app request durationMs=0 initId=45aeef5f-9863-4add-b2b3-2cae80890c94 method=requestMcpAppsResourceTeardown operation=\"App request\" operationId=ad495ea1-8045-403a-bf63-7e0565c9c5b0 rendererWebContentsId=1 rendererWindowAppearance=primary rendererWindowFocused=true rendererWindowId=1 rendererWindowVisible=true sandboxId=source-f06924351ab20e02 stage=\"Sending app request\""
+    },
+    {
+      "source_line": 918,
+      "line": "2026-10-11T06:59:18.990Z info [electron-message-handler] Handling app request durationMs=0 initId=45aeef5f-9863-4add-b2b3-2cae80890c94 method=callMcp operation=\"App request handling\" operationId=52bb340f-c67a-4ffb-93b4-dfd089af2a5c rendererWebContentsId=1 rendererWindowAppearance=primary rendererWindowFocused=true rendererWindowId=1 rendererWindowVisible=true sandboxId=source-f06924351ab20e02 stage=\"Handling app request\""
+    },
+    {
+      "source_line": 919,
+      "line": "2026-10-11T06:59:18.993Z info [electron-message-handler] App request handling cancelled durationMs=0.2999999523162842 errorCode=20 errorMessage=\"signal is aborted without reason\" errorName=AbortError initId=45aeef5f-9863-4add-b2b3-2cae80890c94 method=callMcp operation=\"App request handling\" operationId=52bb340f-c67a-4ffb-93b4-dfd089af2a5c outcome=cancelled rendererWebContentsId=1 rendererWindowAppearance=primary rendererWindowFocused=true rendererWindowId=1 rendererWindowVisible=true sandboxId=source-f06924351ab20e02"
+    },
+    {
+      "source_line": 923,
+      "line": "2026-10-11T06:59:48.956Z warning [electron-message-handler] App request failed durationMs=30001.700000047684 errorMessage=\"MCP sandbox RPC timed out.\" errorName=TimeoutError initId=45aeef5f-9863-4add-b2b3-2cae80890c94 method=requestMcpAppsResourceTeardown operation=\"App request\" operationId=ad495ea1-8045-403a-bf63-7e0565c9c5b0 outcome=failed rendererWebContentsId=1 rendererWindowAppearance=primary rendererWindowFocused=true rendererWindowId=1 rendererWindowVisible=true sandboxId=source-f06924351ab20e02"
+    }
+  ]
+}

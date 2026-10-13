@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T18:22:58.535967+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "evidence_class": "actual_native_observation_with_scoped_source_fix",
+  "observed_candidate": "F3pbiO",
+  "presentation_id": "9e581713-5199-4180-a574-c8f820ed0f53",
+  "receipt_evidence": "NATIVE_REJECT_DE_42.json",
+  "defect": "After a saved rejection, the native view retained the consequence proposed for approval although the current Core gate requires SD revision.",
+  "correction": "Display the proposed approval consequence only while undecided and explicitly label it using the existing statusCard.allowedAfter locale owner. After sending, pending, uncertain, saved, stale or expired, retain only the applicable result/general guidance. Legacy metadata without this optional label uses existing generic guidance.",
+  "non_claim": "No new rendered current next-step projection or final native qualification is claimed.",
+  "build_owner_correction": "Use pure mcp-resource-contract URI owner at build time; shared freshness digest includes all imported pure Core inputs. No new endpoint or second policy.",
+  "package_budget": "A temporary new locale key exceeded the Copilot guard by 233 bytes; removed and reused existing canonical label. Budget ceiling unchanged.",
+  "tests": [
+    "ui-decision-consequence-47.log",
+    "ui-build-47.log",
+    "ui-browser-consequence-47.log",
+    "decision-action-48.log",
+    "prepare-47.log",
+    "native-preflight-49.log"
+  ],
+  "corrected_candidate": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-E41VnZ",
+  "actual_corrected_native_check": "pending restart",
+  "native_qualified": false,
+  "authorizes": false
+}

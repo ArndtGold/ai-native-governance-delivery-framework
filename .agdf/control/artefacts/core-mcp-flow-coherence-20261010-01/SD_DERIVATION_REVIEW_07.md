@@ -1,0 +1,15 @@
+# SD derivation review 07 — Cross-view UX coherence
+
+Explicit request: “Schärfe das Sd”, following the assessment that decision views are aligned in design while other affected surfaces need a common UX line. Bound unapproved SD revision 3534f5f4-2825-4305-b962-10859c591ec9. No approved source, gate decision, code or unrelated UI edit.
+
+Authority: unchanged approved PRD e79d198d9bc6041bb0a855d021271745f104f34ba5e1f724d1d6025867e08a6d; AC-001/002/008/010/011/015/016/020/026 and B-01..11. Ready UX distinguishes saved/current/evidence/decision/permission/uncertainty/support. Brownfield reuses existing Core/cockpit/document/read/check/presentation/locale boundaries; no broad cockpit redesign or arbitrary writer.
+
+Section 4.15 chooses common meaningful names, semantic facts and vocabulary in existing Core read/presentation and locale owners. No UI evaluator, independent title/status/action store or new framework. Existing components/tokens/locales supply consistent hierarchy with role-specific layout. Inventory covers cockpit/list, detail/evidence/approvals, exact document, draft findings, native, both Chat modes and user-facing error/recovery. Technical IDs/historical names remain unchanged and accessible.
+
+Saved work, gate, draft/check, exact approval, current eligibility, consent and view support/lifetime remain distinct. Matching observations share labels; history/unknown/time explain valid differences. Partial counts cannot imply no open points for the whole undertaking. Existing Core derives permitted steps and exact link versions.
+
+TP enumerates changed and reused affected surfaces, owners/facts, stable criteria/design IDs and scenarios. Qualify list/detail/document/return/decision/outcome/next-step plus history, invalid draft, partial count, native-disabled/remote-incomplete and concurrent/unknown/expiry recovery. Actual native/locales/iPad evidence remains; proposed matrix is not existing proof.
+
+Consolidated repeated 4.14 wording while retaining source-owned brief, actual Core renderer/coherent forwarding, one decision area/formula, complete fallback/detail/chunks, no fake controls, material risks/route, discussion/ambiguity/history/current, actual iPad and independent native/one-effect protections. Unchanged 4.12/4.13 remain normative. Initial and intermediate source-size checks exceeded 131072 bytes; duplicated prose was reduced before canonical registration. Final single SD fits the limit; exact prior backup remains. No failed size check is reported as passed.
+
+All 26 criterion rows, 22 stable SDDs and one decision contract/table remain. SDD-022 plus owner/traceability/evidence now cover the scoped coherence requirement. Lifecycle/deadlines/capacity/protections/full reviews remain. Rejected: flattening statuses, private UI policy, identical layouts, broad redesign, omitting reused views, truncating context, transferring approval or claiming deployment. Fits approved intent and clarification; fresh readiness/presentation/new SD approval required, no TP/code permission.

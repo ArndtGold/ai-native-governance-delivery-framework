@@ -1,4 +1,4 @@
-import { lstatSync, realpathSync, statSync } from "../control-read/fs.js";
+import { lstatKindSync, realpathSync, statSync } from "../control-read/fs.js";
 import { isAbsolute, join, posix, relative, resolve, sep, win32 } from "node:path";
 
 // A control artefact path is stored independently of the current host. Check Windows forms even
@@ -18,7 +18,7 @@ export function hasSymlinkComponent(root, relativePath) {
   for (const component of relativePath.split("/")) {
     cursor = join(cursor, component);
     try {
-      if (lstatSync(cursor).isSymbolicLink()) return true;
+      if (lstatKindSync(cursor) === 'symlink') return true;
     } catch (error) {
       // A genuinely absent planned output is safe; unreadable or non-directory ancestors are not.
       return error.code !== "ENOENT";

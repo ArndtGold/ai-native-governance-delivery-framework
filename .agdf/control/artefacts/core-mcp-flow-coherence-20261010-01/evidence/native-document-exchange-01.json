@@ -1,0 +1,475 @@
+{
+  "evidence_class": "native_host_automated_dom_read",
+  "request": {
+    "at": "2026-10-10T18:24:05.871Z",
+    "event": "tool_request",
+    "evidence_class": "native_probe_unclassified",
+    "data": {
+      "name": "agdf_cockpit_read",
+      "input": {
+        "operation": "document",
+        "snapshot_id": "e8023cc6-e14d-4971-998e-5c2bbdc8bd51",
+        "run_id": "native-de-approve",
+        "resource_id": "860efddf-c570-40f0-a71f-b3e7049558a3",
+        "session_id": "b5d8b424-e594-4e93-a0ad-b94b5f1f4d89"
+      },
+      "client": {
+        "name": "codex-mcp-client",
+        "title": "Codex",
+        "version": "0.162.0-alpha.17.2"
+      }
+    }
+  },
+  "result": {
+    "at": "2026-10-10T18:24:06.023Z",
+    "event": "tool_result",
+    "evidence_class": "native_probe_unclassified",
+    "data": {
+      "name": "agdf_cockpit_read",
+      "result": {
+        "schema_version": "1",
+        "target": {
+          "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+          "display_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target"
+        },
+        "snapshot_id": "ca9408b2-c676-4762-b5af-e28379156ec3",
+        "observed_as_of": "2026-10-10T18:24:05.968Z",
+        "source_digest": "251b6cef8a37150cd5cfd3b5300a8d372a636bb38d76162186e4a899cf015c52",
+        "state": "available",
+        "code": null,
+        "retryable": false,
+        "data": {
+          "kind": "document",
+          "run": {
+            "run_id": "native-de-approve",
+            "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+            "lifecycle": "active",
+            "work_summary": {
+              "kind": "approval_pending",
+              "phase": "SD",
+              "qa_outcome": "not_applicable",
+              "lifecycle": "active",
+              "recorded_approvals": [
+                "UR",
+                "PRD"
+              ],
+              "decisive_obligation": null,
+              "open_obligation_count": 0,
+              "display_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+              "sources": [],
+              "limitations": [],
+              "authorizes": false,
+              "evidence_applicability": {
+                "current": [],
+                "superseded": [],
+                "applicability_unknown": [
+                  {
+                    "path": "run-create",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": "`.agdf/control/artefacts/native-de-approve/UR.md`",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": "`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/native-de-approve/mapping-2352d783-6f3c-4128-865e-f5e347bc8295.json",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/native-de-approve/sd-mapping-1f242093-43a8-4c61-8bdf-e07fe0d83aa7.json",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  }
+                ]
+              },
+              "status_label": "Approval pending"
+            },
+            "backlog_comparison": {
+              "state": "matching",
+              "reason": "same_revision_and_sources",
+              "saved_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+              "authorizes": false
+            },
+            "objective": "Describe the trustworthy outcome.",
+            "title": "Synthetic saved-filter need",
+            "evaluation": {
+              "status": "open",
+              "current_gate": "SD",
+              "blocking_reason": "none",
+              "missing_approval": "Approval: SD",
+              "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+              "next_action_de": "Das L\u00f6sungsdesign entwerfen oder \u00fcberarbeiten. Erst implementieren, nachdem SD und TP freigegeben sind.",
+              "allowed": [
+                "draft or refine Solution Design",
+                "define architecture",
+                "define ownership",
+                "request exact SD approval"
+              ],
+              "forbidden": [
+                "create TP",
+                "implement code",
+                "claim QA or release readiness"
+              ],
+              "control_assessment": {
+                "state": "blocked",
+                "authorizes": false
+              },
+              "doctor_status": "warn",
+              "quality_outlook": "No additional quality follow-up identified from the current control state.",
+              "diagnostics": [
+                {
+                  "severity": "warn",
+                  "code": "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
+                  "message": "CONTEXT_GRAPH.md still contains the example node.",
+                  "path": ".agdf/control/CONTEXT_GRAPH.md",
+                  "next_step": "Remove the example or replace it with an evidenced node that has an exit criterion."
+                }
+              ],
+              "approvals": [
+                {
+                  "gate": "UR",
+                  "status": "approved",
+                  "evidence": "`Approval: UR` \u00b7 2026-10-10 \u00b7 revision 2 \u00b7 `.agdf/control/artefacts/native-de-approve/UR.md` sha256:c0247c6d9ad354bd \u00b7 presentation 8bafd0fd-a5e2-4c23-ab00-b7ad2e2937e0 sha256:684998c5fc84fb5ac39895886817710bc32ee77f22cb00c8532447f74d4c5a23"
+                },
+                {
+                  "gate": "PRD",
+                  "status": "approved",
+                  "evidence": "`Approval: PRD` \u00b7 2026-10-10 \u00b7 revision 5 \u00b7 `.agdf/control/artefacts/native-de-approve/PRD.md` sha256:6885474fee584743 \u00b7 presentation b72b7f3b-6187-481e-a574-d3ca6513a3b8 sha256:0bcf0d7edfe65a191eba872aa1514dd92c1be2dbe0b318a9472e8dd759f7ce96"
+                },
+                {
+                  "gate": "SD",
+                  "status": "missing",
+                  "evidence": ""
+                },
+                {
+                  "gate": "TP",
+                  "status": "missing",
+                  "evidence": ""
+                },
+                {
+                  "gate": "QA",
+                  "status": "missing",
+                  "evidence": ""
+                },
+                {
+                  "gate": "UAT",
+                  "status": "missing",
+                  "evidence": ""
+                }
+              ],
+              "missing_evidence": [],
+              "next_operation": {
+                "type": "human_gate_decision",
+                "operation_key": "approval.record",
+                "actor": "human",
+                "effect": "decision",
+                "gate": "SD"
+              },
+              "completion": {
+                "status": "pending",
+                "gate": "OR",
+                "fulfilled": false
+              },
+              "git_evidence": "unavailable"
+            },
+            "persisted": {
+              "current_gate": "SD",
+              "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+              "decision": "in_progress",
+              "artefacts": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                  "status": "approved",
+                  "notes": "",
+                  "raw_path": "`.agdf/control/artefacts/native-de-approve/UR.md`",
+                  "path_format": "code_span",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "Brownfield Review",
+                  "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+                  "status": "done",
+                  "notes": "",
+                  "raw_path": "`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`",
+                  "path_format": "code_span",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "Verified Change",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "status": "approved",
+                  "notes": "Reviewed source binding recorded atomically",
+                  "raw_path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "status": "draft",
+                  "notes": "Reviewed source binding recorded atomically",
+                  "raw_path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "TP",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "Brownfield Analysis",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "CD+Tests",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "CR",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "QA",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                }
+              ]
+            },
+            "context_graph": {
+              "refs": ""
+            },
+            "resources": [
+              {
+                "resource_id": "fa297667-8a33-4dd1-997f-50db4a52a400",
+                "run_id": "native-de-approve",
+                "type": "Run State",
+                "path": ".agdf/control/runs/native-de-approve/RUN_STATE.md",
+                "registered_reference": ".agdf/control/runs/native-de-approve/RUN_STATE.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "278eac46-22b2-4cd5-86b9-4f5f29167526",
+                "run_id": "native-de-approve",
+                "type": "UR",
+                "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/UR.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "b755f9b6-ae3b-4c5c-be9e-7bce7d7ee34b",
+                "run_id": "native-de-approve",
+                "type": "Brownfield Review",
+                "path": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "ca7e37a6-d3e2-4d3c-823a-8f8fd755f79c",
+                "run_id": "native-de-approve",
+                "type": "PRD",
+                "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "8075e559-1f10-4e70-82bd-88d5a2b3e8b2",
+                "run_id": "native-de-approve",
+                "type": "SD",
+                "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/SD.md",
+                "status": "registered"
+              }
+            ],
+            "draft_check": {
+              "source": {
+                "run_id": "native-de-approve",
+                "gate": "SD",
+                "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+                "artifact_path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                "artifact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                "available": true,
+                "reason": null
+              },
+              "result": null,
+              "display": {
+                "state": "unchecked",
+                "reason": null,
+                "recovery": "check"
+              }
+            },
+            "document_states": [
+              {
+                "schema_version": "1",
+                "resource_id": "278eac46-22b2-4cd5-86b9-4f5f29167526",
+                "run_id": "native-de-approve",
+                "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+                "type": "UR",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/UR.md",
+                "source_state": "available",
+                "content_digest": "c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                "state": "approved",
+                "version_kind": "approved",
+                "reason": null,
+                "recorded_approval": {
+                  "status": "approved",
+                  "evidence": "`Approval: UR` \u00b7 2026-10-10 \u00b7 revision 2 \u00b7 `.agdf/control/artefacts/native-de-approve/UR.md` sha256:c0247c6d9ad354bd \u00b7 presentation 8bafd0fd-a5e2-4c23-ab00-b7ad2e2937e0 sha256:684998c5fc84fb5ac39895886817710bc32ee77f22cb00c8532447f74d4c5a23"
+                },
+                "check": null,
+                "authorizes": false
+              },
+              {
+                "schema_version": "1",
+                "resource_id": "ca7e37a6-d3e2-4d3c-823a-8f8fd755f79c",
+                "run_id": "native-de-approve",
+                "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+                "type": "PRD",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                "source_state": "available",
+                "content_digest": "6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                "state": "approved",
+                "version_kind": "approved",
+                "reason": null,
+                "recorded_approval": {
+                  "status": "approved",
+                  "evidence": "`Approval: PRD` \u00b7 2026-10-10 \u00b7 revision 5 \u00b7 `.agdf/control/artefacts/native-de-approve/PRD.md` sha256:6885474fee584743 \u00b7 presentation b72b7f3b-6187-481e-a574-d3ca6513a3b8 sha256:0bcf0d7edfe65a191eba872aa1514dd92c1be2dbe0b318a9472e8dd759f7ce96"
+                },
+                "check": null,
+                "authorizes": false
+              },
+              {
+                "schema_version": "1",
+                "resource_id": "8075e559-1f10-4e70-82bd-88d5a2b3e8b2",
+                "run_id": "native-de-approve",
+                "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+                "type": "SD",
+                "registered_reference": ".agdf/control/artefacts/native-de-approve/SD.md",
+                "source_state": "available",
+                "content_digest": "be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                "state": "draft",
+                "version_kind": "draft",
+                "reason": "not_checked",
+                "recorded_approval": null,
+                "check": null,
+                "authorizes": false
+              }
+            ],
+            "evidence_applicability": {
+              "current": [],
+              "superseded": [],
+              "applicability_unknown": [
+                {
+                  "step": null,
+                  "path": "run-create",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": "`.agdf/control/artefacts/native-de-approve/UR.md`",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": "`.agdf/control/artefacts/native-de-approve/BROWNFIELD_REVIEW.md`",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": ".agdf/control/artefacts/native-de-approve/mapping-2352d783-6f3c-4128-865e-f5e347bc8295.json",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": ".agdf/control/artefacts/native-de-approve/sd-mapping-1f242093-43a8-4c61-8bdf-e07fe0d83aa7.json",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                }
+              ]
+            }
+          },
+          "document": {
+            "resource": {
+              "resource_id": "8075e559-1f10-4e70-82bd-88d5a2b3e8b2",
+              "run_id": "native-de-approve",
+              "type": "SD",
+              "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "registered_reference": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "status": "registered"
+            },
+            "format": "markdown",
+            "content": "# SD: Synthetic saved filter\nStatus: draft\nGate: SD\nGate approval: open\nOwner: Test design owner\nTraceability contract: criteria-chain-v1\nDesign Decisions contract: sd-decisions-v1\n\n## Solution Overview\nReuse the existing user-owned filter store.\n\n## Ownership And Source Of Truth\nExisting filter service retains ownership; the approved PRD remains product authority.\n\n## Architecture Decisions\n- SDD-001: Reuse the existing filter service; rationale: retain user ownership; consequence: no shared filters.\n\n## Acceptance Traceability\n| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |\n|---|---|---|---|---|\n| AC-001 | Existing store saves/restores owned filter values | Filter service and approved PRD owner | SDD-001 | Existing personal ownership retained |\n\n## Design Decisions\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Store boundary | before_sd | resolved | Existing filter service | Test design owner |\n\n## AGDF Approval Summary (de; source=en)\n- L\u00f6sung: Bestehenden pers\u00f6nlichen Filterspeicher wiederverwenden.\n- Verantwortung: Filterservice und freigegebenes PRD.\n- Entscheidungen: Bestehender Speicher mit pers\u00f6nlicher Eigent\u00fcmerschaft.\n\n## Native observation scope\nDisposable synthetic Run. No real undertaking is approved or changed by this probe.\n",
+            "content_digest": "be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "links": {},
+            "document_state": {
+              "schema_version": "1",
+              "resource_id": "8075e559-1f10-4e70-82bd-88d5a2b3e8b2",
+              "run_id": "native-de-approve",
+              "revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+              "type": "SD",
+              "registered_reference": ".agdf/control/artefacts/native-de-approve/SD.md",
+              "source_state": "available",
+              "content_digest": "be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "state": "draft",
+              "version_kind": "draft",
+              "reason": "not_checked",
+              "recorded_approval": null,
+              "check": null,
+              "authorizes": false
+            }
+          }
+        },
+        "authorizes": false
+      }
+    }
+  }
+}

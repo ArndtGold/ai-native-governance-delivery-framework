@@ -315,7 +315,8 @@ for (const surface of ["codex", "opencode"]) {
     target: fixture.target,
     surface,
   });
-  assert.equal(existsSync(join(scopedRuntimeRoot, VERSION)), false);
+  assert.equal(existsSync(join(scopedRuntimeRoot, VERSION)), true, 'Legacy executable roots remain retained after registration removal.');
+  assert.ok(disabled.diagnostics.some(row => row.code === 'runtime_executables_retained'));
   if (surface === "opencode") {
     const config = JSON.parse(readFileSync(join(fixture.target, "opencode.json"), "utf8"));
     assert.equal(config.mcp.agdf, undefined);
@@ -366,7 +367,8 @@ assert.equal(inspectMcpServerPackage({ dataRoot: sharedRoot, expectedVersion: VE
 assert.equal(runMcpLifecycle({ action: "disable", surface: "copilot", target: sharedFixture.target,
   env: sharedFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: sharedExec }).result, "disabled");
 assert.equal(existsSync(copilotPath), false, "Copilot disable removes an AGDF-created project config");
-assert.equal(inspectMcpServerPackage({ dataRoot: sharedRoot, expectedVersion: VERSION }).status, "absent");
+assert.equal(inspectMcpServerPackage({ dataRoot: sharedRoot, expectedVersion: VERSION }).status, "matched");
+assert.equal(inspectMcpServerPackage({ dataRoot: sharedRoot, expectedVersion: VERSION }).references.length, 0);
 
 const copilotConflict = lifecycleFixture("copilot-conflict");
 writeFileSync(join(copilotConflict.target, ".mcp.json"), `${JSON.stringify({
@@ -453,7 +455,8 @@ legacyRuntime.commit();
 const migrated = runMcpLifecycle({ action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: legacyFixture.target,
   env: legacyFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]) });
 assert.equal(migrated.result, "configured_pending_restart");
-assert.equal(inspectMcpServerPackage({ dataRoot: legacyRoot, expectedVersion: VERSION }).status, "absent");
+assert.equal(inspectMcpServerPackage({ dataRoot: legacyRoot, expectedVersion: VERSION }).status, "matched", "Migrating a legacy registration retains unclaimed executable files.");
+assert.equal(migrated.changes.some(change => change.kind === "runtime_retain"), true);
 assert.equal(inspectMcpServerPackage({ dataRoot: mcpRuntimeDataRoot({ dataRoot: legacyFixture.dataRoot,
   scope: "project", target: legacyFixture.target }), expectedVersion: VERSION }).status, "matched");
 assert.equal(runMcpLifecycle({ action: "disable", surface: "codex", target: legacyFixture.target,
@@ -602,7 +605,7 @@ for (const surface of ["codex", "claude", "opencode"]) {
     exec,
   });
   assert.equal(updated.result, "configured_pending_restart", `${surface} owned update must succeed`);
-  assert.equal(inspectMcpServerPackage({ dataRoot: runtimeDataRoot, expectedVersion: OLD_VERSION }).status, "absent");
+  assert.equal(inspectMcpServerPackage({ dataRoot: runtimeDataRoot, expectedVersion: OLD_VERSION }).status, "matched", "Earlier unclaimed runtimes remain readable after registration update.");
   assert.equal(inspectMcpServerPackage({ dataRoot: runtimeDataRoot, expectedVersion: VERSION }).status, "matched");
   if (surface === "opencode") {
     const config = JSON.parse(readFileSync(join(fixture.target, "opencode.json"), "utf8"));
@@ -638,9 +641,9 @@ assert.notEqual(readFileSync(transactionRuntime.markerPath, "utf8"), markerBefor
 referenceTransaction.rollback();
 assert.equal(readFileSync(transactionRuntime.markerPath, "utf8"), markerBefore);
 const retirementTransaction = createMcpRuntimeRetirementTransaction(transactionRuntime);
-retirementTransaction.apply();
-assert.equal(existsSync(transactionRuntime.root), false);
-assert.equal(existsSync(retirementTransaction.retiredRoot), true);
+assert.throws(() => retirementTransaction.apply(), /AGDF_MCP_RUNTIME_RETAINED/);
+assert.equal(existsSync(transactionRuntime.root), true);
+assert.equal(existsSync(retirementTransaction.retiredRoot), false);
 retirementTransaction.rollback();
 assert.equal(existsSync(transactionRuntime.root), true);
 assert.equal(existsSync(retirementTransaction.retiredRoot), false);
@@ -721,8 +724,8 @@ const retirementMarkerBefore = readFileSync(retirementLegacyRuntime.markerPath, 
 const retirementFailureResult = runMcpLifecycle({
   action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: retirementFailureFixture.target,
   env: retirementFailureFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
-  createRetirementTransaction(runtime) {
-    const actual = createMcpRuntimeRetirementTransaction(runtime);
+  createReferenceTransaction(runtime, references) {
+    const actual = createMcpRuntimeReferenceTransaction(runtime, references);
     return { apply: actual.apply, rollback: actual.rollback,
       commit() { throw new Error("AGDF_MCP_RUNTIME_RETIRE_INVALID"); } };
   },

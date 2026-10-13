@@ -1,7 +1,7 @@
 import { isAbsolute, resolve } from "node:path";
 import process from "node:process";
 import { configuredLanguage, resolveLanguagePreference } from "./runtime-context.js";
-import { resolveCommand, supportedCommandNames } from "./command-registry.js";
+import { resolveCommand, supportedCommandNames, commandGroupRoutes } from "./command-registry.js";
 
 export class CliUsageError extends Error {
   constructor(message, { showUsage = false } = {}) {
@@ -67,7 +67,7 @@ export function parseArgs(argv, dependencies = {}) {
   let gate;
   let revisionId;
   let response;
-  let contractModule;
+  let contractModule, commandFile;
   let runStep;
   let recoveryAction;
   let recoveryPreviewId;
@@ -175,6 +175,10 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (arg === '--command-file') {
+      if (commandFile !== undefined) throw new CliUsageError('--command-file may not repeat');
+      commandFile = resolve(cwd, requiredValue(args, i, arg)); i += 1; continue;
+    }
     if (arg === "--module") {
       contractModule = requiredValue(args, i, arg);
       i += 1;
@@ -328,6 +332,7 @@ export function parseArgs(argv, dependencies = {}) {
     throw new CliUsageError("Source revision identity and evidence flags may not repeat");
   }
 
+  if (Object.hasOwn(commandGroupRoutes, target) && [...flagCounts.keys()].some(flag => !['--command-file', '--json'].includes(flag))) throw new CliUsageError('Bound command routes accept only --command-file and --json; no overriding envelope fields.');
   return {
     kind: "command",
     options: {
@@ -369,6 +374,7 @@ export function parseArgs(argv, dependencies = {}) {
       revisionId,
       response,
       contractModule,
+      commandFile,
       runStep,
       recoveryAction,
       recoveryPreviewId,

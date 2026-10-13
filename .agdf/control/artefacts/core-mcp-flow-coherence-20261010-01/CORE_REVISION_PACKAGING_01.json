@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-10",
+  "authority": "bounded user-authorized Core bootstrap; not QA or host activation",
+  "profile_id": "copilot-runtime-plugin",
+  "previous": {
+    "files": 216,
+    "bytes": 1817042
+  },
+  "current": {
+    "files": 217,
+    "bytes": 1820386
+  },
+  "delta": {
+    "files": 1,
+    "bytes": 3344
+  },
+  "inventory_digest": "sha256:071222df9caa11dca9830fc954e046ac258a2106fe08144f9e28df345c3cf10f",
+  "source_changes": [
+    "packages/core/lib/control-state/run-revision-boundary.js",
+    "packages/core/lib/control-state/run-revision.js",
+    "packages/core/lib/control-state/run-revision-history.js",
+    "plugins/agdf/meta/contracts/gate-transition.md"
+  ],
+  "checks": [
+    "sync-package-assets passed",
+    "copilot-profile-test passed; inventory, drift, exclusions and budget remain enforced",
+    "build-contract-test passed"
+  ],
+  "limits": "No speculative headroom, private UI, new MCP writer, global installation or native-host qualification."
+}

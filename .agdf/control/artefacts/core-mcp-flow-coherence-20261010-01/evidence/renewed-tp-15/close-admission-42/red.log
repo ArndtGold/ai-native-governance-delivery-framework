@@ -1,0 +1,44 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/transport-close.test.tsx (3 tests | 2 failed) 25ms
+   × dispatches an undecided session close despite eight pending reads, without releasing read admission 12ms
+   × coalesces simultaneous teardown signals only for their identical session 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/transport-close.test.tsx > dispatches an undecided session close despite eight pending reads, without releasing read admission
+AssertionError: promise rejected "Error: busy" instead of resolving
+ ❯ test/transport-close.test.tsx:20:82
+     18|   callServerTool.mockResolvedValue(closed);
+     19|   try {
+     20|     await expect(bridge.operation({ operation: 'close' }, undefined, s…
+       |                                                                                  ^
+     21|     expect(callServerTool).toHaveBeenCalledExactlyOnceWith({ name: 'ag…
+     22|       operation: 'close', session_id: session(1),
+
+Caused by: Error: busy
+ ❯ CockpitBridge.request src/mcp/transport.ts:17:34
+ ❯ CockpitBridge.operation src/mcp/transport.ts:29:31
+ ❯ test/transport-close.test.tsx:20:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/transport-close.test.tsx > coalesces simultaneous teardown signals only for their identical session
+AssertionError: expected "vi.fn()" to be called 1 times, but got 2 times
+ ❯ test/transport-close.test.tsx:34:26
+     32|   const first = bridge.operation({ operation: 'close' }, undefined, se…
+     33|   const duplicate = bridge.operation({ operation: 'close' }, undefined…
+     34|   expect(callServerTool).toHaveBeenCalledTimes(1);
+       |                          ^
+     35|   release(); await Promise.all([first, duplicate]);
+     36|   callServerTool.mockResolvedValue(closed);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  18:53:48
+   Duration  1.55s (environment 84%, transform 11%, tests 2%, import 2%, worker 1%)
+

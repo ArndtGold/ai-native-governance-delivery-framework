@@ -31,7 +31,10 @@ for (const file of readdirSync(new URL(".github/workflows/", root))) {
 }
 const guardrails = parse(readFileSync(new URL(".github/workflows/agdf-guardrails.yml", root), "utf8"));
 assert.deepEqual(guardrails.jobs.verify.strategy.matrix.include.map(row => [row.os, row.node]),
-  [["ubuntu-latest", 22], ["windows-latest", 22], ["ubuntu-latest", 24]]);
+  [["ubuntu-latest", 22], ["windows-latest", 22], ["windows-latest", 22], ["windows-latest", 22], ["ubuntu-latest", 24]]);
+assert.deepEqual(guardrails.jobs.verify.strategy.matrix.include.filter(row => row.os === 'windows-latest').map(row => row.smoke_shard),
+  ['installation', 'package', 'governance']);
+assert.equal(guardrails.jobs.verify['timeout-minutes'], 45, 'sharding must retain the existing per-job time budget');
 
 function assertWindowsCheckoutPreconditions(steps) {
   const checkout = steps.findIndex(step => step.uses?.startsWith("actions/checkout@"));

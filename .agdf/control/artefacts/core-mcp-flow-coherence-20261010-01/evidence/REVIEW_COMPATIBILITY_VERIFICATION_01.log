@@ -1,0 +1,190 @@
+TAP version 13
+# [cli-gates] START new-ur
+# [cli-gates] PASS new-ur (7.3s)
+# [cli-gates] START duplicate-prd
+# [cli-gates] PASS duplicate-prd (7.0s)
+# [cli-gates] START bound-ur
+# [cli-gates] PASS bound-ur (7.8s)
+# [cli-gates] START stale-next-step
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: a pending same-gate decision must not start implementation
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:299:12
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:257:5
+#     at withFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:50:9)
+#     at withInternalStepRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:254:3)
+#     at staleNextStep (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:294:3)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:444:24
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 'implementation',
+#   expected: 'implementation',
+#   operator: 'notStrictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/cli/scripts/cli-gate-scenarios-test.js
+not ok 1 - packages/cli/scripts/cli-gate-scenarios-test.js
+  ---
+  duration_ms: 35794.130541
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# PASS SCN-021/016 kill before_rename, confirmed death, one committed revision
+# PASS SCN-021/016 kill after_rename, confirmed death, one committed revision
+# PASS SCN-021/016 kill before_response, confirmed death, one committed revision
+# PASS SCN-013/014/015 CLI/API concurrent identical
+# PASS SCN-013/014/015 CLI/API concurrent distinct
+# PASS SCN-013/014/015 CLI/API concurrent changed_payload
+# Control command process tests passed on darwin/x64.
+# PASS SCN-026 real legacy CLI interruption before_rename
+# PASS SCN-026 real legacy CLI interruption after_rename
+# SCN-026 INTERRUPTION_METRICS [{"lane":"command","point":"before_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"accepted","manual_corrections":0,"human_decision":"unavailable"},{"lane":"command","point":"after_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"already_applied","manual_corrections":0,"human_decision":"unavailable"},{"lane":"command","point":"before_response","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"already_applied","manual_corrections":0,"human_decision":"unavailable"},{"lane":"legacy","point":"before_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"approved","manual_corrections":0,"human_decision":"unavailable"},{"lane":"legacy","point":"after_rename","interrupted_calls":1,"retry_calls":1,"resulting_revision_count":1,"replay_outcome":"rejected","manual_corrections":0,"human_decision":"unavailable"}]
+# PROCESS_EVIDENCE [{"point":"before_rename","child_pid":25710,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"bcf1977f-e0f3-4b8a-8964-c1f184025849","retry":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"15baa155-d457-4a3b-8120-8e4acd68824e","request_digest":"sha256:3338853df90dcb29e232fb4d66a343ea1e7e3956fea4609dbf07539d42a5c9c9","binding":{"target_id":"sha256:d282a18e39c4d7f6827e862102866d782eaeae471504cf0a59ecb9c59f011ee6","run_id":"command-test","gate":"UR","expected_revision_id":"bcf1977f-e0f3-4b8a-8964-c1f184025849","presentation_id":"07cf88f9-5d4b-4681-9006-736c730b6fd9"},"effect":{"previous_revision_id":"bcf1977f-e0f3-4b8a-8964-c1f184025849","resulting_revision_id":"fab48f7e-3336-418a-8ccb-6af1032dd025","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","material_sources":[{"type":"UR","path":".agdf/control/artefacts/command-test/UR.md","digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb"}],"artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:6a0f2e44150e4cbcfcc1b89129d65328ffe59b82d9ec84d8dd137316a0b87adf","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"fab48f7e-3336-418a-8ccb-6af1032dd025","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"point":"after_rename","child_pid":25756,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"58b91d97-7042-44d8-bbb0-f7bc850b6a09","retry":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"6e0908bd-9fd6-479c-a24c-599f7620d4a2","request_digest":"sha256:df7d7119ab898b42f6bb164190e4ed53e30167fd02065dac8e12b41dca09639b","binding":{"target_id":"sha256:bd71f616a61d8213321e317c5c8b447dab48aba1525a52eed4d38b4d80f827d2","run_id":"command-test","gate":"UR","expected_revision_id":"7b094e63-a760-4622-9aea-e7e454b0f050","presentation_id":"adc6fb20-cd10-4484-95b3-1ebe4d30672d"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","material_sources":[{"digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","path":".agdf/control/artefacts/command-test/UR.md","type":"UR"}],"material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:7fccb43292c114ed155917c1bcfc42a2179c7ae733bf937be82b77137176c423","previous_revision_id":"7b094e63-a760-4622-9aea-e7e454b0f050","resulting_revision_id":"58b91d97-7042-44d8-bbb0-f7bc850b6a09","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"58b91d97-7042-44d8-bbb0-f7bc850b6a09","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"point":"before_response","child_pid":25790,"observed_exit":{"code":null,"signal":"SIGKILL"},"interrupted_revision":"77783be8-6153-435f-9b3f-95df37c36378","retry":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"4f2c6a5c-58f3-4bcd-9854-36ed8ddaa738","request_digest":"sha256:0145fedd5125fc68a54a8f785673a195446cc31beb5bf9c0253d7ee104782988","binding":{"target_id":"sha256:72ec462c8ee2c4d81a4c2f89828478ceccae5f4b71fb90d9af7574a9a7a71f53","run_id":"command-test","gate":"UR","expected_revision_id":"a3186d3b-ede0-4d41-bc7c-bb3dff32630d","presentation_id":"a55a964b-68ac-4380-8de0-8d6e6e00a2d9"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","material_sources":[{"digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","path":".agdf/control/artefacts/command-test/UR.md","type":"UR"}],"material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:382bc8da8ff4186ce3f3d8de40a5d5cbe170075499f9e6ce322d9729b0004dea","previous_revision_id":"a3186d3b-ede0-4d41-bc7c-bb3dff32630d","resulting_revision_id":"77783be8-6153-435f-9b3f-95df37c36378","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"77783be8-6153-435f-9b3f-95df37c36378","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}},{"mode":"identical","child_pid":25840,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"2ab4a79b-b61c-4862-a804-d35057372015","request_digest":"sha256:04ae9c5745feccb87c516e1d62f4e32edb60b70037dd0d5454ef72deed7e2df6","binding":{"target_id":"sha256:bfad6d0680f1f05a9d7bdc7feec50cadb0c7fc75bfa010e90605f3c2b04bf903","run_id":"command-test","gate":"UR","expected_revision_id":"4e364fe7-d199-43dc-ac7b-0469bf813162","presentation_id":"797b94fb-3f9c-4694-93d1-35b2dc9918de"},"effect":{"previous_revision_id":"4e364fe7-d199-43dc-ac7b-0469bf813162","resulting_revision_id":"f94a07ea-d8bb-43ed-b0dc-9775fb474b5e","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","material_sources":[{"type":"UR","path":".agdf/control/artefacts/command-test/UR.md","digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb"}],"artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:3281bfd1cee51135edbefdb5fe5017be3618c6f519a61dc99b7156f87704e692","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"f94a07ea-d8bb-43ed-b0dc-9775fb474b5e","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"2ab4a79b-b61c-4862-a804-d35057372015","request_digest":"sha256:04ae9c5745feccb87c516e1d62f4e32edb60b70037dd0d5454ef72deed7e2df6","binding":{"target_id":"sha256:bfad6d0680f1f05a9d7bdc7feec50cadb0c7fc75bfa010e90605f3c2b04bf903","run_id":"command-test","gate":"UR","expected_revision_id":"4e364fe7-d199-43dc-ac7b-0469bf813162","presentation_id":"797b94fb-3f9c-4694-93d1-35b2dc9918de"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"4e364fe7-d199-43dc-ac7b-0469bf813162","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":0,"result":{"schema_version":"1","outcome":"already_applied","reason":null,"operation_id":"2ab4a79b-b61c-4862-a804-d35057372015","request_digest":"sha256:04ae9c5745feccb87c516e1d62f4e32edb60b70037dd0d5454ef72deed7e2df6","binding":{"target_id":"sha256:bfad6d0680f1f05a9d7bdc7feec50cadb0c7fc75bfa010e90605f3c2b04bf903","run_id":"command-test","gate":"UR","expected_revision_id":"4e364fe7-d199-43dc-ac7b-0469bf813162","presentation_id":"797b94fb-3f9c-4694-93d1-35b2dc9918de"},"effect":{"allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","approval":"Approval: UR","artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","gate":"UR","material_sources":[{"digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","path":".agdf/control/artefacts/command-test/UR.md","type":"UR"}],"material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","next_gate_after_approval":"Brownfield Review","presentation_digest":"sha256:3281bfd1cee51135edbefdb5fe5017be3618c6f519a61dc99b7156f87704e692","previous_revision_id":"4e364fe7-d199-43dc-ac7b-0469bf813162","resulting_revision_id":"f94a07ea-d8bb-43ed-b0dc-9775fb474b5e","revision":3},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"f94a07ea-d8bb-43ed-b0dc-9775fb474b5e","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null}}},{"mode":"distinct","child_pid":25893,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"e0e5ed83-3185-42ca-939e-880ab365aa7a","request_digest":"sha256:471ff8fc35075a801d03d25c047c57ac5988f5709338b2116eadc16def4f1cb3","binding":{"target_id":"sha256:b8779216f59c7da03ab31b70775b5a2af6febce47c87927dd01847b27fcb7429","run_id":"command-test","gate":"UR","expected_revision_id":"30f59888-72e6-47f8-8270-2098f66f07a1","presentation_id":"9d7e1437-ead1-4ce8-9e30-f71551c316d8"},"effect":{"previous_revision_id":"30f59888-72e6-47f8-8270-2098f66f07a1","resulting_revision_id":"987e59ed-ee48-4c13-8fb0-0fd9e842be38","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","material_sources":[{"type":"UR","path":".agdf/control/artefacts/command-test/UR.md","digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb"}],"artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:9b155a889e3173f1144ed781531aabde198f9315d753e50ba75c76c009f3f164","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"987e59ed-ee48-4c13-8fb0-0fd9e842be38","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"4f6b0e47-8dfc-4d6c-8b25-1362d03d4480","request_digest":"sha256:471ff8fc35075a801d03d25c047c57ac5988f5709338b2116eadc16def4f1cb3","binding":{"target_id":"sha256:b8779216f59c7da03ab31b70775b5a2af6febce47c87927dd01847b27fcb7429","run_id":"command-test","gate":"UR","expected_revision_id":"30f59888-72e6-47f8-8270-2098f66f07a1","presentation_id":"9d7e1437-ead1-4ce8-9e30-f71551c316d8"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"30f59888-72e6-47f8-8270-2098f66f07a1","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":2,"result":{"schema_version":"1","outcome":"rejected","reason":"presentation_version_decided","operation_id":"4f6b0e47-8dfc-4d6c-8b25-1362d03d4480","request_digest":"sha256:471ff8fc35075a801d03d25c047c57ac5988f5709338b2116eadc16def4f1cb3","binding":{"target_id":"sha256:b8779216f59c7da03ab31b70775b5a2af6febce47c87927dd01847b27fcb7429","run_id":"command-test","gate":"UR","expected_revision_id":"30f59888-72e6-47f8-8270-2098f66f07a1","presentation_id":"9d7e1437-ead1-4ce8-9e30-f71551c316d8"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"987e59ed-ee48-4c13-8fb0-0fd9e842be38","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}},{"mode":"changed_payload","child_pid":25950,"winner":{"schema_version":"1","outcome":"accepted","reason":null,"operation_id":"b85f782d-8c51-41f6-95d7-1728864ba5b0","request_digest":"sha256:b9454fe94bb9ac175cd0ad9cd7e62904d8533509d73589f65ddcede787f5b219","binding":{"target_id":"sha256:c85a4cbec4efc8c8d17b35f2269c1547cf60eb63f3ccee44dba51d178bd4d0bc","run_id":"command-test","gate":"UR","expected_revision_id":"d0c55b86-703a-4b22-a51f-27892c464fe0","presentation_id":"e6856265-8b58-4166-ad07-9464a789914f"},"effect":{"previous_revision_id":"d0c55b86-703a-4b22-a51f-27892c464fe0","resulting_revision_id":"d9f93420-b1a6-4740-b4cf-2d17c102a393","revision":3,"gate":"UR","approval":"Approval: UR","material_version":"sha256:ce6cec14bb77080fa21a76c50ea71499b0b8cd5b6ecc1952bb8c1a1d90067c9a","material_sources":[{"type":"UR","path":".agdf/control/artefacts/command-test/UR.md","digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb"}],"artefact_digest":"sha256:316ee25501048fbea4206beee4a1d9d7d92981377a792f9e1c111270d8d753bb","presentation_digest":"sha256:5e11d04cdc78e75a200d7ab60ce6ea091cef4e73109792be6cb73d1d08acf669","next_gate_after_approval":"Brownfield Review","allowed_after_approval":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"d9f93420-b1a6-4740-b4cf-2d17c102a393","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"canonical_receipt_observed","durability":"file_and_directory_sync_completed","independent_human_proof":"unavailable"},"recovery":null},"concurrent":{"code":2,"result":{"schema_version":"1","outcome":"retryable_failure","reason":"run_write_locked","operation_id":"b85f782d-8c51-41f6-95d7-1728864ba5b0","request_digest":"sha256:09c7e84e4adc7b82cca23e752f1d872add1022a6c3c96eb45e20ed10ccecb3e0","binding":{"target_id":"sha256:c85a4cbec4efc8c8d17b35f2269c1547cf60eb63f3ccee44dba51d178bd4d0bc","run_id":"command-test","gate":"UR","expected_revision_id":"d0c55b86-703a-4b22-a51f-27892c464fe0","presentation_id":"e6856265-8b58-4166-ad07-9464a789914f"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"d0c55b86-703a-4b22-a51f-27892c464fe0","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Retry the identical command with the original operation UUID and payload; do not create a new decision."}},"retried":{"code":2,"result":{"schema_version":"1","outcome":"rejected","reason":"operation_payload_conflict","operation_id":"b85f782d-8c51-41f6-95d7-1728864ba5b0","request_digest":"sha256:09c7e84e4adc7b82cca23e752f1d872add1022a6c3c96eb45e20ed10ccecb3e0","binding":{"target_id":"sha256:c85a4cbec4efc8c8d17b35f2269c1547cf60eb63f3ccee44dba51d178bd4d0bc","run_id":"command-test","gate":"UR","expected_revision_id":"d0c55b86-703a-4b22-a51f-27892c464fe0","presentation_id":"e6856265-8b58-4166-ad07-9464a789914f"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"d9f93420-b1a6-4740-b4cf-2d17c102a393","approval_status":"approved","lifecycle":"active","gate":"Brownfield Review","status":"open","missing_approval":"none","next_allowed_action":"Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":null}}}]
+# PASS SCN-012 real child final-checkpoint artefact, no command effect
+# FRESHNESS_EVIDENCE {"kind":"artefact","child_pid":26053,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"da137d40-c71f-4438-a646-361cf169bcdc","request_digest":"sha256:c34cde59e8b1ecfb56e8dd4bd90ff1430206ca42d98c4bffa3052debf4ddfc59","binding":{"target_id":"sha256:2bc3593a57f9a91393d49f053361365eb465d15ab541a2fce09e03622c52d478","run_id":"command-test","gate":"UR","expected_revision_id":"67d0d06b-9d57-4db4-b031-4ed46cdeac43","presentation_id":"9af877d6-2b77-45c2-8985-cdd3ff0fdd38"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":false,"reason":"seal_invalid"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+# PASS SCN-012 real child final-checkpoint presentation, no command effect
+# FRESHNESS_EVIDENCE {"kind":"presentation","child_pid":26076,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"e3b8a428-f7cb-4bfc-97c8-aa857a7ccee0","request_digest":"sha256:53ae6aa4f165667656d2c4eade38b0eab492dd9c21bef4b5a9c2698e41c67a1f","binding":{"target_id":"sha256:9cc8c4566faf547d8123962bd3e2cec66dabba5f5a69c74908a79fdcab86bea6","run_id":"command-test","gate":"UR","expected_revision_id":"980e981c-0b3f-4644-8f41-9996a439fde5","presentation_id":"7fb307cc-ecd3-43cd-a69f-6fac48822596"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"980e981c-0b3f-4644-8f41-9996a439fde5","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+# PASS SCN-012 real child final-checkpoint revision, no command effect
+# FRESHNESS_EVIDENCE {"kind":"revision","child_pid":26092,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"2add2ac1-920f-459d-b3fd-ac7520156217","request_digest":"sha256:9f94f2a0fa25c920ea394d795690b2e8bf4795a73cfe81411ac28f7b6824a405","binding":{"target_id":"sha256:d9913d1127e9420575bb26954e9a2f987bac1f22a3ad61672322552849887c96","run_id":"command-test","gate":"UR","expected_revision_id":"949e5403-a832-4559-8af9-1bdf51d844f8","presentation_id":"e3886d9b-cd46-45f5-8d64-d10c15fc851e"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":3,"revision_id":"02d4b108-bba5-4b27-a012-593c0946091a","approval_status":"missing","lifecycle":"active","gate":"UR","status":"open","missing_approval":"Approval: UR","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"none"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+# PASS SCN-012 real child final-checkpoint gate_eligibility, no command effect
+# FRESHNESS_EVIDENCE {"kind":"gate_eligibility","child_pid":26115,"result":{"schema_version":"1","outcome":"rejected","reason":"stale_revision","operation_id":"555139de-0425-4c3c-aa2e-95d3a0221beb","request_digest":"sha256:04f15facfb261b040a56d8a30fad9108e3c0a288edcde7ac2f044fd15f149efd","binding":{"target_id":"sha256:173bb9dc035523f538e0a9b8b90cb82f24504efc02127755549e61f26f479936","run_id":"command-test","gate":"UR","expected_revision_id":"b07a7fa2-559b-4c5c-88e8-4a40a91b6762","presentation_id":"95266ddc-51ca-47eb-98d4-929253b237ee"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":true,"revision":2,"revision_id":"b07a7fa2-559b-4c5c-88e8-4a40a91b6762","approval_status":"missing","lifecycle":"completed","gate":"UR","status":"blocked","missing_approval":"none","next_allowed_action":"Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.","blocking_reason":"completed_run_obligations_unconfirmed"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."}}
+# Subtest: packages/cli/scripts/control-command-process-test.js
+ok 2 - packages/cli/scripts/control-command-process-test.js
+  ---
+  duration_ms: 61887.629769
+  type: 'test'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+# + actual - expected
+#   [
+#     'agdf_dispatch',
+#     'agdf_inspect',
+# +   'agdf_prepare',
+# +   'agdf_record',
+# +   'agdf_approve',
+# +   'agdf_revise',
+# +   'agdf_closeout'
+#   ]
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/control-inspect-test.js:257:10
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: true,
+#   code: 'ERR_ASSERTION',
+#   actual: [
+#     'agdf_dispatch',
+#     'agdf_inspect',
+#     'agdf_prepare',
+#     'agdf_record',
+#     'agdf_approve',
+#     'agdf_revise',
+#     'agdf_closeout'
+#   ],
+#   expected: [ 'agdf_dispatch', 'agdf_inspect' ],
+#   operator: 'deepStrictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/cli/scripts/control-inspect-test.js
+not ok 3 - packages/cli/scripts/control-inspect-test.js
+  ---
+  duration_ms: 35831.392008
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/control-inspect-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# skill dispatch tests passed
+# presentation_required preview tests passed.
+# Subtest: packages/cli/scripts/skill-dispatch-test.js
+ok 4 - packages/cli/scripts/skill-dispatch-test.js
+  ---
+  duration_ms: 1016.424523
+  type: 'test'
+  ...
+# interaction presentation tests passed
+# gate rationale and why tests passed
+# scope classification card tests passed
+# task target orientation tests passed
+# Subtest: packages/core/test/interaction-presentation-test.js
+ok 5 - packages/core/test/interaction-presentation-test.js
+  ---
+  duration_ms: 5361.893574
+  type: 'test'
+  ...
+# next-action tests passed
+# Subtest: packages/core/test/next-action-test.js
+ok 6 - packages/core/test/next-action-test.js
+  ---
+  duration_ms: 275.539282
+  type: 'test'
+  ...
+# AGDF parent reconciliation tests passed
+# Subtest: packages/core/test/parent-reconciliation-test.js
+ok 7 - packages/core/test/parent-reconciliation-test.js
+  ---
+  duration_ms: 2469.907315
+  type: 'test'
+  ...
+# PRD readiness tests passed
+# Subtest: packages/core/test/prd-readiness-test.js
+ok 8 - packages/core/test/prd-readiness-test.js
+  ---
+  duration_ms: 320.405969
+  type: 'test'
+  ...
+# PASS approval + Backlog transaction recovers intent, identical replay has one effect
+# PASS approval + Backlog transaction recovers run, identical replay has one effect
+# PASS approval + Backlog transaction recovers backlog, identical replay has one effect
+# PASS nonexact reply changes neither Run nor Backlog
+# PASS presentation tampered after journal intent is rejected before commit
+# PASS backlog-only repair preserves exact sealed Run bytes and is idempotent
+# PASS backtick key is matched once, title and links retained
+# PASS unsupported header is reported as skipped with zero mutation
+# PASS duplicate identity is reported as skipped with zero mutation
+# PASS stale caller cannot repair pointer
+# PASS legacy pointer repair retains its thirteen columns and existing links
+# PASS symlink Backlog is skipped without changing foreign file or Run
+# PASS symlink Run cannot authorize a Backlog-only repair
+# PASS evidence recording also synchronizes status and next action
+# PASS approval is accepted when the Backlog cannot be synchronized and reports why
+# PASS run-step keeps a legacy row's title and links, updates its status and reports the layout
+# 16 Backlog writer scenarios passed.
+# Subtest: packages/core/test/run-backlog-writer-test.js
+ok 9 - packages/core/test/run-backlog-writer-test.js
+  ---
+  duration_ms: 24925.962199
+  type: 'test'
+  ...
+# SD declared-decision readiness: resolved/open/malformed/legacy boundaries passed.
+# Subtest: packages/core/test/sd-readiness-test.js
+ok 10 - packages/core/test/sd-readiness-test.js
+  ---
+  duration_ms: 296.128889
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 8
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 64820.622271

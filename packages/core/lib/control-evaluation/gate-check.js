@@ -53,6 +53,9 @@ function requiredGateArtifactPreparation({ status, currentGate, missingApproval,
 
   return Object.freeze({
     type: "prepare_gate_artifact",
+    operation_key: "artefact.author",
+    actor: "agent",
+    effect: "preparation",
     gate: currentGate,
     skill_id: currentGate === "SD" ? "sd-definition" : "gate-check",
     artifact_path: `.agdf/control/artefacts/${runId}/${plan.file}`,
@@ -111,7 +114,9 @@ export function postApprovalTransition(missingApproval, runState = null) {
     }],
     ["Approval: QA", {
       next_gate_after_approval: "UAT",
-      allowed_after_approval: "Request UAT when QA has passed; release remains gated.",
+      allowed_after_approval: runState?.qa_acceptance?.eligible
+        ? 'Request UAT after the explicitly presented QA deviations are accepted; native qualification remains unchanged.'
+        : "Request UAT when QA has passed; release remains gated.",
       internal_next_step: "prepare UAT evidence",
       next_user_gate: "UAT",
       user_action_required: "yes",
@@ -132,8 +137,8 @@ export function postApprovalTransition(missingApproval, runState = null) {
 }
 
 const BREADCRUMB_PATH_TEMPLATES = {
-  structured_delivery: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
-  structured_slice: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
+  structured_delivery: ["UR", "PRD", "SD", "TP", "QA", "UAT", "OR"],
+  structured_slice: ["UR", "PRD", "SD", "TP", "QA", "UAT", "OR"],
   verified_change: ["UR", "Verified Change", "OR"],
   quick_task: ["UR", "Compact Delivery"],
   block: ["UR", "Block"],
@@ -156,6 +161,8 @@ function buildBreadcrumbPath(modeSliceDecision, currentGate, runState) {
       if (gate === currentGate) return { gate, status: "current" };
       return { gate, status: "open" };
     }
+    if (gate === "OR" && currentGate === "OR" && extractField(runState.content ?? "", "lifecycle") === "completed"
+        && transitionDecisionForRunState(runState).completion?.fulfilled) return { gate, status: "fulfilled" };
     if (gate === currentGate) return { gate, status: "current" };
     if ((gate === "Verified Change" || gate === "Compact Delivery") && currentGate === "OR")
       return { gate, status: "fulfilled" };
@@ -212,7 +219,8 @@ export function buildStatusCard({
     presentation_language: chatLanguage,
     mode: extractField(runState.content ?? "", "mode") || "unknown",
     lifecycle,
-    delivery_state: lifecycle === "completed" && currentGate === "OR" ? "completed_closeout_pending" : lifecycle,
+    delivery_state: lifecycle === "completed"
+      ? (status === "pass" && transitionDecisionForRunState(runState).completion?.fulfilled ? "completed" : "completion_unconfirmed") : lifecycle,
     status,
     current_gate: currentGate,
     mode_slice_decision: runState.mode_slice_decision?.decision || "undecided",
@@ -286,7 +294,7 @@ export function isDurableApprovalArtefactPresent(targetDir, runState, gate) {
   if (gate === "UAT") return true;
   const artefact = runState.artefacts.get(gate);
   if (!artefact || !resolvedArtefactFile(targetDir, artefact.path)) return false;
-  return gate !== "QA" || ["pass", "passed"].includes(artefact.status);
+  return gate !== "QA" || ["pass", "passed"].includes(artefact.status) || runState.qa_acceptance?.eligible === true;
 }
 
 function buildHumanPresentation(targetDir, runState, currentGate, presentationLocale) {
@@ -464,7 +472,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     && approvalArtefactReady;
   const continuePostTpWork = status === "open" && blockingReason === "none"
     && currentGate === "CD+Tests" && isGateSatisfied(runState, "TP")
-    && effectiveNextAllowedAction(runState, transitionDecision) === transitionDecision.next_allowed_action;
+    && transitionDecision.next_operation?.type === "implement_approved_plan";
   const hostEvidenceProvisioningChoice = localePack(interactionLocales, "en").operationalValues.hostEvidenceProvisioningChoice;
   const statusCardNextStep = continuePostTpWork
     ? localePack(interactionLocales, "en").operationalValues.nextCdTestsAfterTpApproval
@@ -596,8 +604,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     }
   }
 
-  const nextOperation = status === "open" && transitionDecision.next_operation
-    ? transitionDecision.next_operation : requiredGateArtifactPreparation({
+  const requiredPreparation = requiredGateArtifactPreparation({
     status,
     currentGate,
     missingApproval,
@@ -607,6 +614,15 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     deliveryMap,
     runId: statusCard.run_id,
   });
+  const nextOperation = requiredPreparation ?? (readyForApproval
+    ? { type: "human_gate_decision", operation_key: "approval.record", actor: "human", effect: "decision", gate: currentGate }
+    : qaFollowUp ? { type: "remediate_quality_findings", operation_key: "quality.remediate", actor: "agent", effect: qaFollowUp.kind === "implementation" ? "implementation" : "preparation", gate: currentGate, routing: qaFollowUp.kind }
+    : status === "open" ? transitionDecision.next_operation
+    : status === "blocked" ? { type: "resolve_control_blocker", operation_key: "control.resolve", actor: "agent", effect: "none", gate: currentGate, reason: blockingReason }
+    : null);
+  const completion = status === "pass" && transitionDecision.completion?.fulfilled
+    ? transitionDecision.completion : { ...transitionDecision.completion, fulfilled: false,
+      status: extractField(runState.content ?? "", "lifecycle") === "completed" ? "unconfirmed" : "pending" };
   const sourceRevisions = sourceRevisionObservation(runState.content, doctorReport.findings.some(row => /AGDF_RUN_SEAL|AGDF_RUN_APPROVAL/u.test(row.code)));
 
   const report = {
@@ -615,6 +631,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     current_gate: currentGate,
     blocking_reason: blockingReason,
     missing_approval: missingApproval,
+    ...(transitionDecision.presentation_decision ? { presentation_decision: transitionDecision.presentation_decision } : {}),
     ...(sourceRevisions ? { source_revisions: sourceRevisions } : {}),
     ...(urReadiness ? { ur_readiness: urReadiness } : {}),
     ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
@@ -636,6 +653,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     status_presentation: statusPresentation,
     approval_presentation: approvalPresentation,
     next_operation: nextOperation,
+    completion,
     ...(Object.keys(presentationDiagnostics).length ? { presentation_diagnostics: presentationDiagnostics } : {}),
     delivery_map: {
       relationships: deliveryMap.relationships,

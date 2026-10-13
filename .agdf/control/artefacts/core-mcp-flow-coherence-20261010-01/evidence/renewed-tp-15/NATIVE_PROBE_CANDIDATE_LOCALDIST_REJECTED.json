@@ -1,0 +1,64 @@
+{
+  "schema_version": "1",
+  "evidence_class": "prepared_disposable_native_probe",
+  "observed_at": "2026-10-11T21:47:13.022Z",
+  "production_entrypoint": false,
+  "installed": false,
+  "native_qualified": false,
+  "assurance": "cooperative_local",
+  "authorizes": false,
+  "runtime_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-UP9wP7",
+  "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-UP9wP7/governance-target",
+  "target_id": "sha256:adebc91a118b96922864c85b9396d122c141be128fc76285797bb87c7278b78a",
+  "runs": [
+    {
+      "locale": "en",
+      "action": "approve",
+      "run_id": "native-en-approve",
+      "expected_revision_id": "29c1b6d9-cec2-459e-90ae-be5bdffbf687",
+      "gate": "SD"
+    },
+    {
+      "locale": "en",
+      "action": "text",
+      "run_id": "native-en-text",
+      "expected_revision_id": "eddb3f7a-6a89-45fe-b521-f7a5d7f64acc",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "approve",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "5a95a4a3-3bea-4b71-bc40-fc0468052668",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "text",
+      "run_id": "native-de-text",
+      "expected_revision_id": "01b6c485-fe1c-41be-a302-8f4d99476e84",
+      "gate": "SD"
+    }
+  ],
+  "entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-UP9wP7/native-decision-entry.mjs",
+  "entrypoint_digest": "sha256:43b8dfd83a09793cbb5d7d6ac46bcdd7f44960af380aa5ba9aa549097a0e5359",
+  "server_digest": "429c9f2616055440e872b9af82f1f09e6bd70c113137b0df5c2d4e17d9d22cde",
+  "dispatcher_digest": "872302c7b60225a0ee340ab3d1e9597286e73db2a56e7565b2074b99c0e20849",
+  "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 921039,
+    "digest": "sha256:a048b69685f486aa5512a3656b21dc7ac76946190a5553f0f588a309f74ead86",
+    "source_digest": "sha256:04ca20510c1d23258b348204add72514d0ab206c12380bad2ce25887512b16c2"
+  },
+  "observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-UP9wP7/native-observations.jsonl",
+  "configuration": {
+    "name": "agdf-decision-probe",
+    "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "args": [
+      "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-UP9wP7/native-decision-entry.mjs"
+    ]
+  }
+}

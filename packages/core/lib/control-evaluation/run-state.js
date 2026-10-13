@@ -1,7 +1,11 @@
+import { presentationDecisionState, approvedMaterialFindings } from '../control-state/presentation-decision.js';
+import { inspectQaDeviationAcceptance } from '../control-state/qa-deviation-acceptance.js';
+import { createHash } from "node:crypto";
+import { canonicalRunText } from "../control-state/run-seal.js";
 import { existsSync, readFileSync } from "../control-read/fs.js";
 import { join } from "node:path";
 import process from "node:process";
-import { parseControlState } from "../control-state/run-state-parser.js";
+import { parseControlState, parseRunState } from "../control-state/run-state-parser.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { validateRunIdentity } from "../control-state/run-identity.js";
 import { buildRunCandidates } from "../interaction-presentation.js";
@@ -9,6 +13,9 @@ import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./s
 import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
 import { containedRegularFile } from "../control-state/contained-file.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
+import { evidenceApplicability } from '../control-state/evidence-bindings.js';
+import { evaluateCloseoutReadiness } from './closeout-readiness.js';
+import { evaluateReconciliationState } from './parent-reconciliation.js';
 
 export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
@@ -30,6 +37,71 @@ export function readArtefactHeading(targetDir, artefact) {
   } catch {
     return "";
   }
+}
+
+// One preparation boundary for both saved and proposed Run content. Callers that
+// inspect an immutable archive provide its own artefact reader, never current bytes.
+export function prepareRunContentState(targetDir, content, path = "", { readArtefact, proposedArtefacts = new Map() } = {}) {
+  if (!(proposedArtefacts instanceof Map)) throw Error("proposed_artefacts_invalid");
+  const normalizedOverlay = new Map();
+  for (const [name, row] of proposedArtefacts) {
+    if (typeof name !== "string" || !isSafeRepoRelativePath(name) || typeof row?.content !== "string"
+        || row.digest !== `sha256:${createHash("sha256").update(canonicalRunText(row.content)).digest("hex")}`) throw Error("proposed_artefacts_invalid");
+    normalizedOverlay.set(name, row.content);
+  }
+  const overlayReader = normalizedOverlay.size ? name => {
+    if (normalizedOverlay.has(name)) return normalizedOverlay.get(name);
+    if (readArtefact) return readArtefact(name);
+    const file = resolvedArtefactFile(targetDir, name);
+    return file ? readFileSync(file, "utf8") : undefined;
+  } : readArtefact;
+  const parsed = parseControlState(content, {
+    userGates: userGateOrder,
+    internalSteps: [...internalStepArtefacts],
+    closeoutArtefacts: [...closeoutArtefacts],
+  });
+  if ([...normalizedOverlay.keys()].some(name => !name.startsWith(`.agdf/control/artefacts/${parsed.run_id}/`))) throw Error("proposed_artefacts_invalid");
+  const state = { path, content, ...parsed, meta: parseRunState(content).meta };
+  const evidenceReader = overlayReader ?? (name => {
+    const file = resolvedArtefactFile(targetDir, name);
+    return file ? readFileSync(file, 'utf8') : undefined;
+  });
+  const presentationDecisions = new Map(userGateOrder.map(gate => [gate, presentationDecisionState(targetDir, state, gate, { readArtefact: overlayReader })]));
+  const evidence = evidenceApplicability(state, evidenceReader);
+  // The reconciliation owner consumes relationship declarations, not another
+  // parent's evaluated closeout. Resolve its captured bytes without recursively
+  // evaluating a parent/child cycle. Archived reads never borrow live Run bytes.
+  const reconciliation = evaluateReconciliationState(state, {
+    loadRun: id => {
+      const name = `.agdf/control/runs/${id}/RUN_STATE.md`;
+      const bytes = readArtefact ? readArtefact(name) : resolveRuns(targetDir, { runIdArg: id }).run.content;
+      return typeof bytes === 'string' ? { content: bytes, ...parseControlState(bytes, {
+        userGates: userGateOrder, internalSteps: [...internalStepArtefacts], closeoutArtefacts: [...closeoutArtefacts],
+      }) } : null;
+    },
+    resolveFile: name => typeof evidenceReader(name) === 'string',
+  });
+  const qaAcceptance = inspectQaDeviationAcceptance(targetDir, {
+    ...state, evidence_applicability: evidence, presentation_decisions: presentationDecisions,
+  }, evidenceReader);
+  const or = state.artefacts.get('OR');
+  let closeoutEvidence = { ready: false, findings: ['or_unavailable'] };
+  try { if (or?.path && or.status === 'done') closeoutEvidence = evaluateCloseoutReadiness({ ...state, qa_acceptance: qaAcceptance, reconciliation_state: reconciliation, evidence_applicability: evidence }, evidenceReader(or.path), evidenceReader); }
+  catch { closeoutEvidence = { ready: false, findings: ['or_observation_unavailable'] }; }
+  return {
+    ...state,
+    evidence_applicability: evidence,
+    qa_acceptance: qaAcceptance,
+    reconciliation_state: reconciliation,
+    closeout_evidence: closeoutEvidence,
+    presentation_decisions: presentationDecisions,
+    approval_material_findings: approvedMaterialFindings(state, presentationDecisions),
+    source_revision_ux_required: sourceRevisionUxRequired(targetDir, state, { readArtefact: overlayReader }),
+    identity_findings: validateRunIdentity({
+      runId: extractField(content, "run_id").replace(/^`|`$/g, ""),
+      revisionId: extractField(content, "revision_id").replace(/^`|`$/g, ""),
+    }),
+  };
 }
 
 export function readRunState(targetDir, selection = {}) {
@@ -90,28 +162,17 @@ export function readRunState(targetDir, selection = {}) {
   }
 
   const content = readTargetFile(targetDir, runPath);
-  const parsed = parseControlState(content, {
-    userGates: userGateOrder,
-    internalSteps: [...internalStepArtefacts],
-    closeoutArtefacts: [...closeoutArtefacts],
-  });
-
-  return {
-    path: runPath,
-    content,
-    ...parsed,
-    source_revision_ux_required: sourceRevisionUxRequired(targetDir, { ...parsed, content }),
-    identity_findings: validateRunIdentity({
-      runId: extractField(content, "run_id").replace(/^`|`$/g, ""),
-      revisionId: extractField(content, "revision_id").replace(/^`|`$/g, ""),
-    }),
-  };
+  return prepareRunContentState(targetDir, content, runPath, { readArtefact: selection.readArtefact });
 }
 
-export function sourceRevisionUxRequired(targetDir, state) {
+export function sourceRevisionUxRequired(targetDir, state, { readArtefact } = {}) {
   if (!readSourceRevisions(state.content ?? "").present) return false;
   const review = state.artefacts.get("Brownfield Review");
   if (review?.status !== "done") return false;
+  if (readArtefact) {
+    const content = readArtefact(review.path);
+    return typeof content === "string" && extractField(content, "ux_intent_definition_required") === "yes";
+  }
   const file = resolvedArtefactFile(targetDir, review.path);
   return Boolean(file && extractField(readFileSync(file, "utf8"), "ux_intent_definition_required") === "yes");
 }
@@ -130,7 +191,7 @@ export function isDurableGateArtefactSatisfied(runState, gate) {
   if (!durableGateArtefacts.has(gate)) return true;
   const artefact = gateArtefactStatus(runState, gate);
   if (!artefact.path || isPlaceholderValue(artefact.path)) return false;
-  if (gate === "QA") return artefact.status === "pass" || artefact.status === "passed";
+  if (gate === "QA") return artefact.status === "pass" || artefact.status === "passed" || runState.qa_acceptance?.accepted === true;
   return artefact.status === "approved";
 }
 
@@ -149,6 +210,7 @@ export function analyzeDurableGateArtefactConsistency(runState) {
     if (gateApprovalStatus(runState, gate) !== "approved") continue;
 
     const artefact = gateArtefactStatus(runState, gate);
+    if (gate === 'QA' && runState.qa_acceptance?.accepted === true) continue;
     if (!artefact.path || isPlaceholderValue(artefact.path) || !artefact.status) continue;
 
     const expectedStatuses = expectedDurableArtefactStatuses(gate);
@@ -222,6 +284,8 @@ export function analyzeArtefactRoleConsistency(targetDir, runState) {
 export function isInternalStepSatisfied(runState, step) {
   const artefact = runState.artefacts.get(step);
   if (!artefact) return false;
+  const associated = runState.evidence_applicability?.by_step.get(step);
+  if (associated && associated.applicability !== 'current') return false;
   if (artefact.status === "done") return true;
   return artefact.status === "not_applicable"
     && (step === "Brownfield Review" || step === "Brownfield Analysis");

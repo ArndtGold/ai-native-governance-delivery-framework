@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { fileURLToPath } from "node:url";
+import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 
 export const SERVER_COMMAND = process.execPath;
 export const SERVER_ARGS = [fileURLToPath(new URL("./stdio-entry.js", import.meta.url))];
@@ -12,17 +14,39 @@ export async function withStdioClient({
   args = SERVER_ARGS,
   cwd = fileURLToPath(new URL("..", import.meta.url)),
   capabilities,
+  env,
+  root: ownedRuntimeRoot,
 } = {}, callback) {
   const transport = new StdioClientTransport({
     command,
     args,
     cwd,
     stderr: "pipe",
+    ...(env ? { env: { ...process.env, ...env } } : {}),
   });
   let stderr = "";
   transport.stderr.on("data", (chunk) => { stderr += chunk; });
   const options = { ...(modern ? { versionNegotiation: { mode: { pin: "2026-07-28" } } } : {}), ...(capabilities ? { capabilities } : {}) };
   const client = new Client({ name: "agdf-mcp-test", version: "1.0.0" }, options);
+  // Optional retained transport evidence for disposable tests only. This does not
+  // supply runtime policy, host permission or human-origin qualification.
+  if (process.env.AGDF_TEST_EVIDENCE_DIR) {
+    const directory = resolve(process.env.AGDF_TEST_EVIDENCE_DIR);
+    mkdirSync(directory, { recursive: true });
+    const file = join(directory, `${basename(process.argv[1])}-${process.pid}.jsonl`);
+    if (ownedRuntimeRoot) appendFileSync(file, JSON.stringify({ observed_at: new Date().toISOString(),
+      evidence_class: "synthetic_owned_package_identity", protocol: modern ? "2026-07-28" : "legacy_negotiation",
+      command, args, marker: JSON.parse(readFileSync(join(ownedRuntimeRoot, '.agdf-mcp-owned.json'), 'utf8')),
+      native_qualified: false, authorizes: false }) + "\n");
+    const original = client.callTool.bind(client);
+    client.callTool = async (...parameters) => {
+      const result = await original(...parameters);
+      appendFileSync(file, JSON.stringify({ observed_at: new Date().toISOString(),
+        evidence_class: "synthetic_actual_stdio_exchange", protocol: modern ? "2026-07-28" : "legacy_negotiation",
+        request: parameters[0], result, native_qualified: false, authorizes: false }) + "\n");
+      return result;
+    };
+  }
   try {
     await client.connect(transport);
     await callback(client);

@@ -1,0 +1,22 @@
+Retained diagnostic fixture after unconfirmed cleanup: /var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-imXGI2
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Unknown business effect pins its original generation after the view closes.
++ actual - expected
+
++ null
+- 'generation_capacity_protected'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/generation.test.js:71:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: 'generation_capacity_protected',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

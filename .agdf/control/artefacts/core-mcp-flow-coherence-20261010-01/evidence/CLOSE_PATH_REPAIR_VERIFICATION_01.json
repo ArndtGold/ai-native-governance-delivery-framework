@@ -1,0 +1,95 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T06:51:29.501665+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "implementation_revision_id": "2b1b6d04-eceb-4a7e-bc56-e92344b934ae",
+  "evidence_class": "source_actual_sdk_browser_and_assembled_core_not_native_qualification",
+  "cause": "Decision entry only handled SDK resource teardown and React unmount; no browser pagehide path. Native closing previously left the Core reader available. Native event delivery remains to be observed on the replacement.",
+  "implementation": "One synchronous local retirement and one existing bounded read close, shared by SDK teardown/React unmount/browser pagehide. Late tool/read responses cannot restore the retired view. Visibility/scroll/display changes leave live views open.",
+  "source_files": [
+    {
+      "path": "packages/control-ui/src/mcp/DecisionEntry.tsx",
+      "digest": "sha256:fd2e840e8981ceef9d9ffce02acf7fa8ad7d15733e38910b887dc924e09dc86e"
+    },
+    {
+      "path": "packages/control-ui/test/decision-entry.test.tsx",
+      "digest": "sha256:f807cae6e7f86a8b836cd4e4e8e4d0adaab663813fa29e78ecd43fbb657ba8f4"
+    },
+    {
+      "path": "packages/control-ui/test/browser/decision-host.ts",
+      "digest": "sha256:9eedb020c2b6f73e396ec0a2d0ae45be87d239bed6cbdce7a365609410218cef"
+    },
+    {
+      "path": "packages/control-ui/test/browser/decision-card.spec.mjs",
+      "digest": "sha256:b2635a90ab3acd1f710a0d50b85e238a139d6ebec9291134291ad3f2679b622f"
+    },
+    {
+      "path": "packages/control-ui/test/browser/decision-core-host.ts",
+      "digest": "sha256:c8145bbdf60205fca68304af64d181a9962de02c744ee3ad48e247c31534c9f8"
+    },
+    {
+      "path": "packages/control-ui/test/browser/decision-close-integration.spec.mjs",
+      "digest": "sha256:33503b2b9bf6da0368c7235d48b404ed61b2f0b8266199fc25b45228bea4229a"
+    },
+    {
+      "path": "docs/architecture/core-mcp-command-flow.md",
+      "digest": "sha256:ca13f2153bb10c16a07cad859b5872abab3ded16955d7e61ef084424cec3a271"
+    }
+  ],
+  "checks": [
+    {
+      "command": "tsc --noEmit",
+      "exit_code": 0
+    },
+    {
+      "command": "vitest run",
+      "exit_code": 0,
+      "test_files": 20,
+      "tests_passed": 194,
+      "evidence": "CLOSE_PATH_UI_01.log"
+    },
+    {
+      "command": "playwright test decision-card.spec.mjs",
+      "exit_code": 0,
+      "tests_passed": 4,
+      "evidence": [
+        "CLOSE_PATH_BROWSER_EN_01.json",
+        "CLOSE_PATH_BROWSER_DE_01.json"
+      ],
+      "scope": "Actual built resource and SDK; browser frame removal + awaited MCP teardown before navigation; synthetic localized keyboard/read/states/widths."
+    },
+    {
+      "command": "playwright test decision-close-integration.spec.mjs",
+      "exit_code": 0,
+      "tests_passed": 1,
+      "evidence": "CLOSE_PATH_CORE_BROWSER_01.json",
+      "scope": "Actual served assembled resource, SDK, STDIO/Core: iframe removed -> automatic closed:true -> session_expired; independent view remains available; no decision request or Run-state mutation."
+    },
+    {
+      "command": "assembled-package decision-resource.test.js",
+      "exit_code": 0,
+      "evidence": "CLOSE_PATH_STDIO_01.log",
+      "scope": "Both actual STDIO eras; bounded reads and close; unqualified production decisions denied."
+    },
+    {
+      "command": "exact replacement native entrypoint preflight",
+      "exit_code": 0,
+      "evidence": "CLOSE_PATH_CANDIDATE_PREFLIGHT_01.json"
+    }
+  ],
+  "limitations": [
+    "Abrupt iframe document navigation did not deliver close through the SDK in the initial browser experiment. A host must await resource teardown before navigation; pagehide is a disposal fallback, not guaranteed asynchronous delivery after navigation.",
+    "Initial localized fixture could trigger before React applied its latest tool result; fixture now awaits undecided state and reset comment before the keyboard action.",
+    "Synthetic Core-host fixture corrections: advertise supported fullscreen and await replayed presentation created last; no production qualification bypass.",
+    "Replacement native Codex lifecycle, deliberate human actions and actual technical permission still require observation."
+  ],
+  "initial_failure_evidence": [
+    "CLOSE_PATH_BROWSER_INITIAL_01.json",
+    "CLOSE_PATH_CORE_BROWSER_INITIAL_01.json"
+  ],
+  "native_probe_candidate": "NATIVE_PROBE_CANDIDATE.json",
+  "protected_checkpoint": "PROTECTED_CHECKPOINT_CLOSE_PATH_01.json",
+  "native_qualified": false,
+  "quality_readiness_decision": null,
+  "authorizes": false
+}

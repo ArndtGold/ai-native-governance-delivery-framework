@@ -1,0 +1,37 @@
+{
+  "observed_at": "2026-10-10T18:02:03.495202+00:00",
+  "items": [
+    {
+      "attempt": "NATIVE_PROBE_PREFLIGHT_01",
+      "cause": "Test client import incorrectly addressed the runtime intentionally excluding SDK client",
+      "resolution": "Use test-owned client outside shipped runtime; preflight 04 passed."
+    },
+    {
+      "attempt": "NATIVE_PROBE_PREFLIGHT_03",
+      "cause": "gate-check Inspect was given expected_revision_id forbidden for that operation",
+      "resolution": "Corrected test arguments; preflight 04 passed."
+    },
+    {
+      "attempt": "Approval recovery harness initial invocation",
+      "cause": "Fault hook used checkpoint while journal checkpoints use the owner afterWrite seam; child completed instead of terminating",
+      "resolution": "Inject at executeApprovalCommand afterWrite, then retry through public service; all 22 observed points passed."
+    },
+    {
+      "attempt": "Structured MCP test initial attempts",
+      "cause": "Extraction retained the QA correction loop; then an empty confirmation was rejected by SDK schema before Core",
+      "resolution": "Use the intended closeout flow and a nonempty wrong confirmation; all mode/protocol cases passed."
+    },
+    {
+      "attempt": "Codex registration first attempts",
+      "cause": "System Python lacked tomllib; Codex CLI also omitted an existing empty argument list",
+      "resolution": "Use bundled Python; preserve original bytes and append only the approved test stanza; NATIVE_REGISTRATION.json records correction."
+    },
+    {
+      "attempt": "Initial final package iteration",
+      "cause": "Sync generated assets did not reassemble dist/local npm candidate; source and package differed",
+      "resolution": "Canonical assembleNpm({surface: codex}) used, fresh isolated probe and actual default-entrypoint tests prepared. Earlier evidence is retained as earlier-iteration/source evidence."
+    }
+  ],
+  "assertions_removed_for_passing": false,
+  "native_qualified": false
+}

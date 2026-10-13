@@ -3,7 +3,11 @@ import { resolvedArtefactFile } from "./run-state.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateApprovalSummaryReadiness } from "../control-state/run-presentation-render.js";
 
-const sections = ["Problem", "Goal", "Affected Users", "Scope", "Non-Goals", "Acceptance Signals", "Existing Source Of Truth", "Risks And Unknowns", "Next Step"];
+export const UR_AUTHORING_FORMAT = Object.freeze({
+  sections: Object.freeze(["Problem", "Goal", "Affected Users", "Scope", "Non-Goals", "Acceptance Signals", "Existing Source Of Truth", "Risks And Unknowns", "Next Step"]),
+  readiness_contract: "Requirements clarification: complete", legacy: "legacy documents remain subject to their existing readiness rules",
+});
+const sections = UR_AUTHORING_FORMAT.sections;
 const templatePrompts = new Set([
   "What user, business or operational problem should be solved?", "What outcome should become possible?",
   "Which people or roles experience the problem and benefit from the outcome?", "What is included in this first slice?",
@@ -18,7 +22,7 @@ export function evaluateUrReadiness(targetDir, runState, { presentationLanguage 
   const content = readFileSync(path, "utf8");
   const markers = content.match(/^Requirements clarification:[^\r\n]*$/gmu) ?? [];
   if (!markers.length) return { ready: true, legacy: true, open_items: [] };
-  const open = markers.length === 1 && markers[0].trim() === "Requirements clarification: complete" ? [] : ["Requirements clarification"];
+  const open = markers.length === 1 && markers[0].trim() === UR_AUTHORING_FORMAT.readiness_contract ? [] : ["Requirements clarification"];
   const blocks = content.split(/^##[ \t]+/mu).slice(1).map(block => {
     const [heading, ...body] = block.split(/\r?\n/u);
     return { heading: heading.replace(/^\d+\.[ \t]*/u, "").trim(), body: body.join("\n").trim() };

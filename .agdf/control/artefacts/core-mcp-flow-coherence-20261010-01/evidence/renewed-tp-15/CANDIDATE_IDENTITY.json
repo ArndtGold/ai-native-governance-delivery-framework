@@ -1,0 +1,91 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T21:56:53.837782+00:00",
+  "head": "01731da1be90659c25706b89c2d7acd494e0862f",
+  "source_delta": "CURRENT_DELTA.json",
+  "source_delta_sha256": "625e246b758f496947f38f4a3ebc679f3c3f6a9b2f1f7b0b283e881939e4a885",
+  "implementation_patch_sha256": "50c1bab502c49351db26a1947ee6be9b20f37d8472d371b777a55a50ea9042d5",
+  "build_log": "agdf-prepare-build-final-15.log",
+  "candidate": {
+    "schema_version": "1",
+    "evidence_class": "prepared_disposable_native_probe",
+    "observed_at": "2026-10-11T21:50:59.778Z",
+    "production_entrypoint": false,
+    "installed": false,
+    "native_qualified": false,
+    "assurance": "cooperative_local",
+    "authorizes": false,
+    "runtime_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf",
+    "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/governance-target",
+    "target_id": "sha256:3e59b2ce2d29dcd4a1123a8c06689743209f1d0bf506f48b6745e6e0cbb811de",
+    "runs": [
+      {
+        "locale": "en",
+        "action": "approve",
+        "run_id": "native-en-approve",
+        "expected_revision_id": "a673c5b8-df89-438d-9830-d74104176a1d",
+        "gate": "SD"
+      },
+      {
+        "locale": "en",
+        "action": "text",
+        "run_id": "native-en-text",
+        "expected_revision_id": "ded96c3c-1c4a-4e38-aa1c-81e205397a68",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "approve",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "text",
+        "run_id": "native-de-text",
+        "expected_revision_id": "0f411aa6-34e7-481f-a207-7600424be3b0",
+        "gate": "SD"
+      }
+    ],
+    "entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-decision-entry.mjs",
+    "entrypoint_digest": "sha256:3ce008b8bccab87b6319c9be46fa58f32d64d36729e233aae962457f1dd942ef",
+    "server_digest": "de24977e8c1e959131e49e88e76f8602cfc0af55c555cbac06d9e5a673d08086",
+    "dispatcher_digest": "c601f042bc0a411195e69cf319d79a6a234a0d4a439ec6be01a0e7c46efc1423",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/decision/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 921039,
+      "digest": "sha256:a048b69685f486aa5512a3656b21dc7ac76946190a5553f0f588a309f74ead86",
+      "source_digest": "sha256:04ca20510c1d23258b348204add72514d0ab206c12380bad2ce25887512b16c2"
+    },
+    "observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-observations.jsonl",
+    "configuration": {
+      "name": "agdf-decision-probe",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "args": [
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-capability-observer.mjs",
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-decision-entry.mjs",
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-capability-observations.jsonl"
+      ]
+    },
+    "capability_observer": {
+      "path": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-capability-observer.mjs",
+      "digest": "sha256:0bcda522bec68c84e1678a803fc6e00e23f0be6830aba92258958a4ad25876aa",
+      "behavior": "unchanged byte-forwarding observer"
+    },
+    "capability_observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-ehPlmf/native-capability-observations.jsonl",
+    "registered": true,
+    "loaded_in_current_host": false
+  },
+  "dependencies": {
+    "node_version": "v22.22.3",
+    "mcp_ext_apps": "2.0.3",
+    "mcp_sdk_server": "2.0.0"
+  },
+  "current_host_loaded": false,
+  "native_qualified": false,
+  "production_updated": false
+}

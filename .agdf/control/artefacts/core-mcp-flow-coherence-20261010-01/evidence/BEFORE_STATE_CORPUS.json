@@ -1,0 +1,59 @@
+{
+  "schema_version": "1",
+  "observation": "read-only; no writer invocation or eligibility inference",
+  "current_revision": "c772820b-fcc6-4721-89ca-3e2d29295973",
+  "full": {
+    "status": "open",
+    "current_gate": "Brownfield Analysis",
+    "missing_approval": "none",
+    "next_operation": null
+  },
+  "short": {
+    "status": "open",
+    "current_gate": "PRD",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "reassess_source_analysis",
+      "skill_id": "ux-intent-definition",
+      "analysis": "UX Intent Definition"
+    }
+  },
+  "completed": [
+    {
+      "run_id": "cockpit-documented-approvals-20261009-01",
+      "lifecycle": "completed",
+      "OR": {
+        "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/OR.md",
+        "status": "done",
+        "notes": "Renewed scope completed; QA and UAT approved; qualified limits and next permitted handoff recorded",
+        "raw_path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/OR.md",
+        "path_format": "plain",
+        "path_reason": "none"
+      },
+      "decision": {
+        "status": "open",
+        "current_gate": "OR",
+        "missing_approval": "none",
+        "next_operation": null
+      }
+    },
+    {
+      "run_id": "cockpit-draft-check-integration-20261009-01",
+      "lifecycle": "completed",
+      "OR": {
+        "path": ".agdf/control/artefacts/cockpit-draft-check-integration-20261009-01/OR.md",
+        "status": "done",
+        "notes": "OR-full; QA and UAT approved; no VCS action",
+        "raw_path": "`.agdf/control/artefacts/cockpit-draft-check-integration-20261009-01/OR.md`",
+        "path_format": "code_span",
+        "path_reason": "none"
+      },
+      "decision": {
+        "status": "open",
+        "current_gate": "OR",
+        "missing_approval": "none",
+        "next_operation": null
+      }
+    }
+  ]
+}

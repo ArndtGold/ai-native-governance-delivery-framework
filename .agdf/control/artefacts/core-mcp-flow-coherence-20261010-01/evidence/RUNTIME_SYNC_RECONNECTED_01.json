@@ -1,0 +1,85 @@
+{
+  "schema_version": "1",
+  "recorded_at": "2026-10-11T12:55:35.598Z",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a",
+  "productive_connection_verified": true,
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "control": {
+    "current_gate": "Brownfield Review",
+    "doctor_status": "pass",
+    "missing_approval": "none",
+    "source_revisions": {
+      "status": "verified",
+      "archive_authority": "historical_evidence_only",
+      "entries": [
+        {
+          "operation_id": "cbc55917-ee06-4fc3-b46f-ff8dcca3c30a",
+          "source_gate": "UR",
+          "previous_revision_id": "eeda271d-cf03-4430-9701-5ec61410062d",
+          "resulting_revision_id": "aed55a47-8153-45e2-b251-842c6d6c5811",
+          "archive": {
+            "digest": "sha256:3c167f288f52bb5fef799f360c17b1327e774a328973010cd23be76c1eec0dc0",
+            "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/cbc55917-ee06-4fc3-b46f-ff8dcca3c30a/manifest.json"
+          },
+          "superseded_sources": [
+            "UR",
+            "PRD",
+            "SD",
+            "TP"
+          ]
+        },
+        {
+          "operation_id": "fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d",
+          "source_gate": "UR",
+          "previous_revision_id": "089a504e-29b4-42a9-8b1c-3558cfa34996",
+          "resulting_revision_id": "9ae77b28-b071-417a-8d94-d130ddfd0c33",
+          "archive": {
+            "digest": "sha256:0cfd23b46b5068eb0516dbedf87d6ea42c4b0fc085ebbaa5e5db7555de7c2187",
+            "path": ".agdf/control/runs/core-mcp-flow-coherence-20261010-01/revisions/fb62a4b9-61fb-4d55-a864-d3ed9c86fa4d/manifest.json"
+          },
+          "superseded_sources": [
+            "UR",
+            "PRD",
+            "SD",
+            "TP"
+          ]
+        }
+      ]
+    }
+  },
+  "successful_retry": {
+    "module": "agdf_record/step.record",
+    "outcome": "inspect_result",
+    "available": true,
+    "timing": {
+      "wrapper_ms": 0,
+      "input_ms": 9.471,
+      "target_ms": 1.151,
+      "control_ms": 195.918,
+      "render_ms": 0,
+      "total_ms": 206.688
+    },
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "core-mcp-flow-coherence-20261010-01",
+      "expected_revision_id": "32cbb5ce-2560-476b-9aef-afdf6965a27a"
+    }
+  },
+  "previous_timeout": {
+    "code": "dispatch_timeout",
+    "worker_deadline_ms": 10000,
+    "root_delay_cause": "not established; not reproduced",
+    "incorrect_previous_module": "step.record",
+    "correct_module": "agdf_record/step.record",
+    "invalid_selector_not_proven_timeout_cause": true
+  },
+  "native_host_ui_verified": false,
+  "qa_claimed": false
+}

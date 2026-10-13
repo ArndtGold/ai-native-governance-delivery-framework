@@ -1,0 +1,179 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:58:23.677Z",
+  "evidence_class": "actual_read_only_fixed_reference_before_after_comparison",
+  "rows": [
+    {
+      "run_id": "cockpit-documented-approvals-20261009-01",
+      "before": {
+        "run_id": "cockpit-documented-approvals-20261009-01",
+        "lifecycle": "completed",
+        "OR": {
+          "path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/OR.md",
+          "status": "done",
+          "notes": "Renewed scope completed; QA and UAT approved; qualified limits and next permitted handoff recorded",
+          "raw_path": ".agdf/control/artefacts/cockpit-documented-approvals-20261009-01/OR.md",
+          "path_format": "plain",
+          "path_reason": "none"
+        },
+        "decision": {
+          "status": "open",
+          "current_gate": "OR",
+          "missing_approval": "none",
+          "next_operation": null
+        }
+      },
+      "after": {
+        "full": {
+          "status": "blocked",
+          "current_gate": "OR",
+          "next_operation": {
+            "type": "resolve_control_blocker",
+            "operation_key": "control.resolve",
+            "actor": "agent",
+            "effect": "none",
+            "gate": "OR"
+          },
+          "completion": {
+            "status": "unconfirmed",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "writer": {
+          "status": "blocked",
+          "current_gate": "OR",
+          "next_operation": {
+            "type": "resolve_control_blocker",
+            "operation_key": "control.resolve",
+            "actor": "agent",
+            "effect": "none",
+            "gate": "OR"
+          },
+          "completion": {
+            "status": "unconfirmed",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "closeout_evidence": {
+          "ready": false,
+          "findings": [
+            "closeout_qa_pass_unconfirmed"
+          ],
+          "route": "structured_delivery",
+          "context_digest": "sha256:aeac78cc10357710018849c070b49d3fe5601d7ebf70da40cd362a7df2fbf12e",
+          "parent_reconciliation": {
+            "outcome": "not_applicable",
+            "target_run_id": "",
+            "disposition": "not_applicable",
+            "evidence": "",
+            "missing_evidence": "none",
+            "next_action": "none"
+          },
+          "programme_aggregation": {
+            "applicable": false,
+            "startable": false,
+            "final_ready": false,
+            "acceptance_ref": "",
+            "evidence": [],
+            "missing_evidence": [],
+            "next_action": "none"
+          }
+        }
+      },
+      "run_digest": "sha256:567186ca35233c2ccf2a04cac7800950a31a1cd06d3400e77b4bf5bed87e7dd0",
+      "matches_pre_implementation_reference": true,
+      "read_only": true
+    },
+    {
+      "run_id": "cockpit-draft-check-integration-20261009-01",
+      "before": {
+        "run_id": "cockpit-draft-check-integration-20261009-01",
+        "lifecycle": "completed",
+        "OR": {
+          "path": ".agdf/control/artefacts/cockpit-draft-check-integration-20261009-01/OR.md",
+          "status": "done",
+          "notes": "OR-full; QA and UAT approved; no VCS action",
+          "raw_path": "`.agdf/control/artefacts/cockpit-draft-check-integration-20261009-01/OR.md`",
+          "path_format": "code_span",
+          "path_reason": "none"
+        },
+        "decision": {
+          "status": "open",
+          "current_gate": "OR",
+          "missing_approval": "none",
+          "next_operation": null
+        }
+      },
+      "after": {
+        "full": {
+          "status": "blocked",
+          "current_gate": "OR",
+          "next_operation": {
+            "type": "resolve_control_blocker",
+            "operation_key": "control.resolve",
+            "actor": "agent",
+            "effect": "none",
+            "gate": "OR"
+          },
+          "completion": {
+            "status": "unconfirmed",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "writer": {
+          "status": "blocked",
+          "current_gate": "OR",
+          "next_operation": {
+            "type": "resolve_control_blocker",
+            "operation_key": "control.resolve",
+            "actor": "agent",
+            "effect": "none",
+            "gate": "OR"
+          },
+          "completion": {
+            "status": "unconfirmed",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "closeout_evidence": {
+          "ready": false,
+          "findings": [
+            "closeout_context_unresolved"
+          ],
+          "route": "structured_delivery",
+          "context_digest": "sha256:d1c3de77f450f2b7e8249ca2bbc33e8a6e8b14d40fda72fa67edbb8b54054f1d",
+          "parent_reconciliation": {
+            "outcome": "not_applicable",
+            "target_run_id": "",
+            "disposition": "not_applicable",
+            "evidence": "",
+            "missing_evidence": "none",
+            "next_action": "none"
+          },
+          "programme_aggregation": {
+            "applicable": false,
+            "startable": false,
+            "final_ready": false,
+            "acceptance_ref": "",
+            "evidence": [],
+            "missing_evidence": [],
+            "next_action": "none"
+          }
+        }
+      },
+      "run_digest": "sha256:1db658c38fc3e8ccaf8ccd20c0522070675492c3311a3d9721d2ce321eb4541a",
+      "matches_pre_implementation_reference": true,
+      "read_only": true
+    }
+  ],
+  "qualification": "Two identical protected completed-Run references only. Before source/version and after source are explicitly distinct; no model or native-host performance comparison. Main renewed Run and remaining workflow corpus are not claimed as controlled before/after cases.",
+  "full_fixed_corpus_complete": false,
+  "weaker_model_improvement_measured": false,
+  "routine_workflow_counters_complete": false,
+  "qa_pass": false,
+  "authorizes": false
+}

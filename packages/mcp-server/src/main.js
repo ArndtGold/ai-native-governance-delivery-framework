@@ -1,10 +1,13 @@
-import * as dispatcherRuntime from "create-agdf/mcp-dispatch-runtime";
 import { readFileSync } from "node:fs";
 import process from "node:process";
 import { createAgdfWorkerExecutor, serveAgdfStdio } from "./server.js";
 import { loadCockpitResource } from './cockpit-resource.js';
 
-export async function runMcpServer({ surface, cockpitDir, runtime, executor } = {}) {
+export async function runMcpServer({ surface, cockpitDir, runtime, executor, ownedPublication, ownedPublisher } = {}) {
+  const defaultRuntime = runtime === undefined && cockpitDir === undefined;
+  // A supplied, bound runtime owns its resources. Do not load a second package
+  // composition merely to run an explicit adapter/protocol fixture.
+  const dispatcherRuntime = runtime === undefined ? await import('create-agdf/mcp-dispatch-runtime') : null;
   runtime ??= cockpitDir !== undefined ? await dispatcherRuntime.createMcpCockpitRuntime({ surface, cockpitDir }) : dispatcherRuntime.createMcpDispatchRuntime({ surface });
   const serverVersion = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
   if (runtime.trustedContext.expectedVersion !== serverVersion) {
@@ -17,7 +20,21 @@ export async function runMcpServer({ surface, cockpitDir, runtime, executor } = 
     process.exitCode = 1;
     return null;
   }
+  if (defaultRuntime && surface === 'codex' && dispatcherRuntime?.createMcpDecisionRuntime) {
+    const ui = { uri: dispatcherRuntime.DECISION_UI_URI, mimeType: 'text/html;profile=mcp-app', limit: 4 * 1024 ** 2, kind: 'decision' };
+    ui.digest = loadCockpitResource(ui).digest;
+    // A shipped resource does not qualify native App-only mediation. Production
+    // actions remain disabled until exact package/host evidence is provided.
+    runtime = await dispatcherRuntime.createMcpDecisionRuntime({ runtime, ui });
+  }
   if (runtime.mode === 'cockpit') loadCockpitResource(runtime.ui);
+  if (ownedPublication) {
+    const { createOwnedGenerationFacade } = await import('./generation.js');
+    if (!ownedPublisher) throw Error('runtime_publication_unowned');
+    const publisher = ownedPublisher;
+    runtime = await createOwnedGenerationFacade({ runtime, publisher, surface, cockpitDir,
+      createControlRuntime: runtimeControl => dispatcherRuntime.createMcpDispatchRuntime({ surface, runtimeControl }) });
+  }
   const dispatchExecutor = executor ?? (runtime.mode === 'cockpit' ? undefined : createAgdfWorkerExecutor(runtime));
   const handle = serveAgdfStdio({
     runtime,

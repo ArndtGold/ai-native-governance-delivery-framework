@@ -1,6 +1,8 @@
 import { recordGateApprovalCommand, resolveControlCommandTarget } from "../control-command.js";
 import { COOPERATIVE_ASSURANCE } from "#agdf-core/control-state/approval-command-contract.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, lstatSync, openSync, fstatSync, closeSync, constants } from "node:fs";
+import { commandGroupRoutes } from './command-registry.js';
+import { RUN_COMMAND_LIMITS } from '#agdf-core/control-state/run-command-contract.js';
 import { executeControlMaintenance } from "./control-maintenance-command.js";
 import { createRun } from "#agdf-core/control-state/run-state-repository.js";
 import { extractField } from "#agdf-core/control-evaluation/verified-change.js";
@@ -44,6 +46,23 @@ export function createValidationHandlers(io = console) {
     readSkillRuntimeContracts,
   } }).dispatch;
   return new Map([
+    ...Object.entries(commandGroupRoutes).map(([route, group]) => [route, options => {
+      let fd;
+      try {
+        const stat = lstatSync(options.commandFile);
+        if (!stat.isFile() || stat.isSymbolicLink() || stat.size > RUN_COMMAND_LIMITS.input_bytes) throw Error('command_file_invalid');
+        fd = openSync(options.commandFile, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+        const actual = fstatSync(fd);
+        if (!actual.isFile() || actual.dev !== stat.dev || actual.ino !== stat.ino || actual.size > RUN_COMMAND_LIMITS.input_bytes) throw Error('command_file_invalid');
+        const bytes = readFileSync(fd);
+        if (bytes.length > RUN_COMMAND_LIMITS.input_bytes) throw Error('command_file_invalid');
+        const input = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+        const result = createCoreServices({ resources }).command(group, input);
+        io.log(JSON.stringify(result));
+        return ['accepted', 'already_applied'].includes(result.outcome) ? 0 : 2;
+      } catch (error) { io.error(error.message); return 1; }
+      finally { if (fd !== undefined) closeSync(fd); }
+    }]),
     ["control-maintenance", (options) => executeControlMaintenance(options, io)],
     ["run-create", (options) => {
       try {

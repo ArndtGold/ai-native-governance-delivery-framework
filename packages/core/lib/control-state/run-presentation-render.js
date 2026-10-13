@@ -1,10 +1,39 @@
+import { readAcceptanceCriteria } from "../control-evaluation/traceability-readiness.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "../control-read/fs.js";
 import { basename } from "node:path";
 import { TextDecoder } from "node:util";
 import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
 import { interactionLocales, resolveArtifactPresentationLanguages } from "../resources/context.js";
-import { localePack, resolvePresentationLocale } from "../interaction-presentation.js";
+import { localePack, resolvePresentationLocale, resolveHumanRunTitle } from "../interaction-presentation.js";
+import { readSourceRevisions, SOURCE_GATES } from './run-source-revisions.js';
+import { readRunOperations } from './run-operations.js';
+import { qaDeviationPresentation } from './qa-deviation-acceptance.js';
+import { readValidatedRevisionArchive, validateRevisionHistory, validateEarlyPrdHistory, earlyPrdHistoryReference, byteDigest } from './run-revision-history.js';
+
+// Compare only an actual immutable prior version from the existing archive owner.
+// A current file or an unbound historical Evidence row is never a previous version.
+export function presentationVersionComparison(root, state, gate, currentDigest) {
+  const unavailable = reason => ({ state: 'unavailable', reason });
+  if (!SOURCE_GATES.includes(gate)) return unavailable('no_verified_prior_applicable_version');
+  const history = readSourceRevisions(state.content), operations = readRunOperations(state.content);
+  if (!history.valid || !operations.valid) return unavailable('historical_source_unconfirmed');
+  const candidates = [
+    ...history.receipts.filter(row => SOURCE_GATES.indexOf(row.source_gate) <= SOURCE_GATES.indexOf(gate)).map(row => ({ revision: row.revision, row, early: false })),
+    ...operations.receipts.filter(row => row.kind === 'prd_revision.reopen' && gate === 'PRD').map(row => ({ revision: row.effect.revision, row, early: true })),
+  ].sort((a, b) => b.revision - a.revision);
+  if (!candidates.length) return unavailable('no_verified_prior_applicable_version');
+  const candidate = candidates[0];
+  try {
+    if (!(candidate.early ? validateEarlyPrdHistory(root, candidate.row) : validateRevisionHistory(root, candidate.row))) return unavailable('historical_source_unconfirmed');
+    const archive = readValidatedRevisionArchive(root, candidate.early ? earlyPrdHistoryReference(candidate.row) : candidate.row);
+    const previous = archive?.control.artefacts.get(gate), bytes = previous?.path && archive.archived.get(previous.path);
+    if (!bytes || bytes.length > 131072 || !['draft', 'approved'].includes(previous.status)) return unavailable('no_verified_prior_applicable_version');
+    const previousText = new TextDecoder('utf-8', { fatal: true }).decode(bytes), previousDigest = byteDigest(bytes);
+    return { state: 'available', previous_revision_id: archive.parsed.meta.revision_id,
+      previous_digest: previousDigest, current_digest: currentDigest, unchanged: previousDigest === currentDigest, previous_text: previousText };
+  } catch { return unavailable('historical_source_unconfirmed'); }
+}
 
 // Read-only approval rendering. gate-check (and with it the MCP dispatcher) imports this module;
 // writing presentation records stays in run-presentation.js.
@@ -76,31 +105,9 @@ function substantiveMarkdown(markdown) {
 }
 
 function criterionEntries(markdown) {
-  const lines = substantiveMarkdown(markdown).replace(/\r\n?/gu, "\n").split("\n");
-  const entries = [];
-  let current = null;
-  for (const line of lines) {
-    const criterion = line.match(/^\s*[-*]\s*criterion_id\s*:\s*([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)(?:\s*;\s*(.*))?\s*$/iu);
-    if (criterion) {
-      if (current) entries.push(current);
-      current = { id: criterion[1], fields: {} };
-      for (const clause of String(criterion[2] ?? "").split(/;\s*/u)) {
-        const field = clause.match(/^([a-z][a-z0-9_-]*(?:\s+[a-z][a-z0-9_-]*)*)\s*:\s*(.*)$/iu);
-        if (field) current.fields[field[1].replace(/\s+/gu, "_")] = field[2].trim();
-      }
-      continue;
-    }
-    if (!current) continue;
-    if (/^#{1,6}\s/u.test(line)) {
-      entries.push(current);
-      current = null;
-      continue;
-    }
-    const field = line.match(/^\s*[-*]\s*([a-z][a-z0-9_-]*(?:\s+[a-z][a-z0-9_-]*)*)\s*:\s*(.*)$/iu);
-    if (field && !current.fields[field[1].replace(/\s+/gu, "_")]) current.fields[field[1].replace(/\s+/gu, "_")] = field[2].trim();
-  }
-  if (current) entries.push(current);
-  return entries;
+  const parsed = readAcceptanceCriteria(substantiveMarkdown(markdown));
+  if (parsed.diagnostics.length) throw Object.assign(new Error("approval_summary_source_criteria_invalid"), { diagnostics: parsed.diagnostics });
+  return parsed.entries;
 }
 
 function criterionDescription(entry) {
@@ -170,7 +177,7 @@ export function evaluateApprovalSummaryReadiness(gate, markdown, languages) {
     return Object.freeze({ ready: true, required_heading: languages.approval_summary_heading, reason: null });
   } catch (error) {
     if (!String(error.message).startsWith("approval_summary_")) throw error;
-    return Object.freeze({ ready: false, required_heading: languages.approval_summary_heading, reason: error.message });
+    return Object.freeze({ ready: false, required_heading: languages.approval_summary_heading, reason: error.message, ...(error.diagnostics ? { diagnostics: error.diagnostics } : {}) });
   }
 }
 
@@ -237,7 +244,7 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
     const block = requiredLocalizedSummary(gate, markdown, {
       approval_summary_required: true, presentation_language: locale, artifact_language: sourceLanguage,
     });
-    const summary = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${[sourceLanguageNote, block.body].filter(Boolean).join("\n")}`;
+    const summary = [sourceLanguageNote, block.body].filter(Boolean).join("\n");
     return { markdown: summary, digest: hash(summary) };
   }
 
@@ -272,8 +279,23 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
     }
   }
   if (!items.length) throw new Error("approval_summary_content_missing");
-  const summary = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${[sourceLanguageNote, ...items].filter(Boolean).join("\n")}`;
+  const summary = [sourceLanguageNote, ...items].filter(Boolean).join("\n");
   return { markdown: summary, digest: hash(summary) };
+}
+
+// A compact decision brief is a projection of the already validated, source-
+// authored summary. Missing authored fields stay absent; no agent/UI paraphrase.
+export function decisionBriefFromSummary(summary, language) {
+  const german = String(language).toLowerCase().startsWith('de');
+  const fields = [
+    [german ? 'Ziel' : 'Goal', /^(?:Ziel|Goal|Nutzerziel|User intent):\s*(.+)$/iu],
+    [german ? 'Vorschlag' : 'Proposal', /^(?:Vorschlag|Proposal|Umfang|Scope|Produktumfang|Product scope|Lösung|Solution):\s*(.+)$/iu],
+    [german ? 'Änderungen' : 'Changes', /^(?:Änderungen|Changes):\s*(.+)$/iu],
+    [german ? 'Risiken und offene Punkte' : 'Risks and open questions', /^(?:Risiken|Risks|Offen|Open questions):\s*(.+)$/iu],
+  ];
+  const lines = summary.split(/\r?\n/u).map(line => line.replace(/^\s*[-*]\s+/u, '').trim());
+  return fields.flatMap(([label, pattern]) => { const matched = lines.map(line => line.match(pattern)).find(Boolean);
+    return matched ? [`- ${label}: ${matched[1]}`] : []; }).join('\n');
 }
 
 export function renderReviewableApproval(root, report, { runId, gate, revisionId }, runState) {
@@ -283,15 +305,33 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
   let artifactSection;
   let artefactDigest;
   let summaryDigest;
+  let documentContent;
+  let summaryMarkdown;
+  let documentLanguage = p.presentation_language;
+  let documentHeading;
+  const qaAcceptance = gate === 'QA' ? qaDeviationPresentation(runState?.qa_acceptance, p.presentation_language) : null;
   if (gate === "UAT") {
-    const evidence = runState?.evidence_refs;
-    if (!Array.isArray(evidence) || evidence.length === 0) return null;
-    const summaryLines = evidence.slice(0, 3).map((item) => `- ${item.evidence} · ${item.covers} (${item.strength})`);
-    if (evidence.length > 3) summaryLines.push(`- ${german ? "Weitere Evidenz" : "Additional evidence"}: ${evidence.length - 3} ${german ? "Einträge" : "items"}`);
+    const projection = runState?.evidence_applicability;
+    const evidence = projection ? projection.current.map(row => ({ evidence: row.step, source: row.report.path, covers: row.sources.map(s => s.type).join(', '), strength: 'exact cooperative association' })) : [];
+    const other = projection ? [...projection.superseded.map(row => ({ evidence: row.step, source: row.report.path, covers: row.reason, strength: german ? 'ersetzt' : 'superseded' })),
+      ...projection.applicability_unknown.map(row => ({ evidence: row.step ?? row.evidence, source: row.report?.path ?? row.source, covers: row.reason, strength: german ? 'Zuordnung unbekannt' : 'applicability unknown' }))] : runState?.evidence_refs ?? [];
+    const allEvidence = [...evidence, ...other];
+    if (allEvidence.length === 0) return null;
+    const summaryLines = evidence.map((item) => `- ${item.evidence} · ${item.covers} (${item.strength})`);
+    if (!evidence.length) summaryLines.push(german ? 'Keine aktuell exakt zugeordneten Nachweise; historische Zuordnung bleibt ausdrücklich unbekannt.' : 'No currently exact associated evidence; historical applicability remains explicitly unknown.');
+    summaryLines.push(`- ${german ? 'Ersetzte oder nicht zugeordnete Nachweise' : 'Superseded or unassociated evidence'}: ${other.length}`);
     const summaryText = summaryLines.join("\n");
     summaryDigest = hash(summaryText);
-    artefactDigest = hash(JSON.stringify(evidence));
-    artifactSection = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${summaryText}\n\n## ${german ? "Vorliegende UAT-Evidenz" : "Available UAT evidence"}\n\n${evidence.map((item) => `- ${item.evidence} · Quelle: ${item.source} · Deckt ab: ${item.covers} · Stärke: ${item.strength}`).join("\n")}`;
+    summaryMarkdown = summaryText;
+    artefactDigest = hash(JSON.stringify(allEvidence));
+    artifactSection = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${summaryText}\n\n## ${german ? "Vorliegende UAT-Evidenz" : "Available UAT evidence"}\n\n${allEvidence.map((item) => `- ${item.evidence} · Quelle: ${item.source} · Deckt ab: ${item.covers} · Stärke: ${item.strength}`).join("\n")}`;
+    documentContent = artifactSection;
+    if (runState?.qa_acceptance?.accepted) {
+      const accepted = qaDeviationPresentation(runState.qa_acceptance, p.presentation_language);
+      summaryMarkdown += `\n\n${accepted.summary}`;
+      summaryDigest = hash(summaryMarkdown);
+      documentContent += `\n\n${accepted.summary}`;
+    }
   } else {
     const artefact = runState?.artefacts?.get(gate);
     const path = resolvedArtefactFile(root, artefact?.path);
@@ -301,11 +341,12 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
     if (content.byteLength > MAX_APPROVAL_ARTEFACT_BYTES) throw new Error("approval_artefact_too_large");
     artefactDigest = hash(content);
     let contentText;
-    try { contentText = new TextDecoder("utf-8", { fatal: true }).decode(content); }
+    try { contentText = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(content); }
     catch { throw new Error("approval_artefact_encoding_invalid"); }
     let summary;
     const languages = resolveArtifactPresentationLanguages(root, p.presentation_language);
     const sourceLanguage = languages.artifact_language;
+    documentLanguage = sourceLanguage;
     try {
       summary = artifactSummary(gate, contentText, { runId, revisionId, language: p.presentation_language, sourceLanguage });
     } catch (error) {
@@ -330,13 +371,28 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
       throw error;
     }
     if (!summary) return null;
+    documentContent = contentText;
+    documentHeading = contentText.match(/^#\s+(.+)$/mu)?.[1];
     summaryDigest = summary.digest;
+    summaryMarkdown = summary.markdown;
     artifactSection = `${summary.markdown}\n\n## ${german ? "Prüfartefakt" : "Review artefact"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${german ? "Artefakt" : "Artefact"}: [${basename(path)}](<${path}>)\n\nSHA-256: \`${artefactDigest}\`\n\n${german ? "Bitte öffne die verlinkte Fassung vor deiner Entscheidung." : "Open the linked version before deciding."}`;
   }
-  const parts = [p.blocks?.run_status_card?.markdown, report.status_presentation?.markdown,
-    artifactSection, p.blocks?.gate_transition_card?.markdown,
-    p.approval_interaction?.exact_text_fallback];
+  const pack = localePack(interactionLocales, resolvePresentationLocale(interactionLocales, p.presentation_language));
+  // One source-authored summary and one decision moment. Provenance remains
+  // available without duplicating the status, transition and approval prompts.
+  if (qaAcceptance) { summaryMarkdown = qaAcceptance.summary; summaryDigest = hash(summaryMarkdown); }
+  const parts = [`## ${qaAcceptance ? pack.decisionCard.deviationAcceptanceIntro : pack.gateActionTitles[gate]}`, resolveHumanRunTitle({ currentArtefactHeading: documentHeading, runContent: runState?.content, runId }),
+    qaAcceptance?.summary || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
+    german ? 'Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.'
+      : 'Reply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.',
+    pack.decisionCard.chatApprovalHint.replace('{gate}', gate),
+    `<details><summary>${german ? 'Details und Nachweise' : 'Details and evidence'}</summary>\n\n${summaryMarkdown}\n\n</details>`,
+    `<details><summary>${german ? 'Fassung und Quellen' : 'Version and sources'}</summary>\n\nRun: \`${runId}\` · ${pack.gateTitles[gate]} · Revision: \`${revisionId}\`\n\nSHA-256: \`${artefactDigest}\`\n\n</details>`];
   return parts.every((part) => typeof part === "string" && part.trim())
-    ? { markdown: parts.join("\n\n"), preview_markdown: artifactSection,
-        artefact_digest: artefactDigest, summary_digest: summaryDigest } : null;
+    ? { markdown: parts.join("\n\n"), companion_markdown: [german
+          ? `Die AGDF-Karte ist geöffnet. Du kannst dort „${qaAcceptance?.approve_label || 'Freigeben'}“ klicken oder hier \`Approval: ${gate}\` eingeben. Beide Wege entscheiden dieselbe vorgelegte Fassung einmal.`
+          : `The AGDF card is open. Click “${qaAcceptance?.approve_label || 'Approve'}” there or enter \`Approval: ${gate}\` here. Both paths decide the same presented version once.`, ...parts].join("\n\n"), preview_markdown: artifactSection,
+        artefact_digest: artefactDigest, summary_digest: summaryDigest, summary_markdown: summaryMarkdown,
+        document_content: documentContent, document_language: documentLanguage,
+        ...(qaAcceptance ? { qa_acceptance: { kind: qaAcceptance.kind, digest: qaAcceptance.digest } } : {}) } : null;
 }

@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T07:08:00.065583+00:00",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "implementation_revision_id": "2b1b6d04-eceb-4a7e-bc56-e92344b934ae",
+  "evidence_class": "synthetic_clock_actual_core_decision_and_shared_reader",
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "packages/core/test/decision-action-test.js"
+  ],
+  "exit_code": 0,
+  "raw_log": "CLOSE_PATH_IDLE_FALLBACK_01.log",
+  "raw_log_digest": "sha256:e4c462018d09dc634ed23e175d3971e08e02006d4c280211617b41ffbf61e0c8",
+  "source_digest": "sha256:7054ddf773ba10f6ffd7ae48badd08289719b5d721951efd3c31f05a8a455c41",
+  "observations": [
+    "Actual existing decision-session/shared reader reject an unclosed view at the shared idle boundary.",
+    "Expiry invokes reader retirement without a host close request.",
+    "Expired decision token rejects before any write.",
+    "Independent newer view remains readable; Run bytes unchanged."
+  ],
+  "production_timeout_policy_changed": false,
+  "native_idle_expiry_observed": false,
+  "native_qualified": false,
+  "authorizes": false
+}

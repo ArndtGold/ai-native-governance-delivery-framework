@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "--test-concurrency=2",
+    "packages/mcp-server/test/structured-flow.test.js",
+    "packages/mcp-server/test/decision-resource.test.js"
+  ],
+  "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "started_at": "2026-10-11T09:14:58.200054+00:00",
+  "observed_at": "2026-10-11T09:18:53.467790+00:00",
+  "elapsed_seconds": 235.267,
+  "exit_code": 0,
+  "raw_log": "UAT_READING_TRANSPORT_01.log",
+  "raw_log_digest": "sha256:737ccc3d997c1fd8fe53f4a6b27e02ec9b1980025e4f7a8939755b7da9c54b3a",
+  "source_hashes": {
+    "packages/core/lib/control-inspect/decision-session.js": "sha256:26509715219f14c404649249b9063875a3eb2cca7fe640a22b3bd59db0032b48",
+    "packages/core/test/decision-action-test.js": "sha256:31e10534219026529d8a1c661e45828c6ba2f72982bca4d5d1773db8dcf27462",
+    "packages/mcp-server/test/structured-flow.test.js": "sha256:4a9b21d404b030f57f2a8e7352d1a6cfb49ced0112f3f1d10fa01adbf3a90b4b"
+  },
+  "candidate_environment": {
+    "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+    "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+    "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-uat-reading"
+  },
+  "evidence_class": "source_or_generated_stdio_synthetic_verification",
+  "native_qualified": false,
+  "authorizes": false
+}

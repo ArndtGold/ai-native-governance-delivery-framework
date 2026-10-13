@@ -11,12 +11,19 @@ AGDF's normal operating model has three roles: chat/skills provide the user inte
 second gate system. Use `npx ...@latest` below for installation and explicit refresh; after
 `npm install -g @agdf/cli`, prefer `agdf ...` for repeated local checks.
 
+The development command groups also have CLI entries `agdf-prepare`, `agdf-record`,
+`agdf-approve`, `agdf-revise` and `agdf-closeout`, each accepting the exact bounded JSON
+envelope via `--command-file`. Read the selected contract first; retain the original UUID
+after uncertainty. See [Core and MCP command flow](../../docs/architecture/core-mcp-command-flow.md)
+for bindings, decision permissions, receipts, compatibility and qualification boundaries.
+
 > [!IMPORTANT]
-> **MCP development status:** AGDF 0.14.5 does not include MCP support. The guided MCP setup,
-> `mcp` commands, `--with-mcp` and `--mcp-scope` in this README belong to the unreleased development
-> state for the next AGDF version. Until that version is published, these MCP examples do not
-> describe `@agdf/cli@latest`. The ordinary plugin installation examples continue to describe the
-> npm-resolved release.
+> **MCP development status:** The previously published AGDF 0.14.5 release did not include the MCP
+> support described here. The guided setup and `mcp` commands in this README describe the repository
+> development build. Local assemblies and plugin builds can still carry `0.14.5` while containing
+> newer MCP features; compare payload digests and the loaded session rather than the version alone.
+> These examples do not verify the contents of a current `@agdf/cli@latest` resolution. The ordinary
+> installation commands use the version actually resolved by npm.
 
 If you use Codex, this is the recommended first installation:
 
@@ -248,7 +255,7 @@ npx --yes @agdf/cli@latest config --language en
 ### Optional local MCP dispatcher (unreleased development preview)
 
 AGDF can register one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode.
-MCP tools: `agdf_dispatch`, `agdf_inspect`.
+MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 Dispatch projects the existing canonical skill-dispatch
 contract; inspect provides read-only doctor, gate-check, delivery-map and contract operations.
 Tool permission and successful execution never grant an

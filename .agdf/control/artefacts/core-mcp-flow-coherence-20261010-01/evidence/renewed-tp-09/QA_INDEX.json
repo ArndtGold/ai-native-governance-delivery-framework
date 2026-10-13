@@ -1,0 +1,49 @@
+{
+  "schema_version": "1",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "source_revision_id": "67f52287-f8a9-497e-b94b-f18ec1599033",
+  "current_phase": "SD",
+  "decision": null,
+  "cd_tests_pass_recorded": false,
+  "required_reviews_recorded_for_current_candidate": false,
+  "qa_decision_owner": "qa-gate",
+  "source_build_process_protocol_browser_evidence": "COMMANDS.json",
+  "protected_scope": "PROTECTION_CURRENT.json",
+  "candidate_identity": "CANDIDATE_IDENTITY.json",
+  "fixed_corpus": "RENEWED_FLOW_COMPARISON.json",
+  "open_obligations": [
+    "Renewed SD and TP approvals; UR/PRD approved and Brownfield/UX freshly recorded.",
+    "Renewed TP applicability assessment of retained evidence.",
+    "Implement and qualify contextual native/Chat/remote approval and earliest-source pre-UAT matrix including affected QA renewal.",
+    "Complete actual full-flow comparison, required reviews and final QA."
+  ],
+  "native_qualified": false,
+  "authorizes": false,
+  "latest_native_observation": [
+    "NATIVE_RESTART_42.json",
+    "NATIVE_APPROVE_DE_42.json",
+    "NATIVE_CLOSE_DE_42.json",
+    "NATIVE_CHANGE_DE_42.json",
+    "NATIVE_REJECT_DE_42.json",
+    "NATIVE_APPROVE_EN_42.json"
+  ],
+  "latest_corrected_UI_evidence": [
+    "UI_DECISION_CONSEQUENCE_FINDING_49.json",
+    "ui-decision-consequence-47.log",
+    "ui-build-47.log",
+    "ui-browser-consequence-47.log",
+    "decision-action-48.log"
+  ],
+  "corrected_candidate_requires_restart": true,
+  "next_prepared_native_test": null,
+  "native_observation_candidate": "F3pbiO; historical evidence, not E41VnZ qualification",
+  "next_candidate": "E41VnZ; registered, preflight passed, not loaded in current Host connection",
+  "latest_corrected_generation_evidence": [
+    "generation-sdk-49.log",
+    "GENERATION_SDK_TRACE_UI_49.json"
+  ],
+  "historical_phase_before_source_revision": "CD+Tests",
+  "current_revision_note": "Prior TP-09 evidence retained for reassessment after renewed UR/PRD/SD/TP. Current UI intent retains Core decisions but simplifies primary UI approval/continuation; old three-action obligations are historical, not instructions to repeat them. AC-017 now requires earliest-source pre-UAT revision matrix and impact-based renewal; expanded capabilities unqualified.",
+  "current_prd_digest": "sha256:b92fc4ec39ffd367bc65004f63ac90577e94f0d58dd0f89e130eca1692b01614",
+  "current_sd_digest": "sha256:d4332314cb7337fe9ea996e739f4b6ed97abcb0b58605509828d0959707b51d7"
+}

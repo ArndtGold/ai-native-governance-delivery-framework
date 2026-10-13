@@ -56,6 +56,10 @@ export function createCockpitSessionService(root, {
   function touch(session) { session.touched = now(); schedule(session); }
   return Object.freeze({
     failure,
+    inspectOwnership() {
+      return { views: sessions.size, active: [...sessions.values()].filter(row => !row.retired).length,
+        uncertain: publication?.phase === 'uncertain' ? 1 : 0 };
+    },
     async render(input = {}) {
       input = parseCockpitArguments(input, true);
       if (closed) return failure('session_expired');

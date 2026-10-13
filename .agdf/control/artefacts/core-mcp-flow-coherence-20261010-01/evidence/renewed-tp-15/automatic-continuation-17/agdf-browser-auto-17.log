@@ -1,0 +1,21 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/decision-card.spec.mjs
+
+Running 12 tests using 1 worker
+
+(node:21016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: en/continue_agent, no second click (synthetic SDK host) (2.5s)
+  ✓   2 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: en/continue_human, no second click (synthetic SDK host) (2.2s)
+  ✓   3 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: en/continue_stale, no second click (synthetic SDK host) (2.5s)
+  ✓   4 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: en/continue_unknown, no second click (synthetic SDK host) (2.0s)
+  ✓   5 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: de/continue_agent, no second click (synthetic SDK host) (1.8s)
+  ✓   6 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: de/continue_human, no second click (synthetic SDK host) (1.5s)
+  ✓   7 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: de/continue_stale, no second click (synthetic SDK host) (1.7s)
+  ✓   8 test/browser/decision-card.spec.mjs:26:3 › Post-approval continuation: de/continue_unknown, no second click (synthetic SDK host) (1.5s)
+  ✓   9 test/browser/decision-card.spec.mjs:48:56 › SDK close: browser iframe removal fallback (synthetic host) (1.3s)
+  ✓  10 test/browser/decision-card.spec.mjs:48:56 › SDK close: host teardown before navigation (synthetic host) (1.1s)
+  ✓  11 test/browser/decision-card.spec.mjs:55:53 › Actual built resource + SDK bridge: en rendering/keyboard/read/recovery/teardown (synthetic host) (5.0s)
+  ✓  12 test/browser/decision-card.spec.mjs:55:53 › Actual built resource + SDK bridge: de rendering/keyboard/read/recovery/teardown (synthetic host) (5.0s)
+
+  12 passed (47.1s)

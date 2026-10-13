@@ -1,0 +1,65 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:22:02.396Z",
+  "evidence_class": "actual_human_native_read_and_blank_comment_validation",
+  "candidate": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+  "run_id": "native-de-reject",
+  "presentation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+  "human_report_verbatim": "Vorgelegtes Dokument lesen“ öffnen, lesen und zur Entscheidung zurückkehren: ok, Beschreibe die gewünschte Änderung vor dem Übermitteln: erscheint bei leeren Kommentar",
+  "confirmed_human_observations": {
+    "document_open_read_return": true,
+    "empty_comment_required_message_seen": true
+  },
+  "native_inspection_before_rejection_request": {
+    "schema_version": "1",
+    "run_id": "native-de-reject",
+    "operation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "presentation.prepare",
+    "receipt": {
+      "schema_version": 2,
+      "presentation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "operation_id": "45de96c2-128c-4a28-b547-83c7e7f40524",
+      "request_digest": "sha256:da919cc9acd58c985a0e6a95c3b19b649a0e19e481dbc58e40aa78af4c06727f",
+      "created_at": "2026-10-11T08:19:03.005Z",
+      "run_id": "native-de-reject",
+      "gate": "SD",
+      "revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+      "content_digest": "sha256:8deffb220c462f9f467ab8234383f3b517b1e8237637f6446527d097f39e3dc6",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "summary_digest": "sha256:78ad2d0ec0e5fd8d3982d5b86fa90363a57b0117e780908c04219f25aa2224d2",
+      "presentation_language": "de",
+      "presentation_digest": "sha256:6bf46cb40124ba80faddd1217cdacd49b9f8e78db14e6e497ba42111223bb75b"
+    },
+    "request_digest": "sha256:da919cc9acd58c985a0e6a95c3b19b649a0e19e481dbc58e40aa78af4c06727f",
+    "historical_effect": true,
+    "current_revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+    "expected_revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8"
+  },
+  "native_action_requests_before_rejection_request": 0,
+  "not_yet_confirmed": [
+    "deliberate_rejection_saved",
+    "technical_prompt_observation_on_rejection",
+    "both_views_closed"
+  ],
+  "scope_limitations": [
+    "German SD reading/return and empty-comment validation only.",
+    "A local validation attempt is not a business decision.",
+    "Loaded native predecessor remains separately bound; full gate/locale candidate qualification is open."
+  ],
+  "native_qualified": false,
+  "authorizes": false,
+  "canonical_verification": {
+    "observed_at": "2026-10-11T08:22:03.185Z",
+    "decision_receipt_count": 0,
+    "sd_or_tp_approval_count": 0,
+    "run_seal": "valid",
+    "approval_operations_valid": true,
+    "run_operations_valid": true,
+    "run_digest": "sha256:391434e20061b970912ee88533acd8106a46d6eb546be9c4f362222544b828ce",
+    "revision_id": "ee2d3dc2-50cd-4dc9-ae7b-04d72ee8eaf8",
+    "evidence_class": "independent_read_only_canonical_parsers",
+    "actions": []
+  }
+}

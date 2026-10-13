@@ -154,7 +154,7 @@ try {
     { approval_presentation: { presentation_language: "en" } },
     { runId: "subtract", gate: "PRD", revisionId: revision },
     { artefacts: new Map([["PRD", { path: prdPath }]]) }), error => {
-      assert.equal(error.message, "approval_summary_criteria_missing");
+      assert.equal(error.message, "approval_summary_source_criteria_invalid");
       assert.match(error.recovery, /AGDF Approval Summary \(en; source=en\)/u);
       return true;
     });

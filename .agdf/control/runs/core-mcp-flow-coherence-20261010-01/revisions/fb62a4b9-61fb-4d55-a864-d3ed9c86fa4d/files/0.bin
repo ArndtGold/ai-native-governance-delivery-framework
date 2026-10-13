@@ -1,0 +1,51 @@
+# Implementation preparation — Core / MCP flow coherence
+
+- run_id: core-mcp-flow-coherence-20261010-01
+- input_revision_id: c772820b-fcc6-4721-89ca-3e2d29295973
+- decision: pass
+- scope: approved TP T-001 through T-012; no implementation or native-host acceptance claimed
+- required_next_step: execute T-002, retaining the baseline and the dependent ordering in TP
+
+## Bound preparation and coverage
+
+`evidence/BASELINE.json` records the exact commit, index, existing dirty/untracked files, approved UR/PRD/SD/TP digests, and 5,807 protected foreign control files. `evidence/ACTIVE_INVENTORY.json` preserves the complete live MCP doctor inventory: the selected Run passes; unrelated historical findings are outside this delivery scope. The approved early UR revision bootstrap is existing dirty baseline, not new implementation authority. Its shared revision boundary and archived operation remain reusable.
+
+Coverage is partial for full-state evaluation, presentation/approval, reviewed artefact binding, source revision, exact documents, worker isolation, sessions and recovery; these owners exist and must be extended. Coverage is not done for the five published write groups, common command descriptors, internal receipts/journal v3, structured closeout recording, evidence applicability projection and dedicated decision-card facade. No passing test, native gesture, permission or weaker-model result is inferred from their specification.
+
+## Existing owners and reuse strategy
+
+| Concern | Observable owner | Strategy and boundary |
+|---|---|---|
+| Complete state | `packages/core/lib/control-evaluation/run-state.js`, parser in `control-state/run-state-parser.js` | Refactor one preparation function for saved/proposed content, using the complete catalog and source-revision UX context; no new parser |
+| Gate policy / routing | `control-evaluation/gate-policy.js`, `gate-check.js`, `run-step-policy.js`, `skill-dispatch/service.js` | Extend typed operations and completion; adapters consume the same decision. SD's proposed `control-state/run-step-policy.js` location resolves to the existing `control-evaluation/run-step-policy.js`; ownership is unchanged |
+| Approval / presentation | `control-state/run-recording.js`, `run-presentation.js`, approval-command/receipt owners | Reuse exact presentation, revision and source bindings; add shared decision guard under existing locks, preserving receipts |
+| Recording / recovery | `control-state/run-steps.js`, `run-step-transaction.js`, `run-state-writer.js`, artefact-binding owners | Extend bounded recording and strict journal version; preserve v1/v2 recovery. Single Run commit point with controlled forward/backward recovery, not multi-file atomicity |
+| Revision | `control-state/run-revision.js`, `run-revision-history.js`, `run-revision-boundary.js` | Extend the already approved boundary; retain exact immutable archive and requalification |
+| Transport | Core service factory; CLI validation handlers / MCP runtime; MCP server worker executor | Add shared command service/descriptors and five narrow groups; app-only facade is not a universal model command |
+| Visible state | `packages/control-ui` existing transport, lifecycle, renderer and document service | Reuse exact document proofs and renderer; dedicated decision orchestration/session with transient comment, no read-cockpit writer and no browser persistence |
+| Derived status | Existing evidence, readiness, summary, backlog and cockpit projections | Derive applicability from real bindings; unknown historical evidence stays unknown; no independent persisted status authority |
+
+## Reproduced cause and architecture fit
+
+`evidence/BEFORE_STATE_CORPUS.json` captures complete versus shortened parsing of the same current Run. The approval writer's shortened internal catalog omits the already completed UX Intent Definition and routes back to PRD. The complete reader routes to Brownfield Analysis. The writer also omits source-revision UX context at several proposed-content call sites. Completed structured Runs can still request OR work; completion must be a typed fulfilled state with invalid lifecycle/obligation combinations failing closed. The dispatcher currently uses an exact English CD+Tests sentence as an execution guard; the approved shared semantic operation replaces that dependency.
+
+The architecture document `docs/architecture/03-agentenkontrolle-zielbild.md` is a proposed target concept. Current executable contracts and approved UR/PRD/SD/TP provide authority; the concept must not become a parallel policy or fictitious already deployed implementation.
+
+## Safe implementation path and risks
+
+Follow TP ordering: shared state/policy first; descriptors and strict bounded commands next; recording/recovery and human decisions before exposing writers; revision and closeout before transport qualification; exact UI session and candidate/locale tests before native acceptance. Preserve existing approval/artefact/source ledgers and versioned recovery. A missing receipt owner is added only where SD explicitly assigns Run Operations, not as a general ledger. Every mutation binds target, Run, revision, operation and command payload. Result loss after dispatch stays effect_unknown until the original operation is inspected.
+
+Meaningful regressions include renewed UX after source revision, wrong same-gate action routing, malformed completed Run, rejection followed by unchanged re-presentation, text/click races, cross-group and disabled effects, worker interruption, archive/output interference, evidence provenance, stale session results and UI permission mediation. The 45 TP scenarios and protected corpus remain required; source tests do not count as native host proof. Candidate installation/restart and deliberate native UI decisions require the user's concrete candidate interaction at T-011.
+
+## Context and quality
+
+- context_graph_impact: link_only
+- context_graph_refs: docs/architecture/03-agentenkontrolle-zielbild.md; docs/reviews/ARCHITEKTUR_FLOW_MCP_KANDIDATEN_20261010.md
+- context_graph_reconciliation: resolved
+- context_graph_required_action: link
+- context_graph_gate_effect: none
+- context_graph_evidence: owner mapping in this analysis links the existing architecture and candidate assessment; no automatic graph node or memory update
+- missing_evidence: all future implementation, tests, candidate/native and final review evidence listed in TP
+- risks: broad coordinated contract change; preserve existing baseline and fail closed at uncertain recovery or unsupported native permissions
+
+Preparation pass means the existing owners and clean implementation path are understood. It does not mark any TP implementation task or QA obligation complete.

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "reviewer": "Codex",
+  "scope": "Existing TP-09 T-003/T-006/T-008 wrong draft-revision route diagnostics only",
+  "baseline": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 232,
+    "max_bytes": 2065437,
+    "rationale": "Exact measured TP-09 same-connection control/business UUID conflict protection and absence-of-effect observation routing; no speculative payload headroom or changed discovery ceilings."
+  },
+  "current_stats": {
+    "files": 232,
+    "bytes": 2066476
+  },
+  "changed_entries": [
+    {
+      "path": "runtime/create-agdf/runtime/core/lib/skill-dispatch/service.js",
+      "before_bytes": 44380,
+      "after_bytes": 45419,
+      "delta": 1039,
+      "before_digest": "sha256:7f176cc77cae53782366cf362ac165ab12aca3fbbcdda0b0d2dc81450deb30b4",
+      "after_digest": "sha256:3ffeb78a3932261bd5f5be480b077b745229fd2c20f68c991455dc161e1d92b3",
+      "owner": "scripts/sync-plugin-runtime.js"
+    },
+    {
+      "path": "runtime/runtime-manifest.json",
+      "before_bytes": 236,
+      "after_bytes": 236,
+      "delta": 0,
+      "before_digest": "sha256:a98623d60ba359a47d8d04e3e353e3a0a289e51c9744d3ab9e76e35075b48d61",
+      "after_digest": "sha256:4f1a9d45a0230ba7352e8b7548aaab7639cee92694fe34113b87db476a05b709",
+      "owner": "scripts/sync-plugin-runtime.js"
+    }
+  ],
+  "files_added": [],
+  "files_removed": [],
+  "new_endpoint": false,
+  "new_policy": false,
+  "reviewed_growth_only": true,
+  "speculative_headroom": 0,
+  "authorizes": false
+}

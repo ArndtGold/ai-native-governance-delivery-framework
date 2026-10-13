@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "command": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "--test",
+    "--test-concurrency=3",
+    "packages/mcp-server/test/whole-flow.test.js",
+    "packages/mcp-server/test/structured-flow.test.js",
+    "packages/mcp-server/test/revision-command.test.js"
+  ],
+  "candidate_environment": {
+    "AGDF_TEST_CANDIDATE_CLI_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+    "AGDF_TEST_CANDIDATE_MCP_ROOT": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+    "AGDF_TEST_EVIDENCE_DIR": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence/stdio-exchanges-final-scenario"
+  },
+  "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "started_at": "2026-10-11T08:55:23.785084+00:00",
+  "observed_at": "2026-10-11T08:59:27.661502+00:00",
+  "elapsed_seconds": 243.837,
+  "exit_code": 0,
+  "raw_log": "FINAL_TRANSPORT_SCENARIO_CHECK_01.log",
+  "raw_log_digest": "sha256:890b0aab302dd7c083c714f5870ba838686e296e6e15f0bf2d00323b8f877b15",
+  "test_source_hashes": {
+    "packages/mcp-server/test/whole-flow.test.js": "sha256:b33e80eac8790bad02f93d10f4954b9ceda1acdb3f9d5bea575285a63a774936",
+    "packages/mcp-server/test/structured-flow.test.js": "sha256:6746e5fdcf8d7c4632affdadf49fd4f62dcf46c4fb5a4edff814b86449715e02",
+    "packages/mcp-server/test/revision-command.test.js": "sha256:7609449f705f80fa7617747a2fde4e4d5989bd9252ff4ed43e0766dfe6cc54ca"
+  },
+  "evidence_class": "actual_generated_stdio_synthetic_bound_intents",
+  "native_qualified": false,
+  "authorizes": false
+}

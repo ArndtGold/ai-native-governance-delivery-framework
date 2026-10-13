@@ -6,8 +6,7 @@ import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluation/gate-check.js";
-import { CD_TESTS_NEXT_ALLOWED_ACTION } from "../control-evaluation/gate-policy.js";
-import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderDefinitionSourceRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
+import { localePack, renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderDefinitionSourceRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, urDefinitionPhase, quoteDispatchArgument } from "./delivery-intake.js";
 import { deliveryRunAssignmentContinuation, readDeliveryRunInventory } from "./delivery-run-assignment.js";
@@ -167,6 +166,7 @@ function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
     blocking_reason: report.blocking_reason,
     missing_approval: report.missing_approval,
     next_operation: report.next_operation ?? null,
+    completion: report.completion ?? null,
     next_allowed_action: report.next_allowed_action,
     run_id: report.status_card?.run_id ?? null,
     revision_id: report.approval_presentation?.revision_id ?? extractField(report.status_card?.runState?.content ?? "", "revision_id") ?? null,
@@ -412,12 +412,21 @@ export function createSkillDispatchService(dependencies = {}) {
         return bindHostAction(result);
       }
       if ((input.ur_action && !urPhase) || (input.prd_action && !prdPhase) || (input.sd_action && !sdPhase)) {
-        // A declined revision route cannot turn into post-UR or later artefact preparation.
-        if (!control.status_presentation) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
+        // Draft authoring intent must not silently become a successful status read.
+        // Approved-source changes belong to the separate reviewed preview/apply owner.
+        const field = input.ur_action ? "ur_action" : input.prd_action ? "prd_action" : "sd_action";
+        const sourceGate = field.slice(0, -7).toUpperCase();
+        const sourceStatus = control.status_card?.runState?.approvals?.get(sourceGate)?.status ?? "missing";
+        const pack = localePack(rawInput.interactionLocales, input.presentation_language).skillDispatch.sourceInput;
+        const action = renderInputRecovery({ field }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language });
+        if (!action) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
-        result.presentation = control.status_presentation;
+        result.diagnostics = [{ code: "draft_revision_route_unavailable", field, source_gate: sourceGate,
+          source_status: sourceStatus, current_gate: control.current_gate, blocking_reason: control.blocking_reason }];
+        result.recovery = { action: `${action}\n\n${pack.expected}: ${sourceGate} · Approval: ${sourceGate}\n${pack.observed}: ${control.current_gate} · ${control.missing_approval}`,
+          ...(sourceStatus === "approved" ? { operation_contract: "agdf_revise/source_revision.preview" } : {}) };
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
@@ -467,7 +476,7 @@ export function createSkillDispatchService(dependencies = {}) {
       const tpIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "TP" && item.status === "fulfilled");
       if (input.continue_delivery && control.status === "open" && control.current_gate === "CD+Tests"
           && control.missing_approval === "none" && structuredRoute && tpIsFulfilled
-          && control.next_allowed_action === CD_TESTS_NEXT_ALLOWED_ACTION) {
+          && control.next_operation?.type === "implement_approved_plan") {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);

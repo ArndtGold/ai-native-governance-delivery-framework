@@ -1,0 +1,137 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_stdio_synthetic_client_no_UI",
+  "candidate": {
+    "schema_version": "1",
+    "evidence_class": "prepared_disposable_native_probe",
+    "observed_at": "2026-10-11T17:45:21.921Z",
+    "production_entrypoint": false,
+    "installed": false,
+    "native_qualified": false,
+    "assurance": "cooperative_local",
+    "authorizes": false,
+    "runtime_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO",
+    "target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+    "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f",
+    "runs": [
+      {
+        "locale": "en",
+        "action": "approve",
+        "run_id": "native-en-approve",
+        "expected_revision_id": "a3134d36-1b31-4d59-924c-308a7c6cf06e",
+        "gate": "SD"
+      },
+      {
+        "locale": "en",
+        "action": "request_change",
+        "run_id": "native-en-request-change",
+        "expected_revision_id": "5adfb03c-b2ba-42e0-a022-0eae46930824",
+        "gate": "SD"
+      },
+      {
+        "locale": "en",
+        "action": "reject",
+        "run_id": "native-en-reject",
+        "expected_revision_id": "5de3de4e-a304-476d-801a-52a273475d8f",
+        "gate": "SD"
+      },
+      {
+        "locale": "en",
+        "action": "text",
+        "run_id": "native-en-text",
+        "expected_revision_id": "1ba5aae8-7f64-47f1-92ed-7b95c6257dd0",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "approve",
+        "run_id": "native-de-approve",
+        "expected_revision_id": "d21dfe66-02d9-4d92-8280-4de6159c4f1f",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "request_change",
+        "run_id": "native-de-request-change",
+        "expected_revision_id": "4796414f-6a42-4dad-a211-4d557f2d488b",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "reject",
+        "run_id": "native-de-reject",
+        "expected_revision_id": "b0602a64-555e-4e99-b34f-1f456eea2294",
+        "gate": "SD"
+      },
+      {
+        "locale": "de",
+        "action": "text",
+        "run_id": "native-de-text",
+        "expected_revision_id": "71ec9f84-41c2-4925-8906-98012d317303",
+        "gate": "SD"
+      }
+    ],
+    "entrypoint": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/native-decision-entry.mjs",
+    "entrypoint_digest": "sha256:d3a84d05d48eb26c555ac1a8f62dcd0d635c5c063c8282bc09ab75d7d2541b27",
+    "server_digest": "00b32e3d57210ecf5a7b7532ffacc5150023ce204458a2511097bad34564d44a",
+    "dispatcher_digest": "6add9571ea495ea1b0e69e927927f9fca5baf299e92c3a59b36606c9f40959e1",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+    "ui": {
+      "schema_version": "1",
+      "uri": "ui://agdf/decision/v1.html",
+      "mime_type": "text/html;profile=mcp-app",
+      "bytes": 776592,
+      "digest": "sha256:7333d84c62d06487a793f03fdd64574a900988d815ff1de8a0f91daa8441d677",
+      "source_digest": "sha256:a5ee30e6882367813ee7025fdbf099424a77e2765d3814a14947c460960df909"
+    },
+    "observations": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/native-observations.jsonl",
+    "configuration": {
+      "name": "agdf-decision-probe",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "args": [
+        "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/native-decision-entry.mjs"
+      ]
+    }
+  },
+  "tool_names": [
+    "agdf_dispatch",
+    "agdf_inspect",
+    "agdf_prepare",
+    "agdf_record",
+    "agdf_approve"
+  ],
+  "request": {
+    "presentation_language": "en",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-F3pbiO/governance-target",
+    "target_source": "explicit_target",
+    "run_id": "native-en-text",
+    "expected_revision_id": "1ba5aae8-7f64-47f1-92ed-7b95c6257dd0",
+    "schema_version": "1",
+    "target_id": "sha256:461725afb08a5a801ff175f22bbf2e15766aab7bbbcdf84238d9dbc21729d64f",
+    "operation_id": "f14564ee-3b58-45c9-a68f-3ce817888824",
+    "assurance": "cooperative_local",
+    "command": {
+      "kind": "presentation.prepare",
+      "payload": {
+        "gate": "SD"
+      }
+    }
+  },
+  "presentation_id": "f14564ee-3b58-45c9-a68f-3ce817888824",
+  "delivery": {
+    "mode": "full_chat",
+    "text": "## Review and decide on solution design\n\nSD: Synthetic saved filter\n\n- Proposal: Reuse the existing user-owned filter store.\n\nDraft the task and test plan; implementation remains blocked.\n\nReply “Read document” to read the complete presented version in chat. You can then approve, request changes with a comment, or decline.\n\nTo approve, reply exactly with `Approval: SD`; otherwise request revision or decline.\n\n<details><summary>Details and evidence</summary>\n\n- Solution: Reuse the existing user-owned filter store.\n- Ownership: Existing filter service retains ownership; the approved PRD remains product authority.\n- Design decisions: SDD-001: Reuse the existing filter service; rationale: retain user ownership; consequence: no shared filters.\n\n</details>\n\n<details><summary>Version and sources</summary>\n\nRun: `native-en-text` · Solution design · Revision: `1ba5aae8-7f64-47f1-92ed-7b95c6257dd0`\n\nSHA-256: `sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf`\n\n</details>",
+    "presentation_id": "f14564ee-3b58-45c9-a68f-3ce817888824",
+    "revision_id": "1ba5aae8-7f64-47f1-92ed-7b95c6257dd0",
+    "document_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+    "document_language": "en",
+    "instruction": "Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.",
+    "authorizes": false
+  },
+  "read_parts": 1,
+  "exact_snapshot_read": true,
+  "business_state_unchanged": true,
+  "native_qualified": false,
+  "authorizes": false
+}

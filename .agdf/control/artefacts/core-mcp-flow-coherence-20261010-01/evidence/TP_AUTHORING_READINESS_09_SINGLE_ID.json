@@ -1,0 +1,75 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "artifact-readiness",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "d834465306f62111a7d9c25540fd18605fb95cc30008e778ea5505feaad68eb9",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "run_id": "core-mcp-flow-coherence-20261010-01",
+    "gate": "TP",
+    "expected_revision_id": "96ed9e6e-0522-442e-ba48-c19978387e6f",
+    "revision_id": "96ed9e6e-0522-442e-ba48-c19978387e6f",
+    "artifact_path": ".agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/TP.md",
+    "artifact_digest": "sha256:5d8d39df25e565766c23ba1cd3ad194ca59963ff9a3065814dc199ca4a7ec555",
+    "ready": true,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [
+      {
+        "name": "approval_summary",
+        "ready": true,
+        "required_heading": "AGDF Approval Summary (de; source=en)",
+        "reason": null
+      },
+      {
+        "name": "tp_traceability",
+        "ready": true,
+        "open_items": [],
+        "contract": "criteria-chain-v1"
+      }
+    ],
+    "diagnostics": [],
+    "next_action": "Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval."
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.672,
+    "target_ms": 1.222,
+    "control_ms": 803.888,
+    "render_ms": 0,
+    "total_ms": 813.944
+  },
+  "diagnostics": []
+}

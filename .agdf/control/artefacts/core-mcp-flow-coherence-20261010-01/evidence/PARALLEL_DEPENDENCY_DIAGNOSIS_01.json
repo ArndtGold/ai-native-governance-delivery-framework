@@ -1,0 +1,66 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T11:03:19.102Z",
+  "evidence_class": "deterministic_actual_core_command_interleaving_with_observed_reader_dependencies",
+  "rows": [
+    {
+      "read_run": "native-en-ur-approve",
+      "replay_run": "native-en-ur-approve",
+      "interleaving": "captured_before_revalidation",
+      "replay_outcome": "rejected",
+      "reader_state": "error",
+      "reader_code": "source_changed",
+      "changed_observed_dependencies": [
+        {
+          "path": ".agdf/control/runs/native-en-ur-approve",
+          "before": {
+            "kind": "directory",
+            "identity": "16777223:13095081625:16877",
+            "mtime": "1791712654950068294",
+            "ctime": "1791712654950068294",
+            "size": "128"
+          },
+          "after": {
+            "kind": "directory",
+            "identity": "16777223:13095081625:16877",
+            "mtime": "1791716598170204530",
+            "ctime": "1791716598170204530",
+            "size": "128"
+          }
+        }
+      ],
+      "observed_dependency_count": 169
+    },
+    {
+      "read_run": "native-en-ur-approve",
+      "replay_run": "native-en-ur-request-change",
+      "interleaving": "captured_before_revalidation",
+      "replay_outcome": "rejected",
+      "reader_state": "error",
+      "reader_code": "source_changed",
+      "changed_observed_dependencies": [
+        {
+          "path": ".agdf/control/runs/native-en-ur-request-change",
+          "before": {
+            "kind": "directory",
+            "identity": "16777223:13095081657:16877",
+            "mtime": "1791712658108562547",
+            "ctime": "1791712658108562547",
+            "size": "128"
+          },
+          "after": {
+            "kind": "directory",
+            "identity": "16777223:13095081657:16877",
+            "mtime": "1791716598842321787",
+            "ctime": "1791716598842321787",
+            "size": "128"
+          }
+        }
+      ],
+      "observed_dependency_count": 169
+    }
+  ],
+  "all_fixture_run_bytes_unchanged": true,
+  "native_qualified": false,
+  "authorizes": false
+}

@@ -41,6 +41,13 @@
       "packages/cli/scripts/fixtures/host-compatibility/opencode.js"
     ]
   },
+  "dynamic_imports": [
+    {
+      "file": "packages/cli/lib/mcp-lifecycle/plugin-runtime.js",
+      "expression": "pathToFileURL(join(runtime.packageRoot, \"src/main.js\"))",
+      "entrypoints": ["packages/mcp-server/src/main.js"]
+    }
+  ],
   "common_entrypoints": [
     "scripts/host-compatibility/contract.mjs",
     "scripts/host-compatibility/evaluate.mjs",

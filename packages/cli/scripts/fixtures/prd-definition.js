@@ -4,10 +4,11 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { artefactFileDigest } from "../../../core/lib/control-state/run-seal.js";
+import { createCoreServices } from "../../../core/lib/index.js";
 import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
 
 // Synthetic authorization in isolated test runs only; never a human production approval.
-export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false } = {}) {
+export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false, typedRoute = false, route = "structured_delivery" } = {}) {
   const log = [];
   const call = (command, ...args) => {
     const result = spawnSync(process.execPath, [validator, command, "--dir", root, "--json", ...args], { encoding: "utf8", env });
@@ -33,8 +34,18 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
   const ur = present("UR"); assert.equal(ur.value?.outcome, "prepared", ur.text);
   assert.equal(approve("UR", ur.value.presentation_id).value?.outcome, typedApprovals ? "accepted" : "approved");
   writeFileSync(file("BROWNFIELD_REVIEW.md"), "# Brownfield Review\n\nSynthetic existing filter owner.\n- ux_intent_definition_required: no\n");
-  assert.equal(run("run-step", "--revision", revision(), "--step", "route", "--route", "structured_delivery", "--reason",
-    "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md").value?.outcome, "recorded");
+  if (typedRoute) {
+    const result = createCoreServices().command('agdf_record', {schema_version:'1',presentation_language:'en',working_directory:root,
+      primary_target:root,target_source:'explicit_target',target_id:resolveControlCommandTarget(root).target_id,run_id:runId,
+      expected_revision_id:revision(),operation_id:randomUUID(),assurance:'cooperative_local',
+      command:{kind:'step.record',payload:{step:'route',route,reason:'Synthetic current writer-owned analytical proof',
+        source:{path:prefix+'BROWNFIELD_REVIEW.md',digest:artefactFileDigest(root,prefix+'BROWNFIELD_REVIEW.md')}}}});
+    assert.equal(result.outcome,'accepted',JSON.stringify(result));
+  } else {
+    assert.equal(run("run-step", "--revision", revision(), "--step", "route", "--route", route, "--reason",
+      "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md").value?.outcome, "recorded");
+  }
+
   const recording = (update = false, mutate = () => {}) => {
     const proof = prefix + `mapping-${randomUUID()}.json`, input = prefix + `recording-${randomUUID()}.json`;
     const value = { schema_version: "1", target_id: resolveControlCommandTarget(root).target_id, run_id: runId,

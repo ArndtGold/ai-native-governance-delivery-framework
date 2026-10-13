@@ -1,0 +1,12 @@
+# Native flow: compact post-retirement continuation evidence
+- evidence_class: actual_native_receipts_close_and_canonical_continuation
+- authorizes: false
+- candidate: OoP8EF; dispatcher 28dd188577facb0b35eaa258519dda15ea26dc0c255dd8acd3c366764b06b15d; UI b923b7e85b98fb87242cd268a091ee9c2444ab3c266a7ba786908b39d64c4edf; native producer PID 6323, started 2026-10-12T12:09:01.792Z.
+- target: sha256:930c53246453406e8859ddb77c51580f664c953d9c60cc71aa16c2ed7899ffa8; disposable native-de-approve.
+- SD: original operation 2bfefaf0-328d-4736-9522-1e5e7e110b29, presentation 9e78ebdd-7ad2-42a5-a271-1328ec7b52b7; automatic Core close acknowledged 2026-10-12T12:10:08.668Z and later reads session_expired; see NATIVE_RETIREMENT_31.json.
+- Continuation: original receipt and fresh state verified after retirement; same-Run TP authored/registered, digest 53ae3992d08449beb9afe89ac05dd94a516d468004f7f31f5fc393d527215c19; see HANDOFF_AFTER_RETIREMENT_32.json. No next gate was approved by the agent.
+- TP: original operation 5358e7d8-9b34-4f82-b3cb-f060cb499877, presentation 48865008-54a5-4344-8e61-eef3e9655c46; original receipt and resulting revision c9a2a59c-0edc-4004-8c4b-b46e36083de8 verified. App close requested 2026-10-12T12:17:13.143Z, acknowledged closed:true at 12:17:13.149Z on the same producer. No assistant Close call.
+- Receiver: readable TP-approved work-intent message is a non-authorizing locator; canonical gate-check independently routed to implementation-preparation Brownfield Analysis.
+- Analysis: approved TP requires an existing filter service; target inventory excluding .git/.agdf/node_modules is empty. No service, interface or application owner exists in this governance-only fixture. No implementation or synthetic passing filter evidence is invented.
+- Canonical result: Brownfield Analysis decision block recorded by operation 75b523cd-03e8-4bf6-95d3-8942a6177a41; report digest 7e808ff77e36ac37fa09d8ff1dadcde6548c952e02a761787470845ee9c4147b; resulting revision af835a9a-6273-4b14-afe0-959899da022f. Current control remains open at preparation; the recorded unchanged missing-owner condition stops this disposable chain.
+- Limits: This is a bounded German SD/TP lifecycle/continuation trace, not full native-matrix, iPad, host permission-denial, undecided-host teardown, corpus or main-Run QA qualification.

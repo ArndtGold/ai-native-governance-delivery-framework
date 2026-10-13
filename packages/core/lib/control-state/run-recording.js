@@ -1,3 +1,5 @@
+import { decisionMaterial, presentationDecisionState } from './presentation-decision.js';
+import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { validateRunPresentation, validateRunPresentationRecord } from "./run-presentation.js";
 import { validateGateApprovalResponse } from "./gate-approval-validator.js";
 import { duplicateArtefactRowTypes, parseControlState } from "./run-state-parser.js";
@@ -85,13 +87,9 @@ function recordUrApprovalChain(text, evidence) {
 // run-update reseals hand-edited content. When the edit moved an active run's evaluated gate (for
 // example a recorded internal step), refresh the derived control fields as the other canonical
 // writers do; run-specific text on an unchanged gate and "What is known?" stay as authored.
-function refreshMovedGateFields(content) {
-  const state = parseControlState(content, {
-    userGates: APPROVAL_GATES,
-    internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
-    closeoutArtefacts: ["OR"],
-  });
-  const after = transitionDecisionForRunState({ ...state, content });
+function refreshMovedGateFields(root, content, path) {
+  const state = prepareRunContentState(root, content, path);
+  const after = transitionDecisionForRunState(state);
   if (!storedNextActionStale({ content, current_gate: state.current_gate, next_allowed_action: state.next_allowed_action }, after)) return content;
   const approvedGates = APPROVAL_GATES.filter((gate) => state.approvals.get(gate)?.status === "approved");
   let next = replaceFirstScalar(content, "current_gate", after.current_gate) ?? content;
@@ -124,7 +122,7 @@ export function recordRunRevision(root, { runId, revisionId }) {
   }
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
-  const content = refreshMovedGateFields(run.content);
+  const content = refreshMovedGateFields(root, run.content, run.path);
   const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
@@ -145,6 +143,10 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
+  const state = prepareRunContentState(root, run.content, run.path);
+  const material = decisionMaterial(root, state, gate);
+  const decided = presentationDecisionState(root, state, gate);
+  if (decided.decided) return rejected(runId, 'presentation_version_decided', { decision: decided.action, receipt: decided.receipt });
   const report = evaluateGateCheck(root, { runId });
   if (report.status !== "open" || report.current_gate !== gate || report.missing_approval !== `Approval: ${gate}`) {
     return rejected(runId, "gate_not_ready", {
@@ -160,12 +162,13 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
   const digest = gate === "UAT" ? null : artefactFileDigest(root, artefact?.path);
   const durableArtefactReady = gate === "UAT"
     || (artefact?.path_format !== "invalid" && digest.startsWith("sha256:")
-      && (gate !== "QA" || ["pass", "passed"].includes(artefact.status)));
+      && (gate !== "QA" || ["pass", "passed"].includes(artefact.status) || state.qa_acceptance?.eligible === true));
   if (!presentationId && !durableArtefactReady) {
     return rejected(runId, "approval_presentation_unavailable", {
       presentation_errors: report.presentation_diagnostics?.approval_presentation_errors ?? [],
     });
   }
+  if (!material.available || !decided.available) return rejected(runId, 'decision_material_unavailable');
   const validation = validateGateApprovalResponse({
     response,
     responseOrigin: "deliberate_user_input",
@@ -190,19 +193,20 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
     ...(digest ? [`\`${artefact.path}\` ${digest.slice(0, 23)}`] : []),
     `presentation ${presentation.presentationId} ${presentation.digest}`,
   ].join(" · ");
-  let next = recordGateApproval(canonicalRunText(run.content), gate, evidence);
+  const qaAcceptance = gate === 'QA' && state.qa_acceptance?.eligible ? {
+    kind: 'accepted_with_deviations', digest: state.qa_acceptance.digest,
+    deviation_ids: state.qa_acceptance.proposal.deviations.map(row => row.finding_id), qa_outcome: 'revise',
+  } : null;
+  let next = recordGateApproval(canonicalRunText(run.content), gate,
+    evidence + (qaAcceptance ? ` · accepted with deviations ${qaAcceptance.digest}` : ''));
   if (DURABLE_STATUS_GATES.has(gate)) next = markGateArtefactApproved(next, gate);
   if (gate === "UR") next = recordUrApprovalChain(next, evidence);
-  const postApprovalState = parseControlState(next, {
-    userGates: APPROVAL_GATES,
-    internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
-    closeoutArtefacts: ["OR"],
-  });
-  const after = transitionDecisionForRunState({
-    ...postApprovalState,
-    current_gate: postApprovalState.current_gate,
-    content: next,
-  });
+  // The receipt is appended by the approval owner under the same transaction.
+  // This proposed-state projection is local only; saved readers require that receipt.
+  const proposedState = prepareRunContentState(root, next, run.path);
+  const postApprovalState = qaAcceptance ? { ...proposedState,
+    qa_acceptance: { ...state.qa_acceptance, accepted: true } } : proposedState;
+  const after = transitionDecisionForRunState(postApprovalState);
   const approvedGates = APPROVAL_GATES.filter((candidate) => postApprovalState.approvals.get(candidate)?.status === "approved");
   const controlRows = [
     ["What is known?", `Approval recorded for ${gate}; current gate is ${after.current_gate}.`],
@@ -216,7 +220,7 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
   for (const [key, value] of controlRows) {
     next = upsertTableRow(next, "Current Control State", 0, key, [key, value]) ?? next;
   }
-  return { run, next, after, digest, presentation,
+  return { run, next, after, digest, presentation, material, qaAcceptance,
     validateBeforeWrite: () => {
       const current = validateRunPresentation(root, { runId, gate, revisionId, presentationId }, { evaluateGateCheck });
       if (current.reason || current.digest !== presentation.digest) throw new Error("AGDF_STALE_RUN_REVISION");
@@ -238,6 +242,9 @@ export function approveRunGate(root, input, dependencies) {
     // already, in which case the old reply is rejected rather than applied a second time.
     const prepared = prepareGateApproval(root, input, dependencies);
     if (prepared.outcome === "rejected") return prepared;
+    if (prepared.qaAcceptance) return rejected(runId, 'qa_deviation_requires_typed_approval', {
+      recovery: 'Use the existing typed approval.record command with this exact presentation and original operation UUID.',
+    });
     const { run, next, after, validateBeforeWrite, validateDuringTransaction } = prepared;
     const state = writeRunWithBacklogLocked(root, run.path, next, revisionId, {
       allowApprovalChange: true, validateBeforeWrite, validateDuringTransaction, expectedContent: run.content,

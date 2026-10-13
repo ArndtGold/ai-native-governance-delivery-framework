@@ -1,0 +1,156 @@
+{
+  "schema_version": "1",
+  "evidence_class": "user_delegated_automated_native_app_decision",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-de-reject",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "actual_human_gesture": false,
+  "driver": "CUA DOM synthetic click",
+  "presentation_id": "c5aed0df-5f52-46e1-bc83-cfc486ef84be",
+  "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+  "expired_view": {
+    "operation_id": "dbfb7c82-38c5-4adc-b055-7a1fec43db13",
+    "outcome": "rejected",
+    "reason": "session_expired",
+    "visible_status": "Diese Entscheidungsansicht ist abgelaufen oder geschlossen.",
+    "operation_status": {
+      "schema_version": "1",
+      "run_id": "native-de-reject",
+      "operation_id": "dbfb7c82-38c5-4adc-b055-7a1fec43db13",
+      "authorizes": false,
+      "status": "absent",
+      "reason": "absence_is_not_proof_of_non_execution",
+      "current_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+      "expected_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6"
+    }
+  },
+  "refresh": {
+    "same_operation_id": true,
+    "outcome": "already_applied",
+    "revision_unchanged": true
+  },
+  "visible_result": {
+    "status": "Entscheidung gespeichert.",
+    "controls": "disabled"
+  },
+  "operation_status": {
+    "schema_version": "1",
+    "run_id": "native-de-reject",
+    "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "presentation_decision.record",
+    "request_digest": "sha256:e326032354b96e8d81522284a2a07997f6a589689f630bc017cc89ccadfe2821",
+    "receipt": {
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "created_at": "2026-10-10T19:43:35.563Z",
+      "effect": {
+        "previous_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+        "record": {
+          "action": "reject",
+          "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "comment": "",
+          "gate": "SD",
+          "material_sources": [
+            {
+              "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+              "path": ".agdf/control/artefacts/native-de-reject/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+              "path": ".agdf/control/artefacts/native-de-reject/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+              "path": ".agdf/control/artefacts/native-de-reject/SD.md",
+              "type": "SD"
+            }
+          ],
+          "material_version": "sha256:dc2de2d007ffc58c4b85f59b1a5565faec58d30ba8fc26b384a4eba4741e1024",
+          "owner": "sd-definition",
+          "presentation_digest": "sha256:3e85b5587a0d1bbeed28f20b065b056397f31ac17265ab61a294f0937fac7d74",
+          "presentation_id": "c5aed0df-5f52-46e1-bc83-cfc486ef84be"
+        },
+        "resulting_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+        "revision": 8
+      },
+      "expected_revision_id": "f254f59f-80fa-4bf1-92f8-b24be954d4ce",
+      "kind": "presentation_decision.record",
+      "operation_id": "ad8c82f1-4133-4c0b-a544-17d1f5c02122",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:e326032354b96e8d81522284a2a07997f6a589689f630bc017cc89ccadfe2821",
+      "run_id": "native-de-reject",
+      "schema_version": "1",
+      "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+    },
+    "historical_effect": true,
+    "current_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+    "pending": null,
+    "expected_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6"
+  },
+  "unchanged_material_guard": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "reason": "approval_presentation_unavailable",
+    "operation_id": "6685f7ee-0f59-4a08-a1dd-a20058ac33dc",
+    "request_digest": "sha256:9bf6c58deaa3a2b3fd2e877efafcd6c6ae7de2d6c3ebf50018d3a5029815c974",
+    "binding": {
+      "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+      "run_id": "native-de-reject",
+      "expected_revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+      "kind": "presentation.prepare"
+    },
+    "effect": null,
+    "receipt": null,
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 8,
+      "revision_id": "c0b9eaf7-c3bb-4844-804d-772eca6bd6f6",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "none",
+      "blocking_reason": "presentation_version_decided",
+      "next_operation": {
+        "type": "revise_gate_material",
+        "operation_key": "artefact.author",
+        "actor": "agent",
+        "effect": "preparation",
+        "gate": "SD",
+        "skill_id": "sd-definition"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "rejected",
+      "run_id": "native-de-reject",
+      "reason": "approval_presentation_unavailable",
+      "recovery": "Run run-present for the current run/gate/revision, show its exact presentation, then wait for a NEW deliberate user response. Never bind an earlier reply retroactively."
+    },
+    "app_capability": "unavailable"
+  },
+  "interpretation": "Automated reject stored one exact presentation_decision.record receipt. Run remains active at SD with revise_gate_material owned by sd-definition. A new presentation UUID over unchanged rejected material is refused, with no receipt/effect or revision advance. Expired-view action was rejected before refresh. No actual-human, permission or production qualification is claimed; changed-material eligibility and text parity remain separate checks."
+}

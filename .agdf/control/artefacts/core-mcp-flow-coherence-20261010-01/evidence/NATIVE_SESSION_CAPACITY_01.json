@@ -1,0 +1,183 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_native_host_model_session_lifecycle",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "actual_human_gesture": false,
+  "initial_prepare": {
+    "run_id": "native-de-request-change",
+    "presentation_id": "f86a7ef0-716c-41bc-98bb-5b7a3e90e149",
+    "outcome": "accepted",
+    "app_capability": "unavailable",
+    "app_reason": "resource_limit"
+  },
+  "cause": "Four explicitly prepared disposable read/decision views occupied the bounded session capacity. Closing only a side-panel tab is not proven to retire an inline view.",
+  "recovery": {
+    "route": "Existing agdf_cockpit_read close; explicit ephemeral test cleanup",
+    "sessions": [
+      {
+        "id": "0ce25b75-21f2-41c4-a4df-5710c7919b0a",
+        "closed": {
+          "schema_version": "1",
+          "state": "available",
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        },
+        "after_close": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      },
+      {
+        "id": "890f91ae-c44b-4e54-b68e-c76c48f0cd1f",
+        "closed": {
+          "schema_version": "1",
+          "state": "available",
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        },
+        "after_close": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      },
+      {
+        "id": "f89f9280-1632-4ec1-94d8-0ce883a98c92",
+        "closed": {
+          "schema_version": "1",
+          "state": "available",
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        },
+        "after_close": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      },
+      {
+        "id": "b5d8b424-e594-4e93-a0ad-b94b5f1f4d89",
+        "closed": {
+          "schema_version": "1",
+          "state": "available",
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        },
+        "after_close": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "reason": "session_expired",
+          "authorizes": false
+        }
+      }
+    ],
+    "retry_same_original_presentation_uuid": {
+      "operation_id": "f86a7ef0-716c-41bc-98bb-5b7a3e90e149",
+      "outcome": "already_applied",
+      "app_capability": "available",
+      "current": {
+        "available": true,
+        "revision": 7,
+        "revision_id": "2d7233dc-749f-45a9-b45e-f5a75482bf33",
+        "lifecycle": "active",
+        "gate": "SD",
+        "status": "open",
+        "missing_approval": "Approval: SD",
+        "blocking_reason": "none",
+        "next_operation": {
+          "type": "human_gate_decision",
+          "operation_key": "approval.record",
+          "actor": "human",
+          "effect": "decision",
+          "gate": "SD"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        }
+      }
+    }
+  },
+  "recorded_approval_after_close": {
+    "schema_version": "1",
+    "run_id": "native-de-approve",
+    "operation_id": "fc413848-cfa4-47c1-b0c5-8c0df305960c",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "approval.record",
+    "request_digest": "sha256:b48f6476daca1f064fc140d63ac7b69d5c8ac15987b282a63e1325b1b282e3d1",
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+        "gate": "SD",
+        "presentation_id": "7b5ac8c4-ed8f-4d1a-a791-0a6cc9c79b24",
+        "run_id": "native-de-approve",
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+      },
+      "command_digest": "sha256:b48f6476daca1f064fc140d63ac7b69d5c8ac15987b282a63e1325b1b282e3d1",
+      "created_at": "2026-10-10T18:27:18.273Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:f452416a6b7105543dda7cb150cd1a19d7dcafb8a75e31d6f70f7c4423cfa3dc",
+        "previous_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+        "resulting_revision_id": "e2b44102-f2b1-45f1-bb75-414d2131c7d4",
+        "revision": 8
+      },
+      "operation_id": "fc413848-cfa4-47c1-b0c5-8c0df305960c",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:46e47b3e96a3e42f48353f30434b138046c207522bd0b66301b2f56d81b05b96",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current_revision_id": "e2b44102-f2b1-45f1-bb75-414d2131c7d4",
+    "pending": null,
+    "expected_revision_id": "e2b44102-f2b1-45f1-bb75-414d2131c7d4"
+  },
+  "interpretation": "Explicit backend closes succeeded; subsequent reads rejected session_expired. The exact approved SD receipt/revision remains recorded, pending null. Same prepare UUID replay recovered App availability without creating another presentation operation. This is model-driven cleanup, not actual UI lifecycle notification or human teardown proof."
+}

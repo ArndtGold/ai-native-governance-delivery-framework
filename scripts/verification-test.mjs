@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { verificationPlan, runVerification } from './verify-ci.mjs';
+import { SMOKE_SHARDS, smokeShardCommands, verificationPlan, runVerification } from './verify-ci.mjs';
 import { exportSnapshot, verifyCommit } from './verify-commit.mjs';
 import { npmInvocation } from '../packages/cli/lib/npm-invocation.js';
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -14,11 +14,15 @@ test('full plan preserves dependency ordering and mandatory package consumers in
     const plan = verificationPlan({ lane });
     const ids = plan.map(item => item.id);
     assert.ok(ids.indexOf('dependencies') < ids.indexOf('prepare'));
+    assert.ok(ids.indexOf('dependencies') < ids.indexOf('ui-dependencies'));
+    assert.ok(ids.indexOf('ui-dependencies') < ids.indexOf('ui-build'));
+    assert.ok(ids.indexOf('ui-build') < ids.indexOf('generate'), 'package generation requires fresh MCP UI resources');
     for (const early of ['build-contracts', 'evals']) {
       assert.ok(ids.indexOf('generate') < ids.indexOf(early));
       assert.ok(ids.indexOf(early) < ids.indexOf('assemble'));
       assert.ok(ids.indexOf(early) < ids.indexOf('mcp-dependencies'));
     }
+    assert.ok(ids.indexOf('assemble') < ids.indexOf('mcp-dependencies'), 'MCP consumes the self-contained assembly');
     assert.ok(ids.indexOf('prepare') < ids.indexOf('mcp-dependencies'));
     assert.ok(ids.indexOf('mcp-dependencies') < ids.indexOf('archives'));
     assert.ok(ids.indexOf('archives') < ids.indexOf('cli-smoke'));
@@ -33,19 +37,51 @@ test('full plan preserves dependency ordering and mandatory package consumers in
 
 test('build shares CI checks without recursive builds; evidence preparation remains possible', () => {
   const build = verificationPlan({ profile: 'build' });
-  assert.deepEqual(build.map(item => item.id), ['generate', 'build-contracts', 'evals', 'compatibility-freshness', 'assemble']);
+  assert.deepEqual(build.map(item => item.id), ['ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'compatibility-freshness', 'assemble']);
   for (const item of build) assert.deepEqual(item, verificationPlan({ stage: item.id })[0]);
-  assert.deepEqual(verificationPlan({ profile: 'prepare' }).map(item => item.id), ['generate', 'assemble', 'prepare']);
+  assert.deepEqual(verificationPlan({ profile: 'prepare' }).map(item => item.id), ['ui-dependencies', 'ui-build', 'generate', 'assemble', 'prepare']);
   assert.ok(verificationPlan().every(item => item.commands.every(command => !command.args.includes('build'))));
   assert.throws(() => verificationPlan({ profile: 'unchecked' }), /Unknown/);
   assert.throws(() => verificationPlan({ profile: 'build', stage: 'assemble' }), /no stage/);
   assert.throws(() => verificationPlan({ profile: 'build', lane: 'runtime' }), /no stage/);
 });
 
+test('Windows smoke shards cover the complete canonical suite without omissions or reordering', () => {
+  const suite = JSON.parse(readFileSync(new URL('../packages/cli/package.json', import.meta.url))).scripts['smoke-test'].split(' && ');
+  const decode = command => [command.tool, ...command.args].join(' ');
+  const parts = SMOKE_SHARDS.map(shard => smokeShardCommands(shard));
+  assert.deepEqual(parts.flat().map(decode), suite);
+  assert.ok(parts.every(commands => commands.length > 0));
+  for (const [index, shard] of SMOKE_SHARDS.entries()) {
+    const full = verificationPlan({ lane: 'runtime' });
+    const partition = verificationPlan({ lane: 'runtime', smokeShard: shard });
+    assert.deepEqual(partition.filter(item => item.id !== 'cli-smoke'), full.filter(item => item.id !== 'cli-smoke'));
+    assert.deepEqual(partition.find(item => item.id === 'cli-smoke').commands, parts[index]);
+    assert.ok(parts[index].every(command => command.cwd === 'packages/cli'));
+    assert.throws(() => verificationPlan({ smokeShard: shard }), /complete runtime/);
+    assert.throws(() => verificationPlan({ lane: 'runtime', stage: 'cli-smoke', smokeShard: shard }), /no stage/);
+  }
+  assert.throws(() => smokeShardCommands('skip'), /Unknown/);
+  assert.throws(() => verificationPlan({ lane: 'runtime', smokeShard: 'skip' }), /Unknown/);
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf-smoke-partitions-'));
+  try {
+    mkdirSync(join(temporary, 'packages/cli'), { recursive: true });
+    const manifestPath = join(temporary, 'packages/cli/package.json');
+    for (const commands of [suite.filter(command => command !== 'npm run test:local-validator'),
+      [...suite, 'npm run test:local-validator'],
+      ['npm run test:run-command-flow', 'npm run test:local-validator'],
+      [...suite, 'node scripts/missing.js; echo unsafe'],
+    ]) {
+      writeFileSync(manifestPath, JSON.stringify({ scripts: { 'smoke-test': commands.join(' && ') } }));
+      assert.throws(() => smokeShardCommands('installation', temporary), /boundary|boundaries|Unsupported/i);
+    }
+  } finally { rmSync(temporary, { recursive: true, force: true }); }
+});
+
 test('real npm build failures prevent assembly and preserve stored evidence', () => {
   const temporary = mkdtempSync(join(tmpdir(), 'agdf early build '));
   try {
-    for (const folder of ['scripts', 'packages/cli/scripts', 'packages/cli/lib']) mkdirSync(join(temporary, folder), { recursive: true });
+    for (const folder of ['scripts', 'packages/cli/scripts', 'packages/cli/lib', 'packages/control-ui/scripts']) mkdirSync(join(temporary, folder), { recursive: true });
     cpSync(new URL('./verify-ci.mjs', import.meta.url), join(temporary, 'scripts/verify-ci.mjs'));
     cpSync(new URL('../packages/cli/lib/npm-invocation.js', import.meta.url), join(temporary, 'packages/cli/lib/npm-invocation.js'));
     const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
@@ -54,7 +90,15 @@ test('real npm build failures prevent assembly and preserve stored evidence', ()
       'compatibility:check': 'node scripts/evidence-check.mjs',
     } }));
     writeFileSync(join(temporary, 'packages/cli/package.json'), JSON.stringify({ scripts: { 'eval:skills': 'node ../../scripts/eval-check.mjs' } }));
+    writeFileSync(join(temporary, 'packages/control-ui/package.json'), JSON.stringify({
+      name: 'ui-build-fixture', version: '1.0.0', type: 'module', scripts: { 'build:mcp': 'node scripts/build-mcp.mjs' },
+    }));
+    writeFileSync(join(temporary, 'packages/control-ui/package-lock.json'), JSON.stringify({
+      name: 'ui-build-fixture', version: '1.0.0', lockfileVersion: 3,
+      packages: { '': { name: 'ui-build-fixture', version: '1.0.0' } },
+    }));
     const scripts = {
+      'ui-build': 'packages/control-ui/scripts/build-mcp.mjs',
       generate: 'scripts/sync-package-assets.js',
       'build-contracts': 'packages/cli/scripts/build-contract-test.js',
       evals: 'scripts/eval-check.mjs',
@@ -64,19 +108,23 @@ test('real npm build failures prevent assembly and preserve stored evidence', ()
     const trace = join(temporary, 'trace.jsonl');
     const failure = join(temporary, 'failure');
     const artifact = join(temporary, 'assembled');
+    const uiResource = join(temporary, 'built-ui');
     const evidence = join(temporary, 'evidence.json');
     writeFileSync(evidence, '{"snapshot":"reviewed, stale fixture"}\n');
     const before = readFileSync(evidence);
     for (const [id, path] of Object.entries(scripts)) {
-      writeFileSync(join(temporary, path), `import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+      writeFileSync(join(temporary, path), `import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 appendFileSync(${JSON.stringify(trace)}, ${JSON.stringify(id + '\n')});
 if (readFileSync(${JSON.stringify(failure)}, 'utf8') === ${JSON.stringify(id)}) throw Error('fixture: ${id} failed');
+${id === 'ui-build' ? `writeFileSync(${JSON.stringify(uiResource)}, 'fresh UI');` : ''}
+${id === 'generate' ? `if (!existsSync(${JSON.stringify(uiResource)})) throw Error('fixture: UI resource missing');` : ''}
 ${id === 'assemble' ? `writeFileSync(${JSON.stringify(artifact)}, 'assembled');` : ''}\n`);
     }
     const npm = npmInvocation(['run', 'build']);
     const ids = Object.keys(scripts);
-    for (const id of ['build-contracts', 'evals', 'compatibility-freshness']) {
+    for (const id of ['ui-build', 'build-contracts', 'evals', 'compatibility-freshness']) {
       writeFileSync(failure, id); writeFileSync(trace, '');
+      rmSync(uiResource, { force: true });
       const result = spawnSync(npm.executable, npm.args, { cwd: temporary, encoding: 'utf8', shell: false });
       assert.equal(result.status, 1, result.stdout + result.stderr);
       assert.match(result.stderr, new RegExp(`failed at ${id}`));
@@ -85,6 +133,7 @@ ${id === 'assemble' ? `writeFileSync(${JSON.stringify(artifact)}, 'assembled');`
       assert.deepEqual(readFileSync(evidence), before, 'checking must not refresh evidence');
     }
     writeFileSync(failure, ''); writeFileSync(trace, '');
+    rmSync(uiResource, { force: true });
     const success = spawnSync(npm.executable, npm.args, { cwd: temporary, encoding: 'utf8', shell: false });
     assert.equal(success.status, 0, success.stdout + success.stderr);
     assert.deepEqual(readFileSync(trace, 'utf8').trim().split('\n'), ids);

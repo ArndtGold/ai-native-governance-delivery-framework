@@ -1,0 +1,494 @@
+{
+  "schema_version": "1",
+  "evidence_class": "actual_user_chat_reply_forwarded_via_cooperative_mcp",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-de-text",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "actual_user_chat_reply": true,
+  "actual_human_app_gesture": false,
+  "independent_human_proof": "unavailable",
+  "reply_source": {
+    "type": "request_user_input_async_human_answer",
+    "question_item_id": "[\"request_user_input_async\",\"call_g1z8DLe8t1fd9TJK16eVzpAA\",0]",
+    "response": "Approval: SD",
+    "scope": "Previously presented SD on separate disposable native-de-text Run; no production approval."
+  },
+  "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8",
+  "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+  "request": {
+    "schema_version": "1",
+    "assurance": "cooperative_local",
+    "presentation_language": "de",
+    "working_directory": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+    "primary_target": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-MHGSDw/governance-target",
+    "target_source": "explicit_target",
+    "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+    "run_id": "native-de-text",
+    "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+    "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+    "command": {
+      "kind": "approval.record",
+      "payload": {
+        "gate": "SD",
+        "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8",
+        "response": "Approval: SD"
+      }
+    }
+  },
+  "result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+    "request_digest": "sha256:46a50865da23ea091b34914e9f495775c9af3c3871e722421de5fea17c992252",
+    "binding": {
+      "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+      "run_id": "native-de-text",
+      "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+      "kind": "approval.record"
+    },
+    "effect": {
+      "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+      "approval": "Approval: SD",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "gate": "SD",
+      "material_sources": [
+        {
+          "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+          "path": ".agdf/control/artefacts/native-de-text/UR.md",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+          "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "path": ".agdf/control/artefacts/native-de-text/SD.md",
+          "type": "SD"
+        }
+      ],
+      "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+      "next_gate_after_approval": "TP",
+      "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+      "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+      "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+      "revision": 8
+    },
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "gate": "SD",
+        "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8",
+        "run_id": "native-de-text",
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+      },
+      "command_digest": "sha256:46a50865da23ea091b34914e9f495775c9af3c3871e722421de5fea17c992252",
+      "created_at": "2026-10-10T19:46:10.351Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+        "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "revision": 8
+      },
+      "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:5a2fad22ac8a7b3a5f0863ad66a9bd08bfff972c3fdb0c292f8c8df82c1c190e",
+      "schema_version": "2"
+    },
+    "historical_effect": false,
+    "current": {
+      "available": true,
+      "revision": 8,
+      "revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+      "lifecycle": "active",
+      "gate": "TP",
+      "status": "open",
+      "missing_approval": "Approval: TP",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "prepare_gate_artifact",
+        "gate": "TP",
+        "skill_id": "gate-check",
+        "artifact_path": ".agdf/control/artefacts/native-de-text/TP.md",
+        "source_artifacts": [
+          ".agdf/control/artefacts/native-de-text/PRD.md",
+          ".agdf/control/artefacts/native-de-text/SD.md"
+        ]
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "accepted",
+      "reason": null,
+      "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+      "request_digest": "sha256:5a2fad22ac8a7b3a5f0863ad66a9bd08bfff972c3fdb0c292f8c8df82c1c190e",
+      "binding": {
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+        "run_id": "native-de-text",
+        "gate": "SD",
+        "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8"
+      },
+      "effect": {
+        "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "revision": 8,
+        "gate": "SD",
+        "approval": "Approval: SD",
+        "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+        "material_sources": [
+          {
+            "type": "UR",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56"
+          },
+          {
+            "type": "PRD",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+          },
+          {
+            "type": "SD",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+          }
+        ],
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+        "next_gate_after_approval": "TP",
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved."
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "current": {
+        "available": true,
+        "revision": 8,
+        "revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "approval_status": "approved",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "blocking_reason": "none"
+      },
+      "observations": {
+        "commit": "canonical_receipt_observed",
+        "durability": "file_and_directory_sync_completed",
+        "independent_human_proof": "unavailable"
+      },
+      "recovery": null
+    }
+  },
+  "operation_status": {
+    "schema_version": "1",
+    "run_id": "native-de-text",
+    "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "approval.record",
+    "request_digest": "sha256:46a50865da23ea091b34914e9f495775c9af3c3871e722421de5fea17c992252",
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "gate": "SD",
+        "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8",
+        "run_id": "native-de-text",
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+      },
+      "command_digest": "sha256:46a50865da23ea091b34914e9f495775c9af3c3871e722421de5fea17c992252",
+      "created_at": "2026-10-10T19:46:10.351Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+        "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "revision": 8
+      },
+      "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:5a2fad22ac8a7b3a5f0863ad66a9bd08bfff972c3fdb0c292f8c8df82c1c190e",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+    "pending": null,
+    "expected_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6"
+  },
+  "retry": {
+    "schema_version": "1",
+    "outcome": "already_applied",
+    "reason": null,
+    "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+    "request_digest": "sha256:46a50865da23ea091b34914e9f495775c9af3c3871e722421de5fea17c992252",
+    "binding": {
+      "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+      "run_id": "native-de-text",
+      "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+      "kind": "approval.record"
+    },
+    "effect": {
+      "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+      "approval": "Approval: SD",
+      "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+      "gate": "SD",
+      "material_sources": [
+        {
+          "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+          "path": ".agdf/control/artefacts/native-de-text/UR.md",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+          "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+          "path": ".agdf/control/artefacts/native-de-text/SD.md",
+          "type": "SD"
+        }
+      ],
+      "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+      "next_gate_after_approval": "TP",
+      "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+      "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+      "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+      "revision": 8
+    },
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "gate": "SD",
+        "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8",
+        "run_id": "native-de-text",
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+      },
+      "command_digest": "sha256:46a50865da23ea091b34914e9f495775c9af3c3871e722421de5fea17c992252",
+      "created_at": "2026-10-10T19:46:10.351Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+        "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "revision": 8
+      },
+      "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:5a2fad22ac8a7b3a5f0863ad66a9bd08bfff972c3fdb0c292f8c8df82c1c190e",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current": {
+      "available": true,
+      "revision": 8,
+      "revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+      "lifecycle": "active",
+      "gate": "TP",
+      "status": "open",
+      "missing_approval": "Approval: TP",
+      "blocking_reason": "none",
+      "next_operation": {
+        "type": "prepare_gate_artifact",
+        "gate": "TP",
+        "skill_id": "gate-check",
+        "artifact_path": ".agdf/control/artefacts/native-de-text/TP.md",
+        "source_artifacts": [
+          ".agdf/control/artefacts/native-de-text/PRD.md",
+          ".agdf/control/artefacts/native-de-text/SD.md"
+        ]
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      }
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "authorizes": false,
+    "recovery": null,
+    "family_result": {
+      "schema_version": "1",
+      "outcome": "already_applied",
+      "reason": null,
+      "operation_id": "f9308c41-d6a8-4d1a-8781-fba2b7fd1a07",
+      "request_digest": "sha256:5a2fad22ac8a7b3a5f0863ad66a9bd08bfff972c3fdb0c292f8c8df82c1c190e",
+      "binding": {
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400",
+        "run_id": "native-de-text",
+        "gate": "SD",
+        "expected_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "presentation_id": "1b1446fd-7234-4e11-9bc6-6035a59ab2e8"
+      },
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-text/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-text/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-text/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:c96bb7a3d0023a876afc9e487a348f9d216bfa49bf14f1236ae8cbd97522ed52",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:134c48255be06e72d19abc668271e2124b8bb4878dd7754ea0b9855306ad9e94",
+        "previous_revision_id": "2f5d6abf-4475-42ce-82e5-c8fa08104b8e",
+        "resulting_revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "revision": 8
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "current": {
+        "available": true,
+        "revision": 8,
+        "revision_id": "31003e66-52d2-466d-bb7e-cd84200a53b6",
+        "approval_status": "approved",
+        "lifecycle": "active",
+        "gate": "TP",
+        "status": "open",
+        "missing_approval": "Approval: TP",
+        "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "blocking_reason": "none"
+      },
+      "observations": {
+        "commit": "canonical_receipt_observed",
+        "durability": "file_and_directory_sync_completed",
+        "independent_human_proof": "unavailable"
+      },
+      "recovery": null
+    }
+  },
+  "interpretation": "A new actual user reply followed the exact prepared SD and is scoped to its disposable Run, presentation and revision. The approval receipt advances SD to TP. Same-UUID retry returns already_applied at unchanged revision 8. This demonstrates the cooperative text path; the comparison card click was CUA automation, so actual-human click mediation, technical permission and complete native qualification remain unproven."
+}

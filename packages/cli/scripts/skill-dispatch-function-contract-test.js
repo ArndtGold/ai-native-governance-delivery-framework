@@ -292,14 +292,14 @@ assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "des
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, { ...definition.annotations, readOnlyHint: true });
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation", "presentation_language", "working_directory"]);
-assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness"]);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "runtime-generations"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.terminal.type, "boolean");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Never writes, selects a run or grants approval/u);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /verified_change git observation is unavailable/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Read-only/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Contract module=agdf_prepare\/presentation\.prepare; status=UUID/u);
 assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);
 assert.match(definition.outputSchema.properties.presentation.description, /only after its presentation_id exists/u);
 console.log("agdf_inspect function contract pins passed.");

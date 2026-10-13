@@ -1,0 +1,129 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T08:06:10.840Z",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "consumed_revision_id": "263caefb-7390-40c3-901c-6a32f039d916",
+  "evidence_class": "source_and_generated_actual_stdio_inspect_module_correction",
+  "result": "pass_for_scoped_fix",
+  "original_failure": {
+    "source_suites_passed": 3,
+    "mcp_fixture_failed": 1,
+    "reason": "Default dist/npm dispatcher stale; rejected current locale registry before testing fix.",
+    "raw_log": "INSPECT_MODULE_DIAGNOSTIC_FIX_01.log"
+  },
+  "passing": [
+    {
+      "suites": [
+        "control-inspect-test.js",
+        "interaction-presentation-test.js",
+        "run-command-contract-test.js"
+      ],
+      "raw_log": "INSPECT_MODULE_DIAGNOSTIC_FIX_01.log",
+      "source_only": true
+    },
+    {
+      "suites": [
+        "run-command.test.js"
+      ],
+      "raw_log": "INSPECT_MODULE_DIAGNOSTIC_FIX_02.log",
+      "protocols": [
+        "legacy_negotiation",
+        "2026-07-28"
+      ],
+      "raw_exchanges": "stdio-exchanges-inspect-module",
+      "note": "Node selected one existing MCP test; a mistakenly named nonexisting budget path did not execute. Real payload checks ran separately below."
+    },
+    {
+      "suites": [
+        "copilot-profile-test.js",
+        "payload-budget-test.js"
+      ],
+      "raw_log": "INSPECT_MODULE_PAYLOAD_VERIFICATION_01.log"
+    }
+  ],
+  "budget": {
+    "inspect_bytes": 4999,
+    "inspect_limit": 5000,
+    "definitions": [
+      {
+        "name": "agdf_prepare",
+        "bytes": 1716
+      },
+      {
+        "name": "agdf_record",
+        "bytes": 5643
+      },
+      {
+        "name": "agdf_approve",
+        "bytes": 1905
+      },
+      {
+        "name": "agdf_revise",
+        "bytes": 4467
+      },
+      {
+        "name": "agdf_closeout",
+        "bytes": 2466
+      },
+      {
+        "name": "agdf_decision_action",
+        "bytes": 1166
+      }
+    ],
+    "aggregate_bytes": 17363,
+    "aggregate_limit": 24576
+  },
+  "packages": {
+    "dispatcher_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf",
+    "dispatcher_digest": "6f48f0ad1de8d3796cd53bf49e6aad3536b21f002dc9c5724ce337b2d0396503",
+    "server_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/agdf-mcp-server",
+    "server_digest": "429c9f2616055440e872b9af82f1f09e6bd70c113137b0df5c2d4e17d9d22cde"
+  },
+  "resource": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 776177,
+    "digest": "sha256:9daa4741ab4bd0dd0bbfafe79ff3f71238258f0f6e77aa7caaf129ac479c51b3"
+  },
+  "loaded_native_predecessor": {
+    "descriptor": "NATIVE_PROBE_CANDIDATE_NEXT_01.json",
+    "dispatcher_digest": "49bc6520a5523c3017d4342f04cfa7f59bde3be771ea5c8b4d8c5af65e80c67c",
+    "host_loading_evidence": "NATIVE_PROBE_NEXT_HOST_LOADING_01.json"
+  },
+  "module_selectors": [
+    "agdf_prepare/presentation.prepare",
+    "agdf_record/step.record",
+    "agdf_record/artefact.record",
+    "agdf_record/operation.recover",
+    "agdf_approve/approval.record",
+    "agdf_revise/source_revision.preview",
+    "agdf_revise/source_revision.apply",
+    "agdf_revise/source_revision.recover",
+    "agdf_revise/prd_revision.reopen",
+    "agdf_revise/operation.recover",
+    "agdf_closeout/closeout.record",
+    "agdf_closeout/operation.recover"
+  ],
+  "changed_sources": {
+    "packages/core/lib/control-inspect/contract.js": "sha256:55130ed0a61b7576fd047af1904a8cd0a3d156949c3ea815ec2bb5b2811b0813",
+    "packages/core/lib/control-inspect/service.js": "sha256:bd501438a3020bc215424eb19860f1f30cb14cf238073722b6d499aa0bab9d0c",
+    "packages/core/lib/interaction-presentation.js": "sha256:a97b6a303821404623495ca7541c09e81313e1a2120064c7a7ef632a8cd73b21",
+    "packages/cli/scripts/control-inspect-test.js": "sha256:7f66a6fc988f9cc46329501e1c0f79a86ea2c9a380481d49d4222a11c8d95f9a",
+    "packages/mcp-server/test/run-command.test.js": "sha256:228dfb242476cdedd0994d7f6c74a3e998ff9746d99a6d7cc58402b53efb9ed8",
+    "plugins/agdf/meta/copilot-payload-baseline.json": "sha256:80727ffa83f319eff5b0e53350c0f2135e4714a8440618daca49904eab4b74f4",
+    "docs/maintenance/payload-budget-history.md": "sha256:123e85a98cf4296495784518a9a6698218692eb9dd7d17c095f511c79c2190f3"
+  },
+  "log_digests": {
+    "INSPECT_MODULE_DIAGNOSTIC_FIX_01.log": "sha256:6cfdc7b2b275281935111b3e35308187513a7ba94dfdb35a75d043945718980a",
+    "INSPECT_MODULE_DIAGNOSTIC_FIX_02.log": "sha256:c549bd7b2affca22039e1022aea1bbb0f4d2d76e798bdeebd9d41676986f8660",
+    "INSPECT_MODULE_PAYLOAD_VERIFICATION_01.log": "sha256:0e4e619801e8cf9002b55200e01da78f76744a5900103a064f7b1bd6fa48bb6d",
+    "INSPECT_MODULE_ASSETS_01.log": "sha256:9bcc32c02f701e5543803ed9fb11a98d153c084bb4f74ad1c777c505257671a4",
+    "INSPECT_MODULE_ASSETS_02.log": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "INSPECT_MODULE_ASSEMBLY_01.log": "sha256:85c784269837320b0b156019499f3ca607a4dbd5dc4c58a0e64a1b8a59f87e98",
+    "INSPECT_MODULE_UI_BUILD_01.log": "sha256:7fb4b48356b81e8ece247a6cd212e1e6c94f90a2fec08a8f3cd09098129d9889"
+  },
+  "native_qualified": false,
+  "production_installed": false,
+  "authorizes": false
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": "1",
+  "observed_at": "2026-10-11T11:14:04.931Z",
+  "evidence_class": "identical_renewed_ux_fixture_read_comparison",
+  "run_id": "late-source-test",
+  "revision_id": "7a81798b-e55e-404d-b1ae-0bf76378efd3",
+  "baseline_full": {
+    "status": "open",
+    "current_gate": "UR",
+    "blocking_reason": "none",
+    "missing_approval": "Approval: UR",
+    "allowed": [
+      "clarify user need",
+      "formulate and persist UR",
+      "record evidence",
+      "request exact UR approval"
+    ],
+    "forbidden": [
+      "create later-gate artefacts beyond the current allowed gate",
+      "run Brownfield Analysis as implementation preparation",
+      "implement code",
+      "claim QA or release readiness"
+    ],
+    "next_allowed_action": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
+  },
+  "baseline_writer": {
+    "status": "open",
+    "current_gate": "Brownfield Analysis",
+    "missing_approval": "none",
+    "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    "forbidden": [
+      "implement before Brownfield evidence supports the approved TP path",
+      "claim QA or release readiness"
+    ]
+  },
+  "current_full": {
+    "status": "open",
+    "current_gate": "Brownfield Analysis",
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "allowed": [
+      "run Brownfield Analysis for the approved TP scope",
+      "verify existing owners, reuse paths and regression risks"
+    ],
+    "forbidden": [
+      "implement before Brownfield evidence supports the approved TP path",
+      "claim QA or release readiness"
+    ],
+    "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    "next_operation": {
+      "type": "prepare_implementation",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_implementation",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Analysis"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "current_writer": {
+    "status": "open",
+    "current_gate": "Brownfield Analysis",
+    "missing_approval": "none",
+    "next_allowed_action": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    "forbidden": [
+      "implement before Brownfield evidence supports the approved TP path",
+      "claim QA or release readiness"
+    ],
+    "next_operation": {
+      "type": "prepare_implementation",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_implementation",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Analysis"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "qualification": "Actual renewed-TP/UX fixture executes current owner flow. Baseline/current readers compare identical resulting bytes; no before transition/model/host benchmark is claimed.",
+  "authorizes": false
+}

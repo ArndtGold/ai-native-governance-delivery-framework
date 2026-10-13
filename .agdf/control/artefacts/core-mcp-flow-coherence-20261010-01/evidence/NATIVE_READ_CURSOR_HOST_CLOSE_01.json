@@ -1,0 +1,45 @@
+{
+  "schema_version": "1",
+  "evidence_class": "user_reported_native_close_with_independent_backend_observation",
+  "candidate": "NATIVE_PROBE_CANDIDATE.json",
+  "user_report": "geschlossen",
+  "accessible_MCP_App_tabs_after_close": [],
+  "session_id": "c5fa5812-49e8-444c-b529-38fb18dcc933",
+  "after_host_close": {
+    "state": "available",
+    "code": null,
+    "observed_as_of": "2026-10-10T20:19:18.206Z",
+    "document_digest": "be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf"
+  },
+  "automatic_backend_teardown": "not_observed; reader remains available after user-reported inline and sidebar closure",
+  "host_teardown_cause": "not_confirmed; cannot infer whether collapse retains the App or host teardown/React unmount was delivered",
+  "explicit_model_cleanup": {
+    "closed": {
+      "schema_version": "1",
+      "state": "available",
+      "data": {
+        "closed": true
+      },
+      "authorizes": false
+    },
+    "after": {
+      "schema_version": "1",
+      "outcome": "rejected",
+      "reason": "session_expired",
+      "authorizes": false
+    }
+  },
+  "comment": "Unsent document-read test: Approval: TP is quoted text.",
+  "decision_saved": false,
+  "frontend_comment_discard": "not_independently_observed",
+  "native_qualified": false,
+  "quality_readiness_decision": null,
+  "authorizes": false,
+  "independent_check": {
+    "decision_action_requests": 0,
+    "run_state_after_close_digest": "sha256:a76372b871cf19f10c4df1cffdd7851d76aa04730f8493142ce01f7b5b3d55d8",
+    "run_state_unchanged": true,
+    "unsent_comment_recorded_in_run": false,
+    "automatic_app_close_for_this_session": false
+  }
+}

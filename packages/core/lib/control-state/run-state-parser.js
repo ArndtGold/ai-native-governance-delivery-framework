@@ -1,3 +1,5 @@
+import { readRunOperations } from "./run-operations.js";
+import { readEvidenceBindings } from './evidence-bindings.js';
 import { readApprovalOperations } from "./approval-operations.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 import { readSourceRevisions } from "./run-source-revisions.js";
@@ -74,6 +76,25 @@ export function parseRunState(content, expected) {
       || row.invalidated_bindings.some(bindingId => !bindings.receipts.some(item => item.binding_id === bindingId && item.operation.revision < row.revision))
       || row.revision === Number(values.get("revision")) && row.resulting_revision_id !== values.get("revision_id"))) {
     findings.push({ code: "AGDF_SOURCE_REVISIONS_INVALID" });
+  }
+  const runOperations = readRunOperations(content);
+  const evidenceBindings = readEvidenceBindings(content);
+  if (!evidenceBindings.valid || evidenceBindings.bindings.some(row => row.run_id !== id
+    || (row.action === 'step.record'
+      ? !runOperations.receipts.some(r => r.operation_id === row.operation_id && r.kind === row.action && r.effect.record.step === row.step
+          && r.effect.record.source.path === row.report.path && r.effect.record.source.digest === row.report.digest && r.effect.record.source_set_digest === row.source_set_digest)
+      : !bindings.receipts.some(r => r.operation.id === row.operation_id && r.relationship.from === (row.step === 'QA' ? 'QA_REPORT' : row.step)
+          && r.destination.path === row.report.path && r.destination.digest === row.report.digest)))) findings.push({ code: 'AGDF_EVIDENCE_BINDINGS_INVALID' });
+  const existingEffects = [
+    ...operations.receipts.map(r => ({ id: r.operation_id, revision: r.effect.revision, next: r.effect.resulting_revision_id })),
+    ...bindings.receipts.map(r => ({ id: r.operation.id, revision: r.operation.revision, next: r.operation.resulting_revision_id })),
+    ...revisions.receipts.map(r => ({ id: r.operation_id, revision: r.revision, next: r.resulting_revision_id })),
+  ];
+  if (!runOperations.valid || runOperations.receipts.some(r => r.run_id !== id
+      || r.effect.revision > Number(values.get("revision"))
+      || r.effect.revision === Number(values.get("revision")) && r.effect.resulting_revision_id !== values.get("revision_id")
+      || existingEffects.some(e => e.id === r.operation_id || e.revision === r.effect.revision || e.next === r.effect.resulting_revision_id))) {
+    findings.push({ code: "AGDF_RUN_OPERATIONS_INVALID" });
   }
   return {
     content,
@@ -247,6 +268,7 @@ export function parseControlState(
     })),
     context_graph: {
       impact: clean(field(content, "context_graph_impact")),
+      reconciliation: clean(field(content, 'context_graph_reconciliation')),
       refs: field(content, "context_graph_refs"),
       required_action: clean(field(content, "context_graph_required_action")),
       gate_effect: clean(field(content, "context_graph_gate_effect")),

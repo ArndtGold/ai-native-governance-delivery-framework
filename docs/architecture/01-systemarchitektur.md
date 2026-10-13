@@ -16,6 +16,9 @@ oder einer geladenen Host-Installation. Quelle, Paket und frische Sitzung benöt
 Historische Host-Beobachtungen stehen in Abschnitt 7; diese Dokumentationsänderung aktualisiert sie nicht.
 Die separate lokale Cockpit-Integration wurde am 6. Oktober 2026 ergänzt. Ihre Ansichten,
 Quellbindungen und noch offenen Host-Nachweise beschreibt die [Cockpit-Referenz](06-agdf-cockpit.md).
+Der Abgleich vom 11. Oktober 2026 ergänzt die im Repository vorhandenen begrenzten Befehlsgruppen
+und die getrennte Decision App. Der [Befehlsfluss](core-mcp-command-flow.md) vertieft ihre Erfassung,
+Entscheidungen und Wiederherstellung. Diese Nachführung aktualisiert keine historischen Host-Nachweise.
 
 Die normativen Regeln stehen in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
 Die technische Ausgestaltung des MCP-Lebenszyklus steht im
@@ -40,7 +43,7 @@ Quellen und erzeugt keine eigenen Regeln.
 
 ## 1. Systemkontext
 
-![Systemkontext: Der Mensch beauftragt den Agenten. Skills und die beiden MCP-Werkzeuge verbinden den Host mit AGDF-Kontrollfunktionen. Der MCP-Lebenszyklus verwaltet die native Registrierung und Laufzeit.](diagrams/01-context.svg)
+![Systemkontext: Der Mensch beauftragt den Agenten. Skills und MCP verbinden den Host mit AGDF-Kontrollfunktionen. Der MCP-Lebenszyklus verwaltet die native Registrierung und Laufzeit.](diagrams/01-context.svg)
 
 *Abbildung 1: Logische Systemgrenze. Die Pfeile zeigen Aufrufe und Datenbeziehungen. Der MCP-Server
 ist ein lokaler `stdio`-Prozess und kein entfernter AGDF-Dienst.
@@ -53,13 +56,18 @@ werden dürfen und welche Sitzung neu geladen werden muss.
 AGDF hat zwei Verbindungen zum Host:
 
 1. **Anweisungsweg:** Plugin und Skills erklären dem Agenten Aktivierung, Arbeitsweise und Grenzen.
-2. **Werkzeugweg:** Der lokale MCP-Server stellt zwei Werkzeuge bereit: `agdf_dispatch` für den Skill-Dispatcher und `agdf_inspect` für lesende Kontrollabfragen.
+2. **Werkzeugweg:** Der lokale MCP-Server vermittelt `agdf_dispatch` für den Skill-Dispatcher,
+   `agdf_inspect` für lesende Kontrollabfragen und im Repository-Entwicklungsstand fünf
+   konfigurierbare Befehlsgruppen für begrenzte Operationen über gemeinsame Core-Dienste.
 
 Daneben stellt die private lokale Verbindung `agdf-cockpit-local` eine lesende MCP-App mit
 `agdf_cockpit` und `agdf_cockpit_read` bereit. Sie zeigt den Kontrollstand und registrierte Quellen
 über dieselben Core-Eigentümer, besitzt aber keine eigene Gate-Policy oder Freigabeoperation.
 Die Diagramme zum Dispatch-/Inspect-Weg ersetzen nicht die gesonderte
 [Cockpit-Beschreibung](06-agdf-cockpit.md#1-einordnung-und-zuständigkeiten).
+Die auf diesen Weg fokussierten Diagramme zeigen kein vollständiges Tool-Inventar.
+Die zusätzliche Decision App und ihre Qualifizierung beschreibt der
+[Befehlsfluss](core-mcp-command-flow.md#3-wie-der-mensch-die-gebundene-entscheidung-sieht).
 
 Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`.
 Ein Run beschreibt genau einen abgegrenzten Arbeitsumfang. Sein kanonischer Zustand liegt unter
@@ -83,10 +91,10 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Bereich | Aufgabe | Maßgebliche Quelle |
 |---|---|---|
 | Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugins/agdf/meta/contracts/`](../../plugins/agdf/meta/contracts/), [`plugins/agdf/skills/`](../../plugins/agdf/skills/) |
-| Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../packages/core/lib/control-inspect/contract.js) |
+| Tool-Semantik | Besitzt Namen, Beschreibungen, Schemas und Annotationen für Dispatch, Inspect und die begrenzten Befehlsgruppen. | [`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../packages/core/lib/control-inspect/contract.js), [`run-command-contract.js`](../../packages/core/lib/control-state/run-command-contract.js) |
 | Dispatch-Routing | Prüft Eingaben, bindet das Ziel, liest den Kontrollzustand und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Verändert keinen Run-Zustand. | [`skill-dispatch/service.js`](../../packages/core/lib/skill-dispatch/service.js), [Use-Case-Katalog](02-dispatcher.md) |
 | Fortsetzungsorchestrierung | Umschließt das Routing am gemeinsamen Core-Einstieg. Koordiniert bei beauftragter gebundener Fortsetzung höchstens eine belegte Beziehungskorrektur und ruft danach das Routing mit frischer Auswertung erneut auf. | [`delivery-continuation/service.js`](../../packages/core/lib/delivery-continuation/service.js), [`index.js`](../../packages/core/lib/index.js) |
-| MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`packages/mcp-server/`](../../packages/mcp-server/), [`mcp-dispatch-runtime.js`](../../packages/cli/lib/mcp-dispatch-runtime.js) |
+| MCP-Server | Projiziert die verfügbaren kanonischen Verträge in `tools/list` und leitet `tools/call` an die zuständigen Core-Dienste weiter. | [`packages/mcp-server/`](../../packages/mcp-server/), [`mcp-dispatch-runtime.js`](../../packages/cli/lib/mcp-dispatch-runtime.js) |
 | Lokales Cockpit | Private React-Leseansichten über HTTP oder eine separate MCP-App; Run-Bindung, registrierte Quellen und begrenzte Kontextübergabe. Keine Gate-/Freigabeschreiboperation. | [Cockpit-Referenz](06-agdf-cockpit.md), [`control-ui/`](../../packages/control-ui/), [`cockpit-contract.js`](../../packages/core/lib/control-inspect/cockpit-contract.js) |
 | MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../packages/cli/lib/mcp-lifecycle/profile.js) |
 | MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../packages/cli/lib/mcp-lifecycle/service.js) |
@@ -163,20 +171,26 @@ Programm, Validatorpfad, Host und erwarteter Version.
 
 Ein MCP-fähiger Host startet den lokalen Server und fragt mit `tools/list` nach verfügbaren
 Werkzeugen.
-MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`.
+Im Repository-Entwicklungsstand bietet der Server `agdf_dispatch`, `agdf_inspect` und die aktivierten
+Gruppen `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+Die fünf Gruppen delegieren begrenzte Operationen an kanonische Writer; ihre Bindungen,
+Wirkungen und Wiederherstellung erklärt der [Befehlsfluss](core-mcp-command-flow.md).
 Ein `agdf_dispatch`-Aufruf enthält den
 Skill-Namen sowie expliziten Ziel- und Laufkontext. `agdf_inspect` bietet die lesenden Operationen
-`doctor`, `gate-check`, `delivery-map` und `contract` über dieselben Evaluatoren wie die CLI an;
+unter anderem `doctor`, `gate-check`, `delivery-map`, `contract` und die gebundenen Vertrags-,
+Präsentations- und Operationsstatusabfragen über gemeinsame Core-Dienste an;
 es schreibt keinen Kontrollzustand und erteilt keine Freigabe. OpenCode qualifiziert die Namen mit
 dem Serverpräfix `agdf_`.
 
-Für Codex gilt die sichtbare Zuordnung `agdf` -> `agdf_dispatch` und `agdf_inspect`. Der ebenfalls mögliche Eintrag
+Für Codex gehört die reguläre Werkzeugoberfläche zur Verbindung `agdf`; die konkrete Liste hängt
+von aktivierten Gruppen und UI-Unterstützung ab. Der ebenfalls mögliche Eintrag
 `codex_app` ist kein AGDF-Server, sondern gehört zur Codex-App-Integration. Er darf bei der Prüfung
 des AGDF-MCP-Zustands nicht als Ersatz für `agdf` gewertet werden.
 
 Der Server besitzt keine eigene Gate-Policy. Er importiert die kanonischen Werkzeugverträge und
-ruft für Dispatch und Inspect die vorhandenen Dienste und Evaluatoren auf. Damit erhalten CLI,
-Skill- und MCP-Weg dieselbe Zielauflösung und Gate-Auswertung.
+ruft die vorhandenen Dienste und Evaluatoren auf. Damit erhalten CLI, Skill- und MCP-Weg dieselbe
+Zielauflösung und Gate-Auswertung. Befehlsgruppen und Decision App schaffen keine separate
+Freigabeinstanz; eine Host-Tool-Berechtigung bleibt von einer bewussten Gate-Entscheidung getrennt.
 
 ### 3.3 Gemeinsame Grenzen
 

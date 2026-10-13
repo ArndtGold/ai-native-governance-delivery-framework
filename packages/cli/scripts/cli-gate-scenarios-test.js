@@ -156,7 +156,9 @@ function boundUrApproval() {
     assert.equal(unbound.reason, "presentation_required", "an unbound reply must not advance the gate");
     const prepared = json(continuation.continuation.steps[0].argv);
     assert.equal(prepared.outcome, "prepared");
-    assert.match(prepared.text, /Artefakt: \[UR\.md\]/u);
+    assert.match(prepared.text, /Dokument lesen/u);
+    assert.equal(readFileSync(join(root, '.agdf/control/runs', runId, 'presentations', `${prepared.presentation_id}.document`), 'utf8'),
+      readFileSync(join(artefactDir, 'UR.md'), 'utf8'), 'the readable decision uses the exact presented document snapshot');
     assert.match(prepared.text, /Approval: UR/u);
     const approved = json(["run-approve", "--dir", root, "--run", runId, "--gate", "UR",
       "--revision", prepared.revision_id, "--presentation", prepared.presentation_id,
@@ -289,18 +291,18 @@ function staleNextStep() {
     assert.equal(continued.continuation?.phase, "implementation", "a moved gate no longer stalls continue_delivery");
   });
 
-  // A deliberate same-gate decision keeps its text and keeps stopping automatic implementation.
+  // Stored display prose remains visible but cannot override canonical eligibility.
   const pending = "Choose whether AC-006 stays open under this TP or a separate scope update starts.";
   withInternalStepRun("same-gate", { storedGate: "CD+Tests", storedNext: pending }, (context) => {
     const view = nextStepView(context);
     assert.equal(view.report.next_allowed_action, pending);
     assert.equal(view.map.next_allowed_action, pending);
     const continued = dispatch(context, "--continue-delivery");
-    assert.notEqual(continued.continuation?.phase, "implementation", "a pending same-gate decision must not start implementation");
+    assert.equal(continued.continuation?.phase, "implementation", "stored prose must not override the eligible semantic operation");
+    assert.deepEqual(view.report.next_operation, neverStale.report.next_operation);
   });
 
-  // A backward move after retracted evidence (stored QA, evaluated CD+Tests) keeps the stored text and
-  // never starts automatic implementation.
+  // A stale stored QA gate and recovery text do not replace evaluated CD+Tests eligibility.
   const retracted = "Draft or refine the current artefact.";
   withInternalStepRun("backward", { storedGate: "QA", storedNext: retracted }, (context) => {
     const view = nextStepView(context);
@@ -308,16 +310,24 @@ function staleNextStep() {
     assert.equal(view.report.next_allowed_action, retracted, "a backward move keeps the stored next step");
     assert.equal(view.map.next_allowed_action, retracted);
     const continued = dispatch(context, "--continue-delivery");
-    assert.notEqual(continued.continuation?.phase, "implementation", "a backward move must not start implementation");
+    assert.equal(continued.continuation?.phase, "implementation", "the evaluated gate and semantic operation govern continuation");
+    assert.deepEqual(view.report.next_operation, neverStale.report.next_operation);
   });
 
-  // Completed runs keep their authored closeout text, even when the layout evaluates to another gate.
+  // A lifecycle label cannot establish completion with missing mandatory artefacts.
   const closeout = "No run work remains; VCS actions require a separate explicit instruction.";
   for (const mode of ["structured_delivery", "verified_change"]) {
     withInternalStepRun(`completed-${mode}`, { storedGate: "OR", storedNext: closeout, lifecycle: "completed", mode }, (context) => {
-      const view = nextStepView(context);
-      if (mode === "structured_delivery") assert.equal(view.report.next_allowed_action, closeout);
-      assert.equal(view.map.next_allowed_action, closeout, `delivery-map keeps the closeout text (${mode})`);
+      const report = json(["gate-check", "--dir", context.root, "--run", context.runId, "--json"], 2);
+      const map = json(["delivery-map", "--dir", context.root, "--run", context.runId, "--json"]);
+      assert.equal(report.status, "blocked");
+      assert.equal(report.blocking_reason, "completed_run_obligations_unconfirmed");
+      assert.equal(report.completion.fulfilled, false);
+      assert.equal(report.next_allowed_action, mode === "structured_delivery" ? closeout
+        : "Resolve the inconsistent completed Run obligations before claiming a clean closeout.");
+      assert.equal(report.next_operation.type, "resolve_control_blocker");
+      assert.equal(map.next_allowed_action, closeout);
+      assert.notEqual(dispatch(context, "--continue-delivery").continuation?.phase, "implementation");
     });
   }
 

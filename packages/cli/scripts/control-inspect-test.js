@@ -10,7 +10,9 @@ import { createControlInspectService } from "#agdf-core/control-inspect/service.
 import {
   CONTROL_INSPECT_FUNCTION_DEFINITION,
   CONTROL_INSPECT_MAX_DEFINITION_BYTES,
+  CONTROL_INSPECT_OUTPUT_SCHEMA,
   CONTROL_INSPECT_OUTPUT_TOO_LARGE_RECOVERY,
+  OPERATION_CONTRACT_MODULES,
   controlInspectDefinitionBytes,
   parseControlInspectFunctionArguments,
   serializeControlInspectResult,
@@ -22,7 +24,7 @@ import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context
 import { INVALID_PRESENTATION_LANGUAGE_CASES, VALID_PRESENTATION_LANGUAGE_CASES } from "./fixtures/skill-dispatch-language.js";
 
 const cli = join(dirname(fileURLToPath(import.meta.url)), "..", "bin", "create-agdf.js");
-const validateOutput = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema);
+const validateOutput = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_OUTPUT_SCHEMA);
 const trustedContext = { surface: "claude", expectedVersion: pluginDefinition.version, interactionLocales };
 
 // SDD-005: the definition is loaded into every session on every host.
@@ -30,13 +32,14 @@ assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES,
   `agdf_inspect definition is ${controlInspectDefinitionBytes()} bytes, cap ${CONTROL_INSPECT_MAX_DEFINITION_BYTES}`);
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, [...CONTROL_INSPECT_OPERATIONS]);
-assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness"]);
+assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract", "artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "runtime-generations"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /module=agdf_prepare\/presentation\.prepare/);
 
 // Published operation dependencies agree with the shared runtime policy.
 const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
-for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => operation !== "artifact-readiness")) {
+for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "runtime-generations"].includes(operation))) {
   for (const allActive of [undefined, false, true]) {
     for (const variant of [undefined, "status-card", "approval-envelope"]) {
       for (const contractModule of [undefined, "quality"]) {
@@ -61,6 +64,30 @@ for (const field of ["run_id", "gate", "expected_revision_id", "target_source", 
 }
 for (const fields of [{ operation: "doctor" }, { gate: "QA" }, { expected_revision_id: "stale" }, { all_active: true }, { module: "quality" }, { variant: "status-card" }])
   assert.equal(validateInspectSchema({ ...draftBinding, ...fields }), false, JSON.stringify(fields));
+const nativeBinding = { ...draftBinding, operation: 'native-qualification' }; delete nativeBinding.gate;
+assert.equal(validateInspectSchema(nativeBinding), true);
+for (const field of ['run_id', 'expected_revision_id', 'target_source', 'primary_target']) {
+  const incomplete = { ...nativeBinding }; delete incomplete[field]; assert.equal(validateInspectSchema(incomplete), false, field);
+}
+assert.equal(validateInspectSchema({ ...nativeBinding, module: 'quality' }), false);
+const generationsBinding = { ...nativeBinding, operation: 'runtime-generations' };
+assert.equal(validateInspectSchema(generationsBinding), true);
+for (const field of ['run_id', 'expected_revision_id', 'target_source', 'primary_target']) {
+  const incomplete = { ...generationsBinding }; delete incomplete[field];
+  assert.equal(validateInspectSchema(incomplete), false, `runtime-generations requires ${field}`);
+}
+for (const fields of [{ gate: 'PRD' }, { module: 'quality' }, { all_active: true }, { variant: 'status-card' }])
+  assert.equal(validateInspectSchema({ ...generationsBinding, ...fields }), false, JSON.stringify(fields));
+const documentBinding = { ...draftBinding, operation: 'presentation-document', presentation_id: draftBinding.expected_revision_id,
+  target_id: 'sha256:' + 'a'.repeat(64) };
+assert.equal(validateInspectSchema(documentBinding), true);
+for (const field of ['run_id', 'gate', 'expected_revision_id', 'presentation_id', 'target_id', 'target_source', 'primary_target']) {
+  const incomplete = { ...documentBinding }; delete incomplete[field]; assert.equal(validateInspectSchema(incomplete), false, field);
+}
+for (const field of ['cursor', 'target_id', 'presentation_id']) {
+  assert.equal(validateInspectSchema({ ...nativeBinding, [field]: documentBinding[field] ?? 'a'.repeat(64) + ':0' }), false, field);
+}
+const validatePublicOutput = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema);
 let invalidTargetCalls = 0;
 const earlyInspect = createControlInspectService({ resolveTaskTarget: () => { invalidTargetCalls++; throw new Error("invalid selection reached target"); }, env: {} });
 const observedInvalid = earlyInspect({ operation: "gate-check", variant: "status-card", allActive: true,
@@ -99,6 +126,21 @@ const sharedOverMcp = inspect({ operation: "doctor", contractModule: "quality", 
 assert.equal(sharedOverMcp.outcome, "invalid_input");
 assert.equal(sharedOverMcp.recovery.action, "--module is supported only by contract", "MCP reuses the CLI wording");
 assert.deepEqual(sharedOverMcp.diagnostics, [{ code: "inspect_input_invalid", field: "module" }]);
+
+// Exact observed typo must point to the input field and a canonical usable selector,
+// before target resolution. Localized recovery must not force a source-code search.
+for (const language of ['en', 'de']) for (const module of ['prepare/presentation.prepare', 'agdf_record/approval.record', 'shell/execute', 'agdf_prepare/presentation.prepare/extra', undefined]) {
+  const rejected = earlyInspect({ operation: 'operation-contract', contractModule: module, presentationLanguage: language,
+    workingDirectory: '/tmp', targetSource: 'explicit_target', primaryTarget: '/tmp', runId: 'inspect-probe',
+    expectedRevisionId: '00000000-0000-4000-8000-000000000000', interactionLocales, expectedVersion: pluginDefinition.version });
+  assert.equal(rejected.outcome, 'invalid_input'); assert.equal(rejected.terminal, true);
+  assert.equal(rejected.authorizes, false); assert.equal(rejected.report, null);
+  assert.deepEqual(rejected.diagnostics, [{ code: 'inspect_input_invalid', field: 'module', allowed_values: [...OPERATION_CONTRACT_MODULES] }]);
+  assert.match(rejected.recovery.action, /agdf_prepare\/presentation\.prepare/);
+  assert.match(rejected.recovery.action, language === 'de' ? /Ungültiger Wert für module\. Erlaubt:/ : /Invalid value for module\. Allowed:/);
+  assert.equal(validateOutput(rejected), true, JSON.stringify(validateOutput.errors));
+}
+assert.equal(invalidTargetCalls, 0);
 
 // AC-005: language matrix behaves like dispatch, envelopes stay non-authorizing.
 for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
@@ -237,7 +279,9 @@ try {
   const present = JSON.parse(presentRun.stdout);
   assert.equal(present.summary_digest, presented.presentation.summary_digest);
   assert.equal(present.artefact_digest, presented.presentation.artefact_digest);
-  assert.ok(present.text.includes(presented.presentation.markdown), "run-present text contains the exact preview");
+  assert.equal(present.text, gate.approval_presentation.markdown, "run-present binds the exact decision text rather than embedding the read-only status preview");
+  assert.equal(readFileSync(join(root, '.agdf/control/runs/inspect-run/presentations', `${present.presentation_id}.document`), 'utf8'),
+    gate.approval_presentation.document_content, "the bound document snapshot remains the exact reviewed source");
   const approveWithoutPresentation = spawnSync(process.execPath, [cli, "run-approve", "--dir", root, "--run", "inspect-run", "--gate", "UR", "--revision", gate.approval_presentation.revision_id, "--response", "Approval: UR"], { encoding: "utf8" });
   assert.notEqual(approveWithoutPresentation.status, 0, "approval without a presentation id stays rejected");
 
@@ -253,8 +297,8 @@ try {
     rmSync(fake, { recursive: true, force: true });
   }
 
-  // The owned runtime exposes both tools and routes inspect through the same read boundary.
-  assert.deepEqual(runtime.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect"]);
+  // The owned runtime exposes the shared read boundary and the five command groups.
+  assert.deepEqual(runtime.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
   const inspectTool = runtime.tool("agdf_inspect");
   const viaRuntime = inspectTool.execute(inspectTool.parse({ operation: "doctor", presentation_language: "en", working_directory: root, target_source: "explicit_target", primary_target: root, run_id: "inspect-run" }));
   assert.equal(viaRuntime.outcome, "inspect_result");
@@ -278,6 +322,7 @@ try {
   assert.equal(inspectFailure.authorizes, false);
   assert.equal(Object.hasOwn(inspectFailure, "report"), true, "inspect failures use the inspect result shape");
   for (const output of [viaRuntime, oversize, inspectFailure]) {
+    assert.equal(validatePublicOutput(output), true, JSON.stringify(validatePublicOutput.errors));
     assert.equal(validateOutput(output), true, JSON.stringify(validateOutput.errors));
     for (const field of ["report", "presentation", "host_action", "recovery", "runtime", "target", "timing", "diagnostics"]) {
       assert.equal(validateOutput({ ...output, [field]: 42 }), false, `${field} rejects primitive output`);

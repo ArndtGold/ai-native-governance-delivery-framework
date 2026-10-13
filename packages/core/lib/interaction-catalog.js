@@ -72,3 +72,22 @@ export const CODEX_HOOK_STATES = freeze({
 export function codexHookState(verification) {
   return Object.hasOwn(CODEX_HOOK_STATES, verification) ? CODEX_HOOK_STATES[verification] : CODEX_HOOK_STATES.host_unverified;
 }
+export const DECISION_CARD_LABEL_KEYS = freeze(['title', 'connecting', 'unavailable', 'approve', 'request_change', 'reject', 'openDocument', 'back',
+  'comment', 'commentHelp', 'pending', 'uncertain', 'checkOperation', 'retryOriginal', 'confirmed', 'denied', 'notQualified', 'sourceChanged',
+  'expired', 'comparison', 'comparisonUnavailable', 'sources', 'run', 'gate', 'revision', 'consequence', 'permission', 'docUnavailable',
+  'commentRequired', 'commentTooLarge', 'documentTitle', 'notSaved', 'unknownCurrent', 'sourceLanguage', 'alreadyDecided', 'initialize',
+  'machineComparison', 'documentUnchanged', 'documentChanged', 'previousDocument', 'discussionHint',
+  'nextStep', 'nextInformation', 'nextChat', 'nextWaiting', 'continuationMessage', 'nextRequested', 'nextUnavailable', 'closeUnavailable', 'chatApprovalHint',
+  'approveWithDeviations', 'confirmedWithDeviations', 'deviationAcceptanceIntro']);
+export const FLOW_EVIDENCE_LABEL_KEYS = freeze(['title', 'current', 'superseded', 'applicability_unknown', 'currentDescription', 'emptyDescription',
+  'historyDescription', 'unknownDescription', 'unavailable', 'open', 'next', 'human', 'agent', 'completed', 'unconfirmedDescription', 'retainedDescription']);
+// Classify copy by its UI purpose; the existing global budgets remain unchanged.
+export const DECISION_CARD_COPY_BUDGETS = freeze(Object.fromEntries(DECISION_CARD_LABEL_KEYS.map(key => [key,
+  ['title', 'comparison', 'documentTitle'].includes(key) ? 'title'
+    : ['connecting', 'unavailable', 'commentHelp', 'pending', 'uncertain', 'confirmed', 'denied', 'notQualified',
+      'sourceChanged', 'expired', 'comparisonUnavailable', 'consequence', 'permission', 'docUnavailable',
+      'commentRequired', 'commentTooLarge', 'notSaved', 'unknownCurrent', 'sourceLanguage', 'alreadyDecided', 'initialize',
+      'machineComparison', 'documentUnchanged', 'documentChanged', 'discussionHint',
+      'nextInformation', 'nextChat', 'nextWaiting', 'continuationMessage', 'nextRequested', 'nextUnavailable', 'closeUnavailable', 'chatApprovalHint'].includes(key)
+      ? 'description' : 'label'
+])));

@@ -1,0 +1,23 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/decision-card.spec.mjs
+
+Running 14 tests using 1 worker
+
+(node:65174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/decision-card.spec.mjs:25:53 › Busy host queue: en, survives the tool deadline and delivers once after idle (synthetic SDK host) (2.6s)
+  ✓   2 test/browser/decision-card.spec.mjs:25:53 › Busy host queue: de, survives the tool deadline and delivers once after idle (synthetic SDK host) (1.7s)
+  ✓   3 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: en/continue_agent, no second click (synthetic SDK host) (2.5s)
+  ✓   4 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: en/continue_human, no second click (synthetic SDK host) (2.7s)
+  ✓   5 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: en/continue_stale, no second click (synthetic SDK host) (2.5s)
+  ✓   6 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: en/continue_unknown, no second click (synthetic SDK host) (1.9s)
+  ✓   7 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: de/continue_agent, no second click (synthetic SDK host) (1.8s)
+  ✓   8 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: de/continue_human, no second click (synthetic SDK host) (1.8s)
+  ✓   9 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: de/continue_stale, no second click (synthetic SDK host) (1.6s)
+  ✓  10 test/browser/decision-card.spec.mjs:41:3 › Post-approval continuation: de/continue_unknown, no second click (synthetic SDK host) (1.8s)
+  ✓  11 test/browser/decision-card.spec.mjs:68:56 › SDK close: browser iframe removal fallback (synthetic host) (1.9s)
+  ✓  12 test/browser/decision-card.spec.mjs:68:56 › SDK close: host teardown before navigation (synthetic host) (1.3s)
+  ✓  13 test/browser/decision-card.spec.mjs:75:53 › Actual built resource + SDK bridge: en rendering/keyboard/read/recovery/teardown (synthetic host) (2.4s)
+  ✓  14 test/browser/decision-card.spec.mjs:75:53 › Actual built resource + SDK bridge: de rendering/keyboard/read/recovery/teardown (synthetic host) (2.8s)
+
+  14 passed (41.1s)

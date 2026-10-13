@@ -1,10 +1,10 @@
 import process from "node:process";
 import { createValidationHandlers } from "../cli/validation-handlers.js";
-import { validateCommandOptions } from "../cli/command-registry.js";
+import { validateCommandOptions, commandGroupRoutes } from "../cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../cli/parse-args.js";
 import { pluginDefinition } from "../cli/runtime-context.js";
 
-const validatorCommands = new Set(["target-check", "skill-dispatch", "doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-create", "run-present", "run-update", "run-revise", "run-step", "run-approve"]);
+const validatorCommands = new Set(["target-check", "skill-dispatch", "doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-create", "run-present", "run-update", "run-revise", "run-step", "run-approve", ...Object.keys(commandGroupRoutes)]);
 
 export async function runValidatorCli(argv = process.argv.slice(2), adapters = {}) {
   const io = adapters.io ?? console;

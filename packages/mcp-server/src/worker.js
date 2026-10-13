@@ -3,16 +3,18 @@ import { Worker } from "node:worker_threads";
 const WORKER_URL = new URL("./worker-entry.js", import.meta.url);
 
 export class DispatchExecutionError extends Error {
-  constructor(code) {
+  constructor(code, dispatch = 'unknown') {
     super(code);
     this.name = "DispatchExecutionError";
     this.code = code;
+    this.dispatch = dispatch;
   }
 }
 
 export function createWorkerDispatchExecutor({
   surface,
   expectedVersion,
+  commandGroups,
   timeoutMs = 10_000,
   WorkerClass = Worker,
 } = {}) {
@@ -26,13 +28,13 @@ export function createWorkerDispatchExecutor({
 
   return Object.freeze({
     async execute(argumentsValue, { signal, toolName } = {}) {
-      if (active) throw new DispatchExecutionError("dispatch_busy");
-      if (signal?.aborted) throw new DispatchExecutionError("dispatch_cancelled");
+      if (active) throw new DispatchExecutionError("dispatch_busy", 'not_dispatched');
+      if (signal?.aborted) throw new DispatchExecutionError("dispatch_cancelled", 'not_dispatched');
 
       return new Promise((resolve, reject) => {
         let settled = false;
         const worker = new WorkerClass(WORKER_URL, {
-          workerData: { surface, expectedVersion, argumentsValue, toolName: toolName ?? null },
+          workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null },
         });
 
         const finish = async (callback, value) => {

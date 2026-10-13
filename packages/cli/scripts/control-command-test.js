@@ -161,7 +161,7 @@ try {
     const receipt = readApprovalOperations(approvedContent).receipts[0];
     const encoded = Buffer.from(canonicalJson(receipt)).toString("base64url");
     const variants = [
-      { ...receipt, schema_version: "2" }, { ...receipt, role: "human" },
+      { ...receipt, schema_version: "4" }, { ...receipt, role: "human" },
       { ...receipt, operation_id: randomUUID() }, { ...receipt, request_digest: `sha256:${"b".repeat(64)}` },
       { ...receipt, effect: { ...receipt.effect, resulting_revision_id: "missing" } },
       { ...receipt, effect: { ...receipt.effect, artefact_digest: null } },

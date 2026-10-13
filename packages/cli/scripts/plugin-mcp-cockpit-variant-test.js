@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { COCKPIT_LIMITS, COCKPIT_MIME, COCKPIT_UI_URI } from "../../core/lib/control-inspect/cockpit-contract.js";
-import { COCKPIT_UI_BUILD_COMMAND, readCockpitUiBuild } from "../../../scripts/cockpit-ui-build.mjs";
+import { COCKPIT_LIMITS, COCKPIT_MIME, COCKPIT_UI_URI, DECISION_UI_URI } from "../../core/lib/control-inspect/cockpit-contract.js";
+import { COCKPIT_UI_BUILD_COMMAND, readCockpitUiBuild, readDecisionUiBuild, mcpUiSourceDigest } from "../../../scripts/cockpit-ui-build.mjs";
 import { syncPluginMcp } from "../../../scripts/sync-plugin-mcp.js";
 
 // Claude cockpit plugin variant: verified UI bytes plus a second declaration; every other build unchanged.
@@ -14,7 +14,8 @@ const build = (name, html, manifest = {}) => {
   mkdirSync(directory);
   writeFileSync(join(directory, "cockpit.html"), html);
   writeFileSync(join(directory, "manifest.json"), JSON.stringify({ schema_version: "1", uri: COCKPIT_UI_URI, mime_type: COCKPIT_MIME,
-    bytes: Buffer.byteLength(html), digest: `sha256:${createHash("sha256").update(html).digest("hex")}`, ...manifest }));
+    bytes: Buffer.byteLength(html), digest: `sha256:${createHash("sha256").update(html).digest("hex")}`,
+    source_digest: mcpUiSourceDigest(), ...manifest }));
   return directory;
 };
 try {
@@ -26,11 +27,25 @@ try {
   const failure = `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the Claude build.`;
   const rejected = [join(root, "missing"), build("digest", html, { digest: `sha256:${"0".repeat(64)}` }), build("bytes", html, { bytes: 1 }),
     build("uri", html, { uri: "ui://other/v1.html" }), build("mime", html, { mime_type: "text/html" }), build("schema", html, { schema_version: "2" }),
-    build("oversize", "x".repeat(COCKPIT_LIMITS.html + 1))];
+    build("oversize", "x".repeat(COCKPIT_LIMITS.html + 1)),
+    build("stale-source", html, { source_digest: `sha256:${"0".repeat(64)}` }),
+    build("unbound-source", html, { source_digest: undefined })];
   try {
     const linked = join(root, "linked"); symlinkSync(join(root, "valid"), linked, "junction"); rejected.push(linked);
   } catch (error) { if (process.platform !== "win32" || error.code !== "EPERM") throw error; }
   for (const uiRoot of rejected) assert.throws(() => readCockpitUiBuild({ uiRoot, failure }), (error) => error.message === failure, uiRoot);
+
+  const decisionRoot = build('decision-source-binding', html);
+  writeFileSync(join(decisionRoot, 'decision.html'), html);
+  const decisionManifest = JSON.parse(readFileSync(join(decisionRoot, 'manifest.json'), 'utf8'));
+  decisionManifest.uri = DECISION_UI_URI;
+  writeFileSync(join(decisionRoot, 'decision-manifest.json'), JSON.stringify(decisionManifest));
+  assert.equal(readDecisionUiBuild({ uiRoot: decisionRoot }).manifest.source_digest, mcpUiSourceDigest());
+  // The HTML still has an exact, valid digest. Changed source binding must prevent
+  // assembly nevertheless, rather than silently qualifying an older UI bundle.
+  decisionManifest.source_digest = `sha256:${'0'.repeat(64)}`;
+  writeFileSync(join(decisionRoot, 'decision-manifest.json'), JSON.stringify(decisionManifest));
+  assert.throws(() => readDecisionUiBuild({ uiRoot: decisionRoot }), /AGDF_DECISION_UI_INVALID/);
 
   const pluginRoot = join(root, "plugin");
   mkdirSync(pluginRoot);

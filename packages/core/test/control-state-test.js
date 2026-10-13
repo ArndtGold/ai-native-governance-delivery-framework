@@ -191,6 +191,7 @@ try {
     ...activeQuickTask,
     content: "- lifecycle: completed",
     current_gate: "OR",
+    closeout_evidence: { ready: true },
     artefacts: new Map([...activeQuickTask.artefacts, ["OR", { path: "OR.md", status: "done" }]]),
   };
   assert.deepEqual(
@@ -198,6 +199,7 @@ try {
     { status: "pass", current_gate: "OR" },
     "completed Quick Task with OR projects pass instead of reopening execution",
   );
+  assert.equal(transitionDecisionForRunState({ ...completedQuickTask, closeout_evidence: undefined }).status, 'blocked', 'completion requires positively evaluated OR evidence');
   assert.deepEqual(
     {
       status: transitionDecisionForRunState({ ...completedQuickTask, content: "- lifecycle: active" }).status,
@@ -443,18 +445,19 @@ ${approvals}
     assert.equal(statusLines.join("\n"), reviewable.approval_presentation.preview_markdown,
       `${gate} status-card output is a read-only artefact preview without an approval choice`);
     assert.doesNotMatch(statusLines.join("\n"), /Approval: (?:UR|PRD|SD|TP|QA|UAT)/u);
-    assert.ok(prepared.text.includes("Next step: Review the linked artefact; choose an option below."),
-      `${gate} summary or options are clearly identified as the next user action`);
+    assert.match(prepared.text, /Reply “Read document” to read this complete version in Chat/u,
+      `${gate} offers a readable document before deciding`);
     assert.match(prepared.artefact_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds the actual artefact body`);
     assert.match(prepared.summary_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds its summary`);
-    const visibleGateContent = gate === "UAT" ? /## (?:Vorliegende UAT-Evidenz|Available UAT evidence)/u : new RegExp(`(?:Artefakt|Artefact): \\[${gate === "QA" ? "QA_REPORT.md" : `${gate}.md`}\\]`);
-    assert.ok(typeof visibleGateContent === "string" ? prepared.text.includes(visibleGateContent) : visibleGateContent.test(prepared.text), `${gate} approval links the exact artefact or presents existing UAT evidence`);
+    const documentSnapshot = readFileSync(join(readyRoot, '.agdf/control/runs', runId, 'presentations', `${prepared.presentation_id}.document`), 'utf8');
+    assert.equal(documentSnapshot, reviewable.approval_presentation.document_content, `${gate} binds the complete document or UAT evidence`);
     assert.ok(prepared.text.includes(`Revision: \`${sealed.revision_id}\``), `${gate} approval identifies the revision under review`);
-    assert.ok(prepared.text.includes(`| Your decision | Approval: ${gate} · Revise · Decline |`),
-      `${gate} card separates the user's decision from agent work`);
-    assert.match(prepared.text, /\| Agent may work on now \|/u, `${gate} card labels allowed work as agent work`);
+    assert.ok(prepared.text.includes(`Approve this version in Chat with Approval: ${gate}.`),
+      `${gate} offers one explicit approval with discussion remaining available`);
+    assert.doesNotMatch(prepared.text, /Approval: (?:UR|PRD|SD|TP|QA|UAT) · Revise · Decline/u,
+      `${gate} does not reintroduce the retired three-action decision table`);
     if (gate === "PRD") {
-      assert.match(prepared.text, /\| Your decision \|/u);
+      assert.match(prepared.text, /Discuss questions and requested changes in Chat/u);
       assert.doesNotMatch(prepared.text, /\| Allowed now \|/u);
       assert.doesNotMatch(prepared.text, /\| Next step \| Review the linked artefact/u,
         "the detailed card avoids repeating the top-level user action");
@@ -466,12 +469,12 @@ ${approvals}
         "the approval-ready detail card omits repeated transition and no-op quality rows");
       const germanPrepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id, language: "de" }, { evaluateGateCheck });
       assert.equal(germanPrepared.outcome, "prepared", `German PRD summary must prepare: ${JSON.stringify(germanPrepared)}`);
-      assert.match(germanPrepared.text, /Nächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option\./u,
-        "German card directs the reviewer to the linked artefact and available choices");
-      assert.ok(germanPrepared.text.includes("| Deine Entscheidung | Approval: PRD · Überarbeiten · Ablehnen |"),
-        "German card localizes the decision options while preserving the exact approval token");
-      assert.match(germanPrepared.text, /Quellsprache: Englisch · Zusammenfassung in gewählter Sprache/u,
-        "German card identifies the source language while keeping the summary localized");
+      assert.match(germanPrepared.text, /Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen/u,
+        "German card offers the complete presented document before approval");
+      assert.ok(germanPrepared.text.includes("Freigeben kannst du diese Fassung im Chat mit Approval: PRD."),
+        "German card localizes the sole approval instruction while preserving the exact token");
+      assert.equal(germanPrepared.document_language, 'en',
+        "German summary retains the English document's source-language binding");
       assert.match(germanPrepared.text, /PRD-CARD-001: Das PRD wird gespeichert und im Run erfasst/u,
         "German approval summary includes the first criterion in German");
       assert.match(germanPrepared.text, /PRD-CARD-002: Karte und Link verweisen auf denselben Run/u,
@@ -520,12 +523,13 @@ ${approvals}
       }
       assert.doesNotMatch(germanPrepared.text, /criterion_id|working_mode: structured_delivery|source_state:/u,
         "internal criterion metadata is not exposed as the acceptance summary");
-      assert.match(prepared.text, /After your PRD approval, the agent drafts the Solution Design\. Once the draft is ready, you will review and decide on the Solution Design\./u,
-        "the post-approval sequence separates agent drafting from the user's next decision");
+      assert.match(prepared.text, /Draft the solution design; implementation remains blocked\./u,
+        "the post-approval effect names design work while retaining the implementation boundary");
     }
-    const summaryPosition = prepared.text.search(new RegExp(`## (?:Kurzfassung|Review summary) · ${gate}`));
-    const actionPosition = Math.min(...[prepared.text.indexOf("Jetzt freigeben"), prepared.text.indexOf("Approve now")].filter((position) => position >= 0));
-    assert.ok(summaryPosition >= 0 && actionPosition > summaryPosition, `${gate} summary appears before the approval action`);
+    assert.ok(prepared.summary && prepared.text.includes(prepared.summary), `${gate} keeps the complete review summary available in details`);
+    const readPosition = prepared.text.indexOf('Reply “Read document”');
+    const actionPosition = prepared.text.indexOf(`Approve this version in Chat with Approval: ${gate}.`);
+    assert.ok(readPosition >= 0 && actionPosition > readPosition, `${gate} document review precedes explicit approval`);
     const approved = approveRunGate(readyRoot, { runId, gate, revisionId: sealed.revision_id,
       response: `Approval: ${gate}`, presentationId: prepared.presentation_id }, { evaluateGateCheck });
     assert.equal(approved.outcome, "approved", `${gate} bound response must persist: ${JSON.stringify(approved)}`);

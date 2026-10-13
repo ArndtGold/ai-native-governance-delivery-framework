@@ -67,6 +67,13 @@ QA-specific `decision` is exactly `pass | revise | block`.
 Consume applicable findings through `../../meta/contracts/quality.md` §Normalized Review Gaps.
 QA must not maintain a second mapping or reclassify review findings.
 
+An eligible evidence-only `revise` may include an explicit deviation proposal according to
+`../../meta/contracts/quality.md` §Human QA Acceptance With Deviations. This skill prepares
+the scope, risk, consequence, follow-up and owner; it cannot accept the proposal, turn missing
+evidence into `pass`, or claim native qualification. Only a deliberate human decision on the
+new exact presentation can accept deviations through the existing approval owner. The technical
+QA result and open findings remain unchanged and accompany UAT and OR.
+
 When post-CD+Tests review evidence exists, present the Runtime Contract's derived Quality
 Readiness projection before the detailed QA report: Plan coverage, Solution integrity, Code
 quality and QA decision in that order. Name `qa-gate` as the sole decision owner, show one

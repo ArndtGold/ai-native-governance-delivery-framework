@@ -1,0 +1,86 @@
+{
+  "schema_version": "1",
+  "evidence_class": "user_authorized_automated_native_app_decision",
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "probe_run_id": "native-de-approve",
+  "user_instruction": "Mach das für mich",
+  "driver": "CUA DOM synthetic click on Freigeben",
+  "production_entrypoint": false,
+  "native_qualified": false,
+  "actual_human_gesture": false,
+  "independent_human_proof": "unavailable",
+  "presentation_id": "7b5ac8c4-ed8f-4d1a-a791-0a6cc9c79b24",
+  "operation_id": "fc413848-cfa4-47c1-b0c5-8c0df305960c",
+  "visible_result": {
+    "status": "Entscheidung gespeichert.",
+    "decision_controls": "disabled"
+  },
+  "technical_permission_prompt": "not observed by automation; no claim about native consent UI",
+  "operation_status": {
+    "schema_version": "1",
+    "run_id": "native-de-approve",
+    "operation_id": "fc413848-cfa4-47c1-b0c5-8c0df305960c",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "approval.record",
+    "request_digest": "sha256:b48f6476daca1f064fc140d63ac7b69d5c8ac15987b282a63e1325b1b282e3d1",
+    "receipt": {
+      "action": "record_gate_approval",
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "binding": {
+        "expected_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+        "gate": "SD",
+        "presentation_id": "7b5ac8c4-ed8f-4d1a-a791-0a6cc9c79b24",
+        "run_id": "native-de-approve",
+        "target_id": "sha256:b959e61a96e35807cd94bc7770ef8cc2b1a46bab861f41c26578561261208400"
+      },
+      "command_digest": "sha256:b48f6476daca1f064fc140d63ac7b69d5c8ac15987b282a63e1325b1b282e3d1",
+      "created_at": "2026-10-10T18:27:18.273Z",
+      "effect": {
+        "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "approval": "Approval: SD",
+        "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+        "gate": "SD",
+        "material_sources": [
+          {
+            "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+            "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+            "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+            "type": "SD"
+          }
+        ],
+        "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+        "next_gate_after_approval": "TP",
+        "presentation_digest": "sha256:f452416a6b7105543dda7cb150cd1a19d7dcafb8a75e31d6f70f7c4423cfa3dc",
+        "previous_revision_id": "6903677f-eb07-4658-9b8e-353cc7b9d3de",
+        "resulting_revision_id": "e2b44102-f2b1-45f1-bb75-414d2131c7d4",
+        "revision": 8
+      },
+      "operation_id": "fc413848-cfa4-47c1-b0c5-8c0df305960c",
+      "producer": {
+        "contract": "approval-service/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:46e47b3e96a3e42f48353f30434b138046c207522bd0b66301b2f56d81b05b96",
+      "schema_version": "2"
+    },
+    "historical_effect": true,
+    "current_revision_id": "e2b44102-f2b1-45f1-bb75-414d2131c7d4",
+    "pending": null,
+    "expected_revision_id": "e2b44102-f2b1-45f1-bb75-414d2131c7d4"
+  },
+  "interpretation": "User explicitly delegated the test click on the disposable Run. Native App routed the synthetic event to the shared approval owner and recorded the exact SD material once. This is an automated host test, not the actual-human-gesture observation required by SCN-040; production gate/qualification and final QA remain unchanged."
+}

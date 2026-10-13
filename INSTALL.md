@@ -15,7 +15,9 @@ your own installation.
 > development tree includes plugin-managed MCP for Codex, Claude Code and GitHub Copilot. The guided MCP setup,
 > `mcp` commands, `--with-mcp` and `--mcp-scope` documented below describe unreleased work for the
 > next AGDF version. Until that version is published, examples containing those commands are
-> development previews and do not describe the behavior of `@agdf/cli@latest`. The ordinary plugin
+> development previews and do not describe the behavior of `@agdf/cli@latest`. Repository assemblies
+> and local plugin builds can still carry `0.14.5` while containing newer MCP features; version equality
+> does not establish payload or loaded-session equality. The ordinary plugin
 > installation commands remain valid for the version resolved by npm.
 
 ## Choose your installation path
@@ -106,7 +108,7 @@ native MCP registration path and effective source.
 
 The optional registered MCP path configures one local STDIO server for OpenCode. Codex, Claude Code
 and GitHub Copilot instead discover the same server from their installed runtime plugin.
-MCP tools: `agdf_dispatch`, `agdf_inspect`.
+MCP tools: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
 Dispatch uses the same canonical semantic definition and
 dispatcher as the CLI; inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
 Both tools are read-only, offline while serving and non-authorizing. Host permission, registration and

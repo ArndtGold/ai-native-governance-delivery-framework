@@ -1,0 +1,375 @@
+TAP version 13
+# [cli-gates] START new-ur
+# [cli-gates] PASS new-ur (6.3s)
+# [cli-gates] START duplicate-prd
+# [cli-gates] PASS duplicate-prd (6.9s)
+# [cli-gates] START bound-ur
+# [cli-gates] PASS bound-ur (7.7s)
+# [cli-gates] START stale-next-step
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: CLI gate-check exited 2, expected 0
+# {
+#   "schema_version": "1",
+#   "status": "blocked",
+#   "current_gate": "CD+Tests",
+#   "blocking_reason": "completed_run_obligations_unconfirmed",
+#   "missing_approval": "none",
+#   "next_gate_after_approval": "none",
+#   "allowed_after_approval": "none",
+#   "allowed": [
+#     "inspect the inconsistent completion and route it to its existing recovery owner"
+#   ],
+#   "forbidden": [
+#     "repeat completed work automatically",
+#     "claim clean completion",
+#     "perform VCS or release actions automatically"
+#   ],
+#   "next_allowed_action": "No run work remains; VCS actions require a separate explicit instruction.",
+#   "doctor_status": "warn",
+#   "doctor_summary": {
+#     "findings": 2,
+#     "block": 0,
+#     "revise": 0,
+#     "warn": 2
+#   },
+#   "evidence_refs": [
+#     {
+#       "evidence": "stale next-step fixture",
+#       "source": "cli-gate-scenarios-test.js",
+#       "covers": "transition",
+#       "strength": "direct"
+#     }
+#   ],
+#   "quality_outlook": "No additional quality follow-up identified from the current control state.",
+#   "interaction_kind": "blocked",
+#   "native_attempt_required": false,
+#   "candidate_runs": [],
+#   "status_card": {
+#     "run_id": "internal-step",
+#     "presentation_language": "de",
+#     "mode": "structured_delivery",
+#     "lifecycle": "completed",
+#     "delivery_state": "completion_unconfirmed",
+#     "status": "blocked",
+#     "current_gate": "CD+Tests",
+#     "mode_slice_decision": "structured_delivery",
+#     "breadcrumb": [
+#       {
+#         "gate": "UR",
+#         "status": "fulfilled"
+#       },
+#       {
+#         "gate": "PRD",
+#         "status": "fulfilled"
+#       },
+#       {
+#         "gate": "SD",
+#         "status": "fulfilled"
+#       },
+#       {
+#         "gate": "TP",
+#         "status": "fulfilled"
+#       },
+#       {
+#         "gate": "QA",
+#         "status": "open"
+#       },
+#       {
+#         "gate": "UAT",
+#         "status": "open"
+#       },
+#       {
+#         "gate": "OR",
+#         "status": "open"
+#       }
+#     ],
+#     "allowed_now": [
+#       "inspect the inconsistent completion and route it to its existing recovery owner"
+#     ],
+#     "forbidden_now": [
+#       "repeat completed work automatically",
+#       "claim clean completion",
+#       "perform VCS or release actions automatically"
+#     ],
+#     "blocking_condition": "completed_run_obligations_unconfirmed",
+#     "missing_approval": "none",
+#     "next_gate_after_approval": "none",
+#     "allowed_after_approval": "none",
+#     "user_visible_outcome_after_approval": "none",
+#     "internal_next_step": "none",
+#     "next_user_gate": "none",
+#     "user_action_required": "yes",
+#     "prd_readiness_items": [],
+#     "sd_readiness_items": [],
+#     "traceability_gaps": [],
+#     "blocking_details": [],
+#     "evidence": [
+#       {
+#         "evidence": "stale next-step fixture",
+#         "source": "cli-gate-scenarios-test.js",
+#         "covers": "transition",
+#         "strength": "direct"
+#       }
+#     ],
+#     "next_skill": "none",
+#     "next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+#     "quality_outlook": "No additional quality follow-up identified from the current control state.",
+#     "interaction_kind": "blocked",
+#     "native_attempt_required": false,
+#     "native_preflight_outcome": "not_applicable",
+#     "native_preflight_reason": "none"
+#   },
+#   "status_presentation": null,
+#   "approval_presentation": null,
+#   "next_operation": {
+#     "type": "resolve_control_blocker",
+#     "operation_key": "control.resolve",
+#     "actor": "agent",
+#     "effect": "none",
+#     "gate": "CD+Tests",
+#     "reason": "completed_run_obligations_unconfirmed"
+#   },
+#   "completion": {
+#     "status": "unconfirmed",
+#     "gate": "OR",
+#     "fulfilled": false
+#   },
+#   "presentation_diagnostics": {
+#     "status_presentation_errors": [
+#       "allowed_now_unlocalized",
+#       "forbidden_now_unlocalized"
+#     ]
+#   },
+#   "delivery_map": {
+#     "relationships": [
+#       {
+#         "from": "UR",
+#         "relationship": "approved_by",
+#         "to": "Approval: UR",
+#         "required": true,
+#         "status": "pass",
+#         "evidence": "exact approval"
+#       },
+#       {
+#         "from": "PRD",
+#         "relationship": "derived_from",
+#         "to": "UR",
+#         "required": true,
+#         "status": "pass",
+#         "evidence": "linked"
+#       },
+#       {
+#         "from": "SD",
+#         "relationship": "derived_from",
+#         "to": "PRD",
+#         "required": true,
+#         "status": "pass",
+#         "evidence": "linked"
+#       },
+#       {
+#         "from": "TP",
+#         "relationship": "derived_from",
+#         "to": "SD",
+#         "required": true,
+#         "status": "pass",
+#         "evidence": "linked"
+#       },
+#       {
+#         "from": "QA_REPORT",
+#         "relationship": "tests",
+#         "to": "TP",
+#         "required": false,
+#         "status": "missing",
+#         "evidence": ""
+#       }
+#     ],
+#     "mode_slice_decision": {
+#       "decision": "structured_delivery",
+#       "required_next_gate": "PRD",
+#       "scope_reason": "Stale next-step fixture.",
+#       "evidence": "BROWNFIELD_REVIEW.md"
+#     },
+#     "context_graph": {
+#       "impact": "",
+#       "reconciliation": "",
+#       "refs": "",
+#       "required_action": "",
+#       "gate_effect": "",
+#       "evidence": ""
+#     },
+#     "source_scope": {
+#       "normative_instruction_source": "",
+#       "multi_scope_state": "",
+#       "active_scope_evidence": "",
+#       "competing_scope_lines": "",
+#       "branch_workspace_evidence": "",
+#       "branch_workspace_scope_effect": ""
+#     },
+#     "memory": {
+#       "target": "",
+#       "reason": "",
+#       "refs": ""
+#     },
+#     "parent_reconciliation": {
+#       "outcome": "not_applicable",
+#       "target_run_id": "",
+#       "disposition": "not_applicable",
+#       "evidence": "",
+#       "missing_evidence": "none",
+#       "next_action": "none"
+#     },
+#     "programme_aggregation": {
+#       "applicable": false,
+#       "startable": false,
+#       "final_ready": false,
+#       "acceptance_ref": "",
+#       "evidence": [],
+#       "missing_evidence": [],
+#       "next_action": "none"
+#     },
+#     "findings": []
+#   },
+#   "verified_change": null,
+#   "doctor_report": {
+#     "schema_version": "1",
+#     "status": "warn",
+#     "checked_at": "2026-10-11T07:21:27.618Z",
+#     "target_dir": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-cli-gate-stale-completed-structured_delivery-nz12ZH",
+#     "summary": {
+#       "findings": 2,
+#       "block": 0,
+#       "revise": 0,
+#       "warn": 2
+#     },
+#     "parent_reconciliation": {
+#       "outcome": "not_applicable",
+#       "target_run_id": "",
+#       "disposition": "not_applicable",
+#       "evidence": "",
+#       "missing_evidence": "none",
+#       "next_action": "none"
+#     },
+#     "programme_aggregation": {
+#       "applicable": false,
+#       "startable": false,
+#       "final_ready": false,
+#       "acceptance_ref": "",
+#       "evidence": [],
+#       "missing_evidence": [],
+#       "next_action": "none"
+#     },
+#     "findings": [
+#       {
+#         "severity": "warn",
+#         "code": "AGDF_BACKLOG_POINTER_EMPTY",
+#         "message": "MASTER_BACKLOG.md does not contain an active or planned work pointer.",
+#         "path": ".agdf/control/MASTER_BACKLOG.md",
+#         "next_step": "Add the active item or document that no governed delivery item is active."
+#       },
+#       {
+#         "severity": "warn",
+#         "code": "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
+#         "message": "CONTEXT_GRAPH.md still contains the example node.",
+#         "path": ".agdf/control/CONTEXT_GRAPH.md",
+#         "next_step": "Remove the example or replace it with an evidenced node that has an exit criterion."
+#       }
+#     ]
+#   }
+# }
+# 2 !== 0
+#     at invoke (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:22:10)
+#     at json (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:28:21)
+#     at nextStepView (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:262:18)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:319:20
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:257:5
+#     at withFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:50:9)
+#     at withInternalStepRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:254:3)
+#     at staleNextStep (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:318:5)
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:445:24
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25) {
+#   generatedMessage: false,
+#   code: 'ERR_ASSERTION',
+#   actual: 2,
+#   expected: 0,
+#   operator: 'strictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/cli/scripts/cli-gate-scenarios-test.js
+not ok 1 - packages/cli/scripts/cli-gate-scenarios-test.js
+  ---
+  duration_ms: 38380.622169
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cli-gate-scenarios-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+# + actual - expected
+#   [
+#     'agdf_dispatch',
+#     'agdf_inspect',
+#     'agdf_prepare',
+#     'agdf_record',
+#     'agdf_approve',
+#     'agdf_revise',
+# +   'agdf_closeout'
+# -   'agdf_release'
+#   ]
+#     at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/control-inspect-test.js:257:10
+#     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+#     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+#   generatedMessage: true,
+#   code: 'ERR_ASSERTION',
+#   actual: [
+#     'agdf_dispatch',
+#     'agdf_inspect',
+#     'agdf_prepare',
+#     'agdf_record',
+#     'agdf_approve',
+#     'agdf_revise',
+#     'agdf_closeout'
+#   ],
+#   expected: [
+#     'agdf_dispatch',
+#     'agdf_inspect',
+#     'agdf_prepare',
+#     'agdf_record',
+#     'agdf_approve',
+#     'agdf_revise',
+#     'agdf_release'
+#   ],
+#   operator: 'deepStrictEqual',
+#   diff: 'simple'
+# }
+# Node.js v22.22.3
+# Subtest: packages/cli/scripts/control-inspect-test.js
+not ok 2 - packages/cli/scripts/control-inspect-test.js
+  ---
+  duration_ms: 33072.637331
+  type: 'test'
+  location: '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/control-inspect-test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38395.673678

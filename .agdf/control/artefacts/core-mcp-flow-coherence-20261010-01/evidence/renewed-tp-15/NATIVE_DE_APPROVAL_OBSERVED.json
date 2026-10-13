@@ -1,0 +1,125 @@
+{
+  "evidence_class": "actual_native_human_report_and_canonical_effect",
+  "candidate": "NATIVE_PROBE_CANDIDATE.json",
+  "human_report": "Tab funktioniert, Dokument kann man lesen und wieder zur\u00fcck, Freigabe mit leertaset (keine Toolabfrage).",
+  "confirmed_by_human": [
+    "Tab works",
+    "document reading and return",
+    "approval by Space",
+    "no technical tool prompt seen"
+  ],
+  "not_confirmed_by_human": [
+    "narrow/wide resizing and scroll stability",
+    "only one decision action and no comment form",
+    "visible Decision saved message",
+    "inline and side-panel lifecycle close"
+  ],
+  "core_result": {
+    "at": "2026-10-12T05:47:26.615Z",
+    "event": "tool_result",
+    "evidence_class": "native_probe_unclassified",
+    "producer": {
+      "process_id": 99899,
+      "server_started_at": "2026-10-12T05:36:18.529Z"
+    },
+    "data": {
+      "name": "agdf_decision_action",
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "021545a6-7515-4c69-8980-e0094ee812f5",
+        "receipt": {
+          "action": "record_gate_approval",
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "binding": {
+            "expected_revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+            "gate": "SD",
+            "presentation_id": "19a27e1d-2f19-4cda-a518-7c9a3926b911",
+            "run_id": "native-de-approve",
+            "target_id": "sha256:3e59b2ce2d29dcd4a1123a8c06689743209f1d0bf506f48b6745e6e0cbb811de"
+          },
+          "command_digest": "sha256:82f422c6cf83522654dc3e85db0ad8501fcdf847ce68ff60541de98eb3eb076b",
+          "created_at": "2026-10-12T05:47:22.904Z",
+          "effect": {
+            "allowed_after_approval": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+            "approval": "Approval: SD",
+            "artefact_digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+            "gate": "SD",
+            "material_sources": [
+              {
+                "digest": "sha256:c0247c6d9ad354bd44d9f8231936de0c7b9619e88d2f4d188da0a8a9f63abe56",
+                "path": ".agdf/control/artefacts/native-de-approve/UR.md",
+                "type": "UR"
+              },
+              {
+                "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+                "path": ".agdf/control/artefacts/native-de-approve/PRD.md",
+                "type": "PRD"
+              },
+              {
+                "digest": "sha256:be66c15cda6eec56dadb4df4dbd9fe909a399304bf6f6910016d7962dcaa2cdf",
+                "path": ".agdf/control/artefacts/native-de-approve/SD.md",
+                "type": "SD"
+              }
+            ],
+            "material_version": "sha256:0a5f57d3694839b5c0bdeba82ff6d633d93801f626be38311634097ffd59f05b",
+            "next_gate_after_approval": "TP",
+            "presentation_digest": "sha256:6704dad66972c8d4afeb8d8efa4b2ea6a5d8c4f71761c644bb8ac74219837bc3",
+            "previous_revision_id": "a2e846c6-55c3-4fb0-bb9d-ec9da18ed30d",
+            "resulting_revision_id": "3d99adcd-7802-4bb7-ac95-1810074b3e48",
+            "revision": 8
+          },
+          "operation_id": "021545a6-7515-4c69-8980-e0094ee812f5",
+          "producer": {
+            "contract": "approval-service/1",
+            "package_version": "0.14.5"
+          },
+          "request_digest": "sha256:d69218250af970614a9b7b96e875e0fc8c9c6afc72c0f21979aaa5b3016adfc1",
+          "schema_version": "2"
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 8,
+          "revision_id": "3d99adcd-7802-4bb7-ac95-1810074b3e48",
+          "lifecycle": "active",
+          "gate": "TP",
+          "status": "open",
+          "missing_approval": "Approval: TP",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "prepare_gate_artifact",
+            "gate": "TP",
+            "skill_id": "gate-check",
+            "artifact_path": ".agdf/control/artefacts/native-de-approve/TP.md",
+            "source_artifacts": [
+              ".agdf/control/artefacts/native-de-approve/PRD.md",
+              ".agdf/control/artefacts/native-de-approve/SD.md"
+            ]
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "input_route": "app_only_cooperative",
+        "authorizes": false,
+        "recovery": null,
+        "view_state": "active"
+      }
+    }
+  },
+  "independent_human_proof": "unavailable; cooperative_local retained",
+  "production_qualified": false
+}

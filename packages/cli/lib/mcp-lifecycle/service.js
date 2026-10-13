@@ -20,6 +20,7 @@ import {
   mcpLegacyRuntimeDataRoot,
   mcpRuntimeDataRoot,
   prepareMcpServerPackage,
+  mcpRuntimeRetirementState,
 } from "./package.js";
 import { printMcpLifecycleResult } from "./presentation.js";
 import { mcpCapabilityProfile } from "./profile-context.js";
@@ -120,7 +121,8 @@ function runtimeReferenceChange(runtime, reference, {
     : [...runtime.references.filter((item) => !sameReference(item, reference)), reference];
   const references = [...new Map(candidates.map((item) => [referenceKey(item), item])).values()]
     .sort((left, right) => referenceKey(left).localeCompare(referenceKey(right)));
-  return { references, transaction: references.length
+  const retained = !references.length && mcpRuntimeRetirementState(runtime.root) !== 'eligible';
+  return { references, retained, transaction: references.length || retained
     ? createReferenceTransaction(runtime, references)
     : createRetirementTransaction(runtime) };
 }
@@ -248,6 +250,7 @@ export function runMcpLifecycle({
     let transaction;
     let referenceTransaction;
     let previousRuntimeTransaction;
+    let previousRuntimeChange;
     try {
       if (registration.status === "precedence_conflict") throw new Error("AGDF_MCP_REGISTRATION_PRECEDENCE_CONFLICT");
       prepared = prepare({ dataRoot: runtimeDataRoot, expectedVersion, execPath, nodeVersion, exec });
@@ -264,9 +267,10 @@ export function runMcpLifecycle({
       }).transaction;
       referenceTransaction.apply();
       if (previousRuntime && previousRuntime.root !== prepared.root) {
-        previousRuntimeTransaction = runtimeReferenceChange(previousRuntime, reference, {
+        previousRuntimeChange = runtimeReferenceChange(previousRuntime, reference, {
           remove: true, createReferenceTransaction, createRetirementTransaction,
-        }).transaction;
+        });
+        previousRuntimeTransaction = previousRuntimeChange.transaction;
         previousRuntimeTransaction.apply();
       }
       previousRuntimeTransaction?.commit(); referenceTransaction.commit(); prepared.commit();
@@ -276,7 +280,9 @@ export function runMcpLifecycle({
       return envelope({ ...base, capability: installedCapability, host, runtime: installedRuntime,
         registration: verified, discovery: "pending_restart", result: transaction.status === "unchanged" ? "unchanged" : "configured_pending_restart",
         changes: [...(prepared.changed ? [{ kind: "runtime_install", path: prepared.root }] : []),
+          ...(previousRuntimeChange?.retained ? [{ kind: 'runtime_retain', path: previousRuntime.root }] : []),
           ...(transaction.status === "changed" ? [{ kind: "host_registration", path: verified.path }] : [])],
+        diagnostics: previousRuntimeChange?.retained ? [{ code: 'runtime_executables_retained' }] : [],
         nextAction: { code: "restart_host" } });
     } catch (error) {
       const rollbackComplete = rollbackTransactions([previousRuntimeTransaction, referenceTransaction, transaction, prepared]);
@@ -306,8 +312,8 @@ export function runMcpLifecycle({
         remove: true, createReferenceTransaction, createRetirementTransaction,
       });
       runtimeTransaction = change.transaction; runtimeTransaction.apply();
-      if (!change.references.length) changes.push({ kind: "runtime_remove", path: ownedRuntime.root });
-      runtime = change.references.length ? { ...ownedRuntime, references: Object.freeze(change.references) }
+      if (!change.references.length) changes.push({ kind: change.retained ? 'runtime_retain' : "runtime_remove", path: ownedRuntime.root });
+      runtime = change.references.length || change.retained ? { ...ownedRuntime, references: Object.freeze(change.references), executable_retention: change.retained ? 'retained' : undefined }
         : { ...ownedRuntime, status: "absent", entrypoint: null, digest: null, references: Object.freeze([]) };
     }
     runtimeTransaction?.commit?.();
@@ -315,7 +321,7 @@ export function runMcpLifecycle({
       : verified.status !== "absent" ? "degraded"
         : transaction.status === "unchanged" && !changes.length ? "unchanged" : "disabled";
     return envelope({ ...base, capability, host, runtime, registration: verified,
-      result, changes, nextAction: { code: result === "configured_unverified" ? "disable_effective_scope"
+      result, changes, diagnostics: runtime.executable_retention === 'retained' ? [{ code: 'runtime_executables_retained' }] : [], nextAction: { code: result === "configured_unverified" ? "disable_effective_scope"
         : result === "degraded" ? nextForRegistration(verified) : "none" } });
   } catch (error) {
     const rollbackComplete = rollbackTransactions([runtimeTransaction, transaction]);

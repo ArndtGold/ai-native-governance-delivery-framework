@@ -1,0 +1,82 @@
+{
+  "run_id": "core-mcp-flow-coherence-20261010-01",
+  "revision_id": "9ba84a5f-35c0-46f7-be2b-9f17b190f55e",
+  "commands": [
+    {
+      "command": "npm --prefix packages/control-ui test",
+      "exit_code": 0,
+      "log": "agdf-ui-queue-20.log",
+      "sha256": "11617f12ac340b43c1716ee8763d34e7ea70e5f479e84dad0fb181424491f117",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run test:browser -- test/browser/decision-card.spec.mjs",
+      "exit_code": 0,
+      "log": "agdf-browser-queue-20.log",
+      "sha256": "ba6069c27124bd8dabc7136f65ce0869999b03f78adc6e69d1cc5cc8869da672",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run typecheck",
+      "exit_code": 0,
+      "log": "agdf-types-queue-20.log",
+      "sha256": "c00dbcc3f47bf332450b1ed6d7a70be30ba769903f01daa91b2b0d78174a871b",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/control-ui run build:mcp",
+      "exit_code": 0,
+      "log": "agdf-ui-build-queue-20.log",
+      "sha256": "83ac671e985072ebde840e35947d11cf0d51689c3436e81bef569982844f508d",
+      "native_host_proof": false
+    },
+    {
+      "command": "node packages/core/test/run-command-contract-test.js",
+      "exit_code": 0,
+      "log": "agdf-contract-queue-20.log",
+      "sha256": "4422c2d4da9f626fa43f257d36b64186b5b366aab5c95939169d78b2a02bf986",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm run build:prepare",
+      "exit_code": 0,
+      "log": "agdf-prepare-queue-20.log",
+      "sha256": "a90c3102e5d40c53fcbde8c32d321a3f33b86c06ee0b279697780a7f27bf9619",
+      "native_host_proof": false
+    },
+    {
+      "command": "native disposable preparation",
+      "exit_code": 0,
+      "log": "agdf-native-queue-20.log",
+      "sha256": "ffbd6abed19a1aca55a86b26631e62bff8193119364c318624bafd772f9a713b",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/cli run test:run-command-flow",
+      "exit_code": 0,
+      "log": "agdf-core-final-19.log",
+      "sha256": "4836fd478326ad89b29470cad606dc4e22ebea0f2fb96728c1efc4112fd12e35",
+      "native_host_proof": false
+    },
+    {
+      "command": "npm --prefix packages/mcp-server run test:run-command-flow",
+      "exit_code": 0,
+      "log": "agdf-mcp-final-19.log",
+      "sha256": "7c734b984ca6685f45c3763de5a37b56e8891244f7277f08d772a86742852ac0",
+      "native_host_proof": false
+    }
+  ],
+  "tests": {
+    "components": 213,
+    "service": 8,
+    "browser_sdk": 14,
+    "core_flow_programs": 15
+  },
+  "candidate_native_qualified": false,
+  "qa_decision": null,
+  "package_budget": {
+    "files": 232,
+    "bytes": 2088594,
+    "headroom": 0
+  }
+}

@@ -15,7 +15,7 @@ jobs:
     # Runtime, installer and test behavior is OS-specific (npm .cmd shims, path separators, symlink
     # rights); repository-wide contracts are not, so those steps run once, in the repository_checks lane.
     # Node 22 is the supported minimum and publish baseline; Node 24 is the additional LTS lane.
-    name: verify (${{ matrix.os }}${{ matrix.node != 22 && format(', node {0}', matrix.node) || '' }})
+    name: verify (${{ matrix.os }}${{ matrix.node != 22 && format(', node {0}', matrix.node) || '' }}${{ matrix.smoke_shard && format(', {0}', matrix.smoke_shard) || '' }})
     strategy:
       fail-fast: false
       matrix:
@@ -26,6 +26,15 @@ jobs:
           - os: windows-latest
             node: 22
             repository_checks: false
+            smoke_shard: installation
+          - os: windows-latest
+            node: 22
+            repository_checks: false
+            smoke_shard: package
+          - os: windows-latest
+            node: 22
+            repository_checks: false
+            smoke_shard: governance
           - os: ubuntu-latest
             node: 24
             repository_checks: false
@@ -55,4 +64,4 @@ jobs:
             pages/package-lock.json
 
       - name: Verify checkout with shared local and CI plan
-        run: node scripts/verify-ci.mjs --lane ${{ matrix.repository_checks && 'repository' || 'runtime' }}
+        run: node scripts/verify-ci.mjs --lane ${{ matrix.repository_checks && 'repository' || 'runtime' }} ${{ matrix.smoke_shard && format('--smoke-shard {0}', matrix.smoke_shard) || '' }}

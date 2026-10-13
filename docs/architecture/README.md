@@ -5,7 +5,7 @@ Voraussetzungen prüfen, Arbeit vorbereiten, menschliche Entscheidungen erfassen
 prüfen. Der Agent läuft weiterhin in seinem Host, etwa Codex oder Claude Code. AGDF verbindet
 Anweisungen, ausführbare Kontrollen und den dauerhaften Projektzustand unter `.agdf/control/`.
 
-**Stand der redaktionellen Übersicht: 6. Oktober 2026, Repository-Quelle.** Die folgenden Seiten unterscheiden
+**Stand der redaktionellen Übersicht: 12. Oktober 2026, Repository-Quelle.** Die folgenden Seiten unterscheiden
 bestehende Implementierung, vorgeschlagene Weiterentwicklung und noch offene Detailfragen.
 Normative Regeln bleiben in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/).
 
@@ -72,12 +72,35 @@ keine aktualisierte Installation oder bereits beobachtete Verbesserung in einer 
 | Offene MCP-Details klären | [MCP-Schnittstellen im gemeinsamen Zielbild](04-mcp-schnittstellen.md) | Ergänzende Fragen und Zuordnung zum Operationskatalog des Gesamtkonzepts |
 | Code und Auslieferung zuordnen | [Paket- und Quellstruktur](05-paketstruktur.md) | Referenz der Implementierungs- und Build-Grenzen |
 | Kontrollstand und Quellen im Cockpit verstehen | [Lokale MCP-App](06-agdf-cockpit.md) | Implementierte Ansichten, Run-Bindung, gemeinsames Pages-Design, Aktualität und getrennte Host-Nachweise |
+| Hub, Run-Cockpit und menschliche Entscheidungen aus Anwendersicht verstehen | [AGDF Hub und Run Cockpit](07-ui-konzept.md) | UI-Zielkonzept mit fünf Mockups, verständlichen Aufgaben und Entscheidungsfragen: Ziel und Umfang klären, Verhalten festlegen, Lösung planen; klare Codex-Grenzen und technische Zuordnung in Details |
+| Ansichten konsistent gestalten und prüfen | [UI Richtlinien](08-ui-richtlinien.md) | Gemeinsame Anforderungen an Sprache, Orientierung, Entscheidungen, Aktionen, Host-Grenzen, Gestaltung und Bedienbarkeit; mit Beispielen und prüfbaren Kriterien |
+| Artefakte, Entscheidungen, Revisionen und Abschluss über MCP verfolgen | [Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md) | Vertiefung des Entwicklungsstands: durchgehendes Beispiel, fünf Befehlsgruppen, Decision App und Wiederherstellung; native Qualifikation separat |
 
 Für den ersten Durchgang: diese Seite, dann die Bestandsbeschreibung und anschließend das Zielbild.
 Dispatcher und Paketstruktur vertiefen konkrete Teile. Die MCP-Seite ergänzt das Zielbild um offene
 Schnittstellenfragen; sie besitzt keinen zweiten Operationskatalog und keine eigene Roadmap.
+Wer eine konkrete Erfassung oder Entscheidung nachvollziehen will, liest nach dem Dispatcher den
+[Befehlsfluss zwischen Core und MCP](core-mcp-command-flow.md). Die Cockpit-Seite erklärt dazu die
+allgemeine Leseansicht; der Befehlsfluss die getrennte Entscheidungsansicht und ihre Schreibgrenzen.
+Das [UI-Zielkonzept](07-ui-konzept.md) führt diese Grundlagen zu einem Arbeitsbereich für den
+Anwender zusammen. Es beschreibt die weitere Bedienung, ohne den bestehenden Implementierungs-
+oder Host-Qualifizierungsstand umzudeuten.
+
+Die [UI-Richtlinien](08-ui-richtlinien.md) ergänzen das Bedienkonzept um gemeinsame Regeln
+für neue und überarbeitete Ansichten. Sie sind Gestaltungs- und Prüfkriterien, keine neue
+Quelle für Gate-Regeln oder technische Berechtigungen.
+
+Die [Architekturentscheidung zur Host-Schnittstelle](07-ui-konzept.md#architekturentscheidung-zur-gemeinsamen-host-schnittstelle)
+legt MCP/MCP Apps als gemeinsame Grundlage für das Cockpit fest. Regeln und Entscheidungen
+bleiben gleich; verfügbare Darstellung und Fortsetzung werden je Host geprüft. CopilotKit
+bleibt eine optionale Host-Implementierung.
 
 ## Bestehender Stand und Weiterentwicklung
+
+MCP-Werkzeuge des regulären Servers: `agdf_dispatch`, `agdf_inspect`, `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+
+Das Inventar beschreibt die Standardkonfiguration im Repository; deaktivierte Befehlsgruppen und
+hostabhängige App-Werkzeuge verändern die konkrete Liste einer Verbindung.
 
 | Verantwortung | Bestehender Stand | Vorgeschlagene Ergänzung im Zielbild |
 |---|---|---|
@@ -85,14 +108,27 @@ Schnittstellenfragen; sie besitzt keinen zweiten Operationskatalog und keine eig
 | Ausführungskontrolle | Host-Berechtigungen und Validierung kanonischer Operationen; vollständige Bindung aller Werkzeuge an den Arbeitsumfang nicht nachgewiesen | Qualifizierte Kontrolle konkreter Datei-, Shell-, Kindprozess- und Netzwerkaktionen |
 | Ergebnisprüfung | Tests, Reviews, Nachweisaufzeichnung und menschliche Abnahme | Vergleich tatsächlicher Wirkungen mit freigegebener Arbeit und ausdrücklich belegte Unabhängigkeit |
 | Menschliche Entscheidung | Gebundene Darstellung und exakte Antwort im kooperativen Weg | Qualifizierte native Auswahlfelder und gegebenenfalls stärkere Herkunftsnachweise |
-| MCP | Zwei Werkzeuge vermitteln Dispatch und lesende Inspektion | Zusammenhängende Operationen aus dem Zielbild, erst nach Klärung von Wirkung, Autorisierung und Kompatibilität |
+| MCP | Repository-Entwicklungsstand: Dispatch, lesende Inspektion und fünf konfigurierbare Befehlsgruppen über gemeinsame Core-Dienste | Weitere Ausführungskontrollen und Host-Fähigkeiten aus dem Zielbild benötigen eigene Umsetzung und Nachweise |
 
-MCP-Werkzeuge des regulären Servers: `agdf_dispatch`, `agdf_inspect`.
+Im Repository-Entwicklungsstand bietet der reguläre Server `agdf_dispatch`, `agdf_inspect` und die
+aktivierten Gruppen `agdf_prepare`, `agdf_record`, `agdf_approve`, `agdf_revise`, `agdf_closeout`.
+Der Codex-Decision-Zweig ergänzt eine gebundene MCP-App und, abhängig von UI-Unterstützung und
+aktivierten Gruppen, eine ausschließlich für die App sichtbare Entscheidungsfassade.
+Diese Implementierung bestätigt keine Installation oder native Host-Abnahme; der
+[Befehlsfluss](core-mcp-command-flow.md) beschreibt die Voraussetzungen und Grenzen.
+Sein [Nachweisabschnitt](core-mcp-command-flow.md#konkrete-nachweise-aus-dem-coherence-run) zeigt
+außerdem die kandidatgebundenen nativen Freigabe-/Fortsetzungsfälle, den deutschen iPad-Chatfall,
+die generierten Transport-/Prozessprüfungen und die noch offene Gesamtqualifizierung.
+Der Dokumentationssnapshot vom 12. Oktober nennt Revision 80 und QA `revise`;
+spätere Fortschritte müssen aus dem jeweiligen Run und seinen genauen Nachweisen gelesen werden.
+Die Diagramme trennen erlaubten Ablauf
+und tatsächlich belegten Umfang.
 Die separate lokale Cockpit-Verbindung bietet `agdf_cockpit`, `agdf_cockpit_read` und eine
 eingebettete UI-Resource. Ihr [Umsetzungsstand](06-agdf-cockpit.md) ist eine private
 Entwicklungsintegration; sie erteilt keine Freigabe und ist kein Nachweis nativer Host-Abnahme.
 
-Die vorgeschlagenen Ergänzungen sind durch die Dokumentation noch nicht implementiert. Maßgeblich
+Die nachgeführten Entwicklungsoperationen setzen nicht das gesamte Zielbild um.
+Weitere vorgeschlagene Ergänzungen werden durch ihre Dokumentation nicht implementiert. Maßgeblich
 für ihre weitere Planung sind der [Operationskatalog](03-agentenkontrolle-zielbild.md#7-mcp-operationskatalog-für-den-gesamten-lebenszyklus)
 und die [gemeinsame Roadmap](03-agentenkontrolle-zielbild.md#10-abgleich-der-umfänge-und-umsetzungsroadmap).
 Quellcode, installiertes Paket und live beobachtetes Host-Verhalten bleiben getrennte Nachweise.

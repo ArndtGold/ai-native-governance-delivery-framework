@@ -2,8 +2,7 @@ import { extractField, verifiedChangeEscalationTargets } from "./verified-change
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
 
-// The dispatcher's implementation continuation compares against this exact text: equality means
-// no run-specific same-gate decision is pending.
+// Compatible display text. Execution consumes the semantic operation, never this sentence.
 export const CD_TESTS_NEXT_ALLOWED_ACTION = "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.";
 
 function durableArtefactBlock(gate, nextGate) {
@@ -39,7 +38,7 @@ function qaNonPassDecision(runState) {
   return status === "revise" || status === "block" ? status : null;
 }
 
-export function transitionDecisionForRunState(runState, verifiedChange = null) {
+function gateDecisionForRunState(runState, verifiedChange = null) {
   if (gateApprovalStatus(runState, "UR") === "approved" && !isGateSatisfied(runState, "UR")) return durableArtefactBlock("UR", "PRD");
 
   if (!isGateSatisfied(runState, "UR")) {
@@ -66,7 +65,7 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
       allowed: ["resolve the analytical route under the retained approved UR"], forbidden: ["implement code", "skip renewed source approvals"],
       next_allowed_action: "Resolve the Brownfield Review blocker before choosing a delivery path." };
   }
-  if ((reassessment("UX Intent Definition") || runState.source_revision_ux_required) && runState.artefacts.get("UX Intent Definition")?.status !== "done"
+  if ((reassessment("UX Intent Definition") || runState.source_revision_ux_required) && !isInternalStepSatisfied(runState, 'UX Intent Definition')
       && isInternalStepSatisfied(runState, "Brownfield Review") && ["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))) {
     return {
       status: "open", current_gate: revision.source_gate === "UR" ? "PRD" : revision.source_gate,
@@ -277,7 +276,7 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
   }
 
   const qaNonPass = qaNonPassDecision(runState);
-  if (qaNonPass) {
+  if (qaNonPass && !runState.qa_acceptance?.eligible) {
     const blocked = qaNonPass === "block";
     return {
       status: blocked ? "blocked" : "open",
@@ -329,4 +328,67 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
     forbidden: ["request UAT approval", "release", "claim delivery readiness before QA approval and report evidence"],
     next_allowed_action: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
   };
+}
+
+// The same policy supplies machine meaning and compatible prose. These operations
+// describe eligibility; they are neither user approval nor an invocation authority.
+function semanticOperation(decision) {
+  if (decision.next_operation) return { ...decision.next_operation,
+    operation_key: decision.next_operation.operation_key ?? decision.next_operation.type,
+    actor: decision.next_operation.actor ?? "agent", effect: decision.next_operation.effect ?? "preparation" };
+  if (decision.status === "blocked") return { type: "resolve_control_blocker", operation_key: "control.resolve",
+    actor: "agent", effect: "none", gate: decision.current_gate };
+  const key = {
+    "Brownfield Review": ["analyse_existing_system", "brownfield-analysis", "analysis.brownfield_review", "preparation"],
+    "Mode/Slice Decision": ["resolve_delivery_route", "brownfield-analysis", "analysis.route", "preparation"],
+    "Brownfield Analysis": ["prepare_implementation", "brownfield-analysis", "analysis.brownfield_implementation", "preparation"],
+    "CD+Tests": ["implement_approved_plan", "gate-check", "implementation.execute", "implementation"],
+    "CR": ["review_implementation", "code-review", "review.code", "preparation"],
+    "QA": ["evaluate_quality", "qa-gate", "quality.evaluate", "preparation"],
+    "OR": ["record_closeout", "release-or", "closeout.record", "closeout"],
+  }[decision.current_gate];
+  if (key) return { type: key[0], skill_id: key[1], operation_key: key[2], actor: "agent", effect: key[3], gate: decision.current_gate };
+  if (decision.current_gate === "UAT") return { type: "human_gate_decision", operation_key: "approval.record",
+    actor: "human", effect: "decision", gate: "UAT" };
+  if (["UR", "PRD", "SD", "TP"].includes(decision.current_gate)) return { type: "author_gate_artifact",
+    operation_key: "artefact.author", actor: "agent", effect: "preparation", gate: decision.current_gate };
+  return { type: "resolve_control_state", operation_key: "control.resolve", actor: "agent", effect: "none", gate: decision.current_gate };
+}
+
+export function transitionDecisionForRunState(runState, verifiedChange = null) {
+  const decision = gateDecisionForRunState(runState, verifiedChange);
+  const lifecycle = extractField(runState.content ?? "", "lifecycle") || runState.meta?.lifecycle || "unknown";
+  if (runState.approval_material_findings?.length) return { ...decision, status: 'blocked', missing_approval: 'none', blocking_reason: 'approved_material_sources_changed',
+    allowed: ['inspect the changed approved sources through their existing revision/recovery owner'], forbidden: [...decision.forbidden, 'continue from an unconfirmed old approval'],
+    next_allowed_action: 'Resolve the changed approved material through its existing source/recovery owner; do not infer a fresh approval.',
+    next_operation: { type: 'resolve_control_blocker', operation_key: 'control.resolve', actor: 'agent', effect: 'none', gate: decision.current_gate },
+    completion: { status: lifecycle === 'completed' ? 'unconfirmed' : 'pending', gate: 'OR', fulfilled: false } };
+  if (lifecycle === "completed") {
+    const or = runState.artefacts.get("OR");
+    const route = modeSliceDecision(runState);
+    const fulfilled = decision.current_gate === "OR" && decision.status !== "blocked"
+      && or?.status === "done" && Boolean(or.path)
+      && (route === 'verified_change' ? verifiedChange?.status === 'executed' : runState.closeout_evidence?.ready === true)
+      && ["structured_slice", "structured_delivery", "quick_task", "verified_change"].includes(route);
+    if (fulfilled) return { ...decision, status: "pass", missing_approval: "none", blocking_reason: "none",
+      allowed: ["prepare an explicitly requested VCS handoff"], forbidden: ["repeat completed Run work", "perform VCS or release actions automatically"],
+      next_allowed_action: "Run completed; prepare a VCS handoff only when explicitly requested.",
+      next_operation: null, completion: { status: "completed", gate: "OR", fulfilled: true, vcs_handoff: "explicit_request_required" } };
+    return { ...decision, status: "blocked", missing_approval: "none", blocking_reason: "completed_run_obligations_unconfirmed",
+      allowed: ["inspect the inconsistent completion and route it to its existing recovery owner"],
+      forbidden: ["repeat completed work automatically", "claim clean completion", "perform VCS or release actions automatically"],
+      next_allowed_action: "Resolve the inconsistent completed Run obligations before claiming a clean closeout.",
+      next_operation: { type: "resolve_control_blocker", operation_key: "control.resolve", actor: "agent", effect: "none", gate: decision.current_gate },
+      completion: { status: "unconfirmed", gate: "OR", fulfilled: false } };
+  }
+  const decided = runState.presentation_decisions?.get(decision.current_gate);
+  if (decided?.decided && runState.approvals.get(decision.current_gate)?.status !== 'approved') return { ...decision,
+    blocking_reason: decided.reason ?? 'presentation_version_decided', missing_approval: 'none', presentation_decision: decided,
+    allowed: ['revise the current material through its existing authoring or remediation owner'],
+    forbidden: [...decision.forbidden, 'approve unchanged decided material', 'invalidate approved upstream sources without supported revision'],
+    next_allowed_action: 'Revise the decided material through its existing owner, register the changed version and obtain a fresh presentation and deliberate decision.',
+    next_operation: { type: 'revise_gate_material', operation_key: 'artefact.author', actor: 'agent', effect: 'preparation', gate: decision.current_gate, skill_id: decided.owner },
+    completion: { status: 'pending', gate: 'OR', fulfilled: false } };
+  return { ...decision, next_operation: semanticOperation(decision),
+    completion: { status: "pending", gate: "OR", fulfilled: false } };
 }

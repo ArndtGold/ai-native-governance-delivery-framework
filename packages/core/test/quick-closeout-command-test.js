@@ -19,7 +19,7 @@ try {
   const run = 'quick-command', prefix = `.agdf/control/artefacts/${run}/`, path = join(root, `.agdf/control/runs/${run}/RUN_STATE.md`);
   execFileSync(process.execPath, [cli, 'run-create', '--dir', root, '--run', run]);
   mkdirSync(join(root, prefix), { recursive: true });
-  const service = createCoreServices().command, target = resolveControlCommandTarget(root).target_id;
+  const core = createCoreServices(), service = core.command, target = resolveControlCommandTarget(root).target_id;
   const revision = () => parseRunState(readFileSync(path, 'utf8'), run).meta.revision_id;
   const bound = () => ({ schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
     target_id: target, run_id: run, expected_revision_id: revision(), operation_id: randomUUID(), assurance: 'cooperative_local' });
@@ -31,13 +31,29 @@ try {
   assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
   const approved = service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' } } });
   assert.equal(approved.outcome, 'accepted', JSON.stringify(approved));
+  const dispatch = (continueDelivery = true) => core.dispatch({ skillId: 'gate-check', presentationLanguage: 'en',
+    workingDirectory: root, primaryTarget: root, targetSource: 'continued_target', runId: run,
+    continueDelivery, surface: 'codex', expectedVersion: core.resources.pluginDefinition.version,
+    skillSet: core.resources.pluginDefinition.skillSet, interactionLocales: core.resources.interactionLocales });
+  const beforeDispatch = readFileSync(path, 'utf8');
+  assert.equal(dispatch(false).terminal, true);
+  assert.equal(readFileSync(path, 'utf8'), beforeDispatch, 'status does not write');
+  const implementation = dispatch();
+  assert.equal(implementation.continuation?.phase, 'compact_implementation', JSON.stringify(implementation));
+  assert.equal(implementation.continuation.revision_id, revision());
   const or = source('OR_CANDIDATE.md', `# OR-lite: Synthetic subtraction\nReport mode: OR-lite\nRun: ${run}\n\n## Result\nSynthetic subtraction and direct regression complete.\n## Evidence\nDisposable test result recorded.\n## Risk\nnone\n## Next Step\nOptional explicitly requested VCS handoff.\n`);
   const request = () => { const input = { ...bound(), command: { kind: 'closeout.record', payload: { or, confirmation: '' } } };
     input.command.payload.confirmation = closeoutConfirmation(run, input.expected_revision_id, input.operation_id, or.digest); return input; };
   const before = readFileSync(path, 'utf8');
   assert.equal(service('agdf_closeout', request()).reason, 'closeout_obligations_unfulfilled');
   assert.equal(readFileSync(path, 'utf8'), before);
-  record({ step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', '# Code Review\n- decision: pass\nSynthetic bounded diff and its direct regression reviewed.\n') });
+  for (const text of ['~~~\nDecision: pass\n~~~\n', '> Example:\nDecision: pass\n', '## Examples\nDecision: pass\n']) {
+    const before = readFileSync(path, 'utf8');
+    const denied = service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', text) } } });
+    assert.equal(denied.outcome, 'rejected'); assert.equal(readFileSync(path, 'utf8'), before);
+  }
+  record({ step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', '# Code Review\nStatus: pass\n- decision: pass\nSynthetic bounded diff and its direct regression reviewed.\n\n## Examples\nDecision: block\n') });
+  assert.equal(dispatch().continuation?.phase, 'compact_closeout');
   const input = request(), result = service('agdf_closeout', input);
   assert.equal(result.outcome, 'accepted', JSON.stringify(result));
   assert.equal(result.current.lifecycle, 'completed'); assert.equal(result.current.completion.fulfilled, true);
@@ -45,6 +61,8 @@ try {
   assert.equal(service('agdf_closeout', input).outcome, 'already_applied');
   const saved = readFileSync(path, 'utf8'); assert.equal(runSealState(root, saved).status, 'valid');
   assert.equal(evaluateGateCheck(root, { runId: run }).completion.fulfilled, true);
+  const completed = dispatch();
+  assert.equal(completed.terminal, true); assert.equal(completed.control.next_operation, null);
   assert.doesNotMatch(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('## Completed / Superseded Pointers')[0], /\| quick-command \|/);
   console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');
 } finally { rmSync(root, { recursive: true, force: true }); }

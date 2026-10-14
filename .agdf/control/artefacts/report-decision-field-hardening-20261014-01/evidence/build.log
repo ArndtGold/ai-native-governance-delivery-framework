@@ -1,0 +1,79 @@
+npm notice run build:prepare
+npm notice run node scripts/verify-ci.mjs --profile prepare
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 7s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (7.8s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 441 modules transformed.
+rendering chunks...
+✓ built in 440ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1231330,"digest":"sha256:2a41c37855dab865a2ac02d24a8ee5055321a656496e174ce3c868df7238a99f","source_digest":"sha256:883ac2bd43569a9ba19116812e9b0aebe3c10e3284fdc0450a0715d13190797c"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 323ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":928901,"digest":"sha256:7a51499620dfebdff84f194c0e8d20731506ad7d8ed6fa2dc4be63eccce51997","source_digest":"sha256:883ac2bd43569a9ba19116812e9b0aebe3c10e3284fdc0450a0715d13190797c"}
+[verify-ci] ui-build passed (2.3s)
+[verify-ci] generate
+[verify-ci] generate passed (1.6s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (1.3s)
+[verify-ci] prepare
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (49 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+warning: Empty last update token.
+Public plugin tests passed (60 inventoried candidate files; digest c8ef914007d74d990c642a1e95949d41a23a44c97b35a428b729ab53b6b06516)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest c8ef914007d74d990c642a1e95949d41a23a44c97b35a428b729ab53b6b06516
+[verify-ci] prepare passed (56.3s)

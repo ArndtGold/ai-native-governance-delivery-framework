@@ -1,6 +1,7 @@
 import { inspectDefinitionSources } from "../control-evaluation/definition-sources.js";
 import { prdDefinitionPhase } from "./prd-definition.js";
 import { sdDefinitionPhase } from "./sd-definition.js";
+import { compactContinuation } from "./compact-continuation.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
@@ -504,6 +505,23 @@ export function createSkillDispatchService(dependencies = {}) {
       const route = control.status_card?.mode_slice_decision ?? control.delivery_map?.mode_slice_decision?.decision;
       const structuredRoute = ["structured_slice", "structured_delivery"].includes(route);
       const tpIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "TP" && item.status === "fulfilled");
+      const compact = runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed,
+        () => compactContinuation(target.governance_target, control, input));
+      if (compact) {
+        const ownerSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get(compact.skill_id);
+        if (!ownerSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill: ownerSkill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({ ...compact,
+          ...(compact.phase === "compact_closeout" && compact.mode === "quick_task"
+            ? { template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.OR) } : {}),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
+            () => dependencies.readSkillRuntimeContracts(compact.skill_id)) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
       if (input.continue_delivery && control.status === "open" && control.current_gate === "CD+Tests"
           && control.missing_approval === "none" && structuredRoute && tpIsFulfilled
           && control.next_operation?.type === "implement_approved_plan") {
@@ -666,6 +684,8 @@ export function createSkillDispatchService(dependencies = {}) {
       }
       const nextSkillId = control.status_card?.next_skill;
       const routeNextSkill = input.continue_delivery && !control.approval_presentation?.markdown
+        && !control.completion?.fulfilled
+        && extractField(control.status_card?.runState?.content ?? "", "lifecycle") !== "completed"
         && nextSkillId && nextSkillId !== "none"
         && (control.current_gate !== "QA" || control.missing_approval === "Approval: QA");
       if (routeNextSkill) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get(nextSkillId) ?? skill;

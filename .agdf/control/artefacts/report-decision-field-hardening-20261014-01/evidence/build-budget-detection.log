@@ -1,0 +1,48 @@
+npm notice run build:prepare
+npm notice run node scripts/verify-ci.mjs --profile prepare
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 9s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (10.2s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 441 modules transformed.
+rendering chunks...
+✓ built in 2.48s
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1231330,"digest":"sha256:2a41c37855dab865a2ac02d24a8ee5055321a656496e174ce3c868df7238a99f","source_digest":"sha256:883ac2bd43569a9ba19116812e9b0aebe3c10e3284fdc0450a0715d13190797c"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 2.02s
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":928901,"digest":"sha256:7a51499620dfebdff84f194c0e8d20731506ad7d8ed6fa2dc4be63eccce51997","source_digest":"sha256:883ac2bd43569a9ba19116812e9b0aebe3c10e3284fdc0450a0715d13190797c"}
+[verify-ci] ui-build passed (10.3s)
+[verify-ci] generate
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/public-plugin/copilot-profile.js:122
+    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
+          ^
+
+Error: AGDF_COPILOT_PAYLOAD_GROWTH: observed 252 files/2179068 bytes; baseline 252/2171311
+    at validateCopilotPayload (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/public-plugin/copilot-profile.js:122:11)
+    at syncPackageAssets (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:672:5)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/sync-package-assets.js:694:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3
+Verification failed at generate: node scripts/sync-package-assets.js (1)

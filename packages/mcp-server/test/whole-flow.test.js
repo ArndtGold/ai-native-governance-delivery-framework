@@ -33,6 +33,15 @@ try {
   assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
   const approved = await service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' } } });
   assert.equal(approved.outcome, 'accepted', JSON.stringify(approved));
+  const dispatch = async (continue_delivery = true) => service('agdf_dispatch', { skill_id: 'gate-check',
+    presentation_language: 'en', working_directory: root, primary_target: root, target_source: 'continued_target',
+    run_id: run, continue_delivery });
+  const statusBytes = readFileSync(path, 'utf8');
+  assert.equal((await dispatch(false)).terminal, true);
+  assert.equal(readFileSync(path, 'utf8'), statusBytes);
+  const implementation = await dispatch();
+  assert.equal(implementation.continuation?.phase, 'compact_implementation', JSON.stringify(implementation));
+  assert.equal(implementation.continuation.revision_id, revision());
   const or = source('OR_CANDIDATE.md', `# OR-lite: Synthetic subtraction\nReport mode: OR-lite\nRun: ${run}\n\n## Result\nSynthetic subtraction and direct regression complete.\n## Evidence\nDisposable test result recorded.\n## Risk\nnone\n## Next Step\nOptional explicitly requested VCS handoff.\n`);
   const request = () => { const input = { ...bound(), command: { kind: 'closeout.record', payload: { or, confirmation: '' } } };
     input.command.payload.confirmation = closeoutConfirmation(run, input.expected_revision_id, input.operation_id, or.digest); return input; };
@@ -40,6 +49,7 @@ try {
   assert.equal((await service('agdf_closeout', request())).reason, 'closeout_obligations_unfulfilled');
   assert.equal(readFileSync(path, 'utf8'), before);
   await record({ step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', '# Code Review\n- decision: pass\nSynthetic bounded diff and its direct regression reviewed.\n') });
+  assert.equal((await dispatch()).continuation?.phase, 'compact_closeout');
   const input = request(), result = await service('agdf_closeout', input);
   assert.equal(result.outcome, 'accepted', JSON.stringify(result));
   assert.equal(result.current.lifecycle, 'completed'); assert.equal(result.current.completion.fulfilled, true);
@@ -47,6 +57,8 @@ try {
   assert.equal((await service('agdf_closeout', input)).outcome, 'already_applied');
   const saved = readFileSync(path, 'utf8'); assert.equal(runSealState(root, saved).status, 'valid');
   assert.equal(evaluateGateCheck(root, { runId: run }).completion.fulfilled, true);
+  const completed = await dispatch(); assert.equal(completed.terminal, true);
+  assert.equal(completed.control.next_operation, null);
   assert.doesNotMatch(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('## Completed / Superseded Pointers')[0], /\| quick-command \|/);
   console.log('Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');
   });

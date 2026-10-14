@@ -32,7 +32,9 @@ function write(path, content) {
 
 function run(target = "gate-check") {
   write(runStatePath, sealRunState(root, readFileSync(join(root, runStatePath), "utf8")));
-  const result = spawnSync(process.execPath, [cli, target, "--dir", root, "--run", "example", "--json"], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [cli, target, "--dir", root, "--run", "example", "--json",
+    ...(target === "skill-dispatch" ? ["--skill", "gate-check", "--language", "en", "--surface", "codex", "--working-directory", root,
+      "--target-source", "continued_target", "--primary-target", root, "--continue-delivery"] : [])], { encoding: "utf8" });
   if (!result.stdout.trim()) throw new Error(`Verified Change CLI produced no JSON: ${result.stderr.trim()}`);
   return { result, report: JSON.parse(result.stdout) };
 }
@@ -91,7 +93,7 @@ function runState(recordStatus = "eligible", lifecycle = "active") {
 `;
 }
 
-function record({ status = "eligible", relatedUr = ".agdf/control/artefacts/example/UR.md", escalationTarget = "structured_slice", owner = "README.md", sourcePaths = "README.md", derivedPaths = "none", prohibitedImpacts = "none", propagationCommand = "none", validationCommands = "node --check fixture", baselineTracked = ".agdf/control/runs/example/RUN_STATE.md, .agdf/control/artefacts/example/VERIFIED_CHANGE.md, unrelated-tracked.md", baselineUntracked = "unrelated-untracked.md", executionChangedPaths, executionScopeStatus, validationStatus = "pending", propagationStatus = "not_applicable", extra = "" } = {}) {
+function record({ status = "eligible", relatedUr = ".agdf/control/artefacts/example/UR.md", escalationTarget = "structured_slice", owner = "README.md", sourcePaths = "README.md", derivedPaths = "none", prohibitedImpacts = "none", propagationCommand = "none", validationCommands = "node --check fixture", baselineTracked = ".agdf/control/artefacts/example/UR.md, .agdf/control/artefacts/example/BROWNFIELD_REVIEW.md, .agdf/control/runs/example/RUN_STATE.md, .agdf/control/artefacts/example/VERIFIED_CHANGE.md, unrelated-tracked.md", baselineUntracked = "unrelated-untracked.md", executionChangedPaths, executionScopeStatus, validationStatus = "pending", propagationStatus = "not_applicable", extra = "" } = {}) {
   const changedPaths = executionChangedPaths ?? (status === "executed" ? "README.md" : "none");
   const scopeStatus = executionScopeStatus ?? (status === "executed" ? "pass" : "pending");
   return `# Verified Change: Fixture
@@ -174,6 +176,14 @@ try {
   assert.ok(check.report.allowed.includes("implement only declared source and derived paths"));
   assert.equal(check.report.blocking_reason, "none");
   assert.ok(check.report.forbidden.includes("touch unlisted paths"));
+  assert.equal(check.report.next_operation.type, "implement_compact_scope");
+  write(".agdf/control/artefacts/example/UR.md", "# UR: Bounded README change\n");
+  write(".agdf/control/artefacts/example/BROWNFIELD_REVIEW.md", "# Brownfield Review\nBounded README change.\n");
+  const eligibleDispatch = run("skill-dispatch").report;
+  assert.equal(eligibleDispatch.continuation?.phase, "compact_implementation", JSON.stringify(eligibleDispatch));
+  assert.equal(eligibleDispatch.continuation.mode, "verified_change");
+  assert.deepEqual(eligibleDispatch.continuation.verified_change.allowed_source_paths, ["README.md"]);
+  assert.equal(eligibleDispatch.continuation.verified_change.baseline_commit, baselineCommit);
 
   write(runStatePath, runState().replace("| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md |", "| Verified Change | `.agdf/control/artefacts/example/VERIFIED_CHANGE.md` |"));
   check = run();
@@ -196,6 +206,7 @@ try {
   assert.equal(check.report.blocking_reason, "verified_change_record_required");
   assert.ok(check.report.forbidden.includes("implement candidate changes"));
   assert.match(check.report.next_allowed_action, /satisfy every eligibility check/);
+  assert.equal(run("skill-dispatch").report.continuation?.phase, "verified_change_record");
 
   write(runStatePath, runState());
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record());
@@ -277,6 +288,8 @@ try {
   assert.equal(check.report.blocking_reason, "none");
   assert.ok(check.report.forbidden.includes("create PRD, SD, TP, QA or UAT by ritual"));
   assert.match(check.report.next_allowed_action, /compact record/);
+  write(".agdf/control/artefacts/example/BROWNFIELD_REVIEW.md", "# Brownfield Review\nBounded README change.\n");
+  assert.equal(run("skill-dispatch").report.continuation?.phase, "compact_closeout");
 
   const consolidatedState = runState("executed")
     .replace(".agdf/control/artefacts/example/BROWNFIELD_REVIEW.md", ".agdf/control/artefacts/example/VERIFIED_CHANGE.md")

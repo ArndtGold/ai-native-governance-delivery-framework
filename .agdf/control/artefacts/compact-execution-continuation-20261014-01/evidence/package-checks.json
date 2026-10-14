@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "logs": [
+    "build-prepare.log",
+    "instruction-footprint.log",
+    "request-activation.log",
+    "runtime-integrity-layout.log",
+    "runtime-integrity-negative.log",
+    "install-codex.log"
+  ],
+  "canonical_version": "0.14.5",
+  "copilot_baseline": {
+    "schema_version": 1,
+    "profile_id": "copilot-runtime-plugin",
+    "max_files": 251,
+    "max_bytes": 2169703,
+    "rationale": "Exact measured compact-continuation payload: one shared Core handoff module and existing policy/dispatcher/contract changes for bounded execution and closeout. No additional skill, UI, state store or Git capability. Zero size headroom; remeasure through the normal generator after any source change."
+  },
+  "budget_increase": {
+    "files": 1,
+    "bytes": 10025,
+    "headroom": 0
+  },
+  "notes": [
+    "Canonical generation/assembly/release prepare passed.",
+    "Instruction-footprint generator check rerun serially after concurrent generation disturbed a digest.",
+    "MCP continuation test used physical TMPDIR=/private/tmp to avoid macOS /var alias assertion. No assertion changed."
+  ]
+}

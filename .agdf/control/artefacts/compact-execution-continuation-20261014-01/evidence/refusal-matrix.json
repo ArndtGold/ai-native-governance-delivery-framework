@@ -1,0 +1,25 @@
+{
+  "status": "pass",
+  "source_evidence": [
+    "source-dispatch.log",
+    "canonical-flows.log",
+    "cli-gates.log",
+    "runtime-integrity-negative.log"
+  ],
+  "installed_evidence": [
+    "installed-stdio.jsonl",
+    "installed-verified.jsonl"
+  ],
+  "cases": [
+    "read_only_unchanged",
+    "missing_approval",
+    "changed_approved_source",
+    "foreign_run",
+    "source_missing_symlink",
+    "current_final_blocker",
+    "invalid_input",
+    "stale_revision_resume",
+    "completed_no_repeat",
+    "mcp_git_unavailable"
+  ]
+}

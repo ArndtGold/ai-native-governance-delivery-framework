@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { containedRegularFile } from "./contained-file.js";
 import { readSourceRevisions } from "./run-source-revisions.js";
 import { REVIEWED_REQUEST_FIELDS } from './recording-formats.js';
+import { readReportDecision } from '../control-evaluation/report-decision.js';
 
 // Called by run-step with Run and Backlog locks already held. No approval or QA decision owner.
 export function prepareArtefactRecording(root, run, input, control, before) {
@@ -43,7 +44,7 @@ export function prepareArtefactRecording(root, run, input, control, before) {
       || !exactApprovedArtefacts(root, control)) fail("AGDF_ARTEFACT_BINDING_PROOF_INVALID");
   if (input.gate === "QA") {
     const report = readFileSync(containedRegularFile(root, candidate.destination.path).path, "utf8");
-    if (report.match(/^(?:- )?(?:Decision|Status):\s*(pass|revise|block)\s*$/imu)?.[1]?.toLowerCase() !== candidate.destination.status) fail("AGDF_ARTEFACT_RECORDING_INPUT_INVALID");
+    if (readReportDecision(report) !== candidate.destination.status) fail("AGDF_ARTEFACT_RECORDING_INPUT_INVALID");
   }
   const old = control.artefacts.get(input.gate);
   if (old?.path && old.path !== candidate.destination.path) fail("AGDF_ARTEFACT_RECORDING_INPUT_INVALID");

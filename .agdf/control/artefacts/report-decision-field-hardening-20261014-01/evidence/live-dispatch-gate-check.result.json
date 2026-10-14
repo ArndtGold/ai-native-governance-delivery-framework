@@ -1,0 +1,86 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "control_result",
+  "terminal": true,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/6cad50cc9ef48e4849460994e85de6b645617614a9d092b604ea7b4398e4f931/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "bfeaf67f6ebea5193020e27c1d7deccdcef661700a307d83547f6f052783e7f1",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "pass",
+    "current_gate": "OR",
+    "gate_route": {
+      "gate": "OR",
+      "skills": [
+        "release-or"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": null,
+    "completion": {
+      "status": "completed",
+      "gate": "OR",
+      "fulfilled": true,
+      "vcs_handoff": "explicit_request_required"
+    },
+    "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+    "doctor_status": "pass",
+    "candidate_runs": []
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "run_status_card",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+    "current_gate": "OR",
+    "presentation_language": "de",
+    "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Harden authored report decisions and qualify the installed plugin · `report-decision-field-hardening-20261014-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen<br>VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |",
+    "authorizes": false
+  },
+  "continuation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "transmit_presentation_verbatim_and_stop",
+    "source": "presentation.markdown",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Harden authored report decisions and qualify the installed plugin · `report-decision-field-hardening-20261014-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen<br>VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |",
+    "allow_surrounding_text": false,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 9.771,
+    "target_ms": 2.175,
+    "control_ms": 531.358,
+    "render_ms": 13.792,
+    "total_ms": 558.22
+  },
+  "diagnostics": []
+}

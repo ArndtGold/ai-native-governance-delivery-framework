@@ -1,10 +1,10 @@
 import { extractField } from './verified-change.js';
 import { cleanStatusCell, filled, isPlaceholderValue, markdownSection, tableRows } from './shared.js';
 import { canonicalJson, digest } from '../control-state/approval-command-contract.js';
+import { readReportDecision } from './report-decision.js';
 
 export const closeoutConfirmation = (runId, revisionId, operationId, orDigest) => `Close Run: ${runId} ${revisionId} ${operationId} ${orDigest}`;
 const value = (text, field, label) => cleanStatusCell(extractField(text, field) || (label ? text.match(new RegExp(`^${label}:[ \\t]*(.*)$`, 'mu'))?.[1] : ''));
-const decisive = text => [...text.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|passed|revise|block)[ \t]*$/gmu)].map(row => row[1]);
 const concrete = text => filled(text) && !isPlaceholderValue(text) && !/^(?:tbd|todo|<)/iu.test(text);
 export function closeoutContext(text) {
   return Object.fromEntries(['context_graph_impact', 'context_graph_refs', 'context_graph_reconciliation', 'context_graph_required_action',
@@ -45,11 +45,11 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
       if (!row || !acceptedPlan && !['done', ...(step === 'Brownfield Analysis' ? ['not_applicable'] : [])].includes(row.status) || association && association.applicability !== 'current') fail('closeout_review_unfulfilled:' + step);
       if (prepared && row?.status !== 'not_applicable') {
         const text = row?.path ? readArtefact(row.path) : undefined;
-        if (typeof text !== 'string' || decisive(text).length !== 1 || !['pass', 'passed', ...(acceptedPlan ? ['revise'] : [])].includes(decisive(text)[0])) fail('closeout_review_result_unconfirmed:' + step);
+        if (!['pass', ...(acceptedPlan ? ['revise'] : [])].includes(readReportDecision(text))) fail('closeout_review_result_unconfirmed:' + step);
       }
     }
     const qa = state.artefacts.get('QA'), qaText = qa?.path ? readArtefact(qa.path) : undefined;
-    if (typeof qaText !== 'string' || decisive(qaText).length !== 1 || !['pass', 'passed', ...(state.qa_acceptance?.accepted ? ['revise'] : [])].includes(decisive(qaText)[0])) fail('closeout_qa_pass_unconfirmed');
+    if (!['pass', ...(state.qa_acceptance?.accepted ? ['revise'] : [])].includes(readReportDecision(qaText))) fail('closeout_qa_pass_unconfirmed');
     if (state.qa_acceptance?.accepted && (value(report, 'qa_acceptance') !== 'accepted_with_deviations'
       || value(report, 'accepted_qa_deviations_digest') !== state.qa_acceptance.digest)) fail('closeout_qa_deviations_not_disclosed');
     const qaAssociation = state.evidence_applicability?.by_step.get('QA');

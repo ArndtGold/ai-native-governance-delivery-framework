@@ -47,6 +47,7 @@ import { withRunBacklogLock, writeRunWithBacklogLocked } from './run-backlog-wri
 import { APPROVAL_GATES as DECISION_GATES, REVISION_ID_PATTERN } from './run-identity.js';
 import { runSealState, artefactFileDigest } from './run-seal.js';
 import { inspectUxIntentDecision } from '../control-evaluation/definition-sources.js';
+import { readReportDecision } from '../control-evaluation/report-decision.js';
 
 // run-step records one standard transition of the small path in a single sealed revision. The agent
 // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
@@ -207,8 +208,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     if (step === "review") {
       if (!['CR', 'Quick Task Execution'].includes(before.current_gate)
           || !['pass', 'revise', 'block'].includes(input.decision)) return rejected(runId, "review_step_not_ready");
-      const decisions = [...operationSource.content.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|revise|block)[ \t]*$/gmu)];
-      if (decisions.length !== 1 || decisions[0][1] !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+      if (readReportDecision(operationSource.content) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
     }
     operationRecord = { step, source: { path: canonicalFile ? artefactPath(key, canonicalFile) : input.sourceBinding.path, digest: input.sourceBinding.digest },
       status: step === "review" && input.decision !== "pass" ? input.decision : "done", covers: oneLine(input.covers) || "selected Run scope",
@@ -225,8 +225,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       if (!checked.well_formed || !checked.supported || checked.decision !== input.decision
         || input.decision === 'not_applicable' && (control.source_revision_ux_required || before.next_operation?.analysis === input.internalStep)) return rejected(runId, 'internal_result_unconfirmed');
     } else {
-      const declaredDecisions = [...operationSource.content.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|revise|block|not_applicable)[ \t]*$/gmu)];
-      if (declaredDecisions.length !== 1 || declaredDecisions[0][1] !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+      if (readReportDecision(operationSource.content, { allowNotApplicable: true }) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
     }
     const path = artefactPath(key, INTERNAL_STEP_FILES[input.internalStep]);
     const status = ['pass', 'ready'].includes(input.decision) ? "done" : input.decision === 'blocked' ? 'block' : input.decision;

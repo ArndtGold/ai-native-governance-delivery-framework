@@ -7,6 +7,7 @@ import { cleanStatusCell } from './shared.js';
 import { isGateSatisfied } from './gate-policy.js';
 import { isInternalStepSatisfied } from './run-state.js';
 import { createHash } from 'node:crypto';
+import { readReportDecision } from './report-decision.js';
 
 const columns = ['finding_id', 'gap_type', 'routing_target', 'gap_status', 'evidence', 'required_next_step'];
 // Consume the sole normative route table rather than introduce a second type-to-route map.
@@ -64,8 +65,7 @@ export function inspectQaReports(root, state, runId, expectedDecision, maxSource
     catch { return stop(`Review source encoding unsupported: ${type}.`); }
     if (content.length > 262144) return stop(`Review source exceeds the bounded input size: ${type}.`);
     if (type === 'QA') {
-      if ([...content.matchAll(/^- decision:[ \t]*(.*)$/gmu)].length !== 1
-          || extractField(content, 'decision').replace(/^passed$/u, 'pass') !== expectedDecision) return stop('QA report decision contradicts its current recording.');
+      if (readReportDecision(content) !== expectedDecision) return stop('QA report decision contradicts its current recording.');
       // Explicit QA references are inputs too; missing or unsafe references cannot be ignored.
       const refs = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/gu)].filter(m => /review|\bCR\b/iu.test(m[1] + ' ' + m[2]) && /\.md(?:#.*)?$/iu.test(m[2])).map(m => [m[1], m[2].split('#')[0]]);
       for (const m of content.matchAll(/^- (tp_review|clean_implementation_review|code_review):[ \t]*`?([^`\r\n]+)`?[ \t]*$/gmu)) refs.push([m[1], m[2].trim()]);

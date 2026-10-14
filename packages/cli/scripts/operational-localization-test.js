@@ -36,6 +36,7 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
     [state({ approvals: ["UR"], rows: reviewed })],
     [state({ approvals: ["UR"], rows: reviewed, decision: "block" })],
     [state({ approvals: ["UR"], rows: reviewed, decision: "quick_task" })],
+    [state({ approvals: ["UR"], rows: { ...reviewed, CR: "done" }, decision: "quick_task" })],
     [state({ approvals: ["UR"], rows: { ...reviewed, OR: "done" }, decision: "quick_task", lifecycle: "completed", currentGate: "OR" })],
     // An escalated record with an unsupported target also carries a doctor finding, whose step wins.
     ...["executed", "escalated", "eligible", "missing", "draft", "invalid"].flatMap((status) => ["structured_slice", "structured_delivery", "none"]

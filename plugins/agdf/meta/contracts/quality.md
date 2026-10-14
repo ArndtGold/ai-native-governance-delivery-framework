@@ -80,6 +80,26 @@ Always visible:
 
 ## Quality Contract Output
 
+Core reads reported technical results through one shared observer. `Decision`/`decision` and
+technical `Status` declarations may repeat the same supported result; `passed` normalizes to
+`pass`. Lifecycle metadata such as `Status: draft` or `Status: done` is not a QA result.
+Only initial result metadata (optionally after the report H1) and the first scalar field block
+under a column-zero H2 `Decision` or `QA Decision` heading are authored result contexts. Numeric
+section prefixes and closing heading hashes are supported; canonical `## 1. QA Decision` remains
+valid. Prose, unrelated/nested headings and non-metadata fields close the field block; a blank
+line never reopens it. Metadata names are the existing Decision, Status, Gate, Gate approval,
+Based on, Date, Owner, Type, Mode, Reviewer, reviewed_at, run_id, source_revision and Traceability
+contract. Fenced/indented code, lists, blockquotes (including lazy continuations), HTML containers,
+comments and raw blocks never supply results or conflicts. Only a clearly terminated container
+allows a following genuine decision section; uncertain/unclosed markup keeps its remainder excluded.
+This is a conservative bounded report grammar, not general Markdown parsing or prose-intent inference.
+Bound Quick review and non-UX internal registration reuse the observer. Only the internal analysis
+domain opts into `not_applicable`; its existing eligibility/reason checks remain authoritative.
+Conflicting supported values, an unknown or empty explicit Decision, or a missing supported
+result remain unconfirmed. This observes authored evidence only: it grants no QA decision,
+approval, source replacement or closeout permission. Exact approved bytes and current bindings
+remain separately enforced.
+
 Structured Delivery skills use this shape when relevant:
 
 - `decision`: `pass | revise | block | not_applicable`

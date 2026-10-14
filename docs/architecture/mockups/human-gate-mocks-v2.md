@@ -1,5 +1,9 @@
 # Produkt-Mocks für menschliche Gates
 
+> **Historischer Stand:** Die [v3-Serie](human-gate-mocks-v3.md) schärft Prüfaufgaben,
+> Arbeitsübergabe und Ergebnisprüfung. Diese v2-Dateien bleiben als Entwurf nachvollziehbar;
+> der QA-Abweichungsfluss ergänzt weiterhin die aktuellen Karten.
+
 Diese v2-Serie setzt das gemeinsame Gate-Kartenmodell in lesbaren, produktnahen
 Architektur-Mocks um. Sie wurde am 13. Oktober 2026 als handgeführte SVG-Serie erstellt.
 Die Dateien sind keine Screenshots und keine Aussage über eine bereits ausgelieferte oder

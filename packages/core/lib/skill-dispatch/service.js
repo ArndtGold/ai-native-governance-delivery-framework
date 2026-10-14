@@ -629,6 +629,25 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       }
+      if (input.continue_delivery && control.blocking_reason === 'AGDF_DECISION_CONTENT_INCOMPLETE') {
+        const errors = control.presentation_diagnostics?.approval_presentation_errors ?? [];
+        const orientationOnly = errors.length > 0 && errors.every(code => code.endsWith(':Objective'));
+        const unapprovedQa = control.current_gate === 'QA' && control.status_card?.runState?.approvals.get('QA')?.status !== 'approved';
+        if (orientationOnly || unapprovedQa) {
+          const owner = orientationOnly ? 'gate-check' : 'qa-gate';
+          const result = baseResult({ outcome: 'skill_continuation', terminal: false, skill, runtime, timing });
+          result.target = target; result.control = controlSnapshot(control);
+          result.continuation = Object.freeze({ phase: 'required_gate_artifact', skill_id: owner,
+            governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
+            presentation_language: input.presentation_language,
+            ...(!orientationOnly && unapprovedQa ? { artifact_path: `.agdf/control/artefacts/${result.control.run_id}/QA_REPORT.md`,
+              template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.QA_REPORT) } : {}),
+            instruction: `${control.presentation_diagnostics.approval_presentation_recovery}\nComplete only this bound Run's permitted unapproved content through its existing writer; preserve approved intent and all protected sources. Record the current revision and redispatch the same Run once. An unchanged failure stops; no earlier reply is approval.`,
+            ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
+          });
+          timing.total_ms = round(milliseconds(started, now())); return bindHostAction(result);
+        }
+      }
       const runState = control.status_card?.runState;
       const orArtefact = runState?.artefacts?.get?.("OR");
       const uatIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "UAT" && item.status === "fulfilled");

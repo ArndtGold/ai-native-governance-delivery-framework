@@ -1,0 +1,1507 @@
+diff --git a/docs/architecture/07-ui-konzept.md b/docs/architecture/07-ui-konzept.md
+index 3a3af6dd..62dc4b4a 100644
+--- a/docs/architecture/07-ui-konzept.md
++++ b/docs/architecture/07-ui-konzept.md
+@@ -13,7 +13,7 @@ erforderlichen Entscheidungen. Die KI führt die jeweils zulässige Arbeit aus.
+ verständlich sichtbar, was vereinbart ist, was bereits belegt wurde und was jetzt passieren
+ muss, damit das Vorhaben weiterkommt.
+ 
+-**Dokumentrolle: UI-Zielkonzept, Stand 13. Oktober 2026.** Die folgenden Abschnitte beschreiben
++**Dokumentrolle: UI-Zielkonzept, Stand 14. Oktober 2026.** Die folgenden Abschnitte beschreiben
+ das gemeinsame Bedienmodell. Bestehende Komponenten bilden seine Grundlage; die vollständige
+ Zusammenführung ist eine Weiterentwicklung. Die [Cockpit-Referenz](06-agdf-cockpit.md) beschreibt
+ die vorhandene Leseintegration. Der [Befehlsfluss](core-mcp-command-flow.md) beschreibt die
+@@ -24,6 +24,11 @@ Die [UI-Richtlinien](08-ui-richtlinien.md) ergänzen dieses Konzept um gemeinsam
+ an Sprache, Orientierung, Entscheidungen, Gestaltung und Bedienbarkeit. Jede Richtlinie
+ enthält ein Beispiel und ein prüfbares Kriterium für die Weiterentwicklung der Ansichten.
+ 
++Der Maßstab für die Bedienung ist die Entlastung des Anwenders: weniger suchen, zuordnen und
++vergleichen, gezielt entscheiden und das gelieferte Ergebnis selbst überprüfen können. Ein
++sichtbarer Verfahrensschritt allein erfüllt dieses Ziel nicht. Jede Entscheidung bereitet die
++konkrete Prüfaufgabe vor; jeder Wechsel erhält oder klärt den tatsächlichen Arbeitsgegenstand.
++
+ ## Architekturentscheidung zur gemeinsamen Host-Schnittstelle
+ 
+ **Entscheidung für die UI-Weiterentwicklung, 12. Oktober 2026; Darstellungsformate geschärft
+@@ -168,24 +173,26 @@ Abschlussschritte. Sie werden nicht als zusätzliche menschliche Freigaben darge
+ 
+ Jede menschliche Gate-Karte besitzt dieselbe Anatomie:
+ 
+-1. **Orientierung:** Vorhaben, verständliche Aufgabe, Gate in Details, Fassung und Revision.
+-2. **Entscheidungsgrundlage:** gate-spezifische Zusammenfassung, genaue Quelle und offene Punkte.
++1. **Orientierung:** Vorhaben, Fassung und eine konkrete Prüfaufgabe für die zuständige Person;
++   Gate und Revision in Details. Aufgabe, Frage und Erwartung werden ohne Wiederholung verdichtet.
++2. **Entscheidungsgrundlage:** gate-spezifische Zusammenfassung, belegte Vorprüfungen mit ihrem
++   Aussagebereich, relevante Änderungen, genaue Quelle, Risiken und offene Punkte.
+ 3. **Wirkung:** Was die Zustimmung als Nächstes erlaubt und was weiterhin ausdrücklich gesperrt bleibt.
+ 4. **Entscheidungsweg:** verfügbare Leseaktion, qualifizierte native Aktion oder exakte Chat-Antwort.
+ 5. **Bindung:** Run, Gate, Revision, relevante Digests und Identität der vorbereiteten Präsentation.
+ 6. **Ergebnis:** bestätigte Speicherung, Revision und nächste tatsächliche Verpflichtung ohne
+    Behauptung automatisch gestarteter Arbeit.
+ 
+-![Anatomie einer menschlichen Gate-Karte](mockups/gate-card-anatomy-v2.svg)
++![Verdichtete Entscheidungsvorbereitung mit Prüfaufgabe und Änderungsvergleich](mockups/gate-card-anatomy-v3.svg)
+ 
+ Der stabile Rahmen enthält nicht für jedes Gate denselben generischen Mittelteil. Die folgenden
+ Produkt-Mocks zeigen die jeweils passende fachliche Komponente:
+ 
+-![Gate-Karten für UR und PRD](mockups/gate-cards-ur-prd-v2.svg)
++![Gate-Karten für UR und PRD](mockups/gate-cards-ur-prd-v3.svg)
+ 
+-![Gate-Karten für SD und TP](mockups/gate-cards-sd-tp-v2.svg)
++![Gate-Karten für SD und TP](mockups/gate-cards-sd-tp-v3.svg)
+ 
+-![Gate-Karten für QA und UAT](mockups/gate-cards-qa-uat-v2.svg)
++![Gate-Karten für QA und UAT](mockups/gate-cards-qa-uat-v3.svg)
+ 
+ | Gate | Sichtbare Leitfrage | Zwingende Entscheidungszusammenfassung | Zustimmung erlaubt | Bleibt gesperrt |
+ |---|---|---|---|---|
+@@ -196,8 +203,9 @@ Produkt-Mocks zeigen die jeweils passende fachliche Komponente:
+ | `QA` | Sind Qualität und Nachweise ausreichend? | Technische QA-Entscheidung, Test- und Reviewstand, Befunde, Restgrenzen und gegebenenfalls exakt vorgelegte Abweichung | UAT bei technischem Pass oder ausdrücklich zulässiger gebundener Abweichungsannahme | Behandlung eines `revise` als Pass, Release und automatische VCS-Aktionen |
+ | `UAT` | Erfüllt das Ergebnis deinen vereinbarten Wunsch? | Geliefert, bewusst nicht geliefert, Akzeptanzkriterien, Restrisiken und übernommene QA-Abweichungen | OR und Closeout | Automatischer Commit, Push, PR oder Release |
+ 
+-Die positive native Aktion folgt der Aufgabe: „So stimmt es“ für UR, PRD, SD und TP,
+-„Freigeben“ für einen entscheidungsreifen QA-Pass und „Abnehmen“ für UAT. Die kanonische
++Die positive native Aktion benennt ihren Gegenstand: „Anforderung bestätigen“, „Verhalten
++bestätigen“, „Lösungsentwurf bestätigen“, „Umsetzungsplan bestätigen“, „Qualität freigeben“
++für einen entscheidungsreifen QA-Pass und „Ergebnis abnehmen“ für UAT. Die kanonische
+ Chat-Antwort bleibt `Approval: <Gate>`. `revise`, `decline` und `cancel` sind getrennte
+ bewusste Ergebnisse; sie erteilen keine Berechtigung und werden nicht aus einer Diskussion,
+ einem Schließen der App oder ausbleibender Antwort abgeleitet.
+@@ -208,6 +216,44 @@ Inhalte linear und zeigt die exakte Antwort unmittelbar, wenn das Gespräch der
+ Entscheidungsweg ist. Eine geänderte Quelle oder Revision entwertet beide Darstellungen
+ gleichermaßen und verlangt eine neue Präsentation.
+ 
++### Konkrete Prüfaufgabe und Zuständigkeit
++
++Die Karte erklärt, warum jetzt ein menschliches Urteil erforderlich ist und was diese Person
++beurteilen soll. Sie verlangt keine erneute Prüfung bereits belegter technischer Arbeit ohne
++konkreten Anlass. Freundliche Sprache ersetzt weder Fachkenntnis noch die zuständige Person.
++Die folgenden Rollen beschreiben benötigte Kompetenz; die tatsächliche Zuständigkeit und
++Entscheidungsberechtigung stammen aus dem geltenden Ablauf, nicht aus einer UI-Zuweisung.
++
++| Gegenstand | Prüfaufgabe für die zuständige Person | Was diese Zustimmung nicht aussagt |
++|---|---|---|
++| Anforderung | Fachlich Verantwortliche prüfen Ziel, Nutzer, Umfang und Ausschlüsse: „Ist das der gewünschte Auftrag?“ | Produktverhalten und technische Lösung sind noch nicht entschieden. |
++| Produktverhalten | Fachlich Verantwortliche prüfen beobachtbares Verhalten und Kriterien: „Soll die Meldung hier erscheinen und für diese Fälle gelten?“ | Die technische Umsetzung ist nicht Gegenstand dieser Entscheidung. |
++| Lösungsentwurf | Technisch Verantwortliche beurteilen Wiederverwendung, Schnittstellen, Alternative, Risiko und Fallback. | Fachliche Zustimmung zum Ziel belegt keine technische Eignung. |
++| Umsetzungsplan | Die zuständige Delivery-/Technikperson prüft Reihenfolge, Owner und die geplante Abdeckung von Lösung und Kriterien. | Geplante Tests sind noch keine bestandenen Tests. |
++| Qualität | Die zuständige Person prüft den vorliegenden technischen QA-Entscheid und dessen Restgrenzen; eine zulässige Abweichung braucht eine eigene Risikoentscheidung. | Zustimmung ersetzt weder die technische QA-Instanz noch die fachliche Abnahme. |
++| Ergebnis | Der fachliche Abnehmende prüft das gelieferte Verhalten anhand der vereinbarten Kriterien und kennt die Einschränkungen. | Abnahme belegt weder Integration noch Veröffentlichung. |
++
++Ist die Zuständigkeit ungeklärt, zeigt die Karte „Zuständigkeit klären“ statt einer scheinbar
++passenden persönlichen Prüfaufforderung. Eine dafür angebotene Aktion darf keine technische
++Berechtigung oder neue Gate-Regel erzeugen.
++
++### Belegte Vorprüfung und relevante Änderungen
++
++Die Entscheidungsvorbereitung beantwortet knapp: **Was soll ich beurteilen? Was ist bereits
++belegt? Was bleibt offen?** Jede behauptete Vorprüfung benennt Quelle, geprüfte Fassung,
++Ergebnis und Aussagegrenze. Eine Entwurfsprüfung auf Autorenregeln ist beispielsweise kein
++Nachweis fachlicher Richtigkeit. Testzahlen allein erklären weder das geprüfte Verhalten
++noch seine Grenzen. Fehlende oder veraltete Nachweise werden als solche bezeichnet.
++
++Bei einer Überarbeitung ist der Änderungsvergleich der Regelfall, sobald eine belastbare
++Vergleichsgrundlage vorhanden ist. Er zeigt die relevante Änderung, die berücksichtigte oder
++noch offene Rückmeldung und Auswirkungen auf Umfang, Risiken und frühere Entscheidungen.
++Ein unveränderter Umfang wird nur mit passender Grundlage behauptet. Die vollständige neue
++Fassung und der Vergleich bleiben erreichbar; die Kurzfassung ersetzt keine Quelle.
++Fehlt eine vergleichbare Fassung, steht sichtbar „Kein verlässlicher Vergleich verfügbar“
++mit dem Grund und der erforderlichen Prüfung der vollständigen Fassung. Frühere Zustimmung
++gilt nicht für die Ersatzfassung.
++
+ #### QA-Abweichung und Übergabe an UAT
+ 
+ QA ist das einzige menschliche Gate mit zwei fachlich verschiedenen positiven Situationen:
+@@ -218,7 +264,7 @@ UAT und OR übernehmen diese Angaben sichtbar.
+ 
+ ![QA-Abweichungsannahme und Übergabe an UAT](mockups/qa-deviation-uat-v2.svg)
+ 
+-Die [Quelldokumentation der Produkt-Mocks](mockups/human-gate-mocks-v2.md) beschreibt Zweck,
++Die [Quelldokumentation der aktuellen Produkt-Mocks](mockups/human-gate-mocks-v3.md) beschreibt Zweck,
+ Grenzen und Beispieldaten. Die SVGs konkretisieren Informationshierarchie und Zustände; sie
+ belegen weder fertige Komponenten noch einen qualifizierten nativen Entscheidungsweg. Die
+ frühere [v1-Systemübersicht](mockups/human-gate-mocks-v1.md) bleibt historisch nachvollziehbar.
+@@ -290,6 +336,13 @@ garantiert keine bestimmte Position im Host. Die Einbindung in den rechten Berei
+ Erhalt des Gesprächs müssen deshalb bei der konkreten Host-Qualifizierung beobachtet werden.
+ Die permanente Gate-Orientierung ist eine Ergänzung zum bereits vorhandenen sticky Brand-Kopf.
+ 
++Auf schmalen Flächen besteht der feste Kopf aus Vorhaben, Fassung und einer verdichteten
++Handlungserwartung. Ablauf, Branding und Herkunft beanspruchen keine weiteren dauerhaft
++fixierten Informationsblöcke. Der vollständige Ablauf bleibt erreichbar. Bei Vergrößerung
++des Texts darf der Kopf zugunsten des lesbaren Inhalts mitlaufen, wenn dieselbe Orientierung
++an der aktuellen Aufgabe zugänglich bleibt. Entscheidungsrelevante Risiken bleiben im
++Hauptinhalt und werden nicht aus Platzgründen in technischen Details verborgen.
++
+ Die vierte Mockup-Serie übernimmt die klare Trennung von Host und AGDF-Fläche aus der
+ dritten Serie. Sie verwendet verständliche Aufgaben und Entscheidungsfragen in allen Ansichten. Frühere Bilder bleiben
+ als Entwürfe erhalten. Die Anordnung der Flächen im Bild ist eine Erläuterung des Konzepts,
+@@ -337,6 +390,14 @@ Bei einem später qualifizierten Klickweg kann die App die erlaubte Entscheidung
+ vermitteln. Diese Fähigkeit bleibt an den nachgewiesenen Host, die aktuelle Fassung und die
+ bestehende Core-Operation gebunden. MCP-UI-Unterstützung allein aktiviert sie nicht.
+ 
++Der Textweg ist ein vollständiger Bedienmodus. Die exakt erforderliche Antwort steht direkt
++bei der konkreten Prüfaufgabe. In der App kann „Antwort kopieren“ diese Formel in die
++Zwischenablage übernehmen, sofern diese Funktion verfügbar ist. Kopieren sendet keine
++Nachricht und erfasst keine Entscheidung; das wird unmittelbar erklärt. Portable Markdown
++zeigt die kopierbare Formel ohne einen nativen Button vorauszusetzen. Ein deaktivierter
++Wunschbutton führt die Ansicht nicht an. Für Überarbeitung und Ablehnung benennt die Karte
++den tatsächlich unterstützten Weg, ohne eine unbekannte Antwortformel zu erfinden.
++
+ ### Run Auswahl und Gesprächskontext
+ 
+ Ein im Hub geöffneter Run ist zunächst eine Leseauswahl. Sie ersetzt nicht automatisch den
+@@ -351,6 +412,46 @@ Capability bleibt die Quelle lesbar; die UI erklärt die Grenze und verweist auf
+ Gespräch. Sie verspricht weder ein automatisch geöffnetes Chatfenster noch ein vorausgefülltes
+ oder fokussiertes Codex-Eingabefeld.
+ 
++### Vom Lesen zum bestätigten Arbeitsauftrag
++
++Die Ansicht unterscheidet **angezeigten Run**, **ausgewählte Dokumentfassung** und den
++**bestätigten Arbeitsauftrag im Gespräch**. Ein Arbeitsauftrag wird nur genannt, wenn seine
++Zuordnung tatsächlich belegt ist. Andernfalls lautet die Aussage „Arbeitsauftrag im Gespräch
++nicht bestätigt“. Ein zuvor angenommener Übergabeauftrag ist kein Beleg für den aktuellen
++Gesprächsauftrag nach weiteren Nachrichten.
++
++Beim Wechsel von Vorhaben A zu B erscheint beispielsweise: „Du liest jetzt ‚Anmeldung
++verbessern‘. Der Arbeitsauftrag im Gespräch wurde dadurch nicht gewechselt.“ Ist A aktuell
++belegt, kann es zusätzlich benannt werden. Dieser Hinweis steht am Wechsel und vor einer
++Weiterarbeitsaktion; er muss keinen dauerhaften zusätzlichen Kopf erzeugen.
++
++**„Dieses Vorhaben im Gespräch weiterbearbeiten“** ist eine bewusste Beauftragung mit dem
++ausgewählten Run, der konkreten Quelle und dem benannten Arbeitsziel. Eine reine Leseauswahl
++erzeugt sie nicht. Die Aktion fasst den verfügbaren gebundenen Kontext- und Nachrichtenweg
++zu einer verständlichen Nutzerabsicht zusammen. Intern bleiben Quellenprüfung, Kontextaufnahme,
++Nachrichtenannahme und tatsächliche Agentenübernahme getrennt bestätigt. Bereits erlaubte
++Arbeit bleibt an die bestehenden Freigaben gebunden; die Beauftragung genehmigt kein Gate.
++
++| Zustand der Übergabe | Sichtbare Aussage und nächster Weg |
++|---|---|
++| Nur B geöffnet | „Du liest B. Der Arbeitsauftrag wurde nicht gewechselt.“ Weiterarbeit ausdrücklich beauftragen oder zu A zurückkehren. |
++| Kontext bestätigt, Nachricht noch nicht angenommen | „Die Quelle wurde übergeben; die Weiterarbeit ist noch nicht beauftragt.“ Ursprüngliche Übergabe prüfen. |
++| Nachricht angenommen | „Weiterarbeit an B im Gespräch angefordert.“ Keine Behauptung, dass die KI bereits B bearbeitet. |
++| Agent hat die Zuordnung frisch geprüft und übernimmt | „Arbeitsauftrag: B · [konkretes Ziel]“. Laufende Arbeit nur bei zusätzlicher Aktivitätsbeobachtung. |
++| Übergabe unklar oder Fähigkeit fehlt | „Arbeitsauftrag nicht bestätigt.“ Status der ursprünglichen Übergabe prüfen, soweit möglich; sonst einen ausdrücklich auf B und seine Quelle bezogenen Auftrag im bestehenden Gespräch bereitstellen. |
++
++Bei fehlender Hostfähigkeit ist der vorbereitete Auftrag sichtbar und kopierbar, ohne das
++native Eingabefeld zu verändern. Bei unklarer Zustellung wird kein zweiter Auftrag automatisch
++gesendet. Kann auch die Statusprüfung keine Zuordnung bestätigen, bleibt diese Grenze sichtbar.
++Der Anwender muss nicht selbst mehrere technische Übergabeschritte orchestrieren.
++
++Schreibt der Anwender nach einem Wechsel nur „Ändere den letzten Absatz“ und ist die Quelle
++nicht eindeutig gebunden, klärt der Agent vor jeder Änderung Vorhaben und Fassung. Die App
++darf dafür keine Einsicht in das native Eingabefeld behaupten. Die Prüfverpflichtung gilt bei
++der tatsächlichen Auftragsaufnahme. Öffnen, Kopieren oder Kontextaufnahme allein genügt nicht.
++
++![Lesender Run-Wechsel und ausdrücklich bestätigte Übernahme des Arbeitsauftrags](mockups/run-context-handoff-v3.svg)
++
+ ### Einordnung der offiziellen UI Dokumentation
+ 
+ Der [OpenAI-Quickstart](https://developers.openai.com/plugins/build/app-quickstart#introduction)
+@@ -361,14 +462,16 @@ und keine duplizierten Chat-Eingaben. Diese Hinweise unterstützen die Gestaltun
+ Beleg dafür, dass Codex dieselben Hostflächen, Gesprächsübergaben oder Panel-Erweiterungen anbietet.
+ Die tatsächliche Codex-Integration benötigt jeweils eigene native Beobachtung der konkreten Fassung.
+ 
+-## Das Konzept in fünf Ansichten
++## Nutzerweg und historische fünf Ansichten
+ 
+ Julia arbeitet im Projekt **Kundenportal**. Sie möchte die vorhandene Anmeldung verbessern:
+ Bei falschen Zugangsdaten soll eine verständliche Meldung erscheinen. Die folgende Geschichte
+ zeigt, wie sie den Auftrag formuliert, die Anforderung prüft, eine konkrete Formulierung klärt
+ und die überarbeitete Fassung freigibt. Anschließend findet sie das Vorhaben im Hub wieder.
++Die Ergänzungen vom 14. Oktober führen dieselbe Geschichte bis zur Ergebnisprüfung und
++Abnahme weiter und zeigen einen Änderungswunsch während der Umsetzung.
+ 
+-Die Mockups zeigen ein gemeinsames UI-Zielkonzept mit erfundenem Projekt, Nutzerin und
++Die fünf historischen Raster-Mockups zeigen ein gemeinsames UI-Zielkonzept mit erfundenem Projekt, Nutzerin und
+ Run-Verlauf. Sie sind mit Imagegen erzeugte Layoutentwürfe mit markierter AGDF-Fläche und einem
+ Platzhalter für das bestehende Codex-Gespräch. Der Platzhalter ist keine zusätzliche Chat-UI.
+ Die große Appfläche ist im Diagramm seitlich angeordnet; ihre tatsächliche Position bestimmt
+@@ -377,7 +480,7 @@ Die konkrete Folge von Schritten und Gates kommt weiterhin aus dem ausgewählten
+ 
+ Die fünf gerenderten Bilder zeigen ausschließlich das Format MCP-App-UI. Sie sind kein
+ vollständiger Nachweis des Zwei-Format-Konzepts. Die folgende Portable-Markdown-Darstellung
+-verwendet deshalb denselben Entscheidungsgegenstand wie die erste App-Ansicht. Sie ist kein
++verwendet deshalb den überarbeiteten Entscheidungsgegenstand der v3-App-Ansicht. Sie ist kein
+ sechster fachlicher Zustand, sondern der zweite Renderer derselben gebundenen Präsentation.
+ 
+ ### Dieselbe Entscheidung als Portable Markdown
+@@ -385,20 +488,25 @@ sechster fachlicher Zustand, sondern der zweite Renderer derselben gebundenen Pr
+ Wenn MCP-App-UI nicht verfügbar oder nicht bestätigt angezeigt ist oder der Host ausdrücklich
+ Portable Markdown bevorzugt, muss der vollständige Entscheidungsgegenstand im Gespräch
+ verständlich bleiben. Das folgende Strukturbeispiel zeigt die inhaltliche Entsprechung zur
+-ersten App-Ansicht; reale Revisionen und Digests werden vollständig aus der gebundenen
++v3-App-Ansicht; reale Revisionen und Digests werden vollständig aus der gebundenen
+ Präsentation übernommen.
+ 
+ ```text
+ ## Anmeldung verbessern
+ 
+ **Aufgabe:** Ziel und Umfang klären
+-**Fassung:** 1 · Entscheidung ausstehend
+-**Du bist dran:** Prüfe Ziel und Umfang dieser Fassung.
++**Fassung:** 2 · Entscheidung ausstehend
++**Deine Prüfaufgabe:** Bestätige Ziel, Meldung und Umfang des Auftrags.
+ 
+ ### Haben wir deinen Wunsch richtig verstanden?
+ 
+-- Ziel: Klare Meldung bei falschen Zugangsdaten.
++- Ziel: Bei falschen Zugangsdaten soll „E-Mail oder Passwort ist nicht korrekt“ erscheinen.
++- Nutzer und Umfang: Personen, die sich im Kundenportal anmelden; Fehlerrückmeldung der Anmeldung.
+ - Außerhalb: Passwort-Reset und Registrierung.
++- Gegenüber Fassung 1: Die allgemeine Meldung wurde auf deinen Wunsch präzisiert.
++- Vergleich der beiden Fassungen: Umfang und Ausschlüsse unverändert; keine frühere Freigabe vorhanden.
++- Bereits geprüft: Entwurfsprüfung dieser Fassung ohne Befund zu den Autorenregeln.
++- Offen: Die fachliche Entscheidung steht aus; Implementierung und Tests sind noch nicht erfolgt.
+ - Danach erlaubt: Bestehendes System untersuchen.
+ - Noch nicht erlaubt: Umsetzung.
+ 
+@@ -413,9 +521,11 @@ Antworte im bestehenden Gespräch exakt mit:
+ - Gate: `UR`
+ - Revision: `<vollständige revision-id>`
+ - Dokument-Digest: `sha256:<vollständiger digest>`
++- Präsentation: `<vollständige präsentations-id>`
++- Weitere relevante Digests: `<vollständige digests gemäß gebundener präsentation>`
+ ```
+ 
+-![Vergleich von großer MCP-App, kompakter MCP-App und Portable Markdown](mockups/presentation-formats-responsive-v2.svg)
++![Vergleich von MCP-App und Portable Markdown mit unmittelbar verfügbarem Textweg](mockups/presentation-formats-responsive-v3.svg)
+ 
+ Portable Markdown zeigt die exakte Antwort unmittelbar, wenn das Gespräch der einzige
+ verfügbare Entscheidungsweg ist. Es darf sie nicht ausschließlich hinter einer
+@@ -521,31 +631,92 @@ Aufgabe. Suche und Auswahl bleiben bei der Rückkehr erhalten. Der Wechsel öffn
+ neuen Codex-Chat und ersetzt keinen laufenden Auftrag. Die Verlaufsvorschau im Hub
+ ist dieselbe fachliche Historie, die im Run-Cockpit über „Verlauf“ erreichbar ist.
+ 
+-### Produkt-Mock-Serie v2
++### Ergänzung: Ergebnis prüfen und abnehmen
++
++Nach Umsetzung und technischer Qualitätsprüfung kehrt Julia in dasselbe Cockpit zurück.
++Die Ansicht führt mit der tatsächlichen Änderung: „Bei falschen Zugangsdaten erscheint jetzt
++‚E-Mail oder Passwort ist nicht korrekt‘ am Formular.“ Sie nennt die prüfbare Ergebnisfassung
++und deren Umgebung, beispielsweise eine Testvorschau. Ein Vorschau-Link wird nur angeboten,
++wenn das konkrete Ergebnis darüber erreichbar und eindeutig zugeordnet ist. Ohne ausführbare
++Vorschau gibt es den tatsächlich verfügbaren Ergebniszugang und eine Erklärung seiner Grenzen.
++
++**Julias Prüfaufgabe für dieses Beispiel:**
++
++1. In der benannten Testumgebung eine Anmeldung mit falschen Zugangsdaten versuchen. Erwartet:
++   die vereinbarte Meldung am Formular, ohne Auskunft über das Bestehen eines Kontos.
++2. Anschließend mit einem gültigen Testkonto anmelden. Erwartet: die Anmeldung funktioniert weiter.
++3. Die vereinbarte Tastatur- und Screenreader-Rückmeldung prüfen oder die dafür relevanten
++   Nachweise beurteilen, soweit dies ihrer Abnahmeaufgabe entspricht.
++
++Diese Aufgaben werden aus den tatsächlich vereinbarten Kriterien abgeleitet; sie sind kein
++pauschal ausreichender Abnahmekatalog für jede Anmeldung. Die Karte trennt technische Nachweise
++mit Fassung und Aussagebereich von Julias fachlicher Prüfung. Im Beispiel sind Fehler- und
++Erfolgsfall sowie Barrierefreiheit in der benannten Testumgebung belegt; die Produktionsumgebung
++ist nicht geprüft. Bekannte Mängel, Restrisiken und übernommene QA-Abweichungen stehen sichtbar
++bei der Abnahme, auch wenn das Ergebnis andernfalls positiv dargestellt werden könnte.
++
++Julia kann „Ergebnis ansehen“, die Prüfschritte lesen und bei einem Mangel eine Korrektur
++besprechen. „Ergebnis abnehmen“ bezieht sich ausschließlich auf die vorgelegte Ergebnisfassung
++und setzt die bestehenden Voraussetzungen sowie den tatsächlich verfügbaren Entscheidungsweg
++voraus. Ein Test-Pass nimmt das Ergebnis nicht für Julia ab. Nach bestätigter Speicherung sieht
++sie beispielsweise: „Ergebnis abgenommen · Testfassung 3. Abschlussnachweise werden vorbereitet.
++Integration und Veröffentlichung nicht belegt.“
++
++Abgenommen, integriert, veröffentlicht und formal abgeschlossen werden mit ihrem jeweils
++vorhandenen Beleg erklärt. Es gibt keine pauschale grüne Aussage „Fertig“, die alle diese
++Wirkungen nahelegt. Nicht zum Auftrag gehörende Zustände bleiben als solche erkennbar; fehlende
++Informationen werden nicht als bestätigte Nichtausführung ausgegeben.
++
++![Prüfbares Ergebnis, konkrete Abnahmeaufgabe und belegter Lieferzustand](mockups/result-acceptance-v3.svg)
++
++### Ergänzung: Änderung oder Unterbrechung während der Arbeit
++
++Während der Umsetzung möchte Julia zusätzlich die Position der Meldung ändern. „Änderung
++besprechen“ bereitet einen auf diesen Run und das konkrete Ergebnis bezogenen Änderungswunsch
++im bestehenden Gespräch vor. Die Auswirkungen auf Umfang, Entwurf, Plan, Nachweise und bereits
++erteilte Freigaben werden geprüft. Eine dadurch erforderliche Ersatzfassung wird erneut
++vorgelegt. Der Wunsch wird nicht stillschweigend in den zuvor bestätigten Auftrag aufgenommen.
++
++Will Julia die Weiterarbeit unterbrechen, gilt: Die App kann eine Unterbrechung nur über eine
++tatsächlich angebotene, qualifizierte Hostaktion anfordern. Sie meldet „Unterbrechung angefordert“
++bis zum bestätigten Halt. Fehlt diese Fähigkeit, verweist sie auf die vorhandene Hostbedienung
++oder einen ausdrücklichen Auftrag im Gespräch; sie zeigt keinen scheinbar wirksamen Stop-Button.
++Bereits abgeschlossene Effekte werden nicht zurückgenommen. Gate-Ablehnung, Host-Unterbrechung
++und ein möglicher Run-Abbruch besitzen unterschiedliche Wirkungen und werden getrennt erklärt.
++Vor einer Wiederaufnahme werden der aktuelle Stand, mögliche laufende Arbeit und betroffene
++Freigaben frisch geprüft. Unterbrechung oder Abbruch wird weder durch Lesen noch durch
++Schließen der App ausgelöst. Der [Übergangs-Mock](mockups/run-context-handoff-v3.svg) zeigt
++auch den Fall, in dem ein Halt noch nicht bestätigt ist.
++
++### Produkt-Mock-Serie v3
+ 
+ Die v4-Bilder bleiben als gerenderter Stand vom 12. Oktober 2026 erhalten. Die Produkt-Mock-
+-Serie v2 übernimmt ihre visuelle Richtung, trennt aber gemeinsame Kartenanatomie,
+-gate-spezifische Inhalte, Darstellungsformate und Recovery-Zustände.
++Serie v3 vom 14. Oktober 2026 übernimmt ihre visuelle Richtung und die Struktur der v2-Serie.
++Sie konkretisiert Prüfaufgaben, Zuständigkeit, Änderungsvergleich, Arbeitsübergabe und Abnahme.
++Die v2-Serie bleibt als historischer Entwurf erhalten. Der QA-Abweichungsfluss aus v2 bleibt
++ergänzend gültig; die v3-Abnahmekarte ersetzt ihn nicht.
+ 
+-| Ansicht oder Zustand | Umsetzung in v2 |
++| Ansicht oder Zustand | Ausgestaltung in v3 |
+ |---|---|
+ | Alle App-Ansichten | Der sichtbare Hostname stammt aus der bestätigten Hostidentität. Ohne geeigneten Anzeigenamen lautet der neutrale Text „bestehendes Gespräch“ beziehungsweise „Host“. Codex darf als beschriftetes Beispiel erscheinen, aber nicht fest in die gemeinsame App-Terminologie eingebaut werden. |
+-| Kompakte Entscheidungskarte | Die Karte priorisiert Frage, Fassung, Wirkung und genau eine verfügbare Hauptaktion. Ein deaktivierter Entscheidungsbutton konkurriert nicht optisch mit „Anforderung lesen“. Ist der Chat der einzige Entscheidungsweg, steht die exakte zulässige Antwort unmittelbar beim Hinweis auf das Gespräch. |
++| Kompakte Entscheidungskarte | Vorhaben, Fassung und konkrete Prüfaufgabe führen ohne wiederholte Aufforderungen. Belegte Vorprüfung, relevante Änderung und offene Risiken bereiten die Entscheidung vor. Eine nutzbare Hauptaktion führt; beim Textweg steht die exakte Antwort direkt daneben. |
+ | Große Appfläche | Der Ablaufbalken wird aus der tatsächlichen Route des Runs gebildet. Nicht anwendbare Schritte werden nicht als erwartete Gates dargestellt. Bei vielen Schritten bleibt die aktuelle Aufgabe lesbar, ohne sieben feste Phasen vorauszusetzen. |
+-| Dokument und Kontext | „Kontext für Codex“ wird hostabhängig oder neutral beschriftet. Die Ansicht unterscheidet angeforderte Übergabe, bestätigte Kontextaufnahme und eine tatsächlich gesendete Nachricht. |
+-| Bestätigung und Fortsetzung | „Stand aktualisieren“ wird nur gezeigt, wenn eine bewusste Neuladung erforderlich ist, und heißt dann „Aktuellen Stand laden“. Ein passiver Wartezustand besitzt keine dominante Scheinaktion und behauptet keine laufende KI-Arbeit. |
++| Dokument und Kontext | Gelesener Run und belegter Arbeitsauftrag bleiben unterscheidbar. „Dieses Vorhaben im Gespräch weiterbearbeiten“ bündelt die ausdrücklich beauftragte Übergabe; Kontext, Nachricht und Agentenübernahme behalten eigene bestätigte Zustände. |
++| Bestätigung und Fortsetzung | Gespeicherte Freigabe und unbestätigter Arbeitsbeginn werden gemeinsam erklärt. Eine verfügbare Prüfung der ursprünglichen Fortsetzung führt mit „Status prüfen“. Ein passiver Wartezustand besitzt keine Scheinaktion. |
+ | Hub und Verlauf | Die ausgewählte Zeile ist zusätzlich zu Farbe und Fläche semantisch erkennbar. Suchumfang, Datenquelle und Unvollständigkeit bleiben zugänglich. Der Verlauf trennt historischen Stand und aktuelle Aufgabe. |
+ | Portable Markdown | Mindestens ein Mock bildet denselben gebundenen Entscheidungsgegenstand wie eine App-Ansicht vollständig als Portable Markdown ab. Reihenfolge, Folgen und zulässige Antwort werden formatübergreifend verglichen. |
+ | Recovery | Eigene Zustände zeigen mindestens geänderte Fassung, unklare Speicherung und den sichtbaren Wechsel von nicht bestätigter MCP-App-Anzeige zu Portable Markdown. Keine dieser Situationen erhält eine Erfolgsgestalt. |
++| Ergebnis und Abnahme | Die prüfbare Ergebnisfassung, Umgebung, konkrete Prüfschritte, technische Nachweise und Restgrenzen stehen zusammen. Fachliche Abnahme, Integration, Veröffentlichung und Abschluss bleiben getrennt belegt. |
++| Änderung und Unterbrechung | Änderungswunsch und gegebenenfalls betroffene Freigaben werden geklärt. Ein angeforderter Halt bleibt bis zur Hostbestätigung unbestätigt; ein fehlender Stop-Kanal wird erklärt. |
+ | Zugänglichkeit | Hilfs- und Metatexte erfüllen die Kontrastanforderungen; die Karte bleibt bei 200 Prozent Vergrößerung und schmaler Hostfläche ohne horizontales Scrollen bedienbar. Deaktivierung wird nicht nur über geringe Deckkraft vermittelt. |
+ 
+-![Recovery-Zustände für menschliche Gate-Entscheidungen](mockups/recovery-states-v2.svg)
++![Recovery und Prüfung einer unbestätigten Fortsetzung](mockups/recovery-states-v3.svg)
+ 
+-Die v2-Serie verdichtet diese Zustände bewusst nicht in einem einzigen Bild. Normalweg,
++Die v3-Serie verdichtet diese Zustände bewusst nicht in einem einzigen Bild. Normalweg,
+ Portable-Markdown-Äquivalenz und Recovery bleiben getrennt prüfbar. Dokumentationsrahmen wie
+ „Von AGDF gestaltet“ und der schematische Hostbereich erklären die Architektur; sie sind
+-keine Bestandteile der ausgelieferten App. Alle v2-Dateien und ihre Grenzen stehen in der
+-[Quelldokumentation der Produkt-Mocks](mockups/human-gate-mocks-v2.md).
++keine Bestandteile der ausgelieferten App. Alle v3-Dateien, ihre gemeinsame Beispielbindung
++und ihre Grenzen stehen in der [Quelldokumentation der Produkt-Mocks](mockups/human-gate-mocks-v3.md).
+ 
+ ### Was in allen Ansichten gleich bleibt
+ 
+@@ -629,6 +800,9 @@ flowchart TB
+     DOC["3 · Dokumentansicht<br/>Konkrete Fassung lesen"]
+     RESULT["4 · Bestätigung im Run-Cockpit<br/>Gespeicherte Entscheidung und nächster Schritt"]
+     HUB["5 · Hub<br/>Vorhaben suchen und Verlauf ansehen"]
++    HANDOFF["Arbeitsübergabe<br/>Run, Quelle und Arbeitsziel ausdrücklich beauftragen"]
++    ACCEPT["Ergebnisprüfung<br/>Prüfbare Fassung, Prüfschritte und Restgrenzen"]
++    END["Abnahme bestätigt<br/>Nächster Abschlussbedarf und belegter Lieferzustand"]
+ 
+     CHAT -->|"Änderungsauftrag; Anforderung geklärt und entscheidungsbereit"| CARD
+     CARD -->|"Groß öffnen; Host bestätigt den Anzeigemodus"| LARGE
+@@ -644,11 +818,17 @@ flowchart TB
+     RESULT -->|"Alle Vorhaben"| HUB
+     CHAT -->|"Übersicht über Vorhaben anfordern; MCP-UI verfügbar"| HUB
+     HUB -->|"Vorhaben ansehen oder Zur aktuellen Aufgabe; lesender Wechsel"| LARGE
++    LARGE -->|"Dieses Vorhaben im Gespräch weiterbearbeiten; bewusster Auftrag"| HANDOFF
++    HANDOFF -->|"Unterstützte Übergabe; angenommene Nachricht, Übernahme gesondert prüfen"| CHAT
++    CHAT -->|"Umsetzung und Qualitätsprüfung belegt; Abnahme bereit"| ACCEPT
++    ACCEPT -->|"Ergebnis ansehen; konkrete Prüfschritte ausführen"| ACCEPT
++    ACCEPT -->|"Mangel oder Änderungswunsch besprechen; Quelle ausdrücklich benennen"| CHAT
++    ACCEPT -->|"Gebundene Ergebnisfassung bewusst abnehmen; Speicherung bestätigt"| END
+ 
+     classDef host fill:#f6f6f6,stroke:#66686a,color:#3c3e40;
+     classDef agdf fill:#fcfcfc,stroke:#0f766e,color:#3c3e40;
+     class CHAT host;
+-    class CARD,LARGE,DOC,RESULT,HUB agdf;
++    class CARD,LARGE,DOC,RESULT,HUB,HANDOFF,ACCEPT,END agdf;
+ ```
+ 
+ Die Dokumentansicht kehrt zur auslösenden Darstellung und deren aktuellem Inhalt zurück.
+@@ -669,6 +849,10 @@ den Einstieg über die Chatkarte exemplarisch.
+ | Alle Vorhaben oder Übersicht anfordern | Großes Cockpit oder bestehender Chat | Hub — Ansicht 5 | Zeigt den definierten Projektumfang; Darstellung über MCP-UI setzt die entsprechende Host-Fähigkeit voraus |
+ | Suchen, filtern oder Verlauf aufklappen | Hub | Treffer und Verlauf innerhalb des Hubs — Ansicht 5 | Ändert die Leseauswahl; bestätigt keine Fassung und beauftragt keine Arbeit |
+ | Vorhaben ansehen oder Zur aktuellen Aufgabe | Hub | Aktueller Aufgabenstand im großen Cockpit — Ansicht 2 beziehungsweise 4 | Lesender Wechsel zum ausgewählten Run; erhält den bestehenden Codex-Chat und startet keine automatische Fortsetzung |
++| Dieses Vorhaben im Gespräch weiterbearbeiten | Geöffneter Run oder Dokument | Gebundene Arbeitsübergabe mit Run, Quelle und Arbeitsziel | Bewusster Auftrag; Annahme der Nachricht und tatsächliche Übernahme bleiben getrennt. Fehlende Fähigkeit bietet einen ausdrücklich zugeordneten Textauftrag. |
++| Ergebnis ansehen und prüfen | Abnahmebereites Run-Cockpit | Zugeordnete Ergebnisfassung mit Umgebung und Prüfschritten | Technische Nachweise erklären Aussagebereich und Grenzen; das Öffnen nimmt nichts ab. |
++| Ergebnis abnehmen | Abnahmebereites Cockpit oder exakter Chatweg | Bestätigte Abnahme und nächste Abschlussverpflichtung | Erst mit passendem Speicherbeleg; keine Behauptung von Integration oder Veröffentlichung. |
++| Änderung oder Unterbrechung verlangen | Aktuell beauftragter Run | Gebundener Änderungswunsch oder unterstützte Unterbrechungsanforderung | Neue Freigabebedarfe werden geprüft; Halt wird erst nach Hostbestätigung behauptet. |
+ | Aktuellen Stand laden | Cockpit mit veralteter oder bewusst manuell zu aktualisierender Beobachtung | Frisch gelesener Aufgabenstand in derselben Darstellung | Erscheint nur bei erforderlicher bewusster Neuladung; kann Inhalt und Handlungserwartung ändern, erzeugt aber keine Entscheidung und keinen neuen Chat |
+ 
+ Die große Ansicht kann je nach Host rechts, bildschirmfüllend oder in einem anderen
+@@ -701,6 +885,13 @@ Aufmerksamkeit. „Meine Entscheidung erforderlich“ und „Klärung erforderli
+ Zugänge. Ihre Bedeutung wird aus aktuellen Core-Angaben abgeleitet. Ein gespeicherter
+ Backlog-Status allein bestätigt keine aktuelle Entscheidungsbereitschaft.
+ 
++Der Einstieg priorisiert „Meine Entscheidung erforderlich“, „Klärung erforderlich“ und
++blockierte Vorhaben; zuletzt bearbeitete Runs unterstützen die Wiederaufnahme. „Meine“ wird
++nur aus einer belegten Zuordnung zur Person abgeleitet. Fehlt diese, heißt der Zugang neutral
++„Entscheidung erforderlich“. Die gesamte Run-Liste bleibt erreichbar. Die Priorisierung
++nennt die tatsächliche nächste Handlung und verwandelt einen geplanten Eintrag nicht in
++einen entscheidungsreifen Run.
++
+ Der Hub muss auch Runs ohne Backlog-Eintrag auffindbar machen. Die vorhandene
+ Masterbacklog-Projektion wird dafür durch einen gesondert definierten, begrenzten Run-Leseumfang
+ ergänzt. Inventar, Suchabdeckung und Aktualisierung müssen zusammenpassen. Wurde nur ein Teil
+@@ -747,22 +938,22 @@ Die UI berechnet daraus keinen pauschalen Fertigstellungsprozentsatz.
+ Ein beispielhafter Orientierungskopf lautet:
+ 
+ ```text
+-Anmeldung verbessern                                  Hub öffnen
+-Aktueller Schritt: Ziel und Umfang klären
++Anmeldung verbessern · Anforderung, Fassung 2           Hub öffnen
++Deine Entscheidung: Soll bei falschen Zugangsdaten die Meldung
++„E-Mail oder Passwort ist nicht korrekt“ erscheinen?
+ 
+-Du bist dran
+-Haben wir deinen Wunsch richtig verstanden?
+-Prüfe Ziel und Umfang dieser Fassung.
++Geändert: Die Meldung wurde auf deinen Wunsch präzisiert.
++Danach: Bestehendes System untersuchen. Umsetzung bleibt gesperrt.
+ 
+-Anforderung lesen · So stimmt es · Änderung nötig
+-Danach: Bestehendes System untersuchen und passenden weiteren Ablauf bestimmen.
+-
+-Ablauf und bisherige Entscheidungen ansehen
++Anforderung bestätigen · Änderung besprechen
++Anforderung und Entscheidungsgrundlage ansehen
++Ablauf, Herkunft und bisherige Entscheidungen ansehen
+ ```
+ 
+ Die gezeigten Entscheidungsaktionen setzen die jeweilige Host-Unterstützung voraus. In den
+-aktuellen Mocks bleibt „So stimmt es“ deaktiviert; Änderungen werden im bestehenden Chat
+-besprochen. Dieses Textbeispiel beschreibt die Beschriftung des Zielkonzepts.
++historischen v4-Mocks bleibt „So stimmt es“ deaktiviert. Die v3-Mocks zeigen qualifizierten
++Klickweg und Textweg getrennt. Dieses Textbeispiel zeigt den Kopf und die Handlungszugänge;
++belegte Vorprüfung und relevante Risiken folgen im Hauptinhalt derselben Karte.
+ 
+ Während der Umsetzung lautet die Einordnung beispielsweise:
+ 
+@@ -788,7 +979,7 @@ Unterdokument gelesen wird.
+ | Situation | Aussage im Cockpit | Passende Handlung |
+ |---|---|---|
+ | Eine Anforderung braucht Klärung | „Bitte kläre, welche Nutzer die Änderung betrifft.“ | Die konkrete Frage im Chat beantworten |
+-| Eine Gate-Fassung ist entscheidungsbereit | „Prüfe die vorgeschlagene Fassung und entscheide.“ | Dokument lesen, freigeben, Änderung verlangen oder ablehnen |
++| Eine Gate-Fassung ist entscheidungsbereit | Konkrete Prüfaufgabe: „Bestätige, ob dieses Verhalten fachlich gewünscht ist.“ | Relevante Änderung und Nachweise prüfen; gebundene Fassung bestätigen, Änderung besprechen oder ablehnen |
+ | Die nächste interne Aufgabe ist zulässig | „Als Nächstes wird das bestehende System untersucht.“ | Bereits beauftragte Arbeit fortsetzen lassen oder die erforderliche Fortsetzung beauftragen |
+ | Ein konkreter Blocker verhindert Fortschritt | Ursache und die zu ihrer Auflösung erforderliche Handlung | Benannte Quelle prüfen oder die zuständige Klärung anstoßen |
+ | Der aktuelle Stand ist nicht bestätigt | „Diese Beobachtung ist nicht mehr aktuell.“ | Aktuellen Stand laden; bis dahin keine aktuelle Entscheidung behaupten |
+@@ -855,8 +1046,10 @@ Entscheidung als verständlichen Chat-Text mit dem bestehenden exakten Antwortwe
+ Die Entscheidungskarte beantwortet: **„Was entscheide ich hier, auf welcher Grundlage und mit welcher
+ Wirkung?“** Sie enthält eine verständliche Zusammenfassung der konkreten Fassung, den
+ vereinbarten Umfang, entscheidungsrelevante Risiken und offene Punkte sowie den Zugang zum
+-exakten Dokument. Ein verlässlicher Vergleich kann relevante Änderungen seit der vorherigen
+-Fassung zeigen. Fehlt eine vergleichbare Grundlage, wird dies ausdrücklich benannt.
++exakten Dokument. Die [Entscheidungsvorbereitung](#konkrete-prüfaufgabe-und-zuständigkeit)
++bestimmt die konkrete Prüfaufgabe und belegte Vorprüfungen. Bei einer Überarbeitung zeigt sie
++den relevanten Vergleich, sobald eine belastbare Grundlage vorliegt; andernfalls benennt sie
++die fehlende Vergleichbarkeit und den erforderlichen Leseumfang.
+ 
+ Die Karte erklärt, was eine Freigabe ermöglicht und welche Verpflichtungen danach noch
+ bestehen. Beispielsweise erlaubt die bestätigte Anforderung die nächste vorgesehene Untersuchung;
+@@ -866,7 +1059,7 @@ sie ist keine pauschale Freigabe für Umsetzung, Veröffentlichung oder weitere
+ |---|---|
+ | Anforderung, beschriebenes Verhalten oder Lösung lesen | Die genaue zur Entscheidung gehörende Fassung öffnen und zur Karte zurückkehren |
+ | Im bestehenden Codex-Chat besprechen | Fragen klären, Alternativen erörtern und Änderungen präzisieren; eine Diskussion entscheidet das Gate nicht. Eine ausdrückliche Kontextübergabe aus der App setzt die entsprechende Host-Fähigkeit voraus. |
+-| So stimmt es | Die konkret angezeigte Fassung bewusst bestätigen; erst nach bestätigter Erfassung den Effekt und nächsten Schritt zeigen |
++| Anforderung, Verhalten, Lösungsentwurf oder Umsetzungsplan bestätigen | Die konkret angezeigte Fassung bewusst bestätigen; erst nach bestätigter Erfassung den Effekt und nächsten Schritt zeigen |
+ | Änderung nötig | Den konkreten Änderungswunsch klären und den unterstützten Überarbeitungsweg erklären; die Ersatzfassung bleibt erneut zu entscheiden |
+ | Diese Fassung ablehnen | Diese Fassung nicht freigeben und die tatsächliche Wirkung im bestehenden Ablauf erklären; den Run nicht automatisch löschen oder abbrechen |
+ 
+@@ -877,6 +1070,16 @@ sie das bestätigte Ergebnis und die frisch bestimmte nächste Aktion. Bei verlo
+ bleibt das Ergebnis unklar, bis der ursprüngliche Vorgang geprüft wurde. Wiederholung oder
+ Vergrößerung darf keine zweite wirksame Entscheidung erzeugen.
+ 
++Bei unbestätigter Fortsetzung lautet die Aussage: „Deine Freigabe ist gespeichert. Der Beginn
++der nächsten Aufgabe ist noch nicht bestätigt.“ Das System gleicht den ursprünglichen
++Vorgang, aktuellen Run und verfügbare Hostnachweise selbst ab, soweit dies unterstützt wird.
++Ist eine bewusste Prüfung erforderlich, führt „Status prüfen“ genau diesen Abgleich aus.
++Die Aktion erfasst weder eine neue Freigabe noch einen weiteren Arbeitsauftrag. Sie erklärt
++das Ergebnis als gespeichert, angefordert, tatsächlich übernommen oder weiterhin unbestätigt.
++Fehlt ein technischer Prüfweg, wird diese Grenze mit einem konkret zugeordneten Prüfauftrag
++im bestehenden Gespräch erklärt. Eine nicht beobachtbare Wirkung wird nicht als Erfolg
++ausgegeben. Der Anwender muss keine Operations-IDs oder verstreuten Protokolle vergleichen.
++
+ Der nächste zulässige Arbeitsschritt wird sichtbar von der Gate-Freigabe unterschieden.
+ Wo die bestehende Beauftragung die Fortsetzung bereits umfasst, arbeitet AGDF innerhalb
+ dieses Umfangs weiter. Benötigt die Fortsetzung einen neuen Auftrag, bietet das Cockpit
+@@ -890,7 +1093,7 @@ beschriebenen Voraussetzungen gelten weiterhin.
+ 
+ ### Vom Freigabeklick bis zur erneuten Übernahme durch die KI
+ 
+-Ein Klick auf „So stimmt es“ startet bei verfügbarem, qualifiziertem Klickweg die gebundene
++Ein Klick auf „Anforderung bestätigen“ startet bei verfügbarem, qualifiziertem Klickweg die gebundene
+ Erfassung dieser konkreten Entscheidung. Erst der passende Speicherbeleg bestätigt die
+ Freigabe. Danach wird der nächste erlaubte Schritt frisch geprüft und bei unterstützter
+ Host-Übergabe die Fortsetzung im bestehenden Codex-Chat angefordert. Läuft dort noch eine
+@@ -908,7 +1111,7 @@ KI-Antwort, kann der Host den Start bis zu deren Ende zurückstellen.
+ | Fortsetzung wird angefordert oder wartet | Die App vermittelt die bereits zulässige Fortsetzung; der Host kann auf das Ende der laufenden Antwort warten | Bei bestätigter Übergabe ist kein zweiter Freigabeklick nötig |
+ | Fortsetzung wurde im Chat angefordert | Der Host hat die Nachricht angenommen; der Arbeitsbeginn ist damit noch nicht belegt | Weiteren Aufgabenstand verfolgen |
+ | KI arbeitet an der nächsten Aufgabe | Der tatsächliche Arbeitsbeginn wurde beobachtet | Auf Ergebnis, nächste Entscheidung oder konkreten Klärungsbedarf warten |
+-| Freigabe gespeichert, Fortsetzung unbestätigt | Die Entscheidung ist gespeichert; die Übergabe an den Host fehlt oder ist unklar | Aktuellen Run und eine mögliche bereits erfolgte Fortsetzung im bestehenden Chat prüfen |
++| Freigabe gespeichert, Fortsetzung unbestätigt | Die Entscheidung ist gespeichert; Übergabe oder Arbeitsbeginn sind unklar | Unterstützten Abgleich abwarten oder „Status prüfen“ verwenden; bei fehlendem Prüfweg den konkret vorbereiteten Prüfauftrag im Gespräch verwenden |
+ | Ergebnis der Speicherung unklar | Es fehlt ein bestätigter passender Beleg; daraus folgt weder Erfolg noch sichere Nichtausführung | Den ursprünglichen Vorgang prüfen; keine neue Entscheidung mit neuer Operations-ID erzeugen |
+ 
+ Die KI übernimmt, sobald der Host die Fortsetzung im bestehenden Chat tatsächlich startet.
+@@ -923,7 +1126,8 @@ und ihre [gebundene Kontext- und Nachrichtenübergabe](../../packages/control-ui
+ bilden die technische Grundlage. Die aktuellen Mocks zeigen weiterhin einen deaktivierten
+ Klickweg; das Diagramm erläutert zusätzlich den Ablauf bei qualifizierter Klickunterstützung.
+ Es bestätigt keine native Codex-Qualifizierung. Ohne Klickunterstützung bleibt die gebundene
+-Entscheidung im bestehenden Chat verfügbar; ihre genaue Antwortregel steht in Details.
++Entscheidung im bestehenden Chat verfügbar; ihre genaue Antwortregel steht unmittelbar bei
++der Handlungsanweisung, während technische Bindungsangaben in Details zugänglich bleiben.
+ 
+ Der SVG-Export erfolgt aus dem Repository-Wurzelverzeichnis:
+ 
+@@ -1011,6 +1215,8 @@ weiteren Entwicklung und ist keine Voraussetzung für dieses Bedienmodell.
+ | Entscheidungen | Bestehender exakter Textweg und Entwicklungsstand der gebundenen App | Unterstützte, qualifizierte Klickaktionen mit derselben Wirkung und verständlicher Bestätigung |
+ | Verlauf | Gespeicherte Run-Zustände, Quellenrevisionen, Belege und Berichte | Verständlicher Verlauf mit eindeutiger Trennung zwischen historischer und aktueller Fassung |
+ | Host-Darstellung | Einzelne datierte Browser-, Protokoll- und native Beobachtungen | Qualifizierung der jeweils ausgelieferten Gesamtdarstellung und ihrer tatsächlichen Interaktionen |
++| Arbeitsübergabe | Getrennte Kontext- und Nachrichtenwege mit gebundener Quelle | Eine ausdrückliche Weiterarbeitsabsicht; belegte Zuordnung zum Arbeitsauftrag und verständlicher Statusabgleich |
++| Ergebnis und Abnahme | Gate-Modell und Abnahmenachweise | Prüfbare Ergebnisfassung mit konkreten Prüfschritten, Aussagegrenzen und getrennt belegtem Lieferzustand |
+ 
+ Die bestehenden Referenzen behalten ihre eigene Beschreibung des Implementierungsstands.
+ Dieses Kapitel ist die gemeinsame fachliche Beschreibung der UI-Weiterentwicklung. Es
+@@ -1047,6 +1253,30 @@ Das Konzept ist in folgenden Situationen nachvollziehbar zu prüfen:
+ 11. Eine gebundene Entscheidung wird einmal als MCP-App-UI und einmal als Portable Markdown
+     dargestellt. Run, Gate, Revision, Digests, Zusammenfassung, Folgen und zulässige Antwort
+     stimmen überein; nur Darstellung und verfügbare Interaktion unterscheiden sich.
++12. Nach einem lesenden Wechsel von A zu B erkennt der Anwender ohne Erklärung von außen,
++    welches Vorhaben er liest und ob ein Arbeitsauftrag für B bestätigt ist. Ein mehrdeutiger
++    Änderungsauftrag wird vor der Änderung geklärt. Der unterstützte Übergabeweg wird zusätzlich
++    mit fehlender Fähigkeit und unklarer Zustellung geprüft.
++13. Vor der Entscheidung erklärt der Anwender in eigenen Worten, was er beurteilen soll,
++    was bereits mit welcher Grenze geprüft ist, was danach erlaubt wird und was weiterhin
++    unbestätigt bleibt. Bei technischer Zuständigkeit wird die passende Person einbezogen.
++14. Bei einer Überarbeitung findet der Anwender die relevante Änderung und die Behandlung
++    seiner Rückmeldung, ohne beide Dokumente vollständig erneut zu lesen. Fehlende Vergleichbarkeit
++    wird verstanden; die vollständigen Fassungen bleiben zugänglich.
++15. Nach gespeicherter Freigabe und unklarer Fortsetzung prüft der unterstützte Weg den ursprünglichen
++    Vorgang ohne erneute Freigabe oder doppelte Beauftragung. Der Anwender erkennt, ob er etwas tun muss.
++16. Zur Abnahme erreicht der Anwender die konkrete Ergebnisfassung, versteht die Umgebung und
++    führt die vereinbarten Prüfschritte aus. Ein Mangel ist besprechbar. Technischer Pass,
++    fachliche Abnahme, Integration und Veröffentlichung werden nicht verwechselt.
++17. Ein Änderungswunsch während der Umsetzung erklärt die Auswirkungen auf vorhandene Freigaben.
++    Bei Unterbrechung erkennt der Anwender angeforderten und bestätigten Halt sowie fehlende
++    Hostfähigkeit. Die Wiederaufnahme prüft den tatsächlichen Stand erneut.
++
++Für diese Aufgaben werden Zeit bis zur richtigen Handlung, Fehlzuordnungen, unnötige
++Dokumentwechsel und Verständnisfehler beobachtet. Ein Vergleich mit dem bisherigen Nutzerweg
++zeigt, ob Suchen, Zuordnen und Vergleichen tatsächlich abnehmen. Die Zielwerte werden vor der
++Nutzerprüfung festgelegt; die Mocks allein belegen keine Zeitersparnis. Ein Abnicken ohne
++Verständnis oder eine Änderung am falschen Vorhaben gilt nicht als erfolgreicher Durchlauf.
+ 
+ Tastaturbedienung, Fokus, schmale und große Flächen sowie tatsächliches Host-Verhalten gehören
+ zur Prüfung dieser Situationen. Sichtbarer Fortschritt, wirksame menschliche Entscheidung und
+diff --git a/docs/architecture/08-ui-richtlinien.md b/docs/architecture/08-ui-richtlinien.md
+index 84cfcd27..8ed30e69 100644
+--- a/docs/architecture/08-ui-richtlinien.md
++++ b/docs/architecture/08-ui-richtlinien.md
+@@ -4,7 +4,7 @@ AGDF soll dem Anwender helfen, sein Vorhaben zu verstehen, die nächste Aufgabe
+ und eine konkrete Entscheidung bewusst zu treffen. Diese Richtlinien gelten für den Hub,
+ das Run-Cockpit im Chat, die große Appfläche sowie Dokumente und Verlauf innerhalb der App.
+ 
+-**Dokumentrolle: Gestaltungsgrundlage für die UI-Weiterentwicklung, Stand 13. Oktober 2026.**
++**Dokumentrolle: Gestaltungsgrundlage für die UI-Weiterentwicklung, Stand 14. Oktober 2026.**
+ Die beschriebenen Regeln sind Anforderungen an neue und überarbeitete Ansichten. Sie sind
+ kein Nachweis, dass der heutige Bestand sie vollständig erfüllt. Das
+ [UI-Konzept](07-ui-konzept.md) beschreibt Nutzerweg, Ansichten und Mockups; diese Seite
+@@ -35,7 +35,11 @@ Details ermöglichen weiterhin die eindeutige technische Zuordnung.
+ Wer ist dran? Was muss als Nächstes passieren? In der großen Ansicht bleiben diese Angaben
+ sichtbar, während der Inhalt scrollt. In der Chatkarte stehen sie kompakt am Anfang.
+ Der tatsächliche Run bestimmt die Schritte; interne Arbeit erzeugt keine zusätzliche
+-menschliche Entscheidung. Historische Inhalte sind als frühere Stände erkennbar.
++menschliche Entscheidung. Historische Inhalte sind als frühere Stände erkennbar. Die vier
++Orientierungsfragen verlangen keine vier Informationsblöcke: Vorhaben, Fassung und eine
++konkrete Prüfaufgabe können sie verdichtet beantworten. Auf schmalen Flächen und bei
++Textvergrößerung darf der Kopf den Arbeitsinhalt nicht verdrängen; die Orientierung bleibt
++zugänglich, auch wenn dafür die Fixierung entfallen muss.
+ 
+ **Beispiel:** „Anmeldung verbessern · Ziel und Umfang klären · Du bist dran: Prüfe Ziel
+ und Umfang dieser Fassung.“ Beim Lesen bleibt dieser Kopf stehen.
+@@ -47,10 +51,16 @@ auslösenden Zusammenhang. Der Verlauf verwechselt frühere und heutige Aufgaben
+ ## 3 Entscheidungen mit klarer Grundlage und Wirkung
+ 
+ **Regel:** Vor einer Entscheidung benennt die Karte die konkrete Fassung, Ziel und Umfang,
+-wesentliche offene Punkte sowie den erlaubten nächsten Schritt. Die genaue Quelle ist
+-lesbar. „So stimmt es“ bestätigt ausschließlich die gebundene Fassung. Eine Ersatzfassung
++wesentliche offene Punkte sowie den erlaubten nächsten Schritt. Sie erklärt die konkrete
++Prüfaufgabe, benötigte Zuständigkeit und bereits belegte Prüfungen mit Quelle, Fassung und
++Aussagegrenze. Bei Überarbeitung zeigt sie relevante Änderungen und die Behandlung der
++Rückmeldungen, sobald eine belastbare Vergleichsgrundlage vorhanden ist; andernfalls erklärt
++sie die fehlende Vergleichbarkeit. Die genaue Quelle ist lesbar. Eine gegenstandsbezogene
++Aktion wie „Anforderung bestätigen“ bestätigt ausschließlich die gebundene Fassung. Eine Ersatzfassung
+ benötigt erneut eine Entscheidung. „Änderung nötig“ klärt den Änderungswunsch und erfasst
+-keine Zustimmung. Eine Bestätigung wird erst nach erfolgreich bestätigter Speicherung gezeigt.
++keine Zustimmung. Entscheidungsrelevante Risiken bleiben im Hauptinhalt. Die UI weist keine
++neuen Entscheidungsrechte zu; ungeklärte Zuständigkeit wird vor der Entscheidung benannt.
++Eine Bestätigung wird erst nach erfolgreich bestätigter Speicherung gezeigt.
+ Ist das bestehende Gespräch der einzige verfügbare Entscheidungsweg, steht die exakt zulässige
+ Antwort direkt bei dieser Handlungsanweisung. Sie darf nicht ausschließlich hinter
+ geschlossenen Details verborgen sein. Bei einem verfügbaren qualifizierten Klickweg kann
+@@ -61,7 +71,8 @@ untersuchen. Umsetzung ist noch nicht freigegeben.“ Nach erfolgreicher Erfassu
+ „Anforderung bestätigt · Fassung 2“.
+ 
+ **Prüfkriterium:** Der Anwender kann vor der Aktion sagen, was er bestätigt und was dadurch
+-erlaubt wird. Während der Erfassung, nach bestätigtem Erfolg und bei unklarer Antwort sind
++erlaubt wird, was weiterhin unbestätigt bleibt und welche Vorprüfung ihn entlastet. Während
++der Erfassung, nach bestätigtem Erfolg und bei unklarer Antwort sind
+ unterschiedliche Zustände sichtbar. Eine verlorene Antwort führt zur Prüfung des ursprünglichen
+ Vorgangs; ein wiederholter Klick erzeugt keine zweite wirksame Entscheidung.
+ 
+@@ -93,9 +104,13 @@ Nicht verfügbare Aktionen erklären unmittelbar den Grund und einen vorhandenen
+ Die Oberfläche zeigt nur Aktionen, die für den aktuellen Zustand sinnvoll sind.
+ 
+ **Beispiel:** Solange die Bestätigung per Klick nicht verfügbar ist, führt „Anforderung lesen“.
+-„So stimmt es“ bleibt deaktiviert; daneben steht „Bestätigung hier noch nicht verfügbar“ und
++Ein gegebenenfalls gezeigter Bestätigungsbutton bleibt nachrangig deaktiviert; daneben steht
++„Bestätigung hier noch nicht verfügbar“ und
+ „Entscheide im bestehenden Gespräch“. Unmittelbar darunter steht die exakt zulässige
+-Chat-Antwort. Ein deaktivierter Button ist visuell nachrangiger als die verfügbare Hauptaktion.
++Chat-Antwort. „Antwort kopieren“ kann sie vorbereiten, sofern verfügbar; Kopieren sendet
++nichts und entscheidet nichts. Ein deaktivierter Button ist visuell nachrangiger als die
++verfügbare Hauptaktion. Bei gespeicherter Freigabe und unbestätigter Fortsetzung prüft ein
++unterstützter Statusabgleich den ursprünglichen Vorgang, ohne erneut freizugeben oder zu beauftragen.
+ 
+ **Prüfkriterium:** Der erste Blick zeigt die wichtigste verfügbare Aktion. Zwei gleichwertige
+ Primärbuttons konkurrieren nicht. Ein deaktivierter Button lässt den Anwender nicht ohne
+@@ -163,6 +178,15 @@ verlangt keine HTML-Details, Diagramme, lokalen Links oder nativen Bedienelement
+ Kerninhalt zu verstehen. Die Formatauswahl stammt aus vertrauenswürdiger Host-Konfiguration
+ und beobachteten Fähigkeiten, nicht aus frei modellierbaren Werkzeugeingaben.
+ 
++Der [Übergang vom Lesen zum Arbeitsauftrag](07-ui-konzept.md#vom-lesen-zum-bestätigten-arbeitsauftrag)
++ist zusätzlich zu prüfen: Bei einem Run-Wechsel erkennt der Anwender Leseauswahl und belegten
++Gesprächsauftrag. „Dieses Vorhaben im Gespräch weiterbearbeiten“ benennt Run, Quelle und Ziel.
++Kontextaufnahme, Nachrichtenannahme und Agentenübernahme werden einzeln bestätigt, ohne dem
++Anwender technische Orchestrierung aufzubürden. Unbekannte Zuordnung bleibt unbekannt;
++mehrdeutige Änderungsaufträge werden bei ihrer Aufnahme vor einer Änderung geklärt. Fehlende
++Hostfähigkeit bietet einen ausdrücklich zugeordneten Textauftrag; unklare Zustellung wird
++vor einer Wiederholung geprüft. Unterbrechung wird erst bei bestätigtem Host-Halt als erfolgt gezeigt.
++
+ ## 7 Gemeinsame Gestaltung und bestehende Komponenten
+ 
+ **Regel:** Neue Ansichten verwenden die vorhandenen Design-Tokens und geeigneten gemeinsamen
+@@ -233,7 +257,9 @@ Darstellungsstand. Aussagen über Host-Fähigkeiten benötigen die Beobachtung d
+ verwendeten Fassung im betreffenden Host. Die vorhandenen Qualifizierungsvoraussetzungen
+ bleiben erhalten. Eine dokumentierte Abweichung nennt Grund, betroffene Ansicht und Nutzerfolge.
+ 
+-**Beispiel:** Die fünf Imagegen-Mocks zeigen den App-Ablauf. Die eingebettete
++**Beispiel:** Die fünf historischen Imagegen-Mocks zeigen den frühen App-Ablauf. Die aktuelle
++[v3-Serie](mockups/human-gate-mocks-v3.md) zeigt Entscheidungsvorbereitung, Arbeitsübergabe,
++Ergebnisprüfung und Fortsetzungsdiagnose. Die eingebettete
+ [Übersicht aller menschlichen Gates](07-ui-konzept.md#durchgehender-vertrag-für-alle-menschlichen-gates)
+ und der QA-/UAT-Sonderfall zeigen die gateübergreifende Informationsstruktur. Eine ergänzende
+ Portable-Markdown-Referenz zeigt denselben Entscheidungsgegenstand ohne App. Für „Groß öffnen“
+@@ -251,6 +277,15 @@ mit den konkret unterstützten Hostanzeigenamen. Für jedes anwendbare menschlic
+ zusätzlich geprüft, dass Mindestinhalt, Zustimmungswirkung, weiterhin gesperrte Arbeit und
+ post-decision receipt dem gemeinsamen Kartenvertrag entsprechen.
+ 
++Die [Ergebnis- und Abnahmesituation](07-ui-konzept.md#ergänzung-ergebnis-prüfen-und-abnehmen)
++führt mit zugeordneter Ergebnisfassung, Umgebung, konkreten Prüfschritten und sichtbaren
++Restgrenzen. Bestandene technische Prüfungen ersetzen keine menschliche Abnahme. Abnahme,
++Integration, Veröffentlichung und Abschluss benötigen ihre jeweils eigenen Belege.
++Die Verständnisprüfung lässt den Anwender ohne externe Erklärung Entscheidungsgegenstand,
++Zuständigkeit, erlaubte Folge und verbleibende Grenze benennen. Nach einem Run-Wechsel muss
++er den tatsächlichen oder unbestätigten Arbeitsauftrag erkennen. Zeit bis zur richtigen
++Handlung, Fehlzuordnungen und unnötige Dokumentwechsel werden mit dem bisherigen Weg verglichen.
++
+ Die UI-Richtlinien besitzen die übergreifenden Gestaltungsregeln. Das UI-Konzept besitzt
+ Nutzerweg, Begriffsliste und Mockups; die gemeinsamen Tokens besitzen die exakten Designwerte.
+ Bestandsreferenz und technische Verträge behalten ihre eigenen Zuständigkeiten. Eine Änderung
+diff --git a/packages/cli/package.json b/packages/cli/package.json
+index 38d9269e..8d7a8aa7 100644
+--- a/packages/cli/package.json
++++ b/packages/cli/package.json
+@@ -126,7 +126,7 @@
+     "test:sd-readiness": "node ../core/test/sd-readiness-test.js",
+     "test:late-source-revision": "node ../core/test/early-ur-revision-test.js && node ../core/test/run-source-revisions-test.js && node scripts/late-source-revision-test.js && npm run test:late-source-revision-performance",
+     "test:late-source-revision-performance": "node scripts/late-source-revision-performance-test.js",
+-    "test:run-command-flow": "node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/run-command-contract-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js",
++    "test:run-command-flow": "node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js",
+     "test:expanded-source-revision": "node ../core/test/expanded-source-revision-test.js && node ../core/test/expanded-revision-recovery-test.js"
+   },
+   "keywords": [
+diff --git a/packages/cli/scripts/cli-gate-scenarios-test.js b/packages/cli/scripts/cli-gate-scenarios-test.js
+index 4ce6c575..676b5b2b 100644
+--- a/packages/cli/scripts/cli-gate-scenarios-test.js
++++ b/packages/cli/scripts/cli-gate-scenarios-test.js
+@@ -135,7 +135,7 @@ function boundUrApproval() {
+   withFixture("bound-ur", "bound-ur", ({ root, runId, revisionId }) => {
+     const artefactDir = join(root, ".agdf", "control", "artefacts", runId);
+     mkdirSync(artefactDir, { recursive: true });
+-    writeFileSync(join(artefactDir, "UR.md"), "# UR: Bound CLI run\n\n## Problem\n\nAdd subtract. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine Subtraktionsfunktion fehlt.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
++    writeFileSync(join(artefactDir, "UR.md"), "# UR: Bound CLI run\n\n## Problem\n\nAdd subtract. The user should review this document before approval.\n\n## Goal\nThe user can review the exact stored requirement before deciding.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine Subtraktionsfunktion fehlt.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
+     const recorded = json(["run-step", "--dir", root, "--run", runId, "--revision", revisionId,
+       "--step", "ur", "--title", "Bound CLI run"]);
+     assert.equal(recorded.outcome, "recorded");
+diff --git a/packages/cli/scripts/fixtures/expanded-source-revision.js b/packages/cli/scripts/fixtures/expanded-source-revision.js
+index 73dd9cb8..3b8aa5ce 100644
+--- a/packages/cli/scripts/fixtures/expanded-source-revision.js
++++ b/packages/cli/scripts/fixtures/expanded-source-revision.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from '../../../core/test/fixtures/decision-content.js';
+ import assert from 'node:assert/strict';
+ import { randomUUID } from 'node:crypto';
+ import { readFileSync, writeFileSync, cpSync, rmSync } from 'node:fs';
+@@ -43,7 +44,7 @@ export function createExpandedSourceRevisionFixture(root, cli, seeds) {
+     const r=service('agdf_record',{...envelope(),command:{kind:'step.record',payload:{step:'internal',internal_step:step,decision:'pass',source:{path,digest:artefactFileDigest(root,path)}}}});
+     assert.equal(r.outcome,'accepted',JSON.stringify(r));if(step==='Brownfield Analysis')save('CD+Tests');
+   }
+-  save('QA');record('QA','# QA: Synthetic expanded-revision report\n- decision: pass\n\n## Scope\nFixture scope fulfilled.\n## Evidence\nActual fixture results registered.\n## Risks\nNo applicable open finding.\n');approve('QA');save('UAT');
++  save('QA');record('QA',withSyntheticQaContent('# QA: Synthetic expanded-revision report\n- decision: pass\n\n## Scope\nFixture scope fulfilled.\n## Evidence\nActual fixture results registered.\n## Risks\nNo applicable open finding.\n'));approve('QA');save('UAT');
+   const prepare = gate => {
+     const s=state(), p=sourceRevisionTestProposal(root,{...f,control:()=>s},gate,'reassess');
+     const source=p.value.sources.find(row=>row.type===gate), statement=read(source.path).replace(/^\uFEFF/,'').split('\n').find(line=>line.trim());
+diff --git a/packages/cli/scripts/fixtures/prd-definition.js b/packages/cli/scripts/fixtures/prd-definition.js
+index 128b3ab0..dc4cd110 100644
+--- a/packages/cli/scripts/fixtures/prd-definition.js
++++ b/packages/cli/scripts/fixtures/prd-definition.js
+@@ -25,7 +25,7 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
+   const run = (command, ...args) => call(command, "--run", runId, ...args);
+   const created = run("run-create"); assert.equal(created.code, 0, created.text);
+   mkdirSync(join(root, prefix), { recursive: true });
+-  writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n");
++  writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Derselbe Filter muss wiederholt aufgebaut werden.\n- Ziel: Einen benannten persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein Filter ohne Teilen oder Berechtigungsänderung.\n");
+   assert.equal(run("run-step", "--revision", revision(), "--step", "ur", "--title", "Synthetic saved filter").code, 0);
+   const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run("run-approve",
+     "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response,
+diff --git a/packages/cli/scripts/operational-localization-test.js b/packages/cli/scripts/operational-localization-test.js
+index 0a63b6b4..abdd6c46 100644
+--- a/packages/cli/scripts/operational-localization-test.js
++++ b/packages/cli/scripts/operational-localization-test.js
+@@ -158,7 +158,7 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
+     initializeCanonicalControl(root, generatedFilesForTarget("init", root, false, "de"));
+     const statePath = createRun(root, "loc");
+     mkdirSync(join(root, ".agdf", "control", "artefacts", "loc"), { recursive: true });
+-    writeFileSync(join(root, ".agdf", "control", "artefacts", "loc", "UR.md"), "# UR: Localization\n");
++    writeFileSync(join(root, ".agdf", "control", "artefacts", "loc", "UR.md"), "# UR: Localization\n\n## Goal\nDen aktuellen Kontrollzustand verständlich darstellen.\n");
+     const freeStep = "Frei formulierter nächster Schritt des Agenten.";
+     const edited = readFileSync(statePath, "utf8")
+       .replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/loc/UR.md` | draft |  |")
+diff --git a/packages/core/lib/control-evaluation/doctor.js b/packages/core/lib/control-evaluation/doctor.js
+index 31ec43ff..dba52180 100644
+--- a/packages/core/lib/control-evaluation/doctor.js
++++ b/packages/core/lib/control-evaluation/doctor.js
+@@ -4,6 +4,7 @@ import { aggregate } from "../control-state/aggregate.js";
+ import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";
+ import { resolveRuns } from "../control-state/run-state-resolver.js";
+ import { runSealState } from "../control-state/run-seal.js";
++import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
+ import { pendingRunStepIds } from "../control-state/run-step-pending.js";
+ import { doctorRequiredFiles } from "./required-files.js";
+ import { analyzeDeliveryMap } from "./delivery-map.js";
+@@ -139,6 +140,10 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
+       const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
+       const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
+       const hasEvidence = hasFilledEvidenceRow(run);
++      const content = observeDecisionContent(targetDir, selectedRunState, { objectiveOnly: true });
++      if (!content.ready) addFinding(findings, 'warn', 'AGDF_DECISION_CONTENT_INCOMPLETE',
++        'The selected active Run has incomplete decision orientation.', runPath,
++        decisionContentRecovery(content, { state: selectedRunState }));
+ 
+       if (isPlaceholderValue(currentGateLine)) {
+         addFinding(
+diff --git a/packages/core/lib/control-evaluation/gate-check.js b/packages/core/lib/control-evaluation/gate-check.js
+index 5d68580b..cad02b22 100644
+--- a/packages/core/lib/control-evaluation/gate-check.js
++++ b/packages/core/lib/control-evaluation/gate-check.js
+@@ -1,5 +1,6 @@
+ import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderDefinitionSourceRecovery, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
+-import { interactionLocales, resolveConfiguredChatLanguage } from "../resources/context.js";
++import { interactionLocales, resolveConfiguredChatLanguage, resolveArtifactPresentationLanguages } from "../resources/context.js";
++import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
+ import { evaluateDoctor } from "./doctor.js";
+ import { analyzeDeliveryMap, deriveQualityOutlook } from "./delivery-map.js";
+ import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
+@@ -465,6 +466,16 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {})
+     }
+   }
+ 
++  const contentReadiness = status === 'open' && /^Approval: /u.test(missingApproval) && approvalArtefactReady
++    ? observeDecisionContent(targetDir, runState, { gate: currentGate, locale: presentationLocale.split('-')[0],
++      sourceLanguage: resolveArtifactPresentationLanguages(targetDir, presentationLocale).artifact_language }) : null;
++  if (contentReadiness && !contentReadiness.ready) {
++    status = 'blocked'; blockingReason = 'AGDF_DECISION_CONTENT_INCOMPLETE';
++    const values = localePack(interactionLocales, 'en').operationalValues;
++    allowed = [values.correctDecisionContent];
++    forbidden = [...forbidden, values.noIncompleteContentApproval];
++    nextAllowedAction = values.completeDecisionContent;
++  }
+   const postApproval = postApprovalTransition(missingApproval, runState);
+   const renderable = (value) => isOperationalValueRenderable(value, { registry: interactionLocales, requestedLocale: presentationLocale });
+   const runQualityOutlook = deriveQualityOutlook(runState, deliveryMap.findings);
+@@ -549,7 +560,10 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {})
+       presentation_language: statusCard.presentation_language,
+     },
+   });
+-  const presentationDiagnostics = {};
++  const presentationDiagnostics = contentReadiness && !contentReadiness.ready ? {
++    approval_presentation_errors: contentReadiness.gaps.map(g => `decision_content_${g.reason}:${g.field}`),
++    approval_presentation_recovery: decisionContentRecovery(contentReadiness, { locale: presentationLocale.split('-')[0], state: runState }),
++  } : {};
+   let approvalPresentation = null;
+   if (approvalOrientationPresentation && statusPresentation) {
+     try {
+diff --git a/packages/core/lib/control-evaluation/report-decision.js b/packages/core/lib/control-evaluation/report-decision.js
+index fac548c4..2dd68b4c 100644
+--- a/packages/core/lib/control-evaluation/report-decision.js
++++ b/packages/core/lib/control-evaluation/report-decision.js
+@@ -85,8 +85,11 @@ function markupIndex(line, start = 0, limit = line.length) {
+   return -1;
+ }
+ 
+-function* authoredFields(text) {
+-  let active = true, titleAllowed = true, fence = null, skipUntil = 0;
++// One lexical owner for the result observer and closed decision-content profiles.
++// Boundary events also exclude lazy continuations: a closed block cannot reopen
++// on a blank or an apparent field; only an actual admitted heading reopens it.
++function* reportLines(text) {
++  let fence = null, skipUntil = 0;
+   let offset = 0;
+   for (const line of text.split('\n')) {
+     const start = offset; offset += line.length + 1;
+@@ -100,26 +103,18 @@ function* authoredFields(text) {
+     }
+     if (markers) {
+       fence = { kind: markers[1][0], length: markers[1].length };
+-      active = false; titleAllowed = false; continue;
++      yield { boundary: true }; continue;
+     }
+-    if (!line.trim()) continue;
+     const heading = line.match(/^(#{1,6})[\t ]+([^\n]+)$/u);
++    let name;
+     if (heading) {
+-      let name = heading[2].trim(), end = name.length;
++      name = heading[2].trim(); let end = name.length;
+       while (end && name[end - 1] === '#') end--;
+       if (end < name.length && end && /[\t ]/u.test(name[end - 1])) name = name.slice(0, end).trimEnd();
+-      if (!(titleAllowed && heading[1] === '#')) active = heading[1] === '##' && /^(?:\d+\.[\t ]+)?(?:QA[\t ]+)?Decision$/iu.test(name);
+-      titleAllowed = false;
+-    } else {
+-      const scalar = active && line.match(/^(?:- )?([a-z][a-z_ -]*):[\t ]*([^\n]*)$/iu);
+-      if (scalar && metadata.has(scalar[1].toLowerCase())) {
+-        titleAllowed = false;
+-        if (/^(?:decision|status)$/iu.test(scalar[1])) yield [scalar[1], scalar[2]];
+-      } else { active = false; titleAllowed = false; }
+     }
+     let html = markupIndex(line);
++    yield { line, level: heading?.[1].length, name, markup: html >= 0 };
+     if (html >= 0) {
+-      active = false; titleAllowed = false;
+       // Also consume sibling markup on the final line, not just the first tag.
+       let end = start + html, lineEnd = start + line.length;
+       do {
+@@ -137,6 +132,74 @@ function* authoredFields(text) {
+   }
+ }
+ 
++function* authoredFields(text) {
++  let active = true, titleAllowed = true;
++  for (const row of reportLines(text)) {
++    if (row.boundary) { active = false; titleAllowed = false; continue; }
++    if (!row.line.trim()) continue;
++    if (row.level) {
++      if (!(titleAllowed && row.level === 1)) active = row.level === 2 && /^(?:\d+\.[\t ]+)?(?:QA[\t ]+)?Decision$/iu.test(row.name);
++      titleAllowed = false;
++    } else {
++      const scalar = active && row.line.match(/^(?:- )?([a-z][a-z_ -]*):[\t ]*([^\n]*)$/iu);
++      if (scalar && metadata.has(scalar[1].toLowerCase())) {
++        titleAllowed = false;
++        if (/^(?:decision|status)$/iu.test(scalar[1])) yield [scalar[1], scalar[2]];
++      } else { active = false; titleAllowed = false; }
++    }
++    if (row.markup) { active = false; titleAllowed = false; }
++  }
++}
++
++const summaryFields = new Set(['problem', 'ziel', 'goal', 'betroffene', 'users', 'umfang', 'scope', 'abnahme', 'acceptance', 'offen', 'open questions',
++  'qa-ergebnis', 'qa result', 'umsetzung', 'implementation', 'nachweise', 'evidence', 'ergebnis', 'delivered result', 'grenzen', 'qualification limits',
++  'risiken', 'risks', 'nächster schritt', 'next step', 'quellen und abgrenzung', 'risiken und klärung',
++  'entscheidung', 'decision', 'tp-abdeckung', 'task plan coverage', 'lücken', 'missing evidence']);
++const contentProfiles = Object.freeze({
++  objective: { heading: /^Objective$/iu, paragraph: true },
++  goal: { heading: /^(?:\d+\.[\t ]+)?Goal$/iu, paragraph: true },
++  result: { heading: /^(?:\d+\.[\t ]+)?TP Coverage$/iu, fields: ['delivered_result'] },
++  limits: { heading: /^(?:\d+\.[\t ]+)?Missing Evidence$/iu, fields: ['qualification_limits'] },
++  risks: { heading: /^(?:\d+\.[\t ]+)?Risks$/iu, fields: ['delivery_risks'] },
++});
++
++// Closed internal profiles only; no caller-selected heading/regex or Markdown API.
++export function readAuthoredContent(text, profile, { locale, sourceLanguage } = {}) {
++  if (typeof text !== 'string' || Buffer.byteLength(text) > 131072) return null;
++  if (profile === 'title') {
++    for (const row of reportLines(text.replace(/\r\n?/gu, '\n'))) if (row.level === 1 && !row.markup) return row.name;
++    return null;
++  }
++  const localized = profile === 'localized';
++  const spec = localized && ['en', 'de'].includes(locale) && ['en', 'de'].includes(sourceLanguage)
++    ? { heading: new RegExp('^AGDF Approval Summary \\(' + locale + ';[\\t ]*source=' + sourceLanguage + '\\)$', 'iu'), fields: null }
++    : contentProfiles[profile];
++  if (!spec) return null;
++  let active = false, sections = 0, started = false;
++  const lines = [], fields = {};
++  for (const row of reportLines(text.replace(/\r\n?/gu, '\n'))) {
++    if (row.boundary || row.markup) { active = false; continue; }
++    if (row.level) {
++      active = row.level === 2 && spec.heading.test(row.name); started = false;
++      if (active && ++sections !== 1) return null;
++      continue;
++    }
++    if (!active) continue;
++    if (!row.line.trim()) { if (spec.paragraph && started) active = false; continue; }
++    if (spec.paragraph) {
++      if (/^(?:\s|[-+*>]|\d+[.)][\t ])/u.test(row.line)) { active = false; continue; }
++      started = true; lines.push(row.line.trim());
++    } else {
++      const scalar = row.line.match(/^(?:- )?([\p{L}][\p{L}\p{N}_ -]*):[\t ]*([^\n]*)$/u);
++      const key = scalar?.[1].toLowerCase();
++      if (!key || !(localized ? summaryFields.has(key) || /^ac-[a-z0-9-]+$/iu.test(key) : spec.fields.includes(key))) { active = false; continue; }
++      if (Object.hasOwn(fields, key)) return null;
++      fields[key] = scalar[2].trim(); started = true;
++    }
++  }
++  return sections === 1 && (spec.paragraph ? lines.length : Object.keys(fields).length) ? spec.paragraph ? lines.join(' ') : fields : null;
++}
++
+ // Observe an authored technical result, never decide or approve QA. The closed
+ // internal opt-in preserves analysis not_applicable; QA's domain stays unchanged.
+ export function readReportDecision(text, { allowNotApplicable = false } = {}) {
+diff --git a/packages/core/lib/control-state/run-presentation-render.js b/packages/core/lib/control-state/run-presentation-render.js
+index e0f8938d..3dd9c1a8 100644
+--- a/packages/core/lib/control-state/run-presentation-render.js
++++ b/packages/core/lib/control-state/run-presentation-render.js
+@@ -9,6 +9,8 @@ import { localePack, resolvePresentationLocale, resolveHumanRunTitle } from "../
+ import { readSourceRevisions, SOURCE_GATES } from './run-source-revisions.js';
+ import { readRunOperations } from './run-operations.js';
+ import { qaDeviationPresentation } from './qa-deviation-acceptance.js';
++import { observeDecisionContent, decisionContentRecovery } from '../control-evaluation/decision-content-readiness.js';
++import { readReportDecision } from '../control-evaluation/report-decision.js';
+ import { readValidatedRevisionArchive, validateRevisionHistory, validateEarlyPrdHistory, earlyPrdHistoryReference, byteDigest } from './run-revision-history.js';
+ 
+ // Compare only an actual immutable prior version from the existing archive owner.
+@@ -63,7 +65,8 @@ const SUMMARY_SECTIONS = Object.freeze({
+     ["Abgrenzung", /out of scope|nichtumfang/iu], ["Risiken", /risk|blocker|risik|blocker/iu],
+   ],
+   QA: [
+-    ["Entscheidung", /qa decision|entscheidung/iu], ["TP-Abdeckung", /tp coverage|abdeckung/iu],
++    ['Ergebnis', /tp coverage/iu, /^delivered_result:/iu],
++    ["Entscheidung", /qa decision|entscheidung/iu], ["TP-Abdeckung", /tp coverage|abdeckung/iu, /^(?!delivered_result:)/iu],
+     ["Belege", /evidence|belege/iu], ["Fehlt", /missing evidence|fehlende belege/iu],
+     ["Risiken", /risk|risik/iu], ["Nächster Schritt", /required next step|next step|nächster schritt/iu],
+   ],
+@@ -74,6 +77,7 @@ const SUMMARY_LABELS_EN = Object.freeze({
+   Verantwortung: "Ownership", Entscheidungen: "Design decisions", Integration: "Integration",
+   Aufgaben: "Tasks", Tests: "Tests", Risiken: "Risks", Entscheidung: "Decision",
+   "TP-Abdeckung": "Task plan coverage", Belege: "Evidence", Fehlt: "Missing evidence", "Nächster Schritt": "Next step",
++  Ergebnis: 'Delivered result',
+ });
+ export const hash = (value) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
+ 
+@@ -84,6 +88,8 @@ function compactSummaryText(value) {
+ 
+ function userFacingSummaryText(value) {
+   const text = compactSummaryText(value);
++  const content = text.match(/^(?:delivered_result|qualification_limits|delivery_risks):\s*(.+)$/iu);
++  if (content) return content[1];
+   const intent = text.match(/^(?:primary_user_intent|success_signal)\s*:\s*(.+)$/iu);
+   if (intent) return capitalizeSummary(intent[1].trim());
+   if (/^(?:ui_ux_impact|ux_intent_definition|primary_decision_or_action)\s*:/iu.test(text)) return "";
+@@ -257,6 +263,10 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
+     const displayLabel = german ? label : (SUMMARY_LABELS_EN[label] ?? label);
+     items.push(`- ${displayLabel}: ${values.join("; ")}`);
+   }
++  if (gate === 'QA') {
++    const decision = readReportDecision(markdown);
++    if (decision) items.unshift(`- ${german ? 'Entscheidung' : 'Decision'}: ${decision}`);
++  }
+   if (gate === "PRD") {
+     const criteria = criterionEntries(source);
+     if (!criteria.length) throw new Error("approval_summary_criteria_missing");
+@@ -307,28 +317,42 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
+   let summaryDigest;
+   let documentContent;
+   let summaryMarkdown;
++  let decisionMarkdown;
+   let documentLanguage = p.presentation_language;
+   let documentHeading;
+   const qaAcceptance = gate === 'QA' ? qaDeviationPresentation(runState?.qa_acceptance, p.presentation_language) : null;
+   if (gate === "UAT") {
++    const observation = observeDecisionContent(root, runState, { gate, locale: german ? 'de' : 'en',
++      sourceLanguage: resolveArtifactPresentationLanguages(root, p.presentation_language).artifact_language });
++    if (!observation.ready) throw Object.assign(Error('AGDF_DECISION_CONTENT_INCOMPLETE'), {
++      recovery: decisionContentRecovery(observation, { locale: german ? 'de' : 'en', state: runState }),
++    });
+     const projection = runState?.evidence_applicability;
+     const evidence = projection ? projection.current.map(row => ({ evidence: row.step, source: row.report.path, covers: row.sources.map(s => s.type).join(', '), strength: 'exact cooperative association' })) : [];
+     const other = projection ? [...projection.superseded.map(row => ({ evidence: row.step, source: row.report.path, covers: row.reason, strength: german ? 'ersetzt' : 'superseded' })),
+       ...projection.applicability_unknown.map(row => ({ evidence: row.step ?? row.evidence, source: row.report?.path ?? row.source, covers: row.reason, strength: german ? 'Zuordnung unbekannt' : 'applicability unknown' }))] : runState?.evidence_refs ?? [];
+     const allEvidence = [...evidence, ...other];
+     if (allEvidence.length === 0) return null;
++    const labels = german ? ['Ziel', 'Geliefertes Ergebnis', 'Technische QA', 'Nachweisgrenzen', 'Risiken und offene Punkte', 'Freigabewirkung']
++      : ['Intended outcome', 'Delivered result', 'Technical QA', 'Qualification limits', 'Risks and open issues', 'Approval effect'];
++    const { goal, result, qa, limits, risks } = observation.groups;
++    const pack = localePack(interactionLocales, resolvePresentationLocale(interactionLocales, p.presentation_language));
++    const brief = [goal, result, qa, limits, risks, pack.primary.afterApproval.UAT].map((value, index) => `- ${labels[index]}: ${value}`).join('\n');
++    decisionMarkdown = brief;
+     const summaryLines = evidence.map((item) => `- ${item.evidence} · ${item.covers} (${item.strength})`);
+     if (!evidence.length) summaryLines.push(german ? 'Keine aktuell exakt zugeordneten Nachweise; historische Zuordnung bleibt ausdrücklich unbekannt.' : 'No currently exact associated evidence; historical applicability remains explicitly unknown.');
+     summaryLines.push(`- ${german ? 'Ersetzte oder nicht zugeordnete Nachweise' : 'Superseded or unassociated evidence'}: ${other.length}`);
+-    const summaryText = summaryLines.join("\n");
++    const attribution = observation.sources.map(s => `- ${s.type}: ${s.path} · ${s.digest}`).join('\n');
++    const summaryText = brief + '\n\n' + summaryLines.join("\n") + '\n\n' + attribution;
+     summaryDigest = hash(summaryText);
+     summaryMarkdown = summaryText;
+-    artefactDigest = hash(JSON.stringify(allEvidence));
++    artefactDigest = hash(JSON.stringify({ groups: observation.groups, sources: observation.sources, evidence: allEvidence }));
+     artifactSection = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${summaryText}\n\n## ${german ? "Vorliegende UAT-Evidenz" : "Available UAT evidence"}\n\n${allEvidence.map((item) => `- ${item.evidence} · Quelle: ${item.source} · Deckt ab: ${item.covers} · Stärke: ${item.strength}`).join("\n")}`;
+     documentContent = artifactSection;
+     if (runState?.qa_acceptance?.accepted) {
+       const accepted = qaDeviationPresentation(runState.qa_acceptance, p.presentation_language);
+       summaryMarkdown += `\n\n${accepted.summary}`;
++      decisionMarkdown += `\n\n${accepted.summary}`;
+       summaryDigest = hash(summaryMarkdown);
+       documentContent += `\n\n${accepted.summary}`;
+     }
+@@ -382,7 +406,7 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
+   // available without duplicating the status, transition and approval prompts.
+   if (qaAcceptance) { summaryMarkdown = qaAcceptance.summary; summaryDigest = hash(summaryMarkdown); }
+   const parts = [`## ${qaAcceptance ? pack.decisionCard.deviationAcceptanceIntro : pack.gateActionTitles[gate]}`, resolveHumanRunTitle({ currentArtefactHeading: documentHeading, runContent: runState?.content, runId }),
+-    qaAcceptance?.summary || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
++    qaAcceptance?.summary || decisionMarkdown || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
+     german ? 'Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.'
+       : 'Reply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.',
+     pack.decisionCard.chatApprovalHint.replace('{gate}', gate),
+diff --git a/packages/core/lib/control-state/run-recording.js b/packages/core/lib/control-state/run-recording.js
+index 8b1632d4..eb9baec1 100644
+--- a/packages/core/lib/control-state/run-recording.js
++++ b/packages/core/lib/control-state/run-recording.js
+@@ -10,6 +10,9 @@ import { storedNextActionStale } from "../control-evaluation/next-action.js";
+ import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
+ import { backlogSkip } from "./run-backlog.js";
+ import { runPath } from "./run-state-reader.js";
++import { projectUrObjective } from './run-state-edits.js';
++import { readFileSync } from 'node:fs';
++import { containedRegularFile } from './contained-file.js';
+ 
+ const DURABLE_STATUS_GATES = new Set(["UR", "PRD", "SD", "TP"]);
+ 
+@@ -122,7 +125,13 @@ export function recordRunRevision(root, { runId, revisionId }) {
+   }
+   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
+   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
+-  const content = refreshMovedGateFields(root, run.content, run.path);
++  let content = refreshMovedGateFields(root, run.content, run.path);
++  const current = parseControlState(content, { userGates: APPROVAL_GATES });
++  if (run.meta.lifecycle === 'active' && current.approvals.get('UR')?.status !== 'approved'
++      && current.artefacts.get('UR')?.status === 'draft') {
++    const file = containedRegularFile(root, current.artefacts.get('UR').path);
++    if (file.status === 'valid') content = projectUrObjective(content, readFileSync(file.path, 'utf8'));
++  }
+   const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
+   if (written.rejection) return written.rejection;
+   return Object.freeze({
+diff --git a/packages/core/lib/control-state/run-state-edits.js b/packages/core/lib/control-state/run-state-edits.js
+index 33655beb..cfb0a4e0 100644
+--- a/packages/core/lib/control-state/run-state-edits.js
++++ b/packages/core/lib/control-state/run-state-edits.js
+@@ -3,6 +3,7 @@ import { parseRunState } from "./run-state-parser.js";
+ import { runPath } from "./run-state-reader.js";
+ import { pendingRunStepPath } from "./run-step-pending.js";
+ import { existsSync } from "node:fs";
++import { authoredGoal, isDecisionContentPlaceholder } from '../control-evaluation/decision-content-readiness.js';
+ 
+ // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
+ // addressed section or table row and keep every other byte of the run state.
+@@ -97,6 +98,17 @@ export function firstSection(lines, heading) {
+   return { start, end };
+ }
+ 
++// Pure text projection used only by permitted unapproved UR mutation owners.
++export function projectUrObjective(text, urText) {
++  const lines = text.split('\n'), range = firstSection(lines, 'Objective');
++  if (!range || lines.filter(line => /^## Objective\s*$/u.test(line)).length !== 1
++      || !isDecisionContentPlaceholder(lines.slice(range.start + 1, range.end).join('\n').trim())) return text;
++  const goal = authoredGoal(urText);
++  if (!goal) return text;
++  lines.splice(range.start + 1, range.end - range.start - 1, '', goal, '');
++  return lines.join('\n');
++}
++
+ export function tableLineIndexes(lines, range) {
+   const indexes = [];
+   for (let index = range.start + 1; index < range.end; index += 1) {
+diff --git a/packages/core/lib/control-state/run-steps.js b/packages/core/lib/control-state/run-steps.js
+index 88d4ea18..fb23c79d 100644
+--- a/packages/core/lib/control-state/run-steps.js
++++ b/packages/core/lib/control-state/run-steps.js
+@@ -16,6 +16,7 @@ import { parseControlState } from "./run-state-parser.js";
+ import { APPROVAL_GATES, canonicalRunText } from "./run-seal.js";
+ import {
+   firstSection,
++  projectUrObjective,
+   guardedWrite,
+   readRun,
+   rejected,
+@@ -250,6 +251,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
+     const path = artefactPath(key, "UR.md");
+     const missing = ownedOutputs.some(row => row.path === path) ? null : requireFile(root, runId, path, `${CONTROL_PREFIX}templates/artefacts/UR.md`);
+     if (missing) return missing;
++    // Only this authorized UR writer projects orientation; reading never repairs.
++    text = projectUrObjective(text, operationSource?.content ?? readFileSync(join(root, path), 'utf8'));
+     const failed = edit((value) => upsertTableRow(value, "Artefacts", 0, "UR", ["UR", `\`${path}\``, "draft"]));
+     if (failed) return failed;
+     known = `UR drafted at \`${path}\`.`;
+diff --git a/packages/core/lib/interaction-presentation.js b/packages/core/lib/interaction-presentation.js
+index 8ce545ce..0cf1e463 100644
+--- a/packages/core/lib/interaction-presentation.js
++++ b/packages/core/lib/interaction-presentation.js
+@@ -441,6 +441,7 @@ function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
+       AGDF_SD_DECISIONS_OPEN: "blockedSdDecisionsOpen",
+       AGDF_SD_TRACEABILITY_INCOMPLETE: "blockedSdTraceability",
+       AGDF_TP_TRACEABILITY_INCOMPLETE: "blockedTpTraceability",
++      AGDF_DECISION_CONTENT_INCOMPLETE: 'blockedDecisionContent',
+       AGDF_CONTROL_FILE_MISSING: "blockedControlMissing",
+       AGDF_ACTIVE_RUN_MISSING: "blockedRunMissing",
+       AGDF_DELIVERY_RELATIONSHIP_MISSING: "blockedRelationshipMissing",
+diff --git a/packages/core/lib/skill-dispatch/service.js b/packages/core/lib/skill-dispatch/service.js
+index a2a93c55..4f2314f6 100644
+--- a/packages/core/lib/skill-dispatch/service.js
++++ b/packages/core/lib/skill-dispatch/service.js
+@@ -629,6 +629,25 @@ export function createSkillDispatchService(dependencies = {}) {
+         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+         return bindHostAction(result);
+       }
++      if (input.continue_delivery && control.blocking_reason === 'AGDF_DECISION_CONTENT_INCOMPLETE') {
++        const errors = control.presentation_diagnostics?.approval_presentation_errors ?? [];
++        const orientationOnly = errors.length > 0 && errors.every(code => code.endsWith(':Objective'));
++        const unapprovedQa = control.current_gate === 'QA' && control.status_card?.runState?.approvals.get('QA')?.status !== 'approved';
++        if (orientationOnly || unapprovedQa) {
++          const owner = orientationOnly ? 'gate-check' : 'qa-gate';
++          const result = baseResult({ outcome: 'skill_continuation', terminal: false, skill, runtime, timing });
++          result.target = target; result.control = controlSnapshot(control);
++          result.continuation = Object.freeze({ phase: 'required_gate_artifact', skill_id: owner,
++            governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
++            presentation_language: input.presentation_language,
++            ...(!orientationOnly && unapprovedQa ? { artifact_path: `.agdf/control/artefacts/${result.control.run_id}/QA_REPORT.md`,
++              template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.QA_REPORT) } : {}),
++            instruction: `${control.presentation_diagnostics.approval_presentation_recovery}\nComplete only this bound Run's permitted unapproved content through its existing writer; preserve approved intent and all protected sources. Record the current revision and redispatch the same Run once. An unchanged failure stops; no earlier reply is approval.`,
++            ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
++          });
++          timing.total_ms = round(milliseconds(started, now())); return bindHostAction(result);
++        }
++      }
+       const runState = control.status_card?.runState;
+       const orArtefact = runState?.artefacts?.get?.("OR");
+       const uatIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "UAT" && item.status === "fulfilled");
+diff --git a/packages/core/test/artefact-recording-test.js b/packages/core/test/artefact-recording-test.js
+index 2ae574ba..06ca99e5 100644
+--- a/packages/core/test/artefact-recording-test.js
++++ b/packages/core/test/artefact-recording-test.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from './fixtures/decision-content.js';
+ import assert from "node:assert/strict";
+ import { randomUUID } from "node:crypto";
+ import { execFileSync, spawn } from "node:child_process";
+@@ -37,7 +38,8 @@ function fixture(gate = "SD") {
+   const prefix = `.agdf/control/artefacts/${runId}/`, dir = join(root, prefix), state = join(root, `.agdf/control/runs/${runId}/RUN_STATE.md`);
+   mkdirSync(dir, { recursive: true }); mkdirSync(join(root, `.agdf/control/runs/${runId}/presentations`), { recursive: true });
+   for (const name of ["UR", "PRD", "SD", "TP", "BROWNFIELD_REVIEW", "BROWNFIELD_ANALYSIS", "CD_TESTS", "CODE_REVIEW", "QA_REPORT"]) {
+-    writeFileSync(join(dir, `${name}.md`), `# ${name}: Synthetic non-authorizing test\n\n${name === "QA_REPORT" ? "Decision: pass\n" : ""}## Problem\nA defined result needs its evidence.\n\n## Goal\nKeep the approved scope and exact sources.\n\n## Scope\nIsolated fixture only.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Zuordnung braucht genaue Belege.\n- Ziel: Die Zuordnung zuverlässig erfassen.\n- Umfang: Nur isolierter Test.\n`);
++    const authored = `# ${name}: Synthetic non-authorizing test\n\n${name === "QA_REPORT" ? "Decision: pass\n" : ""}## Problem\nA defined result needs its evidence.\n\n## Goal\nKeep the approved scope and exact sources.\n\n## Scope\nIsolated fixture only.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Zuordnung braucht genaue Belege.\n- Ziel: Die Zuordnung zuverlässig erfassen.\n- Umfang: Nur isolierter Test.\n`;
++    writeFileSync(join(dir, `${name}.md`), name === "QA_REPORT" ? withSyntheticQaContent(authored) : authored);
+   }
+   const approvals = gates.map((g, i) => {
+     if (i >= gates.indexOf(gate)) return `| ${g} | missing | |`;
+diff --git a/packages/core/test/control-state-test.js b/packages/core/test/control-state-test.js
+index e53bdc19..fc687c40 100644
+--- a/packages/core/test/control-state-test.js
++++ b/packages/core/test/control-state-test.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from './fixtures/decision-content.js';
+ import { prepareRunPresentation } from "../lib/control-state/run-presentation.js";
+ import "./artefact-recording-test.js";
+ import assert from "node:assert/strict";
+@@ -347,10 +348,10 @@ try {
+       "PRD.md": "# PRD\n\nOwner: Product Owner\n\n## 1. Product Scope\nAfter an approved UR and a completed Brownfield Review that selects structured_delivery or structured_slice, prepare and persist a reviewable PRD before presenting the next user decision card. The PRD card must link the exact draft and summarize its intent.\n\n## 2. UX Intent And Success\n- primary_user_intent: inspect the product requirements before deciding whether to approve them\n- success_signal: the next PRD card links a durable draft and includes a concise relevant summary\n- primary_decision_or_action: approve, request revision, or decline the PRD\n\n## 5. Acceptance Criteria\n- criterion_id: PRD-CARD-001; working_mode: structured_delivery; source_state: UR approved, Brownfield Review done, PRD absent; trigger/action: continue the same run; expected effective state: a PRD draft is persisted before the next user card; visible feedback: no PRD approval card is shown while the draft is absent; observable success: the PRD artefact exists and is recorded in the run.\n- criterion_id: PRD-CARD-002; working_mode: structured_delivery; source_state: PRD draft persisted; trigger/action: prepare the PRD decision card; expected effective state: the card is bound to the exact PRD and revision; visible feedback: a concise summary and clickable PRD link appear before the approval choice; observable success: the card and linked artefact identify the same run and revision.\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n\n## Approval Decisions\n\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Card link target | before_prd | resolved | Link the exact PRD revision. | Product Owner |\n\n## AGDF Approval Summary (de; source=en)\n- Nutzerziel: Die Produktanforderungen vor der Entscheidung über ihre Freigabe prüfen.\n- Umfang: Ein dauerhaftes PRD mit klarer Absicht und passendem Entscheidungslink vorlegen.\n- Entscheidungen:\n  - Card link target (geklärt): Die exakt geprüfte PRD-Revision verlinken.\n- Abnahmekriterien:\n  - PRD-CARD-001: Das PRD wird gespeichert und im Run erfasst, bevor eine Freigabekarte erscheint.\n  - PRD-CARD-002: Karte und Link verweisen auf denselben Run und dieselbe Revision.\n",
+       "SD.md": "# SD\n\n## 1. Solution Overview\nRender deterministic summaries from the source artefact.\n\n## 2. Ownership And Source Of Truth\nThe artefact remains authoritative.\n\n## 3. Architecture Decisions\nBind summary and link to the revision digest.\n\n## 4. Integration Points\nrun-present produces the review text.\n\n## 7. Risks And Open Questions\nHost path support.\n## AGDF Approval Summary (de; source=en)\n- Lösung: Deterministische Zusammenfassungen aus dem Quellartefakt rendern.\n- Verantwortung: Das Artefakt bleibt maßgeblich.\n- Entscheidungen: Zusammenfassung und Link an den Revisions-Digest binden.\n",
+       "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n## AGDF Approval Summary (de; source=en)\n- Aufgaben: T1 Zusammenfassung rendern (PRD-01, Unit-Test).\n- Risiken: Host-spezifische Pfaddarstellung.\n",
+-      "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: revise until live-tested.\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n## AGDF Approval Summary (de; source=en)\n- Entscheidung: Überarbeiten bis zum Live-Test.\n- Nachweise: Quell- und Paket-Runtime-Tests bestanden.\n- Lücken: Frische Host-Interaktion fehlt.\n",
++      "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: pass\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n## AGDF Approval Summary (de; source=en)\n- Entscheidung: pass für die abgegrenzte Quell-/Paketprüfung; native Prüfung bleibt unbeobachtet.\n- Nachweise: Quell- und Paket-Runtime-Tests bestanden.\n- Lücken: Frische Host-Interaktion fehlt.\n",
+     };
+     for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md", "CD_TESTS.md", "CODE_REVIEW.md"]) {
+-      writeFileSync(join(artefactDir, name), approvalDocs[name] ?? `# ${name}\n`);
++      writeFileSync(join(artefactDir, name), name === "QA_REPORT.md" ? withSyntheticQaContent(approvalDocs[name], { risks: "Paths vary by host; native qualification remains unobserved." }) : approvalDocs[name] ?? `# ${name}\n`);
+     }
+     const gateIndex = ["UR", "PRD", "SD", "TP", "QA", "UAT"].indexOf(gate);
+     const approvals = ["UR", "PRD", "SD", "TP", "QA", "UAT"].map((candidate, index) =>
+@@ -1071,7 +1072,7 @@ ${approvals}
+ 
+       mkdirSync(join(recordingRoot, ".agdf", "control", "artefacts", "rec"), { recursive: true });
+       const urPath = join(recordingRoot, ".agdf", "control", "artefacts", "rec", "UR.md");
+-      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n\r\n## Problem\r\nA recorded UR needs a visible problem statement. The user should review this document before approval.\r\n\r\n## AGDF Approval Summary (de; source=en)\r\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\r\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\r\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\r\n");
++      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n\r\n## Problem\r\nA recorded UR needs a visible problem statement. The user should review this document before approval.\r\n\r\n## Goal\r\nThe exact recorded requirement is inspectable before deliberate approval.\r\n\r\n## AGDF Approval Summary (de; source=en)\r\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\r\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\r\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\r\n");
+       writeFileSync(statePath, read().replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/rec/UR.md` | draft |  |"));
+       assert.equal(runSealState(recordingRoot, read()).status, "content_changed");
+       const unrecorded = gate();
+@@ -1086,7 +1087,7 @@ ${approvals}
+       assert.notEqual(updated.revision_id, first.revision_id);
+       assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).outcome, "unchanged");
+ 
+-      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n\n## Problem\nA recorded UR needs a visible problem statement. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\n");
++      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n\n## Problem\nA recorded UR needs a visible problem statement. The user should review this document before approval.\n\n## Goal\nThe exact recorded requirement is inspectable before deliberate approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\n");
+       const lfState = read();
+       writeFileSync(statePath, lfState.replace(/\n/g, "\r\n"));
+       assert.equal(runSealState(recordingRoot, read()).status, "valid", "line-ending conversion keeps the seal valid");
+@@ -1159,7 +1160,7 @@ ${approvals}
+       assert.equal(recordRunStep(stepRoot, { runId: "step", revisionId: "stale", step: "ur", title: "x" }, { policy: policyForRunContent }).reason, "stale_revision");
+       assert.equal(step("ur", { title: "subtract" }).reason, "artefact_missing");
+       mkdirSync(artefacts, { recursive: true });
+-      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n\n## Problem\nA small numeric change is needed. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\n");
++      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n\n## Problem\nA small numeric change is needed. The user should review this document before approval.\n\n## Goal\nThe stored requirement enables review of the scoped subtraction change before implementation.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\n");
+       assert.equal(step("ur").reason, "title_missing");
+       const drafted = step("ur", { title: "subtract | with test" });
+       assert.equal(drafted.outcome, "recorded");
+diff --git a/packages/core/test/expanded-source-revision-test.js b/packages/core/test/expanded-source-revision-test.js
+index 9e73e1a4..b86c44ef 100644
+--- a/packages/core/test/expanded-source-revision-test.js
++++ b/packages/core/test/expanded-source-revision-test.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from './fixtures/decision-content.js';
+ import assert from 'node:assert/strict';
+ import {createExpandedSourceRevisionFixture,SOURCE_PHASE_MATRIX} from '../../cli/scripts/fixtures/expanded-source-revision.js';
+ import { randomUUID } from 'node:crypto';
+@@ -73,7 +74,7 @@ try {
+       const path=f.prefix+randomUUID()+'.md';writeFileSync(join(root,path),'# '+step+'\n- decision: pass\nFresh observed fixture result against renewed source.\n');
+       const r=service('agdf_record',{...envelope(),command:{kind:'step.record',payload:{step:'internal',internal_step:step,decision:'pass',source:{path,digest:artefactFileDigest(root,path)}}}});assert.equal(r.outcome,'accepted',JSON.stringify(r));
+     }
+-    record('QA','# QA: Fresh renewed fixture\n- decision: pass\n\n## Scope\nRenewed source fulfilled.\n## Evidence\nFresh exact checks and reviews recorded.\n## Risks\nNo applicable open finding.\n');approve('QA');
++    record('QA',withSyntheticQaContent('# QA: Fresh renewed fixture\n- decision: pass\n\n## Scope\nRenewed source fulfilled.\n## Evidence\nFresh exact checks and reviews recorded.\n## Risks\nNo applicable open finding.\n'));approve('QA');
+     const freshUat=service('agdf_prepare',{...envelope(),command:{kind:'presentation.prepare',payload:{gate:'UAT'}}});assert.equal(freshUat.outcome,'accepted',JSON.stringify(freshUat));
+     assert.notEqual(freshUat.family_result.presentation_id,oldPresentation.family_result.presentation_id);assert.equal(state().current_gate,'UAT');
+     assert.equal(state().evidence_applicability.by_step.get('QA').applicability,'current');
+diff --git a/packages/core/test/qa-deviation-acceptance-test.js b/packages/core/test/qa-deviation-acceptance-test.js
+index 2bdbe0ef..0a37f646 100644
+--- a/packages/core/test/qa-deviation-acceptance-test.js
++++ b/packages/core/test/qa-deviation-acceptance-test.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from './fixtures/decision-content.js';
+ import assert from 'node:assert/strict';
+ import {execFileSync} from 'node:child_process';
+ import {mkdtempSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
+@@ -26,7 +27,7 @@ try {
+   const {f,service,state,envelope,restore,prepare}=createExpandedSourceRevisionFixture(root,cli,seeds);
+   const proposal=()=>({schema_version:'1',reviewer:'Disposable QA reviewer',usage_scope:'Internal Chat use; no native production qualification.',
+     deviations:[{finding_id:'MISSING-NATIVE',severity:'medium',risk:'Native teardown was not observed.',consequence:'A bounded reader may remain until expiry.',follow_up:'Observe native closure on the exact candidate.',owner:'Runtime evidence owner'}]});
+-  const report=(value,decision='revise',target='evidence_obligation')=>'# QA: Disposable exact deviation proposal\n- decision: '+decision+'\n\n## Scope\nOwned fixture only.\n## Evidence\nCore and review checks retained.\n## Risks\nNative closure remains unobserved.\n\n## Normalized Findings\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| MISSING-NATIVE | '+(target==='CD+Tests'?'implementation_gap':'evidence_gap')+' | '+target+' | open | No native close observation in this fixture | Collect the exact native observation |\n'+(value?'\n## QA Deviation Acceptance\n```json\n'+JSON.stringify(value,null,2)+'\n```\n':'')+'\n## AGDF Approval Summary (de; source=en)\n- Umfang: Begrenzte interne Nutzung des Wegwerf-Projekts; Nachweis der nativen Ansicht steht aus.\n- Nachweise: Core- und Review-Prüfungen sind dokumentiert.\n- Risiken: Native Sitzungsbeendigung ist nicht beobachtet; ein begrenzter Leser kann bis zum Ablauf bleiben. Der Nachweisowner muss den Schließtest nachholen. Freigabe akzeptiert diese Abweichung und erlaubt anschließend UAT; keine native Produktionsqualifikation.\n';
++  const report=(value,decision='revise',target='evidence_obligation')=>withSyntheticQaContent('# QA: Disposable exact deviation proposal\n- decision: '+decision+'\n\n## Scope\nOwned fixture only.\n## Evidence\nCore and review checks retained.\n## Risks\nNative closure remains unobserved.\n\n## Normalized Findings\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n| MISSING-NATIVE | '+(target==='CD+Tests'?'implementation_gap':'evidence_gap')+' | '+target+' | open | No native close observation in this fixture | Collect the exact native observation |\n'+(value?'\n## QA Deviation Acceptance\n```json\n'+JSON.stringify(value,null,2)+'\n```\n':'')+'\n## AGDF Approval Summary (de; source=en)\n- Umfang: Begrenzte interne Nutzung des Wegwerf-Projekts; Nachweis der nativen Ansicht steht aus.\n- Nachweise: Core- und Review-Prüfungen sind dokumentiert.\n- Risiken: Native Sitzungsbeendigung ist nicht beobachtet; ein begrenzter Leser kann bis zum Ablauf bleiben. Der Nachweisowner muss den Schließtest nachholen. Freigabe akzeptiert diese Abweichung und erlaubt anschließend UAT; keine native Produktionsqualifikation.\n', { risks: 'Native closure remains unobserved and accepted only in the declared bounded scope.' });
+   const recordQa=(text,expected='accepted')=>{
+     const path=f.prefix+'QA_REPORT.md';writeFileSync(join(root,path),text);
+     const old=state().artefacts.get('QA');
+diff --git a/packages/core/test/run-closeout-command-test.js b/packages/core/test/run-closeout-command-test.js
+index d9146220..5d50f5c6 100644
+--- a/packages/core/test/run-closeout-command-test.js
++++ b/packages/core/test/run-closeout-command-test.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from './fixtures/decision-content.js';
+ import assert from 'node:assert/strict';
+ import { randomUUID } from 'node:crypto';
+ import { execFileSync, spawnSync } from 'node:child_process';
+@@ -63,7 +64,7 @@ try {
+     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
+   }
+   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
+-  writeFileSync(join(root, qaPath), '# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
++  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
+   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
+     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
+     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
+@@ -105,11 +106,43 @@ try {
+   writeFileSync(join(root, qaPath), passReport);
+   writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
+   command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
++  // Current technical pass alone is registerable evidence, never a complete
++  // decision brief. Exercise actual prepare/inspection after canonical recording.
++  for (const report of [passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: pass'),
++    passReport.replace(/^- delivered_result:.*$/mu, '> Example:\n- delivered_result: invented'),
++    passReport.replace(/^- qualification_limits:.*$/mu, ''),
++    passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: <Concrete result>')]) {
++    rmSync(join(root, '.agdf'), { recursive: true, force: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
++    writeFileSync(join(root, qaPath), report);
++    const candidate = { ...command, expected_revision_id: f.revision(), destination: { ...destination, digest: artefactFileDigest(root, qaPath) } };
++    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination: candidate.destination, source, relationship, reviewer: candidate.review.reviewer, reviewed: true }));
++    candidate.review = { ...candidate.review, digest: artefactFileDigest(root, proof) }; writeFileSync(join(root, request), JSON.stringify(candidate));
++    assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } }).outcome, 'accepted');
++    const before = readFileSync(f.state, 'utf8'), backlog = readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8');
++    const check = evaluateGateCheck(root,{runId:f.runId});
++    assert.equal(check.blocking_reason,'AGDF_DECISION_CONTENT_INCOMPLETE');
++    assert.notEqual(check.next_operation.type,'human_gate_decision');assert.equal(check.approval_presentation,null);
++    assert.ok(check.status_presentation?.markdown, 'A truthful gap retains visible read-only status.');
++    const denied = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
++    assert.equal(denied.outcome,'rejected',JSON.stringify(denied));
++    assert.equal(readFileSync(f.state,'utf8'),before);assert.equal(readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8'),backlog);
++    assert.equal(readFileSync(join(root,qaPath),'utf8'),report,'No approved or unapproved content is silently repaired by inspection/preparation.');
++  }
++  rmSync(join(root, '.agdf'), { recursive: true, force: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
++  writeFileSync(join(root,qaPath),passReport);
++  writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
++  command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
+   const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
+   for (const gate of ['QA', 'UAT']) {
+     const prepare = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } });
+     assert.equal(prepare.outcome, 'accepted', JSON.stringify(prepare));
++    if (gate === 'UAT') {
++      const exact = readFileSync(join(root,`.agdf/control/runs/${f.runId}/presentations/${prepare.family_result.presentation_id}.document`),'utf8');
++      for(const value of ['Intended outcome:', 'Delivered result:', 'Technical QA: pass', 'Qualification limits:', 'Risks and open issues:', 'Approval effect:']) assert.ok(exact.includes(value),value);
++      assert.ok(exact.includes('The isolated fixture implements its declared scoped behavior'));
++      assert.ok(exact.includes('native host qualification is unobserved'));
++    }
+     const approval = service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate, presentation_id: prepare.family_result.presentation_id, response: `Approval: ${gate}` } } });
+     assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
+   }
+diff --git a/packages/mcp-server/test/structured-flow.test.js b/packages/mcp-server/test/structured-flow.test.js
+index 94839c95..12c3e3cd 100644
+--- a/packages/mcp-server/test/structured-flow.test.js
++++ b/packages/mcp-server/test/structured-flow.test.js
+@@ -1,3 +1,4 @@
++import { withSyntheticQaContent } from '../../core/test/fixtures/decision-content.js';
+ // Existing structured closeout scenario through the actual MCP entrypoint.
+ import assert from 'node:assert/strict';
+ import { randomUUID } from 'node:crypto';
+@@ -32,7 +33,7 @@ try {
+     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
+   }
+   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
+-  writeFileSync(join(root, qaPath), '# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
++  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
+   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
+     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
+     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
+@@ -80,8 +81,30 @@ try {
+     assert.equal(readFileSync(f.state, 'utf8'), noDecision, 'Opening, repeated reading and rejected selectors never decide.');
+     assert.equal((await service('agdf_cockpit_read', { operation: 'close', session_id: view.read_session_id })).data.closed, true);
+     assert.equal((await service('agdf_cockpit_read', { operation: 'snapshot', session_id: view.read_session_id })).reason, 'session_expired');
+-    const approval = await service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate, presentation_id: prepare.family_result.presentation_id, response: `Approval: ${gate}` } } });
+-    assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
++    const approvalInput = { ...bound(), command: { kind: 'approval.record', payload: { gate, presentation_id: prepare.family_result.presentation_id, response: `Approval: ${gate}` } } };
++    let approval = await service('agdf_approve', approvalInput);
++    if (approval.outcome === 'effect_unknown') {
++      // A response deadline is not evidence of non-execution. Only a valid
++      // committed original receipt permits exact replay; pending/absent/unknown
++      // effects remain failures. Never invent another synthetic decision/UUID.
++      const observed = await service('agdf_inspect', { operation: 'operation-status', module: approvalInput.operation_id,
++        presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
++        run_id: f.runId, expected_revision_id: f.revision() });
++      assert.equal(observed.report.status, 'recorded', JSON.stringify(observed));
++      assert.equal(observed.report.family, 'approval.record');
++      assert.equal(observed.report.request_digest, approval.request_digest);
++      assert.equal(observed.report.receipt.operation_id, approvalInput.operation_id);
++      assert.equal(observed.report.receipt.binding.gate, gate);
++      assert.equal(observed.report.receipt.binding.presentation_id, prepare.family_result.presentation_id);
++      assert.equal(observed.report.receipt.effect.resulting_revision_id, f.revision());
++      const committed = readFileSync(f.state, 'utf8');
++      approval = await service('agdf_approve', approvalInput);
++      assert.equal(approval.outcome, 'already_applied', JSON.stringify(approval));
++      assert.equal(approval.request_digest, observed.report.request_digest);
++      assert.deepEqual(approval.receipt, observed.report.receipt);
++      assert.equal(readFileSync(f.state, 'utf8'), committed, 'Original receipt replay records no second approval.');
++    } else assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
++    assert.equal(readRunState(root, { runId: f.runId }).approvals.get(gate).status, 'approved');
+   }
+   const state = readRunState(root, { runId: f.runId });
+   const rows = ['UR', 'Brownfield Review', 'PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT'].map(type => `| ${type} | ${state.approvals.get(type)?.status ?? state.artefacts.get(type).status} | ${state.artefacts.get(type)?.path || state.approvals.get(type).evidence} |`).join('\n');
+diff --git a/plugins/agdf/control/templates/artefacts/QA_REPORT.md b/plugins/agdf/control/templates/artefacts/QA_REPORT.md
+index 69f5eb18..c660d8b7 100644
+--- a/plugins/agdf/control/templates/artefacts/QA_REPORT.md
++++ b/plugins/agdf/control/templates/artefacts/QA_REPORT.md
+@@ -13,6 +13,8 @@ Decision: `pass | revise | block`
+ 
+ ## 2. TP Coverage
+ 
++- delivered_result: <Concrete actual scoped result; not a task count, plan or report title>
++
+ Which TP tasks are fully done, partially done or not done?
+ 
+ ## 3. Evidence
+@@ -21,10 +23,14 @@ Which tests, logs, diffs, reviews or observations support the decision?
+ 
+ ## 4. Missing Evidence
+ 
++- qualification_limits: <Concrete unobserved qualification or explicit none>
++
+ What remains unverified?
+ 
+ ## 5. Risks
+ 
++- delivery_risks: <Material current open issues or explicit none>
++
+ Which risks remain and what is their impact?
+ 
+ ## 6. Required Next Step
+diff --git a/plugins/agdf/meta/agdf-interaction-locales.json b/plugins/agdf/meta/agdf-interaction-locales.json
+index aca462ac..12c42905 100644
+--- a/plugins/agdf/meta/agdf-interaction-locales.json
++++ b/plugins/agdf/meta/agdf-interaction-locales.json
+@@ -747,7 +747,11 @@
+     "sourceRevisionSkipApprovals": "skip renewed source approvals",
+     "nextResolveReviseQa": "Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report.",
+     "collectExactQaEvidence": "collect the exact QA evidence obligation through its existing owner",
+-    "nextCollectQaEvidence": "Collect the exact QA evidence obligation through its existing owner. Prepare a complete observation sequence before necessary external action, then rerun QA."
++    "nextCollectQaEvidence": "Collect the exact QA evidence obligation through its existing owner. Prepare a complete observation sequence before necessary external action, then rerun QA.",
++    "blockedDecisionContent": "Required decision content is incomplete",
++    "completeDecisionContent": "Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.",
++    "correctDecisionContent": "correct only permitted current decision content through its existing owner",
++    "noIncompleteContentApproval": "request approval before required decision content is concrete"
+    },
+    "scopeClassification": {
+     "title": "AGDF scope classification",
+@@ -2011,7 +2015,11 @@
+     "sourceRevisionSkipApprovals": "erneute Quellenfreigaben überspringen",
+     "nextResolveReviseQa": "Kläre QA-Revise-Befunde beim zuständigen Verantwortlichen vor abhängiger Arbeit. Aus Revise keine Approval: QA anfordern.",
+     "collectExactQaEvidence": "den genauen QA-Nachweis über seinen bestehenden Verantwortlichen beschaffen",
+-    "nextCollectQaEvidence": "Beschaffe den genauen QA-Nachweis beim Verantwortlichen. Bereite die vollständige Beobachtungsfolge vor externen Aktionen vor; danach QA erneut ausführen."
++    "nextCollectQaEvidence": "Beschaffe den genauen QA-Nachweis beim Verantwortlichen. Bereite die vollständige Beobachtungsfolge vor externen Aktionen vor; danach QA erneut ausführen.",
++    "blockedDecisionContent": "Erforderlicher Entscheidungsinhalt fehlt",
++    "completeDecisionContent": "Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.",
++    "correctDecisionContent": "nur erlaubte aktuelle Entscheidungsinhalte über den zuständigen Owner korrigieren",
++    "noIncompleteContentApproval": "Freigabe anfordern, bevor der erforderliche Entscheidungsinhalt konkret ist"
+    },
+    "scopeClassification": {
+     "title": "AGDF-Scope-Klassifizierung",
+diff --git a/plugins/agdf/meta/contracts/quality.md b/plugins/agdf/meta/contracts/quality.md
+index 5cf0eb41..785c578b 100644
+--- a/plugins/agdf/meta/contracts/quality.md
++++ b/plugins/agdf/meta/contracts/quality.md
+@@ -80,6 +80,20 @@ Always visible:
+ 
+ ## Quality Contract Output
+ 
++Current structured QA preparation requires concrete authored fields in the first scalar block
++of existing QA sections: `delivered_result` under TP Coverage, `qualification_limits` under
++Missing Evidence and `delivery_risks` under Risks (canonical numbered headings supported).
++Only limits/risks permit explicit `none`. Initial Run drafts stay authorable; current decisions
++require concrete orienting Objective. The shared bounded context observer excludes examples,
++quotes/code/HTML and whole template values; diagnosis and preparation never repair sources.
++UAT derives Goal from approved UR, actual result/limits from current QA, original QA/accepted
++deviation disposition and the existing approval effect. It stores no second result authority.
++When source and display languages differ, existing source-authored Approval Summary uses
++Goal/Ziel and Delivered result/Ergebnis, Qualification limits/Grenzen, Risks/Risiken. Complete
++current fields before new QA approval; missing approved legacy content stays protected and
++needs its existing renewal assessment, never silent backfill. Historical accepted documents
++and completed Runs retain original proof. No content check grants approval or proves truth.
++
+ Core reads reported technical results through one shared observer. `Decision`/`decision` and
+ technical `Status` declarations may repeat the same supported result; `passed` normalizes to
+ `pass`. Lifecycle metadata such as `Status: draft` or `Status: done` is not a QA result.
+diff --git a/plugins/agdf/meta/copilot-payload-baseline.json b/plugins/agdf/meta/copilot-payload-baseline.json
+index a800fc4a..d666f9b6 100644
+--- a/plugins/agdf/meta/copilot-payload-baseline.json
++++ b/plugins/agdf/meta/copilot-payload-baseline.json
+@@ -1,7 +1,7 @@
+ {
+   "schema_version": 1,
+   "profile_id": "copilot-runtime-plugin",
+-  "max_files": 252,
+-  "max_bytes": 2179471,
+-  "rationale": "Exact normal-generator measurement after authored report-field hardening: existing shared Core result observer gains bounded context/container scanning, coupled registrars reuse it, and the quality contract documents the same interpretation. Prior compact-continuation scope is retained. No new runtime file, skill, dependency, UI, state store or Git capability. Zero size headroom; remeasure through the normal generator after any source change."
++  "max_files": 253,
++  "max_bytes": 2201624,
++  "rationale": "Exact normal build:prepare generator measurement for current Run/UAT content readiness: one focused shared-context content observer, existing canonical writer projections and bound localized UAT summaries. Existing report-decision and compact-continuation behavior is retained. No new skill, dependency, UI, state store or Git capability. Zero size headroom; remeasure through the normal generator after any source change."
+ }
+diff --git a/scripts/support/control-command-fixture.js b/scripts/support/control-command-fixture.js
+index 3b25bb84..c94830b2 100644
+--- a/scripts/support/control-command-fixture.js
++++ b/scripts/support/control-command-fixture.js
+@@ -33,7 +33,7 @@ export function commandFixture({ cli = sourceCli, base = tmpdir(), runId = "comm
+     const revision = invoke(cli, ["run-create", "--dir", root, "--run", runId]).match(/^revision_id: (\S+)$/mu)[1];
+     const urPath = join(root, ".agdf/control/artefacts", runId, "UR.md");
+     mkdirSync(dirname(urPath), { recursive: true });
+-    writeFileSync(urPath, "# UR: Command test\n\n## Problem\nAdd subtract. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine gebundene Freigabe fehlt.\n- Ziel: Den gespeicherten Run freigeben.\n- Umfang: Ein lokaler Freigabebefehl.\n");
++    writeFileSync(urPath, "# UR: Command test\n\n## Problem\nAdd subtract. The user should review this document before approval.\n\n## Goal\nThe user can inspect and deliberately decide the exact command-test document.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine gebundene Freigabe fehlt.\n- Ziel: Den gespeicherten Run freigeben.\n- Umfang: Ein lokaler Freigabebefehl.\n");
+     const recorded = json(cli, ["run-step", "--dir", root, "--run", runId, "--revision", revision,
+       "--step", "ur", "--title", "Command test"]);
+     const beforePresentation = readFileSync(runPath, "utf8");

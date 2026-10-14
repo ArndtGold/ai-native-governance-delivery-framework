@@ -16,6 +16,7 @@ import { parseControlState } from "./run-state-parser.js";
 import { APPROVAL_GATES, canonicalRunText } from "./run-seal.js";
 import {
   firstSection,
+  projectUrObjective,
   guardedWrite,
   readRun,
   rejected,
@@ -250,6 +251,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     const path = artefactPath(key, "UR.md");
     const missing = ownedOutputs.some(row => row.path === path) ? null : requireFile(root, runId, path, `${CONTROL_PREFIX}templates/artefacts/UR.md`);
     if (missing) return missing;
+    // Only this authorized UR writer projects orientation; reading never repairs.
+    text = projectUrObjective(text, operationSource?.content ?? readFileSync(join(root, path), 'utf8'));
     const failed = edit((value) => upsertTableRow(value, "Artefacts", 0, "UR", ["UR", `\`${path}\``, "draft"]));
     if (failed) return failed;
     known = `UR drafted at \`${path}\`.`;

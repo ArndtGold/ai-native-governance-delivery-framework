@@ -1,3 +1,4 @@
+import { withSyntheticQaContent } from '../../core/test/fixtures/decision-content.js';
 // Existing structured closeout scenario through the actual MCP entrypoint.
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -32,7 +33,7 @@ try {
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
-  writeFileSync(join(root, qaPath), '# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
+  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
@@ -80,8 +81,30 @@ try {
     assert.equal(readFileSync(f.state, 'utf8'), noDecision, 'Opening, repeated reading and rejected selectors never decide.');
     assert.equal((await service('agdf_cockpit_read', { operation: 'close', session_id: view.read_session_id })).data.closed, true);
     assert.equal((await service('agdf_cockpit_read', { operation: 'snapshot', session_id: view.read_session_id })).reason, 'session_expired');
-    const approval = await service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate, presentation_id: prepare.family_result.presentation_id, response: `Approval: ${gate}` } } });
-    assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
+    const approvalInput = { ...bound(), command: { kind: 'approval.record', payload: { gate, presentation_id: prepare.family_result.presentation_id, response: `Approval: ${gate}` } } };
+    let approval = await service('agdf_approve', approvalInput);
+    if (approval.outcome === 'effect_unknown') {
+      // A response deadline is not evidence of non-execution. Only a valid
+      // committed original receipt permits exact replay; pending/absent/unknown
+      // effects remain failures. Never invent another synthetic decision/UUID.
+      const observed = await service('agdf_inspect', { operation: 'operation-status', module: approvalInput.operation_id,
+        presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
+        run_id: f.runId, expected_revision_id: f.revision() });
+      assert.equal(observed.report.status, 'recorded', JSON.stringify(observed));
+      assert.equal(observed.report.family, 'approval.record');
+      assert.equal(observed.report.request_digest, approval.request_digest);
+      assert.equal(observed.report.receipt.operation_id, approvalInput.operation_id);
+      assert.equal(observed.report.receipt.binding.gate, gate);
+      assert.equal(observed.report.receipt.binding.presentation_id, prepare.family_result.presentation_id);
+      assert.equal(observed.report.receipt.effect.resulting_revision_id, f.revision());
+      const committed = readFileSync(f.state, 'utf8');
+      approval = await service('agdf_approve', approvalInput);
+      assert.equal(approval.outcome, 'already_applied', JSON.stringify(approval));
+      assert.equal(approval.request_digest, observed.report.request_digest);
+      assert.deepEqual(approval.receipt, observed.report.receipt);
+      assert.equal(readFileSync(f.state, 'utf8'), committed, 'Original receipt replay records no second approval.');
+    } else assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
+    assert.equal(readRunState(root, { runId: f.runId }).approvals.get(gate).status, 'approved');
   }
   const state = readRunState(root, { runId: f.runId });
   const rows = ['UR', 'Brownfield Review', 'PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT'].map(type => `| ${type} | ${state.approvals.get(type)?.status ?? state.artefacts.get(type).status} | ${state.artefacts.get(type)?.path || state.approvals.get(type).evidence} |`).join('\n');

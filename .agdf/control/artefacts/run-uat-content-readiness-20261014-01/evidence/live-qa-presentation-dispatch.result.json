@@ -1,0 +1,115 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "intake_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "QA",
+    "gate_route": {
+      "gate": "QA",
+      "skills": [
+        "qa-gate"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: QA",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "QA"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "revision_id": "19ccd633-136b-4919-85d5-570b1da8580e",
+    "doctor_status": "pass"
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "approval_preview",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "revision_id": "19ccd633-136b-4919-85d5-570b1da8580e",
+    "current_gate": "QA",
+    "presentation_language": "de",
+    "markdown": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- QA-Ergebnis: pass für die freigegebene direkte Quellen-, Paket- und installierte Laufzeitprüfung. Deine QA- und UAT-Freigaben sowie OR sind noch offen.\n- Ergebnis: Aktuelle Entscheidungen verlangen konkrete Run-/QA-Inhalte. UAT zeigt Ziel, geliefertes Ergebnis, ursprüngliche QA, Grenzen und Risiken mit exakten Quellen; Beispiele, Platzhalter und reine Quellen-/Aufgabenlisten reichen nicht aus. Erlaubte UR-Projektion und geschützte Historie bleiben erhalten.\n- Grenzen: Tatsächlich installierte CLI-/STDIO- und Text-/Dokumentprüfung; keine frische native Modell-/UI-/andere Plattformprüfung. Aussagen, Übersetzungen und Reviews bleiben kooperativ; allgemeine MCP-Kaltstartzuverlässigkeit wurde nicht repariert.\n- Risiken: Vereinzelte MCP-Startfehler und Antwortzeitlimits können Belegprüfung mit der ursprünglichen UUID verlangen. Offizielle CLI und unveränderte Standardwiederholungen funktionierten. Semantische Wahrheit bleibt prüfpflichtig; genehmigte Altquellen werden nicht still geändert.\n- Nachweise: Alle Umsetzung-/Qualifikationsaufgaben erfüllt; Plan-, Lösungs- und Code-Review bestanden. Normaler Build, exakte Paketgrenze, 301 identische installierte Dateien, fünf installierte Abläufe, 34 unverändernde Inhaltsablehnungen sowie en/de/Fallback und ursprüngliche QA-Abweichungen geprüft.\n- Nächster Schritt: Diese konkrete neue QA-Fassung freigeben oder im Chat besprechen. Erst eine neue Approval: QA führt zur getrennten UAT-Entscheidung; der Run ist noch nicht abgeschlossen.\n\n## Prüfartefakt · QA\n\nRun: `run-uat-content-readiness-20261014-01` · Gate: `QA` · Revision: `19ccd633-136b-4919-85d5-570b1da8580e`\n\nArtefakt: [QA_REPORT.md](</Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/run-uat-content-readiness-20261014-01/QA_REPORT.md>)\n\nSHA-256: `sha256:09be0a5f26bf868f795a18bfdba57a78f2a36805f2fe468ab23cf0c0331018c8`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+    "artefact_digest": "sha256:09be0a5f26bf868f795a18bfdba57a78f2a36805f2fe468ab23cf0c0331018c8",
+    "summary_digest": "sha256:715ed071c83d7148c771b91dfe2cde76a991cb5ef2dd8f12196010b4c4df655c",
+    "authorizes": false
+  },
+  "continuation": {
+    "instruction": "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
+    "phase": "presentation_required",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "revision_id": "19ccd633-136b-4919-85d5-570b1da8580e",
+    "steps": [
+      {
+        "id": "prepare_presentation",
+        "argv": [
+          "run-present",
+          "--dir",
+          "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "--run",
+          "run-uat-content-readiness-20261014-01",
+          "--gate",
+          "QA",
+          "--revision",
+          "19ccd633-136b-4919-85d5-570b1da8580e",
+          "--language",
+          "de"
+        ],
+        "command": "run-present --dir '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework' --run run-uat-content-readiness-20261014-01 --gate QA --revision 19ccd633-136b-4919-85d5-570b1da8580e --language de"
+      }
+    ]
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_delivery_intake",
+    "source": "continuation.steps",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 17.882,
+    "target_ms": 1.304,
+    "control_ms": 645.767,
+    "render_ms": 13.318,
+    "total_ms": 679.545
+  },
+  "diagnostics": []
+}

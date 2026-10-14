@@ -1,0 +1,46 @@
+{
+  "marker": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-0480ed8abbe3",
+    "source_digest": "0480ed8abbe32991883ca431038e2e3df1ea71e6f8e567bd6907b8601a6ee526",
+    "runtime_digest": "850eaad0159eafa2520659b57da70c4c2109449b4871e16ee56bc20cc3727655"
+  },
+  "cache": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-0480ed8abbe3",
+  "files": 301,
+  "marketplace_cache_byte_equal": true,
+  "changed_core_equal_source": [
+    "control-evaluation/decision-content-readiness.js",
+    "control-evaluation/doctor.js",
+    "control-evaluation/gate-check.js",
+    "control-evaluation/report-decision.js",
+    "control-state/run-presentation-render.js",
+    "control-state/run-recording.js",
+    "control-state/run-state-edits.js",
+    "control-state/run-steps.js",
+    "interaction-presentation.js",
+    "skill-dispatch/service.js"
+  ],
+  "changed_contracts_equal_source": true,
+  "source_frozen": true,
+  "mcp": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "agdf": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+          "--surface",
+          "codex",
+          "--data",
+          "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin"
+        ]
+      }
+    }
+  },
+  "native_model_observed": false
+}

@@ -1,3 +1,4 @@
+import { withSyntheticQaContent } from './fixtures/decision-content.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -63,7 +64,7 @@ try {
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
-  writeFileSync(join(root, qaPath), '# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
+  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
@@ -105,11 +106,43 @@ try {
   writeFileSync(join(root, qaPath), passReport);
   writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
   command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
+  // Current technical pass alone is registerable evidence, never a complete
+  // decision brief. Exercise actual prepare/inspection after canonical recording.
+  for (const report of [passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: pass'),
+    passReport.replace(/^- delivered_result:.*$/mu, '> Example:\n- delivered_result: invented'),
+    passReport.replace(/^- qualification_limits:.*$/mu, ''),
+    passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: <Concrete result>')]) {
+    rmSync(join(root, '.agdf'), { recursive: true, force: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
+    writeFileSync(join(root, qaPath), report);
+    const candidate = { ...command, expected_revision_id: f.revision(), destination: { ...destination, digest: artefactFileDigest(root, qaPath) } };
+    writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination: candidate.destination, source, relationship, reviewer: candidate.review.reviewer, reviewed: true }));
+    candidate.review = { ...candidate.review, digest: artefactFileDigest(root, proof) }; writeFileSync(join(root, request), JSON.stringify(candidate));
+    assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } }).outcome, 'accepted');
+    const before = readFileSync(f.state, 'utf8'), backlog = readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8');
+    const check = evaluateGateCheck(root,{runId:f.runId});
+    assert.equal(check.blocking_reason,'AGDF_DECISION_CONTENT_INCOMPLETE');
+    assert.notEqual(check.next_operation.type,'human_gate_decision');assert.equal(check.approval_presentation,null);
+    assert.ok(check.status_presentation?.markdown, 'A truthful gap retains visible read-only status.');
+    const denied = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'QA' } } });
+    assert.equal(denied.outcome,'rejected',JSON.stringify(denied));
+    assert.equal(readFileSync(f.state,'utf8'),before);assert.equal(readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8'),backlog);
+    assert.equal(readFileSync(join(root,qaPath),'utf8'),report,'No approved or unapproved content is silently repaired by inspection/preparation.');
+  }
+  rmSync(join(root, '.agdf'), { recursive: true, force: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
+  writeFileSync(join(root,qaPath),passReport);
+  writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination, source, relationship, reviewer: command.review.reviewer, reviewed: true }));
+  command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
   const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
   for (const gate of ['QA', 'UAT']) {
     const prepare = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } });
     assert.equal(prepare.outcome, 'accepted', JSON.stringify(prepare));
+    if (gate === 'UAT') {
+      const exact = readFileSync(join(root,`.agdf/control/runs/${f.runId}/presentations/${prepare.family_result.presentation_id}.document`),'utf8');
+      for(const value of ['Intended outcome:', 'Delivered result:', 'Technical QA: pass', 'Qualification limits:', 'Risks and open issues:', 'Approval effect:']) assert.ok(exact.includes(value),value);
+      assert.ok(exact.includes('The isolated fixture implements its declared scoped behavior'));
+      assert.ok(exact.includes('native host qualification is unobserved'));
+    }
     const approval = service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate, presentation_id: prepare.family_result.presentation_id, response: `Approval: ${gate}` } } });
     assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
   }

@@ -4,7 +4,7 @@ AGDF soll dem Anwender helfen, sein Vorhaben zu verstehen, die nächste Aufgabe 
 und eine konkrete Entscheidung bewusst zu treffen. Diese Richtlinien gelten für den Hub,
 das Run-Cockpit im Chat, die große Appfläche sowie Dokumente und Verlauf innerhalb der App.
 
-**Dokumentrolle: Gestaltungsgrundlage für die UI-Weiterentwicklung, Stand 13. Oktober 2026.**
+**Dokumentrolle: Gestaltungsgrundlage für die UI-Weiterentwicklung, Stand 14. Oktober 2026.**
 Die beschriebenen Regeln sind Anforderungen an neue und überarbeitete Ansichten. Sie sind
 kein Nachweis, dass der heutige Bestand sie vollständig erfüllt. Das
 [UI-Konzept](07-ui-konzept.md) beschreibt Nutzerweg, Ansichten und Mockups; diese Seite
@@ -12,6 +12,13 @@ definiert die dazugehörigen Gestaltungs- und Prüfkriterien. Die
 [Cockpit-Referenz](06-agdf-cockpit.md) beschreibt den Bestand. Entscheidungsregeln und
 Zuständigkeiten bleiben bei den bestehenden Core-Diensten und Runtime-Verträgen; diese
 Richtlinien ändern keine Freigabe oder Berechtigung.
+
+MCP-App und MCP-Server gehören zum vorgesehenen Plugin-Lieferumfang. Die App zeigt generische
+AGDF-Inhalte im vorhandenen Host: Stand, Dokumente, Änderungen, Nachweise und Entscheidungen.
+Die [Mock-Referenz](mockups/cockpit-erlebnis.html) zeigt die Gewichtung dieser Inhalte.
+Projektspezifische Produktoberflächen, Vorschau-Server und Testanwendungen gehören zum
+bearbeiteten Projekt. Vorhandene Ergebniszugänge werden zugeordnet angezeigt und über
+unterstützte Hostwege geöffnet; die App bildet die Zielanwendung nicht nach.
 
 ## 1 Verständliche Sprache
 
@@ -35,33 +42,56 @@ Details ermöglichen weiterhin die eindeutige technische Zuordnung.
 Wer ist dran? Was muss als Nächstes passieren? In der großen Ansicht bleiben diese Angaben
 sichtbar, während der Inhalt scrollt. In der Chatkarte stehen sie kompakt am Anfang.
 Der tatsächliche Run bestimmt die Schritte; interne Arbeit erzeugt keine zusätzliche
-menschliche Entscheidung. Historische Inhalte sind als frühere Stände erkennbar.
+menschliche Entscheidung. Historische Inhalte sind als frühere Stände erkennbar. Die vier
+Orientierungsfragen verlangen keine vier Informationsblöcke: Vorhaben, Fassung und eine
+konkrete Prüfaufgabe können sie verdichtet beantworten. Auf schmalen Flächen und bei
+Textvergrößerung darf der Kopf den Arbeitsinhalt nicht verdrängen; die Orientierung bleibt
+zugänglich, auch wenn dafür die Fixierung entfallen muss.
+Der vollständige Ablauf ist standardmäßig eingeklappt. Bei der Wiederaufnahme führen der
+relevante Unterschied zum letzten belegten Prüfstand und die jetzt erforderliche Handlung.
+Fehlt dieser Prüfstand, wird der aktuelle Stand gezeigt, ohne eine persönliche Verlaufsaussage
+zu erfinden.
 
-**Beispiel:** „Anmeldung verbessern · Ziel und Umfang klären · Du bist dran: Prüfe Ziel
-und Umfang dieser Fassung.“ Beim Lesen bleibt dieser Kopf stehen.
+**Beispiel:** „Anmeldung verbessern · Anforderung, Fassung 2. Deine Entscheidung: Soll die
+vereinbarte Meldung bei falschen Zugangsdaten erscheinen?“ Beim Lesen bleibt die Orientierung
+sichtbar; Details und vollständiger Ablauf sind erreichbar.
 
 **Prüfkriterium:** Nach Öffnen eines Dokuments und Scrollen bis zum Ende sind Vorhaben,
-aktueller Schritt und Handlungserwartung weiterhin erkennbar. Der Rückweg erhält den
+aktueller Schritt und Handlungserwartung weiterhin erkennbar. Auf schmaler Fläche bleibt
+der Inhalt auch mit der beschriebenen Alternative zum fixierten Kopf lesbar. Der Rückweg erhält den
 auslösenden Zusammenhang. Der Verlauf verwechselt frühere und heutige Aufgaben nicht.
 
 ## 3 Entscheidungen mit klarer Grundlage und Wirkung
 
 **Regel:** Vor einer Entscheidung benennt die Karte die konkrete Fassung, Ziel und Umfang,
-wesentliche offene Punkte sowie den erlaubten nächsten Schritt. Die genaue Quelle ist
-lesbar. „So stimmt es“ bestätigt ausschließlich die gebundene Fassung. Eine Ersatzfassung
+wesentliche offene Punkte sowie den erlaubten nächsten Schritt. Sie erklärt die konkrete
+Prüfaufgabe, benötigte Zuständigkeit und bereits belegte Prüfungen mit Quelle, Fassung und
+Aussagegrenze. Bei Überarbeitung zeigt sie relevante Änderungen und die Behandlung der
+Rückmeldungen, sobald eine belastbare Vergleichsgrundlage vorhanden ist; andernfalls erklärt
+sie die fehlende Vergleichbarkeit. Die genaue Quelle ist lesbar. Eine gegenstandsbezogene
+Aktion wie „Anforderung bestätigen“ bestätigt ausschließlich die gebundene Fassung. Eine Ersatzfassung
 benötigt erneut eine Entscheidung. „Änderung nötig“ klärt den Änderungswunsch und erfasst
-keine Zustimmung. Eine Bestätigung wird erst nach erfolgreich bestätigter Speicherung gezeigt.
+keine Zustimmung. Entscheidungsrelevante Risiken bleiben im Hauptinhalt. Die UI weist keine
+neuen Entscheidungsrechte zu; ungeklärte Zuständigkeit wird vor der Entscheidung benannt.
+Eine Bestätigung wird erst nach erfolgreich bestätigter Speicherung gezeigt.
 Ist das bestehende Gespräch der einzige verfügbare Entscheidungsweg, steht die exakt zulässige
 Antwort direkt bei dieser Handlungsanweisung. Sie darf nicht ausschließlich hinter
 geschlossenen Details verborgen sein. Bei einem verfügbaren qualifizierten Klickweg kann
 das technische Antwortprotokoll nachrangig in Details stehen.
+
+Ein relevanter Dokumentausschnitt, Änderungsvergleich oder Ergebnisbericht trägt die Entscheidung. Eine Empfehlung
+nennt Grund, Quelle und relevante Gegenargumente. Eine offene Prüfung bleibt bei der Empfehlung
+sichtbar. Übernommene Rückmeldung und tatsächlich geänderte Stelle stehen nebeneinander;
+unerwartete Folgen werden ebenfalls benannt. Quellenzugänge gehören an die Aussage, die sie
+stützen. Ein allgemeiner Vertrauenswert ersetzt keinen Nachweis.
 
 **Beispiel:** „Fassung 2 · Entscheidung ausstehend. Danach darf die KI das bestehende System
 untersuchen. Umsetzung ist noch nicht freigegeben.“ Nach erfolgreicher Erfassung:
 „Anforderung bestätigt · Fassung 2“.
 
 **Prüfkriterium:** Der Anwender kann vor der Aktion sagen, was er bestätigt und was dadurch
-erlaubt wird. Während der Erfassung, nach bestätigtem Erfolg und bei unklarer Antwort sind
+erlaubt wird, was weiterhin unbestätigt bleibt und welche Vorprüfung ihn entlastet. Während
+der Erfassung, nach bestätigtem Erfolg und bei unklarer Antwort sind
 unterschiedliche Zustände sichtbar. Eine verlorene Antwort führt zur Prüfung des ursprünglichen
 Vorgangs; ein wiederholter Klick erzeugt keine zweite wirksame Entscheidung.
 
@@ -91,11 +121,19 @@ kompakter oder anders gerouteter Run zeigt nur seine tatsächlich anwendbaren me
 gestaltet. Lesen, Navigieren, Kontext übergeben und Entscheiden haben eindeutige Bezeichnungen.
 Nicht verfügbare Aktionen erklären unmittelbar den Grund und einen vorhandenen nächsten Weg.
 Die Oberfläche zeigt nur Aktionen, die für den aktuellen Zustand sinnvoll sind.
+Ein Änderungswunsch beginnt an der betroffenen Stelle. Vorhaben, Fassung und Quelle werden
+mitgeführt; der Anwender muss sie nicht erneut in den Chat kopieren. Lesen, Kontextübergabe, Änderungsauftrag im bestehenden Gespräch und Zustimmung bleiben getrennt.
+Die Rückkehr aus einer Quelle oder einer anderen Ansicht erhält den noch nicht abgesendeten
+Entwurf. Bei geänderter Quelle wird dessen Bezug vor der Übergabe erneut geprüft.
 
 **Beispiel:** Solange die Bestätigung per Klick nicht verfügbar ist, führt „Anforderung lesen“.
-„So stimmt es“ bleibt deaktiviert; daneben steht „Bestätigung hier noch nicht verfügbar“ und
+Ein gegebenenfalls gezeigter Bestätigungsbutton bleibt nachrangig deaktiviert; daneben steht
+„Bestätigung hier noch nicht verfügbar“ und
 „Entscheide im bestehenden Gespräch“. Unmittelbar darunter steht die exakt zulässige
-Chat-Antwort. Ein deaktivierter Button ist visuell nachrangiger als die verfügbare Hauptaktion.
+Chat-Antwort. „Antwort kopieren“ kann sie vorbereiten, sofern verfügbar; Kopieren sendet
+nichts und entscheidet nichts. Ein deaktivierter Button ist visuell nachrangiger als die
+verfügbare Hauptaktion. Bei gespeicherter Freigabe und unbestätigter Fortsetzung prüft ein
+unterstützter Statusabgleich den ursprünglichen Vorgang, ohne erneut freizugeben oder zu beauftragen.
 
 **Prüfkriterium:** Der erste Blick zeigt die wichtigste verfügbare Aktion. Zwei gleichwertige
 Primärbuttons konkurrieren nicht. Ein deaktivierter Button lässt den Anwender nicht ohne
@@ -111,7 +149,9 @@ große Ansicht bietet dauerhaft sichtbare Orientierung und einen darunter scroll
 Zusatzinformationen öffnen über eindeutig benannte Zugänge und zunächst geschlossene Details.
 Ein Ablaufbalken zeigt ausschließlich Schritte, die aus der tatsächlichen Run-Route stammen.
 Er bildet keine feste universelle Gate-Folge und stellt nicht anwendbare Schritte nicht als
-zukünftige Pflicht dar.
+zukünftige Pflicht dar. Er öffnet auf Wunsch und verdrängt im Normalfall nicht den
+Arbeitsgegenstand. Die schmale Ansicht ordnet denselben Gegenstand, die relevante Abwägung
+und die Handlung linear; sie verkleinert keine komplette Desktop-Ansicht.
 
 **Beispiel:** „Groß öffnen“ übernimmt „Anmeldung verbessern · Fassung 1“. „Zur Entscheidung“
 kehrt nach dem Lesen zur auslösenden Karte und ihrem aktuellen Stand zurück.
@@ -133,7 +173,7 @@ fest eingebauten Produktnamens.
 
 Die [zentrale Architekturentscheidung](07-ui-konzept.md#architekturentscheidung-zur-gemeinsamen-host-schnittstelle)
 bestimmt MCP/MCP Apps als gemeinsame Schnittstelle. Ansichten sollen über kompatible Hosts
-dieselbe fachliche Bedeutung besitzen. CopilotKit bleibt optional; fehlende UI-Fähigkeiten
+dieselbe fachliche Bedeutung besitzen. Ein eigener Webhost ist keine Voraussetzung; fehlende UI-Fähigkeiten
 führen zu den unterstützten Text- oder Navigationswegen, nicht zu veränderten Entscheidungsregeln.
 
 AGDF verwendet für nutzerseitige Präsentationen ausschließlich
@@ -162,6 +202,15 @@ Digest-Bindung, dieselben Konsequenzen und dieselbe zulässige Antwort. Portable
 verlangt keine HTML-Details, Diagramme, lokalen Links oder nativen Bedienelemente, um den
 Kerninhalt zu verstehen. Die Formatauswahl stammt aus vertrauenswürdiger Host-Konfiguration
 und beobachteten Fähigkeiten, nicht aus frei modellierbaren Werkzeugeingaben.
+
+Der [Übergang vom Lesen zum Arbeitsauftrag](07-ui-konzept.md#vom-lesen-zum-bestätigten-arbeitsauftrag)
+ist zusätzlich zu prüfen: Bei einem Run-Wechsel erkennt der Anwender Leseauswahl und belegten
+Gesprächsauftrag. „Dieses Vorhaben im Gespräch weiterbearbeiten“ benennt Run, Quelle und Ziel.
+Kontextaufnahme, Nachrichtenannahme und Agentenübernahme werden einzeln bestätigt, ohne dem
+Anwender technische Orchestrierung aufzubürden. Unbekannte Zuordnung bleibt unbekannt;
+mehrdeutige Änderungsaufträge werden bei ihrer Aufnahme vor einer Änderung geklärt. Fehlende
+Hostfähigkeit bietet einen ausdrücklich zugeordneten Textauftrag; unklare Zustellung wird
+vor einer Wiederholung geprüft. Unterbrechung wird erst bei bestätigtem Host-Halt als erfolgt gezeigt.
 
 ## 7 Gemeinsame Gestaltung und bestehende Komponenten
 
@@ -233,7 +282,10 @@ Darstellungsstand. Aussagen über Host-Fähigkeiten benötigen die Beobachtung d
 verwendeten Fassung im betreffenden Host. Die vorhandenen Qualifizierungsvoraussetzungen
 bleiben erhalten. Eine dokumentierte Abweichung nennt Grund, betroffene Ansicht und Nutzerfolge.
 
-**Beispiel:** Die fünf Imagegen-Mocks zeigen den App-Ablauf. Die eingebettete
+**Beispiel:** Der [kompakte Plugin-Mock](mockups/cockpit-erlebnis.html) führt die Gestaltung
+für Entscheidungsvorbereitung, bestätigte Speicherung und die Vorbereitung der Abnahme. Die
+[v3-Serie](mockups/human-gate-mocks-v3.md) ergänzt Gate-Inhalte, Arbeitsübergabe und
+Fortsetzungsdiagnose. Die fünf historischen Imagegen-Mocks zeigen den frühen App-Ablauf. Die
 [Übersicht aller menschlichen Gates](07-ui-konzept.md#durchgehender-vertrag-für-alle-menschlichen-gates)
 und der QA-/UAT-Sonderfall zeigen die gateübergreifende Informationsstruktur. Eine ergänzende
 Portable-Markdown-Referenz zeigt denselben Entscheidungsgegenstand ohne App. Für „Groß öffnen“
@@ -250,6 +302,20 @@ Paar aus MCP-App-UI und Portable Markdown und prüft Hosttexte mit neutralem Fal
 mit den konkret unterstützten Hostanzeigenamen. Für jedes anwendbare menschliche Gate wird
 zusätzlich geprüft, dass Mindestinhalt, Zustimmungswirkung, weiterhin gesperrte Arbeit und
 post-decision receipt dem gemeinsamen Kartenvertrag entsprechen.
+
+Die [Ergebnis- und Abnahmesituation](07-ui-konzept.md#ergänzung-ergebnis-prüfen-und-abnehmen)
+führt mit zugeordneter Ergebnisfassung, Umgebung, konkreten Prüfschritten und sichtbaren
+Restgrenzen. Bestandene technische Prüfungen ersetzen keine menschliche Abnahme. Abnahme,
+Integration, Veröffentlichung und Abschluss benötigen ihre jeweils eigenen Belege.
+Die Verständnisprüfung lässt den Anwender ohne externe Erklärung Entscheidungsgegenstand,
+Zuständigkeit, erlaubte Folge und verbleibende Grenze benennen. Nach einem Run-Wechsel muss
+er den tatsächlichen oder unbestätigten Arbeitsauftrag erkennen. Zeit bis zur richtigen
+Handlung, Fehlzuordnungen und unnötige Dokumentwechsel werden mit dem bisherigen Weg verglichen.
+Die Prüfung beginnt mit dem [Nutzerweg im vorhandenen Host](07-ui-konzept.md#entlastung-am-durchgängigen-weg-prüfen):
+Der Nutzer findet die entscheidende Stelle, bespricht seine Korrektur mit gebundenem Bezug
+im bestehenden Gespräch und erkennt die Rückmeldung in der neuen Fassung. Zur Abnahme zeigt
+die App den Ergebnisbericht und vorhandene Zugänge. Ein geöffneter Link oder gelesener Bericht
+ist keine Abnahme. Prüfung der Zielanwendung und AGDF-Entscheidung bleiben unterscheidbar.
 
 Die UI-Richtlinien besitzen die übergreifenden Gestaltungsregeln. Das UI-Konzept besitzt
 Nutzerweg, Begriffsliste und Mockups; die gemeinsamen Tokens besitzen die exakten Designwerte.

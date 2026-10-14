@@ -1,0 +1,115 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "intake_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "UAT",
+    "gate_route": {
+      "gate": "UAT",
+      "skills": [
+        "delivery-closeout"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: UAT",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "UAT"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Request exact approval: Approval: UAT before delivery handoff.",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "revision_id": "62c27a86-7ad5-4b1e-91e9-890b513d5f95",
+    "doctor_status": "pass"
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "approval_preview",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "revision_id": "62c27a86-7ad5-4b1e-91e9-890b513d5f95",
+    "current_gate": "UAT",
+    "presentation_language": "de",
+    "markdown": "## Kurzfassung · UAT\n\nRun: `run-uat-content-readiness-20261014-01` · Gate: `UAT` · Revision: `62c27a86-7ad5-4b1e-91e9-890b513d5f95`\n\n- Ziel: Run- und UAT-Inhalte müssen zur jeweiligen Stufe konkret und aktuell sein. UAT zeigt verständlich Ziel, geliefertes Ergebnis, Abnahme-/QA-Status, wesentliche Grenzen/offene Punkte und die Wirkung der Freigabe.\n- Geliefertes Ergebnis: Aktuelle Entscheidungen verlangen konkrete Run-/QA-Inhalte. UAT zeigt Ziel, geliefertes Ergebnis, ursprüngliche QA, Grenzen und Risiken mit exakten Quellen; Beispiele, Platzhalter und reine Quellen-/Aufgabenlisten reichen nicht aus. Erlaubte UR-Projektion und geschützte Historie bleiben erhalten.\n- Technische QA: pass\n- Nachweisgrenzen: Tatsächlich installierte CLI-/STDIO- und Text-/Dokumentprüfung; keine frische native Modell-/UI-/andere Plattformprüfung. Aussagen, Übersetzungen und Reviews bleiben kooperativ; allgemeine MCP-Kaltstartzuverlässigkeit wurde nicht repariert.\n- Risiken und offene Punkte: Vereinzelte MCP-Startfehler und Antwortzeitlimits können Belegprüfung mit der ursprünglichen UUID verlangen. Offizielle CLI und unveränderte Standardwiederholungen funktionierten. Semantische Wahrheit bleibt prüfpflichtig; genehmigte Altquellen werden nicht still geändert.\n- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.\n\n- UX Intent Definition · UR, Brownfield Review (exact cooperative association)\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Ersetzte oder nicht zugeordnete Nachweise: 7\n\n- QA: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/QA_REPORT.md · sha256:09be0a5f26bf868f795a18bfdba57a78f2a36805f2fe468ab23cf0c0331018c8\n- UR: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/UR.md · sha256:e29b29cf5c1b7b492351254cb744ed592bcbf91fad09d1e228a837d29451c054\n\n## Vorliegende UAT-Evidenz\n\n- UX Intent Definition · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association\n- Brownfield Analysis · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association\n- CD+Tests · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association\n- TP Review · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- Clean Implementation Review · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- CR · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- QA · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association\n- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- UR draft · Quelle: `.agdf/control/artefacts/run-uat-content-readiness-20261014-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Brownfield Review · Quelle: `.agdf/control/artefacts/run-uat-content-readiness-20261014-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/PRD_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/SD_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/TP_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/run-uat-content-readiness-20261014-01/QA_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt",
+    "artefact_digest": "sha256:1972c9ea160f669cc2b7dfe85fc3d5808df25615130601ea8d5a5d114ec7981c",
+    "summary_digest": "sha256:cf7129c34ae93161cf7701da670b01c7a4714489edc027147134857f8c495d17",
+    "authorizes": false
+  },
+  "continuation": {
+    "instruction": "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
+    "phase": "presentation_required",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "revision_id": "62c27a86-7ad5-4b1e-91e9-890b513d5f95",
+    "steps": [
+      {
+        "id": "prepare_presentation",
+        "argv": [
+          "run-present",
+          "--dir",
+          "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "--run",
+          "run-uat-content-readiness-20261014-01",
+          "--gate",
+          "UAT",
+          "--revision",
+          "62c27a86-7ad5-4b1e-91e9-890b513d5f95",
+          "--language",
+          "de"
+        ],
+        "command": "run-present --dir '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework' --run run-uat-content-readiness-20261014-01 --gate UAT --revision 62c27a86-7ad5-4b1e-91e9-890b513d5f95 --language de"
+      }
+    ]
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_delivery_intake",
+    "source": "continuation.steps",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 13.012,
+    "target_ms": 3.128,
+    "control_ms": 526.042,
+    "render_ms": 14.635,
+    "total_ms": 559.58
+  },
+  "diagnostics": []
+}

@@ -13,6 +13,8 @@ Decision: `pass | revise | block`
 
 ## 2. TP Coverage
 
+- delivered_result: <Concrete actual scoped result; not a task count, plan or report title>
+
 Which TP tasks are fully done, partially done or not done?
 
 ## 3. Evidence
@@ -21,9 +23,13 @@ Which tests, logs, diffs, reviews or observations support the decision?
 
 ## 4. Missing Evidence
 
+- qualification_limits: <Concrete unobserved qualification or explicit none>
+
 What remains unverified?
 
 ## 5. Risks
+
+- delivery_risks: <Material current open issues or explicit none>
 
 Which risks remain and what is their impact?
 

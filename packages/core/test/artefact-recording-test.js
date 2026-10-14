@@ -1,3 +1,4 @@
+import { withSyntheticQaContent } from './fixtures/decision-content.js';
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
@@ -37,7 +38,8 @@ function fixture(gate = "SD") {
   const prefix = `.agdf/control/artefacts/${runId}/`, dir = join(root, prefix), state = join(root, `.agdf/control/runs/${runId}/RUN_STATE.md`);
   mkdirSync(dir, { recursive: true }); mkdirSync(join(root, `.agdf/control/runs/${runId}/presentations`), { recursive: true });
   for (const name of ["UR", "PRD", "SD", "TP", "BROWNFIELD_REVIEW", "BROWNFIELD_ANALYSIS", "CD_TESTS", "CODE_REVIEW", "QA_REPORT"]) {
-    writeFileSync(join(dir, `${name}.md`), `# ${name}: Synthetic non-authorizing test\n\n${name === "QA_REPORT" ? "Decision: pass\n" : ""}## Problem\nA defined result needs its evidence.\n\n## Goal\nKeep the approved scope and exact sources.\n\n## Scope\nIsolated fixture only.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Zuordnung braucht genaue Belege.\n- Ziel: Die Zuordnung zuverlässig erfassen.\n- Umfang: Nur isolierter Test.\n`);
+    const authored = `# ${name}: Synthetic non-authorizing test\n\n${name === "QA_REPORT" ? "Decision: pass\n" : ""}## Problem\nA defined result needs its evidence.\n\n## Goal\nKeep the approved scope and exact sources.\n\n## Scope\nIsolated fixture only.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Zuordnung braucht genaue Belege.\n- Ziel: Die Zuordnung zuverlässig erfassen.\n- Umfang: Nur isolierter Test.\n`;
+    writeFileSync(join(dir, `${name}.md`), name === "QA_REPORT" ? withSyntheticQaContent(authored) : authored);
   }
   const approvals = gates.map((g, i) => {
     if (i >= gates.indexOf(gate)) return `| ${g} | missing | |`;

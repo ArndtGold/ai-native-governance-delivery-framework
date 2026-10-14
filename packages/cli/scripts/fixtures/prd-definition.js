@@ -25,7 +25,7 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
   const run = (command, ...args) => call(command, "--run", runId, ...args);
   const created = run("run-create"); assert.equal(created.code, 0, created.text);
   mkdirSync(join(root, prefix), { recursive: true });
-  writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n");
+  writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Derselbe Filter muss wiederholt aufgebaut werden.\n- Ziel: Einen benannten persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein Filter ohne Teilen oder Berechtigungsänderung.\n");
   assert.equal(run("run-step", "--revision", revision(), "--step", "ur", "--title", "Synthetic saved filter").code, 0);
   const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run("run-approve",
     "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response,

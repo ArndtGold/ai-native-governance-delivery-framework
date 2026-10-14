@@ -441,6 +441,7 @@ function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
       AGDF_SD_DECISIONS_OPEN: "blockedSdDecisionsOpen",
       AGDF_SD_TRACEABILITY_INCOMPLETE: "blockedSdTraceability",
       AGDF_TP_TRACEABILITY_INCOMPLETE: "blockedTpTraceability",
+      AGDF_DECISION_CONTENT_INCOMPLETE: 'blockedDecisionContent',
       AGDF_CONTROL_FILE_MISSING: "blockedControlMissing",
       AGDF_ACTIVE_RUN_MISSING: "blockedRunMissing",
       AGDF_DELIVERY_RELATIONSHIP_MISSING: "blockedRelationshipMissing",

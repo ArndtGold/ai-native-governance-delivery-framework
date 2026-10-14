@@ -1,0 +1,21 @@
+artefact recording/correction tests passed (211 assertions)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"approval_presentation_errors":["decision_content_missing_or_placeholder:Objective"],"approval_presentation_recovery":"Complete decision content\n\nObjective: missing_or_placeholder · .agdf/control/runs/rec/RUN_STATE.md · Owner: gate-check. Complete only permitted unapproved content canonically and recheck this same current version."}
++ actual - expected
+
++ undefined
+- '8420eaa6-6415-455d-9b77-fe26829807c8'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/control-state-test.js:1096:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: '8420eaa6-6415-455d-9b77-fe26829807c8',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

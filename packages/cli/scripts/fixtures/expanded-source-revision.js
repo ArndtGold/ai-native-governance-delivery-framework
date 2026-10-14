@@ -1,3 +1,4 @@
+import { withSyntheticQaContent } from '../../../core/test/fixtures/decision-content.js';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync, cpSync, rmSync } from 'node:fs';
@@ -43,7 +44,7 @@ export function createExpandedSourceRevisionFixture(root, cli, seeds) {
     const r=service('agdf_record',{...envelope(),command:{kind:'step.record',payload:{step:'internal',internal_step:step,decision:'pass',source:{path,digest:artefactFileDigest(root,path)}}}});
     assert.equal(r.outcome,'accepted',JSON.stringify(r));if(step==='Brownfield Analysis')save('CD+Tests');
   }
-  save('QA');record('QA','# QA: Synthetic expanded-revision report\n- decision: pass\n\n## Scope\nFixture scope fulfilled.\n## Evidence\nActual fixture results registered.\n## Risks\nNo applicable open finding.\n');approve('QA');save('UAT');
+  save('QA');record('QA',withSyntheticQaContent('# QA: Synthetic expanded-revision report\n- decision: pass\n\n## Scope\nFixture scope fulfilled.\n## Evidence\nActual fixture results registered.\n## Risks\nNo applicable open finding.\n'));approve('QA');save('UAT');
   const prepare = gate => {
     const s=state(), p=sourceRevisionTestProposal(root,{...f,control:()=>s},gate,'reassess');
     const source=p.value.sources.find(row=>row.type===gate), statement=read(source.path).replace(/^\uFEFF/,'').split('\n').find(line=>line.trim());

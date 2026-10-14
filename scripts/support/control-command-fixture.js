@@ -33,7 +33,7 @@ export function commandFixture({ cli = sourceCli, base = tmpdir(), runId = "comm
     const revision = invoke(cli, ["run-create", "--dir", root, "--run", runId]).match(/^revision_id: (\S+)$/mu)[1];
     const urPath = join(root, ".agdf/control/artefacts", runId, "UR.md");
     mkdirSync(dirname(urPath), { recursive: true });
-    writeFileSync(urPath, "# UR: Command test\n\n## Problem\nAdd subtract. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine gebundene Freigabe fehlt.\n- Ziel: Den gespeicherten Run freigeben.\n- Umfang: Ein lokaler Freigabebefehl.\n");
+    writeFileSync(urPath, "# UR: Command test\n\n## Problem\nAdd subtract. The user should review this document before approval.\n\n## Goal\nThe user can inspect and deliberately decide the exact command-test document.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine gebundene Freigabe fehlt.\n- Ziel: Den gespeicherten Run freigeben.\n- Umfang: Ein lokaler Freigabebefehl.\n");
     const recorded = json(cli, ["run-step", "--dir", root, "--run", runId, "--revision", revision,
       "--step", "ur", "--title", "Command test"]);
     const beforePresentation = readFileSync(runPath, "utf8");

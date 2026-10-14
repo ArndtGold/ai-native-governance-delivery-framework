@@ -10,6 +10,9 @@ import { storedNextActionStale } from "../control-evaluation/next-action.js";
 import { writeRunWithBacklog, synchronizeRunBacklog, withRunBacklogLock, writeRunWithBacklogLocked } from "./run-backlog-writer.js";
 import { backlogSkip } from "./run-backlog.js";
 import { runPath } from "./run-state-reader.js";
+import { projectUrObjective } from './run-state-edits.js';
+import { readFileSync } from 'node:fs';
+import { containedRegularFile } from './contained-file.js';
 
 const DURABLE_STATUS_GATES = new Set(["UR", "PRD", "SD", "TP"]);
 
@@ -122,7 +125,13 @@ export function recordRunRevision(root, { runId, revisionId }) {
   }
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
   if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
-  const content = refreshMovedGateFields(root, run.content, run.path);
+  let content = refreshMovedGateFields(root, run.content, run.path);
+  const current = parseControlState(content, { userGates: APPROVAL_GATES });
+  if (run.meta.lifecycle === 'active' && current.approvals.get('UR')?.status !== 'approved'
+      && current.artefacts.get('UR')?.status === 'draft') {
+    const file = containedRegularFile(root, current.artefacts.get('UR').path);
+    if (file.status === 'valid') content = projectUrObjective(content, readFileSync(file.path, 'utf8'));
+  }
   const written = guardedWrite(runId, () => writeRunWithBacklog(root, run.path, content, revisionId, { expectedContent: run.content, allowContentChange: true }));
   if (written.rejection) return written.rejection;
   return Object.freeze({

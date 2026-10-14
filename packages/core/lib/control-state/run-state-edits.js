@@ -3,6 +3,7 @@ import { parseRunState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
 import { existsSync } from "node:fs";
+import { authoredGoal, isDecisionContentPlaceholder } from '../control-evaluation/decision-content-readiness.js';
 
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
@@ -95,6 +96,17 @@ export function firstSection(lines, heading) {
   let end = start + 1;
   while (end < lines.length && !/^#{1,2} /u.test(lines[end])) end += 1;
   return { start, end };
+}
+
+// Pure text projection used only by permitted unapproved UR mutation owners.
+export function projectUrObjective(text, urText) {
+  const lines = text.split('\n'), range = firstSection(lines, 'Objective');
+  if (!range || lines.filter(line => /^## Objective\s*$/u.test(line)).length !== 1
+      || !isDecisionContentPlaceholder(lines.slice(range.start + 1, range.end).join('\n').trim())) return text;
+  const goal = authoredGoal(urText);
+  if (!goal) return text;
+  lines.splice(range.start + 1, range.end - range.start - 1, '', goal, '');
+  return lines.join('\n');
 }
 
 export function tableLineIndexes(lines, range) {

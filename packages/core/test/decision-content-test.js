@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { readRun } from '../lib/control-state/run-state-edits.js';
@@ -87,7 +88,7 @@ console.log('Closed authored-content contexts, field-local placeholder boundarie
 
 const writerRoot=mkdtempSync(join(tmpdir(),'agdf-orientation-'));
 try {
-  execFileSync(process.execPath,[new URL('../../cli/bin/create-agdf.js',import.meta.url).pathname,'init','--dir',writerRoot,'--language','en'],{stdio:'pipe'});
+  execFileSync(process.execPath,[fileURLToPath(new URL('../../cli/bin/create-agdf.js',import.meta.url)),'init','--dir',writerRoot,'--language','en'],{stdio:'pipe'});
   for(const [id,goal,custom]of [['concrete','The declared fixture goal can be inspected.',null],['custom','The declared fixture goal can be inspected.','Keep this explicit custom orientation.'],['missing','> Example:\nA fabricated goal.',null]]){
     const statePath=createRun(writerRoot,id),dir=join(writerRoot,'.agdf/control/artefacts',id);mkdirSync(dir,{recursive:true});
     const ur='# UR\n## Problem\nOne isolated requirement.\n## Goal\n'+goal+'\n## Scope\nIsolated fixture only.\n## Non-Goals\nNo live approval.';

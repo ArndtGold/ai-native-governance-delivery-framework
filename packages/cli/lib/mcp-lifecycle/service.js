@@ -250,7 +250,7 @@ export function runMcpLifecycle({
       const observed = registration.observed;
       if (observed?.args?.length === 5 && observed.args[1] === '--surface' && observed.args[2] === 'codex'
         && observed.args[3] === '--cockpit-dir' && observed.args[4] === selectedTarget
-        && /\/node_modules\/@agdf\/mcp-server\/bin\/agdf-mcp\.js$/u.test(observed.args[0])) {
+        && /[\\/]node_modules[\\/]@agdf[\\/]mcp-server[\\/]bin[\\/]agdf-mcp\.js$/u.test(observed.args[0])) {
         let previousRoot = observed.args[0]; for (let n = 0; n < 5; n++) previousRoot = resolve(previousRoot, '..');
         const inspected = inspectMcpExecutableRoot({ root: previousRoot, expectedVersion: registration.identity.version });
         if (inspected.status === 'matched' && inspected.digest === registration.identity.digest && inspected.nodeExecutable === observed.command

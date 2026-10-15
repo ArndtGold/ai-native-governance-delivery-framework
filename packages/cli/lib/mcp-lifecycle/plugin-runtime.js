@@ -99,8 +99,7 @@ export function ensurePluginMcpRuntime({
     mkdirSync(path, { recursive: true });
   }
   const published = runtime => Object.freeze({ ...runtime, publication_id: key, publisher_root: mcpDataRoot, immutable: true });
-  // Without the override only a runtime holding exactly the shipped SDK tree is reused; one installed
-  // under the override, or before the plugin shipped an expected digest, is re-verified by replacement.
+  // Reuse only matching plugin sources and, unless overridden, the locked SDK.
   const usable = (runtime) => runtime.status === "matched"
     && runtime.digest === sourceServerDigest
     && runtime.dispatcherDigest === sourceDispatcherDigest
@@ -192,6 +191,7 @@ export function parseLauncherArguments(argv, env = {}) {
 // One stderr line per failure: stable code, cause and one recovery action. Plugin skills and hooks do
 // not depend on this launcher and keep working while the MCP server is refused.
 const LAUNCHER_FAILURES = Object.freeze({
+  AGDF_MCP_PLUGIN_DATA_MISSING: "the plugin data directory is missing",
   AGDF_MCP_SDK_PACKAGE_SET_MISMATCH: "the installed MCP SDK packages differ from the lock shipped with this plugin",
   AGDF_MCP_SDK_DIGEST_MISMATCH: "the installed MCP SDK content differs from the version shipped with this plugin",
   AGDF_MCP_PACKAGE_ACQUISITION_FAILED: "npm could not install the locked MCP SDK (network, registry or integrity check)",

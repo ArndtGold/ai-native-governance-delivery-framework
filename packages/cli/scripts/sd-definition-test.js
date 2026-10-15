@@ -97,7 +97,7 @@ try {
   assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.presentation_id,"--response","Approval: SD").value.outcome,"approved");
   const approvedSd=readFileSync(f.file("SD.md"));assert.equal(revise().terminal,true);
   assert.equal(dispatch("sd-definition","--run",f.runId).terminal,true);
-  assert.equal(bound("--continue-delivery").continuation.gate,"TP");
+  assert.equal(bound("--continue-delivery").continuation.phase,"tp_definition");
   assert.deepEqual(readFileSync(f.file("SD.md")),approvedSd);
   assert.equal(f.recordSd(true).value.outcome,"rejected","approved design cannot be replaced");
   if(process.env.AGDF_SD_TEST_LOG) writeFileSync(process.env.AGDF_SD_TEST_LOG,JSON.stringify({synthetic_authorization:true,consumer:"assembled CLI",log:f.log},null,2));

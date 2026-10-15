@@ -18,6 +18,7 @@ This manifest indexes the thematic runtime-contract modules used by AGDF skills 
 | UR Definition | `contracts/ur-definition.md` | Canonical focused module; follow the linked source for semantics. |
 | PRD Definition | `contracts/prd-definition.md` | Canonical focused module; follow the linked source for semantics. |
 | SD Definition | `contracts/sd-definition.md` | Canonical focused module; follow the linked source for semantics. |
+| TP Definition | `contracts/tp-definition.md` | Canonical focused module; follow the linked source for semantics. |
 <!-- AGDF-RUNTIME-CONTRACT-MODULES:END -->
 
 The explanatory framework lives in `docs/`, the operating philosophy in `plugins/agdf/meta/agdf-constitution.md`, and the principles in `plugins/agdf/meta/agdf-tenets.md`.

@@ -1,0 +1,72 @@
+npm notice run build:prepare
+npm notice run node scripts/verify-ci.mjs --profile prepare
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages in 19s
+
+107 packages are looking for funding
+  run `npm fund` for details
+[verify-ci] ui-dependencies passed (20.0s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 441 modules transformed.
+rendering chunks...
+✓ built in 2.48s
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1235028,"digest":"sha256:ad582281f9e98a7bd21a06e2c1754d09cc830199c0055ef26d81d1c6771d02c5","source_digest":"sha256:aaf3af1aeaa09a436bc464982c39e9e6519cc63280df3c02f9c1b124be36ea7f"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 1.09s
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":932629,"digest":"sha256:8270016df0735145de1314b8ab9a4168174f7c53b1a1de5665bcac1f4dedcfb5","source_digest":"sha256:aaf3af1aeaa09a436bc464982c39e9e6519cc63280df3c02f9c1b124be36ea7f"}
+[verify-ci] ui-build passed (8.9s)
+[verify-ci] generate
+[verify-ci] generate passed (6.2s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (4.3s)
+[verify-ci] prepare
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (49 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+warning: Empty last update token.
+Public plugin tests passed (63 inventoried candidate files; digest 9e62d6065c69ca36faafed43207a8dca439366a85c74b9dcd5f89c93360bf02c)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest 9e62d6065c69ca36faafed43207a8dca439366a85c74b9dcd5f89c93360bf02c
+[verify-ci] prepare passed (98.2s)

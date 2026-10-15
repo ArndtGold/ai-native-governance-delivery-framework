@@ -1,0 +1,129 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "05d6eeac-5bbf-46d9-9ee9-84edf1ba5bd7",
+  "request_digest": "sha256:048477bc53b4feb4dc4f326e2c5c8c80456b56d29fd3063546f0d5857c66a488",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "cff31d12-fcb2-48a8-8c0c-e2471988592e",
+    "kind": "artefact.record"
+  },
+  "effect": null,
+  "receipt": {
+    "schema_version": "2",
+    "binding_id": "8da2eaf1-3a62-4988-8a0f-3efd66fcaa93",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "relationship": {
+      "from": "TP",
+      "relationship": "derived_from",
+      "to": "SD"
+    },
+    "destination": {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+      "digest": "sha256:b18c86cbade4068274719f034fe289d598075fba1977892461994bd68f1818c5",
+      "status": "draft"
+    },
+    "source": {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+      "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e"
+    },
+    "review": {
+      "reviewer": "Codex, temporal prerequisite summary correction",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-03.json",
+      "digest": "sha256:30c99cdf58109bcbd311611e2f0921ec914b03546d41111b19220f4cbb21ad11"
+    },
+    "origin": "reviewed_mapping",
+    "operation": {
+      "id": "05d6eeac-5bbf-46d9-9ee9-84edf1ba5bd7",
+      "previous_revision_id": "cff31d12-fcb2-48a8-8c0c-e2471988592e",
+      "resulting_revision_id": "82c3bdbb-e779-4a9a-ae64-c4197bee4430",
+      "revision": 17,
+      "request_digest": "sha256:048477bc53b4feb4dc4f326e2c5c8c80456b56d29fd3063546f0d5857c66a488"
+    },
+    "supersedes": "b6f2e051-38b1-423c-81e3-2f89fe312ad2"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 17,
+    "revision_id": "82c3bdbb-e779-4a9a-ae64-c4197bee4430",
+    "lifecycle": "active",
+    "gate": "TP",
+    "status": "open",
+    "missing_approval": "Approval: TP",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "TP"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "tp-definition-separation-20261015-01",
+    "step": "artefact",
+    "previous_revision_id": "cff31d12-fcb2-48a8-8c0c-e2471988592e",
+    "revision": "17",
+    "revision_id": "82c3bdbb-e779-4a9a-ae64-c4197bee4430",
+    "current_gate": "TP",
+    "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "backlog": "updated",
+    "operation_id": "05d6eeac-5bbf-46d9-9ee9-84edf1ba5bd7",
+    "receipt": {
+      "schema_version": "2",
+      "binding_id": "8da2eaf1-3a62-4988-8a0f-3efd66fcaa93",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "tp-definition-separation-20261015-01",
+      "relationship": {
+        "from": "TP",
+        "relationship": "derived_from",
+        "to": "SD"
+      },
+      "destination": {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+        "digest": "sha256:b18c86cbade4068274719f034fe289d598075fba1977892461994bd68f1818c5",
+        "status": "draft"
+      },
+      "source": {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+        "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e"
+      },
+      "review": {
+        "reviewer": "Codex, temporal prerequisite summary correction",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-03.json",
+        "digest": "sha256:30c99cdf58109bcbd311611e2f0921ec914b03546d41111b19220f4cbb21ad11"
+      },
+      "origin": "reviewed_mapping",
+      "operation": {
+        "id": "05d6eeac-5bbf-46d9-9ee9-84edf1ba5bd7",
+        "previous_revision_id": "cff31d12-fcb2-48a8-8c0c-e2471988592e",
+        "resulting_revision_id": "82c3bdbb-e779-4a9a-ae64-c4197bee4430",
+        "revision": 17,
+        "request_digest": "sha256:048477bc53b4feb4dc4f326e2c5c8c80456b56d29fd3063546f0d5857c66a488"
+      },
+      "supersedes": "b6f2e051-38b1-423c-81e3-2f89fe312ad2"
+    }
+  }
+}

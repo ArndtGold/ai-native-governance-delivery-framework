@@ -21,7 +21,8 @@ export function inspectDefinitionSources(root, state, runId, gate, sourceTypes) 
     if (hasSymlinkComponent(root, path) || file.status !== 'valid') return issue('source_unavailable', path, type, file.status);
     sources.push({ type, path, digest: artefactFileDigest(root, path) });
   }
-  const review = readFileSync(containedRegularFile(root, sources[1].path).path, 'utf8');
+  const reviewSource = sources.find(source => source.type === 'Brownfield Review');
+  const review = reviewSource ? readFileSync(containedRegularFile(root, reviewSource.path).path, 'utf8') : '';
   if (extractField(review, 'ux_intent_definition_required') === 'yes') {
     const canonical = `.agdf/control/artefacts/${runId}/UX_INTENT_DEFINITION.md`;
     const analysis = state.artefacts.get('UX Intent Definition');

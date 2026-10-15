@@ -1,0 +1,92 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "control_result",
+  "terminal": true,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "owned_version_matched",
+    "expected_version": "0.14.5",
+    "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-KMtL0S/plugins/agdf",
+    "runtime_digest": "71cc0e8011ef3a90143b5c9d33dd6ab900a285d6d15b47f64fa94849ccc1f057",
+    "provenance_status": "not_applicable"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-KMtL0S/project",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-KMtL0S/project",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-KMtL0S/project",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "blocked",
+    "current_gate": "TP",
+    "gate_route": {
+      "gate": "TP",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "AGDF_TP_TRACEABILITY_INCOMPLETE",
+    "missing_approval": "Approval: TP",
+    "next_operation": {
+      "type": "resolve_control_blocker",
+      "operation_key": "control.resolve",
+      "actor": "agent",
+      "effect": "none",
+      "gate": "TP",
+      "reason": "AGDF_TP_TRACEABILITY_INCOMPLETE"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "complete the listed TP traceability rows, then record the revision with run-update",
+    "run_id": "tp-authoring-test",
+    "revision_id": "de332fd7-f1a8-4269-858f-2a455a0a026f",
+    "doctor_status": "warn",
+    "candidate_runs": []
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "run_status_card",
+    "run_id": "tp-authoring-test",
+    "revision_id": "de332fd7-f1a8-4269-858f-2a455a0a026f",
+    "current_gate": "TP",
+    "presentation_language": "de",
+    "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | TP: Personal saved filter; team-sharing clarification pending · `tp-authoring-test` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | blockiert |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Jetzt erlaubt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und eine neue Run-Revision festhalten |\n| Aktuell verboten | Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten<br>das Artefakt erst vorlegen oder freigeben, wenn die Nachweiszuordnung vollständig ist |\n| Blockiert durch | Die Rückverfolgbarkeit im Task Plan ist unvollständig (AGDF_TP_TRACEABILITY_INCOMPLETE) |\n| Fehlende Zuordnungen | Open planning decision: PD-001: Resolve teammate availability against approved personal ownership<br>Open planning decision: PD-002: Confirm executable local fixture route<br>Clarification Requests and Details tables must be complete |\n| Nächster erlaubter Agentenschritt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und die Revision dann mit run-update festhalten |\n| Fehlende Freigabe | keine |",
+    "authorizes": false
+  },
+  "continuation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "transmit_presentation_verbatim_and_stop",
+    "source": "presentation.markdown",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | TP: Personal saved filter; team-sharing clarification pending · `tp-authoring-test` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | blockiert |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Jetzt erlaubt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und eine neue Run-Revision festhalten |\n| Aktuell verboten | Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten<br>das Artefakt erst vorlegen oder freigeben, wenn die Nachweiszuordnung vollständig ist |\n| Blockiert durch | Die Rückverfolgbarkeit im Task Plan ist unvollständig (AGDF_TP_TRACEABILITY_INCOMPLETE) |\n| Fehlende Zuordnungen | Open planning decision: PD-001: Resolve teammate availability against approved personal ownership<br>Open planning decision: PD-002: Confirm executable local fixture route<br>Clarification Requests and Details tables must be complete |\n| Nächster erlaubter Agentenschritt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und die Revision dann mit run-update festhalten |\n| Fehlende Freigabe | keine |",
+    "allow_surrounding_text": false,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 883.243,
+    "input_ms": 7.991,
+    "target_ms": 80.015,
+    "control_ms": 166.483,
+    "render_ms": 12.106,
+    "total_ms": 268.06
+  },
+  "diagnostics": []
+}

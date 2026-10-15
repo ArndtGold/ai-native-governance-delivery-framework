@@ -64,6 +64,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       ur_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved UR. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
       prd_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved PRD. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
       sd_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved SD. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
+      tp_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved TP. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
       continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, permitted compact implementation/closeout, and OR closeout after UAT approval. Completed Runs stop; no VCS authority is implied." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
@@ -71,11 +72,13 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       ur_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
       prd_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
       sd_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
+      tp_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
       intake_mode: { required: ["intake", "run_id"], properties: { intake: { const: true } } },
       expected_revision_id: { required: ["intake", "intake_mode", "run_id"], properties: { intake: { const: true }, intake_mode: { const: "resume" } } },
     },
     allOf: [{ not: { required: ["ur_action", "prd_action"] } },
-      { not: { required: ["ur_action", "sd_action"] } }, { not: { required: ["prd_action", "sd_action"] } }, {
+      { not: { required: ["ur_action", "sd_action"] } }, { not: { required: ["prd_action", "sd_action"] } },
+      { not: { required: ["ur_action", "tp_action"] } }, { not: { required: ["prd_action", "tp_action"] } }, { not: { required: ["sd_action", "tp_action"] } }, {
       if: { required: ["continue_delivery"], properties: { continue_delivery: { const: true } } },
       then: { required: ["run_id"], properties: { intake: { const: false } }, not: { required: ["intake_mode"] } },
     }],
@@ -132,7 +135,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
 export function skillDispatchArgumentGrammar() {
   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
     .map((choice) => choice.const).join("|");
-  return `--skill <id> --language <lc> --working-directory <abs> [--target-source ${targetSources} --primary-target <abs>] [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]`;
+  return `--skill <id> --language <lc> --working-directory <abs> [--target-source ${targetSources} --primary-target <abs>] [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action|--tp-action) revise]] [--continue-delivery]`;
 }
 
 export function skillDispatchCommandGrammar() {
@@ -257,6 +260,11 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
       || input.urAction !== undefined || input.prdAction !== undefined)) {
     throw new SkillDispatchInputError("sd_action", "sd_action revise requires gate-check and revision-bound resume intake without other authoring actions");
   }
+  if (input.tpAction !== undefined && (input.tpAction !== "revise" || skillId !== "gate-check"
+      || !input.intake || input.intakeMode !== "resume" || !runId || !input.expectedRevisionId
+      || input.urAction !== undefined || input.prdAction !== undefined || input.sdAction !== undefined)) {
+    throw new SkillDispatchInputError("tp_action", "tp_action revise requires gate-check and revision-bound resume intake without other authoring actions");
+  }
   if (input.continueDelivery !== undefined && (typeof input.continueDelivery !== "boolean"
       || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
     throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
@@ -276,6 +284,7 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
     ur_action: input.urAction,
     prd_action: input.prdAction,
     sd_action: input.sdAction,
+    tp_action: input.tpAction,
     continue_delivery: input.continueDelivery === true,
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
@@ -311,6 +320,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     ...(argumentsValue.ur_action !== undefined ? { urAction: argumentsValue.ur_action } : {}),
     ...(argumentsValue.prd_action !== undefined ? { prdAction: argumentsValue.prd_action } : {}),
     ...(argumentsValue.sd_action !== undefined ? { sdAction: argumentsValue.sd_action } : {}),
+    ...(argumentsValue.tp_action !== undefined ? { tpAction: argumentsValue.tp_action } : {}),
     ...(argumentsValue.continue_delivery !== undefined ? { continueDelivery: argumentsValue.continue_delivery } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,

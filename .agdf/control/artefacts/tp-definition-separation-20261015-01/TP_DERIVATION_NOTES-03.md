@@ -1,0 +1,3 @@
+# Unapproved TP summary correction
+
+The first prepared renewal card still repeated the original missing-SDK prerequisite and source-apply next-step wording. It was not forwarded as a decision request because those temporal claims were stale. Actual local @modelcontextprotocol/server resolution was verified. The own unapproved TP summary was corrected through the typed draft-replacement owner, preserving every scope, cap, criterion, task, scenario and approved upstream byte. The update was accepted at revision 17. The earlier revision-16 presentation is superseded and must never receive an approval. Only the fresh exact revision-17 presentation may be answered; no earlier human reply has been used as approval.record.

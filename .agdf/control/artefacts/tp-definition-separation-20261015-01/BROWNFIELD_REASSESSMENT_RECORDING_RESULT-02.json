@@ -1,0 +1,145 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "a7ebd40f-5d98-45f3-99ab-18988f1c6204",
+  "request_digest": "sha256:b56b9d0bdb4477e0974791c88e20c5edb418df961efdfdf5a707c308cfecf739",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+    "resulting_revision_id": "5d8ee51c-d228-4b5a-b9b1-5463ff6aa6bd",
+    "revision": 15,
+    "record": {
+      "step": "route",
+      "source": {
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:5c5f2bcc9dadbeaa374abe5fec200ca41129537cf9fd79eaa101a22a4f8ac1d1"
+      },
+      "status": "done",
+      "covers": "selected Run scope",
+      "source_set_digest": "sha256:19758028ccebc17ce4e1b7650ac1e44cd7327a6c36e2ccd831b6f4c83b028f5a"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "a7ebd40f-5d98-45f3-99ab-18988f1c6204",
+    "request_digest": "sha256:b56b9d0bdb4477e0974791c88e20c5edb418df961efdfdf5a707c308cfecf739",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+    "created_at": "2026-10-15T09:16:10.576Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+      "resulting_revision_id": "5d8ee51c-d228-4b5a-b9b1-5463ff6aa6bd",
+      "revision": 15,
+      "record": {
+        "step": "route",
+        "source": {
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:5c5f2bcc9dadbeaa374abe5fec200ca41129537cf9fd79eaa101a22a4f8ac1d1"
+        },
+        "status": "done",
+        "covers": "selected Run scope",
+        "source_set_digest": "sha256:19758028ccebc17ce4e1b7650ac1e44cd7327a6c36e2ccd831b6f4c83b028f5a"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 15,
+    "revision_id": "5d8ee51c-d228-4b5a-b9b1-5463ff6aa6bd",
+    "lifecycle": "active",
+    "gate": "TP",
+    "status": "open",
+    "missing_approval": "Approval: TP",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "operation_key": "artefact.author",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "TP",
+      "skill_id": "gate-check",
+      "artifact_path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+        ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "tp-definition-separation-20261015-01",
+    "step": "route",
+    "previous_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+    "revision": "15",
+    "revision_id": "5d8ee51c-d228-4b5a-b9b1-5463ff6aa6bd",
+    "current_gate": "TP",
+    "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "backlog": "updated",
+    "operation_id": "a7ebd40f-5d98-45f3-99ab-18988f1c6204",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "a7ebd40f-5d98-45f3-99ab-18988f1c6204",
+      "request_digest": "sha256:b56b9d0bdb4477e0974791c88e20c5edb418df961efdfdf5a707c308cfecf739",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "tp-definition-separation-20261015-01",
+      "expected_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+      "created_at": "2026-10-15T09:16:10.576Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "f2bcf7c8-773d-404f-9179-5d013b75d124",
+        "resulting_revision_id": "5d8ee51c-d228-4b5a-b9b1-5463ff6aa6bd",
+        "revision": 15,
+        "record": {
+          "step": "route",
+          "source": {
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+            "digest": "sha256:5c5f2bcc9dadbeaa374abe5fec200ca41129537cf9fd79eaa101a22a4f8ac1d1"
+          },
+          "status": "done",
+          "covers": "selected Run scope",
+          "source_set_digest": "sha256:19758028ccebc17ce4e1b7650ac1e44cd7327a6c36e2ccd831b6f4c83b028f5a"
+        }
+      }
+    }
+  }
+}

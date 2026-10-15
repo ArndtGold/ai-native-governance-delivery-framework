@@ -1,0 +1,397 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "tp-definition-separation-20261015-01",
+  "expected_revision_id": "86698021-fab6-40e3-be52-f88482f648d6",
+  "operation_id": "7a44a3e9-a37a-440a-b1f9-56d251d5f1b1",
+  "source_gate": "TP",
+  "reason": "Maintainer explicitly answered BUDGET-001 and requested the exact scoped guard adjustment; only the approved TP execution constraint changes, not UR intent, PRD acceptance or SD architecture.",
+  "intended_change": "Permit only Copilot 260 files/2256982 bytes and sessionStartBase 1912 normalized bytes; retain all guards/other limits and repeat affected qualification. Exact proposed TP content: .agdf/control/artefacts/tp-definition-separation-20261015-01/TP_REVISION_CANDIDATE-02.md",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+      "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+      "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+      "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+      "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf"
+    }
+  ],
+  "initiating_phase": "CD+Tests",
+  "changed_statements": [
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+      "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+      "statement": "Package/footprint growth may fail existing guards; no limit increase is authorized by this plan.",
+      "intended_change": "For this dedicated tp-definition scope, permit the measured Copilot max_files 260/max_bytes 2256982 and sessionStartBase maxNormalizedBytes 1912; no further increase or headroom.",
+      "reason": "Maintainer explicitly answered BUDGET-001 and requested the exact scoped guard adjustment; only the approved TP execution constraint changes, not UR intent, PRD acceptance or SD architecture."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+        "status": "done"
+      },
+      "record_digest": "sha256:8a0aa2f8c9267110daf2ca2a8b57b357dfd80a642aa17d06087e055d74e4c06a",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+        "status": "done"
+      },
+      "record_digest": "sha256:f3eba1367c629fe98bbc38b5057c4e58bd8be6ca73ba9eb3b67cbc2491aebe58",
+      "operation_id": "31e8e5f1-3f95-4b68-86b1-54f60a199b11",
+      "source_set_digest": "sha256:fbb96a38986e9f58042e99d7a8a9bddfa17dd1ccd7c3b03ec35cf0b2764a0e57",
+      "sources": [
+        {
+          "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+        "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1",
+        "status": "revise"
+      },
+      "record_digest": "sha256:1f7f9a295c12f5da95612941b65ea722907413589df62eb7ab1e61e93ea9788b",
+      "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+      "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d",
+      "sources": [
+        {
+          "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+        "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+        "status": "documented"
+      },
+      "record_digest": "sha256:4157a7b4ed08063c65e5d4949018ee14b91d80446160daf11033959d784cc0f2",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+        "status": "documented"
+      },
+      "record_digest": "sha256:7b1af5c47be057178b66c60c4c079c07f78e1875c956aa2ea08fce54a9dd6837",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:5391dd97484ef92c8c1e4a4fdbbc643c0a926e8eaca8a1e0792da03d9f0d6450",
+        "status": "documented"
+      },
+      "record_digest": "sha256:39226363939cafc11dc658d239fe9f4786400c2ea5c03d07444e24745bd69880",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:b08bb26188a317c1e7d0aed86c551983a5f4dfa20a92ef978180a70d8ae65c9a",
+        "status": "documented"
+      },
+      "record_digest": "sha256:db61350b5f4f486f9ede46fb76baf9299357fc40d5e13474b2f23db7b5637d87",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD_DERIVATION_REVIEW-02.json",
+        "digest": "sha256:c3c7f2de39af949d46dae16f31bb0ceec15a1f0d50e8aba2c30a4a1ad5b996be",
+        "status": "documented"
+      },
+      "record_digest": "sha256:ce159dad177e8171a451dec25be4e80099b0070c987ef309c0117c63f98e5d5c",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:d52f8840bcab8dc09c6a50d10aa27a35e2e9a76ba8bf50169f494d18566b8783",
+        "status": "documented"
+      },
+      "record_digest": "sha256:2b611087476d3f8267550934f1796a96be5549e4fba22931f622c9d8d1b42f45",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+        "status": "documented"
+      },
+      "record_digest": "sha256:c0f1d62e3fe694b19c8447ea4c753f469b54090a30fe89769ea7b554732d962a",
+      "operation_id": "31e8e5f1-3f95-4b68-86b1-54f60a199b11",
+      "source_set_digest": "sha256:fbb96a38986e9f58042e99d7a8a9bddfa17dd1ccd7c3b03ec35cf0b2764a0e57",
+      "sources": [
+        {
+          "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+        "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1",
+        "status": "documented"
+      },
+      "record_digest": "sha256:84fe02bfbca996101a85af7e1572b968e356d2953c49a03d6a436caee2af06b8",
+      "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+      "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d",
+      "sources": [
+        {
+          "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Reassess the exact previous analysis/result/evidence under the renewed TP; retain all existing bytes as historical evidence and do not transfer completion or unknown applicability."
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex, cooperative impact assessment after explicit maintainer answer",
+    "earliest_source": "TP",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+        "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+        "rationale": "The dedicated TP authoring need and protected gate semantics are unchanged."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+        "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+        "rationale": "All eight acceptance criteria remain identical; the change only permits the measured implementation payload necessary for existing package verification."
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+        "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+        "rationale": "Existing owners, same-artifact clarification and no-silent-increase architecture remain identical; this explicitly approved scope revision does not waive a guard."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+        "disposition": "reassess",
+        "reason": "Previous applicability is unknown; reassess reuse/owners and same structured depth after revision without editing historical proof."
+      }
+    ],
+    "implementation_evidence": "Retain existing implementation/tests but clear preparation and implementation/review fulfillment; renew exact TP, reassess required analyses, apply only the scoped guard delta and complete fresh current package/authoring/review/QA evidence.",
+    "unresolved": []
+  }
+}

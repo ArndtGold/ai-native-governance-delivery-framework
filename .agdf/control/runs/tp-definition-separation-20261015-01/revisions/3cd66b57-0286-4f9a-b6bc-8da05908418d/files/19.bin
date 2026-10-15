@@ -1,0 +1,142 @@
+# SD: Dedicated Task Plan definition
+
+Status: draft
+Gate: SD
+Gate approval: open
+Based on: PRD
+Date: 2026-10-15
+Owner: AGDF maintainer
+Traceability contract: criteria-chain-v1
+Design Decisions contract: sd-decisions-v1
+
+## 1. Solution Overview
+
+Add tp-definition as a focused semantic author using the existing definition-skill pattern. The implementation extends canonical plugin registration, a pure Core assignment phase, existing source inspection, explicit draft-revision transport and derived host assets. It reuses the current TP template and typed recording/presentation transactions.
+
+Flow: current request activation -> canonical target/run assignment -> existing gate evaluation and approved-source checks -> tp_definition continuation -> draft/clarify only the bound unapproved TP -> existing artefact recording -> fresh gate-check -> existing exact presentation and deliberate Approval: TP. Approved TP still leads through pre-implementation Brownfield Analysis before implementation. No new gate, executor, writer or state store is introduced.
+
+The approved PRD fixes the product scope. The completed Brownfield Review identifies preparation, correction, source-inspection and generation owners. This design resolves its remaining architectural questions; test-command enumeration and execution scheduling belong in the subsequent TP.
+
+## 2. Ownership And Source Of Truth
+
+| Concern | Authoritative owner | Design effect |
+|---|---|---|
+| Product acceptance | Approved run-local PRD.md | Reference existing criterion IDs; never recreate acceptance prose as another product register. |
+| Skill identity, discovery and contract inventory | plugins/agdf/meta/agdf-plugin.definition.json | Register tp-definition once with judgement_required dispatch and tp-definition/gate-artifact-preparation runtime modules. |
+| Semantic TP authoring | New plugins/agdf/skills/tp-definition/SKILL.md and meta/contracts/tp-definition.md | Bound drafting, clarification and explicit permitted revision only; remove competing semantic ownership from gate-check/shared guidance. |
+| Assignment and safe source facts | packages/core/lib/skill-dispatch/ and control-evaluation/definition-sources.js | Add tpDefinitionPhase; reuse canonical evaluation and contained-source inspection. |
+| Readiness and correction routing | control-evaluation/gate-check.js, traceability-readiness.js and control-state/presentation-decision.js | TP preparation and remediation select tp-definition; existing gate evaluation remains authoritative. |
+| Template and recording | Existing plugin TP.md template, resources/artefact-templates.js and control-state/run-artefact-recording.js | Extend the same template; retain typed source binding, history, locks and transaction recovery. |
+| Approval and source revision | Existing run-presentation and approval/source-revision services | Preserve exact material, deliberate new replies and protected approved sources. |
+| Host/package propagation | scripts/sync-request-activation-projections.js, scripts/sync-package-assets.js and existing package build | Generate current host profiles and runtime from canonical sources; no manual derived-owner edits. |
+| Post-implementation fulfilment | task-plan-review and qa-gate under quality.md | Review obligations and actual evidence, with qa-gate retaining the sole technical QA decision. |
+
+## 3. Architecture Decisions
+
+- SDD-001: Register one focused tp-definition skill and contract; rationale: match the established definition roles while giving TP content one semantic owner; consequence: registry, router/help and generated references must agree, while gate-check retains control and task-plan-review retains fulfilment review.
+- SDD-002: Add a pure tpDefinitionPhase over current evaluated state and typed source facts; rationale: assignment must not duplicate gate permission, source integrity or persistence; consequence: missing prerequisites and unrelated blockers remain outside authoring, and source inspection must locate Brownfield Review by type rather than position.
+- SDD-003: Add tp_action revise and CLI --tp-action revise through the existing revision-bound gate-check resume-intake transport; rationale: ready drafts need explicit editing intent rather than selection-based authority; consequence: ordinary/direct ready-draft continuation presents current content, and unsupported revision requests fail explicitly rather than becoming successful status reads.
+- SDD-004: Reuse the existing TP-derived_from-SD typed recording and exact presentation/approval services; rationale: one persistence and approval authority already protects sources and history; consequence: no new writer, receipt schema, source-revision service or control-data migration, and changed drafts always require a new presentation and reply.
+- SDD-005: Extend the existing TP template and TP readiness owner with declared planning decisions and evidence-obligation details for new plans; rationale: ID coverage alone cannot establish executable planning or block unresolved material execution choices; consequence: a versioned plan-local declaration enables deterministic completeness checks while semantic usefulness remains a review obligation and unmarked historical plans retain existing behavior.
+- SDD-006: Project skill names, request guards, contracts and dispatcher arguments through existing host/package generators; rationale: supported consumers need one canonical interface; consequence: all derived surfaces and payload/footprint guards must be checked, with no live install or budget increase implied.
+- SDD-007: Verify the actual production assignment, recording and decision paths plus a concrete semantic planning exercise; rationale: copied instruction/schema tests cannot demonstrate the requested behavior; consequence: combine focused deterministic negative cases and package checks with retained authored-plan evidence, and distinguish those from unobserved loaded/native-host qualification.
+
+## 4. Integration Points
+
+### Bound assignment and sources
+
+Add packages/core/lib/skill-dispatch/tp-definition.js, adjacent to prd-definition.js and sd-definition.js. Its pure phase returns null unless the requested run matches the evaluated state, the current gate is TP, mode is structured_slice or structured_delivery, Brownfield Review is complete/not_applicable, PRD and SD artefacts and approvals are approved, TP is unapproved, source reassessment is not pending and the current revision is available. Reject conflicting UR/PRD/SD authoring actions, foreign TP destination paths and any doctor integrity findings. Eligible blocking reasons are none and the existing AGDF_TP_TRACEABILITY_INCOMPLETE for specifically diagnosed incomplete unapproved TP content; no other blocker is relaxed.
+
+Invoke only for actual direct tp-definition work or authorized gate-check intake/continue_delivery. A read-only gate-check request does not assign authoring. For a registered ready TP, require explicit revision-bound tp_action revise before returning the phase, including direct-skill calls; otherwise use existing gate-check presentation. An incomplete registered TP can receive a condition-specific correction continuation without turning status into delivery. Discovery/loading remains non-authorizing even when a continuation exists.
+
+Integrate phase assignment before generic judgement handling in skill-dispatch/service.js. Add tp-definition to the existing unbound definition inventory, ignoreRunIdEnv and safe gate-check fallback paths. A direct invocation at another gate must never fall through to a generic judgement writer. Align TP requiredGateArtifactPreparation and presentation-decision remediation with the same owner. If an explicit tp_action cannot produce the eligible phase, return the existing draft_revision_route_unavailable diagnostic and appropriate existing source-revision recovery for approved material.
+
+Use inspectDefinitionSources with explicit PRD, SD and Brownfield Review source types. Replace its positional sources[1] Brownfield assumption with typed lookup, preserving existing PRD/SD behavior. The same helper keeps containment, symlink, digest and required UX-input checks; existing Core evaluation continues to own approval, seal and analytical applicability. No duplicated source validator or TP-specific UX policy. Return exact source paths/digests, canonical target/run/revision/destination, plugin template, registered-draft flag and resolved artefact/presentation languages in phase tp_definition with skill_id tp-definition and authorizes false.
+
+### Revision and preservation
+
+Extend the shared dispatch contract, argument normalization, function schema, documented binding arguments and CLI parsing/validation/forwarding with tp_action/tpAction/--tp-action. Permit only revise on gate-check with intake true, intake_mode resume, run_id and expected_revision_id; exclude all other authoring actions and continue_delivery. Keep schema/CLI parity and canonical registered host aliases. The existing writer rechecks current stage, revision and protected material; this transport itself grants no authority.
+
+The author uses the supplied installed TP template and current approved sources. Initial recording remains update_draft false. An explicitly permitted replacement uses true with fresh reviewed mapping/input files; the writer preserves prior proof and other bound bytes. Relationship remains TP derived_from SD. PRD is retained as an exact approved planning source without introducing another relationship registry. After recording, redispatch gate-check and prepare its exact presentation; previous presentations and replies cannot approve changed content. Approved-source changes use the existing separately reviewed source-revision route.
+
+### Plan content and material decisions
+
+Retain Task List, Verification Traceability, Test Plan, Brownfield Scope, Out Of Scope, Risks And Blockers and Next Step in the canonical TP template. Add guidance and an Evidence Obligations table within Test Plan with columns: criterion_id, scenario_id, test_route, environment, prerequisites_permissions, owner, expected_evidence, unavailable_action. Each applicable verification scenario has a row; shared routes may repeat references with concrete reasons. Explicit not_applicable needs a reason. The skill checks content semantically and asks one focused bundled question when material planning information is missing. An unavailable prerequisite may have a resolved plan for an explicit evidence gap; it is never a claimed pass or access authorization.
+
+New tp-definition drafts declare Planning Decisions contract: tp-decisions-v1 and exactly one Planning Decisions table: Decision, Source, Status, Resolution, Owner. Source is TP for a local planning decision, or SD: followed by the exact decision label from the approved SD Design Decisions table with timing later_tp. Include each such SD row exactly once, including its already-resolved execution context; local names must be unique. Status is resolved or open. All rows need concrete resolution/context and named owners; an open row blocks TP readiness. With no material choice, record one resolved applicability row with Source TP. Product or architecture choices cannot be resolved by this table and route upstream.
+
+Extend evaluateTpTraceability as the sole TP readiness aggregation owner to include the declared planning-decision completeness check. Keep any pure parsing helper subordinate to that owner. Reuse the existing SD decision parser's normalized read-only rows by extracting/exporting its current parsing facts without changing SD readiness policy. Do not introduce a second SD table grammar. Validate the supported unique TP declaration/table, row fields, unique names and exact SD later_tp coverage. Feed open items through existing AGDF_TP_TRACEABILITY_INCOMPLETE, so gate-check, artifact-readiness, recording, run-present and approval observe the same failure. Extend the existing authoring-format descriptor and artefact-readiness projection as needed through those owners; no new gate or parallel readiness service.
+
+Unmarked historical TP documents retain existing traceability behavior. New/explicitly rewritten tp-definition drafts must retain their declaration and table; removing them to evade checks is prohibited and tested against the authoring contract. Already approved bytes and receipts are never rewritten. Structural checks observe declared completeness, not undiscovered semantic truth; task-plan-review and QA still assess the real plan and evidence.
+
+### Canonical propagation
+
+Update canonical plugin skill/module registration, runtime-contract manifest references, router/help and affected role descriptions together. Project activation guards, host aliases and runtime bindings through the existing generators. Adjust CLI/MCP dispatch forwarding and tests through their current shared contract; do not edit active installed plugins or another run. Existing package checks validate generated Codex/Claude, prefixed Copilot and OpenCode surfaces. If a payload/footprint guard fails, first reduce duplication within the approved canonical design; unresolved limits require visible scope reconsideration, not a silent baseline increase.
+
+## 5. Constraints And Compatibility
+
+No new gate, permission, persistent schema, writer, transaction or approval formula. The optional declared TP planning format extends new draft content; it does not migrate existing approved plans or retroactively reinterpret legacy proof. Current Core gate/source validation stays authoritative. New runtime/template/skill assets must ship coherently in the same generated package; mixed versions fail existing version/provenance checks rather than falling back to repository templates.
+
+Avoid broad abstraction of all definition phases during this change. Reuse narrow helpers where semantic assumptions match; retain stage-specific eligibility. Existing UR/PRD/SD dispatch, source inspection and explicit revision behavior need regression checks after typed source lookup and argument extensions. No host install, external access, release or publication is authorized by this SD. Existing macOS/local checks do not establish Windows or loaded-host support.
+
+## 6. Test And Evidence Strategy
+
+Use production Core/CLI/MCP entry points against isolated controlled run fixtures with approved PRD/SD. Cover initial eligible assignment; direct/unbound request with misleading ambient run; stage/revision/foreign-path/approved-source/integrity rejection; read-only status; ready-draft presentation without editing; valid explicit revision; incomplete traceability and declared planning-decision correction; upstream reassessment and missing/unsafe installed-template/source behavior. Preserve existing PRD/SD behavior under typed source lookup and mutually exclusive action parsing.
+
+Readiness checks must reject malformed/duplicate/unknown planning declarations, open decisions, missing owners/resolutions, duplicated/unknown SD references and missing later_tp coverage. A complete resolved plan passes; legacy unmarked plans retain current behavior. Verify evidence-obligation guidance and a concrete missing-access planning example semantically; table existence alone is not proof. Cross-check correction ownership and unchanged task-plan-review/qa-gate authority.
+
+Exercise actual typed initial recording and permitted replacement, exact source bindings/history, preserved protected bytes, fresh presentation and old-response rejection. Production MCP/CLI schemas and negative flags must agree. Run the affected dispatch/traceability/SD, request-activation, skill-conformance/eval, generation, package-content and footprint/payload checks appropriate to the final diff; expand only for unresolved failures or changed shared owners.
+
+Retain a bounded production-continuation authoring exercise using the prepared exact-version package against an isolated target, with returned continuation, actual authored plan, deferred SD-decision dispositions, evidence-obligation rows and semantic review. This is cooperative agent evidence; no independent proof or general model reliability claim. TP specifies commands, fixture construction, environments, access/owners and report paths. Native loaded-host lanes not actually observed remain explicit gaps; no global installation or foreign configuration changes are prerequisites to the deterministic checks.
+
+## 7. Acceptance Traceability
+
+| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |
+|---|---|---|---|---|
+| AC-001 | One semantic TP skill with aligned preparation and remediation routes; existing control and review roles remain separate. | AGDF plugin registry and Core dispatch/evaluation owners | SDD-001, SDD-002 | Missing secondary route could retain competing ownership; cover direct, ordinary and remediation paths. |
+| AC-002 | Pure eligibility, no ambient assignment, ready-draft preservation, explicit revision transport and existing safe fallback. | skill-dispatch/service.js and contract.js; gate-check evaluator | SDD-002, SDD-003 | Argument/schema drift or wrong-stage fallthrough; shared schema and production negative cases. |
+| AC-003 | Existing criteria-chain mapping plus focused TP contract/template guidance for executable tasks/scenarios. | Approved PRD; existing TP template and traceability-readiness.js | SDD-005 | Structural coverage cannot prove meaning; semantic exercise and later reviews remain mandatory. |
+| AC-004 | Scenario-bound Evidence Obligations in the same plan, including access owner and unavailable_action. | Existing TP Test Plan; tp-definition semantic contract | SDD-005 | Unavailable environments must remain explicit evidence gaps, never fabricated execution or consent. |
+| AC-005 | Declared plan-local planning decisions consume exact SD later_tp labels and aggregate into existing TP readiness. | Approved SD decision facts; existing TP traceability owner | SDD-005 | Optional legacy compatibility must not justify stripping a new declaration; protect through contract and targeted negative review. |
+| AC-006 | Existing typed recording, exact source relationship, history and fresh presentation/reply after revision. | Core artefact recording, presentation, approval and source-revision services | SDD-003, SDD-004 | No approved-byte edits or receipt replacement; source/revision checks remain transaction-owned. |
+| AC-007 | Canonical registration and contract/argument propagation via existing generation and guard owners. | plugin definition; sync-request-activation-projections.js; sync-package-assets.js | SDD-001, SDD-006 | Mixed-version, missing alias or payload growth; coherent generation and unchanged guards. |
+| AC-008 | Production-path positive/negative regressions, typed-recording checks, generated packages and retained concrete planning exercise. | Existing dispatch/MCP/CLI/package test owners; task-plan-review and qa-gate | SDD-007 | Local evidence is not native-host qualification; label scope and missing lanes explicitly. |
+
+## 8. Risks And Open Questions
+
+All binding design choices are resolved below. Main implementation risks are omitting a dispatcher forwarding or remediation consumer, changing PRD/SD behavior during source lookup/parser reuse, allowing generic judgement fallback at a wrong gate, and exceeding package/footprint limits. Each is assigned to an existing owner with focused regression evidence. No retained-debt exception or second source of truth is accepted.
+
+The new planning format is a deliberate minimal content extension required by material-decision blocking, with legacy behavior retained. It cannot prove that every material question was discovered or that an environment is actually available. The evidence strategy and semantic review must state that limitation. Concrete test commands and evidence routes remain execution planning, not unresolved architecture.
+
+## Design Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Single semantic author and persistent/control boundaries | before_sd | resolved | SDD-001 and SDD-004 use one tp-definition content owner and all existing Core writer/approval services; no alternative state or gate. | AGDF maintainer |
+| Assignment, typed sources and safe direct fallback | before_sd | resolved | SDD-002 adds pure TP eligibility, typed Brownfield lookup, exact approved PRD/SD sources and no generic wrong-stage writer fallthrough. | Core skill-dispatch owner |
+| Ready draft and explicit revision transport | before_sd | resolved | SDD-003 requires revision-bound gate-check tp_action revise for ready-draft editing, with CLI/schema parity and existing unavailable-route diagnostics. | Core dispatch contract owner |
+| Planning evidence and material decision readiness | before_sd | resolved | SDD-005 adds Evidence Obligations and tp-decisions-v1 within the existing template/readiness owner, reuses SD parsing facts and blocks declared open decisions via current TP traceability diagnostics. | Core traceability and plugin template owners |
+| Historical compatibility and declaration preservation | before_sd | resolved | Unmarked historical plans retain current behavior; new authored/revised plans retain the declared format, while approved sources and receipts stay protected. | Core control owner |
+| Canonical host/package propagation and guards | before_sd | resolved | SDD-006 uses existing generation and registered aliases; no live install or silent payload/footprint guard increase. | AGDF packaging owner |
+| Evidence scope and semantic planning proof | before_sd | resolved | SDD-007 combines production dispatch/recording checks with an isolated actual planning exercise; native-host and independent-proof limits remain explicit. | AGDF maintainer |
+| Concrete scenario execution routes | later_tp | deferred | Enumerate commands, environments, access prerequisites, accountable owners, evidence paths and unavailable actions for the strategy above before TP presentation; no product/design choice is deferred. | gate-check as current TP author |
+
+## 9. Next Step
+
+Review this solution design and approve only with:
+
+`Approval: SD`
+
+Then prepare the Task/Test Plan through the currently installed TP owner. No implementation before TP approval and required pre-implementation Brownfield Analysis.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: tp-definition wird der einzige fachliche Autor unfreigegebener Task/Test Plans. Bestehende Core-Dienste behalten Quellenprüfung, Speicherung, Historie und Freigaben.
+- Aufbau: Ein eigener Skill und Vertrag sowie eine reine TP-Zuweisung im vorhandenen Dispatcher. Erstellung und Korrekturrouting gehen an denselben Autor; task-plan-review prüft weiterhin nach der Umsetzung.
+- Bindung und Revision: Nur passende aktuelle Runs mit freigegebenem PRD/SD und erfüllten Voraussetzungen erlauben TP-Arbeit. Fertige Entwürfe werden ohne neuen Änderungsauftrag vorgelegt. Explizite Revision nutzt tp_action revise beziehungsweise --tp-action revise im bestehenden revisionsgebundenen Intake; danach sind neue Registrierung, Vorlage und bewusste TP-Freigabe nötig.
+- Quellen: Die gemeinsame Quellenprüfung findet Brownfield Review nach Typ statt Listenposition. Vorhandene PRD-/SD- und UX-Prüfungen bleiben erhalten; kein zweiter Validator oder Schreibweg.
+- Planinhalt: Der bestehende TP erhält konkrete Nachweispflichten je Szenario mit Testweg, Umgebung, Voraussetzungen, Berechtigungen, Verantwortlichem und Vorgehen bei fehlendem Zugang. Neue Pläne deklarieren ihre Planungsentscheidungen und ordnen zum TP verschobene SD-Entscheidungen exakt zu. Offene Entscheidungen blockieren über die vorhandene TP-Prüfung. Produkt- oder Architekturkonflikte gehen an ihren bisherigen Eigentümer zurück.
+- Kompatibilität: Historische Pläne ohne neue Deklaration behalten ihre bisherigen Prüfungen; freigegebene Bytes und Nachweise bleiben geschützt. Neue Pläne dürfen die Deklaration nicht zur Umgehung entfernen. Bestehende Host-/Paketgeneratoren erzeugen Registrierung, Verträge, Namen und Argumente konsistent; keine Installation oder Veröffentlichung.
+- Nachweise: Gezielte Prüfungen des tatsächlichen CLI-/MCP-/Core-Pfads einschließlich negativer Bindungen, Revision und alter Antworten; Paket- und Größenprüfungen sowie eine konkrete Planerstellung an einem isolierten Ziel. Strukturelle Vollständigkeit beweist keine fachliche Güte; native Hostbeobachtungen und offene Nachweislücken bleiben gesondert ausgewiesen.
+- Risiken: Übersehene Weiterleitungen, Regressionen in gemeinsamem Quellen-/Entscheidungslesen, falscher Rückfall und Paketwachstum. Keine offene Architekturentscheidung; der spätere TP legt Befehle, Umgebungen, Zuständigkeiten und Nachweisdateien fest.
+- Nächster Schritt: SD freigeben, dann den Task/Test Plan erstellen. Umsetzung bleibt bis TP-Freigabe und vorbereitender Analyse gesperrt.

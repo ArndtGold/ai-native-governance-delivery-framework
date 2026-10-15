@@ -1,0 +1,129 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "ef5d0ded-5189-44d5-b3b0-40e55017b849",
+  "request_digest": "sha256:789de78d5cccec64af48033c1c6281e64e00b114dd6998b44e0142355500640c",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "73bd34bb-f90b-4c97-8345-61a5f6040236",
+    "kind": "artefact.record"
+  },
+  "effect": null,
+  "receipt": {
+    "schema_version": "2",
+    "binding_id": "07954d23-f656-45d8-8af2-d333edbf94b7",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "relationship": {
+      "from": "QA_REPORT",
+      "relationship": "tests",
+      "to": "TP"
+    },
+    "destination": {
+      "type": "QA_REPORT",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/QA_REPORT.md",
+      "digest": "sha256:a31c0093d3529b6548f8b50168a747fc0e70d7c36ba363c4ef11e167dc21d736",
+      "status": "pass"
+    },
+    "source": {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+      "digest": "sha256:b18c86cbade4068274719f034fe289d598075fba1977892461994bd68f1818c5"
+    },
+    "review": {
+      "reviewer": "Codex using qa-gate; cooperative semantic TP/evidence assessment",
+      "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/QA_DERIVATION_REVIEW-04.json",
+      "digest": "sha256:e463987842a2b7cf45dc93e5ebb056765a95939ffd1d2ac29218a92e1d370cd6"
+    },
+    "origin": "reviewed_mapping",
+    "operation": {
+      "id": "ef5d0ded-5189-44d5-b3b0-40e55017b849",
+      "previous_revision_id": "73bd34bb-f90b-4c97-8345-61a5f6040236",
+      "resulting_revision_id": "fdce329a-30ff-43a9-a09b-7fe265145c47",
+      "revision": 24,
+      "request_digest": "sha256:789de78d5cccec64af48033c1c6281e64e00b114dd6998b44e0142355500640c"
+    },
+    "supersedes": null
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 24,
+    "revision_id": "fdce329a-30ff-43a9-a09b-7fe265145c47",
+    "lifecycle": "active",
+    "gate": "QA",
+    "status": "open",
+    "missing_approval": "Approval: QA",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "QA"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "tp-definition-separation-20261015-01",
+    "step": "artefact",
+    "previous_revision_id": "73bd34bb-f90b-4c97-8345-61a5f6040236",
+    "revision": "24",
+    "revision_id": "fdce329a-30ff-43a9-a09b-7fe265145c47",
+    "current_gate": "QA",
+    "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+    "backlog": "updated",
+    "operation_id": "ef5d0ded-5189-44d5-b3b0-40e55017b849",
+    "receipt": {
+      "schema_version": "2",
+      "binding_id": "07954d23-f656-45d8-8af2-d333edbf94b7",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "tp-definition-separation-20261015-01",
+      "relationship": {
+        "from": "QA_REPORT",
+        "relationship": "tests",
+        "to": "TP"
+      },
+      "destination": {
+        "type": "QA_REPORT",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/QA_REPORT.md",
+        "digest": "sha256:a31c0093d3529b6548f8b50168a747fc0e70d7c36ba363c4ef11e167dc21d736",
+        "status": "pass"
+      },
+      "source": {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+        "digest": "sha256:b18c86cbade4068274719f034fe289d598075fba1977892461994bd68f1818c5"
+      },
+      "review": {
+        "reviewer": "Codex using qa-gate; cooperative semantic TP/evidence assessment",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/QA_DERIVATION_REVIEW-04.json",
+        "digest": "sha256:e463987842a2b7cf45dc93e5ebb056765a95939ffd1d2ac29218a92e1d370cd6"
+      },
+      "origin": "reviewed_mapping",
+      "operation": {
+        "id": "ef5d0ded-5189-44d5-b3b0-40e55017b849",
+        "previous_revision_id": "73bd34bb-f90b-4c97-8345-61a5f6040236",
+        "resulting_revision_id": "fdce329a-30ff-43a9-a09b-7fe265145c47",
+        "revision": 24,
+        "request_digest": "sha256:789de78d5cccec64af48033c1c6281e64e00b114dd6998b44e0142355500640c"
+      },
+      "supersedes": null
+    }
+  }
+}

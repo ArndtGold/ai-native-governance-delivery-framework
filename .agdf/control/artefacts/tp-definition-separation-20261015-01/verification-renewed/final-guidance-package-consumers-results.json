@@ -1,0 +1,32 @@
+[
+  {
+    "command": "npm --prefix packages/cli run test:skill-evals",
+    "exit": 0,
+    "seconds": 3.01
+  },
+  {
+    "command": "npm --prefix packages/cli run eval:skills",
+    "exit": 0,
+    "seconds": 3.65
+  },
+  {
+    "command": "npm --prefix packages/cli run test:package-contents",
+    "exit": 0,
+    "seconds": 11.14
+  },
+  {
+    "command": "npm --prefix packages/cli run test:copilot-profile",
+    "exit": 0,
+    "seconds": 5.45
+  },
+  {
+    "command": "node plugins/agdf/scripts/check-runtime-integrity.mjs",
+    "exit": 0,
+    "seconds": 4.96
+  },
+  {
+    "command": "node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs",
+    "exit": 0,
+    "seconds": 2.54
+  }
+]

@@ -123,6 +123,7 @@ export function createValidationHandlers(io = console) {
         ...(options.urAction !== undefined ? { urAction: options.urAction } : {}),
         ...(options.prdAction !== undefined ? { prdAction: options.prdAction } : {}),
         ...(options.sdAction !== undefined ? { sdAction: options.sdAction } : {}),
+        ...(options.tpAction !== undefined ? { tpAction: options.tpAction } : {}),
         ...(options.revisionId ? { expectedRevisionId: options.revisionId } : {}),
         continueDelivery: options.continueDelivery,
         expectedVersion: pluginDefinition.version,

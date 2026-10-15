@@ -1,0 +1,49 @@
+--- approved/TP.md
++++ proposed/TP.md
+@@ -98,7 +98,7 @@
+ | AC-006 | SCN-010 | R-CONTRACT | L, M | Locked MCP SDK; local pipes; no account/config access | CA | CLI/schema parity and transport outputs | Resolve SDK through locked install; keep MCP tests/QA blocked if unavailable. |
+ | AC-006 | SCN-011 | R-RECORD | L | Isolated writer fixture and protected-byte baseline | CA | Exact receipts, history and old-response rejection | Use existing transaction recovery; no manual reseal. |
+ | AC-007 | SCN-012 | R-GENERATE and R-PACKAGE | P | Existing build dependencies and canonical generators | CA | Host alias/contract inventory and activation checks | Resolve exact build prerequisite; no manual derived edits. |
+-| AC-007 | SCN-013 | R-PACKAGE | P | Coherent prepared assets and unchanged guard baselines | CA | Package/footprint/payload results | Reduce scoped duplication or surface unresolved guard failure; no quiet increase. |
++| AC-007 | SCN-013 | R-PACKAGE | P | Coherent prepared assets and the exact scoped BUDGET-001 caps and all other unchanged guard baselines | CA | Package/footprint/payload results | Reduce scoped duplication or surface unresolved guard failure; only the explicit BUDGET-001 cap adjustment; no other increase. |
+ | AC-008 | SCN-014 | R-AUTHOR | A | Final prepared exact-version runtime; isolated target | CA | Actual source/plan/continuation and semantic review | Retain incomplete authoring proof; no generic reliability claim. |
+ | AC-008 | SCN-015 | R-CLARIFY | L | Ordered current/stale answers and source revisions | CA | Blocked/resolved sequence and no-loop observations | Keep affected answer/impact result blocking. |
+ | AC-002 | SCN-016 | R-DEF | L | Read-only fixture status and full baseline | CA | No-write manifests and pending status | Treat unexpected mutation as defect, stop dependent work. |
+@@ -137,9 +137,17 @@
+ - MCP dependency access is currently unavailable locally; the plan resolves how to obtain/handle it, while actual test execution remains pending. Relevant missing protocol evidence cannot be waived into pass.
+ - Shared parser/source-lookup changes can regress SD/PRD/QA behavior; compatibility scenarios are required.
+ - New planning declarations, normalized questions and generated flags could disagree across readers; test actual writer, evaluator, presentation, approval, CLI and MCP consumers, and forbid loop-based repair.
+-- Package/footprint growth may fail existing guards; no limit increase is authorized by this plan.
++- For BUDGET-001 only, permit the measured scoped caps: Copilot max_files 260 and max_bytes 2256982; sessionStartBase maxNormalizedBytes 1912. Retain every guard and all other caps. Any further excess blocks delivery.
+ - Structural checks cannot prove that all semantic questions were found. The concrete authoring/question exercise and reviews must state that limit, together with unobserved native-host/Windows lanes.
+ - No success is claimed by this plan. CD+Tests, mandatory reviews, final qa-gate, deliberate human QA/UAT and existing OR remain separate later obligations.
++
++## 6a. Scoped revision BUDGET-001
++
++This proposed revision changes only the execution guard allowance. The maintainer's answer is: "Ja, passe die Grenzen im Rahmen der begrenzten TP-Revision an und mach weiter."
++
++Permit Copilot max_files 260/max_bytes 2256982 and sessionStartBase maxNormalizedBytes 1912, based on the exact retained measurement. Update each baseline rationale with this skill's scoped inventory. Keep the guards active, every integrity/completeness/activation check, every other limit and the existing acceptance/design scope. No additional payload headroom, installation, release, VCS or native-host qualification is authorized. A subsequent excess is a new material blocker.
++
++Reassess the existing analytical evidence and retained implementation against the renewed TP; keep prior results historical rather than transferring fulfillment. Run the full preparation/package/conformance/activation/integrity routes and repeat the bounded authoring exercise against the final prepared package. Fresh applicable reviews and qa-gate precede human QA/UAT and OR. BUDGET-001 is answered in scope; its execution and renewed approval remain pending until the existing source-revision and deliberate TP approval procedures succeed.
+ 
+ ## 7. Next Step
+ 
+@@ -147,7 +155,7 @@
+ 
+ `Approval: TP`
+ 
+-Then perform and record pre-implementation Brownfield Analysis before executing the scoped code changes and checks. Continue to the existing QA/UAT/OR boundaries; this approval does not grant those later decisions.
++After the separately confirmed TP source revision and fresh TP approval, reassess the existing Brownfield Review/Analysis and retained implementation, record current preparation, then apply only the stated caps and execute all remaining scoped checks. Continue to the existing QA/UAT/OR boundaries; this approval does not grant those later decisions.
+ 
+ ## AGDF Approval Summary (de; source=en)
+ 
+@@ -156,6 +164,6 @@
+ - Abdeckung: 23 Szenarien ordnen alle acht PRD-Kriterien und zugehörigen SD-Entscheidungen Aufgaben, erwarteten Ergebnissen und Nachweisen zu. Sie prüfen auch falsche Bindungen, unveränderte fertige Entwürfe, geschützte Quellen, alte Antworten, Materialität, Gate-Zuordnung, echte Klärungsfragen, zulässige Verschiebung und gültige Fortsetzung.
+ - Nachweise: Jede Prüfung nennt konkreten Testweg, Umgebung, Voraussetzungen/Berechtigungen, Verantwortlichen, Ausgabe und Vorgehen bei fehlendem Zugang. Bestehende Produktionsdienste und Paketprüfungen werden verwendet; Strukturprüfungen werden durch eine konkrete fachliche Plan-/Fragenprüfung ergänzt.
+ - Voraussetzungen: Node und zentrale Hilfsbibliotheken sind lokal vorhanden. Das MCP-SDK fehlt derzeit. Nach TP-Freigabe erfolgt bei Bedarf die normale lockfilegebundene lokale Installation; bei fehlendem Zugang bleiben betroffene MCP-Prüfungen und abschließende QA gesperrt. Unabhängige Arbeit kann weiterlaufen. Keine globale Hostinstallation ist nötig.
+-- Grenzen und Risiken: Keine neuen Freigaben oder parallelen Wahrheiten, keine stillen Änderungen freigegebener Quellen, keine Lockerung von Paketgrenzen und keine Veröffentlichung. Neue lokale Tests und Paketnachweise belegen keine unbeobachtete native Host-/Windows-Qualifikation und nicht das Finden jeder fachlichen Frage. Offene Nachweise bleiben ausdrücklich sichtbar.
+-- Entscheidungen: Die zum TP verschobene Ausführungsplanung ist mit Befehlen, Umgebungen, Zuständigkeiten und Nachweisdateien aufgelöst. Keine wesentliche fachliche Frage bleibt offen; fehlende technische Voraussetzungen haben einen konkreten Beschaffungs- und Sperrpfad.
+-- Nächster Schritt: TP freigeben; anschließend vorbereitende Brownfield Analysis, Umsetzung und Prüfungen bis zur nächsten menschlichen Gate-Entscheidung.
++- Grenzen und Risiken: Keine neuen Freigaben oder parallelen Wahrheiten, keine stillen Änderungen freigegebener Quellen, nur die ausdrücklich begrenzte Anpassung BUDGET-001 auf 260 Dateien/2.256.982 Bytes für Copilot und 1.912 normalisierte Bytes für Sessionstart und keine Veröffentlichung. Neue lokale Tests und Paketnachweise belegen keine unbeobachtete native Host-/Windows-Qualifikation und nicht das Finden jeder fachlichen Frage. Offene Nachweise bleiben ausdrücklich sichtbar.
++- Entscheidungen: BUDGET-001 ist fachlich durch die ausdrückliche Antwort des Maintainers geklärt: ausschließlich die oben genannten gemessenen Grenzwerte anpassen; alle übrigen Grenzen bleiben erhalten. Die zum TP verschobene Ausführungsplanung ist mit Befehlen, Umgebungen, Zuständigkeiten und Nachweisdateien aufgelöst. Keine wesentliche fachliche Frage bleibt offen; fehlende technische Voraussetzungen haben einen konkreten Beschaffungs- und Sperrpfad.
++- Nächster Schritt: Begrenzte Quellenrevision separat anwenden und den geänderten TP neu freigeben; danach analytische Vorbereitung und bestehende Umsetzung neu bewerten, ausschließlich die genannten Grenzwerte anpassen und sämtliche offenen Paket-, Review- und QA-Prüfungen ausführen.

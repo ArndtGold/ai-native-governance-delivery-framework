@@ -249,7 +249,8 @@
       "meta/contracts/closeout.md",
       "meta/contracts/ur-definition.md",
       "meta/contracts/prd-definition.md",
-      "meta/contracts/sd-definition.md"
+      "meta/contracts/sd-definition.md",
+      "meta/contracts/tp-definition.md"
     ]
   },
   "instructionFootprint": {
@@ -285,7 +286,7 @@
         ]
       },
       "sessionStartBase": {
-        "maxNormalizedBytes": 1900,
+        "maxNormalizedBytes": 1912,
         "structuralConditions": [
           "exactly_one_kernel",
           "exactly_one_dispatcher_binding",
@@ -439,8 +440,8 @@
         "ur-definition"
       ],
       "discovery": "automatic",
-      "useFor": "drafting or revising an unapproved UR after bound dispatch",
-      "boundary": "owns requirement drafting and clarification; never approves or changes approved intent",
+      "useFor": "bound UR drafting, clarification or revision",
+      "boundary": "content only; preserves approved intent",
       "dispatch": {
         "mode": "judgement_required",
         "requiresControlSnapshot": true
@@ -453,8 +454,8 @@
         "gate-artifact-preparation"
       ],
       "discovery": "automatic",
-      "useFor": "drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch",
-      "boundary": "owns product drafting and clarification; never approves or changes approved intent",
+      "useFor": "bound PRD drafting, clarification or revision",
+      "boundary": "content only; preserves approved intent",
       "dispatch": {
         "mode": "judgement_required",
         "requiresControlSnapshot": true
@@ -467,8 +468,22 @@
         "gate-artifact-preparation"
       ],
       "discovery": "automatic",
-      "useFor": "bound SD drafting, clarification or revision",
+      "useFor": "bound SD content",
       "boundary": "content only; preserves approved intent",
+      "dispatch": {
+        "mode": "judgement_required",
+        "requiresControlSnapshot": true
+      }
+    },
+    {
+      "slug": "tp-definition",
+      "runtimeContractModules": [
+        "tp-definition",
+        "gate-artifact-preparation"
+      ],
+      "discovery": "automatic",
+      "useFor": "bound TP content",
+      "boundary": "content only; preserves approved sources",
       "dispatch": {
         "mode": "judgement_required",
         "requiresControlSnapshot": true

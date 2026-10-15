@@ -6,19 +6,32 @@ export const SD_DECISION_FORMAT = Object.freeze({ contract: SD_DECISIONS_CONTRAC
   columns: Object.freeze(["Decision", "Timing", "Status", "Resolution", "Owner"]), timings: Object.freeze(["before_sd", "later_tp"]),
   statuses: Object.freeze(["resolved", "open", "deferred"]) });
 
+function sdDecisionTable(content) {
+  const markers = [...content.matchAll(/^Design Decisions contract:[ \t]*(.*)$/gmu)];
+  const headings = [...content.matchAll(/^## Design Decisions[ \t]*$/gmu)];
+  if (headings.length !== 1) return { markers, headings, lines: [], rows: [] };
+  const body = content.slice(headings[0].index + headings[0][0].length).split(/^## /mu)[0];
+  const lines = body.split("\n").filter(line => line.trim().startsWith("|"));
+  const rows = lines.map(line => line.trim().slice(1, -1).split("|").map(cell => cell.trim()));
+  return { markers, headings, lines, rows };
+}
+
+export function readSdDecisionRows(markdown) {
+  const readiness = evaluateSdDecisionContent(markdown);
+  if (!readiness.ready) return { valid: false, rows: [] };
+  const { rows } = sdDecisionTable(markdown.replace(/\r\n?/gu, "\n"));
+  return { valid: true, rows: rows.slice(2).map(([decision, timing, status, resolution, owner]) => ({ decision, timing, status, resolution, owner })) };
+}
+
 // Explicit declared decision state only; semantic completeness still needs review.
 export function evaluateSdDecisionContent(markdown) {
   const content = markdown.replace(/\r\n?/gu, "\n");
-  const markers = [...content.matchAll(/^Design Decisions contract:[ \t]*(.*)$/gmu)];
-  const headings = [...content.matchAll(/^## Design Decisions[ \t]*$/gmu)];
+  const { markers, headings, lines, rows } = sdDecisionTable(content);
   if (!markers.length && !headings.length) return { ready: true, open_decisions: [], contract: "legacy" };
   const fail = message => ({ ready: false, open_decisions: [message], contract: "sd-decisions-v1" });
   if (markers.length !== 1 || markers[0][1].trim() !== "sd-decisions-v1")
     return fail("Declare exactly one supported Design Decisions contract: sd-decisions-v1");
   if (headings.length !== 1) return fail("Declare exactly one Design Decisions section");
-  const body = content.slice(headings[0].index + headings[0][0].length).split(/^## /mu)[0];
-  const lines = body.split("\n").filter(line => line.trim().startsWith("|"));
-  const rows = lines.map(line => line.trim().slice(1, -1).split("|").map(cell => cell.trim()));
   if (rows.length < 3 || rows[0].join("|") !== SD_DECISION_FORMAT.columns.join("|")
       || !/^\|[\s:|-]+\|$/u.test(lines[1].trim()) || lines.some(line => !line.trim().endsWith("|")))
     return fail("Design Decisions table is empty or malformed");

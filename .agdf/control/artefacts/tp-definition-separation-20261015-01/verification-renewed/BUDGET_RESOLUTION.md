@@ -1,0 +1,7 @@
+# BUDGET-001 resolution
+
+The separately confirmed source revision and new deliberate TP approval bind approved TP sha256:b18c86cbade4068274719f034fe289d598075fba1977892461994bd68f1818c5. The explicit scope permits Copilot max_files=260/max_bytes=2256982 and sessionStartBase.maxNormalizedBytes=1912 only. The existing canonical budget definition, Copilot baseline rationale and schema-v1 integrity fingerprint now represent that approved allowance. Structural conditions, all other caps, integrity/activation checks and terminal-dispatch fingerprint remain unchanged.
+
+Final generated Copilot inventory measures 260 files / 2256873 bytes. SessionStart normalized measurements are Codex 1910, Claude 1911, Copilot 1912. selectedGateCheckSkill remains under its unchanged 6900-byte cap (global-installed 6897). See copilot-measurement-final.json and activation.log. Generation, public/portable packaging, request activation, payload negative cases and Skill conformance pass under these caps; no failure is waived. The 109-byte difference from the approved payload ceiling is the effect of concise equivalent prose/comment repairs, not another baseline increase.
+
+No additional payload headroom, new guard exception, approved-source edit, installation, host configuration, VCS, release or publishing action was introduced. Native host and Windows qualification remain outside this bounded local evidence claim.

@@ -1,3 +1,4 @@
+import { decisionRemediationOwner } from '../control-state/presentation-decision.js';
 import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderDefinitionSourceRecovery, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
 import { interactionLocales, resolveConfiguredChatLanguage, resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
@@ -58,7 +59,7 @@ function requiredGateArtifactPreparation({ status, currentGate, missingApproval,
     actor: "agent",
     effect: "preparation",
     gate: currentGate,
-    skill_id: currentGate === "SD" ? "sd-definition" : "gate-check",
+    skill_id: currentGate === "SD" ? "sd-definition" : currentGate === "TP" ? "tp-definition" : "gate-check",
     artifact_path: `.agdf/control/artefacts/${runId}/${plan.file}`,
     source_artifacts: Object.freeze(plan.sources.map((source) => `.agdf/control/artefacts/${runId}/${source}`)),
   });
@@ -628,7 +629,14 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     deliveryMap,
     runId: statusCard.run_id,
   });
-  const nextOperation = requiredPreparation ?? (readyForApproval
+  const clarifications = traceabilityReadiness?.clarifications?.map(row => ({ ...row, skill_id: decisionRemediationOwner(row.gate) ?? "gate-check" }))
+    .sort((a, b) => {
+      const order = gate => { const index = BREADCRUMB_STANDARD_GATES.indexOf(gate); return index < 0 ? Infinity : index; };
+      return order(a.gate) - order(b.gate);
+    });
+  const clarification = clarifications?.[0];
+  const nextOperation = clarification ? { type: "resolve_control_blocker", operation_key: "control.resolve", actor: "agent", effect: "preparation",
+    gate: currentGate, reason: blockingReason, clarification, clarifications } : requiredPreparation ?? (readyForApproval
     ? { type: "human_gate_decision", operation_key: "approval.record", actor: "human", effect: "decision", gate: currentGate }
     : qaFollowUp ? { type: "remediate_quality_findings", operation_key: "quality.remediate", actor: "agent", effect: qaFollowUp.kind === "implementation" ? "implementation" : "preparation", gate: currentGate, routing: qaFollowUp.kind }
     : status === "open" ? transitionDecision.next_operation

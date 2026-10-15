@@ -1,3 +1,5 @@
+import { section, tableRows } from "./markdown-table.js";
+import { evaluateTpPlanningContent } from "./tp-planning.js";
 import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
 
@@ -19,24 +21,6 @@ export const TP_AUTHORING_FORMAT = Object.freeze({ declaration: TRACEABILITY_CON
 function artifactText(targetDir, runState, type) {
   const path = resolvedArtefactFile(targetDir, runState.artefacts.get(type)?.path);
   return path ? readFileSync(path, "utf8") : null;
-}
-
-function section(markdown, title) {
-  const lines = markdown.replace(/\r\n?/gu, "\n").split("\n");
-  const wanted = title.toLowerCase();
-  const start = lines.findIndex((line) => {
-    const heading = line.match(/^#{2,6}\s+(?:\d+\.\s*)?(.+?)\s*#*\s*$/u);
-    return heading?.[1]?.trim()?.toLowerCase() === wanted;
-  });
-  if (start < 0) return null;
-  const level = (lines[start].match(/^#+/u) ?? [""])[0].length;
-  let end = start + 1;
-  while (end < lines.length) {
-    const next = lines[end].match(/^(#{2,6})\s+/u);
-    if (next && next[1].length <= level) break;
-    end += 1;
-  }
-  return lines.slice(start + 1, end).join("\n");
 }
 
 export const ACCEPTANCE_CRITERIA_FORMAT = Object.freeze({
@@ -100,27 +84,6 @@ export function readAcceptanceCriteria(markdown, { source = "PRD" } = {}) {
 
 const acceptanceCriteria = readAcceptanceCriteria;
 
-function tableRows(markdown, title, requiredColumns) {
-  const body = section(markdown, title);
-  if (body === null) return { rows: [], error: `${title} section is missing` };
-  const lines = body.split("\n");
-  for (let index = 0; index < lines.length - 1; index += 1) {
-    const headerLine = lines[index].trim();
-    if (!headerLine.startsWith("|") || !/^\|?[\s:|-]+\|?$/u.test(lines[index + 1].trim())) continue;
-    const headers = headerLine.replace(/^\||\|$/gu, "").split("|").map((cell) => cell.trim().toLowerCase().replace(/[^a-z0-9]+/gu, "_").replace(/^_|_$/gu, ""));
-    if (!requiredColumns.every((column) => headers.includes(column))) continue;
-    const rows = [];
-    for (let cursor = index + 2; cursor < lines.length; cursor += 1) {
-      const line = lines[cursor].trim();
-      if (!line.startsWith("|")) break;
-      if (/^\|?[\s:|-]+\|?$/u.test(line)) continue;
-      const cells = line.replace(/^\||\|$/gu, "").split("|").map((cell) => cell.trim().replace(/^`|`$/gu, ""));
-      rows.push(Object.fromEntries(headers.map((header, cellIndex) => [header, cells[cellIndex] ?? ""])));
-    }
-    return { rows, error: null };
-  }
-  return { rows: [], error: `${title} table is missing or malformed` };
-}
 
 function unfinished(value) {
   const text = String(value ?? "").trim();
@@ -240,7 +203,8 @@ export function evaluateTpTraceability(targetDir, runState) {
   const sd = artifactText(targetDir, runState, "SD");
   const tp = artifactText(targetDir, runState, "TP");
   if (!tp) return { ready: true, open_items: [], contract: "not_linked" };
-  const strict = [prd, sd, tp].some((content) => content?.includes(TRACEABILITY_CONTRACT));
+  const planning = evaluateTpPlanningContent(targetDir, runState, sd ?? "", tp);
+  const strict = planning.declared || [prd, sd, tp].some((content) => content?.includes(TRACEABILITY_CONTRACT));
   if (!strict) return { ready: true, open_items: [], contract: "legacy" };
   const openItems = [];
   if (!prd?.includes(TRACEABILITY_CONTRACT)) openItems.push("PRD must declare the criteria-chain-v1 traceability contract");
@@ -299,5 +263,7 @@ export function evaluateTpTraceability(targetDir, runState) {
       if (!verifiedDecisions.get(criterion)?.has(decision)) openItems.push(`SD decision ${decision} for ${criterion} has no TP verification scenario`);
     }
   }
-  return { ready: openItems.length === 0, open_items: [...new Set(openItems)], contract: "criteria-chain-v1" };
+  openItems.push(...planning.open_items);
+  return { ready: openItems.length === 0, open_items: [...new Set(openItems)], contract: "criteria-chain-v1",
+    ...(planning.clarifications.length ? { clarifications: planning.clarifications } : {}) };
 }

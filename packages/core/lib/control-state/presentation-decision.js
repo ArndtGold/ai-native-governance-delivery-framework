@@ -6,7 +6,7 @@ import { readRunOperations } from './run-operations.js';
 import { readApprovalOperations } from './approval-operations.js';
 import { READ_LIMITS } from '../control-read/snapshot.js';
 
-export const decisionRemediationOwner = gate => ({ UR: 'ur-definition', PRD: 'prd-definition', SD: 'sd-definition', TP: 'gate-check', QA: 'qa-gate', UAT: 'delivery-closeout' })[gate] ?? null;
+export const decisionRemediationOwner = gate => ({ UR: 'ur-definition', PRD: 'prd-definition', SD: 'sd-definition', TP: 'tp-definition', QA: 'qa-gate', UAT: 'delivery-closeout' })[gate] ?? null;
 const prerequisiteTypes = {
   UR: ['UR'], PRD: ['UR', 'PRD'],
   SD: ['UR', 'PRD', 'SD'],

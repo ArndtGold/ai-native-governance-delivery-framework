@@ -1,0 +1,66 @@
+
+COMMAND node packages/core/test/artifact-readiness-test.js
+Artifact authoring readiness: validator parity, incomplete input, revision, source and read-only checks passed.
+
+COMMAND npm --prefix packages/cli run test:cli-gates
+npm notice run create-agdf@0.14.5 test:cli-gates
+npm notice run node scripts/cli-gate-scenarios-test.js
+[cli-gates] START new-ur
+[cli-gates] PASS new-ur (11.4s)
+[cli-gates] START duplicate-prd
+[cli-gates] PASS duplicate-prd (8.2s)
+[cli-gates] START bound-ur
+[cli-gates] PASS bound-ur (8.4s)
+[cli-gates] START stale-next-step
+[cli-gates] PASS stale-next-step (29.8s)
+[cli-gates] START qa-follow-up
+[cli-gates] PASS qa-follow-up (73.1s)
+
+COMMAND npm --prefix packages/cli run test:sd-readiness
+npm notice run create-agdf@0.14.5 test:sd-readiness
+npm notice run node ../core/test/sd-readiness-test.js
+SD declared-decision readiness: resolved/open/malformed/legacy boundaries passed.
+
+COMMAND npm --prefix packages/cli run test:artifact-language
+npm notice run create-agdf@0.14.5 test:artifact-language
+npm notice run node scripts/artifact-language-test.js
+artifact language tests passed (config resolution, pre-presentation authoring, invalid summaries, fresh binding)
+
+COMMAND node packages/core/test/control-read-provider-test.js
+TAP version 13
+# Subtest: SCN-034/035: another presentation lock does not invalidate an unchanged document capture
+ok 1 - SCN-034/035: another presentation lock does not invalidate an unchanged document capture
+  ---
+  duration_ms: 1522.506472
+  type: 'test'
+  ...
+# Subtest: SCN-019: async contexts isolate two targets and restore live behavior
+ok 2 - SCN-019: async contexts isolate two targets and restore live behavior
+  ---
+  duration_ms: 2264.26608
+  type: 'test'
+  ...
+# Subtest: SCN-004: captured evaluator, original target and live-default parity
+ok 3 - SCN-004: captured evaluator, original target and live-default parity
+  ---
+  duration_ms: 1303.882918
+  type: 'test'
+  ...
+# Subtest: QA follow-up reads trusted contract resources without widening captured control scope
+ok 4 - QA follow-up reads trusted contract resources without widening captured control scope
+  ---
+  duration_ms: 1095.284375
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6206.515781
+
+COMMAND node packages/core/test/qa-deviation-acceptance-test.js
+QA deviations: de/en Chat and assembled decision-session parity, one-effect/legacy guards, immutable report and UAT disclosure, exact revision archive, approved-update rejection, truthful OR closeout, refresh and stale/critical/malformed negatives passed (disposable only; no native qualification).

@@ -50,8 +50,8 @@ Chat: one localized transition, no technical continuation instructions.
 
 ## Executable Dispatch
 
-Delegate UR/PRD/SD: `phase: ur_definition | prd_definition | sd_definition` to
-`ur-definition | prd-definition | sd-definition` respectively; no drafting here.
+Delegate `phase: ur_definition | prd_definition | sd_definition | tp_definition` to
+`ur-definition | prd-definition | sd-definition | tp-definition` in order; no drafting here.
 
 Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
 If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only

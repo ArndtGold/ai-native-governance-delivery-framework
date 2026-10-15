@@ -1,0 +1,124 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "control_result",
+  "terminal": true,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "owned_version_matched",
+    "expected_version": "0.14.5",
+    "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-PwGq4o/plugins/agdf",
+    "runtime_digest": "f288761a5be991cd32d485c2e64afae67d98400fde2d6ee7b1f5ae31570ea8ee",
+    "provenance_status": "not_applicable"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-PwGq4o/project",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-PwGq4o/project",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-PwGq4o/project",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "blocked",
+    "current_gate": "TP",
+    "gate_route": {
+      "gate": "TP",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "AGDF_TP_TRACEABILITY_INCOMPLETE",
+    "missing_approval": "Approval: TP",
+    "next_operation": {
+      "type": "resolve_control_blocker",
+      "operation_key": "control.resolve",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "TP",
+      "reason": "AGDF_TP_TRACEABILITY_INCOMPLETE",
+      "clarification": {
+        "finding_id": "CL-001",
+        "gate": "UR",
+        "question": "Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?",
+        "blocking_reason": "Answer changes product intent, acceptance and ownership; this TP cannot silently add shared storage or permissions.",
+        "required_answer": "Product owner's substantive requester-confirmed scope and ownership decision, recorded through existing evidence; changed intent then requires source revision preview, separately confirmed apply and renewed affected approvals.",
+        "owner": "Test product owner",
+        "source_ref": "PRD: No sharing or permissions change. @ sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+        "skill_id": "ur-definition"
+      },
+      "clarifications": [
+        {
+          "finding_id": "CL-001",
+          "gate": "UR",
+          "question": "Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?",
+          "blocking_reason": "Answer changes product intent, acceptance and ownership; this TP cannot silently add shared storage or permissions.",
+          "required_answer": "Product owner's substantive requester-confirmed scope and ownership decision, recorded through existing evidence; changed intent then requires source revision preview, separately confirmed apply and renewed affected approvals.",
+          "owner": "Test product owner",
+          "source_ref": "PRD: No sharing or permissions change. @ sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2",
+          "skill_id": "ur-definition"
+        },
+        {
+          "finding_id": "CL-002",
+          "gate": "TP",
+          "question": "What exact existing runner command and fixture entry points support save/restore and isolated users, and where can its output be retained?",
+          "blocking_reason": "Required local scenarios are not executable from the supplied inputs; guessed commands would create false readiness.",
+          "required_answer": "Exact supported invocation, reset protocol and per-user observation route supplied by Test design owner, recorded as run-local evidence linked to current source bindings.",
+          "owner": "Test design owner",
+          "source_ref": "SD: SDD-001 @ sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189",
+          "skill_id": "tp-definition"
+        }
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "complete the listed TP traceability rows, then record the revision with run-update",
+    "run_id": "tp-authoring-test",
+    "revision_id": "ab2a5710-c498-4d2e-8c25-399d2991a6b8",
+    "doctor_status": "warn",
+    "candidate_runs": []
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "run_status_card",
+    "run_id": "tp-authoring-test",
+    "revision_id": "ab2a5710-c498-4d2e-8c25-399d2991a6b8",
+    "current_gate": "TP",
+    "presentation_language": "de",
+    "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | TP: Personal saved filter; team-sharing clarification pending · `tp-authoring-test` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | blockiert |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Jetzt erlaubt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und eine neue Run-Revision festhalten |\n| Aktuell verboten | Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten<br>das Artefakt erst vorlegen oder freigeben, wenn die Nachweiszuordnung vollständig ist |\n| Blockiert durch | Die Rückverfolgbarkeit im Task Plan ist unvollständig (AGDF_TP_TRACEABILITY_INCOMPLETE) |\n| Fehlende Zuordnungen | Open planning decision: PD-001: Resolve teammate availability against approved personal ownership<br>Open planning decision: PD-002: Confirm executable local fixture route<br>Material clarification CL-001: Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?<br>Material clarification CL-002: What exact existing runner command and fixture entry points support save/restore and isolated users, and where can its output be retained? |\n| Nächster erlaubter Agentenschritt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und die Revision dann mit run-update festhalten |\n| Fehlende Freigabe | keine |",
+    "authorizes": false
+  },
+  "continuation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "transmit_presentation_verbatim_and_stop",
+    "source": "presentation.markdown",
+    "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | TP: Personal saved filter; team-sharing clarification pending · `tp-authoring-test` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ● TP · ○ QA · ○ UAT · ○ OR |\n| Status | blockiert |\n| Aktuelles Gate | Aufgaben- und Testplan (`TP`) |\n| Jetzt erlaubt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und eine neue Run-Revision festhalten |\n| Aktuell verboten | Code implementieren<br>QA- oder Veröffentlichungsbereitschaft behaupten<br>das Artefakt erst vorlegen oder freigeben, wenn die Nachweiszuordnung vollständig ist |\n| Blockiert durch | Die Rückverfolgbarkeit im Task Plan ist unvollständig (AGDF_TP_TRACEABILITY_INCOMPLETE) |\n| Fehlende Zuordnungen | Open planning decision: PD-001: Resolve teammate availability against approved personal ownership<br>Open planning decision: PD-002: Confirm executable local fixture route<br>Material clarification CL-001: Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?<br>Material clarification CL-002: What exact existing runner command and fixture entry points support save/restore and isolated users, and where can its output be retained? |\n| Nächster erlaubter Agentenschritt | die aufgeführten TP-Nachweiszuordnungen vervollständigen und die Revision dann mit run-update festhalten |\n| Fehlende Freigabe | keine |",
+    "allow_surrounding_text": false,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 723.559,
+    "input_ms": 9.666,
+    "target_ms": 72.275,
+    "control_ms": 157.185,
+    "render_ms": 13.968,
+    "total_ms": 255.173
+  },
+  "diagnostics": []
+}

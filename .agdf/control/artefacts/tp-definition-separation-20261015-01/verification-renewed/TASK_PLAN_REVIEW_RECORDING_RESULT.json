@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "4032cede-862c-4f5a-bc32-c0a4342b70d8",
+  "request_digest": "sha256:00a43775bf30fe18467f187848da0a948d6f5f9ed4e97e16ff05202654f44294",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+    "resulting_revision_id": "13b17d1b-c34b-4d4b-9456-79f317853c5e",
+    "revision": 22,
+    "record": {
+      "step": "TP Review",
+      "source": {
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_REVIEW.md",
+        "digest": "sha256:a68462752aba6d155d74d4accedf7edbf96152ea8bada31c214860d8ca7d6869"
+      },
+      "status": "done",
+      "covers": "All approved TP tasks/criteria in the bounded source/local-runtime/package slice; deliberate later gates remain pending.",
+      "source_set_digest": "sha256:84ff0f03474b1b42325a64ad922fa4899233e47cd6cbd2ecde1d06c18e72fe97"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "4032cede-862c-4f5a-bc32-c0a4342b70d8",
+    "request_digest": "sha256:00a43775bf30fe18467f187848da0a948d6f5f9ed4e97e16ff05202654f44294",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+    "created_at": "2026-10-15T10:01:50.719Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+      "resulting_revision_id": "13b17d1b-c34b-4d4b-9456-79f317853c5e",
+      "revision": 22,
+      "record": {
+        "step": "TP Review",
+        "source": {
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_REVIEW.md",
+          "digest": "sha256:a68462752aba6d155d74d4accedf7edbf96152ea8bada31c214860d8ca7d6869"
+        },
+        "status": "done",
+        "covers": "All approved TP tasks/criteria in the bounded source/local-runtime/package slice; deliberate later gates remain pending.",
+        "source_set_digest": "sha256:84ff0f03474b1b42325a64ad922fa4899233e47cd6cbd2ecde1d06c18e72fe97"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 22,
+    "revision_id": "13b17d1b-c34b-4d4b-9456-79f317853c5e",
+    "lifecycle": "active",
+    "gate": "QA",
+    "status": "open",
+    "missing_approval": "Approval: QA",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "evaluate_quality",
+      "skill_id": "qa-gate",
+      "operation_key": "quality.evaluate",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "QA"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "tp-definition-separation-20261015-01",
+    "step": "internal",
+    "previous_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+    "revision": "22",
+    "revision_id": "13b17d1b-c34b-4d4b-9456-79f317853c5e",
+    "current_gate": "QA",
+    "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+    "backlog": "updated",
+    "operation_id": "4032cede-862c-4f5a-bc32-c0a4342b70d8",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "4032cede-862c-4f5a-bc32-c0a4342b70d8",
+      "request_digest": "sha256:00a43775bf30fe18467f187848da0a948d6f5f9ed4e97e16ff05202654f44294",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "tp-definition-separation-20261015-01",
+      "expected_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+      "created_at": "2026-10-15T10:01:50.719Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "50c094de-6d22-47fd-94e7-7e4de4c92b8a",
+        "resulting_revision_id": "13b17d1b-c34b-4d4b-9456-79f317853c5e",
+        "revision": 22,
+        "record": {
+          "step": "TP Review",
+          "source": {
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_REVIEW.md",
+            "digest": "sha256:a68462752aba6d155d74d4accedf7edbf96152ea8bada31c214860d8ca7d6869"
+          },
+          "status": "done",
+          "covers": "All approved TP tasks/criteria in the bounded source/local-runtime/package slice; deliberate later gates remain pending.",
+          "source_set_digest": "sha256:84ff0f03474b1b42325a64ad922fa4899233e47cd6cbd2ecde1d06c18e72fe97"
+        }
+      }
+    }
+  }
+}

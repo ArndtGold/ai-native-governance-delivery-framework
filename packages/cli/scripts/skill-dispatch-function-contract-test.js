@@ -54,7 +54,7 @@ assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
 assert.deepEqual(Object.keys(schema.properties), [
-  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "ur_action", "prd_action", "sd_action", "continue_delivery",
+  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "ur_action", "prd_action", "sd_action", "tp_action", "continue_delivery",
 ]);
 assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
@@ -258,7 +258,7 @@ assert.throws(
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
 assert.match(skillDispatchArgumentGrammar(), /--language <lc>/u);
-assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action) revise]] [--continue-delivery]"));
+assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <id>] [--intake [--intake-mode new|resume] [--revision <id>] [(--ur-action|--prd-action|--sd-action|--tp-action) revise]] [--continue-delivery]"));
 assert.match(skillDispatchArgumentGrammar(), new RegExp(`--target-source ${TASK_TARGET_SOURCES.join("\\|")} --primary-target`, "u"));
 
 const languageProjection = renderSkillDispatchLanguageProjection();
@@ -319,4 +319,20 @@ for (const fields of [
   assert.equal(validateDispatch(args), accepted, JSON.stringify(args));
   assert.equal(accepted, fields.sd_action === "revise" && fields.intake_mode === "resume" && !!fields.expected_revision_id
     && !fields.skill_id && !fields.ur_action && !fields.prd_action && !fields.continue_delivery);
+}
+
+for (const fields of [
+  { tp_action: "revise" }, { tp_action: "revise", intake: true, intake_mode: "resume" },
+  { tp_action: "revise", intake: true, intake_mode: "new", expected_revision_id: expectedRevision },
+  { tp_action: "approve", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { tp_action: "revise", skill_id: "tp-definition", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  { tp_action: "revise", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+  ...["ur_action", "prd_action", "sd_action"].map(action => ({ tp_action: "revise", [action]: "revise", intake: true, intake_mode: "resume", expected_revision_id: expectedRevision })),
+  { tp_action: "revise", continue_delivery: true, intake: true, intake_mode: "resume", expected_revision_id: expectedRevision },
+]) {
+  const args = { ...deliveryInput, ...fields }; let accepted = true;
+  try { normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments(args, transportContext), registry); } catch { accepted = false; }
+  assert.equal(validateDispatch(args), accepted, JSON.stringify(args));
+  assert.equal(accepted, fields.tp_action === "revise" && fields.intake_mode === "resume" && !!fields.expected_revision_id
+    && !fields.skill_id && !fields.ur_action && !fields.prd_action && !fields.sd_action && !fields.continue_delivery);
 }

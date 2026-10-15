@@ -1,0 +1,30 @@
+# Brownfield Analysis: TP definition implementation preparation
+
+Decision: pass
+Mode: pre_implementation_analysis
+Owner: Codex
+Date: 2026-10-15
+
+## Scope and baseline
+
+Approved TP tasks T-001 through T-009, with exact approved PRD/SD and clarified material-question behavior. BASELINE.json captures starting commit/worktree, protected source digests and other control-file digests. Only this run's bookkeeping was dirty before implementation. No other run is assigned to this scope.
+
+## Existing owners and reuse path
+
+Use sd-definition.js's pure-assignment shape with TP-specific prerequisites and ready-draft protection; service.js owns run selection, source inspection, safe fallback and continuation dispatch. definition-sources.js currently assumes Brownfield Review at index 1: replace that assumption with typed lookup while retaining existing checks. Existing template resolution and recording remain authoritative.
+
+Reuse evaluateTpTraceability for readiness aggregation, SD decision parsing for later_tp source facts, and normalized route/finding validation currently within qa-follow-up.js. Extract narrow pure shared functions without changing the QA-only execution wrapper. The TP semantic contract and same-artifact planning/clarification declarations provide the new content; no second control state or question store.
+
+Revision transport touches Core contract schema/normalization/binding arguments plus CLI parse/help/validation forwarding. Existing preparation and presentation-decision remediation mappings must both select the TP author. Canonical plugin definition, request-activation projections, runtime manifest, host aliases, eval inventory and package generators propagate the change.
+
+## Risks and evidence
+
+Highest risks: generic judgement fallthrough, unauthorized ready/approved-draft edits, positional source regression, duplicate SD or normalized-gap parser, inconsistent readiness between check/presentation/approval, source-invalid question closure and stale package/runtime assets. The approved TP identifies production-path, negative, transaction, compatibility and semantic exercise evidence. Required pre-implementation view is complete; remaining implementation details stay inside these approved boundaries.
+
+Local Node, root ajv/yaml and a UI build exist. The MCP SDK is absent and must be resolved via the existing locked local install path before relevant tests; missing access stays an explicit blocking evidence obligation. Native-host qualification is not claimed. No installation, publication, external messages, source approval or VCS action is authorized by this analysis.
+
+## Minimal implementation sequence
+
+Add focused skill/contract/registry and pure phase; extend existing transport; implement shared planning/clarification facts and readiness/projection; add meaningful fixtures and production tests; generate once inputs are coherent, then execute focused regressions and the actual isolated authoring exercise. Use the existing review/QA skills and canonical writers for completion. No material product/design decision remains open and no retained-debt exception is proposed.
+
+Context graph impact: link_only; reconcile the existing ownership/evidence node using final verified references before closeout. Personal memory is unchanged.

@@ -1,6 +1,6 @@
 ---
 name: sd-definition
-description: "Use this skill for this scope: bound SD drafting, clarification or revision. Boundary: content only; preserves approved intent. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: bound SD content. Boundary: content only; preserves approved intent. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # sd-definition

@@ -1,0 +1,76 @@
+
+COMMAND npm --prefix packages/cli run test:skill-dispatch
+npm notice run create-agdf@0.14.5 test:skill-dispatch
+npm notice run node ../core/test/skill-names-test.js && node scripts/skill-dispatch-function-contract-test.js && node scripts/skill-dispatch-test.js && node scripts/compact-continuation-test.js && node scripts/skill-dispatch-binding-test.js && node scripts/delivery-run-assignment-test.js
+skill names tests passed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  [
+    'skill_id',
+    'presentation_language',
+    'working_directory',
+    'target_source',
+...
+    'sd_action',
++   'tp_action',
+    'continue_delivery'
+  ]
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/skill-dispatch-function-contract-test.js:56:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'skill_id',
+    'presentation_language',
+    'working_directory',
+    'target_source',
+    'primary_target',
+    'run_id',
+    'expected_revision_id',
+    'intake',
+    'intake_mode',
+    'ur_action',
+    'prd_action',
+    'sd_action',
+    'tp_action',
+    'continue_delivery'
+  ],
+  expected: [
+    'skill_id',
+    'presentation_language',
+    'working_directory',
+    'target_source',
+    'primary_target',
+    'run_id',
+    'expected_revision_id',
+    'intake',
+    'intake_mode',
+    'ur_action',
+    'prd_action',
+    'sd_action',
+    'continue_delivery'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+
+COMMAND npm --prefix packages/cli run test:prd-definition
+npm notice run create-agdf@0.14.5 test:prd-definition
+npm notice run node scripts/prd-definition-test.js
+PRD packaged authoring/clarification/revision/binding/presentation/approval boundaries passed.
+
+COMMAND npm --prefix packages/cli run test:sd-definition
+npm notice run create-agdf@0.14.5 test:sd-definition
+npm notice run node scripts/sd-definition-test.js
+SD assembled authoring/source/readiness/revision/approval boundaries passed (synthetic fixtures).

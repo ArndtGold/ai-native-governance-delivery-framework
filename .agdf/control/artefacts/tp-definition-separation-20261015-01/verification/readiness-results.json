@@ -1,0 +1,32 @@
+[
+  {
+    "command": "node packages/core/test/artifact-readiness-test.js",
+    "exit": 0,
+    "seconds": 9.45
+  },
+  {
+    "command": "npm --prefix packages/cli run test:cli-gates",
+    "exit": 0,
+    "seconds": 132.87
+  },
+  {
+    "command": "npm --prefix packages/cli run test:sd-readiness",
+    "exit": 0,
+    "seconds": 1.11
+  },
+  {
+    "command": "npm --prefix packages/cli run test:artifact-language",
+    "exit": 0,
+    "seconds": 23.21
+  },
+  {
+    "command": "node packages/core/test/control-read-provider-test.js",
+    "exit": 0,
+    "seconds": 6.7
+  },
+  {
+    "command": "node packages/core/test/qa-deviation-acceptance-test.js",
+    "exit": 0,
+    "seconds": 66.74
+  }
+]

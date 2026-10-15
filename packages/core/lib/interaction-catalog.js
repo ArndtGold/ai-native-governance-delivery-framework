@@ -59,7 +59,7 @@ export const DISPATCH_RECOVERY_CODES = freeze([
   "target_evaluation_failed", "target_presentation_failed", "control_evaluation_failed",
   "control_presentation_failed", "runtime_contracts_unavailable", "runtime_evidence_invalid",
   "internal_failure", "output_too_large", "intake_run_collision", "intake_scaffold_required",
-  "run_assignment_inventory_invalid", "prd_authoring_inputs_invalid", "sd_authoring_inputs_invalid",
+  "run_assignment_inventory_invalid", "prd_authoring_inputs_invalid", "sd_authoring_inputs_invalid", "tp_authoring_inputs_invalid",
   "AGDF_ARTEFACT_TEMPLATE_UNSUPPORTED", "AGDF_ARTEFACT_TEMPLATE_ROOT_UNAVAILABLE",
   "AGDF_ARTEFACT_TEMPLATE_UNAVAILABLE", "AGDF_ARTEFACT_TEMPLATE_UNSAFE",
 ]);

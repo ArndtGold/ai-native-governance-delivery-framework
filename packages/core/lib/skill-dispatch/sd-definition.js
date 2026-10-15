@@ -6,7 +6,7 @@ import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 export function sdDefinitionPhase(targetDir, control, input, sources) {
   const state = control?.status_card?.runState;
   if (control?.next_operation?.type === "reassess_source_analysis") return null;
-  if (input.ur_action !== undefined || input.prd_action !== undefined || !input.run_id
+  if (input.ur_action !== undefined || input.prd_action !== undefined || input.tp_action !== undefined || !input.run_id
       || control?.status_card?.run_id !== input.run_id || !state || !sources
       || control.current_gate !== "SD" || !["open", "blocked"].includes(control.status)
       || !["none", "Approval: SD"].includes(control.missing_approval)

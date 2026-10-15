@@ -11,9 +11,9 @@ Run State, gate evaluation and exact approval remain authoritative.
   installed, version-matched plugin for PRD, SD, TP or QA Report preparation. Repository scaffold
   copies are derived references only. Do not rediscover or substitute a run, target, source
   artifact or template. A missing or unsafe template blocks authoring without fallback or mutation.
-- Prepare only the named current-gate artifact. Keep it derived from the supplied approved sources
-  and record it with the current runtime's `run-step --step artefact --gate <PRD|SD|TP|QA>
-  --evidence <recording-input.json> --run <run_id> --revision <revision_id>` operation below.
+- Prepare only the named current-gate artifact from the supplied approved sources.
+  Record with `run-step --step artefact --gate <PRD|SD|TP|QA>
+  --evidence .agdf/control/artefacts/<run_id>/<input.json> --run <run_id> --revision <revision_id>`.
   Do not publish a pointer and its required source relationship in separate accepted revisions.
 - After persistence, redispatch `gate-check` for the same target/run and use its fresh revision,
   gate route and approval presentation. Do not reuse this operation or ask for approval until the
@@ -52,11 +52,11 @@ stale revision, approved source or canonical integrity/gate blockers keep it unr
 the named issue through its existing owner. No recording or approval follows from this result
 alone. Registration and run-present repeat their own current canonical checks.
 
-If this installed MCP capability is unavailable, the exact Core function is
+Without that MCP capability, use the exact Core function
 `inspectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage })`
 in `packages/core/lib/control-inspect/artifact-readiness.js` (packaged as
-`runtime/core/lib/control-inspect/artifact-readiness.js`). It returns the same report without
-writing. Do not search for internal validator signatures or invent a replacement validator.
+`runtime/create-agdf/runtime/core/lib/control-inspect/artifact-readiness.js` in the plugin). Same report; no writes.
+Do not search for internal validator signatures or invent a replacement validator.
 The existing Core `evaluateApprovalSummaryReadiness` remains the summary owner.
 For a German PRD summary use separate `- Ziel:`, `- Umfang:` and, when decisions exist,
 `- Entscheidungen:` lines; English summaries use `- Goal:`, `- Scope:` and `- Decisions:`.
@@ -127,8 +127,6 @@ controls prerequisites, declared decision readiness, traceability and presentati
 
 ### TP
 
-Derive the Task/Test Plan from the approved PRD and Solution Design. Preserve `criteria-chain-v1`.
-Map every PRD criterion and SD decision to stable task IDs, scenarios, observable expected results
-and specific evidence sources. Include proportionate boundary/failure scenarios, dependencies and
-risks. Do not copy or rename acceptance criteria. Do not implement or claim QA/release readiness
-before TP approval.
+Semantic TP drafting, clarification and explicit unapproved revision belong exclusively to
+tp-definition under its focused contract. This module supplies shared recording only; gate-check
+retains prerequisite/readiness and presentation authority.

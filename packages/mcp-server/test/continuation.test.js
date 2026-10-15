@@ -5,6 +5,7 @@ import { readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { readSkillRuntimeContracts } from "../../cli/lib/cli/contract-command.js";
 import { createPrdDefinitionTestRun } from "../../cli/scripts/fixtures/prd-definition.js";
+import { createTpDefinitionTestRun } from "../../cli/scripts/fixtures/tp-definition.js";
 import { createSdDefinitionTestRun } from "../../cli/scripts/fixtures/sd-definition.js";
 import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
@@ -25,6 +26,7 @@ try {
   const urRun = "ur-definition-mcp-test";
   const prdRun = createPrdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "prd-definition-mcp-test");
   const sdRun = createSdDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "sd-definition-mcp-test");
+  const tpRun = createTpDefinitionTestRun(fixture.governanceTarget, join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "tp-definition-mcp-test");
   execFileSync(process.execPath, [join(fixture.dispatcherRoot, "bin/agdf-validator.js"), "run-create", "--dir", fixture.governanceTarget, "--run", urRun], { stdio: "pipe" });
   // A real stdio server, with no SessionStart hook or executable binding.
   const pluginRoot = join(fixture.dispatcherRoot, "generated", "plugins", "agdf");
@@ -33,13 +35,13 @@ try {
       const response = await client.callTool({ name: "agdf_dispatch", arguments: {
         skill_id: skill.slug, presentation_language: "de", working_directory: fixture.governanceTarget,
         target_source: "explicit_target", primary_target: fixture.governanceTarget,
-        run_id: skill.slug === "ur-definition" ? urRun : skill.slug === "prd-definition" ? prdRun.runId : skill.slug === "sd-definition" ? sdRun.runId : "agdf-mcp-dispatch-server",
+        run_id: skill.slug === "ur-definition" ? urRun : skill.slug === "prd-definition" ? prdRun.runId : skill.slug === "sd-definition" ? sdRun.runId : skill.slug === "tp-definition" ? tpRun.runId : "agdf-mcp-dispatch-server",
       } });
       const result = response.structuredContent;
       assert.equal(result.outcome, "skill_continuation", `${skill.slug}: ${JSON.stringify(result.diagnostics)}`);
       assert.equal(result.authorizes, false);
       assert.equal(result.terminal, false);
-      if (["ur-definition", "prd-definition", "sd-definition"].includes(skill.slug)) {
+      if (["ur-definition", "prd-definition", "sd-definition", "tp-definition"].includes(skill.slug)) {
         assert.equal(result.continuation.artifact_language, "en");
         assert.equal(result.continuation.presentation_language, "de");
         assert.equal(result.continuation.approval_summary_required, true);
@@ -62,6 +64,11 @@ try {
         assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "SD.md"));
         assert.equal(result.continuation.draft_registered, false);
         assert.equal(result.continuation.sources[0].path, sdRun.prefix + "PRD.md");
+      }
+      if (skill.slug === "tp-definition") {
+        assert.equal(result.continuation.phase, "tp_definition");
+        assert.equal(result.continuation.template_path, join(pluginRoot, "control", "templates", "artefacts", "TP.md"));
+        assert.deepEqual(result.continuation.sources.map(row => row.type), ["PRD", "SD", "Brownfield Review"]);
       }
       if (skill.slug === "ux-intent-definition") {
         assert.equal(result.continuation.template_path,
@@ -98,6 +105,13 @@ try {
     assert.equal((await client.callTool({ name: "agdf_dispatch", arguments: sdArgs })).structuredContent.continuation.phase, "sd_definition");
     for (const wrong of [{ prd_action: "revise" }, { ur_action: "revise" }, { continue_delivery: true }, { sd_action: "approve" }]) {
       const invalid = await client.callTool({ name: "agdf_dispatch", arguments: { ...sdArgs, ...wrong } });
+      assert.ok(invalid.isError || invalid.structuredContent?.outcome === "invalid_input");
+    }
+    const tpArgs = { ...prdArgs, run_id: tpRun.runId, expected_revision_id: tpRun.revision(), tp_action: "revise" };
+    delete tpArgs.prd_action;
+    assert.equal((await client.callTool({ name: "agdf_dispatch", arguments: tpArgs })).structuredContent.continuation.phase, "tp_definition");
+    for (const wrong of [{ prd_action: "revise" }, { ur_action: "revise" }, { sd_action: "revise" }, { continue_delivery: true }, { tp_action: "approve" }]) {
+      const invalid = await client.callTool({ name: "agdf_dispatch", arguments: { ...tpArgs, ...wrong } });
       assert.ok(invalid.isError || invalid.structuredContent?.outcome === "invalid_input");
     }
     const sdUnbound = { ...sdArgs, skill_id: "sd-definition" };

@@ -1,0 +1,30 @@
+{
+  "run_id": "tp-authoring-test",
+  "gate": "TP",
+  "expected_revision_id": "58cd8076-9a49-4d05-9525-7c116142e1e8",
+  "revision_id": "58cd8076-9a49-4d05-9525-7c116142e1e8",
+  "artifact_path": ".agdf/control/artefacts/tp-authoring-test/TP.md",
+  "artifact_digest": "sha256:965f340b4b0a6732feadf8bd538dc74b3b2884fc2aebe7161e63dffc05a1b45c",
+  "ready": true,
+  "readiness_scope": "authoring_checks",
+  "authorizes": false,
+  "semantic_review_required": true,
+  "registration_required": true,
+  "presentation_required": true,
+  "checks": [
+    {
+      "name": "approval_summary",
+      "ready": true,
+      "required_heading": "AGDF Approval Summary (de; source=en)",
+      "reason": null
+    },
+    {
+      "name": "tp_traceability",
+      "ready": true,
+      "open_items": [],
+      "contract": "criteria-chain-v1"
+    }
+  ],
+  "diagnostics": [],
+  "next_action": "Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval."
+}

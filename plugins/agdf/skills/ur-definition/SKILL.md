@@ -1,6 +1,6 @@
 ---
 name: ur-definition
-description: "Use this skill for this scope: drafting or revising an unapproved UR after bound dispatch. Boundary: owns requirement drafting and clarification; never approves or changes approved intent. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: bound UR drafting, clarification or revision. Boundary: content only; preserves approved intent. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # ur-definition

@@ -1,0 +1,112 @@
+# Brownfield Review: Dedicated Task Plan authoring — bounded TP revision reassessment
+
+Gate: Brownfield Review
+Type: Brownfield Review
+Mode: post_ur_review
+Status: done
+Decision: pass
+
+## Run
+
+- run_id: tp-definition-separation-20261015-01
+- related_ur: .agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md
+- current_gate: Brownfield Review
+- reviewer: Codex
+- reviewed_at: 2026-10-15
+
+## Objective
+
+Size the approved introduction of tp-definition as the sole semantic author of unapproved Task/Test Plans, analogous to existing definition skills, preserving Core recording and human approvals. Source baseline: retained implementation at 6b0902d1a0f129b650ba086b81d3f93890c85a4b plus the scoped working-tree diff and verification/source-manifest-final.json. The exact TP source revision 3cd66b57-0286-4f9a-b6bc-8da05908418d has been applied; UR/PRD/SD remain approved and byte-identical. This review freshly reassesses analytical applicability rather than transferring its previous receipt.
+
+## UI / UX Impact Routing
+
+- delivery_context: brownfield
+- ui_ux_impact: low
+- ui_ux_impact_reason: A discoverable definition skill and its delegated continuation become visible, with the established drafting, clarification, revision and approval interaction. This changes the named authoring entry point, not the gate decision, working mode, activation or recovery authority. The approved UR fixes those boundaries unambiguously.
+- ux_intent_definition_required: no
+- ux_intent_definition_result: not_applicable
+
+## Existing-System View
+
+| Area | Existing owner or artefact | Evidence | Impact |
+|---|---|---|---|
+| Product semantics | Approved UR; existing definition roles | plugins/agdf/skills/{ur-definition,prd-definition,sd-definition,gate-check,task-plan-review}/SKILL.md | medium |
+| Source of truth | Plugin definition and contracts | plugins/agdf/meta/agdf-plugin.definition.json runtimeContract and skillSet; meta/contracts/gate-artifact-preparation.md TP section | medium |
+| Runtime path | Core skill dispatch and gate evaluator | packages/core/lib/skill-dispatch/{service,contract,sd-definition}.js; packages/core/lib/control-evaluation/gate-check.js TP preparation | high |
+| UI / UX | Existing definition and approval flow | The scoped source now delegates UR/PRD/SD/TP content; task-plan-review is post-implementation; no new decision surface required | low |
+| Persistence / data | Existing typed artefact writer and revision owner | packages/core/lib/control-state/{run-steps,run-command-contract,run-revision-boundary}.js | low |
+| Tests / QA | Definition, traceability, dispatch, MCP and package suites | packages/cli/scripts/{sd-definition-test,skill-dispatch-function-contract-test}.js; packages/mcp-server/test/continuation.test.js; packages/core/lib/control-evaluation/traceability-readiness.js | medium |
+| Release / operations | Existing projection and package pipeline | scripts/sync-package-assets.js; scripts/sync-request-activation-projections.js; plugins/agdf/meta/agdf-plugin.definition.json instructionFootprint; packages/cli/package.json | medium |
+
+## Architecture Impact
+
+- architecture_relevance: relevant
+- architecture_impact: medium
+- architecture_reason: Semantic TP ownership moves from gate-check to a named definition skill. Its public identifier and bound continuation affect the dispatcher, correction owner and generated host interfaces. Core persistence, approvals and source authority remain in their current owners.
+- architecture_evidence: packages/core/lib/control-evaluation/gate-check.js nextSkillByGate and requiredGateArtifactPreparation; packages/core/lib/control-state/presentation-decision.js decisionRemediationOwner currently selects gate-check for TP; packages/core/lib/skill-dispatch/contract.js exposes explicit UR/PRD/SD revision actions; sd-definition.js demonstrates a pure assignment layer over evaluated state.
+- architecture_missing_evidence: none for routing; SD must decide the exact TP phase predicates, source inspection reuse and explicit unapproved revision transport.
+- architecture_next_owner_and_action: sd-definition will specify coherent ownership and failure/recovery behavior after PRD approval, preserving the current Core writer.
+
+## Reuse And Parallel-Structure Risk
+
+| Finding | Evidence | Risk | Required action |
+|---|---|---|---|
+| problem: TP has no dedicated semantic author | gate-check.js TP owner and shared contract TP section; existing UR/PRD/SD phases | warn | PRD fixes one author; SD routes both preparation and corrections to it. |
+| problem: duplicating a definition phase can duplicate control or persistence | sd-definition.js is pure assignment; run-steps.js owns artefact recording | warn | Reuse evaluated readiness and existing recording; add only the semantic TP owner and bound assignment. |
+| problem: preparation and correction routes could disagree | presentation-decision.js separately maps TP remediation to gate-check | warn | SD includes all affected routing consumers; TP verifies ordinary continuation and diagnosed unapproved correction. |
+| problem: generated hosts could expose stale IDs or omit the contract | plugin definition registry and sync-package-assets.js drive Codex, Claude, Copilot and OpenCode outputs | warn | Extend canonical registration, regenerate through existing owners and validate payload/footprint guards without silently increasing limits. |
+| problem: source inspection cannot be copied without checking assumptions | inspectDefinitionSources reads its second source for UX routing; TP sources are PRD and SD | warn | SD specifies source types and analytical prerequisite handling explicitly; preserve read-only facts and avoid a second control validator. |
+| problem: traceability coverage is not semantic proof of executable tests | traceability-readiness.js validates IDs, scenarios and expected evidence; TP contract requires boundary cases | warn | tp-definition requires concrete test environment, access, owner and unavailable-prerequisite handling; QA distinguishes authored obligations from actual verification. |
+
+No retained-debt acceptance is proposed. These are identified implementation risks with existing decision owners, not unresolved product choices or permission to create parallel structures.
+
+## Mode / Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: TP
+- scope_reason: external_contract_depth: introduce a public canonical skill identifier and compatible bound drafting/revision behavior across existing dispatcher and host contracts. Reject quick_task and verified_change because normative contracts and externally consumed dispatch behavior change. Reject structured_slice because the public-contract full-depth trigger applies.
+- evidence: This review, especially Architecture Impact; plugins/agdf/meta/agdf-plugin.definition.json; packages/core/lib/skill-dispatch/contract.js; scripts/sync-package-assets.js.
+- transparency_note: Existing UR -> PRD -> SD -> TP -> QA -> UAT approvals remain required. Full depth covers the affected authoring, public dispatch, propagation and compatibility boundaries only; it does not authorize deployment or unrelated cleanup.
+
+## Structured Depth Evidence
+
+- depth_policy_version: 1
+- depth_facts_status: complete
+- primary_reason_code: external_contract_depth
+- decisive_full_depth_triggers: External or public contract: a discoverable skill and its dispatch/explicit revision interface become part of supported host-facing behavior.
+- rejected_alternative: structured_slice; public-contract change is an evidenced full-depth trigger. Quick/Verified paths exclude normative and dispatch contract expansion.
+- missing_or_conflicting_facts: none decisive for route; implementation details are assigned to SD below.
+- depth_evidence_refs: plugins/agdf/meta/agdf-plugin.definition.json; packages/core/lib/skill-dispatch/contract.js; packages/core/lib/control-state/presentation-decision.js; scripts/sync-package-assets.js.
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | pass | Approved UR defines one outcome: a dedicated semantic TP author with preserved governance. |
+| authority_boundary | pass | Human approval and Core persistence remain unchanged; only semantic drafting ownership is reassigned. |
+| owner_consumer_coordination | pass | Registry, Core dispatch/evaluator/remediation and generated host consumers are identified and share canonical generation. |
+| full_depth_impacts_absent | fail | Public skill and dispatch/revision contract extension triggers external_contract_depth. |
+| migration_propagation_bounded | pass | Existing templates, artefacts and approvals remain valid; generated projections derive from canonical sources, with no control-data migration required by this outcome. |
+| failure_recovery_local | pass | Existing checked writer, revision, presentation and upstream revision owners retain failure recovery; no new persistent executor or transaction owner. |
+| independently_acceptable | pass | Definition ownership and dispatch integration can be assessed with direct calls, ordinary continuation, correction cases and package checks. |
+
+## PRD / SD Open Questions
+
+No material UR, PRD or SD question remains open in this reassessment. The approved SD already fixes TP content ownership, safe binding, material clarification, source protection and package propagation. BUDGET-001 has a concrete maintainer answer and a bound proposed TP: exactly Copilot 260 files/2256982 bytes and sessionStartBase 1912 normalized bytes. This changes only the execution allowance, with every guard retained. No wider growth, native-host qualification or implementation authorization is inferred.
+
+Current source checks: plugins/agdf/skills/tp-definition/SKILL.md and focused contract define one semantic author; packages/core/lib/skill-dispatch/tp-definition.js and contract.js add bound assignment/revision; tp-planning.js is aggregated by existing traceability; normalized-gaps.js consumes quality.md. Existing writer/approval/source-revision owners remain unchanged. BUDGET_LIMITS-02.patch targets only the existing baseline/footprint owners and is still unapplied. No alternative state, registry or architecture trade-off retaining debt was found. The established structured_delivery depth remains appropriate for the public skill/dispatch contract; this bounded budget revision does not expand the product/design scope.
+
+## Context Graph Impact
+
+- context_graph_impact: link_only
+- context_graph_refs: .agdf/control/CONTEXT_GRAPH.md; plugins/agdf/meta/agdf-plugin.definition.json; .agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md
+- context_graph_required_action: link
+- context_graph_gate_effect: warning
+- context_graph_evidence: Existing graph is a curated architecture/evidence registry. Link final evidenced TP-owner separation to the existing relevant ownership node at closeout; this review does not create a node or assert delivered ownership.
+
+## Next Permissible Step
+
+- next_allowed_action: Record this fresh review and the retained structured_delivery route, then register/present only the revised TP from unchanged approved PRD/SD. Renew deliberate TP approval before preparation, baseline edits or implementation.
+- forbidden_until_then: No baseline/code edits or implementation until renewed TP approval and required pre-implementation analysis; no old approval or test fulfillment transfer.
+
+## Quality Outlook
+
+- quality_outlook: Retained verification logs include focused definition/clarification, actual local MCP, 106 static replay cases, transaction and source-revision checks. They are historical evidence to reassess under the renewed TP, not renewed fulfillment. Full package/runtime checks and bounded final authoring remain required after the exact cap adjustment; native-host compatibility is unverified. Fresh pre-implementation Brownfield Analysis remains required after renewed TP approval.

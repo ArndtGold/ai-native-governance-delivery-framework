@@ -1,0 +1,72 @@
+{
+  "run_id": "tp-authoring-test",
+  "gate": "TP",
+  "expected_revision_id": "12ee1903-ebb8-4fa7-b909-92264ed2a070",
+  "revision_id": "12ee1903-ebb8-4fa7-b909-92264ed2a070",
+  "artifact_path": ".agdf/control/artefacts/tp-authoring-test/TP.md",
+  "artifact_digest": "sha256:0dd8e9b8b20ed9a1fa89909a2cae49209d66a8de568d6333a35c1b16a23c5e3e",
+  "ready": false,
+  "readiness_scope": "authoring_checks",
+  "authorizes": false,
+  "semantic_review_required": true,
+  "registration_required": true,
+  "presentation_required": true,
+  "checks": [
+    {
+      "name": "approval_summary",
+      "ready": true,
+      "required_heading": "AGDF Approval Summary (de; source=en)",
+      "reason": null
+    },
+    {
+      "name": "tp_traceability",
+      "ready": false,
+      "open_items": [
+        "Open planning decision: PD-001: Resolve teammate availability against approved personal ownership",
+        "Open planning decision: PD-002: Confirm executable local fixture route",
+        "Material clarification CL-001: Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?",
+        "Material clarification CL-002: What exact existing runner command and fixture entry points support save/restore and isolated users, and where can its output be retained?"
+      ],
+      "contract": "criteria-chain-v1",
+      "clarifications": [
+        {
+          "finding_id": "CL-001",
+          "gate": "UR",
+          "question": "Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?",
+          "blocking_reason": "Answer changes product intent, acceptance and ownership; this TP cannot silently add shared storage or permissions.",
+          "required_answer": "Product owner's substantive requester-confirmed scope and ownership decision, recorded through existing evidence; changed intent then requires source revision preview, separately confirmed apply and renewed affected approvals.",
+          "owner": "Test product owner",
+          "source_ref": "PRD: No sharing or permissions change. @ sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+        },
+        {
+          "finding_id": "CL-002",
+          "gate": "TP",
+          "question": "What exact existing runner command and fixture entry points support save/restore and isolated users, and where can its output be retained?",
+          "blocking_reason": "Required local scenarios are not executable from the supplied inputs; guessed commands would create false readiness.",
+          "required_answer": "Exact supported invocation, reset protocol and per-user observation route supplied by Test design owner, recorded as run-local evidence linked to current source bindings.",
+          "owner": "Test design owner",
+          "source_ref": "SD: SDD-001 @ sha256:b1bfbd7fbada77761ff5ac89bfeb8895b4767ac62c3bb6f9e799b9ffa6a48189"
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "tp_traceability",
+      "message": "Open planning decision: PD-001: Resolve teammate availability against approved personal ownership"
+    },
+    {
+      "code": "tp_traceability",
+      "message": "Open planning decision: PD-002: Confirm executable local fixture route"
+    },
+    {
+      "code": "tp_traceability",
+      "message": "Material clarification CL-001: Should the capability remain personal-only, or should the approved scope change to teammate availability; if changed, who may access or modify whose saved filter?"
+    },
+    {
+      "code": "tp_traceability",
+      "message": "Material clarification CL-002: What exact existing runner command and fixture entry points support save/restore and isolated users, and where can its output be retained?"
+    }
+  ],
+  "next_action": "Correct the reported issue through its existing owner, then recheck this run and revision."
+}

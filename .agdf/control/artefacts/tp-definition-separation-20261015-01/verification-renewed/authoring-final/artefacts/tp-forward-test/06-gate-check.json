@@ -1,0 +1,115 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "intake_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "owned_version_matched",
+    "expected_version": "0.14.5",
+    "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/plugins/agdf",
+    "runtime_digest": "d320b50f47678ba8b6f84d0f2eab8fa0ca5135c962b69323f60d5dd670eb67dd",
+    "provenance_status": "not_applicable"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "TP",
+    "gate_route": {
+      "gate": "TP",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: TP",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "TP"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "run_id": "tp-authoring-test",
+    "revision_id": "f6504d55-033d-4441-9d8c-be8d0ba75a90",
+    "doctor_status": "warn"
+  },
+  "presentation": {
+    "schema_version": "1",
+    "semantic_block": "approval_preview",
+    "run_id": "tp-authoring-test",
+    "revision_id": "f6504d55-033d-4441-9d8c-be8d0ba75a90",
+    "current_gate": "TP",
+    "presentation_language": "de",
+    "markdown": "- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache\n- Ziel und Umfang: Den vorhandenen persönlichen Filterspeicher für einen benannten Filter wiederverwenden; PRD und SD bleiben maßgeblich.\n- Aufgaben: T-001 bestätigt die vorhandene Grundlage. T-002 ergänzt Klonisolation beim erneuten Wiederherstellen. T-003 ergänzt Eingabe- und Fehlerfälle. T-004 sammelt und prüft die vollständigen lokalen Nachweise.\n- Prüfung: AC-001 und SDD-001 sind sechs Szenarien zugeordnet: Wiederherstellung gespeicherter Werte, Isolation zurückgegebener Werte, fremder Nutzer, leerer Filter, ungültige Eingaben und unbekannter Name.\n- Voraussetzungen: Lokales Node 22.22.3 und synthetische Nutzer genügen. Keine Produktionskonten oder Netzverbindung sind erforderlich. Fehlende oder nicht ausgeführte Tests bleiben Nachweislücken.\n- Stand und Risiken: Vier vorhandene Tests bestehen; zwei geplante Tests und die erweiterte Eingabeprüfung sind noch nicht umgesetzt. Keine materielle Planungsfrage ist offen. Lokale Ergebnisse belegen keine Produktionsintegration, dauerhafte Speicherung, UAT oder Freigabe.\n- Entscheidung: Freigabe nur für diesen Aufgaben- und Testplan im synthetischen Run. Erst eine neue bewusste Antwort „Approval: TP“ erlaubt den nächsten kontrollierten Schritt. Jetzt wird weder implementiert noch ein Gate genehmigt.\n\n## Prüfartefakt · TP\n\nRun: `tp-authoring-test` · Gate: `TP` · Revision: `f6504d55-033d-4441-9d8c-be8d0ba75a90`\n\nArtefakt: [TP.md](</private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project/.agdf/control/artefacts/tp-authoring-test/TP.md>)\n\nSHA-256: `sha256:ef21265670ea13ca5303fb940da800b62daf5962f24ff46d4bd799e419e81a7a`\n\nBitte öffne die verlinkte Fassung vor deiner Entscheidung.",
+    "artefact_digest": "sha256:ef21265670ea13ca5303fb940da800b62daf5962f24ff46d4bd799e419e81a7a",
+    "summary_digest": "sha256:bfd84b11665891c9a85477e7348f5e9dc88627104e55f0b7c7a764e90730cfc0",
+    "authorizes": false
+  },
+  "continuation": {
+    "instruction": "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
+    "phase": "presentation_required",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project",
+    "run_id": "tp-authoring-test",
+    "revision_id": "f6504d55-033d-4441-9d8c-be8d0ba75a90",
+    "steps": [
+      {
+        "id": "prepare_presentation",
+        "argv": [
+          "run-present",
+          "--dir",
+          "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project",
+          "--run",
+          "tp-authoring-test",
+          "--gate",
+          "TP",
+          "--revision",
+          "f6504d55-033d-4441-9d8c-be8d0ba75a90",
+          "--language",
+          "de"
+        ],
+        "command": "run-present --dir '/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-definition-QjQ3Zd/project' --run tp-authoring-test --gate TP --revision f6504d55-033d-4441-9d8c-be8d0ba75a90 --language de"
+      }
+    ]
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_delivery_intake",
+    "source": "continuation.steps",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 8.312,
+    "target_ms": 85.705,
+    "control_ms": 307.992,
+    "render_ms": 14.065,
+    "total_ms": 428.3
+  },
+  "diagnostics": []
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "skill_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "tp-definition",
+    "dispatch_mode": "judgement_required",
+    "deterministic_command": null,
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "owned_version_matched",
+    "expected_version": "0.14.5",
+    "plugin_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/plugins/agdf",
+    "runtime_digest": "8964959af3c31c1e0a62105b70091768cfe883301a6cec25d7480384bd0d6763",
+    "provenance_status": "not_applicable"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/project",
+    "evidence_sources": [],
+    "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/project",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/project",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "TP",
+    "gate_route": {
+      "gate": "TP",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "Approval: TP",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "TP"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    "run_id": "tp-authoring-test",
+    "revision_id": "e905d6a1-c36e-4a42-8061-5e30a73bf295",
+    "doctor_status": "warn"
+  },
+  "presentation": null,
+  "continuation": {
+    "phase": "tp_definition",
+    "skill_id": "tp-definition",
+    "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/project",
+    "run_id": "tp-authoring-test",
+    "revision_id": "e905d6a1-c36e-4a42-8061-5e30a73bf295",
+    "artifact_language": "en",
+    "presentation_language": "de",
+    "approval_summary_required": true,
+    "approval_summary_heading": "AGDF Approval Summary (de; source=en)",
+    "artifact_path": ".agdf/control/artefacts/tp-authoring-test/TP.md",
+    "template_path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/plugins/agdf/control/templates/artefacts/TP.md",
+    "source_artifacts": [
+      ".agdf/control/artefacts/tp-authoring-test/PRD.md",
+      ".agdf/control/artefacts/tp-authoring-test/SD.md",
+      ".agdf/control/artefacts/tp-authoring-test/BROWNFIELD_REVIEW.md"
+    ],
+    "sources": [
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/tp-authoring-test/PRD.md",
+        "digest": "sha256:6885474fee584743baf19a1968d4e421da596b94368e0c328af71a1de94b11c2"
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/tp-authoring-test/SD.md",
+        "digest": "sha256:4891b8ea1b47940136192a9ce44c275b59321ebd2500ee6494e3929a5937ceed"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/tp-authoring-test/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f"
+      }
+    ],
+    "draft_registered": true,
+    "instruction": "Execute tp-definition from these exact approved PRD/SD and analytical inputs. Preserve ready drafts without explicit revision intent. Keep criteria-chain-v1, declare tp-decisions-v1, resolve SD later_tp decisions and specify executable evidence obligations. Material questions block approval and require a concrete clarification at the earliest existing source owner; no silent source edits. Use the shared typed recording procedure, then redispatch gate-check for this run with continue_delivery true to obtain its clarification or presentation continuation. Changed drafts require fresh presentation and a new deliberate Approval: TP.",
+    "runtime_contracts": [
+      {
+        "module": "tp-definition",
+        "content": "# AGDF Runtime Contract — TP Definition\n\nUse only a bound skill_continuation with phase tp_definition. This is the semantic Task/Test\nPlan author, never a gate, writer, approval or implementation authority.\n\n## Binding and content\n\nUse the returned target/run/revision, destination, exact approved PRD/SD and analytical sources,\nresolved languages and installed plugin-owned template_path. Missing/unsafe templates stop before\nwriting; repository scaffold copies are no fallback. Unbound invocation uses the existing scope\ninventory, then revision-bound gate-check intake. Ambient runs, cwd, selection and discovery grant\nno assignment or editing intent. Keep approved sources and foreign runs protected.\n\nPreserve criteria-chain-v1, stable task/scenario IDs and the existing TP template. Map every PRD\ncriterion and associated SD decision to tasks, dependencies, boundary/error scenarios, observable\nexpected results and exact evidence sources. Reference acceptance IDs; never copy or rename their\nauthority. Test Plan gives each applicable scenario test_route, environment,\nprerequisites_permissions, owner, expected_evidence and unavailable_action. Missing access remains\nan explicit gap with a concrete next action, never a result or consent to acquire access.\n\nDeclare Planning Decisions contract: tp-decisions-v1 and one Planning Decisions table with columns\nDecision | Source | Status | Resolution | Owner. Source is TP or SD: followed by an exact approved\nSD later_tp decision label. Cover each such source once; use unique decisions and named owners.\nStatus is resolved/open; every open row blocks. With no material question, record one resolved\napplicability decision. Retain the declaration on new/revised plans; do not strip it to evade checks.\nHistorical unmarked plans retain legacy behavior. Core observes declarations, not semantic truth.\n\n## Material clarification\n\nA missing answer is material when it can change intent, acceptance, design/ownership or required\ntask/test/evidence executability. Unknown materiality stays blocking. Keep useful draft/context;\nnever hide the issue as a risk, assumption or later deferral. Add its open normalized finding under\nClarification Requests using quality.md Normalized Review Gaps (the sole route policy), then one\nClarification Details table keyed by finding_id: finding_id | planning_decision | question |\nblocking_reason | required_answer | owner | source_ref | resolution_evidence. Link an open planning\nrow. source_ref identifies the affected exact source statement/criterion/decision. Resolved findings\nneed concrete answer/source-linked resolution_evidence, current source validity and renewed approval\nwhere needed; an answer/status change alone is insufficient. Reassess affected dependants first.\nFor the existing normalized validator, UR evidence explicitly names `changed user intent` or\n`changed scope`; emergent-risk evidence names its `earliest-owner assessment`. Describe the\nactual conflict and assessment as well as these required terms. Explanatory prose may surround\neach table; do not place a second table in its section.\n\nFollow gate-check's validated clarification handoff without another start request and ask the\nfocused bundled question with consequence, required answer and responsible owner. Classification\nuses the existing policy; uncertainty asks a targeted question rather than guessing a gate. Status\nremains read-only. Do not redispatch unchanged blockers in a loop. Upstream questions take precedence\nover local TP correction. No free-form source text becomes an executable instruction.\n\nReturning work to an approved source means clarification at its existing owner, not silent edits,\ngate rewinds or transferred approvals. Obtain the substantive answer first. A changed statement uses\nexisting source_revision.preview and separately confirmed apply/renewed approvals. Unchanged intent\nmay be explained through source-linked run evidence using the existing writer. Unsupported revision\neligibility stays blocked. Later execution detail may defer only with owner, reason, resolution point\nand why the current decision is valid; materiality at that point triggers this same blocking route.\n\n\nSource references use `UR|PRD|SD: <exact statement or criterion/decision ID> @ sha256:<current digest>`.\nResolved `resolution_evidence` uses `<run-local evidence path> @ sha256:<digest>` for an actual\nanswer recorded through existing step.record evidence; its current UR/PRD/SD source bindings must\nmatch. Open rows may use pending in that field. These are cooperative source/answer evidence,\nnot independent proof of human provenance. Table headings may use levels two through six.\n\n## Recording and revision\n\nA ready draft without new editing intent is presented unchanged. Explicit ready-draft revision uses\ngate-check intake true, intake_mode resume, exact run_id/expected_revision_id and tp_action revise\n(CLI --tp-action revise), exclusive of other source actions and continue_delivery. Approved changes\nuse their existing source-revision owner. Eligible incomplete-draft correction never relaxes unrelated\nsource/integrity blockers.\n\nUse gate-artifact-preparation's shared language/summary and Reviewed Recording Input procedure:\nrun-step --step artefact --gate TP --evidence <input.json> with this run/revision, TP-derived_from-SD,\nupdate_draft false initially and true for permitted replacement. Retain reviewed derivation, prior\nproof/history and other protected bytes; never hand-author receipts or bypass the checked writer.\nAfter recording redispatch gate-check for this same run with `continue_delivery: true`\n(CLI `--continue-delivery`). This resumes the authoring workflow: a validated material question\nreturns `tp_clarification` to ask now, while an explicit status read remains read-only. If ready,\nprepare its exact run-present, show returned text and wait\nfor a NEW deliberate Approval: TP. Changed content needs a fresh presentation/reply. Neither this\nskill nor a successful draft check grants implementation, QA or release permission.\n",
+        "sha256": "0c7530bdee6458b3088d8785eec2acdd258297fdd0aaef670fd8662efd51e99f"
+      },
+      {
+        "module": "gate-artifact-preparation",
+        "content": "# AGDF Runtime Contract — Gate Artifact Preparation\n\nThis contract guides the `gate-check` skill when canonical gate evaluation returns\n`control.next_operation.type: prepare_gate_artifact`. It is procedural guidance only; canonical\nRun State, gate evaluation and exact approval remain authoritative.\n\n## Common Route\n\n- Use only the supplied `gate`, `artifact_path`, `template_path`, `source_artifacts`, `target`,\n  `run_id` and `revision_id`. `template_path` is the absolute canonical authoring template from the\n  installed, version-matched plugin for PRD, SD, TP or QA Report preparation. Repository scaffold\n  copies are derived references only. Do not rediscover or substitute a run, target, source\n  artifact or template. A missing or unsafe template blocks authoring without fallback or mutation.\n- Prepare only the named current-gate artifact from the supplied approved sources.\n  Record with `run-step --step artefact --gate <PRD|SD|TP|QA>\n  --evidence .agdf/control/artefacts/<run_id>/<input.json> --run <run_id> --revision <revision_id>`.\n  Do not publish a pointer and its required source relationship in separate accepted revisions.\n- After persistence, redispatch `gate-check` for the same target/run and use its fresh revision,\n  gate route and approval presentation. Do not reuse this operation or ask for approval until the\n  fresh dispatcher result supplies a valid presentation.\n- If a source is missing, a prerequisite is unresolved, the state changed, or persistence fails, stop\n  dependent authoring. Use interaction.md Bounded internal recovery only for its dispatched eligible\n  analytical owner; other conditions stay blocked. Never infer approval or create later-gate work.\n\n## Reviewed Recording Input (version 1)\n\n### Language and approval summary preparation\n\nUse the supplied `artifact_language` from `.agdf/control/config.json` for the artefact and\nthe resolved `presentation_language` for user-facing text. The configured chat language is\nthe direct-command default; dispatcher presentation input follows its current-request contract.\nNeither the request language nor English runtime/template text changes the artefact language.\nWhen `approval_summary_required` is true, before recording include exactly one\n`## <approval_summary_heading>` section with the supplied heading verbatim and a complete\nsummary in the resolved presentation language. Apply the existing interaction contract's\nsummary completeness and size limits; use no ellipses or hidden decision-relevant omissions.\nFor PRD include user goal, scope, every canonical criterion ID exactly once, and decision context\nwhen approval decisions exist. Corrections use the existing permitted recording/revision path\nand require a fresh presentation. The summary grants no approval and is not another authority.\n\nBefore recording, prefer the existing read-only MCP tool `agdf_inspect` with\n`operation: artifact-readiness`, `presentation_language`, `working_directory`, the resolved\n`primary_target`/`target_source`, and the supplied `run_id`, `gate` and `expected_revision_id`.\nSupported draft gates are `UR | PRD | SD | TP`. The Core derives the contained run-local\n`<gate>.md` path; there is no caller-supplied arbitrary path or implicit Run selection.\nThis operation calls the existing summary, product-decision and traceability validators.\nThe response has `report.ready`, `checks`, concrete `diagnostics`, `artifact_path`,\n`artifact_digest`, current/expected revision and `next_action`; `authorizes` is always false.\n`ready` covers authoring checks only: it neither records the draft nor establishes semantic\nderivation, source-binding proof, final QA, presentation or approval readiness. Missing source,\nstale revision, approved source or canonical integrity/gate blockers keep it unready. Resolve\nthe named issue through its existing owner. No recording or approval follows from this result\nalone. Registration and run-present repeat their own current canonical checks.\n\nWithout that MCP capability, use the exact Core function\n`inspectArtifactReadiness(root, { runId, gate, expectedRevisionId, presentationLanguage })`\nin `packages/core/lib/control-inspect/artifact-readiness.js` (packaged as\n`runtime/create-agdf/runtime/core/lib/control-inspect/artifact-readiness.js` in the plugin). Same report; no writes.\nDo not search for internal validator signatures or invent a replacement validator.\nThe existing Core `evaluateApprovalSummaryReadiness` remains the summary owner.\nFor a German PRD summary use separate `- Ziel:`, `- Umfang:` and, when decisions exist,\n`- Entscheidungen:` lines; English summaries use `- Goal:`, `- Scope:` and `- Decisions:`.\nEach criterion has its own `- AC-...:` line. A combined label such as `Ziel und Umfang:` or\n`Entscheidungskontext:` is not one of these fields. Readiness and presentation share this validator;\ndo not accept prose as a substitute or invent another parser. An eligible own unapproved format\ncorrection stays with the existing authoring continuation, once per diagnosed condition, followed\nby canonical replacement and fresh evaluation. A ready draft still needs actual editing intent;\nstatus is read-only, protected sources and unrelated blockers remain stopped.\n\nPrepare files under `.agdf/control/artefacts/<run_id>/` before recording. The single shared Core\nrelationship registry selects PRD-derived_from-UR, SD-derived_from-PRD, TP-derived_from-SD or\nQA_REPORT-tests-TP. UR-approved_by remains exclusively approval-owned. QA recording copies an\nexisting report's explicit Decision/Status value (`pass | revise | block`); it does not decide QA.\n\nThe JSON object has exactly these fields:\n\n- `schema_version`: string `1`.\n- `target_id`: existing local command-target identity, SHA-256 of `agdf-command-target/1`, NUL,\n  and the canonical real absolute governance target. This is a binding, not authority.\n- `run_id`, `expected_revision_id`: the supplied selected run and current revision.\n- `destination`: exactly `type`, `path`, `digest`, `status`; logical registry type, canonical\n  run-local `<type>.md`, full canonical SHA-256 and `draft` for PRD/SD/TP, report decision for QA.\n- `source`: exactly `type`, `path`, `digest`; the registry's approved source and canonical digest.\n- `relationship`: exactly `from`, `relationship`, `to`; the explicit registry triple.\n- `review`: exactly `reviewer`, `path`, `digest`; named reviewer, separate contained mapping file\n  and its canonical SHA-256. Do not overwrite an earlier sealed proof file.\n- `update_draft`: boolean; true only for an explicit current-gate draft update.\n\nThe mapping file is JSON with exactly `schema_version`, `target_id`, `run_id`, `relationship`,\n`destination`, `source`, `reviewer`, `reviewed`. Identity and source/destination objects match\nthe recording input exactly; reviewer matches review.reviewer, and reviewed is boolean true.\nDigests use the existing canonical text/line-ending semantics. This is cooperative review\nattestation, never independent proof of a human review or semantic derivation. QA/review assesses\nthe meaning. A prose header or gate order is not machine proof.\n\nThe existing operation checks current permission, contained non-symlink files, exact approved\nsources and revision under locks. It appends its sealed Artefact Bindings receipt/history and\npublishes pointer, relationship and audit together. The receipt is writer-owned; do not hand-author\nit. An allowed draft replacement supersedes the prior active binding, retaining history. A changed\ndraft is accepted only when its prior binding reconstructs the recorded seal and every other\nbound/approved byte remains unchanged. Otherwise stop with explicit maintenance/revision recovery.\n\nBefore presentation/approval, a recorded eligible current artefact must have its evidenced source\nrelationship. Missing artefacts remain draftable; a relationship-only blocker must not redraft the\nartefact repeatedly. Only authorized bound continuation can attempt one exact previously sealed\nproof correction before output. The shared Core continuation service coordinates this operation\nand fresh routing; the dispatcher service itself only reads and routes. Explicit status, doctor,\nevaluation and run-present never correct.\nUnknown/malformed/foreign/stale/ambiguous proof, missing full approval integrity or unrelated\nblockers remain blocked; legacy absence grants no correction permission. A successful correction\ncreates a new audited revision and fresh evaluation without another approval. Terminal output\nalready emitted is never intercepted. Older runtimes have no automatic correction capability.\n\n## Gate-Specific Work\n\n### PRD\n\nSemantic PRD drafting and clarification belongs exclusively to prd-definition under its focused\ncontract. This module supplies the shared Reviewed Recording Input procedure only; gate-check\ncontrols prerequisites, readiness and presentation.\n\n### SD\n\nSemantic SD drafting and clarification belongs exclusively to sd-definition under its focused\ncontract. This module supplies the shared Reviewed Recording Input procedure only; gate-check\ncontrols prerequisites, declared decision readiness, traceability and presentation.\n\n### TP\n\nSemantic TP drafting, clarification and explicit unapproved revision belong exclusively to\ntp-definition under its focused contract. This module supplies shared recording only; gate-check\nretains prerequisite/readiness and presentation authority.\n",
+        "sha256": "a16d7f3af39746b3d351519287a5e8022e707b32bcc0e73b6c449278c10e2f5b"
+      }
+    ]
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_named_skill",
+    "source": "continuation",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 138.438,
+    "target_ms": 228.72,
+    "control_ms": 1218.92,
+    "render_ms": 15.507,
+    "total_ms": 1639.924
+  },
+  "diagnostics": []
+}

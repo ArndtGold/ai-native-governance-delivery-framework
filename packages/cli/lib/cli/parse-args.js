@@ -50,6 +50,7 @@ export function parseArgs(argv, dependencies = {}) {
   let urAction;
   let prdAction;
   let sdAction;
+  let tpAction;
   let intakeMode;
   let continueDelivery = false;
   let presentationId;
@@ -226,12 +227,13 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
-    if (arg === "--intake-mode" || arg === "--ur-action" || arg === "--prd-action" || arg === "--sd-action" || arg === "--presentation") {
+    if (arg === "--intake-mode" || arg === "--ur-action" || arg === "--prd-action" || arg === "--sd-action" || arg === "--tp-action" || arg === "--presentation") {
       const value = requiredValue(args, i, arg);
       if (arg === "--intake-mode") intakeMode = value;
       else if (arg === "--ur-action") urAction = value;
       else if (arg === "--prd-action") prdAction = value;
       else if (arg === "--sd-action") sdAction = value;
+      else if (arg === "--tp-action") tpAction = value;
       else presentationId = value;
       i += 1;
       continue;
@@ -358,6 +360,7 @@ export function parseArgs(argv, dependencies = {}) {
     urAction,
     prdAction,
     sdAction,
+    tpAction,
       continueDelivery,
       presentationId,
       ...(operationId !== undefined ? { operationId } : {}),

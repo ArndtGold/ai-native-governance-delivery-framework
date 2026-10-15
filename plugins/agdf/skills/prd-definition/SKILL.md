@@ -1,6 +1,6 @@
 ---
 name: prd-definition
-description: "Use this skill for this scope: drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch. Boundary: owns product drafting and clarification; never approves or changes approved intent. The requested effect, not discovery, decides AGDF activation."
+description: "Use this skill for this scope: bound PRD drafting, clarification or revision. Boundary: content only; preserves approved intent. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # prd-definition

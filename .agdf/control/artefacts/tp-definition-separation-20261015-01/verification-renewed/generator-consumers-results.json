@@ -1,0 +1,38 @@
+[
+  {
+    "name": "package-build",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/cli",
+      "run",
+      "test:package-build"
+    ],
+    "exit": 0,
+    "seconds": 18.47
+  },
+  {
+    "name": "activation",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/cli",
+      "run",
+      "test:request-activation"
+    ],
+    "exit": 0,
+    "seconds": 45.48
+  },
+  {
+    "name": "skills-conformance",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/cli",
+      "run",
+      "test:agent-skills-conformance"
+    ],
+    "exit": 0,
+    "seconds": 3.53
+  }
+]

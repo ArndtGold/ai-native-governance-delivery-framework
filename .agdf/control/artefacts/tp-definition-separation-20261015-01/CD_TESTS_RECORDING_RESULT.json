@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+  "request_digest": "sha256:d3a702b9db1e2a6f1cb3198d10fb3a9811cb4744d7db843b84f2b16745c70448",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+    "resulting_revision_id": "86698021-fab6-40e3-be52-f88482f648d6",
+    "revision": 13,
+    "record": {
+      "step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+        "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1"
+      },
+      "status": "revise",
+      "covers": "T-001 through T-009 actual bounded implementation/evidence; T-007/008/009 partial; BUDGET-001 open",
+      "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+    "request_digest": "sha256:d3a702b9db1e2a6f1cb3198d10fb3a9811cb4744d7db843b84f2b16745c70448",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+    "created_at": "2026-10-15T09:03:53.213Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+      "resulting_revision_id": "86698021-fab6-40e3-be52-f88482f648d6",
+      "revision": 13,
+      "record": {
+        "step": "CD+Tests",
+        "source": {
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+          "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1"
+        },
+        "status": "revise",
+        "covers": "T-001 through T-009 actual bounded implementation/evidence; T-007/008/009 partial; BUDGET-001 open",
+        "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 13,
+    "revision_id": "86698021-fab6-40e3-be52-f88482f648d6",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "tp-definition-separation-20261015-01",
+    "step": "internal",
+    "previous_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+    "revision": "13",
+    "revision_id": "86698021-fab6-40e3-be52-f88482f648d6",
+    "current_gate": "CD+Tests",
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "backlog": "updated",
+    "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+      "request_digest": "sha256:d3a702b9db1e2a6f1cb3198d10fb3a9811cb4744d7db843b84f2b16745c70448",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "tp-definition-separation-20261015-01",
+      "expected_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+      "created_at": "2026-10-15T09:03:53.213Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "1f69fc76-7ae6-444d-a175-c5ce4725b998",
+        "resulting_revision_id": "86698021-fab6-40e3-be52-f88482f648d6",
+        "revision": 13,
+        "record": {
+          "step": "CD+Tests",
+          "source": {
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+            "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1"
+          },
+          "status": "revise",
+          "covers": "T-001 through T-009 actual bounded implementation/evidence; T-007/008/009 partial; BUDGET-001 open",
+          "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d"
+        }
+      }
+    }
+  }
+}

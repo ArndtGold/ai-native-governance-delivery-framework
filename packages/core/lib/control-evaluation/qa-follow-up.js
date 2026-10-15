@@ -2,7 +2,7 @@ import { readFileSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { posix } from 'node:path';
 import { extractField } from './verified-change.js';
-import { readRuntimeContract } from '../resources/contracts.js';
+import { declaredRoutes, validNormalizedGap } from './normalized-gaps.js';
 import { cleanStatusCell } from './shared.js';
 import { isGateSatisfied } from './gate-policy.js';
 import { isInternalStepSatisfied } from './run-state.js';
@@ -10,21 +10,6 @@ import { createHash } from 'node:crypto';
 import { readReportDecision } from './report-decision.js';
 
 const columns = ['finding_id', 'gap_type', 'routing_target', 'gap_status', 'evidence', 'required_next_step'];
-// Consume the sole normative route table rather than introduce a second type-to-route map.
-function declaredRoutes() {
-  const contract = readRuntimeContract('quality');
-  if (!contract.ok) return new Map();
-  const text = contract.content;
-  const body = text.split('## Normalized Review Gaps')[1]?.split(/^## /mu)[0] ?? '';
-  const routes = new Map();
-  for (const line of body.split('\n')) {
-    const row = line.match(/^\|\s*`([a-z_]+)`\s*\|[^|]*\|(.+)\|\s*$/u);
-    if (!row) continue;
-    const targets = [...row[2].matchAll(/`([^`]+)`/gu)].flatMap(m => m[1].split('|').map(v => v.trim()));
-    routes.set(row[1], targets);
-  }
-  return routes;
-}
 
 export function evaluateQaFollowUp(root, state, runId, maxSources = Infinity, strictUtf8 = false) {
   const stop = reason => ({ kind: 'blocked', reason, findings: [], sources: [] });
@@ -84,12 +69,8 @@ export function inspectQaReports(root, state, runId, expectedDecision, maxSource
       if (!active) continue;
       if (row.length !== columns.length) return stop(`Malformed normalized finding row: ${type}.`);
       const [id, gap, target, status, evidence, action] = row;
-      if (!id || seen.has(id) || !routes.get(gap)?.includes(target) || !['open', 'resolved'].includes(status)
-          || !evidence || !action || id.length > 128 || evidence.length > 4096 || action.length > 2048
-          || /^(?:none|tbd|todo|<)/iu.test(evidence) || /^(?:none|tbd|todo|<)/iu.test(action)) return stop(`Invalid or contradictory normalized finding: ${type}/${id || 'missing id'}.`);
+      if (seen.has(id) || !validNormalizedGap(row, routes)) return stop(`Invalid or contradictory normalized finding: ${type}/${id || 'missing id'}.`);
       seen.add(id);
-      if (gap === 'requirements_gap' && target === 'UR' && !/changed (?:user )?(?:intent|scope)/iu.test(evidence)) return stop(`Changed intent/scope evidence is required: ${id}.`);
-      if (gap === 'emergent_risk' && !/earliest[- ]owner assessment/iu.test(evidence)) return stop(`Earliest-owner assessment is required: ${id}.`);
       if (status === 'open' && findings.length >= 64) return stop('Too many open findings for a bounded follow-up; consolidate the authoritative review first.');
       if (status === 'open') findings.push({ id, target, evidence, action, path });
     }

@@ -1,0 +1,47 @@
+{
+  "run_id": "tp-authoring-test",
+  "gate": "TP",
+  "expected_revision_id": "51df7ca1-5fc4-483f-9fb7-038be21a1d8f",
+  "revision_id": "51df7ca1-5fc4-483f-9fb7-038be21a1d8f",
+  "artifact_path": ".agdf/control/artefacts/tp-authoring-test/TP.md",
+  "artifact_digest": "sha256:b130a5884b735a7b8645d8c167e778e354261576b361057e99c7e28c944e5117",
+  "ready": false,
+  "readiness_scope": "authoring_checks",
+  "authorizes": false,
+  "semantic_review_required": true,
+  "registration_required": true,
+  "presentation_required": true,
+  "checks": [
+    {
+      "name": "approval_summary",
+      "ready": true,
+      "required_heading": "AGDF Approval Summary (de; source=en)",
+      "reason": null
+    },
+    {
+      "name": "tp_traceability",
+      "ready": false,
+      "open_items": [
+        "Open planning decision: PD-001: Resolve teammate availability against approved personal ownership",
+        "Open planning decision: PD-002: Confirm executable local fixture route",
+        "Clarification Requests and Details tables must be complete"
+      ],
+      "contract": "criteria-chain-v1"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "tp_traceability",
+      "message": "Open planning decision: PD-001: Resolve teammate availability against approved personal ownership"
+    },
+    {
+      "code": "tp_traceability",
+      "message": "Open planning decision: PD-002: Confirm executable local fixture route"
+    },
+    {
+      "code": "tp_traceability",
+      "message": "Clarification Requests and Details tables must be complete"
+    }
+  ],
+  "next_action": "Correct the reported issue through its existing owner, then recheck this run and revision."
+}

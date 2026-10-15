@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "-e",
+    "const {inspectArtifactReadiness}=require(\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/plugins/agdf/runtime/create-agdf/runtime/core/lib/control-inspect/artifact-readiness.js\"); Promise.resolve(inspectArtifactReadiness(\"/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/project\", {runId:\"tp-authoring-test\",gate:\"TP\",expectedRevisionId:\"58cd8076-9a49-4d05-9525-7c116142e1e8\",presentationLanguage:\"de\"})).then(r=>console.log(JSON.stringify(r,null,2)));"
+  ],
+  "cwd": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-tp-final-package-U5zSif/project",
+  "exit_code": 0,
+  "stdout": "{\n  \"run_id\": \"tp-authoring-test\",\n  \"gate\": \"TP\",\n  \"expected_revision_id\": \"58cd8076-9a49-4d05-9525-7c116142e1e8\",\n  \"revision_id\": \"58cd8076-9a49-4d05-9525-7c116142e1e8\",\n  \"artifact_path\": \".agdf/control/artefacts/tp-authoring-test/TP.md\",\n  \"artifact_digest\": \"sha256:965f340b4b0a6732feadf8bd538dc74b3b2884fc2aebe7161e63dffc05a1b45c\",\n  \"ready\": true,\n  \"readiness_scope\": \"authoring_checks\",\n  \"authorizes\": false,\n  \"semantic_review_required\": true,\n  \"registration_required\": true,\n  \"presentation_required\": true,\n  \"checks\": [\n    {\n      \"name\": \"approval_summary\",\n      \"ready\": true,\n      \"required_heading\": \"AGDF Approval Summary (de; source=en)\",\n      \"reason\": null\n    },\n    {\n      \"name\": \"tp_traceability\",\n      \"ready\": true,\n      \"open_items\": [],\n      \"contract\": \"criteria-chain-v1\"\n    }\n  ],\n  \"diagnostics\": [],\n  \"next_action\": \"Review semantic derivation and record through the existing canonical writer; then obtain a fresh presentation and deliberate approval.\"\n}\n",
+  "stderr": ""
+}

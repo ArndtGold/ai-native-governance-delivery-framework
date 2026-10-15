@@ -120,7 +120,7 @@ export function validateCommandOptions(options) {
     throw new Error("target-check requires --json");
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
-  if ((options.intakeMode || options.urAction || options.prdAction || options.sdAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
+  if ((options.intakeMode || options.urAction || options.prdAction || options.sdAction || options.tpAction || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
   if (options.assurance !== undefined && options.target !== "run-approve"
       || options.operationId !== undefined && options.target !== "run-approve" && !(options.target === "run-revise" && options.revisionMode)) {
     throw new Error("--operation requires run-approve or an explicit run-revise mode; --assurance requires run-approve");
@@ -330,6 +330,7 @@ Options:
   --ur-action revise  Explicit unapproved UR revision; requires revision-bound resume intake
   --prd-action revise Explicit unapproved PRD revision; requires revision-bound resume intake
   --sd-action revise Explicit unapproved SD revision; requires revision-bound resume intake
+  --tp-action revise Explicit unapproved TP revision; requires revision-bound resume intake
   --continue-delivery  Bound internal continuation; excludes intake and read-only status
   --preview|--apply|--inspect|--recover
                  Explicit run-revise mode; no mode keeps the early PRD revision path

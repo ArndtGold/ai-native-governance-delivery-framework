@@ -1,0 +1,44 @@
+## Kurzfassung · UAT
+
+Run: `tp-definition-separation-20261015-01` · Gate: `UAT` · Revision: `bb57176f-b803-4ff4-8bfa-faa6f795641e`
+
+- Ziel: Ein eigener tp-definition-Skill erstellt, klärt und überarbeitet unfreigegebene Task/Test Plans auf Basis des freigegebenen PRD und SD. Betroffen sind planende Coding-Agenten und prüfende beziehungsweise betreuende Maintainer.
+- Geliefertes Ergebnis: Skill, Verträge, Routing, Revision und Planungsprüfung sind umgesetzt. Die vorgesehenen lokalen Pfade, MCP-Transporte und erzeugten Pakete bestehen die Prüfungen. Tatsächlich erstellte Pläne und Klärungsfragen sind als Nachweise erhalten; Task-, Clean- und Code-Review bestehen.
+- Technische QA: pass
+- Nachweisgrenzen: Geprüft sind Quellcode, lokale Laufzeitpfade und Pakete. Frische native Host-Sitzungen, Windows und Produktion sind nicht qualifiziert. Die Praxistests enthalten dokumentierte Fehlversuche und korrigierte Aufrufe; sie belegen keine allgemeine Modellzuverlässigkeit.
+- Risiken und offene Punkte: Ob jede wesentliche fachliche Frage erkannt wurde, bleibt auf Agentenurteil und menschliche Prüfung angewiesen. Im freigegebenen begrenzten Umfang ist kein offener Implementierungsblocker nachgewiesen. Nur die ausdrücklich genehmigten Grenzwerte wurden angepasst; alle anderen Schutzprüfungen bleiben aktiv.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- route · UR (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 12
+
+- QA: .agdf/control/artefacts/tp-definition-separation-20261015-01/QA_REPORT.md · sha256:a31c0093d3529b6548f8b50168a747fc0e70d7c36ba363c4ef11e167dc21d736
+- UR: .agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md · sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb
+
+## Vorliegende UAT-Evidenz
+
+- route · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md · Deckt ab: UR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/PRD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/SD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/SD_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-03.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/tp-definition-separation-20261015-01/QA_DERIVATION_REVIEW-04.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

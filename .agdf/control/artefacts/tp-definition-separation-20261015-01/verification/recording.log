@@ -1,0 +1,230 @@
+
+COMMAND npm --prefix packages/cli run test:run-step-transaction
+npm notice run create-agdf@0.14.5 test:run-step-transaction
+npm notice run node ../core/test/run-step-transaction-test.js && node ../core/test/run-backlog-writer-test.js && node ../core/test/backlog-work-summary-test.js && node ../core/test/backlog-summary-codec-test.js
+Run-step transaction boundaries passed.
+PASS approval + Backlog transaction recovers intent, identical replay has one effect
+PASS approval + Backlog transaction recovers run, identical replay has one effect
+PASS approval + Backlog transaction recovers backlog, identical replay has one effect
+PASS nonexact reply changes neither Run nor Backlog
+PASS presentation tampered after journal intent is rejected before commit
+PASS backlog-only repair preserves exact sealed Run bytes and is idempotent
+PASS backtick key is matched once, title and links retained
+PASS unsupported header is reported as skipped with zero mutation
+PASS duplicate identity is reported as skipped with zero mutation
+PASS stale caller cannot repair pointer
+PASS legacy pointer repair retains its thirteen columns and existing links
+PASS symlink Backlog is skipped without changing foreign file or Run
+PASS symlink Run cannot authorize a Backlog-only repair
+PASS evidence recording also synchronizes status and next action
+PASS approval is accepted when the Backlog cannot be synchronized and reports why
+PASS run-step keeps a legacy row's title and links, updates its status and reports the layout
+16 Backlog writer scenarios passed.
+PASS specific qa_evidence_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+PASS specific qa_correction_open, mixed-route precedence and unchanged permission envelope
+PASS specific qa_source_decision, mixed-route precedence and unchanged permission envelope
+PASS contradictory/missing/invalid/foreign normalized sources remain unconfirmed
+PASS missing QA registration, invalid UTF-8, oversized report and bounded reference set stay explicit
+PASS pass awaiting approval, approved QA/UAT, closeout and completed are distinct from block
+PASS actual resulting revision, exact repeat timestamp/bytes and selected current comparison
+PASS consumed QA source movement before commit cannot mix Run and pointer evidence
+PASS explicit referenced review movement also prevents a mixed commit
+11 work-summary checks passed
+PASS bounded saved roundtrip outside table preserves title, foreign row and exact repeat bytes
+PASS unknown versions, malformed/oversized/foreign/path/prototype-like fields and row mutations fail closed
+PASS old seven/thirteen-column rows retain stored text without migration
+PASS saved-only immutable scope reads exactly the Backlog and never writes
+4 codec checks passed
+
+COMMAND npm --prefix packages/cli run test:run-command-flow
+npm notice run create-agdf@0.14.5 test:run-command-flow
+npm notice run node --test --test-concurrency=1 ../core/test/report-decision-test.js ../core/test/decision-content-test.js ../core/test/run-command-contract-test.js ../core/test/run-command-service-test.js ../core/test/run-flow-coherence-test.js ../core/test/presentation-decision-test.js ../core/test/presentation-document-test.js ../core/test/approval-command-recovery-test.js ../core/test/decision-action-test.js ../core/test/decision-qualification-test.js ../core/test/evidence-bindings-test.js ../core/test/run-owned-output-recovery-test.js ../core/test/early-prd-command-test.js ../core/test/run-command-revision-test.js ../core/test/run-closeout-command-test.js ../core/test/run-closeout-slice-test.js ../core/test/quick-closeout-command-test.js ../core/test/qa-deviation-acceptance-test.js
+TAP version 13
+# Approval v3 journal: 22 actual child-process interruption points, identical original-command recovery/replay, one receipt and changed-envelope rejection passed; no power-loss claim.
+# Subtest: ../core/test/approval-command-recovery-test.js
+ok 1 - ../core/test/approval-command-recovery-test.js
+  ---
+  duration_ms: 68214.361815
+  type: 'test'
+  ...
+# Private facade qualification/groups, inert comments, exact replay/conflict, unknown acknowledgement and actual opposed text/App processes passed (18475 definition bytes; synthetic targets only).
+# Subtest: ../core/test/decision-action-test.js
+ok 2 - ../core/test/decision-action-test.js
+  ---
+  duration_ms: 82080.489245
+  type: 'test'
+  ...
+# Closed authored-content contexts, field-local placeholder boundaries, current source/localization and historical/read-only limits passed.
+# Actual UR registration/replacement writer projection, custom preservation and read-only missing-content recovery passed (synthetic only).
+# Subtest: ../core/test/decision-content-test.js
+ok 3 - ../core/test/decision-content-test.js
+  ---
+  duration_ms: 1735.424059
+  type: 'test'
+  ...
+# Private qualification tuple/evidence containment, exact host/candidate/hash binding and unknown/missing/tampered/symlink rejection passed (synthetic contract only).
+# Subtest: ../core/test/decision-qualification-test.js
+ok 4 - ../core/test/decision-qualification-test.js
+  ---
+  duration_ms: 282.059846
+  type: 'test'
+  ...
+# Existing early PRD boundary, concrete confirmation, immutable exact archive, replay/conflict and v3 pre/post-commit process recovery passed (synthetic only).
+# Subtest: ../core/test/early-prd-command-test.js
+ok 5 - ../core/test/early-prd-command-test.js
+  ---
+  duration_ms: 75346.850826
+  type: 'test'
+  ...
+# Exact current/superseded/unknown evidence associations, immutable archive reads, writer guards and orphan rejection passed (synthetic only).
+# Subtest: ../core/test/evidence-bindings-test.js
+ok 6 - ../core/test/evidence-bindings-test.js
+  ---
+  duration_ms: 40135.145796
+  type: 'test'
+  ...
+# Shared material-version rejection/change guard, inert comments, replay/conflict, renewed material, exact approval and historical presentation passed (synthetic only).
+# Subtest: ../core/test/presentation-decision-test.js
+ok 7 - ../core/test/presentation-decision-test.js
+  ---
+  duration_ms: 19403.500136
+  type: 'test'
+  ...
+# Bound immutable document chunks, UTF-8 boundaries, exact-byte digest, shared Inspect projection and tamper/symlink approval denial passed (synthetic only).
+# Subtest: ../core/test/presentation-document-test.js
+ok 8 - ../core/test/presentation-document-test.js
+  ---
+  duration_ms: 13999.332627
+  type: 'test'
+  ...
+# QA deviations: de/en Chat and assembled decision-session parity, one-effect/legacy guards, immutable report and UAT disclosure, exact revision archive, approved-update rejection, truthful OR closeout, refresh and stale/critical/malformed negatives passed (disposable only; no native qualification).
+# Subtest: ../core/test/qa-deviation-acceptance-test.js
+ok 9 - ../core/test/qa-deviation-acceptance-test.js
+  ---
+  duration_ms: 77233.201311
+  type: 'test'
+  ...
+# Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+# Subtest: ../core/test/quick-closeout-command-test.js
+ok 10 - ../core/test/quick-closeout-command-test.js
+  ---
+  duration_ms: 6705.13605
+  type: 'test'
+  ...
+# Shared report-result compatibility, consistent duplicates, aliases, lifecycle metadata and conflict/unknown/missing refusal passed (19 cases).
+# Authored report contexts and code/quote/HTML exclusion passed (139 context cases, 6 internal cases, canonical template and default-domain check).
+# Subtest: ../core/test/report-decision-test.js
+ok 11 - ../core/test/report-decision-test.js
+  ---
+  duration_ms: 274.643794
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-command-test.js
+ok 12 - ../core/test/run-closeout-command-test.js
+  ---
+  duration_ms: 95816.545735
+  type: 'test'
+  ...
+# Structured prepared OR, actual reviews/QA/UAT, exact confirmation, completed semantics and process interruption/recovery passed (synthetic only).
+# Subtest: ../core/test/run-closeout-slice-test.js
+ok 13 - ../core/test/run-closeout-slice-test.js
+  ---
+  duration_ms: 72501.529746
+  type: 'test'
+  ...
+# Bounded command schema/groups, side-effect annotations, accessor/injection rejection and generated definition budgets passed (17309 bytes; facade not yet included).
+# Subtest: ../core/test/run-command-contract-test.js
+ok 14 - ../core/test/run-command-contract-test.js
+  ---
+  duration_ms: 300.494116
+  type: 'test'
+  ...
+# Shared revision preview, exact confirmation boundary, original receipt/archive and immutable historical request replay passed (synthetic only).
+# Subtest: ../core/test/run-command-revision-test.js
+ok 15 - ../core/test/run-command-revision-test.js
+  ---
+  duration_ms: 82767.704132
+  type: 'test'
+  ...
+# Shared service target/group confinement, source recording, historical replay/conflict and post-dispatch lost-result acknowledgement passed (synthetic only).
+# Subtest: ../core/test/run-command-service-test.js
+ok 16 - ../core/test/run-command-service-test.js
+  ---
+  duration_ms: 22934.540438
+  type: 'test'
+  ...
+# SCN-004: English/German/misleading display wording leaves full reader and writer policy unchanged; missing prerequisite changes eligibility; stale write rejected without mutation.
+# Shared full-state/writer renewal, bounded internal recording/replay, invalid completion and shared criteria grammar passed (synthetic only).
+# Subtest: ../core/test/run-flow-coherence-test.js
+ok 17 - ../core/test/run-flow-coherence-test.js
+  ---
+  duration_ms: 52886.239385
+  type: 'test'
+  ...
+# Strict v3 owned-output process interruption, pre-commit rollback, post-commit forward recovery, receipt replay and interference rejection passed (no power-loss claim).
+# Subtest: ../core/test/run-owned-output-recovery-test.js
+ok 18 - ../core/test/run-owned-output-recovery-test.js
+  ---
+  duration_ms: 57329.917845
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 769988.056697
+
+COMMAND npm --prefix packages/cli run test:late-source-revision
+npm notice run create-agdf@0.14.5 test:late-source-revision
+npm notice run node ../core/test/early-ur-revision-test.js && node ../core/test/run-source-revisions-test.js && node scripts/late-source-revision-test.js && npm run test:late-source-revision-performance
+SCN-022 early UR v2 checkpoint passed: intent_temp_opened
+SCN-022 early UR v2 checkpoint passed: intent_temp_written
+SCN-022 early UR v2 checkpoint passed: intent_after_file_sync
+SCN-022 early UR v2 checkpoint passed: intent_before_rename
+SCN-022 early UR v2 checkpoint passed: intent_after_rename
+SCN-022 early UR v2 checkpoint passed: intent_after_directory_sync
+SCN-022 early UR v2 checkpoint passed: intent
+SCN-022 early UR v2 checkpoint passed: archive_intent
+SCN-022 early UR v2 checkpoint passed: archive_temp_opened
+SCN-022 early UR v2 checkpoint passed: archive_temp_written
+SCN-022 early UR v2 checkpoint passed: archive_after_file_sync
+SCN-022 early UR v2 checkpoint passed: archive_before_rename
+SCN-022 early UR v2 checkpoint passed: archive_after_rename
+SCN-022 early UR v2 checkpoint passed: archive_after_directory_sync
+SCN-022 early UR v2 checkpoint passed: archive_file
+SCN-022 early UR v2 checkpoint passed: manifest_temp_opened
+SCN-022 early UR v2 checkpoint passed: manifest_temp_written
+SCN-022 early UR v2 checkpoint passed: manifest_after_file_sync
+SCN-022 early UR v2 checkpoint passed: manifest_before_rename
+SCN-022 early UR v2 checkpoint passed: manifest_after_rename
+SCN-022 early UR v2 checkpoint passed: manifest_after_directory_sync
+SCN-022 early UR v2 checkpoint passed: archive_synced
+SCN-022 early UR v2 checkpoint passed: archive_published
+SCN-022 early UR v2 checkpoint passed: run_temp_opened
+SCN-022 early UR v2 checkpoint passed: run_temp_written
+SCN-022 early UR v2 checkpoint passed: run_after_file_sync
+SCN-022 early UR v2 checkpoint passed: run_before_rename
+SCN-022 early UR v2 checkpoint passed: run_after_rename
+SCN-022 early UR v2 checkpoint passed: run_after_directory_sync
+SCN-022 early UR v2 checkpoint passed: run
+SCN-022 early UR v2 checkpoint passed: backlog_temp_opened
+SCN-022 early UR v2 checkpoint passed: backlog_temp_written
+SCN-022 early UR v2 checkpoint passed: backlog_after_file_sync
+SCN-022 early UR v2 checkpoint passed: backlog_before_rename
+SCN-022 early UR v2 checkpoint passed: backlog_after_rename
+SCN-022 early UR v2 checkpoint passed: backlog_after_directory_sync
+SCN-022 early UR v2 checkpoint passed: backlog
+SCN-022 early UR v2 checkpoint passed: retired
+Early approved-UR revision: Core/CLI, history, fresh approval, unsupported boundaries, stale inputs, recovery and process concurrency passed (synthetic fixtures only).
+{"suite":"source-revisions","scenarios":["SCN-001","SCN-003","SCN-004","SCN-005","SCN-007","SCN-008","SCN-011","SCN-012","SCN-013","SCN-014","SCN-018","SCN-009","SCN-010","SCN-015","SCN-017","SCN-019","SCN-020","SCN-016","SCN-021","SCN-006"],"fixture_authority":"synthetic_only"}
+{"suite":"late-source-revision-cli","candidate":"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf","cases":51,"fixture_authority":"synthetic_only"}
+npm notice run create-agdf@0.14.5 test:late-source-revision-performance
+npm notice run node scripts/late-source-revision-performance-test.js
+{"scenario_id":"SCN-028","cycles":[{"cycle":1,"preview_ms":71.0823709999986,"apply_ms":469.75230399999964,"history_files":21,"history_bytes":43681},{"cycle":2,"preview_ms":78.37787799999933,"apply_ms":677.9507169999997,"history_files":44,"history_bytes":97355},{"cycle":3,"preview_ms":104.37098799999876,"apply_ms":762.077577,"history_files":69,"history_bytes":160801},{"cycle":4,"preview_ms":207.24121200000081,"apply_ms":1065.9281740000006,"history_files":96,"history_bytes":234041},{"cycle":5,"preview_ms":179.1840929999962,"apply_ms":1136.7906030000013,"history_files":125,"history_bytes":317097},{"cycle":6,"preview_ms":217.92428900000232,"apply_ms":1383.8034909999988,"history_files":156,"history_bytes":409991},{"cycle":7,"preview_ms":276.3685620000033,"apply_ms":1658.3083900000056,"history_files":189,"history_bytes":512745},{"cycle":8,"preview_ms":348.2472620000044,"apply_ms":4552.090979999994,"history_files":224,"history_bytes":625381},{"cycle":9,"preview_ms":385.7193929999921,"apply_ms":2377.095803000004,"history_files":261,"history_bytes":747921},{"cycle":10,"preview_ms":461.45737600000575,"apply_ms":2716.2739280000096,"history_files":300,"history_bytes":880387}],"unrelated_history_reads":0,"competition":{"elapsed_ms":3710.345640000014,"results":[{"code":0,"result":{"schema_version":"1","outcome":"rejected","run_id":"revision-performance","reason":"run_write_locked","lock_path":"/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-revision-performance-8HE1PC/.agdf/control/runs/revision-performance/RUN_STATE.md.lock","authorizes":false}},{"code":0,"result":{"outcome":"reopened","authorizes":false,"run_id":"revision-performance","operation_id":"361018ea-c97f-4a4e-a2e0-21bd726f2099","gate":"TP","revision_id":"3bba63cb-89e1-4ace-a13d-b9d8a042458a","revision":"63","impact":{"source_gate":"TP","retained":["UR","PRD","SD"],"superseded":["TP"],"invalidated_bindings":["6940a8e4-d977-40b3-860e-eca71a762b8a"],"analyses":[{"type":"Brownfield Review","disposition":"retain","path":".agdf/control/artefacts/revision-performance/BROWNFIELD_REVIEW.md","digest":"sha256:64ce92f3dbffa8b295dd5ae9ee82cb9384045b84977ec89d401c2d773b8c785f","reason":"Synthetic reviewed applicability assessment under unchanged or renewed UR"}],"invalidated_steps":["Brownfield Analysis","CD+Tests","CR"],"retained_work":"Code and test files are retained; fulfillment and evidence require the renewed TP.","next_gate":"TP","implementation_authority":false},"next_action":"Draft or refine the Task/Test Plan; do not implement before TP is approved."}}]}}

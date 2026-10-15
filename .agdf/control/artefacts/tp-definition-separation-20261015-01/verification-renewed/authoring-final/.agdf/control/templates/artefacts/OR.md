@@ -1,0 +1,125 @@
+# OR: <Title>
+
+Gate: OR
+Type: Orchestration Report
+Report mode: `OR-lite | OR-full`
+Status: `draft | done | superseded`
+
+## Run
+
+- run_id:
+- related_ur:
+- related_prd:
+- related_sd:
+- related_tp:
+- related_qa_report:
+- mode_slice_decision:
+- current_gate:
+- decision: `pass | revise | block | in_progress`
+
+## Gate State
+
+| Gate or step | Status | Evidence |
+|---|---|---|
+| UR |  |  |
+| Brownfield Review |  |  |
+| Mode/Slice Decision |  |  |
+| PRD |  |  |
+| SD |  |  |
+| TP |  |  |
+| Brownfield Analysis |  |  |
+| CD+Tests |  |  |
+| CR |  |  |
+| QA |  |  |
+| UAT |  |  |
+
+## Run Status Card
+
+This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
+
+| Run status | Value |
+|---|---|
+| Status |  |
+| Current gate |  |
+| Allowed now |  |
+| Blocked by |  |
+| Missing approval |  |
+| Next step |  |
+| Quality outlook |  |
+
+## Delivered
+
+| Item | Evidence |
+|---|---|
+|  |  |
+
+## Not Delivered / Intentionally Deferred
+
+| Item | Reason | Next owner or gate |
+|---|---|---|
+|  |  |  |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+|  |  |  | `direct | indirect | weak` |
+
+## Missing Evidence
+
+| Missing evidence | Impact | Required next step |
+|---|---|---|
+|  | `warn | revise | block` |  |
+
+## Risks And Open Items
+
+| Risk or open item | Impact | Owner or mitigation |
+|---|---|---|
+|  | `warn | revise | block` |  |
+
+## Parent Reconciliation Handoff
+
+Optional evaluated projection. Keep Child delivery status separate.
+
+- outcome: `resolved | not_applicable | open`
+- target_run_id:
+- disposition: `not_applicable | action_required | accepted_open`
+- evidence:
+- missing_evidence: `none` or concrete missing proof
+- next_action: `none` or exactly one action
+
+## Programme Aggregation Readiness
+
+Optional Parent/programme projection. It is evidence, not approval.
+
+- startable: `true | false`
+- final_ready: `true | false`
+- acceptance_ref:
+- evidence:
+- missing_evidence:
+- next_action:
+
+## Context Graph Impact
+
+- context_graph_impact: `none | link_only | update_existing_node | new_node_required | sot_drift`
+- context_graph_refs:
+- context_graph_reconciliation: `resolved | not_applicable | open_gap`
+- context_graph_required_action: `none | link | update | create | resolve_drift`
+- context_graph_gate_effect: `none | warning | revise | block`
+- context_graph_evidence:
+
+## Knowledge Persistence Decision
+
+- memory_target: `context_graph | sot_registry | scope_artifact | open_questions | none`
+- memory_reason:
+- memory_refs:
+
+## Next Permissible Step
+
+- next_allowed_action:
+- required_approval:
+- forbidden_until_then:
+
+## Approval
+
+OR does not approve later gates. It records the next permissible step.

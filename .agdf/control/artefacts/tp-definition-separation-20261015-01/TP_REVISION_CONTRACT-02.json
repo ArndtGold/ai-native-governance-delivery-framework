@@ -1,0 +1,713 @@
+{
+  "schema_version": "1",
+  "available": true,
+  "group": "agdf_revise",
+  "kind": "source_revision.preview",
+  "payload_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "source_gate": {
+        "enum": [
+          "UR",
+          "PRD",
+          "SD",
+          "TP"
+        ]
+      },
+      "proposal": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "digest"
+        ]
+      }
+    },
+    "required": [
+      "source_gate",
+      "proposal"
+    ]
+  },
+  "owner": "run-revision.previewSourceRevision",
+  "effects": [
+    "read exact revision impact"
+  ],
+  "confirmation": "no_mutation",
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "schema_version": {
+        "const": "1"
+      },
+      "presentation_language": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+      },
+      "working_directory": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "target_source": {
+        "enum": [
+          "explicit_target",
+          "continued_target",
+          "current_repository"
+        ]
+      },
+      "primary_target": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "target_id": {
+        "type": "string",
+        "pattern": "^sha256:[0-9a-f]{64}$"
+      },
+      "run_id": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+      },
+      "expected_revision_id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "operation_id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "assurance": {
+        "const": "cooperative_local"
+      },
+      "command": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "source_revision.preview"
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_gate": {
+                "enum": [
+                  "UR",
+                  "PRD",
+                  "SD",
+                  "TP"
+                ]
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "digest": {
+                    "type": "string",
+                    "pattern": "^sha256:[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "path",
+                  "digest"
+                ]
+              }
+            },
+            "required": [
+              "source_gate",
+              "proposal"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "payload"
+        ]
+      }
+    },
+    "required": [
+      "schema_version",
+      "presentation_language",
+      "working_directory",
+      "target_source",
+      "primary_target",
+      "target_id",
+      "run_id",
+      "expected_revision_id",
+      "operation_id",
+      "assurance",
+      "command"
+    ]
+  },
+  "retry_class": "inspect_original_operation_after_dispatch",
+  "assurance": "cooperative_local",
+  "reference_limits": {
+    "input_bytes": 65536,
+    "source_file_bytes": 131072,
+    "result_bytes": 1048576
+  },
+  "proposal_format": {
+    "schema_version": "1",
+    "fields": [
+      "schema_version",
+      "target_id",
+      "run_id",
+      "expected_revision_id",
+      "operation_id",
+      "source_gate",
+      "reason",
+      "intended_change",
+      "sources",
+      "impact_assessment"
+    ],
+    "supported_versions": [
+      "1",
+      "2"
+    ],
+    "expanded": {
+      "schema_version": "2",
+      "policy_version": 2,
+      "fields": [
+        "schema_version",
+        "target_id",
+        "run_id",
+        "expected_revision_id",
+        "operation_id",
+        "source_gate",
+        "reason",
+        "intended_change",
+        "sources",
+        "impact_assessment",
+        "policy_version",
+        "initiating_phase",
+        "changed_statements",
+        "quality_assessment"
+      ],
+      "changed_statements": [
+        "type",
+        "path",
+        "digest",
+        "statement",
+        "intended_change",
+        "reason"
+      ],
+      "quality_assessment": [
+        "record",
+        "record_digest",
+        "operation_id",
+        "source_set_digest",
+        "sources",
+        "association",
+        "disposition",
+        "reason"
+      ],
+      "initiating_phase": "Actual current PRD/SD/TP/CD+Tests/QA/pending UAT; choose the earliest approved changed source, never by phase alone.",
+      "quality": "Cover every current registered analysis/result and evidence row exactly; bind report, source set, original operation and record digest. Unknown associations require reassess. Use the inspected current facts; no invented dependency proof."
+    },
+    "impact_assessment": {
+      "fields": [
+        "reviewer",
+        "earliest_source",
+        "upstream",
+        "analyses",
+        "implementation_evidence",
+        "unresolved"
+      ],
+      "upstream": [
+        "type",
+        "path",
+        "digest",
+        "rationale"
+      ],
+      "analyses": [
+        "type",
+        "disposition",
+        "path",
+        "digest",
+        "reason"
+      ],
+      "dispositions": [
+        "retain",
+        "reassess"
+      ],
+      "unresolved": [],
+      "earliest_source": "Must match source_gate; unchanged upstream needs actual rationale. UR requires reassess for both applicable analyses."
+    },
+    "sources": "Use the exact current sources returned by the existing preview boundary, in UR/PRD/SD/TP order; the eligible boundary determines the subset.",
+    "preview": "Read-only preview returns actual impact, preview_digest and the exact confirmation_selector. Do not derive authorization from a preview.",
+    "recovery": "Keep the original UUID, proposal and inspected pending digest/current recovery revision; never submit a new intent to repair the original."
+  },
+  "authorizes": false,
+  "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+  "revision_facts": {
+    "policy_version": 2,
+    "eligible_sources": [
+      "UR",
+      "PRD",
+      "SD",
+      "TP"
+    ],
+    "initiating_phase": "CD+Tests",
+    "quality_records": [
+      {
+        "record": {
+          "type": "Brownfield Review",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+          "status": "done"
+        },
+        "record_digest": "sha256:8a0aa2f8c9267110daf2ca2a8b57b357dfd80a642aa17d06087e055d74e4c06a",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "Brownfield Analysis",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+          "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+          "status": "done"
+        },
+        "record_digest": "sha256:f3eba1367c629fe98bbc38b5057c4e58bd8be6ca73ba9eb3b67cbc2491aebe58",
+        "operation_id": "31e8e5f1-3f95-4b68-86b1-54f60a199b11",
+        "source_set_digest": "sha256:fbb96a38986e9f58042e99d7a8a9bddfa17dd1ccd7c3b03ec35cf0b2764a0e57",
+        "sources": [
+          {
+            "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+            "status": "approved",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+            "status": "approved",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+            "status": "approved",
+            "type": "SD"
+          },
+          {
+            "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+            "status": "approved",
+            "type": "TP"
+          },
+          {
+            "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+            "status": "done",
+            "type": "Brownfield Review"
+          },
+          {
+            "digest": null,
+            "path": "",
+            "status": "missing",
+            "type": "UX Intent Definition"
+          }
+        ],
+        "association": "current"
+      },
+      {
+        "record": {
+          "type": "CD+Tests",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+          "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1",
+          "status": "revise"
+        },
+        "record_digest": "sha256:1f7f9a295c12f5da95612941b65ea722907413589df62eb7ab1e61e93ea9788b",
+        "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+        "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d",
+        "sources": [
+          {
+            "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+            "status": "approved",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+            "status": "approved",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+            "status": "approved",
+            "type": "SD"
+          },
+          {
+            "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+            "status": "approved",
+            "type": "TP"
+          },
+          {
+            "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+            "status": "done",
+            "type": "Brownfield Analysis"
+          }
+        ],
+        "association": "current"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": "",
+          "digest": null,
+          "status": "documented"
+        },
+        "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+          "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+          "status": "documented"
+        },
+        "record_digest": "sha256:4157a7b4ed08063c65e5d4949018ee14b91d80446160daf11033959d784cc0f2",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+          "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+          "status": "documented"
+        },
+        "record_digest": "sha256:7b1af5c47be057178b66c60c4c079c07f78e1875c956aa2ea08fce54a9dd6837",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD_DERIVATION_REVIEW-01.json",
+          "digest": "sha256:5391dd97484ef92c8c1e4a4fdbbc643c0a926e8eaca8a1e0792da03d9f0d6450",
+          "status": "documented"
+        },
+        "record_digest": "sha256:39226363939cafc11dc658d239fe9f4786400c2ea5c03d07444e24745bd69880",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD_DERIVATION_REVIEW-01.json",
+          "digest": "sha256:b08bb26188a317c1e7d0aed86c551983a5f4dfa20a92ef978180a70d8ae65c9a",
+          "status": "documented"
+        },
+        "record_digest": "sha256:db61350b5f4f486f9ede46fb76baf9299357fc40d5e13474b2f23db7b5637d87",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD_DERIVATION_REVIEW-02.json",
+          "digest": "sha256:c3c7f2de39af949d46dae16f31bb0ceec15a1f0d50e8aba2c30a4a1ad5b996be",
+          "status": "documented"
+        },
+        "record_digest": "sha256:ce159dad177e8171a451dec25be4e80099b0070c987ef309c0117c63f98e5d5c",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP_DERIVATION_REVIEW-01.json",
+          "digest": "sha256:d52f8840bcab8dc09c6a50d10aa27a35e2e9a76ba8bf50169f494d18566b8783",
+          "status": "documented"
+        },
+        "record_digest": "sha256:2b611087476d3f8267550934f1796a96be5549e4fba22931f622c9d8d1b42f45",
+        "operation_id": null,
+        "source_set_digest": null,
+        "sources": [],
+        "association": "applicability_unknown"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+          "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+          "status": "documented"
+        },
+        "record_digest": "sha256:c0f1d62e3fe694b19c8447ea4c753f469b54090a30fe89769ea7b554732d962a",
+        "operation_id": "31e8e5f1-3f95-4b68-86b1-54f60a199b11",
+        "source_set_digest": "sha256:fbb96a38986e9f58042e99d7a8a9bddfa17dd1ccd7c3b03ec35cf0b2764a0e57",
+        "sources": [
+          {
+            "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+            "status": "approved",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+            "status": "approved",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+            "status": "approved",
+            "type": "SD"
+          },
+          {
+            "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+            "status": "approved",
+            "type": "TP"
+          },
+          {
+            "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+            "status": "done",
+            "type": "Brownfield Review"
+          },
+          {
+            "digest": null,
+            "path": "",
+            "status": "missing",
+            "type": "UX Intent Definition"
+          }
+        ],
+        "association": "current"
+      },
+      {
+        "record": {
+          "type": "evidence",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+          "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1",
+          "status": "documented"
+        },
+        "record_digest": "sha256:84fe02bfbca996101a85af7e1572b968e356d2953c49a03d6a436caee2af06b8",
+        "operation_id": "f46f43d3-426b-4a90-9bdc-08b9a6e7da92",
+        "source_set_digest": "sha256:7c623dbdf9cb514267d6a7a146fadd5b23e00efa858450664b551902af27f57d",
+        "sources": [
+          {
+            "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+            "status": "approved",
+            "type": "UR"
+          },
+          {
+            "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+            "status": "approved",
+            "type": "PRD"
+          },
+          {
+            "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+            "status": "approved",
+            "type": "SD"
+          },
+          {
+            "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+            "status": "approved",
+            "type": "TP"
+          },
+          {
+            "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+            "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+            "status": "done",
+            "type": "Brownfield Analysis"
+          }
+        ],
+        "association": "current"
+      }
+    ]
+  },
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "tp-definition-separation-20261015-01",
+    "expected_revision_id": "86698021-fab6-40e3-be52-f88482f648d6"
+  },
+  "current": {
+    "current_gate": "CD+Tests",
+    "lifecycle": "active",
+    "status": "open",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "artefacts": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+        "status": "approved",
+        "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_REVIEW.md",
+        "status": "done",
+        "digest": "sha256:7af071d7c4b882ae6396fcc01cf297aeb15f0d7bf3eaa9740b94a3fdaffb9276",
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+        "status": "approved",
+        "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+        "status": "approved",
+        "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+        "status": "approved",
+        "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/BROWNFIELD_ANALYSIS.md",
+        "status": "done",
+        "digest": "sha256:582337d3d4a286e2b339f3b626c23a23774e34079e993eaeb57df238b2c0b69d",
+        "association": "current"
+      },
+      {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/CD_TESTS.md",
+        "status": "revise",
+        "digest": "sha256:c04394e922b46905546fd4040add126344f4aa18e13b8f00f4f6e4df1d4ee3d1",
+        "association": "current"
+      },
+      {
+        "type": "CR",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      },
+      {
+        "type": "QA",
+        "path": "",
+        "status": "missing",
+        "digest": null,
+        "association": "applicability_unknown"
+      }
+    ],
+    "source_bindings": [
+      {
+        "binding_id": "0fa7662d-1091-451b-bf57-5f1b389aa954",
+        "source": {
+          "digest": "sha256:b84e238a7a3592f202d0b7b7141ca19d483c2042d75396091c3af91a9d2430fb",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/UR.md",
+          "type": "UR"
+        },
+        "destination": {
+          "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+          "status": "draft",
+          "type": "PRD"
+        },
+        "relationship": {
+          "from": "PRD",
+          "relationship": "derived_from",
+          "to": "UR"
+        }
+      },
+      {
+        "binding_id": "b1ab1ff0-d7e6-4836-b640-725a34e96760",
+        "source": {
+          "digest": "sha256:cb7cc8d65656ec98fc6126252e7af6f611250a18622004f4d757b9ffd2afe2e0",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/PRD.md",
+          "type": "PRD"
+        },
+        "destination": {
+          "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+          "status": "draft",
+          "type": "SD"
+        },
+        "relationship": {
+          "from": "SD",
+          "relationship": "derived_from",
+          "to": "PRD"
+        }
+      },
+      {
+        "binding_id": "78490ea3-470d-43ef-bebe-e0c97a6f9b52",
+        "source": {
+          "digest": "sha256:0b9167d736915526c444d1a0609f4df513276abb4d5ce21727ee1a21612cc72e",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/SD.md",
+          "type": "SD"
+        },
+        "destination": {
+          "digest": "sha256:3402e7822f2c9f5bd8f756e60ed112b02242f1d911d7c7b34519facb693948bf",
+          "path": ".agdf/control/artefacts/tp-definition-separation-20261015-01/TP.md",
+          "status": "draft",
+          "type": "TP"
+        },
+        "relationship": {
+          "from": "TP",
+          "relationship": "derived_from",
+          "to": "SD"
+        }
+      }
+    ]
+  }
+}

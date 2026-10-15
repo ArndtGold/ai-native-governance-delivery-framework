@@ -83,7 +83,8 @@ If multiple active scopes are plausible, list the evidenced lines and route to `
 Before UR approval, delegate the bound requirement draft and material clarification to
 `ur-definition`. After approved UR and completed analysis/routing, delegate bound PRD drafting
 and clarification to `prd-definition`. After approved PRD, delegate bound design drafting and
-clarification to `sd-definition`. Gate-check keeps control, readiness and presentation ownership.
+clarification to `sd-definition`. After approved SD, delegate bound planning and clarification to
+`tp-definition`. Gate-check keeps control, readiness and presentation ownership.
 
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
 Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`.
@@ -108,9 +109,10 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
-| `ur-definition` | drafting or revising an unapproved UR after bound dispatch | owns requirement drafting and clarification; never approves or changes approved intent |
-| `prd-definition` | drafting or revising an unapproved PRD from approved UR and analyses after bound dispatch | owns product drafting and clarification; never approves or changes approved intent |
-| `sd-definition` | bound SD drafting, clarification or revision | content only; preserves approved intent |
+| `ur-definition` | bound UR drafting, clarification or revision | content only; preserves approved intent |
+| `prd-definition` | bound PRD drafting, clarification or revision | content only; preserves approved intent |
+| `sd-definition` | bound SD content | content only; preserves approved intent |
+| `tp-definition` | bound TP content | content only; preserves approved sources |
 | `gate-check` | delivery control and gate readiness | delegates drafts; never approves or skips gates |
 | `qa-gate` | sole final Quality Readiness decision | only instance for `pass | revise | block` |
 | `release-or` | auditable closeout for every relevant run | not a QA substitute |

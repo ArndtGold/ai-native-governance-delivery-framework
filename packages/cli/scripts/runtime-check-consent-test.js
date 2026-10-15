@@ -283,7 +283,8 @@ try {
     .replaceAll(jsonEscaped(base.binding.argv_prefix[0]), "<validator>")
     .replaceAll(base.binding.executable, "<executable>")
     .replaceAll(base.binding.argv_prefix[0], "<validator>");
-  assert.ok(Buffer.byteLength(normalizedBase, "utf8") <= 1900, "normalized SessionStart base must stay within budget");
+  const sessionStartBudget = pluginDefinition.instructionFootprint.budgets.sessionStartBase.maxNormalizedBytes;
+  assert.ok(Buffer.byteLength(normalizedBase, "utf8") <= sessionStartBudget, "normalized SessionStart base must stay within the canonical budget");
   assert.equal(withoutConsent.stdout.split(activationStart).length - 1, 1);
   assert.equal(withoutConsent.stdout.split("AGDF dispatcher binding:").length - 1, 1);
   assert.doesNotMatch(withoutConsent.stdout, /AGDF runtime facts:|Automatic repository checks|Project config:|Language policy:|Source of truth:|Obey result\.host_action/);

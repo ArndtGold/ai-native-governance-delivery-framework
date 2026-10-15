@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "b69cc43a-9c2c-420b-9f2b-fb9dbf71f665",
+  "request_digest": "sha256:bf29f75f44d965566ab68167faae4998b312a8de87686187f8028cbd414c064f",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+    "resulting_revision_id": "90e496f1-bc0b-4f94-bf48-739d1a148127",
+    "revision": 14,
+    "record": {
+      "step": "Brownfield Analysis",
+      "source": {
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:e9aadaba2168ba1c52d0ff4cfd45ba3d34252012fa90420430a47cdc01389a2c"
+      },
+      "status": "done",
+      "covers": "approved TP scope",
+      "source_set_digest": "sha256:820b228b943f3f2395d5addb9f63ea52cdbc955f42f008897da97742543f5d43"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "b69cc43a-9c2c-420b-9f2b-fb9dbf71f665",
+    "request_digest": "sha256:bf29f75f44d965566ab68167faae4998b312a8de87686187f8028cbd414c064f",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+    "created_at": "2026-10-14T14:28:41.855Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+      "resulting_revision_id": "90e496f1-bc0b-4f94-bf48-739d1a148127",
+      "revision": 14,
+      "record": {
+        "step": "Brownfield Analysis",
+        "source": {
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/BROWNFIELD_ANALYSIS.md",
+          "digest": "sha256:e9aadaba2168ba1c52d0ff4cfd45ba3d34252012fa90420430a47cdc01389a2c"
+        },
+        "status": "done",
+        "covers": "approved TP scope",
+        "source_set_digest": "sha256:820b228b943f3f2395d5addb9f63ea52cdbc955f42f008897da97742543f5d43"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 14,
+    "revision_id": "90e496f1-bc0b-4f94-bf48-739d1a148127",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "step": "internal",
+    "previous_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+    "revision": "14",
+    "revision_id": "90e496f1-bc0b-4f94-bf48-739d1a148127",
+    "current_gate": "CD+Tests",
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "backlog": "updated",
+    "operation_id": "b69cc43a-9c2c-420b-9f2b-fb9dbf71f665",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "b69cc43a-9c2c-420b-9f2b-fb9dbf71f665",
+      "request_digest": "sha256:bf29f75f44d965566ab68167faae4998b312a8de87686187f8028cbd414c064f",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "expected_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+      "created_at": "2026-10-14T14:28:41.855Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "de9705dc-7ddc-4b01-9584-456492e3fc20",
+        "resulting_revision_id": "90e496f1-bc0b-4f94-bf48-739d1a148127",
+        "revision": 14,
+        "record": {
+          "step": "Brownfield Analysis",
+          "source": {
+            "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/BROWNFIELD_ANALYSIS.md",
+            "digest": "sha256:e9aadaba2168ba1c52d0ff4cfd45ba3d34252012fa90420430a47cdc01389a2c"
+          },
+          "status": "done",
+          "covers": "approved TP scope",
+          "source_set_digest": "sha256:820b228b943f3f2395d5addb9f63ea52cdbc955f42f008897da97742543f5d43"
+        }
+      }
+    }
+  }
+}

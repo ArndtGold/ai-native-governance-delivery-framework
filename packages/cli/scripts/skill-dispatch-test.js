@@ -3,6 +3,7 @@ import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "#agdf-
 import { createSkillDispatchService } from "#agdf-core/skill-dispatch/service.js";
 import { CD_TESTS_NEXT_ALLOWED_ACTION } from "#agdf-core/control-evaluation/gate-policy.js";
 import { deliveryIntakePhase } from "#agdf-core/skill-dispatch/delivery-intake.js";
+import { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "#agdf-core/resources/artefact-templates.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
   VALID_PRESENTATION_LANGUAGE_CASES,
@@ -199,6 +200,7 @@ assert.equal(continuation.terminal, false);
 assert.equal(continuation.authorizes, false);
 assert.equal(continuation.continuation.skill_id, "qa-gate");
 assert.equal(continuation.continuation.governance_target, "/tmp/agdf-repo");
+assert.equal(continuation.continuation.template_path, resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.QA_REPORT));
 for (const [presentationLanguage, action] of [
   ["de", "AGDF-Plugin reparieren oder neu installieren: Paketierte Laufzeitverträge konnten nicht geladen werden. Danach einmal erneut versuchen."],
   ["en", "Repair or reinstall the AGDF plugin: packaged runtime contracts could not be loaded. Then retry once."],
@@ -426,6 +428,7 @@ assert.equal(sdContinuation.terminal, false);
 assert.equal(sdContinuation.continuation.phase, "required_gate_artifact");
 assert.equal(sdContinuation.continuation.gate, "SD");
 assert.equal(sdContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/SD.md");
+assert.equal(sdContinuation.continuation.template_path, resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.SD));
 assert.deepEqual(sdContinuation.continuation.source_artifacts, [".agdf/control/artefacts/delivery-run/PRD.md"]);
 assert.match(sdContinuation.continuation.instruction, /gate-artifact-preparation runtime contract/u);
 assert.equal(sdContinuation.host_action.mode, "continue_named_skill");
@@ -466,6 +469,7 @@ assert.equal(tpContinuation.terminal, false);
 assert.equal(tpContinuation.continuation.phase, "required_gate_artifact");
 assert.equal(tpContinuation.continuation.gate, "TP");
 assert.equal(tpContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/TP.md");
+assert.equal(tpContinuation.continuation.template_path, resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.TP));
 assert.deepEqual(tpContinuation.continuation.source_artifacts, [
   ".agdf/control/artefacts/delivery-run/PRD.md",
   ".agdf/control/artefacts/delivery-run/SD.md",
@@ -508,6 +512,8 @@ assert.equal(brownfieldContinuation.continuation.mode, "pre_implementation_analy
 assert.deepEqual(brownfieldContinuation.continuation.runtime_contracts, ["contracts:brownfield-analysis"]);
 assert.match(brownfieldContinuation.continuation.instruction, /before CD\+Tests/u);
 assert.match(brownfieldContinuation.continuation.instruction, /without continue_delivery/u);
+assert.equal(Object.hasOwn(brownfieldContinuation.continuation, "template_path"), false,
+  "implementation-preparation analysis is not the canonical Brownfield Review authoring owner");
 assert.equal(runtimeContractReads.at(-1), "brownfield-analysis");
 // After a recorded Brownfield Analysis the implementation continuation depends on the effective
 // typed operation supplied by policy, independent of presentation wording.
@@ -608,6 +614,7 @@ assert.equal(closeoutContinuation.continuation.skill_id, "release-or");
 assert.deepEqual(closeoutContinuation.continuation.runtime_contracts, ["contracts:release-or"]);
 assert.match(closeoutContinuation.continuation.instruction, /do not perform commit, push, PR, release/u);
 assert.equal(runtimeContractReads.at(-1), "release-or");
+assert.equal(closeoutContinuation.continuation.template_path, resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.OR));
 orStatus = "done";
 const alreadyClosed = postUatDispatch({
   ...base,
@@ -881,6 +888,72 @@ const brownfieldContractsMissing = createSkillDispatchService({
 })({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
 assert.equal(brownfieldContractsMissing.outcome, "evaluator_error");
 assert.equal(brownfieldContractsMissing.diagnostics[0].code, "dispatch_runtime_contracts_unavailable");
+
+const postUrDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    ...gateReport,
+    status: "open",
+    current_gate: "Brownfield Review",
+    blocking_reason: "none",
+    missing_approval: "none",
+    approval_presentation: null,
+    status_card: { run_id: "delivery-run" },
+  }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run", continueDelivery: true });
+assert.equal(postUrDispatch.continuation.phase, "post_ur_review");
+assert.equal(postUrDispatch.continuation.template_path,
+  resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.BROWNFIELD_REVIEW));
+
+const verifiedChangeDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    ...gateReport,
+    status: "open",
+    current_gate: "Verified Change Execution",
+    blocking_reason: "verified_change_record_required",
+    missing_approval: "none",
+    approval_presentation: null,
+    status_card: { run_id: "delivery-run", mode_slice_decision: "verified_change" },
+  }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run", continueDelivery: true });
+assert.equal(verifiedChangeDispatch.continuation.phase, "verified_change_record");
+assert.equal(verifiedChangeDispatch.continuation.artifact_path,
+  ".agdf/control/artefacts/delivery-run/VERIFIED_CHANGE.md");
+assert.equal(verifiedChangeDispatch.continuation.template_path,
+  resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.VERIFIED_CHANGE));
+
+// Every analytical owner of a renewed source analysis receives its canonical template.
+for (const [owner, templateId] of [
+  ["ux-intent-definition", ARTEFACT_TEMPLATE_IDS.UX_INTENT_DEFINITION],
+  ["brownfield-analysis", ARTEFACT_TEMPLATE_IDS.BROWNFIELD_REVIEW],
+]) {
+  const reassessDispatch = createSkillDispatchService({
+    resolveTaskTarget: () => resolved,
+    renderTaskTargetOrientation: () => orientation,
+    evaluateGateCheck: () => ({
+      ...gateReport,
+      status: "open",
+      current_gate: "PRD",
+      blocking_reason: "none",
+      missing_approval: "none",
+      approval_presentation: null,
+      next_operation: { type: "reassess_source_analysis", skill_id: owner },
+      status_card: { run_id: "delivery-run" },
+    }),
+    env: {},
+  })({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo",
+    runId: "delivery-run", continueDelivery: true });
+  assert.equal(reassessDispatch.continuation.phase, "source_analysis_reassessment");
+  assert.equal(reassessDispatch.continuation.skill_id, owner);
+  assert.equal(reassessDispatch.continuation.template_path, resolveArtefactTemplatePath(templateId));
+}
 
 console.log("skill dispatch tests passed");
 

@@ -1,0 +1,1063 @@
+{
+  "marker": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-a90b74966806",
+    "source_digest": "a90b7496680641d762f28e08318cf5cec772e37807b3c23497153b1ee9ac60d5",
+    "runtime_digest": "8d3c12ec1cf8b4d6a36709cd0540a316db1422b1337f5b1b83bb4aaccc676c72"
+  },
+  "parser_cases": [
+    {
+      "name": "title and metadata",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "canonical section",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "closing heading markers",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "case and CRLF section",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "long unrelated heading",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "many sibling tags",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "metadata section agreement",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "metadata section conflict",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "two authored sections conflict",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "explicit empty section result",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unknown explicit section result",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "prose is not metadata",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "prose before first title",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "later title does not reopen metadata",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unrelated section",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "example section",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "nested decision heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "lookalike heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "suffixed heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "indented heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "prose within decision section",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "blank cannot reopen metadata",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "explicit quote",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "lazy quote continuation",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "lazy nested quote",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quoted heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quote blank then bare field",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "actual heading interrupts quote",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "indented code",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "tab code",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "list continuation",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "nested list field",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "ordered list continuation",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "list indented heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "fence only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "tilde fence only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "fence before genuine section",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "fence cannot reopen bare fields",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "short fence close",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "opposite fence close",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "fence close with text",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "indented valid fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quoted fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "list fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "header unknown decision with markup",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unknown unicode-separated scalar",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unicode fence info",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "inline code is not HTML container",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "escaped HTML marker",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html quote only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html quote after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html quote before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nested quote only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html nested quote after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nested quote before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html details only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html details after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html details before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nesting only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html nesting after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nesting before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "quoted close attribute only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quoted close attribute after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "quoted close attribute before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "multiline attribute only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "multiline attribute after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "multiline attribute before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "comment after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment inside HTML only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "comment inside HTML after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment inside HTML before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "CDATA only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "CDATA after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "CDATA before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "processing instruction only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "processing instruction after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "processing instruction before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration subset after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset comment only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration subset comment after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset comment before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset instruction only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration subset instruction after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset instruction before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset CDATA only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration subset CDATA after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset CDATA before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "pre after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre code nesting only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "pre code nesting after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre code nesting before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "code only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "code after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "code before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "script only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "script after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "script before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "style only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "style after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "style before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "textarea only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "textarea after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "textarea before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "unclosed html",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed comment",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed attribute",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "mismatched html",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "sibling unclosed html",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "markup in title",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "nonvoid slash",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "raw nonvoid slash",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed declaration subset",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "mismatched pre code",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed subset comment",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "pass with illustrative pass",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative revise",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative block",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative unknown",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative empty",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "revise with illustrative pass",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative revise",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative block",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative unknown",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative empty",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "block with illustrative pass",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative revise",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative block",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative unknown",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative empty",
+      "expected": "block",
+      "actual": "block"
+    }
+  ],
+  "internal_cases": 6,
+  "flows": [
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "protocol": "2026-07-28",
+      "outcome": "pass",
+      "completed": true,
+      "replay": "already_applied",
+      "negative_canonical_state_unchanged": true,
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+        "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+        "provenance_status": "matched"
+      }
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "protocol": "2026-07-28",
+      "outcome": "pass",
+      "completed": true,
+      "replay": "already_applied",
+      "negative_canonical_state_unchanged": true,
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+        "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+        "provenance_status": "matched"
+      }
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "protocol": "2026-07-28",
+      "outcome": "pass",
+      "completed": true,
+      "replay": "already_applied",
+      "negative_canonical_state_unchanged": true,
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+        "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+        "provenance_status": "matched"
+      }
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "protocol": "2026-07-28",
+      "outcome": "pass",
+      "completed": true,
+      "replay": "already_applied",
+      "negative_canonical_state_unchanged": true,
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+        "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+        "provenance_status": "matched"
+      }
+    },
+    {
+      "route": "quick_task",
+      "protocol": "default-negotiation",
+      "outcome": "pass",
+      "negative_canonical_state_unchanged": true,
+      "completed": true,
+      "replay": "already_applied"
+    }
+  ],
+  "refusals": [
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "bare-result",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "placeholder",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "missing-limits",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "quote-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "code-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "html-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "duplicate",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "scenario": "association-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "bare-result",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "placeholder",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "missing-limits",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "quote-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "code-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "html-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "duplicate",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "scenario": "association-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "bare-result",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "placeholder",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "missing-limits",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "quote-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "code-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "html-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "duplicate",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "association-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "scenario": "missing-translation",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "bare-result",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "placeholder",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "missing-limits",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "quote-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "code-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "html-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "duplicate",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "association-only",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "scenario": "missing-translation",
+      "blocked": true,
+      "canonical_state_unchanged": true
+    }
+  ],
+  "renderings": [
+    {
+      "route": "structured_delivery",
+      "requested_language": "fr-CA",
+      "effective_language": "en",
+      "text": "## Review and decide on user acceptance\n\nAn operator can save and restore one named filter.\n\n- Intended outcome: An operator can save and restore one named filter.\n- Delivered result: The isolated fixture implements its declared scoped behavior and retains actual check evidence.\n- Technical QA: pass\n- Qualification limits: Only disposable synthetic execution is observed; native host qualification is unobserved.\n- Risks and open issues: none\n- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.\n\nPrepare the delivery report; version-control and release actions still require explicit instruction.\n\nReply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.\n\nDiscuss questions and requested changes in Chat. Approve this version in Chat with Approval: UAT.\n\n<details><summary>Details and evidence</summary>\n\n- Intended outcome: An operator can save and restore one named filter.\n- Delivered result: The isolated fixture implements its declared scoped behavior and retains actual check evidence.\n- Technical QA: pass\n- Qualification limits: Only disposable synthetic execution is observed; native host qualification is unobserved.\n- Risks and open issues: none\n- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.\n\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Superseded or unassociated evidence: 7\n\n- QA: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · sha256:1b68518549f65f4beeff9929848d6680eb242e946bb6db413d54953aef96c9c5\n- UR: .agdf/control/artefacts/structured-closeout-command/UR.md · sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a\n\n</details>\n\n<details><summary>Version and sources</summary>\n\nRun: `structured-closeout-command` · User acceptance · Revision: `2443b45b-173c-4682-a4bb-846240995146`\n\nSHA-256: `sha256:0cb615ccdea5ab6a5254021dc512819bb25915e56adb8fc071271fa5c160bbb8`\n\n</details>"
+    },
+    {
+      "route": "structured_delivery",
+      "language": "en",
+      "presentation_id": "2742e4ff-e250-435a-924f-f0cd7eb52dc0",
+      "document": "## Review summary · UAT\n\nRun: `structured-closeout-command` · Gate: `UAT` · Revision: `2443b45b-173c-4682-a4bb-846240995146`\n\n- Intended outcome: An operator can save and restore one named filter.\n- Delivered result: The isolated fixture implements its declared scoped behavior and retains actual check evidence.\n- Technical QA: pass\n- Qualification limits: Only disposable synthetic execution is observed; native host qualification is unobserved.\n- Risks and open issues: none\n- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.\n\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Superseded or unassociated evidence: 7\n\n- QA: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · sha256:1b68518549f65f4beeff9929848d6680eb242e946bb6db413d54953aef96c9c5\n- UR: .agdf/control/artefacts/structured-closeout-command/UR.md · sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a\n\n## Available UAT evidence\n\n- Brownfield Analysis · Quelle: .agdf/control/artefacts/structured-closeout-command/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association\n- CD+Tests · Quelle: .agdf/control/artefacts/structured-closeout-command/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association\n- TP Review · Quelle: .agdf/control/artefacts/structured-closeout-command/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- Clean Implementation Review · Quelle: .agdf/control/artefacts/structured-closeout-command/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- CR · Quelle: .agdf/control/artefacts/structured-closeout-command/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- QA · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association\n- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- UR draft · Quelle: `.agdf/control/artefacts/structured-closeout-command/UR.md` · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Brownfield Review · Quelle: `.agdf/control/artefacts/structured-closeout-command/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/mapping-30506474-4780-4daf-a898-dfa007da026b.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-e6d2393c-bf2c-4b06-b898-760e97058f8d.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-dffa9c3a-a9c8-47c1-8d6b-555fee26be83.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_MAPPING.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown"
+    },
+    {
+      "route": "structured_slice",
+      "requested_language": "fr-CA",
+      "effective_language": "en",
+      "text": "## Review and decide on user acceptance\n\nAn operator can save and restore one named filter.\n\n- Intended outcome: An operator can save and restore one named filter.\n- Delivered result: The isolated fixture implements its declared scoped behavior and retains actual check evidence.\n- Technical QA: pass\n- Qualification limits: Only disposable synthetic execution is observed; native host qualification is unobserved.\n- Risks and open issues: none\n- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.\n\nPrepare the delivery report; version-control and release actions still require explicit instruction.\n\nReply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.\n\nDiscuss questions and requested changes in Chat. Approve this version in Chat with Approval: UAT.\n\n<details><summary>Details and evidence</summary>\n\n- Intended outcome: An operator can save and restore one named filter.\n- Delivered result: The isolated fixture implements its declared scoped behavior and retains actual check evidence.\n- Technical QA: pass\n- Qualification limits: Only disposable synthetic execution is observed; native host qualification is unobserved.\n- Risks and open issues: none\n- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.\n\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Superseded or unassociated evidence: 7\n\n- QA: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · sha256:1b68518549f65f4beeff9929848d6680eb242e946bb6db413d54953aef96c9c5\n- UR: .agdf/control/artefacts/structured-closeout-command/UR.md · sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a\n\n</details>\n\n<details><summary>Version and sources</summary>\n\nRun: `structured-closeout-command` · User acceptance · Revision: `4176eb0a-882d-45e9-a2aa-9b4cb2e8b5c3`\n\nSHA-256: `sha256:a7e6fec45a00c2f5d65f141ea1458b519477d725a5877491665d96a47a0c8c59`\n\n</details>"
+    },
+    {
+      "route": "structured_slice",
+      "language": "en",
+      "presentation_id": "41768c97-c836-4a44-95cf-69657a9994ac",
+      "document": "## Review summary · UAT\n\nRun: `structured-closeout-command` · Gate: `UAT` · Revision: `4176eb0a-882d-45e9-a2aa-9b4cb2e8b5c3`\n\n- Intended outcome: An operator can save and restore one named filter.\n- Delivered result: The isolated fixture implements its declared scoped behavior and retains actual check evidence.\n- Technical QA: pass\n- Qualification limits: Only disposable synthetic execution is observed; native host qualification is unobserved.\n- Risks and open issues: none\n- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.\n\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Superseded or unassociated evidence: 7\n\n- QA: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · sha256:1b68518549f65f4beeff9929848d6680eb242e946bb6db413d54953aef96c9c5\n- UR: .agdf/control/artefacts/structured-closeout-command/UR.md · sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a\n\n## Available UAT evidence\n\n- Brownfield Analysis · Quelle: .agdf/control/artefacts/structured-closeout-command/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association\n- CD+Tests · Quelle: .agdf/control/artefacts/structured-closeout-command/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association\n- TP Review · Quelle: .agdf/control/artefacts/structured-closeout-command/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- Clean Implementation Review · Quelle: .agdf/control/artefacts/structured-closeout-command/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- CR · Quelle: .agdf/control/artefacts/structured-closeout-command/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- QA · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association\n- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- UR draft · Quelle: `.agdf/control/artefacts/structured-closeout-command/UR.md` · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Brownfield Review · Quelle: `.agdf/control/artefacts/structured-closeout-command/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/mapping-dd537157-6008-4899-afe1-292448e4d3b3.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-be1e905e-c621-401d-99a0-3c4c7cbaecaa.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-2ebb6d9f-76d2-4aee-a371-2d8eaa807dea.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_MAPPING.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown"
+    },
+    {
+      "route": "structured_delivery",
+      "language": "de",
+      "presentation_id": "78d9a083-affb-47ca-a0c3-a5725a21e01e",
+      "document": "## Kurzfassung · UAT\n\nRun: `structured-closeout-command` · Gate: `UAT` · Revision: `aed052b5-6ab2-4683-916e-38f2e949866d`\n\n- Ziel: Einen benannten persönlichen Filter speichern und wiederherstellen.\n- Geliefertes Ergebnis: Die isolierte Implementierung erfüllt das erklärte synthetische Verhalten; Prüfnachweise liegen vor.\n- Technische QA: pass\n- Nachweisgrenzen: Nur isolierte synthetische Ausführung; native Hostqualifikation nicht beobachtet.\n- Risiken und offene Punkte: keine\n- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.\n\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Ersetzte oder nicht zugeordnete Nachweise: 7\n\n- QA: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · sha256:1b68518549f65f4beeff9929848d6680eb242e946bb6db413d54953aef96c9c5\n- UR: .agdf/control/artefacts/structured-closeout-command/UR.md · sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a\n\n## Vorliegende UAT-Evidenz\n\n- Brownfield Analysis · Quelle: .agdf/control/artefacts/structured-closeout-command/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association\n- CD+Tests · Quelle: .agdf/control/artefacts/structured-closeout-command/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association\n- TP Review · Quelle: .agdf/control/artefacts/structured-closeout-command/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- Clean Implementation Review · Quelle: .agdf/control/artefacts/structured-closeout-command/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- CR · Quelle: .agdf/control/artefacts/structured-closeout-command/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- QA · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association\n- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- UR draft · Quelle: `.agdf/control/artefacts/structured-closeout-command/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Brownfield Review · Quelle: `.agdf/control/artefacts/structured-closeout-command/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/mapping-31bb229f-9ef9-4a10-b261-41318619b4b8.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-3a59f197-f25e-4dae-bb8f-3049e417ca0a.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-9613e9ca-6202-49dd-aaf3-133a8ee07ef5.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_MAPPING.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt"
+    },
+    {
+      "route": "structured_slice",
+      "language": "de",
+      "presentation_id": "e940e1a9-1b0b-4145-8a31-583e71b03115",
+      "document": "## Kurzfassung · UAT\n\nRun: `structured-closeout-command` · Gate: `UAT` · Revision: `728ea215-e9e1-4390-a8ff-ec051d20de5b`\n\n- Ziel: Einen benannten persönlichen Filter speichern und wiederherstellen.\n- Geliefertes Ergebnis: Die isolierte Implementierung erfüllt das erklärte synthetische Verhalten; Prüfnachweise liegen vor.\n- Technische QA: pass\n- Nachweisgrenzen: Nur isolierte synthetische Ausführung; native Hostqualifikation nicht beobachtet.\n- Risiken und offene Punkte: keine\n- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.\n\n- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)\n- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)\n- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)\n- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)\n- Ersetzte oder nicht zugeordnete Nachweise: 7\n\n- QA: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · sha256:1b68518549f65f4beeff9929848d6680eb242e946bb6db413d54953aef96c9c5\n- UR: .agdf/control/artefacts/structured-closeout-command/UR.md · sha256:ada74f10a4c173134cf21752cfc0a7655c1efe0a801967bbd361a65c9d955e7a\n\n## Vorliegende UAT-Evidenz\n\n- Brownfield Analysis · Quelle: .agdf/control/artefacts/structured-closeout-command/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association\n- CD+Tests · Quelle: .agdf/control/artefacts/structured-closeout-command/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association\n- TP Review · Quelle: .agdf/control/artefacts/structured-closeout-command/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- Clean Implementation Review · Quelle: .agdf/control/artefacts/structured-closeout-command/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- CR · Quelle: .agdf/control/artefacts/structured-closeout-command/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association\n- QA · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association\n- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- UR draft · Quelle: `.agdf/control/artefacts/structured-closeout-command/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Brownfield Review · Quelle: `.agdf/control/artefacts/structured-closeout-command/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/mapping-edac965d-e11f-4b59-a283-3b8c0ad19181.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-fa5e2b04-105f-4cce-8444-7483aabc04f0.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/review-f0c463b2-2c2b-4cc6-a0dc-6366450a2c1a.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt\n- Artefact source binding · Quelle: .agdf/control/artefacts/structured-closeout-command/QA_MAPPING.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt"
+    }
+  ],
+  "native_model_observed": false
+}

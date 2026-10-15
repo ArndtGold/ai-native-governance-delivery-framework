@@ -1,0 +1,4 @@
+import{readFileSync}from'node:fs';import{fileURLToPath}from'node:url';import{withStdioClient}from'../../../../../packages/mcp-server/test/helpers.js';
+const plugin='/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf';const config=JSON.parse(readFileSync(plugin+'/mcp.json','utf8')).mcpServers.agdf;
+const {input}=JSON.parse(readFileSync(new URL('./live-code-dispatch.json',import.meta.url),'utf8'));
+await withStdioClient({command:config.command,args:[fileURLToPath(new URL('./diagnostic-boot.mjs',import.meta.url)),...config.args.slice(1)],cwd:input.working_directory,modern:true},async client=>{const out=await client.callTool({name:'agdf_dispatch',arguments:input});const{writeFileSync}=await import('node:fs');writeFileSync(new URL('./diagnostic-dispatch.result.json',import.meta.url),JSON.stringify(out,null,2)+'\n');console.log(out.structuredContent?.outcome);});

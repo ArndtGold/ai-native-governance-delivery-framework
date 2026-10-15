@@ -131,6 +131,10 @@ may apply this policy only with complete, versioned neutral depth facts.
 
 After `Approval: UR`, Brownfield Review may select `verified_change` only when a durable `VERIFIED_CHANGE.md` record can prove all of the following before implementation:
 
+The existing gate-check/evaluator compact-record owner receives the bound absolute plugin-owned
+`template_path` for `VERIFIED_CHANGE.md`. It must not create another skill, route or template lookup,
+and it must not fall back to repository scaffold copies when the plugin template is unavailable.
+
 1. exactly one repository-relative canonical owner and bounded source/derived paths;
 2. no gate, permission, security, persistence, architecture, external API, CLI or release behavior impact;
 3. deterministic propagation when derived paths exist, plus at least one deterministic validation command;

@@ -44,11 +44,21 @@ export function mcpRuntimeRetirementState(root) {
   } catch { return 'retained'; }
 }
 
-export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), generation = 1 } = {}) {
+const CLAIM_WAIT_MS = 5_550;
+const CLAIM_POLL_MS = 150;
+
+export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), generation = 1,
+  publicationDeadline = Infinity, clock = () => performance.now(),
+  wait = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms) } = {}) {
   const root = resolve(runtime.root);
   if (runtime.status !== 'matched' || !Number.isSafeInteger(generation) || generation < 1
     || !/^[0-9a-f-]{36}$/u.test(ownerEpoch)) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
-  return withOwnedFileLock(join(dirname(root), '.agdf-publication'), () => {
+  const publication = join(dirname(root), '.agdf-publication');
+  const started = clock();
+  if (!Number.isFinite(started) || typeof publicationDeadline !== 'number' || Number.isNaN(publicationDeadline)) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+  const deadline = Math.min(started + CLAIM_WAIT_MS, publicationDeadline);
+  if (publicationDeadline <= started) throw Error('AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
+  const attempt = () => withOwnedFileLock(publication, () => {
     if (realpathSync(root) !== root || lstatSync(root).isSymbolicLink()) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
     const fresh = inspectMcpServerPackage({ dataRoot: dirname(root), expectedVersion: runtime.version });
     if (fresh.status !== 'matched' || fresh.digest !== runtime.digest || fresh.dispatcherDigest !== runtime.dispatcherDigest
@@ -57,6 +67,7 @@ export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), 
     if (marker.owner !== OWNER || marker.executable_retention !== 'claimed_immutable'
       || marker.server_digest !== runtime.digest || marker.dispatcher_digest !== runtime.dispatcherDigest
       || marker.sdk_digest !== runtime.sdkDigest) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
+    if (clock() >= publicationDeadline) throw Error('AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
     const dir = join(root, CLAIMS);
     if (existsSync(dir) && lstatSync(dir).isSymbolicLink()) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
     mkdirSync(dir, { recursive: true });
@@ -80,6 +91,19 @@ export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), 
       },
     });
   });
+  let contended = false;
+  for (;;) {
+    if (contended && clock() >= deadline) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED');
+    try { return attempt(); }
+    catch (error) {
+      if (error?.message !== 'AGDF_RUN_WRITE_LOCKED' || error.lock_path !== `${publication}.lock`) throw error;
+      if (error.lock_owner_status !== 'live') throw Error('AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED');
+      contended = true;
+      const remaining = deadline - clock();
+      if (remaining <= 0) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED');
+      wait(Math.min(CLAIM_POLL_MS, remaining));
+    }
+  }
 }
 
 export function mcpRuntimeDataRoot({ dataRoot, scope, target } = {}) {
@@ -118,6 +142,11 @@ function nodeMajor(version = process.versions.node) {
 
 export function inspectMcpServerPackage({ dataRoot, expectedVersion } = {}) {
   const root = defaultNpmInstallRoot(resolve(dataRoot), expectedVersion);
+  return inspectPackageRoot(root, expectedVersion);
+}
+
+export function inspectMcpExecutableRoot({ root, expectedVersion } = {}) {
+  if (!isAbsolute(root ?? '') || realpathSync(root) !== root) throw Error('AGDF_MCP_RUNTIME_PATH_INVALID');
   return inspectPackageRoot(root, expectedVersion);
 }
 
@@ -258,14 +287,23 @@ function preparePackageLocked({
   // Recorded in the marker as sdk_verification when set ("verified" | "unverified_override").
   sdkVerification = null,
   immutable = false,
+  publicationDeadline = Infinity,
 } = {}) {
   if (!dataRoot || !expectedVersion || typeof packageSpec !== "string" || !packageSpec.trim()
       || (dispatcherPackageSpec !== null && (typeof dispatcherPackageSpec !== "string" || !dispatcherPackageSpec.trim()))) {
     throw new Error("AGDF_MCP_PACKAGE_INPUT_INVALID");
   }
   if (nodeMajor(nodeVersion) < 22) throw new Error("AGDF_MCP_NODE_UNSUPPORTED");
+  if (typeof publicationDeadline !== 'number' || Number.isNaN(publicationDeadline)) throw Error('AGDF_MCP_PACKAGE_INPUT_INVALID');
+  const remainingBudget = () => {
+    const remaining = publicationDeadline - performance.now();
+    if (remaining <= 0) throw Error('AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
+    return remaining;
+  };
+  remainingBudget();
   const existing = inspectMcpServerPackage({ dataRoot, expectedVersion });
   if (existing.status === "matched") {
+    remainingBudget();
     return Object.freeze({ ...existing, changed: false, commit() {}, rollback() {} });
   }
   if (existing.status !== "absent") throw new Error("AGDF_MCP_RUNTIME_UNOWNED");
@@ -277,18 +315,26 @@ function preparePackageLocked({
   let movedToStable = false;
   try {
     writeFileSync(join(stage, "package.json"), `${JSON.stringify({ private: true }, null, 2)}\n`, "utf8");
+    const acquireWithBudget = invocation => {
+      const remaining = remainingBudget();
+      try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: 'pipe',
+        ...(Number.isFinite(remaining) ? { timeout: Math.max(1, Math.floor(remaining)), killSignal: 'SIGKILL' } : {}) }); }
+      catch (error) {
+        if (Number.isFinite(remaining) && error?.code === 'ETIMEDOUT') throw Error('AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
+        remainingBudget(); throw Error('AGDF_MCP_PACKAGE_ACQUISITION_FAILED');
+      }
+      remainingBudget();
+    };
     const install = (specs) => {
       const invocation = npmInvocation([
         "install", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev", "--save-exact", ...specs,
       ], { execPath, ...npmOptions });
-      try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
-      catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
+      acquireWithBudget(invocation);
     };
     // Installs exactly the stage's package-lock.json; npm verifies every tarball against its integrity.
     const installLocked = () => {
       const invocation = npmInvocation(["ci", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev"], { execPath, ...npmOptions });
-      try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
-      catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
+      acquireWithBudget(invocation);
     };
     if (acquire) acquire({ stage, install, installLocked });
     else install([packageSpec, ...(dispatcherPackageSpec ? [dispatcherPackageSpec] : [])]);
@@ -338,10 +384,12 @@ function preparePackageLocked({
       references: [],
       ...(immutable ? { executable_retention: 'claimed_immutable' } : {}),
     }, null, 2)}\n`, "utf8");
+    remainingBudget();
     renameSyncWithRetry(stage, stableRoot);
     movedToStable = true;
     const installed = inspectMcpServerPackage({ dataRoot, expectedVersion });
     if (installed.status !== "matched") throw new Error("AGDF_MCP_SERVER_VERIFICATION_FAILED");
+    remainingBudget();
     let committed = false;
     return Object.freeze({
       ...installed,
@@ -385,14 +433,20 @@ export function createMcpRuntimeReferenceTransaction(runtime, references) {
   let applied = false;
   return Object.freeze({
     apply() {
-      writeMarkerAtomically(runtime.markerPath, after);
-      applied = true;
+      withOwnedFileLock(join(dirname(runtime.root), '.agdf-publication'), () => {
+        if (readFileSync(runtime.markerPath, 'utf8') !== before) throw Error('AGDF_MCP_RUNTIME_REFERENCE_CHANGED');
+        writeMarkerAtomically(runtime.markerPath, after);
+        applied = true;
+      });
     },
     commit() { applied = false; },
     rollback() {
       if (!applied) return;
-      writeMarkerAtomically(runtime.markerPath, before);
-      applied = false;
+      withOwnedFileLock(join(dirname(runtime.root), '.agdf-publication'), () => {
+        if (readFileSync(runtime.markerPath, 'utf8') !== after) throw Error('AGDF_MCP_RUNTIME_REFERENCE_CHANGED');
+        writeMarkerAtomically(runtime.markerPath, before);
+        applied = false;
+      });
     },
   });
 }
@@ -433,7 +487,7 @@ export const mcpPackageConstants = Object.freeze({ owner: OWNER, marker: MARKER 
 
 // Package selectors are resolved only by the existing publisher. The serving
 // facade supplies its own verified publication root; inputs never select paths.
-export function createMcpGenerationPublisher(base) {
+export function createMcpGenerationPublisher(base, { publicationDeadline = Infinity } = {}) {
   const canonical = realpathSync(base.publisher_root);
   if (canonical !== base.publisher_root || !base.immutable) throw Error('runtime_publication_unowned');
   return Object.freeze({
@@ -453,6 +507,7 @@ export function createMcpGenerationPublisher(base) {
         || runtime.sdkVerification !== 'verified') throw Error('runtime_candidate_digest_mismatch');
       return Object.freeze({ ...runtime, immutable: true, publication_id: candidate.publication_id, publisher_root: canonical });
     },
-    acquire: (runtime, ownership) => acquireMcpExecutableClaim(runtime, ownership),
+    acquire: (runtime, ownership) => acquireMcpExecutableClaim(runtime, { ...ownership,
+      ...(runtime === base ? { publicationDeadline } : {}) }),
   });
 }

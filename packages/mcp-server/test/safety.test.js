@@ -72,10 +72,10 @@ for (const name of readdirSync(sourceRoot).filter((value) => value.endsWith(".js
 }
 const dispatcherRoot = resolve(repositoryRoot, "dist/npm/create-agdf");
 const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
-  "rmdirSync", "mkdirSync", "openSync", "fsyncSync"];
+  "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"];
 // Bound continuation composes the existing writer; the MCP adapter adds no write owner.
 const continuationWriteOwners = new Map([
-  ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync"]],
+  ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync", "linkSync"]],
   ["runtime/core/lib/fs-swap.js", ["renameSync"]],
   ["runtime/core/lib/control-read/snapshot.js", ["openSync"]],
   ["runtime/core/lib/control-state/run-presentation.js", ["writeFileSync", "mkdirSync", "openSync", "fsyncSync"]],
@@ -83,7 +83,7 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/control-state/run-owned-outputs.js", ["unlinkSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
-  assert.deepEqual(writeSymbols.filter(symbol => content.includes(symbol)), owners.get(packagePath) ?? [],
+  assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
     `module ${packagePath} exceeds its declared filesystem write boundary`);
 }
 for (const [path, content] of visited) {
@@ -181,6 +181,35 @@ await assert.rejects(
   (error) => error.code === "dispatch_cancelled",
 );
 assert.equal(preCancelledExecutor.active, false);
+
+// Capacity protects the old Worker until its actual termination confirmation, including failed/hung cleanup.
+for (const mode of ['delayed', 'rejected', 'hung']) {
+  let instance;
+  class DrainingWorker extends EventEmitter {
+    constructor() { super(); instance = this; }
+    terminate() {
+      if (mode === 'rejected') return Promise.reject(Error('PRIVATE_TERMINATION_SECRET'));
+      return new Promise(resolve => { this.confirm = resolve; });
+    }
+  }
+  const phases = [];
+  const draining = createWorkerDispatchExecutor({ WorkerClass: DrainingWorker, timeoutMs: 40, onEvent: event => phases.push(event.phase) });
+  const result = draining.execute({ private: 'PRIVATE_PAYLOAD_SECRET' });
+  instance.emit('message', { type: 'phase', phase: 'PRIVATE_PHASE_SECRET' });
+  instance.emit('message', { type: 'phase', phase: 'operation' });
+  instance.emit('message', { type: 'result', result: 'done' });
+  assert.equal(draining.active, true);
+  await assert.rejects(draining.execute({}), error => error.code === 'dispatch_busy' && error.dispatch === 'not_dispatched');
+  if (mode === 'delayed') {
+    instance.confirm(0); assert.equal(await result, 'done'); assert.equal(draining.active, false);
+  } else {
+    await assert.rejects(result, error => error.code === 'dispatch_worker_termination_unconfirmed' && error.dispatch === 'unknown');
+    assert.equal(draining.active, true);
+    await draining.close(); assert.equal(draining.active, true);
+    instance.emit('exit', 0); assert.equal(draining.active, false);
+  }
+  assert.equal(JSON.stringify(phases).includes('PRIVATE_'), false);
+}
 
 const runtime = createMcpDispatchRuntime({ surface: "codex" });
 const sanitized = runtime.failure("dispatch_worker_failed");

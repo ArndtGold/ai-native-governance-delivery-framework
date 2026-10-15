@@ -26,7 +26,7 @@ Traceability contract: criteria-chain-v1
 
 // Every positive approval is a new synthetic reply through canonical services/commands.
 // No production Run, approval or source is copied or revised by this fixture.
-export function createLateSourceRevisionTestRun(root, validator, runId = "late-source-test", env = process.env, { tpEncoding = "lf", route = "structured_delivery" } = {}) {
+export function createLateSourceRevisionTestRun(root, validator, runId = "late-source-test", env = process.env, { tpEncoding = "lf", route = "structured_delivery", prepare = true } = {}) {
   const f = createSdDefinitionTestRun(root, validator, runId, env, { typedApprovals: true, route });
   const state = () => parseRunState(readFileSync(f.state, "utf8"), runId);
   const control = () => parseControlState(state().content, { userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"], internalSteps: ["Brownfield Review", "UX Intent Definition", "Brownfield Analysis", "CD+Tests", "CR"] });
@@ -57,7 +57,7 @@ export function createLateSourceRevisionTestRun(root, validator, runId = "late-s
   };
   writeFileSync(f.file("SD.md"), syntheticSd()); recordSource("SD"); approveSource("SD");
   writeFileSync(f.file("TP.md"), tpEncoding === "crlf_bom" ? "\ufeff" + syntheticTp().replace(/\n/gu, "\r\n") : syntheticTp());
-  recordSource("TP"); approveSource("TP"); prepareImplementation();
+  recordSource("TP"); approveSource("TP"); if (prepare) prepareImplementation();
   const proposal = (sourceGate, analyses = "retain", operationId = randomUUID()) => sourceRevisionTestProposal(root, { ...f, control }, sourceGate, analyses, operationId);
   return { ...f, readState: state, control, recordSource, approveSource, prepareImplementation, proposal };
 }

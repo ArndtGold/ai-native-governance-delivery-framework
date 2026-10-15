@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync, execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -26,6 +26,85 @@ try {
   const contracts = readSkillRuntimeContracts("code-review");
   assert.deepEqual(contracts.map(contract => contract.module), ["quality", "context-graph"]);
   assert.ok(contracts.every(contract => contract.content.length > 0 && contract.sha256.length === 64));
+
+  // The Copilot projection resolves contracts from the plugin root after its dispatcher package is
+  // moved into an isolated MCP generation under node_modules.
+  const copilotPluginRoot = join(pluginRoot, "..", "copilot", "agdf");
+  const copilotPrepared = ensurePluginMcpRuntime({
+    pluginRoot: copilotPluginRoot,
+    dataRoot: join(root, "copilot-data"),
+    exec: offlineNpm,
+  });
+  const coreContractsUrl = pathToFileURL(
+    join(copilotPrepared.dispatcherRoot, "runtime", "core", "lib", "resources", "contracts.js")
+  ).href;
+  const copilotContracts = spawnSync(process.execPath, ["--input-type=module", "--eval", `
+    const { readSkillRuntimeContracts } = await import(${JSON.stringify(coreContractsUrl)});
+    console.log(JSON.stringify(readSkillRuntimeContracts("brownfield-analysis").map(({ module }) => module)));
+  `], {
+    encoding: "utf8",
+    env: { ...process.env, AGDF_DISPATCH_PLUGIN_ROOT: copilotPluginRoot },
+  });
+  assert.equal(copilotContracts.status, 0, copilotContracts.stderr);
+  assert.deepEqual(JSON.parse(copilotContracts.stdout), ["gate-transition", "modes", "context-graph", "quality"]);
+  const artefactTemplatesUrl = pathToFileURL(
+    join(copilotPrepared.dispatcherRoot, "runtime", "core", "lib", "resources", "artefact-templates.js")
+  ).href;
+  const copilotTemplate = spawnSync(process.execPath, ["--input-type=module", "--eval", `
+    const { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } = await import(${JSON.stringify(artefactTemplatesUrl)});
+    console.log(JSON.stringify(Object.values(ARTEFACT_TEMPLATE_IDS).map((id) => resolveArtefactTemplatePath(id))));
+  `], {
+    encoding: "utf8",
+    env: { ...process.env, AGDF_DISPATCH_PLUGIN_ROOT: copilotPluginRoot },
+  });
+  assert.equal(copilotTemplate.status, 0, copilotTemplate.stderr);
+  assert.deepEqual(JSON.parse(copilotTemplate.stdout), [
+    "UR.md", "PRD.md", "SD.md", "TP.md", "UX_INTENT_DEFINITION.md",
+    "BROWNFIELD_REVIEW.md", "VERIFIED_CHANGE.md", "QA_REPORT.md", "OR.md",
+  ].map((name) => join(copilotPluginRoot, "control", "templates", "artefacts", name)));
+  const missingPluginRoot = spawnSync(process.execPath, ["--input-type=module", "--eval", `
+    const { resources } = await import(${JSON.stringify(pathToFileURL(
+      join(copilotPrepared.dispatcherRoot, "runtime", "core", "lib", "resources", "context.js")
+    ).href)});
+    const { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } = await import(${JSON.stringify(artefactTemplatesUrl)});
+    if (resources.templatesRoot !== null) process.exit(10);
+    try { resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.UR); process.exit(11); }
+    catch (error) { console.log(error.code); }
+  `], {
+    encoding: "utf8",
+    env: Object.fromEntries(Object.entries(process.env).filter(([key]) => key !== "AGDF_DISPATCH_PLUGIN_ROOT")),
+  });
+  assert.equal(missingPluginRoot.status, 0, missingPluginRoot.stderr);
+  assert.equal(missingPluginRoot.stdout.trim(), "AGDF_ARTEFACT_TEMPLATE_ROOT_UNAVAILABLE");
+  // Package-shipped templates are authoritative without any environment: the plugin-bundle
+  // dispatcher resolves <plugin>/control/templates from its own location.
+  const shippedTemplatesUrl = pathToFileURL(
+    join(pluginRoot, "runtime", "create-agdf", "runtime", "core", "lib", "resources", "artefact-templates.js")
+  ).href;
+  const shippedTemplate = spawnSync(process.execPath, ["--input-type=module", "--eval", `
+    const { ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } = await import(${JSON.stringify(shippedTemplatesUrl)});
+    console.log(resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.UR));
+  `], {
+    encoding: "utf8",
+    env: Object.fromEntries(Object.entries(process.env).filter(([key]) => key !== "AGDF_DISPATCH_PLUGIN_ROOT")),
+  });
+  assert.equal(shippedTemplate.status, 0, shippedTemplate.stderr);
+  assert.equal(shippedTemplate.stdout.trim(), join(pluginRoot, "control", "templates", "artefacts", "UR.md"));
+  // A plugin root whose runtime manifest does not carry this exact version never overlays resources.
+  const stalePluginRoot = join(root, "stale-plugin");
+  cpSync(copilotPluginRoot, stalePluginRoot, { recursive: true });
+  const staleManifestPath = join(stalePluginRoot, "runtime", "runtime-manifest.json");
+  writeFileSync(staleManifestPath, JSON.stringify({ ...JSON.parse(readFileSync(staleManifestPath, "utf8")), version: "0.0.0-stale" }));
+  for (const untrusted of [stalePluginRoot, "relative/plugin"]) {
+    const ignored = spawnSync(process.execPath, ["--input-type=module", "--eval", `
+      const { resources } = await import(${JSON.stringify(pathToFileURL(
+        join(copilotPrepared.dispatcherRoot, "runtime", "core", "lib", "resources", "context.js")
+      ).href)});
+      console.log(JSON.stringify(resources.templatesRoot));
+    `], { encoding: "utf8", env: { ...process.env, AGDF_DISPATCH_PLUGIN_ROOT: untrusted } });
+    assert.equal(ignored.status, 0, ignored.stderr);
+    assert.equal(ignored.stdout.trim(), "null", `untrusted plugin root ${untrusted} must not overlay templates`);
+  }
 
   const again = ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot, exec() { throw new Error("a matched runtime must not reinstall"); } });
   assert.equal(again.changed, false);
@@ -114,6 +193,7 @@ for (const invalid of [["--cockpit-dir"], ["--cockpit-dir", "relative/project"],
       stdout: { write() {} }, stderr: { write(text) { throw Error(text); } }, ensure: () => runtime,
       acquireClaim: value => { assert.equal(value, runtime); retained = true; },
       startFacade: async input => { assert.equal(retained, true); assert.equal(input.runtime, runtime);
+        assert.equal(input.pluginRoot, pluginRoot);
         assert.equal(input.surface, 'claude'); assert.equal(input.cockpitDir, cockpitDir); return 'owned-facade'; } });
     assert.equal(result, 'owned-facade');
   }
@@ -205,6 +285,8 @@ try {
   assert.equal(failures.length, 1);
   assert.match(failures[0], /^AGDF_MCP_SDK_DIGEST_MISMATCH: .+\. Check your npm registry or mirror and restart; to accept an unverified SDK deliberately, set AGDF_MCP_ALLOW_UNVERIFIED_SDK=1\.\n$/u);
   assert.match(launcherFailureLine("AGDF_MCP_RUNTIME_UNOWNED"), /^AGDF_MCP_RUNTIME_UNOWNED: .+\. Move the directory away and restart\.$/u);
+  assert.doesNotMatch(launcherFailureLine('AGDF_PRIVATE_SECRET_CANARY', 'private payload'), /PRIVATE|SECRET|CANARY|payload/);
+  assert.match(launcherFailureLine('AGDF_PRIVATE_SECRET_CANARY'), /preparation phase/);
 } finally {
   rmSync(sdkRoot, { recursive: true, force: true });
 }
@@ -244,4 +326,44 @@ try {
   } finally { rmSync(updateRoot, { recursive: true, force: true }); }
 }
 
+{
+  const limitedRoot = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-publication-budget-')));
+  let observedTimeout;
+  try {
+    const started = performance.now();
+    assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot: limitedRoot,
+      // Leave room for real full source proof before this child-focused probe.
+      // The production allowance stays 30000ms; short claim arithmetic is separate.
+      publicationDeadline: started + 3000, env: {},
+      exec(_command, _args, options) {
+        observedTimeout = options.timeout;
+        assert.ok(observedTimeout > 0 && observedTimeout <= 3000);
+        assert.equal(options.killSignal, 'SIGKILL');
+        execFileSync(process.execPath, ['-e', 'setTimeout(() => {}, 5000)'], options);
+      } }), /AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED/);
+    assert.ok(observedTimeout > 0, 'The directly owned acquisition child was actually started.');
+    assert.ok(performance.now() - started < 5000, 'Real child timeout and confirmed exit remain bounded.');
+    for (const generation of readdirSync(join(limitedRoot, 'mcp/generations'))) {
+      const entries = readdirSync(join(limitedRoot, 'mcp/generations', generation));
+      assert.deepEqual(entries, [], 'No stable, staged or locked package survives failed acquisition.');
+    }
+  } finally { rmSync(limitedRoot, { recursive: true, force: true }); }
+}
 console.log("Plugin MCP runtime tests passed");
+
+{
+  for (const code of ['AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED', 'AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED', 'AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED']) {
+    const stderr = [], sentinel = 'PRIVATE_STACK_CANARY';
+    const refused = await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', '/owned/data'],
+      env: {}, stdout: { write() {} }, stderr: { write(value) { stderr.push(value); } },
+      ensure() { return { status: 'matched' }; }, acquireClaim() { throw Error(code + sentinel); } });
+    // Unknown exception strings cannot escape the allowlist, including appended private detail.
+    assert.equal(refused, null); assert.equal(stderr.length, 1); assert.equal(stderr[0].includes(sentinel), false);
+    const exact = [];
+    await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', '/owned/data'], env: {},
+      stdout: { write() {} }, stderr: { write(value) { exact.push(value); } },
+      ensure() { return { status: 'matched' }; }, acquireClaim() { throw Error(code); } });
+    assert.ok(exact[0].startsWith(code + ': ')); assert.equal(exact[0].includes('Reinstall'), false);
+    process.exitCode = 0;
+  }
+}

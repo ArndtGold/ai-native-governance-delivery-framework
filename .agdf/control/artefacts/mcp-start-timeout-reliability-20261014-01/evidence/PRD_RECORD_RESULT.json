@@ -1,0 +1,129 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "d244480a-19c4-45f6-b7fe-df3ca2e4068f",
+  "request_digest": "sha256:b7bc74dd472e21888a7888dd7b8a54a5416f2cd7371aebeaf4f12ad215a47f0e",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+    "kind": "artefact.record"
+  },
+  "effect": null,
+  "receipt": {
+    "schema_version": "2",
+    "binding_id": "724cb345-6fee-4cc8-a16b-1c3f36ef6a31",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "relationship": {
+      "from": "PRD",
+      "relationship": "derived_from",
+      "to": "UR"
+    },
+    "destination": {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+      "digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+      "status": "draft"
+    },
+    "source": {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+      "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630"
+    },
+    "review": {
+      "reviewer": "prd-definition cooperative source and criterion derivation review",
+      "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD_MAPPING_01.json",
+      "digest": "sha256:3c2e2683b3d23bb45be2029be2567dcfb0ea65dde5fa5cd10b80081fe639ee37"
+    },
+    "origin": "reviewed_mapping",
+    "operation": {
+      "id": "d244480a-19c4-45f6-b7fe-df3ca2e4068f",
+      "previous_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+      "resulting_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+      "revision": 8,
+      "request_digest": "sha256:b7bc74dd472e21888a7888dd7b8a54a5416f2cd7371aebeaf4f12ad215a47f0e"
+    },
+    "supersedes": null
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 8,
+    "revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+    "lifecycle": "active",
+    "gate": "PRD",
+    "status": "open",
+    "missing_approval": "Approval: PRD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "PRD"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "step": "artefact",
+    "previous_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+    "revision": "8",
+    "revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+    "current_gate": "PRD",
+    "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+    "backlog": "updated",
+    "operation_id": "d244480a-19c4-45f6-b7fe-df3ca2e4068f",
+    "receipt": {
+      "schema_version": "2",
+      "binding_id": "724cb345-6fee-4cc8-a16b-1c3f36ef6a31",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "relationship": {
+        "from": "PRD",
+        "relationship": "derived_from",
+        "to": "UR"
+      },
+      "destination": {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+        "digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+        "status": "draft"
+      },
+      "source": {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+        "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630"
+      },
+      "review": {
+        "reviewer": "prd-definition cooperative source and criterion derivation review",
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD_MAPPING_01.json",
+        "digest": "sha256:3c2e2683b3d23bb45be2029be2567dcfb0ea65dde5fa5cd10b80081fe639ee37"
+      },
+      "origin": "reviewed_mapping",
+      "operation": {
+        "id": "d244480a-19c4-45f6-b7fe-df3ca2e4068f",
+        "previous_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+        "resulting_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+        "revision": 8,
+        "request_digest": "sha256:b7bc74dd472e21888a7888dd7b8a54a5416f2cd7371aebeaf4f12ad215a47f0e"
+      },
+      "supersedes": null
+    }
+  }
+}

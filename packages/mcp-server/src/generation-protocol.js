@@ -24,3 +24,18 @@ export function generationManifest(runtime, uiDigest, sdkDigest) {
     command_groups: [...(runtime.trustedContext.commandGroups ?? [])] };
 }
 export const manifestDigest = manifest => createHash('sha256').update(JSON.stringify(manifest)).digest('hex');
+
+const FAILURE_REASONS = new Set([
+  'generation_unavailable', 'generation_input_limit', 'generation_response_unknown', 'generation_connection_lost',
+  'generation_capacity_protected', 'generation_manifest_incompatible', 'generation_result_limit',
+  'generation_request_capacity', 'generation_already_initialized', 'generation_work_protected',
+  'generation_cleanup_unconfirmed', 'resource_denied', 'runtime_provenance_invalid', 'runtime_version_mismatch',
+  'dispatch_busy', 'dispatch_cancelled', 'dispatch_timeout', 'dispatch_worker_failed', 'dispatch_worker_termination_unconfirmed',
+  'runtime_publication_unowned', 'runtime_candidate_manifest_invalid', 'runtime_candidate_unowned', 'runtime_candidate_digest_mismatch',
+  'AGDF_MCP_EXECUTABLE_CLAIM_INVALID', 'AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED',
+  'AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED', 'AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED',
+]);
+export function generationFailureReason(error) {
+  const reason = error?.code ?? error?.message;
+  return FAILURE_REASONS.has(reason) ? reason : 'generation_runtime_failed';
+}

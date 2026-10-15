@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { codexAdapter } from '../lib/mcp-lifecycle/adapters/codex.js';
+import { codexAdapter, inspectCodexSetup } from '../lib/mcp-lifecycle/adapters/codex.js';
 
 test('SCN-032: governance registration preserves the separately named cockpit connection', () => {
   const target = mkdtempSync(join(tmpdir(), 'agdf-cockpit-config-'));
@@ -24,5 +24,77 @@ test('SCN-032: governance registration preserves the separately named cockpit co
       writeFileSync(path, malformed);
       assert.throws(() => codexAdapter.inspect(input), /AGDF_MCP_CODEX_CONFIG_INVALID/);
     }
+    for (const existing of ['  [mcp_servers.agdf]\ncommand = "/foreign"\n', '[mcp_servers.agdf]\ncommand = "/foreign"\n  [mcp_servers.agdf]\ncommand = "/duplicate"\n']) {
+      writeFileSync(path, existing);
+      assert.throws(() => codexAdapter.createTransaction({ ...input, action: 'enable' }), /REGISTRATION_FOREIGN|CODEX_CONFIG_INVALID/);
+      assert.equal(readFileSync(path, 'utf8'), existing, 'Indented foreign/duplicate declarations cannot be shadowed.');
+    }
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});
+
+test('Closed Codex roles revalidate preview and preserve concurrent foreign changes on rollback', () => {
+  const target = mkdtempSync(join(tmpdir(), 'agdf-codex-role-'));
+  const path = join(target, '.codex/config.toml');
+  const spec = { command: '/node', args: ['/cockpit', '--surface', 'codex', '--cockpit-dir', target],
+    version: '0.14.5', digest: 'a'.repeat(64), role: 'cockpit', serverId: 'agdf-cockpit' };
+  const input = { scope: 'project', target, spec, env: { CODEX_HOME: join(target, 'user') }, exec: () => '{}' };
+  try {
+    mkdirSync(join(target, '.codex')); writeFileSync(path, '# FOREIGN_CANARY\n');
+    const stale = codexAdapter.createTransaction({ ...input, action: 'enable' });
+    writeFileSync(path, '# FOREIGN_NEW\n');
+    assert.throws(() => stale.apply(), /AGDF_MCP_CODEX_SOURCE_CHANGED/);
+    assert.equal(readFileSync(path, 'utf8'), '# FOREIGN_NEW\n');
+    const transaction = codexAdapter.createTransaction({ ...input, action: 'enable' });
+    const changedWrapper = codexAdapter.createTransaction({ ...input, action: 'enable', revalidate() { throw Error('wrapper_changed'); } });
+    assert.throws(() => changedWrapper.apply(), /wrapper_changed/);
+    assert.equal(readFileSync(path, 'utf8'), '# FOREIGN_NEW\n');
+    transaction.apply(); transaction.apply();
+    const unchanged = codexAdapter.createTransaction({ ...input, action: 'enable' });
+    const exact = readFileSync(path, 'utf8');
+    writeFileSync(path, exact + '# CONCURRENT_CHANGE\n');
+    assert.throws(() => unchanged.apply(), /SOURCE_CHANGED/);
+    writeFileSync(path, exact);
+    assert.equal(codexAdapter.inspect(input).selected_status, 'matched');
+    writeFileSync(path, readFileSync(path, 'utf8') + '[foreign]\n# FOREIGN_LATER\nvalue = true\n');
+    assert.throws(() => transaction.rollback(), /AGDF_MCP_CODEX_ROLLBACK_CONFLICT/);
+    assert.ok(readFileSync(path, 'utf8').includes('# FOREIGN_LATER'));
+    // Editing even an owned section does not grant adoption for a different expected command.
+    const foreign = { ...input, spec: { ...spec, command: '/another-node' } };
+    assert.throws(() => codexAdapter.createTransaction({ ...foreign, action: 'disable' }), /AGDF_MCP_REGISTRATION_FOREIGN/);
+    codexAdapter.createTransaction({ ...input, action: 'disable' }).apply();
+    assert.ok(readFileSync(path, 'utf8').includes('# FOREIGN_LATER'));
+    assert.throws(() => codexAdapter.inspect({ ...input, spec: { ...spec, serverId: 'node_repl' } }), /ROLE_INVALID/);
+    const quoted = 'prompt = """\n' + readFileSync(path, 'utf8') + '\n"""\n';
+    writeFileSync(path, quoted);
+    assert.throws(() => codexAdapter.createTransaction({ ...input, action: 'enable' }), /CONFIG_INVALID/);
+    assert.equal(readFileSync(path, 'utf8'), quoted);
+    writeFileSync(path, '# FOREIGN_LATER\n');
+    assert.throws(() => codexAdapter.inspect({ ...input, spec: { ...spec, role: 'diagnostic', serverId: 'agdf-decision-probe' } }), /ROLE_INVALID/);
+    const diagnostic = { ...input, spec: { ...spec, role: 'diagnostic', serverId: 'agdf-test-owned' } };
+    codexAdapter.createTransaction({ ...diagnostic, action: 'enable' }).apply();
+    assert.equal(codexAdapter.inspect(diagnostic).selected_status, 'matched');
+    codexAdapter.createTransaction({ ...diagnostic, action: 'disable' }).apply();
+    codexAdapter.createTransaction({ ...diagnostic, action: 'disable' }).apply();
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});
+
+test('Derived setup separates declarations from desktop/runtime/App observations and leaks no payload', () => {
+  const target = mkdtempSync(join(tmpdir(), 'agdf-codex-setup-'));
+  try {
+    mkdirSync(join(target, '.codex'));
+    writeFileSync(join(target, '.codex/config.toml'), '[mcp_servers.agdf-cockpit-local]\ncommand = "/node"\nargs = ["/opaque"]\nstartup_timeout_sec = 20\nenv = { SECRET = "PRIVATE_CANARY" }\n\n[mcp_servers.agdf-cockpit-draft-check]\ncommand = "/node"\n');
+    const result = inspectCodexSetup({ target, env: { CODEX_HOME: join(target, 'user') } });
+    assert.equal(result.entries.length, 2);
+    assert.equal(result.entries[0].role, 'cockpit');
+    assert.equal(result.entries[1].role, 'diagnostic');
+    assert.equal(result.entries[0].declared_startup_timeout_sec, 20);
+    assert.equal(result.entries[0].effective_policy, 'unknown');
+    assert.equal(result.entries[0].app_rendered, 'unobserved');
+    assert.equal(result.entries[0].owner, 'unconfirmed');
+    assert.equal(JSON.stringify(result).includes('PRIVATE_CANARY'), false);
+    writeFileSync(join(target, '.codex/config.toml'), '  [mcp_servers.agdf-cockpit-local]\nenabled = invalid_boolean\n');
+    const unknown = inspectCodexSetup({ target, env: { CODEX_HOME: join(target, 'user') } });
+    assert.equal(unknown.entries[0].role, 'cockpit');
+    assert.equal(unknown.entries[0].configured, 'unknown');
   } finally { rmSync(target, { recursive: true, force: true }); }
 });

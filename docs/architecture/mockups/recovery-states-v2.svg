@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1230" viewBox="0 0 1200 1230" role="img" aria-labelledby="title desc">
+  <title id="title">Recovery-Zustände für menschliche Gate-Entscheidungen</title>
+  <desc id="desc">Drei große Karten zeigen eine veraltete Fassung, unklare Speicherung und den sichtbaren Fallback von nicht bestätigter MCP-App-Anzeige zu Portable Markdown.</desc>
+  <style>
+    .bg { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .stale { fill: #fff1e8; }
+    .unknown { fill: #fff8df; }
+    .fallback { fill: #e8f5f3; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrowStale { fill: #9a3412; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .eyebrowUnknown { fill: #8a5a00; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .eyebrowFallback { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 27px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 17px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 17px Inter, Arial, sans-serif; }
+    .mono { fill: #4b4d50; font: 700 15px "JetBrains Mono", Consolas, monospace; }
+    .buttonStale { fill: #9a3412; }
+    .buttonUnknown { fill: #9a6a00; }
+    .buttonFallback { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 16px Inter, Arial, sans-serif; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="bg" width="1200" height="1230"/>
+  <text class="title" x="40" y="50">Recovery ist Teil des Entscheidungsdesigns</text>
+  <text class="subtitle" x="40" y="80">Kein Fehlerzustand erhält die Gestalt einer erfolgreichen Freigabe</text>
+
+  <g transform="translate(60 118)">
+    <rect class="card" width="1080" height="300" rx="20"/>
+    <rect class="stale" x="22" y="22" width="1036" height="256" rx="14"/>
+    <text class="eyebrowStale" x="46" y="58">FASSUNG GEÄNDERT</text>
+    <text class="heading" x="46" y="98">Diese Entscheidung ist nicht mehr aktuell</text>
+    <text class="body" x="46" y="138">Gezeigt wurde Fassung 2. Der Run besitzt inzwischen Fassung 3 mit neuer Revision und neuem Digest.</text>
+    <text class="strong" x="46" y="180">Die alte Antwort darf nicht übertragen werden.</text>
+    <rect class="buttonStale" x="46" y="212" width="224" height="46" rx="9"/>
+    <text class="buttonText" x="79" y="241">Aktuelle Fassung laden</text>
+    <text class="mono" x="760" y="241">stale · keine Freigabe</text>
+  </g>
+
+  <g transform="translate(60 454)">
+    <rect class="card" width="1080" height="300" rx="20"/>
+    <rect class="unknown" x="22" y="22" width="1036" height="256" rx="14"/>
+    <text class="eyebrowUnknown" x="46" y="58">SPEICHERERGEBNIS UNKLAR</text>
+    <text class="heading" x="46" y="98">Die Entscheidung wird noch nicht als gespeichert angezeigt</text>
+    <text class="body" x="46" y="138">Die Antwort wurde gesendet, aber die kanonische Bestätigung des ursprünglichen Vorgangs fehlt.</text>
+    <text class="strong" x="46" y="180">Nicht erneut freigeben; zuerst denselben Vorgang prüfen.</text>
+    <rect class="buttonUnknown" x="46" y="212" width="224" height="46" rx="9"/>
+    <text class="buttonText" x="84" y="241">Speicherstatus prüfen</text>
+    <text class="mono" x="748" y="241">unknown · kein Folgeschritt</text>
+  </g>
+
+  <g transform="translate(60 790)">
+    <rect class="card" width="1080" height="360" rx="20"/>
+    <rect class="fallback" x="22" y="22" width="1036" height="316" rx="14"/>
+    <text class="eyebrowFallback" x="46" y="58">MCP-APP NICHT BESTÄTIGT ANGEZEIGT</text>
+    <text class="heading" x="46" y="98">Portable Markdown wird vollständig im Gespräch verwendet</text>
+    <text class="body" x="46" y="140">Grund: Der Host hat die angeforderte App-Darstellung nicht bestätigt.</text>
+    <text class="body" x="46" y="172">Run, Gate, Revision, Inhalt, Folgen und zulässige Antwort bleiben identisch.</text>
+    <text class="strong" x="46" y="214">Antworte im bestehenden Gespräch exakt mit:</text>
+    <text class="mono" x="46" y="246">Approval: UR</text>
+    <rect class="buttonFallback" x="46" y="274" width="228" height="46" rx="9"/>
+    <text class="buttonText" x="78" y="303">Dokument im Text lesen</text>
+    <text class="mono" x="720" y="303">portable_markdown · sichtbar</text>
+  </g>
+
+  <text class="footer" x="40" y="1202">Produkt-Mock v2 · Recovery besitzt genau eine sichere nächste Handlung und keine Erfolgsgestalt</text>
+</svg>

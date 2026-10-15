@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "bed30f1e-f310-464f-ab3e-72641296ae96",
+  "request_digest": "sha256:a67430e0e61dcb872b4f598df9f7f63c32df53563c48bf4d6bb5fbb1275d9532",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "expected_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+    "resulting_revision_id": "cd5ffe3e-1df6-4d3c-8fdd-f76b466c71bc",
+    "revision": 14,
+    "record": {
+      "step": "Clean Implementation Review",
+      "source": {
+        "path": ".agdf/control/artefacts/report-decision-field-hardening-20261014-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:7b69b4cbf1e7a6ddbf27021d12437bdb5c622773d4af7efcaf740db4058b573e"
+      },
+      "status": "done",
+      "covers": "Approved shared observer, ownership and conservative failure semantics",
+      "source_set_digest": "sha256:167d0fc42e9a2fc0450fc1df20f5a346d40cdccbfbff8cbaa279cb2069038bf6"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "bed30f1e-f310-464f-ab3e-72641296ae96",
+    "request_digest": "sha256:a67430e0e61dcb872b4f598df9f7f63c32df53563c48bf4d6bb5fbb1275d9532",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "expected_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+    "created_at": "2026-10-14T09:41:47.868Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+      "resulting_revision_id": "cd5ffe3e-1df6-4d3c-8fdd-f76b466c71bc",
+      "revision": 14,
+      "record": {
+        "step": "Clean Implementation Review",
+        "source": {
+          "path": ".agdf/control/artefacts/report-decision-field-hardening-20261014-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+          "digest": "sha256:7b69b4cbf1e7a6ddbf27021d12437bdb5c622773d4af7efcaf740db4058b573e"
+        },
+        "status": "done",
+        "covers": "Approved shared observer, ownership and conservative failure semantics",
+        "source_set_digest": "sha256:167d0fc42e9a2fc0450fc1df20f5a346d40cdccbfbff8cbaa279cb2069038bf6"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 14,
+    "revision_id": "cd5ffe3e-1df6-4d3c-8fdd-f76b466c71bc",
+    "lifecycle": "active",
+    "gate": "CR",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "review_implementation",
+      "skill_id": "code-review",
+      "operation_key": "review.code",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "CR"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "step": "internal",
+    "previous_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+    "revision": "14",
+    "revision_id": "cd5ffe3e-1df6-4d3c-8fdd-f76b466c71bc",
+    "current_gate": "CR",
+    "next_allowed_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+    "backlog": "updated",
+    "operation_id": "bed30f1e-f310-464f-ab3e-72641296ae96",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "bed30f1e-f310-464f-ab3e-72641296ae96",
+      "request_digest": "sha256:a67430e0e61dcb872b4f598df9f7f63c32df53563c48bf4d6bb5fbb1275d9532",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "report-decision-field-hardening-20261014-01",
+      "expected_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+      "created_at": "2026-10-14T09:41:47.868Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "81bd025e-4ebf-49f8-9205-666b98742039",
+        "resulting_revision_id": "cd5ffe3e-1df6-4d3c-8fdd-f76b466c71bc",
+        "revision": 14,
+        "record": {
+          "step": "Clean Implementation Review",
+          "source": {
+            "path": ".agdf/control/artefacts/report-decision-field-hardening-20261014-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+            "digest": "sha256:7b69b4cbf1e7a6ddbf27021d12437bdb5c622773d4af7efcaf740db4058b573e"
+          },
+          "status": "done",
+          "covers": "Approved shared observer, ownership and conservative failure semantics",
+          "source_set_digest": "sha256:167d0fc42e9a2fc0450fc1df20f5a346d40cdccbfbff8cbaa279cb2069038bf6"
+        }
+      }
+    }
+  }
+}

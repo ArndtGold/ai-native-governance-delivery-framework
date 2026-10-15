@@ -1,0 +1,7 @@
+{
+  "failure": "actual canonical template path != fixture /var alias",
+  "cause": "test-owned mkdtemp root retained platform alias",
+  "fix": "realpathSync on owned fixture root; production guard unchanged",
+  "path": "packages/mcp-server/test/owned-runtime.js",
+  "digest": "sha256:9c921cec9c0b5f12fbab033014f22d34280392a872c597435b810d6bbeeef432"
+}

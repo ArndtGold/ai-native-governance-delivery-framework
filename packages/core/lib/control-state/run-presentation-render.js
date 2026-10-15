@@ -9,6 +9,8 @@ import { localePack, resolvePresentationLocale, resolveHumanRunTitle } from "../
 import { readSourceRevisions, SOURCE_GATES } from './run-source-revisions.js';
 import { readRunOperations } from './run-operations.js';
 import { qaDeviationPresentation } from './qa-deviation-acceptance.js';
+import { observeDecisionContent, decisionContentRecovery } from '../control-evaluation/decision-content-readiness.js';
+import { readReportDecision } from '../control-evaluation/report-decision.js';
 import { readValidatedRevisionArchive, validateRevisionHistory, validateEarlyPrdHistory, earlyPrdHistoryReference, byteDigest } from './run-revision-history.js';
 
 // Compare only an actual immutable prior version from the existing archive owner.
@@ -63,7 +65,8 @@ const SUMMARY_SECTIONS = Object.freeze({
     ["Abgrenzung", /out of scope|nichtumfang/iu], ["Risiken", /risk|blocker|risik|blocker/iu],
   ],
   QA: [
-    ["Entscheidung", /qa decision|entscheidung/iu], ["TP-Abdeckung", /tp coverage|abdeckung/iu],
+    ['Ergebnis', /tp coverage/iu, /^delivered_result:/iu],
+    ["Entscheidung", /qa decision|entscheidung/iu], ["TP-Abdeckung", /tp coverage|abdeckung/iu, /^(?!delivered_result:)/iu],
     ["Belege", /evidence|belege/iu], ["Fehlt", /missing evidence|fehlende belege/iu],
     ["Risiken", /risk|risik/iu], ["Nächster Schritt", /required next step|next step|nächster schritt/iu],
   ],
@@ -74,6 +77,7 @@ const SUMMARY_LABELS_EN = Object.freeze({
   Verantwortung: "Ownership", Entscheidungen: "Design decisions", Integration: "Integration",
   Aufgaben: "Tasks", Tests: "Tests", Risiken: "Risks", Entscheidung: "Decision",
   "TP-Abdeckung": "Task plan coverage", Belege: "Evidence", Fehlt: "Missing evidence", "Nächster Schritt": "Next step",
+  Ergebnis: 'Delivered result',
 });
 export const hash = (value) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 
@@ -84,6 +88,8 @@ function compactSummaryText(value) {
 
 function userFacingSummaryText(value) {
   const text = compactSummaryText(value);
+  const content = text.match(/^(?:delivered_result|qualification_limits|delivery_risks):\s*(.+)$/iu);
+  if (content) return content[1];
   const intent = text.match(/^(?:primary_user_intent|success_signal)\s*:\s*(.+)$/iu);
   if (intent) return capitalizeSummary(intent[1].trim());
   if (/^(?:ui_ux_impact|ux_intent_definition|primary_decision_or_action)\s*:/iu.test(text)) return "";
@@ -257,6 +263,10 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
     const displayLabel = german ? label : (SUMMARY_LABELS_EN[label] ?? label);
     items.push(`- ${displayLabel}: ${values.join("; ")}`);
   }
+  if (gate === 'QA') {
+    const decision = readReportDecision(markdown);
+    if (decision) items.unshift(`- ${german ? 'Entscheidung' : 'Decision'}: ${decision}`);
+  }
   if (gate === "PRD") {
     const criteria = criterionEntries(source);
     if (!criteria.length) throw new Error("approval_summary_criteria_missing");
@@ -307,28 +317,42 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
   let summaryDigest;
   let documentContent;
   let summaryMarkdown;
+  let decisionMarkdown;
   let documentLanguage = p.presentation_language;
   let documentHeading;
   const qaAcceptance = gate === 'QA' ? qaDeviationPresentation(runState?.qa_acceptance, p.presentation_language) : null;
   if (gate === "UAT") {
+    const observation = observeDecisionContent(root, runState, { gate, locale: german ? 'de' : 'en',
+      sourceLanguage: resolveArtifactPresentationLanguages(root, p.presentation_language).artifact_language });
+    if (!observation.ready) throw Object.assign(Error('AGDF_DECISION_CONTENT_INCOMPLETE'), {
+      recovery: decisionContentRecovery(observation, { locale: german ? 'de' : 'en', state: runState }),
+    });
     const projection = runState?.evidence_applicability;
     const evidence = projection ? projection.current.map(row => ({ evidence: row.step, source: row.report.path, covers: row.sources.map(s => s.type).join(', '), strength: 'exact cooperative association' })) : [];
     const other = projection ? [...projection.superseded.map(row => ({ evidence: row.step, source: row.report.path, covers: row.reason, strength: german ? 'ersetzt' : 'superseded' })),
       ...projection.applicability_unknown.map(row => ({ evidence: row.step ?? row.evidence, source: row.report?.path ?? row.source, covers: row.reason, strength: german ? 'Zuordnung unbekannt' : 'applicability unknown' }))] : runState?.evidence_refs ?? [];
     const allEvidence = [...evidence, ...other];
     if (allEvidence.length === 0) return null;
+    const labels = german ? ['Ziel', 'Geliefertes Ergebnis', 'Technische QA', 'Nachweisgrenzen', 'Risiken und offene Punkte', 'Freigabewirkung']
+      : ['Intended outcome', 'Delivered result', 'Technical QA', 'Qualification limits', 'Risks and open issues', 'Approval effect'];
+    const { goal, result, qa, limits, risks } = observation.groups;
+    const pack = localePack(interactionLocales, resolvePresentationLocale(interactionLocales, p.presentation_language));
+    const brief = [goal, result, qa, limits, risks, pack.primary.afterApproval.UAT].map((value, index) => `- ${labels[index]}: ${value}`).join('\n');
+    decisionMarkdown = brief;
     const summaryLines = evidence.map((item) => `- ${item.evidence} · ${item.covers} (${item.strength})`);
     if (!evidence.length) summaryLines.push(german ? 'Keine aktuell exakt zugeordneten Nachweise; historische Zuordnung bleibt ausdrücklich unbekannt.' : 'No currently exact associated evidence; historical applicability remains explicitly unknown.');
     summaryLines.push(`- ${german ? 'Ersetzte oder nicht zugeordnete Nachweise' : 'Superseded or unassociated evidence'}: ${other.length}`);
-    const summaryText = summaryLines.join("\n");
+    const attribution = observation.sources.map(s => `- ${s.type}: ${s.path} · ${s.digest}`).join('\n');
+    const summaryText = brief + '\n\n' + summaryLines.join("\n") + '\n\n' + attribution;
     summaryDigest = hash(summaryText);
     summaryMarkdown = summaryText;
-    artefactDigest = hash(JSON.stringify(allEvidence));
+    artefactDigest = hash(JSON.stringify({ groups: observation.groups, sources: observation.sources, evidence: allEvidence }));
     artifactSection = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${summaryText}\n\n## ${german ? "Vorliegende UAT-Evidenz" : "Available UAT evidence"}\n\n${allEvidence.map((item) => `- ${item.evidence} · Quelle: ${item.source} · Deckt ab: ${item.covers} · Stärke: ${item.strength}`).join("\n")}`;
     documentContent = artifactSection;
     if (runState?.qa_acceptance?.accepted) {
       const accepted = qaDeviationPresentation(runState.qa_acceptance, p.presentation_language);
       summaryMarkdown += `\n\n${accepted.summary}`;
+      decisionMarkdown += `\n\n${accepted.summary}`;
       summaryDigest = hash(summaryMarkdown);
       documentContent += `\n\n${accepted.summary}`;
     }
@@ -382,7 +406,7 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
   // available without duplicating the status, transition and approval prompts.
   if (qaAcceptance) { summaryMarkdown = qaAcceptance.summary; summaryDigest = hash(summaryMarkdown); }
   const parts = [`## ${qaAcceptance ? pack.decisionCard.deviationAcceptanceIntro : pack.gateActionTitles[gate]}`, resolveHumanRunTitle({ currentArtefactHeading: documentHeading, runContent: runState?.content, runId }),
-    qaAcceptance?.summary || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
+    qaAcceptance?.summary || decisionMarkdown || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || summaryMarkdown, qaAcceptance?.effect || pack.primary.afterApproval[gate],
     german ? 'Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.'
       : 'Reply “Read document” to read this complete version in Chat. Discuss questions and requested changes here. This step remains open until you approve.',
     pack.decisionCard.chatApprovalHint.replace('{gate}', gate),

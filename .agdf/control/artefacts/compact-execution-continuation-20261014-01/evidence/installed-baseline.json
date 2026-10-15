@@ -1,0 +1,61 @@
+{
+  "evidence_class": "installed_code_unit_seam_reproduction",
+  "observed_at": "2026-10-14T06:00:22.871Z",
+  "installed_build": "0.14.5+codex.local-2459f4dd156c",
+  "source_digest": "2459f4dd156c882871d905462a05ce8a2587e84eaf227bc8de53b727d0e68709",
+  "inspected_dispatcher_sha256": "9f67e1dcd8ccdaae7eda198e33d2ae42ea3682f025ef6f5481fcd2ca243f4cf9",
+  "substitutions": [
+    "disposable target resolution",
+    "evaluated control facts at dispatcher seam",
+    "synthetic status text"
+  ],
+  "limits": "No live repository eligibility, native host execution, implementation or approval is exercised.",
+  "observations": [
+    {
+      "mode": "quick_task",
+      "policy_gate": "Quick Task Execution",
+      "policy_next_operation": {
+        "type": "resolve_control_state",
+        "operation_key": "control.resolve",
+        "actor": "agent",
+        "effect": "none",
+        "gate": "Quick Task Execution"
+      },
+      "outcome": "control_result",
+      "terminal": true,
+      "phase": null,
+      "host_action": "transmit_presentation_verbatim_and_stop"
+    },
+    {
+      "mode": "verified_change",
+      "policy_gate": "Verified Change Execution",
+      "policy_next_operation": {
+        "type": "resolve_control_state",
+        "operation_key": "control.resolve",
+        "actor": "agent",
+        "effect": "none",
+        "gate": "Verified Change Execution"
+      },
+      "outcome": "control_result",
+      "terminal": true,
+      "phase": null,
+      "host_action": "transmit_presentation_verbatim_and_stop"
+    },
+    {
+      "mode": "structured_delivery",
+      "policy_gate": "CD+Tests",
+      "policy_next_operation": {
+        "type": "implement_approved_plan",
+        "skill_id": "gate-check",
+        "operation_key": "implementation.execute",
+        "actor": "agent",
+        "effect": "implementation",
+        "gate": "CD+Tests"
+      },
+      "outcome": "skill_continuation",
+      "terminal": false,
+      "phase": "implementation",
+      "host_action": "continue_named_skill"
+    }
+  ]
+}

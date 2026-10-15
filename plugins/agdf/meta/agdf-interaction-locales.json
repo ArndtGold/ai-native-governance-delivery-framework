@@ -747,7 +747,11 @@
     "sourceRevisionSkipApprovals": "skip renewed source approvals",
     "nextResolveReviseQa": "Resolve or route the QA revise findings through their authoritative owner before dependent work. Do not request Approval: QA from a revise report.",
     "collectExactQaEvidence": "collect the exact QA evidence obligation through its existing owner",
-    "nextCollectQaEvidence": "Collect the exact QA evidence obligation through its existing owner. Prepare a complete observation sequence before necessary external action, then rerun QA."
+    "nextCollectQaEvidence": "Collect the exact QA evidence obligation through its existing owner. Prepare a complete observation sequence before necessary external action, then rerun QA.",
+    "blockedDecisionContent": "Required decision content is incomplete",
+    "completeDecisionContent": "Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.",
+    "correctDecisionContent": "correct only permitted current decision content through its existing owner",
+    "noIncompleteContentApproval": "request approval before required decision content is concrete"
    },
    "scopeClassification": {
     "title": "AGDF scope classification",
@@ -917,7 +921,11 @@
      "intake_scaffold_required": "Inspect and restore the canonical control scaffold before creating the run.",
      "run_assignment_inventory_invalid": "Run inventory is incomplete or invalid. Resolve the listed control findings and retry intake; this failure does not establish a new scope.",
      "prd_authoring_inputs_invalid": "PRD authoring blocked: check approved UR, Brownfield source, required ready UX input and contained PRD path. Repair inputs with their owner, then retry.",
-     "sd_authoring_inputs_invalid": "SD authoring blocked: check approved PRD, Brownfield/ready analysis and contained SD path. Repair inputs with their owner, then retry."
+     "sd_authoring_inputs_invalid": "SD authoring blocked: check approved PRD, Brownfield/ready analysis and contained SD path. Repair inputs with their owner, then retry.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSUPPORTED": "Authoring blocked: unsupported canonical template. Repair the authoring owner and retry once.",
+     "AGDF_ARTEFACT_TEMPLATE_ROOT_UNAVAILABLE": "Authoring blocked: trusted plugin template root missing. Reinstall the matched AGDF plugin and retry once.",
+     "AGDF_ARTEFACT_TEMPLATE_UNAVAILABLE": "Authoring blocked: required plugin template missing. Reinstall the matched AGDF plugin and retry once.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSAFE": "Authoring blocked: unsafe plugin template path. Repair or reinstall the matched plugin; no fallback."
     },
     "sourceInput": {
      "source": "Source",
@@ -1119,14 +1127,18 @@
      "disable_failed": "MCP disablement failed.",
      "claude_plugin_managed": "Claude Code starts the AGDF MCP server from the installed AGDF plugin; no separate registration is used.",
      "codex_plugin_managed": "Codex starts the AGDF MCP server from the installed AGDF plugin; no separate registration is used.",
-     "runtime_executables_retained": "The registration was removed. Executable files are retained while their use is active, historical or unconfirmed."
+     "runtime_executables_retained": "The registration was removed. Executable files are retained while their use is active, historical or unconfirmed.",
+     "agdf_mcp_codex_source_changed": "Configuration changed after preview; nothing was overwritten.",
+     "agdf_mcp_codex_rollback_conflict": "A foreign change prevents safe rollback.",
+     "agdf_mcp_runtime_reference_changed": "Runtime references changed concurrently; resolve the conflict before retrying.",
+     "cockpit_legacy_retained": "The existing Cockpit ID is retained until ownership, consumer transition and deliberate session refresh are proven. No duplicate registration."
     },
     "actions": {
      "use_node_22": "Use Node.js 22 or later and retry.",
      "install_host": "Install a supported host and retry.",
      "resolve_registration": "Resolve the selected registration and retry.",
      "enable_scope": "Run MCP enable explicitly for this scope.",
-     "restart_host": "Restart the host and verify discovery in a fresh session.",
+     "restart_host": "Deliberately refresh the affected connection through the supported host action and verify discovery and runtime in the new session.",
      "version_matched_cli_dispatch": "Use the version-matched AGDF CLI skill-dispatch path.",
      "resolve_failure": "Resolve the reported lifecycle failure and retry.",
      "resolve_precedence": "Resolve the higher-priority registration and retry.",
@@ -1136,6 +1148,34 @@
      "none": "No further lifecycle action is required.",
      "use_claude_plugin_mcp": "Install or update the AGDF plugin for Claude Code; its MCP server starts with the plugin.",
      "use_codex_plugin_mcp": "Install or update the AGDF plugin for Codex; its MCP server starts with the plugin."
+    },
+    "setup": {
+     "title": "AGDF host setup",
+     "labels": {
+      "source": "Source",
+      "role": "Role",
+      "owner": "Owner",
+      "configured": "Configuration",
+      "started": "Start",
+      "discovered": "Discovery",
+      "app_rendered": "App rendered",
+      "app_interacted": "Interaction",
+      "runtime": "Runtime"
+     },
+     "roles": {
+      "product": "AGDF",
+      "cockpit": "AGDF Cockpit",
+      "diagnostic": "Diagnostic/test",
+      "legacy_or_conflict": "Legacy/conflict"
+     },
+     "states": {
+      "declared": "declared",
+      "disabled": "disabled",
+      "unknown": "unknown",
+      "unobserved": "unobserved",
+      "unavailable": "unavailable"
+     },
+     "noticeDescription": "Declarations do not prove host, session or App state. Verify effective permissions and refreshed sessions directly; retain shared App data."
     }
    },
    "repositoryMaintenance": {
@@ -2007,7 +2047,11 @@
     "sourceRevisionSkipApprovals": "erneute Quellenfreigaben überspringen",
     "nextResolveReviseQa": "Kläre QA-Revise-Befunde beim zuständigen Verantwortlichen vor abhängiger Arbeit. Aus Revise keine Approval: QA anfordern.",
     "collectExactQaEvidence": "den genauen QA-Nachweis über seinen bestehenden Verantwortlichen beschaffen",
-    "nextCollectQaEvidence": "Beschaffe den genauen QA-Nachweis beim Verantwortlichen. Bereite die vollständige Beobachtungsfolge vor externen Aktionen vor; danach QA erneut ausführen."
+    "nextCollectQaEvidence": "Beschaffe den genauen QA-Nachweis beim Verantwortlichen. Bereite die vollständige Beobachtungsfolge vor externen Aktionen vor; danach QA erneut ausführen.",
+    "blockedDecisionContent": "Erforderlicher Entscheidungsinhalt fehlt",
+    "completeDecisionContent": "Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.",
+    "correctDecisionContent": "nur erlaubte aktuelle Entscheidungsinhalte über den zuständigen Owner korrigieren",
+    "noIncompleteContentApproval": "Freigabe anfordern, bevor der erforderliche Entscheidungsinhalt konkret ist"
    },
    "scopeClassification": {
     "title": "AGDF-Scope-Klassifizierung",
@@ -2177,7 +2221,11 @@
      "intake_scaffold_required": "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen.",
      "run_assignment_inventory_invalid": "Das Run-Inventar ist unvollständig oder ungültig. Die genannten Kontrollbefunde beheben und Intake erneut prüfen; der Fehler begründet keinen neuen Umfang.",
      "prd_authoring_inputs_invalid": "PRD-Erstellung gesperrt: freigegebene UR, Brownfield-Quelle, bereite UX-Eingabe und PRD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen.",
-     "sd_authoring_inputs_invalid": "SD-Erstellung gesperrt: freigegebenes PRD, Brownfield/bereite Analyse und SD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen."
+     "sd_authoring_inputs_invalid": "SD-Erstellung gesperrt: freigegebenes PRD, Brownfield/bereite Analyse und SD-Pfad prüfen. Eingaben beim Eigentümer korrigieren und erneut prüfen.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSUPPORTED": "Authoring gesperrt: kanonisches Template nicht unterstützt. Den Authoring-Owner korrigieren und erneut versuchen.",
+     "AGDF_ARTEFACT_TEMPLATE_ROOT_UNAVAILABLE": "Authoring gesperrt: vertrauenswürdiger Plugin-Template-Root fehlt. Passendes AGDF-Plugin neu installieren.",
+     "AGDF_ARTEFACT_TEMPLATE_UNAVAILABLE": "Authoring gesperrt: erforderliches Plugin-Template fehlt. Passendes AGDF-Plugin neu installieren.",
+     "AGDF_ARTEFACT_TEMPLATE_UNSAFE": "Authoring gesperrt: unsicherer Plugin-Template-Pfad. Passendes Plugin reparieren; kein Fallback."
     },
     "sourceInput": {
      "source": "Quelle",
@@ -2379,14 +2427,18 @@
      "disable_failed": "Die MCP-Deaktivierung ist fehlgeschlagen.",
      "claude_plugin_managed": "Claude Code startet den AGDF-MCP-Server aus dem installierten AGDF-Plugin; eine separate Registrierung wird nicht verwendet.",
      "codex_plugin_managed": "Codex startet den AGDF-MCP-Server aus dem installierten AGDF-Plugin; eine separate Registrierung wird nicht verwendet.",
-     "runtime_executables_retained": "Die Registrierung wurde entfernt. Laufzeitdateien bleiben erhalten, solange ihre Nutzung aktiv, historisch oder unbestätigt ist."
+     "runtime_executables_retained": "Die Registrierung wurde entfernt. Laufzeitdateien bleiben erhalten, solange ihre Nutzung aktiv, historisch oder unbestätigt ist.",
+     "agdf_mcp_codex_source_changed": "Die Konfiguration hat sich seit der Vorschau geändert; es wurde nichts überschrieben.",
+     "agdf_mcp_codex_rollback_conflict": "Eine fremde Änderung verhindert das sichere Rollback.",
+     "agdf_mcp_runtime_reference_changed": "Laufzeitreferenzen wurden gleichzeitig geändert; den Konflikt vor einer Wiederholung klären.",
+     "cockpit_legacy_retained": "Die bestehende Cockpit-ID bleibt erhalten, bis Ownership, Verbraucherwechsel und bewusste Sitzungsaktualisierung belegt sind. Keine Doppelregistrierung."
     },
     "actions": {
      "use_node_22": "Node.js 22 oder neuer verwenden und erneut versuchen.",
      "install_host": "Einen unterstützten Host installieren und erneut versuchen.",
      "resolve_registration": "Die ausgewählte Registrierung klären und erneut versuchen.",
      "enable_scope": "MCP für diesen Bereich ausdrücklich aktivieren.",
-     "restart_host": "Den Host neu starten und die Erkennung in einer neuen Sitzung prüfen.",
+     "restart_host": "Die betroffene Verbindung über die unterstützte Hostfunktion bewusst aktualisieren und Erkennung sowie Laufzeit in der neuen Sitzung prüfen.",
      "version_matched_cli_dispatch": "Den versionsgleichen AGDF-CLI-Skill-Dispatch-Pfad verwenden.",
      "resolve_failure": "Den gemeldeten Lebenszyklusfehler beheben und erneut versuchen.",
      "resolve_precedence": "Die Registrierung mit höherer Priorität klären und erneut versuchen.",
@@ -2396,6 +2448,34 @@
      "none": "Keine weitere Lebenszyklusaktion erforderlich.",
      "use_claude_plugin_mcp": "Das AGDF-Plugin für Claude Code installieren oder aktualisieren; sein MCP-Server startet mit dem Plugin.",
      "use_codex_plugin_mcp": "Das AGDF-Plugin für Codex installieren oder aktualisieren; sein MCP-Server startet mit dem Plugin."
+    },
+    "setup": {
+     "title": "AGDF-Hostkonfiguration",
+     "labels": {
+      "source": "Quelle",
+      "role": "Rolle",
+      "owner": "Owner",
+      "configured": "Konfiguration",
+      "started": "Start",
+      "discovered": "Discovery",
+      "app_rendered": "App dargestellt",
+      "app_interacted": "Interaktion",
+      "runtime": "Laufzeit"
+     },
+     "roles": {
+      "product": "AGDF",
+      "cockpit": "AGDF Cockpit",
+      "diagnostic": "Diagnose/Test",
+      "legacy_or_conflict": "Altbestand/Konflikt"
+     },
+     "states": {
+      "declared": "deklariert",
+      "disabled": "deaktiviert",
+      "unknown": "unbekannt",
+      "unobserved": "nicht beobachtet",
+      "unavailable": "nicht verfügbar"
+     },
+     "noticeDescription": "Deklaration ist kein Host-, Sitzungs- oder App-Nachweis. Wirksame Rechte und neue Sitzungen direkt prüfen; gemeinsame App-Daten erhalten."
     }
    },
    "repositoryMaintenance": {

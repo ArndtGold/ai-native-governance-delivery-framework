@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1060" viewBox="0 0 1200 1060" role="img" aria-labelledby="title desc">
+  <title id="title">Produktnahe Gate-Karten für SD und TP</title>
+  <desc id="desc">Zwei große Karten zeigen Architekturentscheidung mit Alternativen und einen Task-Test-Plan mit Kriterienabdeckung und Nachweisen.</desc>
+  <style>
+    .bg { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .soft { fill: #f1f3f3; }
+    .white { fill: #ffffff; stroke: #dde0e0; stroke-width: 1.5; }
+    .effect { fill: #e8f5f3; }
+    .barBg { fill: #dfe4e4; }
+    .bar { fill: #0f766e; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrow { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 28px Inter, Arial, sans-serif; }
+    .status { fill: #66686a; font: 400 16px Inter, Arial, sans-serif; }
+    .label { fill: #66686a; font: 700 14px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 17px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 17px Inter, Arial, sans-serif; }
+    .effectText { fill: #185e58; font: 700 16px Inter, Arial, sans-serif; }
+    .button { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 16px Inter, Arial, sans-serif; }
+    .link { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; }
+    .binding { fill: #4b4d50; font: 600 14px "JetBrains Mono", Consolas, monospace; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="bg" width="1200" height="1060"/>
+  <text class="title" x="40" y="50">Gate-spezifische Karten · SD und TP</text>
+  <text class="subtitle" x="40" y="80">Entwurfsentscheidung und ausführbarer Nachweisplan bleiben unterscheidbar</text>
+
+  <g transform="translate(40 112)">
+    <rect class="card" width="1120" height="430" rx="20"/>
+    <text class="eyebrow" x="30" y="40">LÖSUNG PLANEN</text>
+    <text class="heading" x="30" y="78">Ist dieser Lösungsweg passend und nachvollziehbar?</text>
+    <text class="status" x="30" y="108">Fassung 1 · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="132" width="1068" height="150" rx="14"/>
+    <rect class="white" x="48" y="152" width="490" height="112" rx="10"/>
+    <text class="label" x="68" y="180">GEWÄHLTER ANSATZ</text>
+    <text class="strong" x="68" y="210">Bestehenden Auth-Fehlerpfad erweitern</text>
+    <text class="body" x="68" y="238">Owner: Auth-Modul · keine parallele Fehlerlogik</text>
+    <rect class="white" x="558" y="152" width="510" height="112" rx="10"/>
+    <text class="label" x="578" y="180">ABWÄGUNG</text>
+    <text class="body" x="578" y="210">Alternative verworfen: zweite Meldungs-Pipeline</text>
+    <text class="body" x="578" y="238">Risiko: Regression · Fallback: Feature-Schalter</text>
+
+    <rect class="effect" x="26" y="296" width="1068" height="54" rx="12"/>
+    <text class="effectText" x="48" y="329">Danach: Task- und Testplan erstellen · Umsetzung bleibt gesperrt</text>
+
+    <rect class="button" x="30" y="368" width="170" height="44" rx="9"/>
+    <text class="buttonText" x="67" y="396">So stimmt es</text>
+    <text class="link" x="230" y="396">Lösung lesen</text>
+    <text class="link" x="375" y="396">Änderung besprechen</text>
+    <text class="binding" x="824" y="396">› Technische Bindung</text>
+  </g>
+
+  <g transform="translate(40 566)">
+    <rect class="card" width="1120" height="430" rx="20"/>
+    <text class="eyebrow" x="30" y="40">UMSETZUNGSSCHRITTE PRÜFEN</text>
+    <text class="heading" x="30" y="78">Sind diese Schritte geeignet, die Lösung umzusetzen?</text>
+    <text class="status" x="30" y="108">Fassung 1 · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="132" width="1068" height="150" rx="14"/>
+    <text class="label" x="48" y="162">ABDECKUNG</text>
+    <text class="body" x="48" y="192">Kriterien 3/3</text>
+    <rect class="barBg" x="174" y="177" width="260" height="18" rx="9"/>
+    <rect class="bar" x="174" y="177" width="260" height="18" rx="9"/>
+    <text class="body" x="480" y="192">Designentscheidungen 4/4</text>
+    <rect class="barBg" x="702" y="177" width="260" height="18" rx="9"/>
+    <rect class="bar" x="702" y="177" width="260" height="18" rx="9"/>
+    <text class="strong" x="48" y="232">T-01 Implementierung · T-02 Unit-Tests · T-03 UI-Test · T-04 Host-Nachweis</text>
+    <text class="body" x="48" y="260">Owner, erwartete Ergebnisse, Risiken und Evidenzquellen sind benannt.</text>
+
+    <rect class="effect" x="26" y="296" width="1068" height="54" rx="12"/>
+    <text class="effectText" x="48" y="329">Danach: Brownfield Analysis · Umsetzung erst nach erfolgreichem Ergebnis</text>
+
+    <rect class="button" x="30" y="368" width="170" height="44" rx="9"/>
+    <text class="buttonText" x="67" y="396">So stimmt es</text>
+    <text class="link" x="230" y="396">Plan lesen</text>
+    <text class="link" x="356" y="396">Änderung besprechen</text>
+    <text class="binding" x="824" y="396">› Technische Bindung</text>
+  </g>
+
+  <text class="footer" x="40" y="1032">Produkt-Mock v2 · TP zeigt messbare Abdeckung statt einer generischen Textzusammenfassung</text>
+</svg>

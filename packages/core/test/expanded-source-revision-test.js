@@ -1,3 +1,4 @@
+import { withSyntheticQaContent } from './fixtures/decision-content.js';
 import assert from 'node:assert/strict';
 import {createExpandedSourceRevisionFixture,SOURCE_PHASE_MATRIX} from '../../cli/scripts/fixtures/expanded-source-revision.js';
 import { randomUUID } from 'node:crypto';
@@ -73,7 +74,7 @@ try {
       const path=f.prefix+randomUUID()+'.md';writeFileSync(join(root,path),'# '+step+'\n- decision: pass\nFresh observed fixture result against renewed source.\n');
       const r=service('agdf_record',{...envelope(),command:{kind:'step.record',payload:{step:'internal',internal_step:step,decision:'pass',source:{path,digest:artefactFileDigest(root,path)}}}});assert.equal(r.outcome,'accepted',JSON.stringify(r));
     }
-    record('QA','# QA: Fresh renewed fixture\n- decision: pass\n\n## Scope\nRenewed source fulfilled.\n## Evidence\nFresh exact checks and reviews recorded.\n## Risks\nNo applicable open finding.\n');approve('QA');
+    record('QA',withSyntheticQaContent('# QA: Fresh renewed fixture\n- decision: pass\n\n## Scope\nRenewed source fulfilled.\n## Evidence\nFresh exact checks and reviews recorded.\n## Risks\nNo applicable open finding.\n'));approve('QA');
     const freshUat=service('agdf_prepare',{...envelope(),command:{kind:'presentation.prepare',payload:{gate:'UAT'}}});assert.equal(freshUat.outcome,'accepted',JSON.stringify(freshUat));
     assert.notEqual(freshUat.family_result.presentation_id,oldPresentation.family_result.presentation_id);assert.equal(state().current_gate,'UAT');
     assert.equal(state().evidence_applicability.by_step.get('QA').applicability,'current');

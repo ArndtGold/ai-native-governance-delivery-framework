@@ -1,0 +1,31 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: [{"status":"matched","changed":true},{"status":"matched","changed":false},{"error":"AGDF_RUN_WRITE_LOCKED"},{"status":"matched","changed":false},{"error":"AGDF_RUN_WRITE_LOCKED"},{"status":"matched","changed":false}]
++ actual - expected
+
++ [
++   {
++     error: 'AGDF_RUN_WRITE_LOCKED'
++   },
++   {
++     error: 'AGDF_RUN_WRITE_LOCKED'
++   }
++ ]
+- []
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/plugin-mcp-runtime-test.js:321:12
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    { error: 'AGDF_RUN_WRITE_LOCKED' },
+    { error: 'AGDF_RUN_WRITE_LOCKED' }
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

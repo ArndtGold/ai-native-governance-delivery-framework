@@ -1,0 +1,19 @@
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/src-D_zzAWoS.mjs:5780
+		const error = new SdkError(SdkErrorCode.ConnectionClosed, "Connection closed");
+		              ^
+
+SdkError: Connection closed; server stderr: AGDF_MCP_PLUGIN_RUNTIME_FAILED
+    at Client._onclose (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/src-D_zzAWoS.mjs:5780:17)
+    at Client._onclose (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/index.mjs:4056:9)
+    at _transport.onclose (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/src-D_zzAWoS.mjs:5747:10)
+    at ChildProcess.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/stdio.mjs:91:19)
+    at ChildProcess.emit (node:events:519:28)
+    at maybeClose (node:internal/child_process:1101:16)
+    at Socket.<anonymous> (node:internal/child_process:456:11)
+    at Socket.emit (node:events:519:28)
+    at Pipe.<anonymous> (node:net:346:12) {
+  code: 'CONNECTION_CLOSED',
+  data: undefined
+}
+
+Node.js v22.22.3

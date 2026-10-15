@@ -106,7 +106,8 @@ export { DECISION_UI_URI } from '#agdf-core/mcp-resource-contract.js';
 const FAILURE_ACTIONS = Object.freeze({
   dispatch_busy: "Wait for the active AGDF dispatch to finish and retry once.",
   dispatch_cancelled: "Retry the AGDF dispatch if it is still required.",
-  dispatch_timeout: "Inspect the target and AGDF runtime, then retry once.",
+  dispatch_timeout: "Inspect the original operation status before replaying the identical UUID and request; a timeout does not prove rollback.",
+  dispatch_worker_termination_unconfirmed: "Inspect the original operation status and retained executor; its termination is unconfirmed. Do not start a replacement mutation.",
   dispatch_worker_failed: "Repair the installed AGDF MCP runtime and retry once.",
   runtime_version_mismatch: "Install matching AGDF MCP server and dispatcher versions, then retry once.",
   runtime_provenance_invalid: "Repair the owned AGDF MCP runtime and retry once.",

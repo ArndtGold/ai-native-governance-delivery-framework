@@ -1,0 +1,131 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "8761908e-2cb2-4560-9922-d744a50190cf",
+  "request_digest": "sha256:9c4fa6c581ad27331f92ff52114866fa0720a089563c43da6f4a017177c423a2",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "expected_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+    "kind": "closeout.record"
+  },
+  "effect": {
+    "previous_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+    "resulting_revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+    "revision": 19,
+    "record": {
+      "or": {
+        "path": ".agdf/control/artefacts/report-decision-field-hardening-20261014-01/OR.md",
+        "digest": "sha256:1765604b53ce7718eb62b2a5bd486d2e501e4dbb85f93690f0ab4a773a35916d"
+      },
+      "lifecycle": "completed",
+      "context_evidence_digest": "sha256:c3fe0fe80b543a30225900d539049fa0b08aba82e2e096efef43a60ecec24b62",
+      "confirmation_digest": "sha256:f4b5f97f489edad6e3635e80cb8c014141241fb067bae9e2201f81eadf46faab"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "closeout.record",
+    "operation_id": "8761908e-2cb2-4560-9922-d744a50190cf",
+    "request_digest": "sha256:9c4fa6c581ad27331f92ff52114866fa0720a089563c43da6f4a017177c423a2",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "expected_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+    "created_at": "2026-10-14T10:06:34.195Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+      "resulting_revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+      "revision": 19,
+      "record": {
+        "or": {
+          "path": ".agdf/control/artefacts/report-decision-field-hardening-20261014-01/OR.md",
+          "digest": "sha256:1765604b53ce7718eb62b2a5bd486d2e501e4dbb85f93690f0ab4a773a35916d"
+        },
+        "lifecycle": "completed",
+        "context_evidence_digest": "sha256:c3fe0fe80b543a30225900d539049fa0b08aba82e2e096efef43a60ecec24b62",
+        "confirmation_digest": "sha256:f4b5f97f489edad6e3635e80cb8c014141241fb067bae9e2201f81eadf46faab"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 19,
+    "revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+    "lifecycle": "completed",
+    "gate": "OR",
+    "status": "pass",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": null,
+    "completion": {
+      "status": "completed",
+      "gate": "OR",
+      "fulfilled": true,
+      "vcs_handoff": "explicit_request_required"
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "report-decision-field-hardening-20261014-01",
+    "step": "closeout",
+    "previous_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+    "revision": "19",
+    "revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+    "current_gate": "OR",
+    "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+    "backlog": "updated",
+    "operation_id": "8761908e-2cb2-4560-9922-d744a50190cf",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "closeout.record",
+      "operation_id": "8761908e-2cb2-4560-9922-d744a50190cf",
+      "request_digest": "sha256:9c4fa6c581ad27331f92ff52114866fa0720a089563c43da6f4a017177c423a2",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "report-decision-field-hardening-20261014-01",
+      "expected_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+      "created_at": "2026-10-14T10:06:34.195Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "2f7185af-51e3-4a62-bd4e-76a9eaa8a608",
+        "resulting_revision_id": "4e88b0cb-1f78-458d-ae6d-9cac04168bad",
+        "revision": 19,
+        "record": {
+          "or": {
+            "path": ".agdf/control/artefacts/report-decision-field-hardening-20261014-01/OR.md",
+            "digest": "sha256:1765604b53ce7718eb62b2a5bd486d2e501e4dbb85f93690f0ab4a773a35916d"
+          },
+          "lifecycle": "completed",
+          "context_evidence_digest": "sha256:c3fe0fe80b543a30225900d539049fa0b08aba82e2e096efef43a60ecec24b62",
+          "confirmation_digest": "sha256:f4b5f97f489edad6e3635e80cb8c014141241fb067bae9e2201f81eadf46faab"
+        }
+      }
+    }
+  }
+}

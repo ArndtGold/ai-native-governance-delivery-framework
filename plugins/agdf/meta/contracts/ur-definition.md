@@ -6,6 +6,9 @@ This contract guides `ur-definition` only after a non-authorizing, bound
 ## Binding and ownership
 
 Use only the returned governance_target, run_id, revision_id, artifact_path and template_path.
+template_path is the absolute, version-matched template owned by the installed plugin runtime.
+Repository copies under `.agdf/control/templates/` are derived scaffold references and never
+override this authoring source. Read the template without rewriting it; persist only artifact_path.
 A direct invocation first dispatches ur-definition; without a bound run follow the existing
 resolve_delivery_run assignment, then gate-check intake/resume with its expected_revision_id.
 Never use AGDF_RUN_ID, cwd, discovery or a previous approval as authority. Missing, stale,

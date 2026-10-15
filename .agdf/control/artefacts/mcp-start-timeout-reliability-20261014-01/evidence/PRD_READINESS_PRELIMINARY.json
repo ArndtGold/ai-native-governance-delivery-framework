@@ -1,0 +1,67 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "artifact-readiness",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "gate": "PRD",
+    "expected_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+    "revision_id": null,
+    "artifact_path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+    "artifact_digest": null,
+    "ready": false,
+    "readiness_scope": "authoring_checks",
+    "authorizes": false,
+    "semantic_review_required": true,
+    "registration_required": true,
+    "presentation_required": true,
+    "checks": [],
+    "diagnostics": [
+      {
+        "code": "artifact_read_source_changed",
+        "message": "A safe stable draft/source snapshot could not be captured."
+      }
+    ],
+    "next_action": "Resolve the source boundary or obtain a fresh stable source snapshot, then repeat the bound read-only check."
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 14.859,
+    "target_ms": 1.209,
+    "control_ms": 708.23,
+    "render_ms": 0,
+    "total_ms": 724.513
+  },
+  "diagnostics": []
+}

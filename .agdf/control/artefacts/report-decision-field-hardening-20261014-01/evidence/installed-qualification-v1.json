@@ -1,0 +1,683 @@
+{
+  "marker": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-3f0f83af17c9",
+    "source_digest": "3f0f83af17c9b0c60f67a9c2954de5cf76e43e80b80b3f3e9802d596e90f4ddc",
+    "runtime_digest": "c7f35dbced9ffd87721bb09ca60d902c3afef5958ff19657d2e4d0cd8c4d891c"
+  },
+  "parser_cases": [
+    {
+      "name": "title and metadata",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "canonical section",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "closing heading markers",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "case and CRLF section",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "metadata section agreement",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "metadata section conflict",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "two authored sections conflict",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "explicit empty section result",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unknown explicit section result",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "prose is not metadata",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "prose before first title",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "later title does not reopen metadata",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unrelated section",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "example section",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "nested decision heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "lookalike heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "suffixed heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "indented heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "prose within decision section",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "blank cannot reopen metadata",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "explicit quote",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "lazy quote continuation",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "lazy nested quote",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quoted heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quote blank then bare field",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "actual heading interrupts quote",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "indented code",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "tab code",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "list continuation",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "nested list field",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "ordered list continuation",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "list indented heading",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "fence only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "tilde fence only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "fence before genuine section",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "fence cannot reopen bare fields",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "short fence close",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "opposite fence close",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "fence close with text",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "indented valid fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quoted fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "list fence",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "header unknown decision with markup",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unknown unicode-separated scalar",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unicode fence info",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "inline code is not HTML container",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "escaped HTML marker",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html quote only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html quote after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html quote before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nested quote only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html nested quote after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nested quote before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html details only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html details after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html details before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nesting only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "html nesting after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "html nesting before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "quoted close attribute only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "quoted close attribute after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "quoted close attribute before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "multiline attribute only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "multiline attribute after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "multiline attribute before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "comment after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment inside HTML only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "comment inside HTML after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "comment inside HTML before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "CDATA only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "CDATA after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "CDATA before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "processing instruction only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "processing instruction after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "processing instruction before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "declaration subset after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "declaration subset before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "pre after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre code nesting only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "pre code nesting after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pre code nesting before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "code only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "code after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "code before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "script only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "script after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "script before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "style only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "style after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "style before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "textarea only",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "textarea after genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "textarea before genuine",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "unclosed html",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed comment",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed attribute",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "mismatched html",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "sibling unclosed html",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "markup in title",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "nonvoid slash",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "raw nonvoid slash",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "unclosed declaration subset",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "mismatched pre code",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "pass with illustrative pass",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative revise",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative block",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative unknown",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "pass with illustrative empty",
+      "expected": "pass",
+      "actual": "pass"
+    },
+    {
+      "name": "revise with illustrative pass",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative revise",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative block",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative unknown",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "revise with illustrative empty",
+      "expected": "revise",
+      "actual": "revise"
+    },
+    {
+      "name": "block with illustrative pass",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative revise",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative block",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative unknown",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "name": "block with illustrative empty",
+      "expected": "block",
+      "actual": "block"
+    }
+  ],
+  "internal_cases": 6,
+  "flows": [
+    {
+      "route": "structured_delivery",
+      "protocol": "2026-07-28",
+      "outcome": "pass",
+      "completed": true,
+      "replay": "already_applied",
+      "negative_canonical_state_unchanged": true,
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/9aa176e41a88ca06ac01e14b4811646fe66d629a8e729f164a9b4dde5b93bae0/0.14.5/node_modules/create-agdf/",
+        "runtime_digest": "8d466419337d81b910e77b70a7d9734cf74c8d267e414d4d93dd35726948a6a7",
+        "provenance_status": "matched"
+      }
+    },
+    {
+      "route": "structured_slice",
+      "protocol": "2026-07-28",
+      "outcome": "pass",
+      "completed": true,
+      "replay": "already_applied",
+      "negative_canonical_state_unchanged": true,
+      "runtime": {
+        "machine_validation": "local_exact_version_digest",
+        "expected_version": "0.14.5",
+        "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/9aa176e41a88ca06ac01e14b4811646fe66d629a8e729f164a9b4dde5b93bae0/0.14.5/node_modules/create-agdf/",
+        "runtime_digest": "8d466419337d81b910e77b70a7d9734cf74c8d267e414d4d93dd35726948a6a7",
+        "provenance_status": "matched"
+      }
+    }
+  ],
+  "native_model_observed": false
+}

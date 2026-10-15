@@ -1,0 +1,162 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "c45fd8bc-7026-44de-840e-60ae9654cd30",
+  "request_digest": "sha256:623b77522fd4ab96ed6cfa29d83c46902e1109b71c0a660d22cf4cf67f716b55",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "653ba1e6-2af5-48fe-9e1f-d32bfd3bf89c",
+    "kind": "approval.record"
+  },
+  "effect": {
+    "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+    "approval": "Approval: UR",
+    "artefact_digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+    "gate": "UR",
+    "material_sources": [
+      {
+        "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+        "type": "UR"
+      }
+    ],
+    "material_version": "sha256:182bab689f23541cffe9fd80dca57a026e97b2d1f9928ea83d3e8babf9f4559a",
+    "next_gate_after_approval": "Brownfield Review",
+    "presentation_digest": "sha256:f0e1945e1fe0b5de5dcf0d629cf6b2ed84024ca7c014a18b0542a3d2dd3e3dc5",
+    "previous_revision_id": "653ba1e6-2af5-48fe-9e1f-d32bfd3bf89c",
+    "resulting_revision_id": "b2004cdb-58ec-4c65-9212-3043a03171dc",
+    "revision": 5
+  },
+  "receipt": {
+    "action": "record_gate_approval",
+    "assurance": {
+      "independent_human_proof": "unavailable",
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply"
+    },
+    "binding": {
+      "expected_revision_id": "653ba1e6-2af5-48fe-9e1f-d32bfd3bf89c",
+      "gate": "UR",
+      "presentation_id": "950bf743-ff1f-4595-b3d7-92ea785fc5c7",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+    },
+    "command_digest": "sha256:623b77522fd4ab96ed6cfa29d83c46902e1109b71c0a660d22cf4cf67f716b55",
+    "created_at": "2026-10-14T13:36:24.857Z",
+    "effect": {
+      "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+      "approval": "Approval: UR",
+      "artefact_digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+      "gate": "UR",
+      "material_sources": [
+        {
+          "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+          "type": "UR"
+        }
+      ],
+      "material_version": "sha256:182bab689f23541cffe9fd80dca57a026e97b2d1f9928ea83d3e8babf9f4559a",
+      "next_gate_after_approval": "Brownfield Review",
+      "presentation_digest": "sha256:f0e1945e1fe0b5de5dcf0d629cf6b2ed84024ca7c014a18b0542a3d2dd3e3dc5",
+      "previous_revision_id": "653ba1e6-2af5-48fe-9e1f-d32bfd3bf89c",
+      "resulting_revision_id": "b2004cdb-58ec-4c65-9212-3043a03171dc",
+      "revision": 5
+    },
+    "operation_id": "c45fd8bc-7026-44de-840e-60ae9654cd30",
+    "producer": {
+      "contract": "approval-service/1",
+      "package_version": "0.14.5"
+    },
+    "request_digest": "sha256:0db6a74f2e9b491a1e3915b07136f27cedbfb9069c72965fd63cc5dd881f0f64",
+    "schema_version": "2"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 5,
+    "revision_id": "b2004cdb-58ec-4c65-9212-3043a03171dc",
+    "lifecycle": "active",
+    "gate": "Brownfield Review",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "analyse_existing_system",
+      "skill_id": "brownfield-analysis",
+      "operation_key": "analysis.brownfield_review",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "Brownfield Review"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "c45fd8bc-7026-44de-840e-60ae9654cd30",
+    "request_digest": "sha256:0db6a74f2e9b491a1e3915b07136f27cedbfb9069c72965fd63cc5dd881f0f64",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "gate": "UR",
+      "expected_revision_id": "653ba1e6-2af5-48fe-9e1f-d32bfd3bf89c",
+      "presentation_id": "950bf743-ff1f-4595-b3d7-92ea785fc5c7"
+    },
+    "effect": {
+      "previous_revision_id": "653ba1e6-2af5-48fe-9e1f-d32bfd3bf89c",
+      "resulting_revision_id": "b2004cdb-58ec-4c65-9212-3043a03171dc",
+      "revision": 5,
+      "gate": "UR",
+      "approval": "Approval: UR",
+      "material_version": "sha256:182bab689f23541cffe9fd80dca57a026e97b2d1f9928ea83d3e8babf9f4559a",
+      "material_sources": [
+        {
+          "type": "UR",
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+          "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630"
+        }
+      ],
+      "artefact_digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+      "presentation_digest": "sha256:f0e1945e1fe0b5de5dcf0d629cf6b2ed84024ca7c014a18b0542a3d2dd3e3dc5",
+      "next_gate_after_approval": "Brownfield Review",
+      "allowed_after_approval": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence."
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "current": {
+      "available": true,
+      "revision": 5,
+      "revision_id": "b2004cdb-58ec-4c65-9212-3043a03171dc",
+      "approval_status": "approved",
+      "lifecycle": "active",
+      "gate": "Brownfield Review",
+      "status": "open",
+      "missing_approval": "none",
+      "next_allowed_action": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+      "blocking_reason": "none"
+    },
+    "observations": {
+      "commit": "canonical_receipt_observed",
+      "durability": "file_and_directory_sync_completed",
+      "independent_human_proof": "unavailable"
+    },
+    "recovery": null
+  }
+}

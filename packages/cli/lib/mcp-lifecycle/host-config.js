@@ -11,6 +11,7 @@ export function createMcpRegistrationSpec({ surface, scope = "project", target, 
   }
   const adapter = resolveMcpHostAdapter(surface);
   const reference = runtime.references?.find((item) => item.surface === surface
+    && (!item.role || item.role === 'governance')
     && item.native_scope === adapter.nativeScope(scope)
     && (scope === "user" || item.target === resolve(target))) ?? null;
   return Object.freeze({ surface, scope, target: resolve(target), command: execPath,
@@ -23,9 +24,9 @@ export function inspectMcpRegistration({ surface, scope, target, spec, env = {},
 }
 
 export function createMcpRegistrationTransaction({
-  action, surface, scope, target, spec, previousSpec = null, env = {}, exec = execHostFileSync,
+  action, surface, scope, target, spec, previousSpec = null, revalidate, env = {}, exec = execHostFileSync,
 } = {}) {
-  return resolveMcpHostAdapter(surface).createTransaction({ action, scope, target, spec, previousSpec, env, exec });
+  return resolveMcpHostAdapter(surface).createTransaction({ action, scope, target, spec, previousSpec, revalidate, env, exec });
 }
 
 export function inspectMcpHost({ surface, target, exec = execHostFileSync } = {}) {

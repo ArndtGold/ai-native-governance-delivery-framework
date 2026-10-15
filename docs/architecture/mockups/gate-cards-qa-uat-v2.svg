@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1060" viewBox="0 0 1200 1060" role="img" aria-labelledby="title desc">
+  <title id="title">Produktnahe Gate-Karten für QA und UAT</title>
+  <desc id="desc">Zwei große Karten unterscheiden technische Qualitätsentscheidung und menschliche Ergebnisabnahme mit geliefertem Umfang und Restrisiken.</desc>
+  <style>
+    .bg { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .soft { fill: #f1f3f3; }
+    .white { fill: #ffffff; stroke: #dde0e0; stroke-width: 1.5; }
+    .effect { fill: #e8f5f3; }
+    .success { fill: #dff3ea; }
+    .mutedBox { fill: #eef0f0; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrow { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 28px Inter, Arial, sans-serif; }
+    .status { fill: #66686a; font: 400 16px Inter, Arial, sans-serif; }
+    .label { fill: #66686a; font: 700 14px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 17px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 17px Inter, Arial, sans-serif; }
+    .successText { fill: #17623f; font: 700 18px Inter, Arial, sans-serif; }
+    .effectText { fill: #185e58; font: 700 16px Inter, Arial, sans-serif; }
+    .button { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 16px Inter, Arial, sans-serif; }
+    .link { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; }
+    .binding { fill: #4b4d50; font: 600 14px "JetBrains Mono", Consolas, monospace; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="bg" width="1200" height="1060"/>
+  <text class="title" x="40" y="50">Gate-spezifische Karten · QA und UAT</text>
+  <text class="subtitle" x="40" y="80">Qualitätsentscheidung und Ergebnisabnahme beantworten unterschiedliche Fragen</text>
+
+  <g transform="translate(40 112)">
+    <rect class="card" width="1120" height="430" rx="20"/>
+    <text class="eyebrow" x="30" y="40">QUALITÄT ENTSCHEIDEN</text>
+    <text class="heading" x="30" y="78">Sind Qualität und Nachweise ausreichend?</text>
+    <text class="status" x="30" y="108">QA-Bericht · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="132" width="1068" height="150" rx="14"/>
+    <rect class="success" x="48" y="152" width="260" height="112" rx="12"/>
+    <text class="label" x="68" y="180">TECHNISCHE QA</text>
+    <text class="successText" x="68" y="214">PASS</text>
+    <text class="body" x="68" y="242">Blocker: 0 · Restgrenzen: 1</text>
+    <rect class="white" x="328" y="152" width="740" height="112" rx="12"/>
+    <text class="strong" x="350" y="184">Nachweise</text>
+    <text class="body" x="350" y="214">Tests 102/102 · Kompatibilität 56/56 · Reviews 3/3</text>
+    <text class="body" x="350" y="242">Restgrenze: kein automatischer Release · Abweichungsannahme nicht erforderlich</text>
+
+    <rect class="effect" x="26" y="296" width="1068" height="54" rx="12"/>
+    <text class="effectText" x="48" y="329">Danach: UAT vorbereiten · Release bleibt gesperrt</text>
+
+    <rect class="button" x="30" y="368" width="170" height="44" rx="9"/>
+    <text class="buttonText" x="76" y="396">Freigeben</text>
+    <text class="link" x="230" y="396">QA-Bericht lesen</text>
+    <text class="binding" x="824" y="396">› Technische Bindung</text>
+  </g>
+
+  <g transform="translate(40 566)">
+    <rect class="card" width="1120" height="430" rx="20"/>
+    <text class="eyebrow" x="30" y="40">ERGEBNIS ABNEHMEN</text>
+    <text class="heading" x="30" y="78">Erfüllt das Ergebnis deinen vereinbarten Wunsch?</text>
+    <text class="status" x="30" y="108">Abnahmefassung · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="132" width="1068" height="150" rx="14"/>
+    <rect class="white" x="48" y="152" width="480" height="112" rx="12"/>
+    <text class="label" x="68" y="180">GELIEFERT</text>
+    <text class="strong" x="68" y="210">Klare Meldung am Formular</text>
+    <text class="body" x="68" y="238">Akzeptanzkriterien 3/3 erfüllt</text>
+    <rect class="mutedBox" x="548" y="152" width="520" height="112" rx="12"/>
+    <text class="label" x="568" y="180">NICHT GELIEFERT UND RESTGRENZEN</text>
+    <text class="body" x="568" y="210">Kein Release · keine automatische VCS-Aktion</text>
+    <text class="body" x="568" y="238">QA-Abweichungen: keine</text>
+
+    <rect class="effect" x="26" y="296" width="1068" height="54" rx="12"/>
+    <text class="effectText" x="48" y="329">Danach: OR und Closeout · Commit, Push, PR und Release bleiben explizit</text>
+
+    <rect class="button" x="30" y="368" width="170" height="44" rx="9"/>
+    <text class="buttonText" x="77" y="396">Abnehmen</text>
+    <text class="link" x="230" y="396">Ergebnis ansehen</text>
+    <text class="binding" x="824" y="396">› Technische Bindung</text>
+  </g>
+
+  <text class="footer" x="40" y="1032">Produkt-Mock v2 · UAT übernimmt QA-Ergebnis und Restgrenzen, entscheidet aber keine Release-Aktion</text>
+</svg>

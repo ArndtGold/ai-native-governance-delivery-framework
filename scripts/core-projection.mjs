@@ -24,9 +24,48 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
     'control-state/decision-action-contract.js', 'interaction-catalog.d.ts',
   ]) rmSync(join(target, 'lib', module));
   // Only the explicit build-owned resource descriptor differs from private source composition.
-  const contracts = copilot ? '../../skills/contracts/' : 'plugins/agdf/meta/contracts/';
-  writeFileSync(join(target, 'lib', 'resources', 'binding.js'), `// Generated resource binding; canonical Core implementation bytes are copied unchanged.\nexport const packageURL = new URL("../../../../", import.meta.url);\nexport const generatedURL = new URL("generated/", packageURL);\nexport const contractsURL = new URL(${JSON.stringify(contracts)}, ${copilot ? 'packageURL' : 'generatedURL'});\n`);
+  writeFileSync(join(target, 'lib', 'resources', 'binding.js'), renderProjectedBinding({ copilot }));
   return target;
+}
+// Package-shipped resources are authoritative. An environment plugin root may overlay them only
+// when its runtime manifest carries this package's exact version, so a stale or foreign root can
+// never supply contracts or templates. Template roots are probed in layout order: plugin bundle
+// (<plugin>/runtime/create-agdf → <plugin>/control/templates), then the npm package copy.
+export function renderProjectedBinding({ copilot = false } = {}) {
+  // Copilot moves the dispatcher into an isolated generation, so its contracts may come from the
+  // version-matched plugin root; the other hosts keep the package-shipped generated contracts.
+  const contracts = copilot
+    ? 'export const contractsURL = (pluginRoot ? directoryURL(join(pluginRoot, "skills", "contracts")) : null)\n  ?? new URL("../../skills/contracts/", packageURL);'
+    : 'export const contractsURL = new URL("plugins/agdf/meta/contracts/", generatedURL);';
+  return [
+    '// Generated resource binding; canonical Core implementation bytes are copied unchanged.',
+    'import { existsSync, readFileSync } from "node:fs";',
+    'import { isAbsolute, join, sep } from "node:path";',
+    'import process from "node:process";',
+    'import { fileURLToPath, pathToFileURL } from "node:url";',
+    'export const packageURL = new URL("../../../../", import.meta.url);',
+    'export const generatedURL = new URL("generated/", packageURL);',
+    'function readVersion(path) {',
+    '  try { return JSON.parse(readFileSync(path, "utf8")).version ?? null; } catch { return null; }',
+    '}',
+    'function directoryURL(path) {',
+    '  return existsSync(path) ? pathToFileURL(`${path}${sep}`) : null;',
+    '}',
+    '// Only an absolute, exact-version-matched plugin root overlays the package-shipped resources.',
+    'function trustedPluginRoot() {',
+    '  const root = process.env.AGDF_DISPATCH_PLUGIN_ROOT;',
+    '  if (!root || !isAbsolute(root)) return null;',
+    '  const packageVersion = readVersion(fileURLToPath(new URL("package.json", packageURL)));',
+    '  return packageVersion !== null && readVersion(join(root, "runtime", "runtime-manifest.json")) === packageVersion ? root : null;',
+    '}',
+    'const pluginRoot = trustedPluginRoot();',
+    contracts,
+    'export const templatesURL = (pluginRoot ? directoryURL(join(pluginRoot, "control", "templates")) : null)',
+    '  ?? directoryURL(fileURLToPath(new URL("../../control/templates/", packageURL)))',
+    '  ?? directoryURL(fileURLToPath(new URL("plugins/agdf/control/templates/", generatedURL)))',
+    '  ?? null;',
+    '',
+  ].join('\n');
 }
 export function projectPrivateCoreResources() {
   const target = join(coreRoot, 'generated', 'plugins', 'agdf', 'meta');

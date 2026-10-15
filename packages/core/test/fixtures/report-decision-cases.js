@@ -1,0 +1,105 @@
+// Independently authored result/context expectations, also used to qualify an
+// installed candidate. These fixtures contain no live approvals or control state.
+export const reportContextCases = [
+  ['title and metadata', '# QA Report: Test\nStatus: draft\nGate: QA\nOwner: Test\nDecision: pass\n', 'pass'],
+  ['canonical section', '# QA Report\nStatus: draft\n\n## 1. QA Decision\n\nDecision: pass\n\n## Evidence\nActual evidence.', 'pass'],
+  ['closing heading markers', 'Introductory prose.\n## 12. QA Decision ###\n- decision: `revise`\n', 'revise'],
+  ['case and CRLF section', '# QA\r\nStatus: draft\r\n## 1. qa decision\r\nDECISION: PASS\r\n', 'pass'],
+  ['long unrelated heading', '# QA\n## x' + ' '.repeat(60000) + 'z\nDecision: block\n## QA Decision ###\nDecision: pass\n', 'pass'],
+  ['many sibling tags', '# QA\n' + '<br>'.repeat(15000) + '\n## QA Decision\nDecision: pass\n', 'pass'],
+  ['metadata section agreement', 'Status: pass\n\n## QA Decision\nDecision: passed\n', 'pass'],
+  ['metadata section conflict', 'Status: pass\n\n## QA Decision\nDecision: block\n', null],
+  ['two authored sections conflict', '## Decision\nDecision: revise\n## QA Decision\nDecision: pass\n', null],
+  ['explicit empty section result', 'Status: pass\n## Decision\nDecision:\n', null],
+  ['unknown explicit section result', 'Status: pass\n## Decision\nDecision: unknown\n', null],
+  ['prose is not metadata', 'Example only:\nDecision: pass\n', null],
+  ['prose before first title', 'An example:\n# QA\nDecision: pass\n', null],
+  ['later title does not reopen metadata', '# QA\nIntroduction.\n# Code Review\nDecision: pass\n', null],
+  ['unrelated section', '## Evidence\nDecision: pass\n', null],
+  ['example section', '## Example\nDecision: pass\n', null],
+  ['nested decision heading', '## Examples\n### QA Decision\nDecision: pass\n', null],
+  ['lookalike heading', '## Example QA Decision\nDecision: pass\n', null],
+  ['suffixed heading', '## QA Decision example\nDecision: pass\n', null],
+  ['indented heading', '  ## QA Decision\nDecision: pass\n', null],
+  ['prose within decision section', '## QA Decision\nExample only:\nDecision: pass\n', null],
+  ['blank cannot reopen metadata', 'Quotation follows:\n\nDecision: pass\n', null],
+  ['explicit quote', '> Decision: pass\n', null],
+  ['lazy quote continuation', '> Example:\nDecision: pass\n', null],
+  ['lazy nested quote', '> > Example:\nDecision: pass\n', null],
+  ['quoted heading', '> ## QA Decision\nDecision: pass\n', null],
+  ['quote blank then bare field', '> Example:\n\nDecision: pass\n', null],
+  ['actual heading interrupts quote', '> Example:\nDecision: block\n## QA Decision\nDecision: pass\n', 'pass'],
+  ['indented code', '    Decision: pass\n', null],
+  ['tab code', '\tDecision: pass\n', null],
+  ['list continuation', '- Example:\nDecision: pass\n', null],
+  ['nested list field', '- Example:\n  - decision: pass\n', null],
+  ['ordered list continuation', '1. Example:\nDecision: pass\n', null],
+  ['list indented heading', '- Example:\n  ## QA Decision\nDecision: pass\n', null],
+  ['fence only', '```text\nDecision: pass\n```\n', null],
+  ['tilde fence only', '~~~text\nDecision: pass\n~~~\n', null],
+  ['fence before genuine section', '```text\nDecision: block\n```\n## QA Decision\nDecision: pass\n', 'pass'],
+  ['fence cannot reopen bare fields', '```text\nDecision: block\n```\nDecision: pass\n', null],
+  ['short fence close', '````text\n```\n## QA Decision\nDecision: pass\n', null],
+  ['opposite fence close', '```text\n~~~\n## QA Decision\nDecision: pass\n', null],
+  ['fence close with text', '```text\n```still code\n## QA Decision\nDecision: pass\n', null],
+  ['unclosed fence', '~~~\n## QA Decision\nDecision: pass\n', null],
+  ['indented valid fence', '   ```text\n## QA Decision\nDecision: pass\n   ```\n', null],
+  ['quoted fence', '> ```text\n## QA Decision\nDecision: pass\n> ```\n', null],
+  ['list fence', '- ```text\n## QA Decision\nDecision: pass\n```\n', null],
+  ['header unknown decision with markup', 'Status: pass\nDecision: pass<!-- example -->\n', null],
+  ['unknown unicode-separated scalar', 'Status: pass\nDecision: pass\u2028extra\n', null],
+  ['unicode fence info', '```example\u2028info\n## QA Decision\nDecision: pass\n```\n', null],
+  ['inline code is not HTML container', 'An inline `<blockquote>` example.\n## QA Decision\nDecision: pass\n', 'pass'],
+  ['escaped HTML marker', 'An escaped \\<blockquote> example.\n## QA Decision\nDecision: pass\n', 'pass'],
+];
+
+const containers = [
+  ['html quote', '<blockquote>\n## QA Decision\nDecision: block\n</blockquote>'],
+  ['html nested quote', '<blockquote>\n<blockquote>\n</blockquote>\n## QA Decision\nDecision: block\n</blockquote>'],
+  ['html details', '<details>\n\n## QA Decision\nDecision: block\n</details>'],
+  ['html nesting', '<div><details>\n## QA Decision\nDecision: block\n</details></div>'],
+  ['quoted close attribute', '<div title="</div>">\n## QA Decision\nDecision: block\n</div>'],
+  ['multiline attribute', '<div title="example\n</div>\n## QA Decision\nDecision: block\n">\n</div>'],
+  ['comment', '<!--\n</div>\n## QA Decision\nDecision: block\n-->'],
+  ['comment inside HTML', '<div><!-- </div> -->\n## QA Decision\nDecision: block\n</div>'],
+  ['CDATA', '<![CDATA[\n## QA Decision\nDecision: block\n]]>'],
+  ['processing instruction', '<?example\n## QA Decision\nDecision: block\n?>'],
+  ['declaration', '<!EXAMPLE "\n## QA Decision\nDecision: block\n">'],
+  ['declaration subset', '<!DOCTYPE example [\n<!ELEMENT example ANY>\n## QA Decision\nDecision: block\n]>'],
+  ['declaration subset comment', '<!DOCTYPE example [\n<!-- ]> -->\n## QA Decision\nDecision: block\n]>'],
+  ['declaration subset instruction', '<!DOCTYPE example [\n<?example ]> ?>\n## QA Decision\nDecision: block\n]>'],
+  ['declaration subset CDATA', '<!DOCTYPE example [\n<![CDATA[ ]> ]]>\n## QA Decision\nDecision: block\n]>'],
+  ['pre', '<pre>\n## QA Decision\nDecision: block\n</pre>'],
+  ['pre code nesting', '<pre><code>\n## QA Decision\nDecision: block\n</code></pre>'],
+  ['code', '<code>\n## QA Decision\nDecision: block\n</code>'],
+  ['script', '<script>\n## QA Decision\nDecision: block\n</script>'],
+  ['style', '<style>\n## QA Decision\nDecision: block\n</style>'],
+  ['textarea', '<textarea>\n## QA Decision\nDecision: block\n</textarea>'],
+];
+for (const [name, content] of containers) {
+  reportContextCases.push([name + ' only', content + '\n', null]);
+  reportContextCases.push([name + ' after genuine', 'Decision: pass\n' + content + '\n', 'pass']);
+  reportContextCases.push([name + ' before genuine', content + '\n## QA Decision\nDecision: pass\n', 'pass']);
+}
+for (const [name, content] of [
+  ['unclosed html', '<div>\n'], ['unclosed comment', '<!--\n'],
+  ['unclosed attribute', '<div title="\n'], ['mismatched html', '<div></details>\n'],
+  ['sibling unclosed html', '<div></div><blockquote>\n'],
+  ['markup in title', '# QA <blockquote>\n'],
+  ['nonvoid slash', '<blockquote/>\n'], ['raw nonvoid slash', '<script/>\n'],
+  ['unclosed declaration subset', '<!DOCTYPE example [\n<!ELEMENT example ANY>\n'],
+  ['mismatched pre code', '<pre><code></pre>\n'],
+  ['unclosed subset comment', '<!DOCTYPE example [\n<!-- ]>\n'],
+]) reportContextCases.push([name, content + '## QA Decision\nDecision: pass\n', null]);
+for (const result of ['pass', 'revise', 'block']) for (const noise of ['pass', 'revise', 'block', 'unknown', '']) {
+  reportContextCases.push([`${result} with illustrative ${noise || 'empty'}`, `Decision: ${result}\n\n## Examples\nDecision: ${noise}\n~~~\nDecision: ${noise}\n~~~\n> Example:\nDecision: ${noise}\n`, result]);
+}
+
+export const reportInternalCases = [
+  ['internal result', 'Decision: not_applicable\n', 'not_applicable'],
+  ['internal status', 'Status: not_applicable\n', 'not_applicable'],
+  ['internal section', '## Decision\n- decision: not_applicable\n', 'not_applicable'],
+  ['internal conflict', 'Decision: pass\nStatus: not_applicable\n', null],
+  ['internal quote only', '> Example:\nDecision: not_applicable\n', null],
+  ['internal example only', '~~~\nDecision: not_applicable\n~~~\n', null],
+];

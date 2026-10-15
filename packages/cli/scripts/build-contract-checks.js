@@ -1,6 +1,6 @@
 // Shared assertions: run early during build and retain coverage in the full smoke suite.
 import "../../../scripts/support/english-locale.js";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
@@ -108,12 +108,19 @@ export function checkLateGateTransitions() {
   ];
 
   for (const testCase of cases) {
-    const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-late-gate-${testCase.name}-`));
+    const tempDir = realpathSync(mkdtempSync(join(tmpdir(), `create-agdf-late-gate-${testCase.name}-`)));
     const runId = `late-gate-${testCase.name}`;
+    const prefix = `.agdf/control/artefacts/${runId}/`;
+    const concreteUat = ['approved', 'pass', 'passed'].includes(testCase.qa) && ['pass', 'passed'].includes(testCase.qaArtefact[1]);
     const runPath = join(tempDir, ".agdf", "control", "runs", runId, "RUN_STATE.md");
     try {
       execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
       execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", runId], { stdio: "pipe" });
+      if (concreteUat) {
+        mkdirSync(join(tempDir, prefix), { recursive: true });
+        writeFileSync(join(tempDir, prefix, 'UR.md'), '# UR: Personal filter\n\n## Goal\nSave and restore the user-owned personal filter through the existing storage owner.\n');
+        writeFileSync(join(tempDir, prefix, 'QA_REPORT.md'), '# QA: Personal filter\nDecision: pass\n\n## TP Coverage\n- delivered_result: The user-owned filter is saved and restored through the existing storage owner, verified in the disposable transition test.\n\n## Missing Evidence\n- qualification_limits: none\n\n## Risks\n- delivery_risks: none\n');
+      }
       const internalRows = ["Brownfield Analysis", "CD+Tests", "CR"]
         .map((step) => `| ${step} | ${testCase.steps[step] ? `${step.replace(/[^A-Za-z]+/g, "_").toUpperCase()}.md` : ""} | ${testCase.steps[step] ?? "missing"} | |`)
         .join("\n");
@@ -131,6 +138,10 @@ export function checkLateGateTransitions() {
 - current_gate: OR
 - decision: in_progress
 - owner: test
+
+## Objective
+
+Verify that the approved personal-filter change follows the canonical late-gate transition without skipping evidence or human decisions.
 
 ## Current Control State
 
@@ -157,13 +168,13 @@ export function checkLateGateTransitions() {
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | UR.md | approved | |
+| UR | ${concreteUat ? prefix + 'UR.md' : 'UR.md'} | approved | |
 | Brownfield Review | BROWNFIELD_REVIEW.md | done | |
 | PRD | PRD.md | approved | |
 | SD | SD.md | approved | |
 | TP | TP.md | approved | |
 ${internalRows}
-| QA | ${testCase.qaArtefact[0]} | ${testCase.qaArtefact[1]} | |
+| QA | ${concreteUat ? prefix + 'QA_REPORT.md' : testCase.qaArtefact[0]} | ${testCase.qaArtefact[1]} | |
 
 ## Mode/Slice Decision
 
@@ -201,7 +212,7 @@ ${internalRows}
         || !report.forbidden.includes(testCase.forbidden)
         || (testCase.forbiddenExtra ?? []).some((action) => !report.forbidden.includes(action))
         || report.next_allowed_action !== testCase.next) {
-        throw new Error(`Late-gate ${testCase.name} mismatch: ${JSON.stringify({ status: report.status, gate: report.current_gate, missing: report.missing_approval, allowed: report.allowed, forbidden: report.forbidden, next: report.next_allowed_action, doctor: report.doctor_report?.findings })}`);
+        throw new Error(`Late-gate ${testCase.name} mismatch: ${JSON.stringify({ status: report.status, gate: report.current_gate, missing: report.missing_approval, allowed: report.allowed, forbidden: report.forbidden, next: report.next_allowed_action, doctor: report.doctor_report?.findings, content: report.presentation_diagnostics, card: report.status_card })}`);
       }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });

@@ -28,6 +28,12 @@ export function renderMcpLifecycleText(report, { language } = {}) {
   const pack = localePack(interactionLocales, language);
   const projected = projectMcpLifecycleResult(report, { language });
   const labels = pack.mcpLifecycle.labels;
+  const setup = report.setup ? [pack.mcpLifecycle.setup.title,
+    ...report.setup.entries.map(entry => {
+      const view = pack.mcpLifecycle.setup;
+      return `${entry.display_name} (${entry.server_id}) · ${view.labels.source}: ${entry.source}/${entry.scope} · ${view.labels.role}: ${view.roles[entry.role]} · ${view.labels.owner}: ${entry.owner}\n`
+        + ['configured', 'started', 'discovered', 'app_rendered', 'app_interacted'].map(key => `${view.labels[key]}: ${view.states[entry[key]] ?? view.states.unknown}`).join(' · ');
+    }), pack.mcpLifecycle.setup.noticeDescription] : [];
   return [
     pack.mcpLifecycle.title,
     `${labels.operation}: ${report.operation}`,
@@ -45,6 +51,7 @@ export function renderMcpLifecycleText(report, { language } = {}) {
     `${labels.diagnostics}: ${projected.diagnostics.length ? projected.diagnostics.map((item) => item.text).join(", ") : localized(pack, "diagnostics", "none")}`,
     `${labels.nextAction}: ${projected.next_action.text}`,
     `${labels.fallback}: ${projected.fallback.text}`,
+    ...setup,
   ].join("\n");
 }
 

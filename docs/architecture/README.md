@@ -93,7 +93,11 @@ Quelle für Gate-Regeln oder technische Berechtigungen.
 Die [Architekturentscheidung zur Host-Schnittstelle](07-ui-konzept.md#architekturentscheidung-zur-gemeinsamen-host-schnittstelle)
 legt MCP/MCP Apps als gemeinsame Grundlage für das Cockpit fest. Regeln und Entscheidungen
 bleiben gleich; verfügbare Darstellung und Fortsetzung werden je Host geprüft. CopilotKit
-bleibt eine optionale Host-Implementierung.
+bleibt eine optionale Host-Implementierung. Nutzerseitige Präsentationen verwenden genau
+zwei Formate: MCP-App-UI oder das vollständige, hostübergreifende Portable Markdown. Das
+[durchgehende Gate-Kartenmodell](07-ui-konzept.md#durchgehender-vertrag-für-alle-menschlichen-gates)
+ordnet UR, PRD, SD, TP, QA und UAT derselben Bedienlogik zu und bindet semantische Mocks
+einschließlich QA-Abweichungsannahme und UAT-Übergabe ein.
 
 ## Bestehender Stand und Weiterentwicklung
 

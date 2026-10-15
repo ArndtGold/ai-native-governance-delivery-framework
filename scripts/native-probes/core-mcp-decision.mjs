@@ -2,8 +2,8 @@
 // are writable; this entrypoint is separately identified from production.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, rmSync, mkdirSync, existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { readFileSync, writeFileSync, rmSync, mkdirSync, existsSync, realpathSync, lstatSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createOwnedRuntimeFixture } from '../../packages/mcp-server/test/owned-runtime.js';
 import { createSdDefinitionTestRun, syntheticSd } from '../../packages/cli/scripts/fixtures/sd-definition.js';
@@ -13,7 +13,7 @@ import { artefactFileDigest } from '../../packages/core/lib/control-state/run-se
 import { randomUUID } from 'node:crypto';
 import { readDecisionUiBuild } from '../cockpit-ui-build.mjs';
 import { resolveControlCommandTarget } from '../../packages/core/lib/control-state/approval-command-contract.js';
-const repo = fileURLToPath(new URL('../../', import.meta.url));
+const repo = realpathSync(fileURLToPath(new URL('../../', import.meta.url)));
 const options = {};
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
@@ -21,17 +21,23 @@ for (let i = 2; i < process.argv.length; ++i) {
   if (!['--evidence-dir', '--dispatcher-root', '--server-root'].includes(arg) || !process.argv[i + 1] || options[arg]) throw Error('Unsupported native probe option');
   options[arg] = resolve(process.argv[++i]);
 }
-const evidenceRoot = options['--evidence-dir'] ?? join(repo, '.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence');
-if (!evidenceRoot.startsWith(join(repo, '.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence') + '/')
-    && evidenceRoot !== join(repo, '.agdf/control/artefacts/core-mcp-flow-coherence-20261010-01/evidence')) throw Error('Native probe evidence scope invalid');
+// Evidence must be explicitly bound by the caller; never inherit a historical Run.
+const evidenceRoot = options['--evidence-dir'];
+const artefactsRoot = join(repo, '.agdf/control/artefacts');
+if (!evidenceRoot || !evidenceRoot.startsWith(artefactsRoot + '/')
+    || !/^[a-z0-9][a-z0-9._-]{0,127}\/evidence(?:\/[^/]+)*$/u.test(evidenceRoot.slice(artefactsRoot.length + 1))) throw Error('Native probe evidence scope invalid');
+for (let path = evidenceRoot; path !== repo; path = dirname(path)) {
+  if (existsSync(path) && lstatSync(path).isSymbolicLink()) throw Error('Native probe evidence scope invalid');
+}
 mkdirSync(evidenceRoot, { recursive: true });
+if (!realpathSync(evidenceRoot).startsWith(realpathSync(artefactsRoot) + '/')) throw Error('Native probe evidence scope invalid');
 const allGates = options.allGates === true;
 const locales = Object.keys(JSON.parse(readFileSync(join(repo, 'plugins/agdf/meta/agdf-interaction-locales.json'), 'utf8')).locales);
 // build:prepare owns dist/npm. A previous local installation build is a different
 // candidate, even when its release version matches; use it only as an explicit override.
 const fixture = createOwnedRuntimeFixture({ dispatcherSourceRoot: options['--dispatcher-root'] ?? join(repo, 'dist/npm/create-agdf'),
   candidateServerRoot: options['--server-root'] ?? join(repo, 'dist/npm/agdf-mcp-server') });
-const root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
+const root = realpathSync(fixture.governanceTarget), cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
 // Reuse the existing canonical fixture owners. All prerequisite decisions below
 // are synthetic and confined to this disposable target; the selected gate is
 // deliberately left undecided for the native human observation.
@@ -114,10 +120,10 @@ try {
     writeFileSync(f.file('SD.md'), syntheticSd() + '\n## Native observation scope\nDisposable synthetic Run. No real undertaking is approved or changed by this probe.\n');
     const recorded = f.recordSd(); if (recorded.value.outcome !== 'recorded') throw Error(recorded.text);
     }
-    runs.push({ locale, action, run_id: id, expected_revision_id: f.revision(), gate });
+    runs.push({ locale, action, run_id: id, expected_revision_id: f.revision(), gate: allGates ? gate : 'SD' });
     process.stdout.write(`Prepared isolated ${id}\n`);
   }
-  const entry = join(fixture.root, 'native-decision-entry.mjs'), observations = join(fixture.root, 'native-observations.jsonl');
+  const entry = join(realpathSync(fixture.root), 'native-decision-entry.mjs'), observations = join(realpathSync(fixture.root), 'native-observations.jsonl');
   const source = `// Private experimental native probe; never a production qualification record.
 import {appendFileSync,readFileSync,realpathSync} from 'node:fs';
 import {createMcpDispatchRuntime,createMcpDecisionRuntime,DECISION_UI_URI} from ${JSON.stringify(fileURLToPath(new URL('lib/mcp-dispatch-runtime.js', 'file://' + fixture.dispatcherRoot + '/')))};
@@ -144,17 +150,26 @@ await runMcpServer({surface:'codex',runtime,executor:{async execute(input,{toolN
 `;
   writeFileSync(entry, source);
   const marker = JSON.parse(readFileSync(join(fixture.root, '.agdf-mcp-owned.json'), 'utf8'));
+  marker.node_executable = process.execPath;
+  writeFileSync(join(fixture.root, '.agdf-mcp-owned.json'), JSON.stringify(marker, null, 2) + '\n');
   const candidate = { schema_version: '1', evidence_class: 'prepared_disposable_native_probe', observed_at: new Date().toISOString(),
     production_entrypoint: false, installed: false, native_qualified: false, assurance: 'cooperative_local', authorizes: false,
-    runtime_root: fixture.root, target: root, target_id: resolveControlCommandTarget(root).target_id, runs,
+    runtime_root: realpathSync(fixture.root), target: root, target_id: resolveControlCommandTarget(root).target_id, runs,
     entrypoint: entry, entrypoint_digest: 'sha256:' + createHash('sha256').update(source).digest('hex'),
     server_digest: marker.server_digest, dispatcher_digest: marker.dispatcher_digest, sdk_digest: marker.sdk_digest,
     ui: readDecisionUiBuild().manifest, observations,
-    configuration: { name: 'agdf-decision-probe', command: process.execPath, args: [entry] } };
+    configuration: { name: 'agdf-test-decision', role: 'diagnostic', command: process.execPath, args: [entry] },
+    lifecycle: { owner: 'create-agdf:mcp-runtime', role: 'diagnostic', server_id: 'agdf-test-decision',
+      command: process.execPath, args: [entry], target: root, runtime_root: realpathSync(fixture.root), lifetime: 'completion_or_abort',
+      sources: [{ path: entry, digest: 'sha256:' + createHash('sha256').update(source).digest('hex') }],
+      configuration: { path: join(root, '.codex/config.toml'), scope: 'project',
+        existed: existsSync(join(root, '.codex/config.toml')),
+        digest: 'sha256:' + createHash('sha256').update(existsSync(join(root, '.codex/config.toml')) ? readFileSync(join(root, '.codex/config.toml')) : '').digest('hex') },
+      activated: false, cleanup_owner: 'runMcpLifecycle:diagnostic:disable', shared_app_data: 'host_owned_untouched' } };
   let descriptor = 'NATIVE_PROBE_CANDIDATE.json';
-  if (allGates) {
+  if (allGates || existsSync(join(evidenceRoot, descriptor))) {
     let sequence = 1;
-    do { descriptor = `NATIVE_PROBE_CANDIDATE_GATE_MATRIX_${String(sequence++).padStart(2, '0')}.json`; }
+    do { descriptor = `NATIVE_PROBE_CANDIDATE_${allGates ? 'GATE_MATRIX_' : ''}${String(sequence++).padStart(2, '0')}.json`; }
     while (existsSync(join(evidenceRoot, descriptor)));
   }
   writeFileSync(join(evidenceRoot, descriptor), JSON.stringify(candidate, null, 2) + '\n');

@@ -43,6 +43,7 @@ export function createMcpLifecycleResult({
   nextAction,
   fallback = { code: "version_matched_cli_dispatch" },
   permissionEffect = { code: "inherited_host_user" },
+  setup,
 }) {
   const invalidCombination = (result === "discovered_ready"
       && (capability !== "supported" || registration?.status !== "matched" || discovery?.status !== "discovered"
@@ -84,6 +85,7 @@ export function createMcpLifecycleResult({
     fallback: coded(fallback, "version_matched_cli_dispatch"),
     next_action: coded(nextAction, "none"),
     diagnostics: freezeArray(diagnostics),
+    ...(setup ? { setup: Object.freeze(setup) } : {}),
   });
 }
 

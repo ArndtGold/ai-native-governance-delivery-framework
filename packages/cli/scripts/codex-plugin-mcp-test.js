@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "../lib/host-adapters/codex/plugin-mcp.js";
@@ -44,6 +44,23 @@ const enable = runMcpLifecycle({
 assert.deepEqual([enable.result, enable.diagnostics[0].code, enable.next_action.code],
   ["not_configured", "codex_plugin_managed", "use_codex_plugin_mcp"]);
 
+const statusTarget = mkdtempSync(join(tmpdir(), 'agdf-plugin-status-'));
+try {
+  const user = join(statusTarget, 'user'); mkdirSync(user);
+  writeFileSync(join(user, 'config.toml'), '[plugins."agdf@agdf"]\nenabled = true\n');
+  const status = runMcpLifecycle({ action: 'status', surface: 'codex', target: statusTarget,
+    env: { CODEX_HOME: user, AGDF_DATA_DIR: join(statusTarget, 'data'), AGDF_DISPATCH_PLUGIN_ROOT: pluginRoot },
+    exec() { return 'codex-cli 0.145.0'; } });
+  assert.equal(status.next_action.code, 'use_codex_plugin_mcp');
+  assert.equal(status.diagnostics[0].code, 'codex_plugin_managed');
+  assert.equal(status.setup.entries.find(entry => entry.role === 'product').started, 'unobserved');
+  writeFileSync(join(user, 'config.toml'), '[plugins."agdf@agdf"]\nenabled = false\n');
+  const disabled = runMcpLifecycle({ action: 'status', surface: 'codex', target: statusTarget,
+    env: { CODEX_HOME: user, AGDF_DATA_DIR: join(statusTarget, 'data'), AGDF_DISPATCH_PLUGIN_ROOT: pluginRoot },
+    exec() { return 'codex-cli 0.145.0'; } });
+  assert.equal(disabled.next_action.code, 'use_codex_plugin_mcp');
+  assert.equal(disabled.setup.entries.find(entry => entry.role === 'product').configured, 'disabled');
+} finally { rmSync(statusTarget, { recursive: true, force: true }); }
 const root = mkdtempSync(join(tmpdir(), "agdf-codex-plugin-mcp-"));
 try {
   // Staging writes the absolute marketplace launcher and an AGDF-owned data root; provenance digests the template.
@@ -68,7 +85,17 @@ try {
     ensure(input) { ensured.push(input); return { status: "matched", version, root: "/r", changed: false }; },
   });
   assert.equal(prepared.status, "matched");
-  assert.deepEqual(ensured, [{ pluginRoot, dataRoot: args[4], env: {} }]);
+  const { publicationDeadline, ...ensuredInput } = ensured[0];
+  assert.deepEqual(ensuredInput, { pluginRoot, dataRoot: args[4], env: {} });
+  assert.ok(Number.isFinite(publicationDeadline) && publicationDeadline > performance.now()
+    && publicationDeadline <= performance.now() + 30_000);
+  const deadlines = [];
+  await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', args[4]], env: {},
+    stdout: { write() {} }, stderr: { write() {} },
+    ensure(input) { deadlines.push(input.publicationDeadline); return { status: 'matched' }; },
+    acquireClaim(runtime, input) { deadlines.push(input.publicationDeadline); },
+    startFacade(input) { deadlines.push(input.publicationDeadline); return null; } });
+  assert.equal(deadlines.length, 3); assert.ok(deadlines.every(value => value === deadlines[0]), 'No phase restarts the shared publication allowance.');
 
   // The installer prewarm reuses exactly the installed declaration.
   const prewarm = [];

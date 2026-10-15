@@ -139,6 +139,13 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
           next_allowed_action: "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
         };
       }
+      if (isInternalStepSatisfied(runState, "CR")) return {
+        status: "open", current_gate: "Quick Task Execution", blocking_reason: "none", missing_approval: "none",
+        allowed: ["produce OR or delivery closeout"],
+        forbidden: ["repeat Quick Task execution", "commit, push, open PR or release automatically"],
+        next_allowed_action: "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+        next_operation: { type: "record_closeout", skill_id: "release-or", operation_key: "closeout.record", actor: "agent", effect: "closeout", gate: "Quick Task Execution" },
+      };
       return {
         status: "open",
         current_gate: "Quick Task Execution",
@@ -147,6 +154,7 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
         allowed: ["implement the narrow approved UR scope", "run relevant checks", "record evidence and close with OR-lite"],
         forbidden: ["expand scope beyond the Brownfield Review decision", "create broad PRD/SD/TP artefacts by ritual", "claim QA or release readiness without evidence"],
         next_allowed_action: "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+        next_operation: { type: "implement_compact_scope", skill_id: "gate-check", operation_key: "implementation.execute", actor: "agent", effect: "implementation", gate: "Quick Task Execution" },
       };
     }
 
@@ -184,6 +192,7 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
           allowed: ["implement only declared source and derived paths", "run declared propagation and validation commands", "record execution evidence and mini-closeout"],
           forbidden: ["touch unlisted paths", "add prohibited impacts", "claim QA, UAT or release readiness"],
           next_allowed_action: "Implement only the eligible Verified Change record scope, then record passing propagation and validation evidence.",
+          next_operation: { type: "implement_compact_scope", skill_id: "gate-check", operation_key: "implementation.execute", actor: "agent", effect: "implementation", gate: "Verified Change Execution" },
         };
       }
       return {

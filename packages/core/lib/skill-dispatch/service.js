@@ -1,9 +1,11 @@
 import { inspectDefinitionSources } from "../control-evaluation/definition-sources.js";
 import { prdDefinitionPhase } from "./prd-definition.js";
 import { sdDefinitionPhase } from "./sd-definition.js";
+import { compactContinuation } from "./compact-continuation.js";
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
+import { ARTEFACT_TEMPLATE_ERROR_CODES, ARTEFACT_TEMPLATE_IDS, resolveArtefactTemplatePath } from "../resources/artefact-templates.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluation/gate-check.js";
 import { localePack, renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderDefinitionSourceRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
@@ -15,6 +17,33 @@ import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_R
 const defaultNow = () => process.hrtime.bigint();
 const milliseconds = (start, end) => Number(end - start) / 1_000_000;
 const round = (value) => Math.round(Math.max(0, value) * 1000) / 1000;
+const artefactTemplateErrors = new Set(ARTEFACT_TEMPLATE_ERROR_CODES);
+
+function gateTemplateId(gate) {
+  return ({
+    PRD: ARTEFACT_TEMPLATE_IDS.PRD,
+    SD: ARTEFACT_TEMPLATE_IDS.SD,
+    TP: ARTEFACT_TEMPLATE_IDS.TP,
+    QA: ARTEFACT_TEMPLATE_IDS.QA_REPORT,
+  })[gate] ?? null;
+}
+
+// Every analytical owner that persists a source analysis receives its canonical template.
+function analysisOwnerTemplateId(owner) {
+  return ({
+    "ux-intent-definition": ARTEFACT_TEMPLATE_IDS.UX_INTENT_DEFINITION,
+    "brownfield-analysis": ARTEFACT_TEMPLATE_IDS.BROWNFIELD_REVIEW,
+  })[owner] ?? null;
+}
+
+function judgementTemplateId(skillId, currentGate) {
+  if (skillId === "ux-intent-definition") return ARTEFACT_TEMPLATE_IDS.UX_INTENT_DEFINITION;
+  if (skillId === "qa-gate") return ARTEFACT_TEMPLATE_IDS.QA_REPORT;
+  if (skillId === "brownfield-analysis" && ["Brownfield Review", "Mode/Slice Decision"].includes(currentGate)) {
+    return ARTEFACT_TEMPLATE_IDS.BROWNFIELD_REVIEW;
+  }
+  return null;
+}
 
 class SkillDispatchRuntimeError extends Error {
   constructor(code, details = "") {
@@ -184,7 +213,7 @@ export function createSkillDispatchFailure({ skill, runtime, timing, code, detai
   try { action = renderRecovery({ code }, { registry: interactionLocales, requestedLocale: presentationLanguage }); }
   catch { action = null; }
   result.recovery = { action: [action ?? "Repair the installed locale registry and retry once.", details].filter(Boolean).join("\n\n") };
-  result.diagnostics = [{ code: `dispatch_${code}` }];
+  result.diagnostics = [{ code: artefactTemplateErrors.has(code) ? code : `dispatch_${code}` }];
   return bindHostAction(result);
 }
 
@@ -351,6 +380,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.continuation = Object.freeze({ phase: "source_analysis_reassessment", skill_id: owner,
           governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
           presentation_language: input.presentation_language,
+          template_path: resolveArtefactTemplatePath(analysisOwnerTemplateId(owner)),
           instruction: `${renderDefinitionSourceRecovery(prdSources.issue, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language })} Prepare or correct only this run's unapproved UX analysis through its existing owner. Preserve approved intent and stop for a material missing choice. Validate the exact decision field, record the analysis with the existing canonical writer, then redispatch gate-check for this same run. One condition-specific correction attempt only; an unchanged failure stops. Do not draft PRD until the input is ready.`,
           ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
         });
@@ -466,6 +496,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: result.control.run_id,
           revision_id: result.control.revision_id,
           presentation_language: input.presentation_language,
+          template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.BROWNFIELD_REVIEW),
           ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("brownfield-analysis")) } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
@@ -474,6 +505,23 @@ export function createSkillDispatchService(dependencies = {}) {
       const route = control.status_card?.mode_slice_decision ?? control.delivery_map?.mode_slice_decision?.decision;
       const structuredRoute = ["structured_slice", "structured_delivery"].includes(route);
       const tpIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "TP" && item.status === "fulfilled");
+      const compact = runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed,
+        () => compactContinuation(target.governance_target, control, input));
+      if (compact) {
+        const ownerSkill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get(compact.skill_id);
+        if (!ownerSkill) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_contracts_unavailable);
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill: ownerSkill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({ ...compact,
+          ...(compact.phase === "compact_closeout" && compact.mode === "quick_task"
+            ? { template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.OR) } : {}),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
+            () => dependencies.readSkillRuntimeContracts(compact.skill_id)) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
       if (input.continue_delivery && control.status === "open" && control.current_gate === "CD+Tests"
           && control.missing_approval === "none" && structuredRoute && tpIsFulfilled
           && control.next_operation?.type === "implement_approved_plan") {
@@ -521,8 +569,36 @@ export function createSkillDispatchService(dependencies = {}) {
         result.continuation = Object.freeze({ phase: "source_analysis_reassessment", skill_id: owner,
           governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
           presentation_language: input.presentation_language,
+          ...(analysisOwnerTemplateId(owner)
+            ? { template_path: resolveArtefactTemplatePath(analysisOwnerTemplateId(owner)) } : {}),
           instruction: "Use the existing analytical owner under the current approved UR. Persist the renewed analysis in this bound Run before dependent source authoring, then redispatch gate-check for the same target/run. Do not change approved product intent or infer implementation authority.",
           ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      if (input.continue_delivery
+          && control.current_gate === "Verified Change Execution"
+          && control.blocking_reason === "verified_change_record_required"
+          && control.missing_approval === "none"
+          && route === "verified_change") {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          phase: "verified_change_record",
+          skill_id: "gate-check",
+          governance_target: target.governance_target,
+          run_id: result.control.run_id,
+          revision_id: result.control.revision_id,
+          presentation_language: input.presentation_language,
+          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/VERIFIED_CHANGE.md`,
+          template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.VERIFIED_CHANGE),
+          instruction: "Create or repair the compact Verified Change record only through its existing gate-check/evaluator owner. Use the supplied plugin-owned template and canonical run-local artifact path, capture the required baseline, and prove every eligibility condition before implementation. Redispatch gate-check for the same run; never add another skill or route.",
+          ...(dependencies.readSkillRuntimeContracts ? {
+            runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable,
+              () => dependencies.readSkillRuntimeContracts("gate-check")),
+          } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
@@ -532,6 +608,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         const artifact = control.next_operation;
+        const templateId = gateTemplateId(artifact.gate);
         result.continuation = Object.freeze({
           phase: "required_gate_artifact",
           skill_id: artifact.skill_id,
@@ -540,6 +617,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: result.control.run_id,
           revision_id: result.control.revision_id,
           artifact_path: artifact.artifact_path,
+          ...(templateId ? { template_path: resolveArtefactTemplatePath(templateId) } : {}),
           source_artifacts: artifact.source_artifacts,
           instruction: "Follow the gate-artifact-preparation runtime contract for this exact gate and the supplied canonical artefact/source paths. Persist the required artefact in the selected run, then redispatch gate-check for the same target/run; do not ask for approval until the fresh dispatch supplies a valid presentation.",
           ...resolveArtifactPresentationLanguages(target.governance_target, input.presentation_language),
@@ -550,6 +628,25 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
+      }
+      if (input.continue_delivery && control.blocking_reason === 'AGDF_DECISION_CONTENT_INCOMPLETE') {
+        const errors = control.presentation_diagnostics?.approval_presentation_errors ?? [];
+        const orientationOnly = errors.length > 0 && errors.every(code => code.endsWith(':Objective'));
+        const unapprovedQa = control.current_gate === 'QA' && control.status_card?.runState?.approvals.get('QA')?.status !== 'approved';
+        if (orientationOnly || unapprovedQa) {
+          const owner = orientationOnly ? 'gate-check' : 'qa-gate';
+          const result = baseResult({ outcome: 'skill_continuation', terminal: false, skill, runtime, timing });
+          result.target = target; result.control = controlSnapshot(control);
+          result.continuation = Object.freeze({ phase: 'required_gate_artifact', skill_id: owner,
+            governance_target: target.governance_target, run_id: result.control.run_id, revision_id: result.control.revision_id,
+            presentation_language: input.presentation_language,
+            ...(!orientationOnly && unapprovedQa ? { artifact_path: `.agdf/control/artefacts/${result.control.run_id}/QA_REPORT.md`,
+              template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.QA_REPORT) } : {}),
+            instruction: `${control.presentation_diagnostics.approval_presentation_recovery}\nComplete only this bound Run's permitted unapproved content through its existing writer; preserve approved intent and all protected sources. Record the current revision and redispatch the same Run once. An unchanged failure stops; no earlier reply is approval.`,
+            ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(owner)) } : {}),
+          });
+          timing.total_ms = round(milliseconds(started, now())); return bindHostAction(result);
+        }
       }
       const runState = control.status_card?.runState;
       const orArtefact = runState?.artefacts?.get?.("OR");
@@ -572,6 +669,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: controlSnapshot(control).run_id,
           revision_id: controlSnapshot(control).revision_id,
           presentation_language: input.presentation_language,
+          template_path: resolveArtefactTemplatePath(ARTEFACT_TEMPLATE_IDS.OR),
           ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("release-or")) } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
@@ -605,6 +703,8 @@ export function createSkillDispatchService(dependencies = {}) {
       }
       const nextSkillId = control.status_card?.next_skill;
       const routeNextSkill = input.continue_delivery && !control.approval_presentation?.markdown
+        && !control.completion?.fulfilled
+        && extractField(control.status_card?.runState?.content ?? "", "lifecycle") !== "completed"
         && nextSkillId && nextSkillId !== "none"
         && (control.current_gate !== "QA" || control.missing_approval === "Approval: QA");
       if (routeNextSkill) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get(nextSkillId) ?? skill;
@@ -659,6 +759,7 @@ export function createSkillDispatchService(dependencies = {}) {
       const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
       result.target = target;
       result.control = snapshot;
+      const templateId = judgementTemplateId(skill.skill_id, control.current_gate);
       result.continuation = Object.freeze({
         instruction: "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
         skill_id: skill.skill_id,
@@ -666,6 +767,7 @@ export function createSkillDispatchService(dependencies = {}) {
         governance_target: target.governance_target,
         run_id: snapshot?.run_id ?? input.run_id,
         revision_id: snapshot?.revision_id ?? null,
+        ...(templateId ? { template_path: resolveArtefactTemplatePath(templateId) } : {}),
         ...(dependencies.readSkillRuntimeContracts ? {
           runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(skill.skill_id)),
         } : {}),
@@ -674,7 +776,8 @@ export function createSkillDispatchService(dependencies = {}) {
       timing.wrapper_ms = round(wrapperMilliseconds(now, env));
       return bindHostAction(result);
     } catch (error) {
-      const recoveryCode = error instanceof SkillDispatchRuntimeError ? error.code : DISPATCH_RECOVERY.internal_failure;
+      const recoveryCode = error instanceof SkillDispatchRuntimeError ? error.code
+        : artefactTemplateErrors.has(error?.code) ? error.code : DISPATCH_RECOVERY.internal_failure;
       timing.total_ms = round(milliseconds(started, now()));
       timing.wrapper_ms = round(wrapperMilliseconds(now, env));
       return createSkillDispatchFailure({ skill, runtime, timing, code: recoveryCode, details: error?.details,

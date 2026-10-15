@@ -1,0 +1,91 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "operation-status",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/632ba9e56ced0a9d0603d9c91d2d9a22dc0ddfbba4c90988299918baed51ad85/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "7e945a345fc5775d201bddf12c599858e95074671db7577011bd35fceac9aa37",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "schema_version": "1",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "operation_id": "a44f2e6d-0769-4747-9089-4ca36c4b651f",
+    "authorizes": false,
+    "status": "recorded",
+    "family": "closeout.record",
+    "request_digest": "sha256:635066b5f3b7f8601c8574d5c5561d72e08002557c1c4ac99bc5be540016ce2f",
+    "receipt": {
+      "assurance": {
+        "independent_human_proof": "unavailable",
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply"
+      },
+      "created_at": "2026-10-14T13:09:22.950Z",
+      "effect": {
+        "previous_revision_id": "fdf6dbbb-0051-490d-9383-bb1587eb85f1",
+        "record": {
+          "confirmation_digest": "sha256:217e05c58765258d17510e439937afa006d5eafcc10c6b1396960d9ccf4a3604",
+          "context_evidence_digest": "sha256:3d2afc1511feb29b73a91b31f6f6fb71a3a02cd075b0431c9eb00edca9944566",
+          "lifecycle": "completed",
+          "or": {
+            "digest": "sha256:1bc587f6ac91ed2017c66e37e60c2d994fa291769fd735f8f02bdb9dc99b7c07",
+            "path": ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/OR.md"
+          }
+        },
+        "resulting_revision_id": "3c6e4a73-6b5b-4dce-9209-4afe8e741895",
+        "revision": 21
+      },
+      "expected_revision_id": "fdf6dbbb-0051-490d-9383-bb1587eb85f1",
+      "kind": "closeout.record",
+      "operation_id": "a44f2e6d-0769-4747-9089-4ca36c4b651f",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "request_digest": "sha256:635066b5f3b7f8601c8574d5c5561d72e08002557c1c4ac99bc5be540016ce2f",
+      "run_id": "run-uat-content-readiness-20261014-01",
+      "schema_version": "1",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+    },
+    "historical_effect": true,
+    "current_revision_id": "3c6e4a73-6b5b-4dce-9209-4afe8e741895",
+    "pending": null,
+    "expected_revision_id": "3c6e4a73-6b5b-4dce-9209-4afe8e741895"
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 16.642,
+    "target_ms": 1.308,
+    "control_ms": 67.883,
+    "render_ms": 0,
+    "total_ms": 86.001
+  },
+  "diagnostics": []
+}

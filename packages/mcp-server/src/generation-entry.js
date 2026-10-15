@@ -2,7 +2,7 @@
 import process from 'node:process';
 import { createAgdfWorkerExecutor } from './server.js';
 import { loadCockpitResource } from './cockpit-resource.js';
-import { generationMessage, validGenerationMessage, generationManifest } from './generation-protocol.js';
+import { generationMessage, validGenerationMessage, generationManifest, generationFailureReason } from './generation-protocol.js';
 import { createMcpDispatchRuntime, createMcpDecisionRuntime, createMcpCockpitRuntime, DECISION_UI_URI,
   inspectMcpDispatcherRuntime } from 'create-agdf/mcp-dispatch-runtime';
 const epoch = process.argv[2], generation = Number(process.argv[3]);
@@ -75,7 +75,7 @@ process.on('message', async input => {
           { dispatch: error.dispatch ?? 'unknown' }));
       } finally { --inflight; }
     }
-  } catch (error) { if (input.kind === 'qualify') starting = false; send(input, 'failure', { reason: error.message }); }
+  } catch (error) { if (input.kind === 'qualify') starting = false; send(input, 'failure', { reason: generationFailureReason(error) }); }
 });
 process.on('disconnect', () => {
   // Loss of the facade does not cancel or replay business effects. Timers and

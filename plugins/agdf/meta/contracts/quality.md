@@ -2,6 +2,11 @@
 
 ## Quality Readiness Projection
 
+When `qa-gate` authors or refines `QA_REPORT.md`, it uses only the bound absolute plugin-owned
+`template_path`. Repository scaffold copies are derived review references, not an authoring source.
+An unavailable or unsafe template blocks QA report authoring without mutation or success-shaped
+fallback; it does not turn missing evidence into a QA decision.
+
 After CD+Tests, when any of the four review/QA artefacts exists, surfaces may show one compact
 derived `Quality Readiness` projection. It answers the user-facing question "what is the current
 quality outcome and what should happen next?" without replacing evidence or creating another
@@ -74,6 +79,40 @@ Always visible:
 
 
 ## Quality Contract Output
+
+Current structured QA preparation requires concrete authored fields in the first scalar block
+of existing QA sections: `delivered_result` under TP Coverage, `qualification_limits` under
+Missing Evidence and `delivery_risks` under Risks (canonical numbered headings supported).
+Only limits/risks permit explicit `none`. Initial Run drafts stay authorable; current decisions
+require concrete orienting Objective. The shared bounded context observer excludes examples,
+quotes/code/HTML and whole template values; diagnosis and preparation never repair sources.
+UAT derives Goal from approved UR, actual result/limits from current QA, original QA/accepted
+deviation disposition and the existing approval effect. It stores no second result authority.
+When source and display languages differ, existing source-authored Approval Summary uses
+Goal/Ziel and Delivered result/Ergebnis, Qualification limits/Grenzen, Risks/Risiken. Complete
+current fields before new QA approval; missing approved legacy content stays protected and
+needs its existing renewal assessment, never silent backfill. Historical accepted documents
+and completed Runs retain original proof. No content check grants approval or proves truth.
+
+Core reads reported technical results through one shared observer. `Decision`/`decision` and
+technical `Status` declarations may repeat the same supported result; `passed` normalizes to
+`pass`. Lifecycle metadata such as `Status: draft` or `Status: done` is not a QA result.
+Only initial result metadata (optionally after the report H1) and the first scalar field block
+under a column-zero H2 `Decision` or `QA Decision` heading are authored result contexts. Numeric
+section prefixes and closing heading hashes are supported; canonical `## 1. QA Decision` remains
+valid. Prose, unrelated/nested headings and non-metadata fields close the field block; a blank
+line never reopens it. Metadata names are the existing Decision, Status, Gate, Gate approval,
+Based on, Date, Owner, Type, Mode, Reviewer, reviewed_at, run_id, source_revision and Traceability
+contract. Fenced/indented code, lists, blockquotes (including lazy continuations), HTML containers,
+comments and raw blocks never supply results or conflicts. Only a clearly terminated container
+allows a following genuine decision section; uncertain/unclosed markup keeps its remainder excluded.
+This is a conservative bounded report grammar, not general Markdown parsing or prose-intent inference.
+Bound Quick review and non-UX internal registration reuse the observer. Only the internal analysis
+domain opts into `not_applicable`; its existing eligibility/reason checks remain authoritative.
+Conflicting supported values, an unknown or empty explicit Decision, or a missing supported
+result remain unconfirmed. This observes authored evidence only: it grants no QA decision,
+approval, source replacement or closeout permission. Exact approved bytes and current bindings
+remain separately enforced.
 
 Structured Delivery skills use this shape when relevant:
 

@@ -36,6 +36,7 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
     [state({ approvals: ["UR"], rows: reviewed })],
     [state({ approvals: ["UR"], rows: reviewed, decision: "block" })],
     [state({ approvals: ["UR"], rows: reviewed, decision: "quick_task" })],
+    [state({ approvals: ["UR"], rows: { ...reviewed, CR: "done" }, decision: "quick_task" })],
     [state({ approvals: ["UR"], rows: { ...reviewed, OR: "done" }, decision: "quick_task", lifecycle: "completed", currentGate: "OR" })],
     // An escalated record with an unsupported target also carries a doctor finding, whose step wins.
     ...["executed", "escalated", "eligible", "missing", "draft", "invalid"].flatMap((status) => ["structured_slice", "structured_delivery", "none"]
@@ -157,7 +158,7 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
     initializeCanonicalControl(root, generatedFilesForTarget("init", root, false, "de"));
     const statePath = createRun(root, "loc");
     mkdirSync(join(root, ".agdf", "control", "artefacts", "loc"), { recursive: true });
-    writeFileSync(join(root, ".agdf", "control", "artefacts", "loc", "UR.md"), "# UR: Localization\n");
+    writeFileSync(join(root, ".agdf", "control", "artefacts", "loc", "UR.md"), "# UR: Localization\n\n## Goal\nDen aktuellen Kontrollzustand verständlich darstellen.\n");
     const freeStep = "Frei formulierter nächster Schritt des Agenten.";
     const edited = readFileSync(statePath, "utf8")
       .replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/loc/UR.md` | draft |  |")

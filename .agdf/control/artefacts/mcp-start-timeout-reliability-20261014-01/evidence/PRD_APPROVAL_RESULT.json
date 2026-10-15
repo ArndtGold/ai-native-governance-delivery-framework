@@ -1,0 +1,181 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "1f922823-b76f-4134-a681-e4c57442695a",
+  "request_digest": "sha256:d1194601bd8e7a6a3ac433c55c4e75396f8fc96d2b684eb0cb10ef1f4a5a88ba",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+    "kind": "approval.record"
+  },
+  "effect": {
+    "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+    "approval": "Approval: PRD",
+    "artefact_digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+    "gate": "PRD",
+    "material_sources": [
+      {
+        "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+        "type": "UR"
+      },
+      {
+        "digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+        "type": "PRD"
+      }
+    ],
+    "material_version": "sha256:3e7d1ba55a024a6b14cce088e7537b61e6ce2704a02616837c78061f91656cd0",
+    "next_gate_after_approval": "SD",
+    "presentation_digest": "sha256:d9bacd2fd2e005458f1e41ba38fec6a1619d6c6d57fd7a1a4be7b0315b9af779",
+    "previous_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+    "resulting_revision_id": "42061fd2-2479-43be-91e7-cc06ebb65ce9",
+    "revision": 9
+  },
+  "receipt": {
+    "action": "record_gate_approval",
+    "assurance": {
+      "independent_human_proof": "unavailable",
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply"
+    },
+    "binding": {
+      "expected_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+      "gate": "PRD",
+      "presentation_id": "37b7e53f-658f-42c4-9b3b-4ab49902f998",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+    },
+    "command_digest": "sha256:d1194601bd8e7a6a3ac433c55c4e75396f8fc96d2b684eb0cb10ef1f4a5a88ba",
+    "created_at": "2026-10-14T13:51:34.964Z",
+    "effect": {
+      "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+      "approval": "Approval: PRD",
+      "artefact_digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+      "gate": "PRD",
+      "material_sources": [
+        {
+          "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630",
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+          "type": "PRD"
+        }
+      ],
+      "material_version": "sha256:3e7d1ba55a024a6b14cce088e7537b61e6ce2704a02616837c78061f91656cd0",
+      "next_gate_after_approval": "SD",
+      "presentation_digest": "sha256:d9bacd2fd2e005458f1e41ba38fec6a1619d6c6d57fd7a1a4be7b0315b9af779",
+      "previous_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+      "resulting_revision_id": "42061fd2-2479-43be-91e7-cc06ebb65ce9",
+      "revision": 9
+    },
+    "operation_id": "1f922823-b76f-4134-a681-e4c57442695a",
+    "producer": {
+      "contract": "approval-service/1",
+      "package_version": "0.14.5"
+    },
+    "request_digest": "sha256:0d4ff382d96d59bfc664fa3603f85814ac88963a470cfba4093f77b03f597969",
+    "schema_version": "2"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 9,
+    "revision_id": "42061fd2-2479-43be-91e7-cc06ebb65ce9",
+    "lifecycle": "active",
+    "gate": "SD",
+    "status": "open",
+    "missing_approval": "Approval: SD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "operation_key": "artefact.author",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "SD",
+      "skill_id": "sd-definition",
+      "artifact_path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/SD.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "accepted",
+    "reason": null,
+    "operation_id": "1f922823-b76f-4134-a681-e4c57442695a",
+    "request_digest": "sha256:0d4ff382d96d59bfc664fa3603f85814ac88963a470cfba4093f77b03f597969",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "gate": "PRD",
+      "expected_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+      "presentation_id": "37b7e53f-658f-42c4-9b3b-4ab49902f998"
+    },
+    "effect": {
+      "previous_revision_id": "2b921dc7-9e10-4e99-b247-5342b7e438b2",
+      "resulting_revision_id": "42061fd2-2479-43be-91e7-cc06ebb65ce9",
+      "revision": 9,
+      "gate": "PRD",
+      "approval": "Approval: PRD",
+      "material_version": "sha256:3e7d1ba55a024a6b14cce088e7537b61e6ce2704a02616837c78061f91656cd0",
+      "material_sources": [
+        {
+          "type": "UR",
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+          "digest": "sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630"
+        },
+        {
+          "type": "PRD",
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+          "digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af"
+        }
+      ],
+      "artefact_digest": "sha256:94f5e006ae2323da487f1223b5571bc73b0f83feb974f507598de54bbba356af",
+      "presentation_digest": "sha256:d9bacd2fd2e005458f1e41ba38fec6a1619d6c6d57fd7a1a4be7b0315b9af779",
+      "next_gate_after_approval": "SD",
+      "allowed_after_approval": "Draft or refine the Solution Design; do not implement before SD and TP are approved."
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "current": {
+      "available": true,
+      "revision": 9,
+      "revision_id": "42061fd2-2479-43be-91e7-cc06ebb65ce9",
+      "approval_status": "approved",
+      "lifecycle": "active",
+      "gate": "SD",
+      "status": "open",
+      "missing_approval": "Approval: SD",
+      "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+      "blocking_reason": "none"
+    },
+    "observations": {
+      "commit": "canonical_receipt_observed",
+      "durability": "file_and_directory_sync_completed",
+      "independent_human_proof": "unavailable"
+    },
+    "recovery": null
+  }
+}

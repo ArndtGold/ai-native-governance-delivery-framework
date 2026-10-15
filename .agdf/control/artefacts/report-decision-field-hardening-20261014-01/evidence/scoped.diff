@@ -1,0 +1,347 @@
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__lib__control-evaluation__report-decision.js b/packages/core/lib/control-evaluation/report-decision.js
+index 18b6841b..fac548c4 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__lib__control-evaluation__report-decision.js
++++ b/packages/core/lib/control-evaluation/report-decision.js
+@@ -1,12 +1,151 @@
+-// Observe an authored technical result, never decide or approve QA. Status may
+-// also be lifecycle metadata (draft/done); Decision is always a result claim.
+-export function readReportDecision(text) {
++// A bounded report grammar, not a general Markdown parser. Only initial metadata
++// and the first scalar block of an explicit H2 decision section author a result.
++const metadata = new Set(['decision', 'status', 'gate', 'gate approval', 'based on',
++  'date', 'owner', 'type', 'mode', 'reviewer', 'reviewed_at', 'run_id', 'source_revision',
++  'traceability contract']);
++const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
++  'link', 'meta', 'param', 'source', 'track', 'wbr']);
++const rawTags = new Set(['script', 'style', 'textarea']);
++const tagStart = /<\/?([a-z][a-z0-9:-]*)(?=[\s/>])/iyu;
++
++function specialHtmlEnd(text, at) {
++  const special = text.startsWith('<!--', at) ? [4, '-->']
++    : text.startsWith('<![CDATA[', at) ? [9, ']]>']
++      : text.startsWith('<?', at) ? [2, '?>'] : null;
++  if (!special) return null;
++  const end = text.indexOf(special[1], at + special[0]);
++  return end < 0 ? text.length : end + special[1].length;
++}
++
++// Consume markup with quote-aware tags and nesting. Uncertain termination keeps
++// the remainder excluded; apparent tags in attributes/comments never close it.
++function htmlEnd(text, start) {
++  const stack = [];
++  let cursor = start;
++  do {
++    const raw = stack.at(-1);
++    if (rawTags.has(raw)) {
++      const close = new RegExp(`</${raw}[\\t \\n]*>`, 'igu');
++      close.lastIndex = cursor;
++      const match = close.exec(text);
++      if (!match) return text.length;
++      cursor = close.lastIndex; stack.pop();
++      continue;
++    }
++    const at = text.indexOf('<', cursor);
++    if (at < 0) return text.length;
++    const special = specialHtmlEnd(text, at);
++    if (special !== null) { cursor = special; continue; }
++    tagStart.lastIndex = at;
++    const tag = tagStart.exec(text);
++    const declaration = text.startsWith('<!', at);
++    if (!tag && !declaration) return text.length;
++    let end = tag ? tagStart.lastIndex : at + 2, quote = null, brackets = 0;
++    for (; end < text.length; end++) {
++      const char = text[end];
++      if (quote) { if (char === quote) quote = null; }
++      else if (char === '"' || char === "'") quote = char;
++      else if (char === '<' && declaration && brackets) {
++        const nested = specialHtmlEnd(text, end);
++        if (nested !== null) end = nested - 1;
++      }
++      else if (declaration && char === '[') brackets++;
++      else if (declaration && char === ']') { if (!brackets) return text.length; brackets--; }
++      else if (char === '>' && !brackets) break;
++      else if (char === '<' && (!declaration || !brackets)) return text.length;
++    }
++    if (end === text.length || quote) return text.length;
++    cursor = end + 1;
++    if (declaration) continue;
++    const name = tag[1].toLowerCase(), closing = text[at + 1] === '/';
++    if (closing) {
++      if (!/^[\t \n]*$/u.test(text.slice(tagStart.lastIndex, end)) || stack.at(-1) !== name) return text.length;
++      stack.pop();
++    // In HTML, '/>' does not close a non-void element (including raw blocks).
++    } else if (!voidTags.has(name)) stack.push(name);
++  } while (stack.length);
++  return cursor;
++}
++
++// Ignore escaped and inline-code '<' characters. An unmatched inline-code opener
++// conservatively masks the rest of this line; it cannot author a scalar field.
++function markupIndex(line, start = 0, limit = line.length) {
++  let ticks = 0;
++  for (let i = start; i < limit; i++) {
++    if (line[i] === '\\') { i++; continue; }
++    if (line[i] === '`') {
++      let end = i + 1;
++      while (end < limit && line[end] === '`') end++;
++      const count = end - i;
++      if (!ticks) ticks = count;
++      else if (ticks === count) ticks = 0;
++      i = end - 1;
++    } else if (!ticks && line[i] === '<') return i;
++  }
++  return -1;
++}
++
++function* authoredFields(text) {
++  let active = true, titleAllowed = true, fence = null, skipUntil = 0;
++  let offset = 0;
++  for (const line of text.split('\n')) {
++    const start = offset; offset += line.length + 1;
++    if (start < skipUntil) continue;
++    const unfenced = line.replace(/^(?:[ \t]*>[ \t]?)+/u, '')
++      .replace(/^[ \t]*(?:[-+*]|\d+[.)])[ \t]+/u, '');
++    const markers = unfenced.match(/^ {0,3}(`{3,}|~{3,})([^\n]*)$/u);
++    if (fence) {
++      if (markers && markers[1][0] === fence.kind && markers[1].length >= fence.length && !markers[2].trim()) fence = null;
++      continue;
++    }
++    if (markers) {
++      fence = { kind: markers[1][0], length: markers[1].length };
++      active = false; titleAllowed = false; continue;
++    }
++    if (!line.trim()) continue;
++    const heading = line.match(/^(#{1,6})[\t ]+([^\n]+)$/u);
++    if (heading) {
++      let name = heading[2].trim(), end = name.length;
++      while (end && name[end - 1] === '#') end--;
++      if (end < name.length && end && /[\t ]/u.test(name[end - 1])) name = name.slice(0, end).trimEnd();
++      if (!(titleAllowed && heading[1] === '#')) active = heading[1] === '##' && /^(?:\d+\.[\t ]+)?(?:QA[\t ]+)?Decision$/iu.test(name);
++      titleAllowed = false;
++    } else {
++      const scalar = active && line.match(/^(?:- )?([a-z][a-z_ -]*):[\t ]*([^\n]*)$/iu);
++      if (scalar && metadata.has(scalar[1].toLowerCase())) {
++        titleAllowed = false;
++        if (/^(?:decision|status)$/iu.test(scalar[1])) yield [scalar[1], scalar[2]];
++      } else { active = false; titleAllowed = false; }
++    }
++    let html = markupIndex(line);
++    if (html >= 0) {
++      active = false; titleAllowed = false;
++      // Also consume sibling markup on the final line, not just the first tag.
++      let end = start + html, lineEnd = start + line.length;
++      do {
++        end = htmlEnd(text, end);
++        if (end > lineEnd) {
++          const newline = text.indexOf('\n', end);
++          lineEnd = newline < 0 ? text.length : newline;
++        }
++        html = markupIndex(text, end, lineEnd);
++        if (html < 0) { skipUntil = lineEnd + 1; break; }
++        end = html;
++      } while (end < text.length);
++      if (end >= text.length) skipUntil = text.length;
++    }
++  }
++}
++
++// Observe an authored technical result, never decide or approve QA. The closed
++// internal opt-in preserves analysis not_applicable; QA's domain stays unchanged.
++export function readReportDecision(text, { allowNotApplicable = false } = {}) {
+   if (typeof text !== 'string') return null;
+   const results = new Set();
+-  for (const [, field, raw] of text.matchAll(/^(?:- )?(decision|status):[ \t]*([^\r\n]*)$/gimu)) {
++  for (const [field, raw] of authoredFields(text.replace(/\r\n?/gu, '\n'))) {
+     const value = raw.trim().replace(/^`([^`]+)`$/u, '$1').toLowerCase();
+     const result = value === 'passed' ? 'pass' : value;
+-    if (['pass', 'revise', 'block'].includes(result)) results.add(result);
++    if (['pass', 'revise', 'block'].includes(result) || allowNotApplicable === true && result === 'not_applicable') results.add(result);
+     else if (field.toLowerCase() === 'decision') return null;
+   }
+   return results.size === 1 ? [...results][0] : null;
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__lib__control-state__run-steps.js b/packages/core/lib/control-state/run-steps.js
+index c049ac8c..88d4ea18 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__lib__control-state__run-steps.js
++++ b/packages/core/lib/control-state/run-steps.js
+@@ -47,6 +47,7 @@ import { withRunBacklogLock, writeRunWithBacklogLocked } from './run-backlog-wri
+ import { APPROVAL_GATES as DECISION_GATES, REVISION_ID_PATTERN } from './run-identity.js';
+ import { runSealState, artefactFileDigest } from './run-seal.js';
+ import { inspectUxIntentDecision } from '../control-evaluation/definition-sources.js';
++import { readReportDecision } from '../control-evaluation/report-decision.js';
+ 
+ // run-step records one standard transition of the small path in a single sealed revision. The agent
+ // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
+@@ -207,8 +208,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
+     if (step === "review") {
+       if (!['CR', 'Quick Task Execution'].includes(before.current_gate)
+           || !['pass', 'revise', 'block'].includes(input.decision)) return rejected(runId, "review_step_not_ready");
+-      const decisions = [...operationSource.content.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|revise|block)[ \t]*$/gmu)];
+-      if (decisions.length !== 1 || decisions[0][1] !== input.decision) return rejected(runId, "internal_result_unconfirmed");
++      if (readReportDecision(operationSource.content) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+     }
+     operationRecord = { step, source: { path: canonicalFile ? artefactPath(key, canonicalFile) : input.sourceBinding.path, digest: input.sourceBinding.digest },
+       status: step === "review" && input.decision !== "pass" ? input.decision : "done", covers: oneLine(input.covers) || "selected Run scope",
+@@ -225,8 +225,7 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
+       if (!checked.well_formed || !checked.supported || checked.decision !== input.decision
+         || input.decision === 'not_applicable' && (control.source_revision_ux_required || before.next_operation?.analysis === input.internalStep)) return rejected(runId, 'internal_result_unconfirmed');
+     } else {
+-      const declaredDecisions = [...operationSource.content.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|revise|block|not_applicable)[ \t]*$/gmu)];
+-      if (declaredDecisions.length !== 1 || declaredDecisions[0][1] !== input.decision) return rejected(runId, "internal_result_unconfirmed");
++      if (readReportDecision(operationSource.content, { allowNotApplicable: true }) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+     }
+     const path = artefactPath(key, INTERNAL_STEP_FILES[input.internalStep]);
+     const status = ['pass', 'ready'].includes(input.decision) ? "done" : input.decision === 'blocked' ? 'block' : input.decision;
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__test__report-decision-test.js b/packages/core/test/report-decision-test.js
+index bab4020e..34fc09f4 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__test__report-decision-test.js
++++ b/packages/core/test/report-decision-test.js
+@@ -1,5 +1,7 @@
+ import assert from 'node:assert/strict';
+ import { readReportDecision } from '../lib/control-evaluation/report-decision.js';
++import { readFileSync } from 'node:fs';
++import { reportContextCases, reportInternalCases } from './fixtures/report-decision-cases.js';
+ const accepted = [
+   ['Status: pass\nDecision: pass\n', 'pass'],
+   ['Status: draft\nDecision: pass\n', 'pass'],
+@@ -19,3 +21,9 @@ for (const text of [null, '', 'Status: draft\n', 'Status: pass\nDecision: revise
+   assert.equal(readReportDecision(text), null, String(text));
+ }
+ console.log('Shared report-result compatibility, consistent duplicates, aliases, lifecycle metadata and conflict/unknown/missing refusal passed (19 cases).');
++for (const [name, text, expected] of reportContextCases) assert.equal(readReportDecision(text), expected, name);
++for (const [name, text, expected] of reportInternalCases) assert.equal(readReportDecision(text, { allowNotApplicable: true }), expected, name);
++assert.equal(readReportDecision('Decision: not_applicable\n'), null, 'QA domain excludes internal not_applicable');
++const template = readFileSync(new URL('../../../plugins/agdf/control/templates/artefacts/QA_REPORT.md', import.meta.url), 'utf8');
++assert.equal(readReportDecision(template.replace('<Title>', 'Populated canonical report').replace('`pass | revise | block`', 'pass')), 'pass', 'Populated canonical QA template field placement remains valid');
++console.log(`Authored report contexts and code/quote/HTML exclusion passed (${reportContextCases.length} context cases, ${reportInternalCases.length} internal cases, canonical template and default-domain check).`);
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__test__run-closeout-command-test.js b/packages/core/test/run-closeout-command-test.js
+index abf7c9ed..d9146220 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__test__run-closeout-command-test.js
++++ b/packages/core/test/run-closeout-command-test.js
+@@ -21,19 +21,49 @@ try {
+   execFileSync('git', ['init', '-q', root]); execFileSync(process.execPath, [cli, 'init', '--dir', root, '--language', 'en']);
+   const route = process.env.AGDF_TEST_STRUCTURED_ROUTE ?? 'structured_delivery';
+   assert.ok(['structured_slice', 'structured_delivery'].includes(route));
+-  const f = createLateSourceRevisionTestRun(root, cli, 'structured-closeout-command', process.env, { route }), service = createCoreServices().command, target = resolveControlCommandTarget(root).target_id;
++  const f = createLateSourceRevisionTestRun(root, cli, 'structured-closeout-command', process.env, { route, prepare: false }), service = createCoreServices().command, target = resolveControlCommandTarget(root).target_id;
+   const bound = () => ({ schema_version: '1', presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
+     target_id: target, run_id: f.runId, expected_revision_id: f.revision(), operation_id: randomUUID(), assurance: 'cooperative_local' });
+-  writeFileSync(f.file('BROWNFIELD_ANALYSIS.md'), '# Brownfield Analysis\n- decision: pass\nSynthetic current preparation complete.\n');
+-  assert.equal(f.run('run-update', '--revision', f.revision()).value.outcome, 'updated');
++  const prePreparation = join(seed, 'pre-preparation'); cpSync(join(root, '.agdf'), prePreparation, { recursive: true });
++  const preparationPath = f.prefix + 'BROWNFIELD_CANDIDATE.md';
++  const preparation = (text, decision = 'pass', reason) => {
++    writeFileSync(join(root, preparationPath), text);
++    return service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: {
++      step: 'internal', internal_step: 'Brownfield Analysis', decision, ...(reason ? { reason } : {}),
++      source: { path: preparationPath, digest: artefactFileDigest(root, preparationPath) } } } });
++  };
++  for (const text of ['~~~\nDecision: pass\n~~~\n', '> Example:\nDecision: pass\n', '## Examples\nDecision: pass\n']) {
++    const before = readFileSync(f.state, 'utf8');
++    assert.equal(preparation(text).outcome, 'rejected', 'Actual internal registrar excludes example-only result');
++    assert.equal(readFileSync(f.state, 'utf8'), before);
++  }
++  const beforeNotApplicable = readFileSync(f.state, 'utf8');
++  assert.equal(preparation('Decision: not_applicable\n', 'not_applicable').outcome, 'rejected', 'Internal not_applicable still requires a reason');
++  assert.equal(readFileSync(f.state, 'utf8'), beforeNotApplicable);
++  assert.equal(preparation('Decision: not_applicable\n', 'not_applicable', 'Synthetic bounded preparation applicability observation').outcome, 'accepted');
++  assert.equal(evaluateGateCheck(root, { runId: f.runId }).current_gate, 'CD+Tests');
++  rmSync(join(root, '.agdf'), { recursive: true }); cpSync(prePreparation, join(root, '.agdf'), { recursive: true });
++  assert.equal(preparation('# Brownfield Analysis\n- decision: pass\n\n## Examples\nDecision: block\n').outcome, 'accepted');
+   for (const step of ['CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR']) {
+     const path = f.prefix + step.replaceAll(' ', '_').replaceAll('+', '_') + '_CANDIDATE.md';
+-    writeFileSync(join(root, path), '# ' + step + '\n- decision: pass\nSynthetic exact current result.\n');
++    for (const text of ['~~~\nDecision: pass\n~~~\n', '> Example:\nDecision: pass\n', '## Examples\nDecision: pass\n']) {
++      writeFileSync(join(root, path), text);
++      const before = readFileSync(f.state, 'utf8');
++      const denied = service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step,
++        decision: 'pass', source: { path, digest: artefactFileDigest(root, path) } } } });
++      assert.equal(denied.outcome, 'rejected'); assert.equal(readFileSync(f.state, 'utf8'), before);
++    }
++    writeFileSync(join(root, path), 'Decision: not_applicable\n');
++    const before = readFileSync(f.state, 'utf8');
++    assert.equal(service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step,
++      decision: 'not_applicable', reason: 'Synthetic attempted mandatory-step bypass', source: { path, digest: artefactFileDigest(root, path) } } } }).outcome, 'rejected');
++    assert.equal(readFileSync(f.state, 'utf8'), before);
++    writeFileSync(join(root, path), '# ' + step + '\nStatus: pass\n- decision: pass\nSynthetic exact current result.\n\n## Examples\nDecision: block\n');
+     const recorded = service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'internal', internal_step: step, decision: 'pass', source: { path, digest: artefactFileDigest(root, path) } } } });
+     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
+   }
+   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
+-  writeFileSync(join(root, qaPath), '# QA: Synthetic closeout\nStatus: pass\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Risks\nNo applicable open required finding.\n');
++  writeFileSync(join(root, qaPath), '# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n');
+   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
+     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
+     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
+@@ -60,7 +90,8 @@ try {
+     } else assert.equal(readFileSync(f.state, 'utf8'), before, 'An evidence-only gap grants no implementation effect.');
+     rmSync(join(root, '.agdf'), { recursive: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
+   }
+-  for (const text of ['# QA\nStatus: pass\nDecision: revise\n', '# QA\nStatus: pass\nDecision: unknown\n', '# QA\nStatus: draft\n']) {
++  for (const text of ['# QA\nStatus: pass\nDecision: revise\n', '# QA\nStatus: pass\nDecision: unknown\n', '# QA\nStatus: draft\n',
++    '# QA\n~~~\nDecision: pass\n~~~\n', '# QA\n> Example:\nDecision: pass\n', '# QA\n## Examples\nDecision: pass\n']) {
+     writeFileSync(join(root, qaPath), text);
+     const candidate = { ...command, expected_revision_id: f.revision(), destination: { ...destination, digest: artefactFileDigest(root, qaPath) } };
+     writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination: candidate.destination, source, relationship, reviewer: candidate.review.reviewer, reviewed: true }));
+@@ -141,7 +172,7 @@ none
+   assert.equal(evaluateCloseoutReadiness(state, report, readReport, { prepared: true }).ready, true,
+     'An actually registered and QA/UAT-approved report with agreeing Status/Decision closes without rewriting its bytes.');
+   for (const qaContent of ['Status: pass\nDecision: revise\n', 'Status: block\nDecision: pass\n',
+-    'Status: draft\nDecision: unknown\n', 'No technical decision\n']) {
++    'Status: draft\nDecision: unknown\n', 'No technical decision\n', '~~~\nDecision: pass\n~~~\n', '> Example:\nDecision: pass\n']) {
+     const observed = evaluateCloseoutReadiness(state, report,
+       path => path === qaPath ? qaContent : readReport(path), { prepared: true });
+     assert.ok(observed.findings.includes('closeout_qa_pass_unconfirmed'), 'Conflicting or absent supported QA result cannot close.');
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__test__quick-closeout-command-test.js b/packages/core/test/quick-closeout-command-test.js
+index b14b54ac..bdfa6d14 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-packages__core__test__quick-closeout-command-test.js
++++ b/packages/core/test/quick-closeout-command-test.js
+@@ -47,7 +47,12 @@ try {
+   const before = readFileSync(path, 'utf8');
+   assert.equal(service('agdf_closeout', request()).reason, 'closeout_obligations_unfulfilled');
+   assert.equal(readFileSync(path, 'utf8'), before);
+-  record({ step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', '# Code Review\n- decision: pass\nSynthetic bounded diff and its direct regression reviewed.\n') });
++  for (const text of ['~~~\nDecision: pass\n~~~\n', '> Example:\nDecision: pass\n', '## Examples\nDecision: pass\n']) {
++    const before = readFileSync(path, 'utf8');
++    const denied = service('agdf_record', { ...bound(), command: { kind: 'step.record', payload: { step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', text) } } });
++    assert.equal(denied.outcome, 'rejected'); assert.equal(readFileSync(path, 'utf8'), before);
++  }
++  record({ step: 'review', decision: 'pass', source: source('CR_CANDIDATE.md', '# Code Review\nStatus: pass\n- decision: pass\nSynthetic bounded diff and its direct regression reviewed.\n\n## Examples\nDecision: block\n') });
+   assert.equal(dispatch().continuation?.phase, 'compact_closeout');
+   const input = request(), result = service('agdf_closeout', input);
+   assert.equal(result.outcome, 'accepted', JSON.stringify(result));
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-plugins__agdf__meta__contracts__quality.md b/plugins/agdf/meta/contracts/quality.md
+index ecad9df8..5cf0eb41 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-plugins__agdf__meta__contracts__quality.md
++++ b/plugins/agdf/meta/contracts/quality.md
+@@ -83,6 +83,18 @@ Always visible:
+ Core reads reported technical results through one shared observer. `Decision`/`decision` and
+ technical `Status` declarations may repeat the same supported result; `passed` normalizes to
+ `pass`. Lifecycle metadata such as `Status: draft` or `Status: done` is not a QA result.
++Only initial result metadata (optionally after the report H1) and the first scalar field block
++under a column-zero H2 `Decision` or `QA Decision` heading are authored result contexts. Numeric
++section prefixes and closing heading hashes are supported; canonical `## 1. QA Decision` remains
++valid. Prose, unrelated/nested headings and non-metadata fields close the field block; a blank
++line never reopens it. Metadata names are the existing Decision, Status, Gate, Gate approval,
++Based on, Date, Owner, Type, Mode, Reviewer, reviewed_at, run_id, source_revision and Traceability
++contract. Fenced/indented code, lists, blockquotes (including lazy continuations), HTML containers,
++comments and raw blocks never supply results or conflicts. Only a clearly terminated container
++allows a following genuine decision section; uncertain/unclosed markup keeps its remainder excluded.
++This is a conservative bounded report grammar, not general Markdown parsing or prose-intent inference.
++Bound Quick review and non-UX internal registration reuse the observer. Only the internal analysis
++domain opts into `not_applicable`; its existing eligibility/reason checks remain authoritative.
+ Conflicting supported values, an unknown or empty explicit Decision, or a missing supported
+ result remain unconfirmed. This observes authored evidence only: it grants no QA decision,
+ approval, source replacement or closeout permission. Exact approved bytes and current bindings
+diff --git a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-plugins__agdf__meta__copilot-payload-baseline.json b/plugins/agdf/meta/copilot-payload-baseline.json
+index 87ee7927..a800fc4a 100644
+--- a/.agdf/control/artefacts/report-decision-field-hardening-20261014-01/evidence/before-plugins__agdf__meta__copilot-payload-baseline.json
++++ b/plugins/agdf/meta/copilot-payload-baseline.json
+@@ -2,6 +2,6 @@
+   "schema_version": 1,
+   "profile_id": "copilot-runtime-plugin",
+   "max_files": 252,
+-  "max_bytes": 2171311,
+-  "rationale": "Exact measured compact-continuation payload: one shared Core handoff module and existing policy/dispatcher/contract changes for bounded execution, closeout and consistent report decision observations. No additional skill, UI, state store or Git capability. Zero size headroom; remeasure through the normal generator after any source change."
++  "max_bytes": 2179471,
++  "rationale": "Exact normal-generator measurement after authored report-field hardening: existing shared Core result observer gains bounded context/container scanning, coupled registrars reuse it, and the quality contract documents the same interpretation. Prior compact-continuation scope is retained. No new runtime file, skill, dependency, UI, state store or Git capability. Zero size headroom; remeasure through the normal generator after any source change."
+ }

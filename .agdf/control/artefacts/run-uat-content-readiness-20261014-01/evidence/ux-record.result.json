@@ -1,0 +1,145 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "616f8d0f-7844-4bb6-b306-75b03af7c247",
+  "request_digest": "sha256:e8287b9fc6fc9415ceb8ffb82fc744d11e639600735ecb758f45827e87bc66e0",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "expected_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+    "resulting_revision_id": "a30090c7-40d7-4fce-bce2-6d547403c542",
+    "revision": 6,
+    "record": {
+      "step": "UX Intent Definition",
+      "source": {
+        "path": ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:92795505cefb778a07656bc9117f5c6ed6c547c1d441d924f971e9f6920ffdf3"
+      },
+      "status": "done",
+      "covers": "Approved Run/UAT decision-content intent and current post-UR medium-impact routing",
+      "source_set_digest": "sha256:d2a3cc850f8492f2f4c17605c013dfcd1b3600e1f0f150d521d6f79c31df1894"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "616f8d0f-7844-4bb6-b306-75b03af7c247",
+    "request_digest": "sha256:e8287b9fc6fc9415ceb8ffb82fc744d11e639600735ecb758f45827e87bc66e0",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "expected_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+    "created_at": "2026-10-14T10:21:02.273Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+      "resulting_revision_id": "a30090c7-40d7-4fce-bce2-6d547403c542",
+      "revision": 6,
+      "record": {
+        "step": "UX Intent Definition",
+        "source": {
+          "path": ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/UX_INTENT_DEFINITION.md",
+          "digest": "sha256:92795505cefb778a07656bc9117f5c6ed6c547c1d441d924f971e9f6920ffdf3"
+        },
+        "status": "done",
+        "covers": "Approved Run/UAT decision-content intent and current post-UR medium-impact routing",
+        "source_set_digest": "sha256:d2a3cc850f8492f2f4c17605c013dfcd1b3600e1f0f150d521d6f79c31df1894"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 6,
+    "revision_id": "a30090c7-40d7-4fce-bce2-6d547403c542",
+    "lifecycle": "active",
+    "gate": "PRD",
+    "status": "open",
+    "missing_approval": "Approval: PRD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "operation_key": "artefact.author",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "PRD",
+      "skill_id": "gate-check",
+      "artifact_path": ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/PRD.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/UR.md",
+        ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/BROWNFIELD_REVIEW.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "run-uat-content-readiness-20261014-01",
+    "step": "internal",
+    "previous_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+    "revision": "6",
+    "revision_id": "a30090c7-40d7-4fce-bce2-6d547403c542",
+    "current_gate": "PRD",
+    "next_allowed_action": "Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved.",
+    "backlog": "updated",
+    "operation_id": "616f8d0f-7844-4bb6-b306-75b03af7c247",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "616f8d0f-7844-4bb6-b306-75b03af7c247",
+      "request_digest": "sha256:e8287b9fc6fc9415ceb8ffb82fc744d11e639600735ecb758f45827e87bc66e0",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "run-uat-content-readiness-20261014-01",
+      "expected_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+      "created_at": "2026-10-14T10:21:02.273Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "14df8986-468c-453d-9f57-b1d4f37aada5",
+        "resulting_revision_id": "a30090c7-40d7-4fce-bce2-6d547403c542",
+        "revision": 6,
+        "record": {
+          "step": "UX Intent Definition",
+          "source": {
+            "path": ".agdf/control/artefacts/run-uat-content-readiness-20261014-01/UX_INTENT_DEFINITION.md",
+            "digest": "sha256:92795505cefb778a07656bc9117f5c6ed6c547c1d441d924f971e9f6920ffdf3"
+          },
+          "status": "done",
+          "covers": "Approved Run/UAT decision-content intent and current post-UR medium-impact routing",
+          "source_set_digest": "sha256:d2a3cc850f8492f2f4c17605c013dfcd1b3600e1f0f150d521d6f79c31df1894"
+        }
+      }
+    }
+  }
+}

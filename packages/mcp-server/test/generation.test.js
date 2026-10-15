@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { generationFailureReason } from '../src/generation-protocol.js';
+assert.equal(generationFailureReason(Error('PRIVATE_PAYLOAD_AND_PATH')), 'generation_runtime_failed');
+assert.equal(generationFailureReason(Error('AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED')), 'AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED');
 import { randomUUID } from 'node:crypto';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';

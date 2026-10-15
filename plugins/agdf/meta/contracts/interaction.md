@@ -76,6 +76,16 @@ action uses existing skill_continuation phase implementation. It carries current
 target/run/revision and runtime contracts, not another approval. Recorded control changes still
 require same-run gate-check with continue_delivery. It never grants QA, UAT, VCS or release authority.
 
+Current permitted compact work uses `compact_implementation` with the existing gate-check owner,
+bound target/Run/revision, mode, contained current source paths/digests and runtime contracts.
+`implement_compact_scope` is the Core semantic operation; status never executes it. Verified Change
+requires fresh evaluator eligibility and carries the evaluated record scope and deterministic commands;
+missing Git observations retain their concrete refusal. Inspect current evidence before resuming and
+perform only unfinished obligations. Applicable completed Quick Task CR or executed Verified Change
+routes `compact_closeout` to release-or: Quick Task uses existing OR-lite recording, Verified Change
+uses its linked Mini-Closeout and existing run-update boundary, never unsupported closeout.record.
+Completed Runs stay terminal. No persistent execution marker or exactly-once guarantee is added.
+
 When a bound authorized continuation corrects one missing relationship from exact previously
 sealed reviewed proof, mention that clerical outcome in the next concise result. No extra approval
 or standalone card is needed. Explicit fresh status retains the correction's audited evidence.

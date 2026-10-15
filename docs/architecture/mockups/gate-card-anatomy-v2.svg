@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="880" viewBox="0 0 1200 880" role="img" aria-labelledby="title desc">
+  <title id="title">Anatomie einer menschlichen Gate-Karte</title>
+  <desc id="desc">Ein kommentierter Produkt-Mock zeigt Orientierung, Entscheidungsfrage, gate-spezifischen Inhalt, Wirkung, Hauptaktion, alternativen Weg und technische Bindung.</desc>
+  <style>
+    .bg { fill: #f6f6f6; }
+    .card { fill: #fcfcfc; stroke: #d8dada; stroke-width: 2; }
+    .soft { fill: #f1f3f3; }
+    .effect { fill: #e8f5f3; }
+    .title { fill: #202327; font: 700 34px Inter, Arial, sans-serif; }
+    .subtitle { fill: #66686a; font: 400 18px Inter, Arial, sans-serif; }
+    .eyebrow { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; letter-spacing: .5px; }
+    .heading { fill: #25272a; font: 700 28px Inter, Arial, sans-serif; }
+    .status { fill: #66686a; font: 400 16px Inter, Arial, sans-serif; }
+    .label { fill: #66686a; font: 700 14px Inter, Arial, sans-serif; }
+    .body { fill: #3c3e40; font: 400 17px Inter, Arial, sans-serif; }
+    .strong { fill: #25272a; font: 700 17px Inter, Arial, sans-serif; }
+    .effectText { fill: #185e58; font: 700 16px Inter, Arial, sans-serif; }
+    .button { fill: #0f766e; }
+    .buttonText { fill: #ffffff; font: 700 16px Inter, Arial, sans-serif; }
+    .link { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; }
+    .binding { fill: #4b4d50; font: 600 14px "JetBrains Mono", Consolas, monospace; }
+    .callout { fill: #0f766e; font: 700 16px Inter, Arial, sans-serif; }
+    .calloutBody { fill: #3c3e40; font: 400 15px Inter, Arial, sans-serif; }
+    .line { stroke: #0f766e; stroke-width: 2; fill: none; }
+    .number { fill: #0f766e; }
+    .numberText { fill: #ffffff; font: 700 15px Inter, Arial, sans-serif; text-anchor: middle; }
+    .footer { fill: #66686a; font: 400 14px Inter, Arial, sans-serif; }
+  </style>
+
+  <rect class="bg" width="1200" height="880"/>
+  <text class="title" x="36" y="48">Gemeinsamer Rahmen, gate-spezifischer Inhalt</text>
+  <text class="subtitle" x="36" y="78">Die Karte standardisiert Bindung und Wirkung, nicht den fachlichen Mittelteil</text>
+
+  <g transform="translate(180 112)">
+    <rect class="card" width="840" height="650" rx="20"/>
+    <text class="eyebrow" x="30" y="42">VERHALTEN FESTLEGEN</text>
+    <text class="heading" x="30" y="82">Soll das Ergebnis so funktionieren?</text>
+    <text class="status" x="30" y="112">Fassung 1 · Entscheidung ausstehend · Du bist dran</text>
+
+    <rect class="soft" x="26" y="138" width="788" height="260" rx="14"/>
+    <text class="label" x="48" y="172">ENTSCHEIDUNGSGRUNDLAGE · PRD</text>
+    <text class="strong" x="48" y="210">Vorgeschlagenes Verhalten</text>
+    <text class="body" x="48" y="240">Bei falschen Zugangsdaten erscheint eine Meldung direkt am Formular.</text>
+    <text class="strong" x="48" y="282">Akzeptanzkriterien</text>
+    <text class="body" x="48" y="312">AC-001 verständliche Meldung · AC-002 keine Kontopreisgabe</text>
+    <text class="body" x="48" y="340">AC-003 Tastatur- und Screenreader-Rückmeldung</text>
+    <text class="strong" x="48" y="378">Offene Produktentscheidungen: keine</text>
+
+    <rect class="effect" x="26" y="416" width="788" height="76" rx="14"/>
+    <text class="label" x="48" y="444">WIRKUNG DIESER ZUSTIMMUNG</text>
+    <text class="effectText" x="48" y="474">Lösungsentwurf darf erstellt werden · Umsetzung bleibt gesperrt</text>
+
+    <rect class="button" x="30" y="516" width="188" height="48" rx="9"/>
+    <text class="buttonText" x="75" y="547">So stimmt es</text>
+    <text class="link" x="246" y="547">Verhalten lesen</text>
+    <text class="link" x="410" y="547">Änderung besprechen</text>
+
+    <line x1="26" y1="590" x2="814" y2="590" stroke="#e1e3e3" stroke-width="2"/>
+    <text class="binding" x="30" y="622">› Technische Bindung</text>
+    <text class="status" x="30" y="646">Run, Gate, Revision, Digests und Präsentations-ID · zunächst geschlossen</text>
+  </g>
+
+  <g>
+    <circle class="number" cx="74" cy="162" r="17"/>
+    <text class="numberText" x="74" y="168">1</text>
+    <text class="callout" x="24" y="198">Orientierung</text>
+    <text class="calloutBody" x="24" y="222">Aufgabe, Frage,</text>
+    <text class="calloutBody" x="24" y="242">Fassung, Akteur</text>
+    <path class="line" d="M92 162 H164"/>
+
+    <circle class="number" cx="74" cy="340" r="17"/>
+    <text class="numberText" x="74" y="346">2</text>
+    <text class="callout" x="24" y="376">Gate-Inhalt</text>
+    <text class="calloutBody" x="24" y="400">Eigene Struktur</text>
+    <text class="calloutBody" x="24" y="420">je Gate</text>
+    <path class="line" d="M92 340 H164"/>
+
+    <circle class="number" cx="74" cy="564" r="17"/>
+    <text class="numberText" x="74" y="570">3</text>
+    <text class="callout" x="24" y="600">Wirkung</text>
+    <text class="calloutBody" x="24" y="624">Erlaubt und</text>
+    <text class="calloutBody" x="24" y="644">weiter gesperrt</text>
+    <path class="line" d="M92 564 H164"/>
+
+    <circle class="number" cx="1098" cy="548" r="17"/>
+    <text class="numberText" x="1098" y="554">4</text>
+    <text class="callout" x="1038" y="586">Eine Hauptaktion</text>
+    <text class="calloutBody" x="1038" y="610">Weitere Wege</text>
+    <text class="calloutBody" x="1038" y="630">nachrangig</text>
+    <path class="line" d="M1020 548 H936"/>
+
+    <circle class="number" cx="1098" cy="704" r="17"/>
+    <text class="numberText" x="1098" y="710">5</text>
+    <text class="callout" x="1038" y="742">Bindung</text>
+    <text class="calloutBody" x="1038" y="766">Prüfbar, aber</text>
+    <text class="calloutBody" x="1038" y="786">nicht führend</text>
+    <path class="line" d="M1080 704 H936"/>
+  </g>
+
+  <text class="footer" x="36" y="850">Semantischer Produkt-Mock · Beispiel PRD · genaue Komponenten folgen den vorhandenen Design-Tokens</text>
+</svg>

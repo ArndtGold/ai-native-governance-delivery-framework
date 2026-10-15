@@ -1,0 +1,23 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"effect_unknown","reason":"dispatch_timeout","operation_id":"a60c0984-1a7a-4715-aa6d-aec3690c04d5","request_digest":"sha256:72afa70766477b72850047d10e8ac39a0ec08f00c49090f196fa661d9778f672","binding":{"target_id":"sha256:3a4a90aa4bc36c5ed87fb6750fea243d3201a83487797467a7cc36f8fb5077e6","run_id":"quick-command","expected_revision_id":"64b84f75-f0b4-428d-8b3c-80f3ba3dcce0","kind":"approval.record"},"dispatch":"unknown","authorizes":false,"recovery":"Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer non-execution or create another decision."}
++ actual - expected
+
++ 'effect_unknown'
+- 'accepted'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/whole-flow.test.js:35:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/whole-flow.test.js:22:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'effect_unknown',
+  expected: 'accepted',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

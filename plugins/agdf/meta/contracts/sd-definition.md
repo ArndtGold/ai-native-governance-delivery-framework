@@ -8,7 +8,10 @@ design drafting and clarification; it adds no gate, writer, persistence or appro
 Dispatch before direct work. Unbound invocation uses the existing resolve_delivery_run inventory,
 matching original need to approved scope, then revision-bound gate-check resume intake. Never
 select AGDF_RUN_ID, invent a run, infer editing intent from discovery/selection or use cwd as
-authority. Use only returned governance_target, run_id, revision_id, artifact_path and sources.
+authority. Use only returned governance_target, run_id, revision_id, artifact_path, absolute
+plugin-owned template_path and sources. The installed, version-matched plugin is the sole
+authoring-template authority; repository scaffold copies never override it. Missing or unsafe
+template_path blocks authoring without mutation or fallback and requires explicit plugin repair.
 Read the exact approved PRD, resolved product decisions, completed Brownfield routing and required
 ready analytical inputs. PRD is product authority; analyses are subordinate. Missing/stale/foreign/
 approved bindings or unrelated prerequisite/integrity/source blockers require fresh control.

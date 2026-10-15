@@ -4,6 +4,7 @@ import { aggregate } from "../control-state/aggregate.js";
 import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { runSealState } from "../control-state/run-seal.js";
+import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
 import { pendingRunStepIds } from "../control-state/run-step-pending.js";
 import { doctorRequiredFiles } from "./required-files.js";
 import { analyzeDeliveryMap } from "./delivery-map.js";
@@ -139,6 +140,10 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
       const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
       const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
       const hasEvidence = hasFilledEvidenceRow(run);
+      const content = observeDecisionContent(targetDir, selectedRunState, { objectiveOnly: true });
+      if (!content.ready) addFinding(findings, 'warn', 'AGDF_DECISION_CONTENT_INCOMPLETE',
+        'The selected active Run has incomplete decision orientation.', runPath,
+        decisionContentRecovery(content, { state: selectedRunState }));
 
       if (isPlaceholderValue(currentGateLine)) {
         addFinding(

@@ -26,6 +26,15 @@ optionale Implementierung eines eigenen Webhosts, keine Voraussetzung für ander
 Die zentrale Entscheidung beschreibt auch die unterstützten Textwege und den Nachweis pro
 Host und Fassung. Sie ist ein Portabilitätsziel und kein allgemeiner Kompatibilitätsnachweis.
 
+Die nutzerseitige Ausgabe kennt dabei ausschließlich
+[MCP-App-UI und Portable Markdown](07-ui-konzept.md#verbindliche-darstellungsformate).
+`auto` bezeichnet nur die Auswahlstrategie. Protokollfähigkeit, vertrauenswürdige
+Host-Präferenz, Qualifizierung des konkreten Hoststands und bestätigte Anzeige bleiben
+getrennte Eingaben dieser Auswahl. Sie dürfen nicht durch ein gewöhnliches, vom Modell
+befüllbares Werkzeugargument ersetzt werden. Ohne bestätigte MCP-App-Darstellung liefert der
+Adapter die vollständige Portable-Markdown-Darstellung; dadurch entsteht weder eine native
+Klickqualifizierung noch ein stärkerer Herkunftsnachweis für die Antwort.
+
 ## Ausgangspunkt und nachgeführter Entwicklungsstand
 
 Der reguläre Server vermittelt Dispatch, Inspect und im Repository-Entwicklungsstand die

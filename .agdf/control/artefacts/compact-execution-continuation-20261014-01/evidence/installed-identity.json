@@ -1,0 +1,60 @@
+{
+  "evidence_class": "actual_installed_files_and_stdio",
+  "marker": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-c240eac426fe",
+    "source_digest": "c240eac426fe932b07313c8b7e6665093a605e6009c0e30d4417a632f2a1240b",
+    "runtime_digest": "9a74b1d7f12b9e5a62b2456e9fe7f8c7ba8703c7a84379e0ada4c65b5021e105"
+  },
+  "marketplace": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+  "cache": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-c240eac426fe",
+  "files": 299,
+  "byte_equal": true,
+  "source_files": {
+    "control-evaluation/gate-policy.js": {
+      "digest": "67c8fac5a3b471d7516551fcfb8eb70671c3fb9c1d09b2b9bc088d3cb8739f9e",
+      "installed_equal": true
+    },
+    "skill-dispatch/service.js": {
+      "digest": "347ef9d43bf91837247ef224cfb2c26556033e88e2a611488922482efda8405f",
+      "installed_equal": true
+    },
+    "skill-dispatch/compact-continuation.js": {
+      "digest": "0b73664268aa72a50bb1a818983b4215ea9862e581b9908bcf1d428028471648",
+      "installed_equal": true
+    },
+    "skill-dispatch/contract.js": {
+      "digest": "036685236bd2a29014a0831f411eec800b9bb529681d37a9af1643dd8b45f6d5",
+      "installed_equal": true
+    }
+  },
+  "observed_runtimes": [
+    {
+      "machine_validation": "local_exact_version_digest",
+      "expected_version": "0.14.5",
+      "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/a60922631965a948ab385e24b6bf2f0d3beded4f8d6758cdbe9b12263aa3cfc8/0.14.5/node_modules/create-agdf/",
+      "runtime_digest": "6a88078c4994c039527234ed2c8ae95b7c795e045e6cde0dcead5f7b931763c2",
+      "provenance_status": "matched"
+    }
+  ],
+  "owned_generation_markers": [
+    {
+      "schema_version": 2,
+      "owner": "create-agdf:mcp-runtime",
+      "version": "0.14.5",
+      "server_digest": "2a3b83eeb4c6db0a5eaa2357a74127b130fed80de0c50c6fe18d22d08becc113",
+      "dispatcher_digest": "6a88078c4994c039527234ed2c8ae95b7c795e045e6cde0dcead5f7b931763c2",
+      "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+      "sdk_verification": "verified",
+      "node_executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "references": [],
+      "executable_retention": "claimed_immutable"
+    }
+  ],
+  "old_chat_runtime": "4ade1eebe6542ca9f63aa8a2e0b868ddd8fa4c628d268dbd83522ecb56c6d657/0.14.5",
+  "native_model_qualified": false
+}

@@ -1,5 +1,6 @@
 import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderDefinitionSourceRecovery, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
-import { interactionLocales, resolveConfiguredChatLanguage } from "../resources/context.js";
+import { interactionLocales, resolveConfiguredChatLanguage, resolveArtifactPresentationLanguages } from "../resources/context.js";
+import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
 import { evaluateDoctor } from "./doctor.js";
 import { analyzeDeliveryMap, deriveQualityOutlook } from "./delivery-map.js";
 import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
@@ -465,6 +466,16 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     }
   }
 
+  const contentReadiness = status === 'open' && /^Approval: /u.test(missingApproval) && approvalArtefactReady
+    ? observeDecisionContent(targetDir, runState, { gate: currentGate, locale: presentationLocale.split('-')[0],
+      sourceLanguage: resolveArtifactPresentationLanguages(targetDir, presentationLocale).artifact_language }) : null;
+  if (contentReadiness && !contentReadiness.ready) {
+    status = 'blocked'; blockingReason = 'AGDF_DECISION_CONTENT_INCOMPLETE';
+    const values = localePack(interactionLocales, 'en').operationalValues;
+    allowed = [values.correctDecisionContent];
+    forbidden = [...forbidden, values.noIncompleteContentApproval];
+    nextAllowedAction = values.completeDecisionContent;
+  }
   const postApproval = postApprovalTransition(missingApproval, runState);
   const renderable = (value) => isOperationalValueRenderable(value, { registry: interactionLocales, requestedLocale: presentationLocale });
   const runQualityOutlook = deriveQualityOutlook(runState, deliveryMap.findings);
@@ -549,7 +560,10 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
       presentation_language: statusCard.presentation_language,
     },
   });
-  const presentationDiagnostics = {};
+  const presentationDiagnostics = contentReadiness && !contentReadiness.ready ? {
+    approval_presentation_errors: contentReadiness.gaps.map(g => `decision_content_${g.reason}:${g.field}`),
+    approval_presentation_recovery: decisionContentRecovery(contentReadiness, { locale: presentationLocale.split('-')[0], state: runState }),
+  } : {};
   let approvalPresentation = null;
   if (approvalOrientationPresentation && statusPresentation) {
     try {

@@ -1,0 +1,31 @@
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+Final assembled safety passed.
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+Actual default-entrypoint STDIO Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.
+Final assembled whole-flow passed.
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_slice: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+Actual default-entrypoint STDIO structured_delivery: CD/reviews, reviewed QA recording, exact QA/UAT approvals, OR confirmation, completion and original-UUID replay passed; synthetic disposable decisions only.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"effect_unknown","reason":"dispatch_timeout","operation_id":"a3a56cce-a977-45b4-aad5-a114769f4c60","request_digest":"sha256:b1c2ba17fe1f672f324a17ad4937cc1d1fdbe5f77ec53a160ad5d9b8830f1ee9","binding":{"target_id":"sha256:444d00fbdb06931b590027116ae5dc6043129ac48953ee726f81455ecc999468","run_id":"structured-closeout-command","expected_revision_id":"f3a20119-2f55-4359-ac07-48689b1088d7","kind":"approval.record"},"dispatch":"unknown","authorizes":false,"recovery":"Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer non-execution or create another decision."}
++ actual - expected
+
++ 'effect_unknown'
+- 'accepted'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/structured-flow.test.js:85:12
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/structured-flow.test.js:22:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'effect_unknown',
+  expected: 'accepted',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

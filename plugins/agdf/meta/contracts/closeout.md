@@ -9,6 +9,10 @@ When the next step is gated, name the required approval or AGDF skill instead of
 
 ## Relevant Run
 
+When `release-or` authors the Orchestration Report, it uses only the bound absolute plugin-owned
+`template_path` for `OR.md`. Repository scaffold copies never override it. Missing or unsafe plugin
+content blocks OR authoring without mutation or fallback and remains an explicit closeout gap.
+
 A relevant run is any run that changes durable state, creates or updates an AGDF artefact, changes code or runtime behaviour, performs a gate decision, blocks on a governance condition, produces QA/UAT/release evidence, or closes a delivery slice.
 
 OR is not mandatory for a pure explanation, read-only inspection, small review, or local debugging step that produces no durable state change and no gate consequence.

@@ -1296,6 +1296,10 @@ smokePhase("status card tp transition");
 - decision: in_progress
 - owner: test
 
+## Objective
+
+Show the task-plan approval separately from the following internal Brownfield Analysis.
+
 ## Approvals
 
 | Gate | Status | Evidence |
@@ -1488,6 +1492,10 @@ smokePhase("QA and UAT gate scenarios");
 - decision: qa_passed
 - owner: test
 
+## Objective
+
+The user can inspect the prepared delivery before accepting it.
+
 ## Current Control State
 
 | Question | Answer |
@@ -1543,6 +1551,10 @@ smokePhase("QA and UAT gate scenarios");
 
 - next_allowed_action: Request Approval: UAT before delivery handoff.
 `, "utf8");
+    const artefacts = join(tempDir, ".agdf/control/artefacts/qa-passed-run");
+    mkdirSync(artefacts, { recursive: true });
+    writeFileSync(join(artefacts, "UR.md"), "# UR: Inspect delivery\n\n## Goal\nThe user can inspect the prepared delivery before accepting it.\n");
+    writeFileSync(join(artefacts, "QA_REPORT.md"), "# QA: Inspect delivery\nDecision: pass\n\n## TP Coverage\n- delivered_result: The status card exposes the prepared delivery and requires a separate UAT decision.\n\n## Missing Evidence\n- qualification_limits: Synthetic CLI fixture only; no native-host execution.\n\n## Risks\n- delivery_risks: none\n");
     sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "qa-passed-run", "--json"], { encoding: "utf8" }));

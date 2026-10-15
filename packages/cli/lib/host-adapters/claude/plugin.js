@@ -5,6 +5,7 @@ import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginListHasPlugin, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { classifyMarketplaceList, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 import { recoverClaudeCacheTemp } from "../../installers/claude-cache-recovery.js";
+import { packagedAppCopiesHealthy, packagedAppCopyEvidence, reconcilePackagedAppMarketplaceCopies } from "../../installers/packaged-app-marketplace.js";
 import { prepareClaudePluginMcp, migrateLegacyClaudeMcpRegistration } from "./plugin-mcp.js";
 import { loadedClaudeSessions, loadedSessionEvidence, loadedSessionLockHint } from "./loaded-sessions.js";
 
@@ -18,6 +19,7 @@ export function installClaudeGlobalPlugin({
   migrateMcp = migrateLegacyClaudeMcpRegistration,
   prepareMcp = prepareClaudePluginMcp,
   loadedSessions = loadedClaudeSessions,
+  reconcilePackagedCopies = reconcilePackagedAppMarketplaceCopies,
 } = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
@@ -80,6 +82,15 @@ export function installClaudeGlobalPlugin({
       throw lifecycleAdapterError("version", versionMismatchMessage("Claude Code", "agdf@agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest claude"));
     }
     transaction.commit();
+    // Claude Code loads this plugin in place from the marketplace, so a packaged host's private copy of
+    // it would keep serving the previous state to its sessions. Also checked when nothing changed here.
+    let packagedCopies;
+    try {
+      packagedCopies = reconcilePackagedCopies({ root: transaction.root, sourceDigest: transaction.sourceDigest, pluginDigest: transaction.digest, env });
+    } catch {
+      packagedCopies = null;
+    }
+    const packagedCopiesHealthy = Boolean(packagedCopies) && packagedAppCopiesHealthy(packagedCopies);
     // Both steps are best effort: the plugin already works, and the launcher installs the MCP runtime
     // on first start when the prewarm could not run.
     const mcpEvidence = [
@@ -91,7 +102,7 @@ export function installClaudeGlobalPlugin({
       operation: migration.state === "owned_local_current" ? "update" : "install",
       expectedVersion,
       installedVersion,
-      verificationStatus: installedVersion ? "healthy" : "degraded",
+      verificationStatus: installedVersion && packagedCopiesHealthy ? "healthy" : "degraded",
       evidence: [
         "durable_local_marketplace",
         `marketplace:${migration.state}`,
@@ -106,8 +117,10 @@ export function installClaudeGlobalPlugin({
         ...loadedSessionEvidence(sessions),
         ...(cacheRecovery?.status === "recovered" ? ["claude_cache_temp_recovery:bounded_retry"] : []),
         ...(installedVersion ? [] : ["host_did_not_expose_version"]),
+        ...(packagedCopies ? packagedAppCopyEvidence(packagedCopies) : ["packaged_app_copy:check_failed"]),
         ...mcpEvidence,
       ],
+      packagedAppCopies: packagedCopies,
       pluginRoot: transaction.pluginRoot ?? null,
       digest: transaction.digest ?? null,
       runtimeDigest: transaction.runtimeDigest ?? null,

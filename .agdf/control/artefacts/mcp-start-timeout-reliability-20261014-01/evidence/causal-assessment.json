@@ -1,0 +1,67 @@
+{
+  "status": "assessed",
+  "evidence_class": "production-owner regressions and actual installed transports; historical incident attribution bounded",
+  "families": [
+    {
+      "family": "AGDF_MCP_PLUGIN_RUNTIME_FAILED",
+      "confirmed": "Existing facade catch collapses failures into a broad startup code. The private cause and historical failed phase cannot be reconstructed from that code alone; this is bounded source/counterprobe evidence, not a reconstructed incident.",
+      "repair": "Closed allowlisted diagnostics preserve known reasons; unknown preparation/facade failures expose the safe phase without raw text. Genuine SDK/integrity/acquisition errors retain separate refusal and supported recovery.",
+      "historical_incident_root_cause": "not individually established from suppressed historical exceptions"
+    },
+    {
+      "family": "AGDF_MCP_EXECUTABLE_CLAIM_INVALID",
+      "confirmed": "Exact source/installed-copy baseline returns CLAIM_INVALID for a valid runtime while its publication owner is live; this is a diagnostic/control-flow defect, not proof of integrity corruption.",
+      "repair": "Only exact live contention waits boundedly and reruns full proof under the same publication lock; real invalid marker/server/dispatcher/SDK/path stays refused.",
+      "historical_incident_root_cause": "The historical CLAIM_INVALID code alone does not identify the underlying failed branch; exact archived exceptions are absent.",
+      "evidence": [
+        "SD_CLAIM_CONTENTION_MECHANISM.json",
+        "SD_INSTALLED_CLAIM_CONTENTION_MECHANISM.json",
+        "mcp-runtime-retention-test.js"
+      ]
+    },
+    {
+      "family": "dispatch_timeout",
+      "confirmed": "Baseline actual executor with injected deferred termination freed occupancy before termination and admitted another Worker. Candidate retains capacity through confirmed termination within unchanged request budget.",
+      "repair": "bounded confirmation; unknown effects use original operation-status and identical UUID/request replay",
+      "historical_incident_root_cause": "not individually established; committed-effect uncertainty preserved"
+    },
+    {
+      "family": "AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED during normal three-client burst",
+      "confirmed": "Actual installed pre-atomic candidate failed third wave. Empty owner visibility between exclusive open and metadata write was a real production race.",
+      "repair": "complete-record private staging, exclusive hardlink publication under existing owner, inode/token guarded failed handoff and release",
+      "evidence": [
+        "installed-transport-before-atomic-lock.json",
+        "installed-transport-atomic-reviewed.json",
+        "packages/core/test/run-lock-test.js"
+      ]
+    },
+    {
+      "family": "unbounded SDK acquisition inside startup",
+      "confirmed": "Original HEAD launcher/package functions publish after 33427ms despite the existing 30000ms publication wait budget. The owner supplied no acquisition timeout to its directly owned controlled child.",
+      "repair": "Pass the same remaining publication deadline to the existing package owner; bound its acquisition child and recheck before/after publication and after full claim proof; no timeout inflation.",
+      "baseline": "baseline-acquisition-overrun.json",
+      "candidate": "installed-recovery-reviewed.json: identical controlled 31000ms child is stopped by the same 30000ms acquisition budget; no package publication",
+      "historical_incident_root_cause": "No claim that the controlled child recreates a historical network incident"
+    }
+  ],
+  "bounds": {
+    "claim_wait_ms": 5550,
+    "claim_poll_ms": 150,
+    "shared_publication_ms": 30000,
+    "worker_ms": 10000,
+    "generation_qualification_ms": 30000,
+    "generation_close_ms": 10000,
+    "fixture_cold_p95_ms": 1500,
+    "fixture_warm_p95_ms": 1000,
+    "installed_p95_ms": 5000,
+    "installed_max_ms": 10000,
+    "effective_desktop_startup_tool": "unknown"
+  },
+  "performance_counterevidence": [
+    "mcp-suite-canonical.log: warm p95 1914.165ms while heavy verification ran",
+    "performance-isolated.log: warm p95 3089.742ms overlapped supported install/assembly; not actually isolated",
+    "performance-quiescent-final.log: cold 1017.037ms/warm 892.727ms on pre-final-display/handoff candidate; unchanged guards"
+  ],
+  "phase_evidence": "worker_start, runtime_provenance, operation, result, termination, terminated safely measured on exact SDK producer; publication/claim/generation bounds have owner-local causal tests, not fabricated historical phase traces",
+  "normal_path_final_qualification": "installed-qualification.json: pass on exact final installed producer; all 120 workload samples retained"
+}

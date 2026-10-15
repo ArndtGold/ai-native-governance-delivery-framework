@@ -1,0 +1,97 @@
+Prepared isolated native-en-approve
+Prepared isolated native-en-text
+Prepared isolated native-de-approve
+Prepared isolated native-de-text
+Candidate descriptor: NATIVE_PROBE_CANDIDATE.json
+{
+  "schema_version": "1",
+  "evidence_class": "prepared_disposable_native_probe",
+  "observed_at": "2026-10-14T16:56:08.894Z",
+  "production_entrypoint": false,
+  "installed": false,
+  "native_qualified": false,
+  "assurance": "cooperative_local",
+  "authorizes": false,
+  "runtime_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM",
+  "target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/governance-target",
+  "target_id": "sha256:6eb2bd18293df1919400b1b57de103767a29a0a574fce42bc7e1c76af036db15",
+  "runs": [
+    {
+      "locale": "en",
+      "action": "approve",
+      "run_id": "native-en-approve",
+      "expected_revision_id": "cd16d4fa-c816-42e6-aaee-69f1cfb57632",
+      "gate": "SD"
+    },
+    {
+      "locale": "en",
+      "action": "text",
+      "run_id": "native-en-text",
+      "expected_revision_id": "b3c52479-69fb-4e5a-9078-6ced60d9a92e",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "approve",
+      "run_id": "native-de-approve",
+      "expected_revision_id": "cb9aa22c-aa53-406d-9d61-601acfe1f1e3",
+      "gate": "SD"
+    },
+    {
+      "locale": "de",
+      "action": "text",
+      "run_id": "native-de-text",
+      "expected_revision_id": "f9ed1655-524b-4032-8f90-8e2e10ddb8ee",
+      "gate": "SD"
+    }
+  ],
+  "entrypoint": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/native-decision-entry.mjs",
+  "entrypoint_digest": "sha256:a1c6688ffce89a64862218aa3d4be9579285e04b374ff737994e800cc12d739e",
+  "server_digest": "ebd219b7349948b7672b02bd5c743ede67c3df364e03eb4c4e9d6b3a3a93a5d5",
+  "dispatcher_digest": "ab0097c61d93c646c4b351c53aab138b5450d672003abb31e48674de2a03e4e1",
+  "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/decision/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 932245,
+    "digest": "sha256:334747e64a24a6c73ea835bbbda1f8344535271125e7bd9ef878ea1fb3d50581",
+    "source_digest": "sha256:883ac2bd43569a9ba19116812e9b0aebe3c10e3284fdc0450a0715d13190797c"
+  },
+  "observations": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/native-observations.jsonl",
+  "configuration": {
+    "name": "agdf-test-decision",
+    "role": "diagnostic",
+    "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "args": [
+      "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/native-decision-entry.mjs"
+    ]
+  },
+  "lifecycle": {
+    "owner": "create-agdf:mcp-runtime",
+    "role": "diagnostic",
+    "server_id": "agdf-test-decision",
+    "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "args": [
+      "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/native-decision-entry.mjs"
+    ],
+    "target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/governance-target",
+    "runtime_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM",
+    "lifetime": "completion_or_abort",
+    "sources": [
+      {
+        "path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/native-decision-entry.mjs",
+        "digest": "sha256:a1c6688ffce89a64862218aa3d4be9579285e04b374ff737994e800cc12d739e"
+      }
+    ],
+    "configuration": {
+      "path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/governance-target/.codex/config.toml",
+      "scope": "project",
+      "existed": false,
+      "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "activated": false,
+    "cleanup_owner": "runMcpLifecycle:diagnostic:disable",
+    "shared_app_data": "host_owned_untouched"
+  }
+}

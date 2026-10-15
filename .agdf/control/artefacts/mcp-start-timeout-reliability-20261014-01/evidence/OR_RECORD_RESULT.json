@@ -1,0 +1,131 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "b359a282-a88a-4b91-80ed-edb28b6a2288",
+  "request_digest": "sha256:434715e7d1df0da5e7b5547375f6184cbf9a7f0da881669add2bc1cc36737715",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+    "kind": "closeout.record"
+  },
+  "effect": {
+    "previous_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+    "resulting_revision_id": "0a79cd61-a672-4518-8dcb-090601e4f157",
+    "revision": 22,
+    "record": {
+      "or": {
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/OR.md",
+        "digest": "sha256:1d1d1fdb42f2ff0a5ea0466972d8f5e988bbbb5b170c1bc887f7815d9602bd33"
+      },
+      "lifecycle": "completed",
+      "context_evidence_digest": "sha256:a5cfcd68260a6b094d4b3de000b6bc08f88430ef0c8b94d582cf643ba0f68673",
+      "confirmation_digest": "sha256:6ab2ed9789053fbf92628779bc4af40dda0b8aa361302f0d3dc41cb6384b75e4"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "closeout.record",
+    "operation_id": "b359a282-a88a-4b91-80ed-edb28b6a2288",
+    "request_digest": "sha256:434715e7d1df0da5e7b5547375f6184cbf9a7f0da881669add2bc1cc36737715",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+    "created_at": "2026-10-14T18:52:47.955Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+      "resulting_revision_id": "0a79cd61-a672-4518-8dcb-090601e4f157",
+      "revision": 22,
+      "record": {
+        "or": {
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/OR.md",
+          "digest": "sha256:1d1d1fdb42f2ff0a5ea0466972d8f5e988bbbb5b170c1bc887f7815d9602bd33"
+        },
+        "lifecycle": "completed",
+        "context_evidence_digest": "sha256:a5cfcd68260a6b094d4b3de000b6bc08f88430ef0c8b94d582cf643ba0f68673",
+        "confirmation_digest": "sha256:6ab2ed9789053fbf92628779bc4af40dda0b8aa361302f0d3dc41cb6384b75e4"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 22,
+    "revision_id": "0a79cd61-a672-4518-8dcb-090601e4f157",
+    "lifecycle": "completed",
+    "gate": "OR",
+    "status": "pass",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": null,
+    "completion": {
+      "status": "completed",
+      "gate": "OR",
+      "fulfilled": true,
+      "vcs_handoff": "explicit_request_required"
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "step": "closeout",
+    "previous_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+    "revision": "22",
+    "revision_id": "0a79cd61-a672-4518-8dcb-090601e4f157",
+    "current_gate": "OR",
+    "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+    "backlog": "updated",
+    "operation_id": "b359a282-a88a-4b91-80ed-edb28b6a2288",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "closeout.record",
+      "operation_id": "b359a282-a88a-4b91-80ed-edb28b6a2288",
+      "request_digest": "sha256:434715e7d1df0da5e7b5547375f6184cbf9a7f0da881669add2bc1cc36737715",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "expected_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+      "created_at": "2026-10-14T18:52:47.955Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "67d8b0f3-02c6-4ff3-86e5-4742dd24e74c",
+        "resulting_revision_id": "0a79cd61-a672-4518-8dcb-090601e4f157",
+        "revision": 22,
+        "record": {
+          "or": {
+            "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/OR.md",
+            "digest": "sha256:1d1d1fdb42f2ff0a5ea0466972d8f5e988bbbb5b170c1bc887f7815d9602bd33"
+          },
+          "lifecycle": "completed",
+          "context_evidence_digest": "sha256:a5cfcd68260a6b094d4b3de000b6bc08f88430ef0c8b94d582cf643ba0f68673",
+          "confirmation_digest": "sha256:6ab2ed9789053fbf92628779bc4af40dda0b8aa361302f0d3dc41cb6384b75e4"
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { Worker } from "node:worker_threads";
 
 const WORKER_URL = new URL("./worker-entry.js", import.meta.url);
+const PHASES = new Set(['runtime_provenance', 'operation', 'result']);
 
 export class DispatchExecutionError extends Error {
   constructor(code, dispatch = 'unknown') {
@@ -12,74 +13,79 @@ export class DispatchExecutionError extends Error {
 }
 
 export function createWorkerDispatchExecutor({
-  surface,
-  expectedVersion,
-  commandGroups,
-  timeoutMs = 10_000,
-  WorkerClass = Worker,
+  surface, expectedVersion, commandGroups, timeoutMs = 10_000, WorkerClass = Worker,
+  onEvent = () => {},
 } = {}) {
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 10_000) throw Error('dispatch_deadline_invalid');
   let active = null;
-
-  async function terminateActive() {
-    const current = active;
-    if (!current) return;
-    await current.cancel();
-  }
-
+  const event = (phase, started) => {
+    try { onEvent({ phase, elapsed_ms: performance.now() - started }); } catch {}
+  };
   return Object.freeze({
     async execute(argumentsValue, { signal, toolName } = {}) {
       if (active) throw new DispatchExecutionError("dispatch_busy", 'not_dispatched');
       if (signal?.aborted) throw new DispatchExecutionError("dispatch_cancelled", 'not_dispatched');
-
       return new Promise((resolve, reject) => {
-        let settled = false;
+        let settled = false, exited = false, completion;
+        const started = performance.now(), deadline = started + timeoutMs;
         const worker = new WorkerClass(WORKER_URL, {
           workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null },
         });
-
-        const finish = async (callback, value) => {
-          if (settled) return;
+        event('worker_start', started);
+        const current = { worker, timer: null, cleanupSignal: null, cancel: () => finish(reject, new DispatchExecutionError("dispatch_cancelled")) };
+        active = current;
+        const release = () => { if (active === current) active = null; };
+        const finish = (callback, value) => {
+          if (settled) return completion;
           settled = true;
-          const current = active;
-          active = null;
-          if (current) {
-            clearTimeout(current.timer);
-            current.cleanupSignal?.();
-          }
-          await worker.terminate().catch(() => {});
-          callback(value);
+          clearTimeout(current.timer);
+          current.cleanupSignal?.();
+          event('termination', started);
+          completion = (async () => {
+            let confirmationTimer;
+            // Confirmation consumes the remaining request budget; it cannot add another full deadline.
+            const bounded = new Promise(done => {
+              confirmationTimer = setTimeout(() => done(false), Math.max(0, deadline - performance.now()));
+            });
+            let ending;
+            try { ending = Promise.resolve(worker.terminate()).then(() => { exited = true; release(); return true; }, () => false); }
+            catch { ending = Promise.resolve(false); }
+            const confirmed = exited || await Promise.race([ending, bounded]);
+            clearTimeout(confirmationTimer);
+            if (confirmed) {
+              release(); event('terminated', started); callback(value);
+            } else {
+              // A late actual exit may release capacity; rejection alone never proves termination.
+              event('termination_unconfirmed', started);
+              reject(new DispatchExecutionError('dispatch_worker_termination_unconfirmed'));
+            }
+          })();
+          return completion;
         };
-
         const cancel = () => finish(reject, new DispatchExecutionError("dispatch_cancelled"));
-        const cleanupSignal = signal
-          ? () => signal.removeEventListener("abort", cancel)
-          : null;
-        signal?.addEventListener("abort", cancel, { once: true });
-
-        const timer = setTimeout(
-          () => finish(reject, new DispatchExecutionError("dispatch_timeout")),
-          timeoutMs,
-        );
-        active = {
-          worker,
-          timer,
-          cleanupSignal,
-          cancel: () => finish(reject, new DispatchExecutionError("dispatch_cancelled")),
-        };
-
-        worker.once("message", (message) => {
-          if (message?.type === "result") finish(resolve, message.result);
+        if (signal) {
+          current.cleanupSignal = () => signal.removeEventListener("abort", cancel);
+          signal.addEventListener("abort", cancel, { once: true });
+        }
+        current.timer = setTimeout(() => finish(reject, new DispatchExecutionError("dispatch_timeout")), timeoutMs);
+        worker.on("message", message => {
+          if (settled) return;
+          if (message?.type === 'phase') {
+            if (PHASES.has(message.phase)) event(message.phase, started);
+          } else if (message?.type === "result") finish(resolve, message.result);
           else finish(reject, new DispatchExecutionError(message?.code ?? "dispatch_worker_failed"));
         });
         worker.once("error", () => finish(reject, new DispatchExecutionError("dispatch_worker_failed")));
         worker.once("exit", () => {
-          if (!settled) finish(reject, new DispatchExecutionError("dispatch_worker_failed"));
+          exited = true;
+          if (settled) release();
+          else finish(reject, new DispatchExecutionError("dispatch_worker_failed"));
         });
+        // Cover an abort racing listener installation.
+        if (signal?.aborted) cancel();
       });
     },
-    close: terminateActive,
-    get active() {
-      return Boolean(active);
-    },
+    async close() { await active?.cancel(); },
+    get active() { return Boolean(active); },
   });
 }

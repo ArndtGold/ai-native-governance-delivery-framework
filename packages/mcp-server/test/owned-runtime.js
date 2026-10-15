@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,7 +16,7 @@ const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.ur
 
 export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? defaultDispatcherSourceRoot,
   candidateServerRoot = process.env.AGDF_TEST_CANDIDATE_MCP_ROOT } = {}) {
-  const root = mkdtempSync(join(tmpdir(), "agdf-mcp-owned-"));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "agdf-mcp-owned-")));
   const nodeModules = join(root, "node_modules");
   mkdirSync(nodeModules, { recursive: true });
   for (const entry of MCP_SDK_RUNTIME_ENTRIES) {

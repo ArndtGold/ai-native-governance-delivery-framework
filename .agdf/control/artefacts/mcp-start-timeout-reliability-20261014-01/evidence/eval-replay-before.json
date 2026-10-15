@@ -1,0 +1,1712 @@
+[
+  {
+    "case_id": "gate-check-normal",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": "PRD",
+    "internal_step": null,
+    "missing_approval": "Approval: PRD",
+    "actions": [
+      "route prd-definition"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-boundary",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "run Brownfield Review"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-adversarial",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "reject decorated approval"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-normal",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "identify existing owners"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-boundary",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Analysis",
+    "missing_approval": null,
+    "actions": [
+      "verify reuse path"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-adversarial",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Analysis",
+    "missing_approval": null,
+    "actions": [
+      "reject parallel structure"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-bounded-multi-owner",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_slice with bounded_structured_slice"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-single-owner-policy",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_delivery with authority_policy_security_depth"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-broad-migration",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_delivery with persistence_migration_depth"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-missing-facts",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Mode/Slice Decision",
+    "missing_approval": null,
+    "actions": [
+      "persist block with depth_facts_missing and request owner evidence"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-conflicting-facts",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Mode/Slice Decision",
+    "missing_approval": null,
+    "actions": [
+      "persist block with depth_facts_conflicting and route conflict to owner"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-numeric-proxy",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "reject numeric proxy and evaluate structured depth facts"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-path-search-normal",
+    "source_fingerprint": "a95111d99aeb8e3ff6c43cbb0731355c6ec846ddff5c696a7007f4fc665ae4df",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-path-search",
+    "current_gate": null,
+    "internal_step": "Delivery Path Search",
+    "missing_approval": null,
+    "actions": [
+      "return advisory recommendation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-path-search-boundary",
+    "source_fingerprint": "a95111d99aeb8e3ff6c43cbb0731355c6ec846ddff5c696a7007f4fc665ae4df",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-path-search",
+    "current_gate": null,
+    "internal_step": "Delivery Path Search",
+    "missing_approval": null,
+    "actions": [
+      "decline unnecessary search"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-path-search-adversarial",
+    "source_fingerprint": "a95111d99aeb8e3ff6c43cbb0731355c6ec846ddff5c696a7007f4fc665ae4df",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-path-search",
+    "current_gate": null,
+    "internal_step": "Delivery Path Search",
+    "missing_approval": null,
+    "actions": [
+      "reject gate-illegal candidate"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-path-search-cross-scope",
+    "source_fingerprint": "a95111d99aeb8e3ff6c43cbb0731355c6ec846ddff5c696a7007f4fc665ae4df",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-path-search",
+    "current_gate": null,
+    "internal_step": "Delivery Path Search",
+    "missing_approval": null,
+    "actions": [
+      "reject cross-scope result"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "task-plan-review-normal",
+    "source_fingerprint": "a0598005ba2ce84721914695e8de2b832331f088980bed47177eb0090e223d53",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "task-plan-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "map every task id",
+      "use none only on fulfilled fidelity rows"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "task-plan-review-boundary",
+    "source_fingerprint": "a0598005ba2ce84721914695e8de2b832331f088980bed47177eb0090e223d53",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "task-plan-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "report plan_gap to TP",
+      "report evidence_gap to evidence_obligation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "task-plan-review-adversarial",
+    "source_fingerprint": "a0598005ba2ce84721914695e8de2b832331f088980bed47177eb0090e223d53",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "task-plan-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "report requirements_gap to PRD",
+      "keep the finding open"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "clean-review-normal",
+    "source_fingerprint": "a1de43820e139d2617d4124b9581619a2809cbfd14a2824fc5d5139b440c27b8",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "clean-implementation-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "inspect solution integrity"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "clean-review-boundary",
+    "source_fingerprint": "a1de43820e139d2617d4124b9581619a2809cbfd14a2824fc5d5139b440c27b8",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "clean-implementation-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "report design_gap to SD",
+      "keep the finding open"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "clean-review-adversarial",
+    "source_fingerprint": "a1de43820e139d2617d4124b9581619a2809cbfd14a2824fc5d5139b440c27b8",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "clean-implementation-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "report implementation_gap to CD+Tests",
+      "reject policy bypass"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "code-review-normal",
+    "source_fingerprint": "13c82fd4779d859afb2734487b9039893e9735717d9a6b79788b870b44bcfff1",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "code-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "review actual diff",
+      "report implementation_gap to CD+Tests"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "code-review-boundary",
+    "source_fingerprint": "13c82fd4779d859afb2734487b9039893e9735717d9a6b79788b870b44bcfff1",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "code-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "report evidence_gap to evidence_obligation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "code-review-adversarial",
+    "source_fingerprint": "13c82fd4779d859afb2734487b9039893e9735717d9a6b79788b870b44bcfff1",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "code-review",
+    "current_gate": null,
+    "internal_step": "CR",
+    "missing_approval": null,
+    "actions": [
+      "report emergent_risk",
+      "assess earliest affected owner"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-normal",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "verify resolved finding evidence",
+      "issue QA decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-boundary",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "reject pass for open finding",
+      "preserve evidence caveat"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-adversarial",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "block invalid normalized finding",
+      "require originating review correction"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-normal",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "summarize delivery evidence"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-boundary",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "report graph gap"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-adversarial",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "block unsupported closeout"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-normal",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "offer commit handoff"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-boundary",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": "UAT",
+    "internal_step": null,
+    "missing_approval": "Approval: UAT",
+    "actions": [
+      "request UAT"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-adversarial",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "refuse automatic VCS"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "ux-intent-definition-normal",
+    "source_fingerprint": "74b05aef932312dfa9eca32c9cba4c982a2f9ebd7c7a876a36b60c2c6fb6236d",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ux-intent-definition",
+    "current_gate": null,
+    "internal_step": "UX Intent Definition",
+    "missing_approval": null,
+    "actions": [
+      "produce ready PRD input"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "ux-intent-definition-boundary",
+    "source_fingerprint": "74b05aef932312dfa9eca32c9cba4c982a2f9ebd7c7a876a36b60c2c6fb6236d",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ux-intent-definition",
+    "current_gate": null,
+    "internal_step": "UX Intent Definition",
+    "missing_approval": null,
+    "actions": [
+      "block PRD readiness"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "ux-intent-definition-adversarial",
+    "source_fingerprint": "74b05aef932312dfa9eca32c9cba4c982a2f9ebd7c7a876a36b60c2c6fb6236d",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ux-intent-definition",
+    "current_gate": null,
+    "internal_step": "UX Intent Definition",
+    "missing_approval": null,
+    "actions": [
+      "preserve UR and PRD authority"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-approval-without-artefact",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": "PRD",
+    "internal_step": null,
+    "missing_approval": "Approval: PRD",
+    "actions": [
+      "persist durable PRD artefact"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-prd-approved",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": "SD",
+    "internal_step": null,
+    "missing_approval": "Approval: SD",
+    "actions": [
+      "route sd-definition"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-tp-approved",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Brownfield Analysis",
+    "missing_approval": null,
+    "actions": [
+      "run Brownfield Analysis"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-unevidenced-mode-slice",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Mode/Slice Decision",
+    "missing_approval": null,
+    "actions": [
+      "record scope reason and evidence"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-implicit-consent",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": "PRD",
+    "internal_step": null,
+    "missing_approval": "Approval: PRD",
+    "actions": [
+      "reject implicit consent"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-legacy-freigabe",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "run Brownfield Review",
+      "use Approval formula in new artefacts"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-scope-classification-ungated",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Quick Task",
+    "missing_approval": null,
+    "actions": [
+      "render scope classification card"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-scope-classification-verified-change",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Verified Change",
+    "missing_approval": null,
+    "actions": [
+      "suppress scope classification card",
+      "use Verified Change presentation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-scope-classification-ambiguous",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Scope Classification",
+    "missing_approval": null,
+    "actions": [
+      "suppress scope classification card",
+      "fail closed to ceremony"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-scope-classification-gated",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": "UR",
+    "internal_step": null,
+    "missing_approval": "Approval: UR",
+    "actions": [
+      "suppress scope classification card",
+      "draft minimal UR"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-explicit-file-over-cwd",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "keep explicit file as primary target",
+      "treat current repository as evidence only"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-evidence-not-mutation",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "separate evidence source from mutation target"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-governance-after-resolution",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "resolve target before governance activation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-multiple-plausible",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render multiple-target clarification",
+      "stop before repository activation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-content-mismatch",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "report target_content_mismatch",
+      "clarify target or requested change"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-unavailable-retry",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "report target_unavailable",
+      "offer visible retry after supply"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-continued-turn",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "revalidate and continue confirmed target"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-target-explicit-change",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "replace old target with explicit new target",
+      "make target change visible"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-architecture-runtime",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_delivery with architecture_runtime_depth"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-external-contract",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_delivery with external_contract_depth"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-release-cross-host",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_delivery with release_cross_host_depth"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-depth-unbounded-coordination",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "select structured_delivery with unbounded_consumer_coordination"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-parent-resolved",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "report evaluated resolved reconciliation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-parent-open",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "report open Parent coordination with one next action"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-parent-accepted-open",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "retain accepted open coordination"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-programme-readiness",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "report startable and final-ready separately"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-parent-open",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "retain Parent target and one next action",
+      "preserve valid commit offer"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-parent-accepted-open",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "consume accepted open OR projection"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-parent-rediscovery",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "consume OR only"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-parent-resolved",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "OR",
+    "missing_approval": null,
+    "actions": [
+      "consume resolved OR projection compactly"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-copilot-repoless-generalchat",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "run target-check without target source or primary target",
+      "pass literal --language de",
+      "render German unresolved target orientation",
+      "ask one short German target clarification"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-copilot-repoless-prior-ur-bait",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "ask for one concrete primary target",
+      "return before downstream branches"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "gate-check-ungoverned-without-intent",
+    "source_fingerprint": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "gate-check",
+    "current_gate": null,
+    "internal_step": "Intent Clarification",
+    "missing_approval": null,
+    "actions": [
+      "ask for concrete outcome"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-direct-target-unresolved",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "clean-review-direct-target-unresolved",
+    "source_fingerprint": "a1de43820e139d2617d4124b9581619a2809cbfd14a2824fc5d5139b440c27b8",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "clean-implementation-review",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "code-review-direct-target-unresolved",
+    "source_fingerprint": "13c82fd4779d859afb2734487b9039893e9735717d9a6b79788b870b44bcfff1",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "code-review",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-closeout-direct-target-unresolved",
+    "source_fingerprint": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-closeout",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "delivery-path-search-direct-target-unresolved",
+    "source_fingerprint": "a95111d99aeb8e3ff6c43cbb0731355c6ec846ddff5c696a7007f4fc665ae4df",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "delivery-path-search",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "release-or-direct-target-unresolved",
+    "source_fingerprint": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "release-or",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "task-plan-review-direct-target-unresolved",
+    "source_fingerprint": "a0598005ba2ce84721914695e8de2b832331f088980bed47177eb0090e223d53",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "task-plan-review",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "ux-intent-direct-target-unresolved",
+    "source_fingerprint": "74b05aef932312dfa9eca32c9cba4c982a2f9ebd7c7a876a36b60c2c6fb6236d",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ux-intent-definition",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "request one target recovery action",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-direct-target-unresolved",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "pass literal --language de",
+      "render German unresolved target orientation",
+      "request one German target recovery action",
+      "make entire assistant response equal host_action.text",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-resolved-unique-run",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "select one eligible run",
+      "discover durable QA evidence",
+      "issue QA decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-resolved-run-ambiguous",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": null,
+    "internal_step": "Run Clarification",
+    "missing_approval": null,
+    "actions": [
+      "use returned canonical candidate_runs",
+      "filter candidates by normalized QA gate",
+      "list every plausible run identifier and objective",
+      "request one run selection",
+      "stop before QA decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-resolved-missing-review",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "discover missing review from control state",
+      "lower QA decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "qa-gate-card-approval-bait",
+    "source_fingerprint": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "qa-gate",
+    "current_gate": "QA",
+    "internal_step": null,
+    "missing_approval": "Approval: QA",
+    "actions": [
+      "preserve QA and status presentation ownership",
+      "reject host permission as approval"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-owner-boundary",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "record relevant Architecture Impact with missing evidence",
+      "leave ownership finding unresolved",
+      "name next owner before Mode/Slice Decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-retained-tradeoff",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "record trade-off with rationale owner mitigation and review or exit condition",
+      "tie retained debt detail to same finding"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-complete-tradeoff",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "accept evidenced trade-off in same finding",
+      "continue existing Mode/Slice Decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-incomplete-debt",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "leave retained debt unresolved",
+      "route missing decision to owner"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-decisive-evidence-missing",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "persist block with depth_facts_missing and evidence owner"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-local-not-applicable",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "record architecture-not-applicable with code and owner reason",
+      "continue existing Mode/Slice Decision"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "brownfield-architecture-focused-diagram",
+    "source_fingerprint": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "name boundary question and link focused diagram in same review"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "ur-definition-normal",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ur-definition",
+    "current_gate": "UR",
+    "internal_step": null,
+    "missing_approval": "Approval: UR",
+    "actions": [
+      "draft original need",
+      "record unapproved UR",
+      "redispatch gate-check"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    },
+    "source_fingerprint": "35e1c50b037880b52bd467dd2b6939f877d23f224362dcca357f9d0fc4531d48"
+  },
+  {
+    "case_id": "ur-definition-boundary",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ur-definition",
+    "current_gate": "UR",
+    "internal_step": null,
+    "missing_approval": "Approval: UR",
+    "actions": [
+      "bundle material clarification",
+      "keep requirements clarification open"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    },
+    "source_fingerprint": "35e1c50b037880b52bd467dd2b6939f877d23f224362dcca357f9d0fc4531d48"
+  },
+  {
+    "case_id": "ur-definition-adversarial",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ur-definition",
+    "current_gate": "UR",
+    "internal_step": null,
+    "missing_approval": "Approval: UR",
+    "actions": [
+      "preserve bound run and approved UR",
+      "require fresh control and presentation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    },
+    "source_fingerprint": "35e1c50b037880b52bd467dd2b6939f877d23f224362dcca357f9d0fc4531d48"
+  },
+  {
+    "case_id": "ur-definition-direct-target-unresolved",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "ur-definition",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "required_actions": [
+      "render unresolved target orientation",
+      "stop before skill workflow"
+    ],
+    "forbidden_actions": [
+      "produce normal skill output",
+      "evaluate gate"
+    ],
+    "actions": [
+      "render unresolved target orientation",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    },
+    "source_fingerprint": "35e1c50b037880b52bd467dd2b6939f877d23f224362dcca357f9d0fc4531d48"
+  },
+  {
+    "case_id": "prd-definition-normal",
+    "source_fingerprint": "d2d2a4121ddb1ab347a51102b3a8baf6379afe3d3bae5868734623d5f4e45d38",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "prd-definition",
+    "current_gate": "PRD",
+    "internal_step": null,
+    "missing_approval": "Approval: PRD",
+    "actions": [
+      "derive product scope and observable acceptance criteria",
+      "record unapproved PRD with reviewed UR binding",
+      "redispatch gate-check"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "prd-definition-boundary",
+    "source_fingerprint": "d2d2a4121ddb1ab347a51102b3a8baf6379afe3d3bae5868734623d5f4e45d38",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "prd-definition",
+    "current_gate": "PRD",
+    "internal_step": null,
+    "missing_approval": "Approval: PRD",
+    "actions": [
+      "preserve useful draft and known answers",
+      "bundle material product clarification",
+      "keep before_prd decision open"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "prd-definition-adversarial",
+    "source_fingerprint": "d2d2a4121ddb1ab347a51102b3a8baf6379afe3d3bae5868734623d5f4e45d38",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "prd-definition",
+    "current_gate": "PRD",
+    "internal_step": null,
+    "missing_approval": "Approval: PRD",
+    "actions": [
+      "preserve approved and foreign artefacts",
+      "route changed product intent to UR revision",
+      "require fresh control and presentation"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "prd-definition-direct-target-unresolved",
+    "source_fingerprint": "d2d2a4121ddb1ab347a51102b3a8baf6379afe3d3bae5868734623d5f4e45d38",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "prd-definition",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "artefact_quality": {
+      "evidence": true
+    }
+  },
+  {
+    "case_id": "sd-definition-normal",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "sd-definition",
+    "current_gate": "SD",
+    "internal_step": null,
+    "missing_approval": "Approval: SD",
+    "actions": [
+      "derive design from exact approved PRD",
+      "record unapproved SD with reviewed PRD binding",
+      "redispatch gate-check"
+    ],
+    "changed_paths": [],
+    "provenance": "Reviewed instruction replay fixture; not a model/native-host observation. SD behavior separately exercised by packaged sd-definition suite.",
+    "source_fingerprint": "18d26c81ac90eaab06298c14266607f7e2db26b223cab901a755fea92d28ef08"
+  },
+  {
+    "case_id": "sd-definition-boundary",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "sd-definition",
+    "current_gate": "SD",
+    "internal_step": null,
+    "missing_approval": "Approval: SD",
+    "actions": [
+      "preserve useful draft and answered product context",
+      "keep material before_sd decision open",
+      "bundle design clarification"
+    ],
+    "changed_paths": [],
+    "provenance": "Reviewed instruction replay fixture; not a model/native-host observation. SD behavior separately exercised by packaged sd-definition suite.",
+    "source_fingerprint": "18d26c81ac90eaab06298c14266607f7e2db26b223cab901a755fea92d28ef08"
+  },
+  {
+    "case_id": "sd-definition-adversarial",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "sd-definition",
+    "current_gate": "SD",
+    "internal_step": null,
+    "missing_approval": "Approval: SD",
+    "actions": [
+      "preserve approved and foreign artefacts",
+      "route changed product intent to earliest source revision",
+      "require fresh control and presentation"
+    ],
+    "changed_paths": [],
+    "provenance": "Reviewed instruction replay fixture; not a model/native-host observation. SD behavior separately exercised by packaged sd-definition suite.",
+    "source_fingerprint": "18d26c81ac90eaab06298c14266607f7e2db26b223cab901a755fea92d28ef08"
+  },
+  {
+    "case_id": "sd-definition-direct-target-unresolved",
+    "evidence_kind": "deterministic_replay",
+    "selected_skill": "sd-definition",
+    "current_gate": null,
+    "internal_step": "Task Target Resolution",
+    "missing_approval": null,
+    "actions": [
+      "render unresolved target orientation",
+      "stop before skill workflow"
+    ],
+    "changed_paths": [],
+    "provenance": "Reviewed instruction replay fixture; not a model/native-host observation. SD behavior separately exercised by packaged sd-definition suite.",
+    "source_fingerprint": "18d26c81ac90eaab06298c14266607f7e2db26b223cab901a755fea92d28ef08"
+  }
+]

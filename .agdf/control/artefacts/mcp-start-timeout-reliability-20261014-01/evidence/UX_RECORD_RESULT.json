@@ -1,0 +1,145 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "4e4207c5-5ac9-486a-b2ba-ced201be0aba",
+  "request_digest": "sha256:8cce0e97c9677d4674c87417f6a2a8752ef1a0d9a5ad538e07459f8861d29088",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+    "resulting_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+    "revision": 7,
+    "record": {
+      "step": "UX Intent Definition",
+      "source": {
+        "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:c55456b4b64b9d78a47048ed7a130ee3b707f301fba990b89ab40ea4599b779e"
+      },
+      "status": "done",
+      "covers": "Approved UR host setup, product/diagnostic modes, state evidence and recovery",
+      "source_set_digest": "sha256:86845a40dbc672430b9c8cf84b1685a8cf4ff942036976be8d3ac295277880fa"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "4e4207c5-5ac9-486a-b2ba-ced201be0aba",
+    "request_digest": "sha256:8cce0e97c9677d4674c87417f6a2a8752ef1a0d9a5ad538e07459f8861d29088",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "expected_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+    "created_at": "2026-10-14T13:43:43.760Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+      "resulting_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+      "revision": 7,
+      "record": {
+        "step": "UX Intent Definition",
+        "source": {
+          "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UX_INTENT_DEFINITION.md",
+          "digest": "sha256:c55456b4b64b9d78a47048ed7a130ee3b707f301fba990b89ab40ea4599b779e"
+        },
+        "status": "done",
+        "covers": "Approved UR host setup, product/diagnostic modes, state evidence and recovery",
+        "source_set_digest": "sha256:86845a40dbc672430b9c8cf84b1685a8cf4ff942036976be8d3ac295277880fa"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 7,
+    "revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+    "lifecycle": "active",
+    "gate": "PRD",
+    "status": "open",
+    "missing_approval": "Approval: PRD",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "prepare_gate_artifact",
+      "operation_key": "artefact.author",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "PRD",
+      "skill_id": "gate-check",
+      "artifact_path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD.md",
+      "source_artifacts": [
+        ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md",
+        ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/BROWNFIELD_REVIEW.md"
+      ]
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "mcp-start-timeout-reliability-20261014-01",
+    "step": "internal",
+    "previous_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+    "revision": "7",
+    "revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+    "current_gate": "PRD",
+    "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+    "backlog": "updated",
+    "operation_id": "4e4207c5-5ac9-486a-b2ba-ced201be0aba",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "4e4207c5-5ac9-486a-b2ba-ced201be0aba",
+      "request_digest": "sha256:8cce0e97c9677d4674c87417f6a2a8752ef1a0d9a5ad538e07459f8861d29088",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-start-timeout-reliability-20261014-01",
+      "expected_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+      "created_at": "2026-10-14T13:43:43.760Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "4f5ac31b-01ef-4051-a246-6c771bb294c5",
+        "resulting_revision_id": "1edddb59-555f-4b9b-b14f-b0983e2436cd",
+        "revision": 7,
+        "record": {
+          "step": "UX Intent Definition",
+          "source": {
+            "path": ".agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UX_INTENT_DEFINITION.md",
+            "digest": "sha256:c55456b4b64b9d78a47048ed7a130ee3b707f301fba990b89ab40ea4599b779e"
+          },
+          "status": "done",
+          "covers": "Approved UR host setup, product/diagnostic modes, state evidence and recovery",
+          "source_set_digest": "sha256:86845a40dbc672430b9c8cf84b1685a8cf4ff942036976be8d3ac295277880fa"
+        }
+      }
+    }
+  }
+}

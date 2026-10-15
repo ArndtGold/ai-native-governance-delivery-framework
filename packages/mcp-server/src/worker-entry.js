@@ -6,6 +6,7 @@ function send(message) {
 }
 
 try {
+  send({ type: 'phase', phase: 'runtime_provenance' });
   const runtime = createMcpDispatchRuntime({ surface: workerData.surface, ...(workerData.commandGroups !== undefined ? { commandGroups: workerData.commandGroups } : {}) });
   if (runtime.trustedContext.provenanceStatus !== "matched") {
     send({ type: "failure", code: "runtime_provenance_invalid" });
@@ -16,7 +17,10 @@ try {
     if (!tool) {
       send({ type: "failure", code: "dispatch_worker_failed" });
     } else {
-      send({ type: "result", result: tool.execute(tool.parse(workerData.argumentsValue)) });
+      send({ type: 'phase', phase: 'operation' });
+      const result = tool.execute(tool.parse(workerData.argumentsValue));
+      send({ type: 'phase', phase: 'result' });
+      send({ type: "result", result });
     }
   }
 } catch {

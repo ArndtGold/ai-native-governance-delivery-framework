@@ -1,0 +1,12 @@
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/build-contract-checks.js:215
+        throw new Error(`Late-gate ${testCase.name} mismatch: ${JSON.stringify({ status: report.status, gate: report.current_gate, missing: report.missing_approval, allowed: report.allowed, forbidden: report.forbidden, next: report.next_allowed_action, doctor: report.doctor_report?.findings, content: report.approval_presentation_errors })}`);
+              ^
+
+Error: Late-gate uat mismatch: {"status":"blocked","gate":"UAT","missing":"Approval: UAT","allowed":["correct only permitted current decision content through its existing owner"],"forbidden":["release","push","open PR","commit without explicit user instruction and required approval","request approval before required decision content is concrete"],"next":"Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.","doctor":[{"severity":"warn","code":"AGDF_BACKLOG_POINTER_EMPTY","message":"MASTER_BACKLOG.md does not contain an active or planned work pointer.","path":".agdf/control/MASTER_BACKLOG.md","next_step":"Add the active item or document that no governed delivery item is active."},{"severity":"warn","code":"AGDF_CONTEXT_GRAPH_TEMPLATE_NODE","message":"CONTEXT_GRAPH.md still contains the example node.","path":".agdf/control/CONTEXT_GRAPH.md","next_step":"Remove the example or replace it with an evidenced node that has an exit criterion."}]}
+    at checkLateGateTransitions (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/build-contract-checks.js:215:15)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/build-contract-test.js:7:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

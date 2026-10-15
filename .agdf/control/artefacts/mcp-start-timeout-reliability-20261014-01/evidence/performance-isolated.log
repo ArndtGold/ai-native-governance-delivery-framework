@@ -1,0 +1,17 @@
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[1126.1,951.89,866.105,825.612,910.269,874.438,871.587,877.353,1137.19,1346.217,790.891,1076.807,789.027,1193.535,870.665,1228.55,815.059,796.134,887.708,850.979],"cold_p95_ms":1228.55,"warm_dispatch_ms":[1331.596,3552.608,3089.742,775.735,988.261,817.024,761.734,974.87,798.287,842.182,788.136,730.441,708.929,734.796,691.584,949.129,721.121,770.281,830.622,2264.322],"warm_p95_ms":3089.742}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: warm dispatch p95 exceeded 1000 ms: 3089.742355
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/performance.test.js:50:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

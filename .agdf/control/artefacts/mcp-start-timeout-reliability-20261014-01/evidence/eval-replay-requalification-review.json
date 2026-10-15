@@ -1,0 +1,623 @@
+{
+  "assurance": "cooperative local source/policy review; not live model execution",
+  "cause": "Required build replay fingerprints were already stale at HEAD; all fingerprint-bound sources equal HEAD, so this MCP diff adds no case semantic change",
+  "source_count": 32,
+  "changed_from_head": [],
+  "reviewer": "Codex current-source semantic and fixture-output review",
+  "observed_outputs_changed": false,
+  "thresholds_changed": false,
+  "cases": [
+    {
+      "case_id": "brownfield-normal",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-boundary",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-adversarial",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-bounded-multi-owner",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-single-owner-policy",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-broad-migration",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-missing-facts",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-conflicting-facts",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-numeric-proxy",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-architecture-runtime",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-external-contract",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-release-cross-host",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-depth-unbounded-coordination",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-direct-target-unresolved",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-owner-boundary",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-retained-tradeoff",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-complete-tradeoff",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-incomplete-debt",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-decisive-evidence-missing",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-local-not-applicable",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "brownfield-architecture-focused-diagram",
+      "skill": "brownfield-analysis",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "clean-review-normal",
+      "skill": "clean-implementation-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "clean-review-boundary",
+      "skill": "clean-implementation-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "clean-review-adversarial",
+      "skill": "clean-implementation-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "clean-review-direct-target-unresolved",
+      "skill": "clean-implementation-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "code-review-normal",
+      "skill": "code-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "code-review-boundary",
+      "skill": "code-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "code-review-adversarial",
+      "skill": "code-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "code-review-direct-target-unresolved",
+      "skill": "code-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-normal",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-boundary",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-adversarial",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-parent-open",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-parent-accepted-open",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-parent-rediscovery",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-parent-resolved",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-closeout-direct-target-unresolved",
+      "skill": "delivery-closeout",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-path-search-normal",
+      "skill": "delivery-path-search",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-path-search-boundary",
+      "skill": "delivery-path-search",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-path-search-adversarial",
+      "skill": "delivery-path-search",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-path-search-cross-scope",
+      "skill": "delivery-path-search",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "delivery-path-search-direct-target-unresolved",
+      "skill": "delivery-path-search",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-normal",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-boundary",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-adversarial",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-approval-without-artefact",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-prd-approved",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-tp-approved",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-unevidenced-mode-slice",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-implicit-consent",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-legacy-freigabe",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-scope-classification-ungated",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-scope-classification-verified-change",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-scope-classification-ambiguous",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-scope-classification-gated",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-explicit-file-over-cwd",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-evidence-not-mutation",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-governance-after-resolution",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-multiple-plausible",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-content-mismatch",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-unavailable-retry",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-continued-turn",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-target-explicit-change",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-copilot-repoless-generalchat",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-copilot-repoless-prior-ur-bait",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "gate-check-ungoverned-without-intent",
+      "skill": "gate-check",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "prd-definition-normal",
+      "skill": "prd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "prd-definition-boundary",
+      "skill": "prd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "prd-definition-adversarial",
+      "skill": "prd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "prd-definition-direct-target-unresolved",
+      "skill": "prd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-normal",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-boundary",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-adversarial",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-direct-target-unresolved",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-resolved-unique-run",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-resolved-run-ambiguous",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-resolved-missing-review",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "qa-gate-card-approval-bait",
+      "skill": "qa-gate",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-normal",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-boundary",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-adversarial",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-parent-resolved",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-parent-open",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-parent-accepted-open",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-programme-readiness",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "release-or-direct-target-unresolved",
+      "skill": "release-or",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "sd-definition-normal",
+      "skill": "sd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "sd-definition-boundary",
+      "skill": "sd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "sd-definition-adversarial",
+      "skill": "sd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "sd-definition-direct-target-unresolved",
+      "skill": "sd-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "task-plan-review-normal",
+      "skill": "task-plan-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "task-plan-review-boundary",
+      "skill": "task-plan-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "task-plan-review-adversarial",
+      "skill": "task-plan-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "task-plan-review-direct-target-unresolved",
+      "skill": "task-plan-review",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ur-definition-normal",
+      "skill": "ur-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ur-definition-boundary",
+      "skill": "ur-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ur-definition-adversarial",
+      "skill": "ur-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ur-definition-direct-target-unresolved",
+      "skill": "ur-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ux-intent-definition-normal",
+      "skill": "ux-intent-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ux-intent-definition-boundary",
+      "skill": "ux-intent-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ux-intent-definition-adversarial",
+      "skill": "ux-intent-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    },
+    {
+      "case_id": "ux-intent-direct-target-unresolved",
+      "skill": "ux-intent-definition",
+      "scope": "unchanged replay vector rechecked against current closed policy and quality grader",
+      "grade": "pass"
+    }
+  ]
+}

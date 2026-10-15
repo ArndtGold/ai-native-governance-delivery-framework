@@ -59,7 +59,7 @@ for (const modern of [false, true]) {
       for (const args of [{ operation: 'snapshot', path: '/tmp' }, { operation: 'approve' }, { operation: 'snapshot', session_id: 'forged' }]) {
         assert.equal((await call(args)).isError, true);
       }
-      for (const name of ['agdf_dispatch', 'agdf_inspect']) {
+      for (const name of ['agdf_dispatch', 'agdf_inspect', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']) {
         let rejected = false;
         try { rejected = (await client.callTool({ name, arguments: {} })).isError === true; } catch { rejected = true; }
         assert.ok(rejected, 'writer/dispatch name must be unreachable');
@@ -102,8 +102,9 @@ for (const modern of [false, true]) {
         scenarios: ['SCN-011', 'SCN-013', 'SCN-020', 'SCN-026', 'SCN-036', 'SCN-039', 'SCN-041', 'SCN-042', 'SCN-046', 'SCN-050', 'SCN-052', 'SCN-053', 'SCN-054'], read_no_write: true, status: 'pass' });
     });
     await withStdioClient({ modern, command: preparation.node, args: [preparation.entrypoint, '--surface', 'codex'] }, async client => {
-      assert.deepEqual((await client.listTools()).tools.map(t => t.name), ['agdf_dispatch', 'agdf_inspect']);
-      assert.equal(client.getServerCapabilities().resources, undefined);
+      assert.deepEqual((await client.listTools()).tools.map(t => t.name), ['agdf_dispatch', 'agdf_inspect', 'agdf_prepare', 'agdf_record', 'agdf_approve', 'agdf_revise', 'agdf_closeout']);
+      assert.equal(client.getServerCapabilities().resources.listChanged, true);
+      assert.deepEqual((await client.listResources()).resources, [], 'Without a UI capability, the basic control connection advertises no rendered App resource.');
     });
   } finally { f.close(); }
 }

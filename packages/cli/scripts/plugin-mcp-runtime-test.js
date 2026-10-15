@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn, spawnSync, execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -285,6 +285,8 @@ try {
   assert.equal(failures.length, 1);
   assert.match(failures[0], /^AGDF_MCP_SDK_DIGEST_MISMATCH: .+\. Check your npm registry or mirror and restart; to accept an unverified SDK deliberately, set AGDF_MCP_ALLOW_UNVERIFIED_SDK=1\.\n$/u);
   assert.match(launcherFailureLine("AGDF_MCP_RUNTIME_UNOWNED"), /^AGDF_MCP_RUNTIME_UNOWNED: .+\. Move the directory away and restart\.$/u);
+  assert.doesNotMatch(launcherFailureLine('AGDF_PRIVATE_SECRET_CANARY', 'private payload'), /PRIVATE|SECRET|CANARY|payload/);
+  assert.match(launcherFailureLine('AGDF_PRIVATE_SECRET_CANARY'), /preparation phase/);
 } finally {
   rmSync(sdkRoot, { recursive: true, force: true });
 }
@@ -324,4 +326,44 @@ try {
   } finally { rmSync(updateRoot, { recursive: true, force: true }); }
 }
 
+{
+  const limitedRoot = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-publication-budget-')));
+  let observedTimeout;
+  try {
+    const started = performance.now();
+    assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot: limitedRoot,
+      // Leave room for real full source proof before this child-focused probe.
+      // The production allowance stays 30000ms; short claim arithmetic is separate.
+      publicationDeadline: started + 3000, env: {},
+      exec(_command, _args, options) {
+        observedTimeout = options.timeout;
+        assert.ok(observedTimeout > 0 && observedTimeout <= 3000);
+        assert.equal(options.killSignal, 'SIGKILL');
+        execFileSync(process.execPath, ['-e', 'setTimeout(() => {}, 5000)'], options);
+      } }), /AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED/);
+    assert.ok(observedTimeout > 0, 'The directly owned acquisition child was actually started.');
+    assert.ok(performance.now() - started < 5000, 'Real child timeout and confirmed exit remain bounded.');
+    for (const generation of readdirSync(join(limitedRoot, 'mcp/generations'))) {
+      const entries = readdirSync(join(limitedRoot, 'mcp/generations', generation));
+      assert.deepEqual(entries, [], 'No stable, staged or locked package survives failed acquisition.');
+    }
+  } finally { rmSync(limitedRoot, { recursive: true, force: true }); }
+}
 console.log("Plugin MCP runtime tests passed");
+
+{
+  for (const code of ['AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED', 'AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED', 'AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED']) {
+    const stderr = [], sentinel = 'PRIVATE_STACK_CANARY';
+    const refused = await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', '/owned/data'],
+      env: {}, stdout: { write() {} }, stderr: { write(value) { stderr.push(value); } },
+      ensure() { return { status: 'matched' }; }, acquireClaim() { throw Error(code + sentinel); } });
+    // Unknown exception strings cannot escape the allowlist, including appended private detail.
+    assert.equal(refused, null); assert.equal(stderr.length, 1); assert.equal(stderr[0].includes(sentinel), false);
+    const exact = [];
+    await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', '/owned/data'], env: {},
+      stdout: { write() {} }, stderr: { write(value) { exact.push(value); } },
+      ensure() { return { status: 'matched' }; }, acquireClaim() { throw Error(code); } });
+    assert.ok(exact[0].startsWith(code + ': ')); assert.equal(exact[0].includes('Reinstall'), false);
+    process.exitCode = 0;
+  }
+}

@@ -1,0 +1,576 @@
+{
+  "evidence_class": "actual configured installed STDIO and installed-function negative probes in disposable runtime/Run only",
+  "producer": {
+    "root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/0b00cfb37991b6b1b6860ae53e188ce2c04c43cce217d7f325a2c3d4ea69c07a/0.14.5",
+    "server": "57e00b512994b060995ff5875e89620f87bf5a275857ea217f87f2ba6f1dd6b1",
+    "dispatcher": "99ba11c32405acfb2445da5227d7049be836f3988789c2ee658838af79dcaece",
+    "sdk": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+  },
+  "native_qualified": false,
+  "cases": [
+    {
+      "case": "original-status-identical-replay-changed-payload-stale-revision",
+      "status": {
+        "schema_version": "1",
+        "contract_version": 1,
+        "outcome": "inspect_result",
+        "terminal": false,
+        "authorizes": false,
+        "operation": "operation-status",
+        "runtime": {
+          "machine_validation": "local_exact_version_digest",
+          "expected_version": "0.14.5",
+          "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/0b00cfb37991b6b1b6860ae53e188ce2c04c43cce217d7f325a2c3d4ea69c07a/0.14.5/node_modules/create-agdf/",
+          "runtime_digest": "99ba11c32405acfb2445da5227d7049be836f3988789c2ee658838af79dcaece",
+          "provenance_status": "matched"
+        },
+        "target": {
+          "schema_version": "1",
+          "resolution_state": "resolved",
+          "reason_code": "explicit_target",
+          "primary_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-LyMyv1/governance-target",
+          "evidence_sources": [],
+          "working_directory": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-LyMyv1/governance-target",
+          "governance_target": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-LyMyv1/governance-target",
+          "target_source": "explicit_target",
+          "target_changed": false,
+          "next_action": "",
+          "authorizes": false
+        },
+        "report": {
+          "schema_version": "1",
+          "run_id": "installed-recovery-disposable",
+          "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+          "authorizes": false,
+          "status": "recorded",
+          "family": "step.record",
+          "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+          "receipt": {
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "created_at": "2026-10-14T18:02:15.857Z",
+            "effect": {
+              "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+              "record": {
+                "covers": "approved TP scope",
+                "source": {
+                  "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7",
+                  "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md"
+                },
+                "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54",
+                "status": "done",
+                "step": "CD+Tests"
+              },
+              "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+              "revision": 13
+            },
+            "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+            "kind": "step.record",
+            "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+            "producer": {
+              "contract": "run-command/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+            "run_id": "installed-recovery-disposable",
+            "schema_version": "1",
+            "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795"
+          },
+          "historical_effect": true,
+          "current_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "pending": null,
+          "expected_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e"
+        },
+        "presentation": null,
+        "recovery": null,
+        "host_action": {
+          "mode": "consume_report_and_continue",
+          "source": "report",
+          "allow_surrounding_text": true,
+          "may_request_run_or_evidence": false
+        },
+        "timing": {
+          "wrapper_ms": 0,
+          "input_ms": 10.621,
+          "target_ms": 1.055,
+          "control_ms": 66.901,
+          "render_ms": 0,
+          "total_ms": 78.711
+        },
+        "diagnostics": []
+      },
+      "accepted": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+        "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+        "binding": {
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795",
+          "run_id": "installed-recovery-disposable",
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "kind": "step.record"
+        },
+        "effect": {
+          "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "revision": 13,
+          "record": {
+            "step": "CD+Tests",
+            "source": {
+              "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md",
+              "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7"
+            },
+            "status": "done",
+            "covers": "approved TP scope",
+            "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54"
+          }
+        },
+        "receipt": {
+          "schema_version": "1",
+          "kind": "step.record",
+          "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+          "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795",
+          "run_id": "installed-recovery-disposable",
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "created_at": "2026-10-14T18:02:15.857Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+            "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+            "revision": 13,
+            "record": {
+              "step": "CD+Tests",
+              "source": {
+                "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md",
+                "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7"
+              },
+              "status": "done",
+              "covers": "approved TP scope",
+              "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 13,
+          "revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "lifecycle": "active",
+          "gate": "CR",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "review_implementation",
+            "skill_id": "code-review",
+            "operation_key": "review.code",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "CR"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "authorizes": false,
+        "recovery": null,
+        "family_result": {
+          "schema_version": "1",
+          "outcome": "recorded",
+          "run_id": "installed-recovery-disposable",
+          "step": "internal",
+          "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "revision": "13",
+          "revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "current_gate": "CR",
+          "next_allowed_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+          "backlog": "updated",
+          "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+          "receipt": {
+            "schema_version": "1",
+            "kind": "step.record",
+            "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+            "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+            "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795",
+            "run_id": "installed-recovery-disposable",
+            "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+            "created_at": "2026-10-14T18:02:15.857Z",
+            "producer": {
+              "contract": "run-command/1",
+              "package_version": "0.14.5"
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "effect": {
+              "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+              "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+              "revision": 13,
+              "record": {
+                "step": "CD+Tests",
+                "source": {
+                  "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md",
+                  "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7"
+                },
+                "status": "done",
+                "covers": "approved TP scope",
+                "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54"
+              }
+            }
+          }
+        }
+      },
+      "replay": {
+        "schema_version": "1",
+        "outcome": "already_applied",
+        "reason": null,
+        "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+        "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+        "binding": {
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795",
+          "run_id": "installed-recovery-disposable",
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "kind": "step.record"
+        },
+        "effect": {
+          "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "record": {
+            "covers": "approved TP scope",
+            "source": {
+              "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7",
+              "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md"
+            },
+            "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54",
+            "status": "done",
+            "step": "CD+Tests"
+          },
+          "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "revision": 13
+        },
+        "receipt": {
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "created_at": "2026-10-14T18:02:15.857Z",
+          "effect": {
+            "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+            "record": {
+              "covers": "approved TP scope",
+              "source": {
+                "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7",
+                "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md"
+              },
+              "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54",
+              "status": "done",
+              "step": "CD+Tests"
+            },
+            "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+            "revision": 13
+          },
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "kind": "step.record",
+          "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+          "run_id": "installed-recovery-disposable",
+          "schema_version": "1",
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795"
+        },
+        "historical_effect": true,
+        "current": {
+          "available": true,
+          "revision": 13,
+          "revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "lifecycle": "active",
+          "gate": "CR",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "review_implementation",
+            "skill_id": "code-review",
+            "operation_key": "review.code",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "CR"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "authorizes": false,
+        "recovery": null,
+        "family_result": {
+          "schema_version": "1",
+          "outcome": "already_applied",
+          "run_id": "installed-recovery-disposable",
+          "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+          "receipt": {
+            "assurance": {
+              "independent_human_proof": "unavailable",
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply"
+            },
+            "created_at": "2026-10-14T18:02:15.857Z",
+            "effect": {
+              "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+              "record": {
+                "covers": "approved TP scope",
+                "source": {
+                  "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7",
+                  "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md"
+                },
+                "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54",
+                "status": "done",
+                "step": "CD+Tests"
+              },
+              "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+              "revision": 13
+            },
+            "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+            "kind": "step.record",
+            "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+            "producer": {
+              "contract": "run-command/1",
+              "package_version": "0.14.5"
+            },
+            "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+            "run_id": "installed-recovery-disposable",
+            "schema_version": "1",
+            "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795"
+          },
+          "revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "authorizes": false
+        }
+      },
+      "conflict": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "reason": "operation_payload_conflict",
+        "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+        "request_digest": "sha256:1794e83d3120da80b062000d99502930b0591edccee0a85169cdb17e5fc732a3",
+        "binding": {
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795",
+          "run_id": "installed-recovery-disposable",
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "kind": "step.record"
+        },
+        "effect": {
+          "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "record": {
+            "covers": "approved TP scope",
+            "source": {
+              "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7",
+              "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md"
+            },
+            "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54",
+            "status": "done",
+            "step": "CD+Tests"
+          },
+          "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "revision": 13
+        },
+        "receipt": {
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "created_at": "2026-10-14T18:02:15.857Z",
+          "effect": {
+            "previous_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+            "record": {
+              "covers": "approved TP scope",
+              "source": {
+                "digest": "sha256:008d216bf62fc7d50fd7e9b630a580bbd3f153baf6a3e05260e9adfa1aeca6e7",
+                "path": ".agdf/control/artefacts/installed-recovery-disposable/CD_TESTS.md"
+              },
+              "source_set_digest": "sha256:0d1b26ac11e0717d93286d372a0b90f9f9f5dab1f4c5a28abd9226c20a929a54",
+              "status": "done",
+              "step": "CD+Tests"
+            },
+            "resulting_revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+            "revision": 13
+          },
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "kind": "step.record",
+          "operation_id": "2f14ecc2-9f09-4526-8845-e2ef3d54ee48",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "request_digest": "sha256:12d46ee899e8e0a6f939081669f0aa29e4598614abe44732560aa55b7ac01295",
+          "run_id": "installed-recovery-disposable",
+          "schema_version": "1",
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795"
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 13,
+          "revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "lifecycle": "active",
+          "gate": "CR",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "review_implementation",
+            "skill_id": "code-review",
+            "operation_key": "review.code",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "CR"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "authorizes": false,
+        "recovery": null,
+        "family_result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "run_id": "installed-recovery-disposable",
+          "reason": "operation_payload_conflict"
+        }
+      },
+      "stale": {
+        "schema_version": "1",
+        "outcome": "rejected",
+        "reason": "stale_revision",
+        "operation_id": "19697aaf-e3aa-4179-a75c-3355a92e08e4",
+        "request_digest": "sha256:2acd7b4a3add81fe50ef464b0affc82ad213feea1b4ec44a973dd903e6ff357f",
+        "binding": {
+          "target_id": "sha256:2b3d630a0da91572c59cd4f13b3a0ea688dcadfd8069c9b344ac636386796795",
+          "run_id": "installed-recovery-disposable",
+          "expected_revision_id": "a7114146-abad-4fff-8e0d-f93ccdcd20e4",
+          "kind": "step.record"
+        },
+        "effect": null,
+        "receipt": null,
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 13,
+          "revision_id": "68859bc8-9471-47ca-a1f4-80cf2596f94e",
+          "lifecycle": "active",
+          "gate": "CR",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "review_implementation",
+            "skill_id": "code-review",
+            "operation_key": "review.code",
+            "actor": "agent",
+            "effect": "preparation",
+            "gate": "CR"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "authorizes": false,
+        "recovery": null,
+        "family_result": {
+          "schema_version": "1",
+          "outcome": "rejected",
+          "run_id": "installed-recovery-disposable",
+          "reason": "stale_revision"
+        }
+      },
+      "response_loss": "caller simulation after actual committed response, not native transport-loss proof"
+    },
+    {
+      "case": "unknown-malformed-foreign-oversized-lock",
+      "status": "pass",
+      "lane": "actual installed package owner on own complete runtime copy; exact bytes retained"
+    },
+    {
+      "case": "marker-corruption",
+      "status": "pass",
+      "state": "refused and bytes retained",
+      "lane": "installed-function on own complete runtime copy"
+    },
+    {
+      "case": "server-corruption",
+      "status": "pass",
+      "state": "refused and bytes retained",
+      "lane": "installed-function on own complete runtime copy"
+    },
+    {
+      "case": "dispatcher-corruption",
+      "status": "pass",
+      "state": "refused and bytes retained",
+      "lane": "installed-function on own complete runtime copy"
+    },
+    {
+      "case": "sdk-corruption",
+      "status": "pass",
+      "state": "refused and bytes retained",
+      "lane": "installed-function on own complete runtime copy"
+    },
+    {
+      "case": "noncanonical-symlink-root",
+      "status": "pass"
+    },
+    {
+      "case": "shared-30000ms-acquisition-deadline",
+      "status": "pass",
+      "supplied_timeout_ms": 29970,
+      "elapsed_ms": 30006.759051,
+      "lane": "actual installed functions; directly owned controlled acquisition child, not network/native incident"
+    }
+  ],
+  "status": "pass",
+  "disposable_cleanup": "own roots only"
+}

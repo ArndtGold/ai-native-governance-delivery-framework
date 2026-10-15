@@ -1,0 +1,41 @@
+## Kurzfassung · UAT
+
+Run: `mcp-start-timeout-reliability-20261014-01` · Gate: `UAT` · Revision: `6a0da521-977d-49da-b968-b475253514d7`
+
+- Ziel: Ursachen dauerhaft beheben und einen kohärenten Codex-Produktbetrieb schaffen: AGDF als regulärer Einstieg, separates AGDF Cockpit nur bei technischer Notwendigkeit, Tests ausdrücklich temporär. Konfiguriert, gestartet, Werkzeuge verfügbar und App tatsächlich dargestellt werden unterschieden. Herkunft, Hostrechte, Transaktionen und ursprüngliche UUID bleiben geschützt.
+- Geliefertes Ergebnis: Technische QA: pass. Vollständige Sperrmetadaten werden atomar veröffentlicht; echte Konkurrenz wartet höchstens 5,55 Sekunden. Erwerb und Veröffentlichung teilen weiterhin 30 Sekunden. Worker bleibt bis zum bestätigten Ende belegt; unklare Wirkung verlangt ursprüngliche UUID. Konfiguration, Wrapper, Referenzen und Rollback sind besitzgebunden. Der finale installierte Kandidat entspricht Quelle/Cache und besteht 120 Belastungswerte sowie Negativ-/Wiederholungsfälle. Start-p95 2,05 Sekunden, warm 0,55, parallel 2,53; bestehende Guards und Reviews bestehen.
+- Technische QA: pass
+- Nachweisgrenzen: Direkte installierte CLI/STDIO ist geprüft; frische native Desktop-App-Darstellung/Interaktion, wirksame Desktoprechte, Windows-/Modellhost und einzelne historische Ausnahmeursachen sind nicht belegt. Unbewiesene Alt-Probe-/Cockpit-Ownership und Verbraucher bleiben ausdrücklich erhalten; keine erfolgreiche Entfernung oder native Freigabe wird behauptet.
+- Risiken und offene Punkte: Alte Sitzungen können alte Laufzeiten behalten. Langsamer erster SDK-Erwerb wird am vorhandenen Budget abgewiesen und braucht unterstützte Vorbereitung. Kein automatischer Neustart, fremder Prozessabbau, App-Daten-Purge, Git- oder Release-Schritt. Zehn technische Aufgaben sind fertig; neue menschliche QA/UAT und OR bleiben verpflichtend.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- route · UR (exact cooperative association)
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 7
+
+- QA: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/QA_REPORT.md · sha256:dc50ea34d8a561245bc784e366278925d6d2fc24808d5ab2f63137df6ed47ff1
+- UR: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md · sha256:6f0c8a1ac4e7c83fd39369c4f9478624f513dcbf0736c42f247d27615fb9f630
+
+## Vorliegende UAT-Evidenz
+
+- route · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/BROWNFIELD_REVIEW.md · Deckt ab: UR · Stärke: exact cooperative association
+- UX Intent Definition · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/PRD_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/SD_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/TP_MAPPING_01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-start-timeout-reliability-20261014-01/evidence/QA_SEMANTIC_MAPPING.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

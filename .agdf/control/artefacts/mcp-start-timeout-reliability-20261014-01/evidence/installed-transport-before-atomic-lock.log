@@ -1,0 +1,18 @@
+{"status":"fail","producer":{"root":"/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/240aef3df7459b7ef47d761ec48c912864e0da1e5018bd77220e628e1108afc3/0.14.5","server":"57e00b512994b060995ff5875e89620f87bf5a275857ea217f87f2ba6f1dd6b1","dispatcher":"885471ef838b8414c99b45bf84cc33a01bcdd6f45c2f1d9d8aff690d797d4e23","sdk":"b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"}}
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/src-D_zzAWoS.mjs:5780
+		const error = new SdkError(SdkErrorCode.ConnectionClosed, "Connection closed");
+		              ^
+
+SdkError: Connection closed; server stderr: AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED: the claim publication lock ownership cannot be confirmed. Inspect publication lock ownership through the supported AGDF owner; do not remove an unconfirmed lock.
+    at Client._onclose (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/src-D_zzAWoS.mjs:5780:17)
+    at Client._onclose (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/index.mjs:4056:9)
+    at _transport.onclose (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/src-D_zzAWoS.mjs:5747:10)
+    at ChildProcess.<anonymous> (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/node_modules/@modelcontextprotocol/client/dist/stdio.mjs:91:19)
+    at ChildProcess.emit (node:events:519:28)
+    at maybeClose (node:internal/child_process:1101:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:304:5) {
+  code: 'CONNECTION_CLOSED',
+  data: undefined
+}
+
+Node.js v22.22.3

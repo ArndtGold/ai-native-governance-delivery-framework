@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "corpus_version": "1.14.0",
+  "required_case_classes": [
+    "normal",
+    "boundary",
+    "adversarial"
+  ],
+  "source_fingerprints": {
+    "delivery-path-search": "a95111d99aeb8e3ff6c43cbb0731355c6ec846ddff5c696a7007f4fc665ae4df",
+    "brownfield-analysis": "d8dfb7305dd8d38b1f39c773682c07ce74e063bfe95834d0fd92807910d8ce6b",
+    "ux-intent-definition": "74b05aef932312dfa9eca32c9cba4c982a2f9ebd7c7a876a36b60c2c6fb6236d",
+    "clean-implementation-review": "a1de43820e139d2617d4124b9581619a2809cbfd14a2824fc5d5139b440c27b8",
+    "code-review": "13c82fd4779d859afb2734487b9039893e9735717d9a6b79788b870b44bcfff1",
+    "delivery-closeout": "bfdec532bcac854276137db970d1716bb510bfae9588cbee3ad06f35be424a7c",
+    "ur-definition": "35e1c50b037880b52bd467dd2b6939f877d23f224362dcca357f9d0fc4531d48",
+    "prd-definition": "d2d2a4121ddb1ab347a51102b3a8baf6379afe3d3bae5868734623d5f4e45d38",
+    "sd-definition": "18d26c81ac90eaab06298c14266607f7e2db26b223cab901a755fea92d28ef08",
+    "gate-check": "7c67969bc462735b61677802f659ffb6906ded65b1158608929ac1a3cf1223c7",
+    "qa-gate": "a4d6fcf7756649b9568e32482356d87353faa2f7982313643bef708adfb7ffe2",
+    "release-or": "0e177c47f3fa9a98fc59b057049c71662acfe26eb5f070b76d128927c8a6af74",
+    "task-plan-review": "a0598005ba2ce84721914695e8de2b832331f088980bed47177eb0090e223d53"
+  },
+  "thresholds": {
+    "coverage": 1,
+    "routing": 1,
+    "gate": 1,
+    "actions": 1,
+    "mutation": 1,
+    "artefact_quality": 1
+  },
+  "request_activation": {
+    "manifest": "request-activation/manifest.json",
+    "schema": "request-activation/schema.json"
+  },
+  "evidence_boundary": "deterministic replay is required in offline CI; live host recording is separate supporting evidence"
+}

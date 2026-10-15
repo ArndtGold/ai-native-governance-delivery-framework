@@ -76,6 +76,7 @@ export function ensurePluginMcpRuntime({
   npmOptions = {},
   now = Date.now(),
   env = process.env,
+  publicationDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS,
 } = {}) {
   if (!pluginRoot || !dataRoot) throw new Error("AGDF_MCP_PLUGIN_DATA_MISSING");
   const version = pluginMcpVersion(pluginRoot);
@@ -104,18 +105,22 @@ export function ensurePluginMcpRuntime({
     && runtime.digest === sourceServerDigest
     && runtime.dispatcherDigest === sourceDispatcherDigest
     && (override || (runtime.sdkDigest === expected.sdk_digest && runtime.sdkVerification !== SDK_VERIFICATION.override));
-  const replacementDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
+  const replacementDeadline = publicationDeadline;
   // After a plugin update several launchers replace the same runtime at once (Claude's version probe and
   // respawn, every plugin server, reconnecting sessions); states they cause each other are retried briefly.
   for (let attempt = 1; ; attempt += 1) {
     const current = inspectMcpServerPackage({ dataRoot: publicationRoot, expectedVersion: version });
-    if (usable(current)) return published({ ...current, changed: false });
+    if (usable(current)) {
+      if (performance.now() >= publicationDeadline) throw Error('AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
+      return published({ ...current, changed: false });
+    }
     try {
       if (current.status !== 'absent') throw Error(ownedRoot(current.root) ? 'AGDF_MCP_IMMUTABLE_RUNTIME_MISMATCH' : 'AGDF_MCP_RUNTIME_UNOWNED');
       const prepared = prepareMcpServerPackage({
         dataRoot: publicationRoot,
         immutable: true,
         expectedVersion: version,
+        publicationDeadline,
         execPath,
         exec,
         npmOptions,
@@ -135,10 +140,12 @@ export function ensurePluginMcpRuntime({
       prepared.commit();
       return published(prepared);
     } catch (error) {
+      if (performance.now() >= publicationDeadline) throw Error('AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED');
       // A concurrent launcher may have installed the same runtime first.
       const settled = inspectMcpServerPackage({ dataRoot: publicationRoot, expectedVersion: version });
       if (usable(settled)) return published({ ...settled, changed: false });
       const publicationLocked = error?.message === 'AGDF_RUN_WRITE_LOCKED';
+      if (publicationLocked && error.lock_owner_status !== 'live') throw error;
       if (!concurrentReplacementError(error)
           || (publicationLocked ? performance.now() >= replacementDeadline : attempt >= CONCURRENT_REPLACEMENT_ATTEMPTS)) throw error;
       sleepSync(publicationLocked
@@ -190,16 +197,28 @@ const LAUNCHER_FAILURES = Object.freeze({
   AGDF_MCP_PACKAGE_ACQUISITION_FAILED: "npm could not install the locked MCP SDK (network, registry or integrity check)",
   AGDF_MCP_RUNTIME_UNOWNED: "the runtime directory exists but is not owned by AGDF",
   AGDF_MCP_PLUGIN_RUNTIME_INVALID: "the installed AGDF plugin is incomplete",
+  AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED: "the claim publication phase is still held by a verified live owner",
+  AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED: "the claim publication lock ownership cannot be confirmed",
+  AGDF_MCP_EXECUTABLE_CLAIM_INVALID: "the executable claim failed its current runtime integrity check",
+  AGDF_MCP_PLUGIN_RUNTIME_FAILED: "the AGDF MCP runtime could not be started",
+  AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED: "the preparation and claim phases exhausted their shared publication deadline",
 });
 
-export function launcherFailureLine(code) {
+export function launcherFailureLine(code, phase) {
+  if (!Object.hasOwn(LAUNCHER_FAILURES, code)) { code = 'AGDF_MCP_PLUGIN_RUNTIME_FAILED'; phase ??= 'preparation'; }
   const cause = LAUNCHER_FAILURES[code] ?? "the AGDF MCP runtime could not be prepared";
-  const recovery = ["AGDF_MCP_SDK_PACKAGE_SET_MISMATCH", "AGDF_MCP_SDK_DIGEST_MISMATCH", "AGDF_MCP_PACKAGE_ACQUISITION_FAILED"].includes(code)
+  const claimRecovery = {
+    AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED: 'Wait for the verified publication owner to finish, then deliberately refresh this connection; retain its live lock.',
+    AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED: 'Inspect publication lock ownership through the supported AGDF owner; do not remove an unconfirmed lock.',
+    AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED: 'Prepare the runtime through the installed launcher --prepare before deliberately refreshing the affected connection.',
+  };
+  const recovery = claimRecovery[code] ?? (["AGDF_MCP_SDK_PACKAGE_SET_MISMATCH", "AGDF_MCP_SDK_DIGEST_MISMATCH", "AGDF_MCP_PACKAGE_ACQUISITION_FAILED"].includes(code)
     ? `Check your npm registry or mirror and restart; to accept an unverified SDK deliberately, set ${SDK_OVERRIDE_ENV}=1.`
     : code === "AGDF_MCP_RUNTIME_UNOWNED"
       ? "Move the directory away and restart."
-      : "Reinstall the AGDF plugin and restart.";
-  return `${code}: ${cause}. ${recovery}`;
+      : "Reinstall the AGDF plugin and restart.");
+  const observedPhase = ['preparation', 'facade'].includes(phase) ? `${phase} phase: ` : '';
+  return `${code}: ${observedPhase}${cause}. ${recovery}`;
 }
 
 export async function launchPluginMcpServer({
@@ -211,12 +230,12 @@ export async function launchPluginMcpServer({
   ensure = ensurePluginMcpRuntime,
   acquireClaim = acquireMcpExecutableClaim,
   execPath = process.execPath,
-  startFacade = async ({ runtime, surface, cockpitDir, pluginRoot, env }) => {
+  startFacade = async ({ runtime, surface, cockpitDir, pluginRoot, env, publicationDeadline }) => {
     // The facade's Core resource binding reads the plugin root from the environment it is
     // loaded under; bind it on the injected environment before the dynamic import.
     env.AGDF_DISPATCH_PLUGIN_ROOT = pluginRoot;
     const { runMcpServer } = await import(pathToFileURL(join(runtime.packageRoot, "src/main.js")));
-    return runMcpServer({ surface, cockpitDir, ownedPublication: runtime, ownedPublisher: createMcpGenerationPublisher(runtime) });
+    return runMcpServer({ surface, cockpitDir, ownedPublication: runtime, ownedPublisher: createMcpGenerationPublisher(runtime, { publicationDeadline }) });
   },
 } = {}) {
   const invocation = parseLauncherArguments(argv, env);
@@ -226,11 +245,13 @@ export async function launchPluginMcpServer({
     return null;
   }
   const { surface, dataRoot, cockpitDir, prepareOnly } = invocation;
+  const publicationDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
   let runtime;
   try {
-    runtime = ensure({ pluginRoot, dataRoot, env });
+    runtime = ensure({ pluginRoot, dataRoot, env, publicationDeadline });
   } catch (error) {
-    stderr.write(`${launcherFailureLine(/^AGDF_[A-Z_]+/.exec(error?.message ?? "")?.[0] ?? "AGDF_MCP_PLUGIN_RUNTIME_FAILED")}\n`);
+    const code = /^AGDF_[A-Z_]+/.exec(error?.message ?? "")?.[0] ?? 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
+    stderr.write(`${launcherFailureLine(code, code === 'AGDF_MCP_PLUGIN_RUNTIME_FAILED' ? 'preparation' : undefined)}\n`);
     process.exitCode = 1;
     return null;
   }
@@ -246,10 +267,17 @@ export async function launchPluginMcpServer({
   // Its self-owned lifetime cannot be proven by PID polling after a host crash;
   // this claim conservatively remains protected. Direct generations have their
   // separate claims released only after an acknowledged, actual child exit.
-  try { acquireClaim(runtime); }
-  catch { stderr.write('AGDF_MCP_EXECUTABLE_CLAIM_INVALID\n'); process.exitCode = 1; return null; }
-  try { return await startFacade({ runtime, surface, cockpitDir, pluginRoot, env }); }
-  catch { stderr.write('AGDF_MCP_PLUGIN_RUNTIME_FAILED\n'); process.exitCode = 1; return null; }
+  try { acquireClaim(runtime, { publicationDeadline }); }
+  catch (error) {
+    const code = ['AGDF_MCP_EXECUTABLE_CLAIM_CONTENDED', 'AGDF_MCP_EXECUTABLE_CLAIM_LOCK_UNCONFIRMED', 'AGDF_MCP_PUBLICATION_DEADLINE_EXCEEDED'].includes(error?.message)
+      ? error.message : 'AGDF_MCP_EXECUTABLE_CLAIM_INVALID';
+    stderr.write(`${launcherFailureLine(code)}\n`); process.exitCode = 1; return null;
+  }
+  try { return await startFacade({ runtime, surface, cockpitDir, pluginRoot, env, publicationDeadline }); }
+  catch (error) {
+    const code = Object.hasOwn(LAUNCHER_FAILURES, error?.message) ? error.message : 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
+    stderr.write(`${launcherFailureLine(code, 'facade')}\n`); process.exitCode = 1; return null;
+  }
 
 }
 

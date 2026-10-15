@@ -1,0 +1,266 @@
+{
+  "evidence_class": "supported installer CLI package on real unchanged host declarations; source/local package surface, not native desktop UI",
+  "cli": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/local/codex/npm/create-agdf/bin/create-agdf.js",
+  "report": {
+    "schema_version": 2,
+    "contract_version": 2,
+    "operation": "mcp.status",
+    "result": "not_configured",
+    "capability": "unverified",
+    "surface": "codex",
+    "scope": "project",
+    "effective_scope": null,
+    "native_scope": "project",
+    "scope_effect": "project",
+    "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "authorizes": false,
+    "host": {
+      "status": "detected",
+      "version": "0.157.1",
+      "client_variant": "cli",
+      "config_variant": "toml"
+    },
+    "permission_effect": {
+      "code": "inherited_host_user",
+      "parameters": {},
+      "text": "Der MCP-Prozess erbt die Rechte des Host-Benutzers."
+    },
+    "runtime": {
+      "node_executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "node_version": "22.22.3",
+      "package_status": "absent",
+      "version": "0.14.5",
+      "digest": null,
+      "entrypoint": null,
+      "marker_schema_version": null
+    },
+    "registration": {
+      "status": "absent",
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+      "identity": null,
+      "selected_status": "absent",
+      "effective_status": "absent",
+      "selected_source": "project",
+      "effective_source": "project",
+      "sources": [
+        {
+          "source": "project",
+          "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+          "priority": 10,
+          "selected": true,
+          "status": "absent"
+        },
+        {
+          "source": "user",
+          "path": "/Users/arndtgold/.codex/config.toml",
+          "priority": 20,
+          "selected": false,
+          "status": "absent"
+        }
+      ],
+      "native_scope": "project",
+      "native_readback": {
+        "status": "observed",
+        "entry_present": true,
+        "client_variant": "cli",
+        "effective_desktop_policy": "unknown"
+      },
+      "checked_sources": [
+        {
+          "source": "project",
+          "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+          "priority": 10,
+          "selected": true,
+          "status": "absent"
+        },
+        {
+          "source": "user",
+          "path": "/Users/arndtgold/.codex/config.toml",
+          "priority": 20,
+          "selected": false,
+          "status": "absent"
+        }
+      ]
+    },
+    "discovery": {
+      "source": "none",
+      "evidence_ref": null,
+      "status": "not_checked"
+    },
+    "changes": [],
+    "fallback": {
+      "code": "version_matched_cli_dispatch",
+      "parameters": {},
+      "text": "Den versionsgleichen AGDF-CLI-Skill-Dispatch-Pfad verwenden."
+    },
+    "next_action": {
+      "code": "use_codex_plugin_mcp",
+      "parameters": {},
+      "text": "Das AGDF-Plugin für Codex installieren oder aktualisieren; sein MCP-Server startet mit dem Plugin."
+    },
+    "diagnostics": [
+      {
+        "code": "codex_plugin_managed",
+        "text": "Codex startet den AGDF-MCP-Server aus dem installierten AGDF-Plugin; eine separate Registrierung wird nicht verwendet."
+      }
+    ],
+    "setup": {
+      "source": "codex_adapter_derived",
+      "authorizes": false,
+      "entries": [
+        {
+          "server_id": "agdf-cockpit-local",
+          "display_name": "AGDF Cockpit",
+          "source": "project",
+          "config_source": "project",
+          "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+          "source_digest": "46c00757cac3c1a8e0cafd6bb341ba5885f89f91def257c4304b823ef8e3f156",
+          "scope": "project",
+          "role": "cockpit",
+          "owner": "unconfirmed",
+          "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "declared_enabled": true,
+          "declared_startup_timeout_sec": 20,
+          "declared_tool_timeout_sec": 15,
+          "runtime_identity": {
+            "status": "matched",
+            "version": "0.14.5",
+            "server_digest": "8bf2dd8dd57c4979de8f3442cf65b7dbc73eb85be293b12c12d876097eef0a06",
+            "dispatcher_digest": "368e45579616d2b28471aeba6ea390ea98e07e1614b995d68f775cf9c141f59c",
+            "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+            "evidence_class": "direct_package_inspection",
+            "session_identity": "unobserved"
+          },
+          "configured": "declared",
+          "started": "unobserved",
+          "discovered": "unobserved",
+          "app_rendered": "unobserved",
+          "app_interacted": "unobserved",
+          "effective_policy": "unknown",
+          "session_freshness": "unobserved",
+          "evidence_class": "configuration_only"
+        },
+        {
+          "server_id": "agdf-cockpit-draft-check",
+          "display_name": "agdf-cockpit-draft-check",
+          "source": "project",
+          "config_source": "project",
+          "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+          "source_digest": "46c00757cac3c1a8e0cafd6bb341ba5885f89f91def257c4304b823ef8e3f156",
+          "scope": "project",
+          "role": "diagnostic",
+          "owner": "unconfirmed",
+          "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "declared_enabled": true,
+          "declared_startup_timeout_sec": 20,
+          "declared_tool_timeout_sec": 15,
+          "runtime_identity": {
+            "status": "matched",
+            "version": "0.14.5",
+            "server_digest": "6e4bc36bad2e46c17ce35f73a7be72a61a2b410fc4bb695f20cd2f29ed30ae21",
+            "dispatcher_digest": "6d8c17a7bd3442d0b511bf7c0526abab666a93d36a877b96120d19e39883e92e",
+            "sdk_digest": "02e7212cc00a844c08ac190c572b98dd9aa52671936cb4900808460d44c543d9",
+            "evidence_class": "direct_package_inspection",
+            "session_identity": "unobserved"
+          },
+          "configured": "declared",
+          "started": "unobserved",
+          "discovered": "unobserved",
+          "app_rendered": "unobserved",
+          "app_interacted": "unobserved",
+          "effective_policy": "unknown",
+          "session_freshness": "unobserved",
+          "evidence_class": "configuration_only"
+        },
+        {
+          "server_id": "agdf",
+          "display_name": "AGDF",
+          "source": "plugin_declaration",
+          "config_source": "user",
+          "path": "/Users/arndtgold/.codex/config.toml",
+          "source_digest": "b25a88677dcf385228537ec53daf8358441bdb1314771a46e3efea89f763cc58",
+          "scope": "plugin",
+          "role": "product",
+          "owner": "codex_plugin",
+          "target": null,
+          "declared_enabled": true,
+          "declared_startup_timeout_sec": null,
+          "declared_tool_timeout_sec": null,
+          "runtime_identity": null,
+          "configured": "declared",
+          "started": "unobserved",
+          "discovered": "unobserved",
+          "app_rendered": "unobserved",
+          "app_interacted": "unobserved",
+          "effective_policy": "unknown",
+          "session_freshness": "unobserved",
+          "evidence_class": "configuration_only"
+        },
+        {
+          "server_id": "agdf-decision-probe",
+          "display_name": "agdf-decision-probe",
+          "source": "user",
+          "config_source": "user",
+          "path": "/Users/arndtgold/.codex/config.toml",
+          "source_digest": "b25a88677dcf385228537ec53daf8358441bdb1314771a46e3efea89f763cc58",
+          "scope": "user",
+          "role": "diagnostic",
+          "owner": "unconfirmed",
+          "target": null,
+          "declared_enabled": true,
+          "declared_startup_timeout_sec": null,
+          "declared_tool_timeout_sec": null,
+          "runtime_identity": null,
+          "configured": "declared",
+          "started": "unobserved",
+          "discovered": "unobserved",
+          "app_rendered": "unobserved",
+          "app_interacted": "unobserved",
+          "effective_policy": "unknown",
+          "session_freshness": "unobserved",
+          "evidence_class": "configuration_only"
+        }
+      ],
+      "checked_sources": [
+        {
+          "source": "project",
+          "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+          "status": "declared",
+          "digest": "46c00757cac3c1a8e0cafd6bb341ba5885f89f91def257c4304b823ef8e3f156"
+        },
+        {
+          "source": "user",
+          "path": "/Users/arndtgold/.codex/config.toml",
+          "status": "declared",
+          "digest": "b25a88677dcf385228537ec53daf8358441bdb1314771a46e3efea89f763cc58"
+        }
+      ],
+      "plugin_declaration": {
+        "status": "declared",
+        "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+        "digest": "7a051108e4128ac5583d997f070a1467319beaa690bc8184993d50d5cb510157",
+        "transport": "stdio"
+      },
+      "effective_host_policy": "unknown",
+      "session_action": "supported_client_refresh_and_verify",
+      "shared_app_data": "host_owned_untouched"
+    }
+  },
+  "rendered": [
+    {
+      "language": "en",
+      "exit_code": 0
+    },
+    {
+      "language": "de",
+      "exit_code": 0
+    },
+    {
+      "language": "fr-CA",
+      "exit_code": 0
+    }
+  ],
+  "legacy_entries": "retained; exact wrapper ownership and namespace/live-consumer transition unconfirmed",
+  "supported_exit": "deliberate affected connection refresh and verified ownership/compatibility preview; no duplicate created",
+  "native_qualified": false
+}

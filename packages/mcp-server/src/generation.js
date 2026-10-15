@@ -1,7 +1,7 @@
 import { fork } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { generationMessage, validGenerationMessage, generationManifest, manifestDigest, GENERATION_LIMITS as L } from './generation-protocol.js';
+import { generationMessage, validGenerationMessage, generationManifest, manifestDigest, generationFailureReason, GENERATION_LIMITS as L } from './generation-protocol.js';
 import { loadCockpitResource } from './cockpit-resource.js';
 import { DispatchExecutionError } from './worker.js';
 
@@ -97,7 +97,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
         || nativeRequired && !qualified.support.app_mediation) throw Error('generation_manifest_incompatible');
       row.state = 'qualified'; event(row, 'qualified'); return row;
     } catch (error) {
-      event(row, 'qualification_failed', error.message);
+      event(row, 'qualification_failed', generationFailureReason(error));
       if (!row.child) { slots.delete(row.id); event(row, 'not_spawned'); }
       else { row.state = 'draining'; await retire(row); }
       throw error;
@@ -130,7 +130,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
           request_digest: requestDigest, effect: { runtime_replaced: true, generation_id: current.id }, current: status(), authorizes: false };
       } catch (error) {
         if (candidateRow && candidateRow !== current) { candidateRow.state = 'draining'; await retire(candidateRow); }
-        record.result = failure(error.message, { operation_id: input.operation_id, current: status() });
+        record.result = failure(generationFailureReason(error), { operation_id: input.operation_id, current: status() });
       } finally { replacing = false; }
       record.result.current = status(); return record.result;
     },

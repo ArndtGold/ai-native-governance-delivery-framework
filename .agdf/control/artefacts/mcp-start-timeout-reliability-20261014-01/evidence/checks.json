@@ -1,0 +1,114 @@
+{
+  "status": "pass",
+  "source_freeze": "final-source-and-tests-freeze.json",
+  "producer": {
+    "root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/0b00cfb37991b6b1b6860ae53e188ce2c04c43cce217d7f325a2c3d4ea69c07a/0.14.5",
+    "server": "57e00b512994b060995ff5875e89620f87bf5a275857ea217f87f2ba6f1dd6b1",
+    "dispatcher": "99ba11c32405acfb2445da5227d7049be836f3988789c2ee658838af79dcaece",
+    "sdk": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+  },
+  "installed_identity": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-0e4bdc1df572",
+    "source_digest": "0e4bdc1df572158e7ea7dddb23cb83cdacb13705dd3141f9ce64bdc90d0d3422",
+    "runtime_digest": "3d890ceb675781ee98f9ee298e1f989e455b19b0997f64153005ef8c815d7117"
+  },
+  "checks": [
+    {
+      "name": "normal build:prepare/compatibility:record/build",
+      "exit_code": 0,
+      "evidence": [
+        "build-prepare-closed-owner-qualified.log",
+        "compatibility-closed-owner-qualified.log",
+        "build-closed-owner-qualified.log"
+      ],
+      "scope": "final production source; subsequent child-focused test fixture change does not change runtime payload"
+    },
+    {
+      "name": "MCP complete suite",
+      "exit_code": 0,
+      "evidence": "mcp-suite-frozen-final.log",
+      "scope": "server/Worker/generation/Core atomic source freeze; final malformed-owner and launcher/budget/status hardening additionally rechecked below"
+    },
+    {
+      "name": "affected CLI and Core regressions",
+      "exit_code": 0,
+      "evidence": [
+        "launcher-child-focused-qualified.log",
+        "lock-owner-closed-shape.log",
+        "core-transaction-closed-schema.log",
+        "core-recovery-exact-owner-final.log",
+        "retention-closed-owner-final.log",
+        "config-indentation-final.log",
+        "codex-role-final-owner.log",
+        "lifecycle-complete-final.log"
+      ]
+    },
+    {
+      "name": "actual final installed positive/timing/recovery/refusals",
+      "exit_code": 0,
+      "evidence": [
+        "installed-qualification.json",
+        "installed-recovery-raw.json",
+        "installed-recovery-reviewed.json"
+      ]
+    },
+    {
+      "name": "unchanged performance guard on final source",
+      "exit_code": 0,
+      "evidence": "performance-final-qualified.log",
+      "cold_p95_ms": 895.219,
+      "warm_p95_ms": 799.051
+    },
+    {
+      "name": "unchanged payload/instruction/plugin-list guards",
+      "exit_code": 0,
+      "evidence": [
+        "payload-final-qualified.json",
+        "budget-final-closed-owner.log",
+        "instruction-final-qualified.log",
+        "plugin-list-final-qualified.log"
+      ],
+      "files": 253,
+      "bytes": 2218869,
+      "spare_headroom": 0
+    },
+    {
+      "name": "actual host declarations/localized CLI and protected config",
+      "exit_code": 0,
+      "evidence": [
+        "host-setup-final.json",
+        "host-data-preservation-final.json"
+      ]
+    },
+    {
+      "name": "probe preparation/repeat/exact owned lifecycle",
+      "exit_code": 0,
+      "evidence": [
+        "diagnostic-preparation-lifecycle.json",
+        "diagnostic-repeat-final.json"
+      ]
+    }
+  ],
+  "qualification_limits": [
+    "No fresh native desktop render/interaction/teardown or effective permission proof",
+    "No new native Windows/model-host qualification",
+    "Historical suppressed exceptions do not identify an individual incident cause",
+    "Legacy registrations and live consumers retained pending exact ownership/compatibility proof"
+  ],
+  "prior_counterevidence": [
+    "installed-transport-before-atomic-lock.json",
+    "mcp-suite-canonical.log",
+    "performance-isolated.log",
+    "launcher-deadline-closed-schema.log"
+  ],
+  "fixture_corrections": [
+    "owned-runtime canonical own temp root and required concrete late-gate fixtures; expectations retained",
+    "stale HEAD deterministic eval source bindings re-reviewed; 102 outputs/grades unchanged, not live model replay"
+  ],
+  "authorizes": false
+}

@@ -6,25 +6,36 @@ erfundenen Beispieldaten, keine Screenshots der Implementierung. Qualifizierter 
 Kontextaufnahme, Nachrichtenvermittlung und Statusabgleich sind jeweils Voraussetzungen,
 keine durch den Mock belegten Hostfähigkeiten. Die aktuellen UI-Richtlinien gelten weiterhin.
 
-Die verdichtete Einstiegsreferenz ist der [Plugin-Mock](cockpit-erlebnis.html)
-mit [Produktgrenze und Prüfhinweisen](cockpit-erlebnis.md). Er zeigt die generische MCP-App
-des Plugins im bestehenden Host. Diese SVG-Serie bleibt die Detailreferenz
+Die führende Praxisreferenz ist der [Plugin-Mock mit vier echten Runs](cockpit-erlebnis.html)
+mit [Quellbindungen und Prüfhinweisen](cockpit-erlebnis.md). Er zeigt Wiederaufnahme,
+Statuskonflikte, vollständige Dokumente und Abschlüsse in der MCP-App des Plugins. Diese SVG-Serie bleibt die Detailreferenz
 für Gate-Inhalte, Bindungen, Format-Fallback und Recovery. Ihre Informationsdichte ist keine
 Vorgabe für den normalen Einstieg.
 
-## Ansichten und Änderungszweck
+## Ansichten: Vorhandenes übernehmen und gezielt ergänzen
 
-| Datei | Was die Ansicht konkretisiert |
-|---|---|
-| [Kartenanatomie](gate-card-anatomy-v3.svg) | Verdichtete Orientierung, konkrete Prüfaufgabe, berücksichtigte Rückmeldung und belegte Vorprüfung mit Aussagegrenze. |
-| [Schmale Karte](compact-decision-v3.svg) | Eine konkrete Frage, relevanter Vergleich, Vorprüfungsgrenze und eine verfügbare Hauptaktion auf 480px Kartenbreite. |
-| [Anforderung und Verhalten](gate-cards-ur-prd-v3.svg) | Auftrag bestätigen und Produktverhalten beurteilen sind unterschiedliche fachliche Aufgaben. |
-| [Entwurf und Plan](gate-cards-sd-tp-v3.svg) | Benötigte technische Zuständigkeit, konkrete Abwägung, Owner, geplante Nachweise und verbleibende Risiken. |
-| [Qualität und Abnahme](gate-cards-qa-uat-v3.svg) | Technische QA und fachliche Abnahme bleiben getrennt; beide zeigen ihre Nachweis- und Umgebungsgrenzen. |
-| [Darstellungsformate](presentation-formats-responsive-v3.svg) | Derselbe UR-Gegenstand als MCP-App mit Klick oder Textweg und als Portable Markdown. Kopieren entscheidet nichts. |
-| [Run-Wechsel und Arbeitsübergabe](run-context-handoff-v3.svg) | Nur lesen, bewusst weiterbeauftragen, Nachricht angenommen und tatsächlich übernommen bleiben getrennte Zustände. Zusätzlich: fehlender Nachrichtenweg und unbestätigter Halt. |
-| [Ergebnis und Abnahme](result-acceptance-v3.svg) | Tatsächliche Änderung, zugeordnete Ergebnisfassung, konkrete Prüfschritte, Restgrenzen und belegter Lieferzustand. |
-| [Recovery](recovery-states-v3.svg) | Veraltete Quelle, unklare Speicherung, gespeicherte Freigabe mit unbestätigter Fortsetzung und Format-Fallback. |
+Jede SVG trägt außerhalb der Produktansicht einen Hinweisbereich mit **„Bereits umgesetzt“**
+und **„Noch ergänzen“**. Die vorhandene SD-Karte „Lösungsdesign prüfen und entscheiden“ ist
+dabei Grundlage, keine zu ersetzende Zwischenlösung. Die Hinweise ordnen Fähigkeiten ein;
+sie behaupten nicht, dass die gezeichneten Layouts bereits ausgeliefert sind.
+
+| Datei | Bereits umgesetzt | Noch ergänzen oder verbinden |
+|---|---|---|
+| [Kartenanatomie](gate-card-anatomy-v3.svg) | Kurzfassung, Quellen, Wirkung, Entscheidung und Speicherbeleg in `DecisionCard` | Prüfaufgabe verdichten; Änderungen auf vorhandener Vergleichsgrundlage hervorheben. |
+| [Schmale Karte](compact-decision-v3.svg) | Qualifizierter Klickweg oder exakte Chatantwort; Dokumentzugang | Informationsgewichtung auf schmaler Fläche und gemeinsame Dokumentnavigation. |
+| [Anforderung und Verhalten](gate-cards-ur-prd-v3.svg) | Gate-spezifische Präsentation und gebundene Bestätigung | Konkrete Prüfaufgabe und Änderungen mit konsistenter Sprache hervorheben. |
+| [Entwurf und Plan](gate-cards-sd-tp-v3.svg) | SD-/TP-Präsentation mit Kurzfassung, Quellen und Wirkung | Abwägungen und benötigte Zuständigkeit verständlich verdichten. |
+| [Qualität und Abnahme](gate-cards-qa-uat-v3.svg) | QA-/UAT-Inhalte aus Quellen, Grenzen, Risiken und getrennte Entscheidungen | Prüfschritte und vorhandene Nachweise leichter zusammenführen. |
+| [Darstellungsformate](presentation-formats-responsive-v3.svg) | MCP-App, Portable Markdown und qualifizierungsabhängiger Entscheidungsweg | Informationshierarchie angleichen; optionale Kopierhilfe und konkrete Layouts ergänzen und prüfen. |
+| [Run-Wechsel und Arbeitsübergabe](run-context-handoff-v3.svg) | Gebundener Kontext, vorgegebene allgemeine Frage und getrennte Übermittlungszustände | Eigener Auftrag und Abschnittsbezug. Agentenübernahme, Statusprüfung und Halt sind noch konzeptionell und benötigen jeweils eine unterstützte Hostintegration und Nachweise. |
+| [Ergebnis und Abnahme](result-acceptance-v3.svg) | Ergebnis, Grenzen und Risiken aus maßgeblichen Quellen; UAT-Präsentation und gebundene Bestätigung | Vorhandene Prüfschritte und belegten Ergebniszugang mit der Abnahme verbinden. |
+| [Recovery](recovery-states-v3.svg) | Veraltete Bindung, unklare Speicherung, ursprünglicher Vorgang und Fortsetzungsstatus | Verständliche Sprache und zusammenhängende Rückwege auf bestehender Recovery-Logik. |
+
+Die [Umsetzungszuordnung im Konzept](../07-ui-konzept.md#9-bestand-und-erforderliche-weiterentwicklung)
+nennt die vorhandenen Komponenten und Dienste. Die Serie begründet keinen Neubau von
+Entscheidungskarte, Versionsarchiv, Freigabespeicher oder Nachrichtenweg. Die gezeichnete
+fachliche Änderungszusammenfassung geht über die bestehende Anzeige „geändert/unverändert“
+mit früherem Volltext hinaus. Sie braucht dieselbe geprüfte Archivgrundlage.
 
 Die v2-Serie bleibt als historischer Entwurf erhalten. Ihr
 [QA-Abweichungsfluss](qa-deviation-uat-v2.svg) ergänzt weiterhin die v3-Karten: technische
@@ -142,6 +153,12 @@ Fallback-Grund in diesem Beispiel: MCP-App nicht bestätigt angezeigt.
 ```
 
 ## Prüfgrenzen
+
+Am 14. Oktober 2026 wurden die Bestands-/Ergänzungshinweise aller neun SVGs im Browser
+auf Vorhandensein und Textgrenzen geprüft; die Kartenanatomie wurde zusätzlich visuell
+kontrolliert. Die Hinweise sind Entwurfsannotation und werden nicht in die Produktansicht
+übernommen. Der zugehörige [Praxis-Mock-Prüfstand](cockpit-erlebnis.md#nachprüfung-der-umsetzungskennzeichnung-am-14-oktober-2026)
+führt die lokale Nachprüfung getrennt von Runtime- und Host-Nachweisen auf.
 
 Die SVGs sind editierbare Architektur-Mocks mit der vorhandenen Farb- und Schriftanmutung.
 Sie enthalten keine operative Freigabe, keinen neuen Runtime-Vertrag und keine zusätzliche

@@ -1,5 +1,6 @@
 import { execHostFileSync } from "../host-command.js";
-import { realpathSync, statSync } from "node:fs";
+import { realpathSync, statSync, readFileSync, lstatSync } from "node:fs";
+import { createHash } from 'node:crypto';
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
 import { pluginDefinition } from "../cli/runtime-context.js";
@@ -12,11 +13,13 @@ import {
   inspectMcpRegistration,
   mcpPermissionEffect,
   mcpNativeScope,
+  resolveMcpSources,
 } from "./host-config.js";
 import {
   createMcpRuntimeReferenceTransaction,
   createMcpRuntimeRetirementTransaction,
   inspectMcpServerPackage,
+  inspectMcpExecutableRoot,
   mcpLegacyRuntimeDataRoot,
   mcpRuntimeDataRoot,
   prepareMcpServerPackage,
@@ -25,6 +28,7 @@ import {
 import { printMcpLifecycleResult } from "./presentation.js";
 import { mcpCapabilityProfile } from "./profile-context.js";
 import { createMcpLifecycleResult } from "./result.js";
+import { inspectCodexSetup } from './adapters/codex.js';
 
 const ACTIONS = new Set(["status", "enable", "disable"]);
 const SURFACES = new Set(["codex", "claude", "opencode", "copilot"]);
@@ -78,14 +82,15 @@ function normalizedRegistration(registration, { surface, scope }) {
 
 function envelope({ action, result, surface, scope, target, capability, host, execPath, nodeVersion,
   expectedVersion, runtime, registration, discovery = "not_checked", changes = [], diagnostics = [], nextAction,
-  permissionEffect }) {
+  permissionEffect, setup, setupObserve }) {
   const discoveryState = typeof discovery === "string"
     ? { status: discovery, source: discovery === "pending_restart" ? "configuration" : "none", evidence_ref: null }
     : discovery;
   return createMcpLifecycleResult({ action, result, surface, scope, scopeEffect: scope, target, capability, host,
     runtime: runtimeResult(runtime, { execPath, nodeVersion, expectedVersion }),
     registration: normalizedRegistration(registration, { surface, scope }),
-    discovery: discoveryState, changes, diagnostics, nextAction, permissionEffect });
+    discovery: discoveryState, changes, diagnostics, nextAction, permissionEffect,
+    ...(setupObserve ? { setup: setupObserve() } : setup ? { setup } : {}) });
 }
 
 function failure(input, code, additionalDiagnostics = []) {
@@ -98,6 +103,7 @@ function registrationReference({ surface, scope, target, registration, createdCo
 }
 
 function sameReference(left, right) {
+  if ((left?.role ?? 'governance') !== (right?.role ?? 'governance') || (left?.server_id ?? 'agdf') !== (right?.server_id ?? 'agdf')) return false;
   if (left?.native_scope) {
     return left.surface === right.surface && left.native_scope === right.native_scope
       && left.source === right.source && (right.native_scope === "user" || left.target === right.target);
@@ -108,7 +114,7 @@ function sameReference(left, right) {
 
 function referenceKey(reference) {
   return [reference?.surface ?? "", reference?.native_scope ?? reference?.scope ?? "",
-    reference?.source ?? reference?.path ?? "", reference?.target ?? ""].join("\0");
+    reference?.source ?? reference?.path ?? "", reference?.target ?? "", reference?.role ?? 'governance', reference?.server_id ?? 'agdf'].join("\0");
 }
 
 function runtimeReferenceChange(runtime, reference, {
@@ -180,6 +186,7 @@ export function runMcpLifecycle({
   createRetirementTransaction = createMcpRuntimeRetirementTransaction,
   // Hosts whose runtime plugin declares the AGDF MCP server itself; enable refuses a second registration.
   pluginManagedSurfaces = PLUGIN_MANAGED_SURFACES,
+  role = 'governance', serverId, preparedRuntime, descriptor,
 } = {}) {
   if (!ACTIONS.has(action) || !SURFACES.has(surface) || !SCOPES.has(scope) || !isAbsolute(target || "")) {
     throw new Error("AGDF_MCP_LIFECYCLE_INPUT_INVALID");
@@ -193,7 +200,102 @@ export function runMcpLifecycle({
   const runtimeDataRoot = mcpRuntimeDataRoot({ dataRoot, scope, target: selectedTarget });
   const legacyRuntimeDataRoot = mcpLegacyRuntimeDataRoot({ dataRoot, scope, target: selectedTarget, surface });
   const base = { action, surface, scope, target: selectedTarget, execPath, nodeVersion, expectedVersion,
+    ...(surface === 'codex' ? { setupObserve: () => inspectCodexSetup({ target: selectedTarget, env, pluginRoot: env.AGDF_DISPATCH_PLUGIN_ROOT }) } : {}),
     permissionEffect: mcpPermissionEffect(surface, { scope, target: selectedTarget }) };
+
+  if (role !== 'governance') {
+    if (surface !== 'codex' || !['cockpit', 'diagnostic'].includes(role) || role === 'cockpit' && scope !== 'project'
+      || !preparedRuntime || role === 'cockpit' && !['agdf-cockpit', 'agdf-cockpit-local'].includes(serverId)
+      || role === 'diagnostic' && !/^agdf-test-[a-z0-9][a-z0-9-]{0,63}$/u.test(serverId ?? '')) throw Error('AGDF_MCP_CODEX_ROLE_INVALID');
+    const runtime = inspectMcpExecutableRoot({ root: preparedRuntime.root, expectedVersion });
+    if (runtime.status !== 'matched' || runtime.digest !== preparedRuntime.digest
+      || runtime.dispatcherDigest !== preparedRuntime.dispatcherDigest || runtime.sdkDigest !== preparedRuntime.sdkDigest
+      || runtime.nodeExecutable !== execPath) throw Error('AGDF_MCP_SERVER_VERIFICATION_FAILED');
+    let args = [runtime.entrypoint, '--surface', 'codex', '--cockpit-dir', selectedTarget];
+    let revalidate;
+    if (role === 'diagnostic') {
+      if (descriptor?.role !== role || descriptor.server_id !== serverId || descriptor.owner !== 'create-agdf:mcp-runtime'
+        || descriptor.target !== selectedTarget || descriptor.runtime_root !== runtime.root
+        || descriptor.command !== execPath || !['completion_or_abort'].includes(descriptor.lifetime)
+        || !Array.isArray(descriptor.sources) || !descriptor.sources.length || descriptor.sources.length > 8
+        || !Array.isArray(descriptor.args) || descriptor.args.length > 16) throw Error('AGDF_MCP_DIAGNOSTIC_OWNERSHIP_INVALID');
+      revalidate = () => { for (const source of descriptor.sources) {
+        if (!isAbsolute(source.path ?? '') || realpathSync(source.path) !== source.path || lstatSync(source.path).isSymbolicLink()
+          || statSync(source.path).size > 131_072 || 'sha256:' + createHash('sha256').update(readFileSync(source.path)).digest('hex') !== source.digest) throw Error('AGDF_MCP_DIAGNOSTIC_OWNERSHIP_INVALID');
+      } };
+      revalidate();
+      if (!descriptor.sources.some(source => source.path === descriptor.args[0])) throw Error('AGDF_MCP_DIAGNOSTIC_OWNERSHIP_INVALID');
+      if (action === 'enable') {
+        const config = resolveMcpSources({ surface, scope, target: selectedTarget, env }).find(source => source.selected).path;
+        let bytes = '', existed = false;
+        try { bytes = readFileSync(config, 'utf8'); existed = true; } catch (error) { if (error.code !== 'ENOENT') throw error; }
+        if (descriptor.configuration?.path !== config || descriptor.configuration.scope !== scope
+          || typeof descriptor.configuration.existed !== 'boolean'
+          || descriptor.configuration.existed !== existed
+          || descriptor.configuration.digest !== 'sha256:' + createHash('sha256').update(bytes).digest('hex')) {
+          // A repeated already-owned setup is checked by the same exact spec below, not adopted from names.
+          const repeat = inspectRegistration({ surface, scope, target: selectedTarget, env, exec,
+            spec: { command: execPath, args: descriptor.args, version: expectedVersion, digest: runtime.digest, role, serverId } });
+          if (repeat.selected_status !== 'matched') throw Error('AGDF_MCP_DIAGNOSTIC_OWNERSHIP_INVALID');
+        }
+      }
+      args = descriptor.args;
+    }
+    const spec = Object.freeze({ command: execPath, args, version: expectedVersion, digest: runtime.digest, role, serverId });
+    const input = { surface, scope, target: selectedTarget, spec, env, exec };
+    let registration = inspectRegistration(input);
+    let previousRuntime, previousSpec;
+    if (role === 'cockpit' && registration.selected_status === 'owned_mismatch') {
+      try {
+      const observed = registration.observed;
+      if (observed?.args?.length === 5 && observed.args[1] === '--surface' && observed.args[2] === 'codex'
+        && observed.args[3] === '--cockpit-dir' && observed.args[4] === selectedTarget
+        && /\/node_modules\/@agdf\/mcp-server\/bin\/agdf-mcp\.js$/u.test(observed.args[0])) {
+        let previousRoot = observed.args[0]; for (let n = 0; n < 5; n++) previousRoot = resolve(previousRoot, '..');
+        const inspected = inspectMcpExecutableRoot({ root: previousRoot, expectedVersion: registration.identity.version });
+        if (inspected.status === 'matched' && inspected.digest === registration.identity.digest && inspected.nodeExecutable === observed.command
+          && inspected.references.some(ref => ref.role === role && ref.server_id === serverId && ref.path === registration.path && ref.target === selectedTarget)) {
+          previousRuntime = inspected;
+          previousSpec = { ...spec, command: observed.command, args: observed.args, version: inspected.version, digest: inspected.digest };
+        }
+      }
+      } catch {} // A stale/unproven old runtime cannot be adopted or removed by this transition.
+    }
+    const roleBase = { ...base, capability: 'unverified', host: inspectMcpHost(input), runtime, registration };
+    if (action === 'enable' && role === 'cockpit' && base.setupObserve().entries.some(entry => entry.role === 'cockpit' && entry.server_id !== serverId)) {
+      return envelope({ ...roleBase, result: 'degraded', diagnostics: [{ code: 'cockpit_legacy_retained' }],
+        nextAction: { code: 'resolve_registration' } });
+    }
+    if (action === 'status') return envelope({ ...roleBase,
+      result: registration.status === 'matched' ? 'configured_unverified' : registration.status === 'absent' ? 'not_configured' : 'degraded',
+      nextAction: { code: registration.status === 'matched' ? 'restart_host' : nextForRegistration(registration) } });
+    let transaction, references, previousReferences;
+    try {
+      transaction = createRegistrationTransaction({ ...input, action, previousSpec, revalidate });
+      transaction.apply();
+      registration = inspectRegistration(input);
+      if (registration.selected_status !== (action === 'enable' ? 'matched' : 'absent')) throw Error('AGDF_MCP_REGISTRATION_VERIFICATION_FAILED');
+      const reference = { ...registrationReference({ surface, scope, target: selectedTarget, registration }), role, server_id: serverId };
+      // References keep the exact optional/diagnostic role distinct from another client of the same runtime.
+      const selectedRuntime = action === 'disable' && previousRuntime ? previousRuntime : runtime;
+      const retained = item => !(item.role === role && item.server_id === serverId && item.path === reference.path);
+      references = createReferenceTransaction(selectedRuntime, action === 'enable' ? [...selectedRuntime.references.filter(retained), reference] : selectedRuntime.references.filter(retained));
+      references.apply();
+      if (action === 'enable' && previousRuntime && previousRuntime.root !== runtime.root) {
+        previousReferences = createReferenceTransaction(previousRuntime, previousRuntime.references.filter(retained));
+        previousReferences.apply();
+      }
+      previousReferences?.commit(); references.commit();
+      return envelope({ ...roleBase, registration,
+        result: transaction.status === 'unchanged' ? 'unchanged' : action === 'enable' ? 'configured_pending_restart' : 'disabled',
+        discovery: action === 'enable' ? 'pending_restart' : 'not_checked',
+        changes: transaction.status === 'changed' ? [{ kind: action === 'enable' ? 'host_registration_enable' : 'host_registration_disable', path: transaction.path }] : [],
+        nextAction: { code: action === 'enable' ? 'restart_host' : 'none' } });
+    } catch (error) {
+      const complete = rollbackTransactions([previousReferences, references, transaction]);
+      return failure(roleBase, complete ? (action === 'enable' ? 'enable_failed' : 'disable_failed') : 'rollback_incomplete');
+    }
+  }
 
   // Claude Code, Codex and Copilot start the AGDF MCP server from the runtime plugin. A second host registration
   // would duplicate it and survive plugin removal; status and disable remain available to inspect and
@@ -241,8 +343,13 @@ export function runMcpLifecycle({
     const result = runtime.status === "matched" && registration.status === "matched"
       ? "configured_unverified"
       : registration.status === "absent" ? "not_configured" : "degraded";
+    const setup = surface === 'codex' ? base.setupObserve() : null;
+    const pluginManaged = result === 'not_configured' && pluginManagedSurfaces.includes(surface)
+      && setup?.plugin_declaration.status === 'declared'
+      && setup.entries.some(entry => entry.role === 'product');
     return envelope({ ...base, capability, host, runtime, registration, result,
-      nextAction: { code: result === "configured_unverified" ? "restart_host" : nextForRegistration(registration) } });
+      diagnostics: pluginManaged ? [{ code: 'codex_plugin_managed' }] : [],
+      nextAction: { code: pluginManaged ? 'use_codex_plugin_mcp' : result === "configured_unverified" ? "restart_host" : nextForRegistration(registration) } });
   }
 
   if (action === "enable") {

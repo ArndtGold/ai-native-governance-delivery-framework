@@ -1,0 +1,44 @@
+{"modern":false,"actual_canonical_approval":true,"raw_reader_version":"approved","native_ui_observation":false}
+{"modern":true,"actual_canonical_approval":true,"raw_reader_version":"approved","native_ui_observation":false}
+{"modern":false,"operation":"artifact_readiness","actual_authoring_pass":true,"ui_digest":"sha256:6469564c6c8dba8f3a7424f735cbccaa437d84b84061a6e301692051c374daa7","native_ui_observation":false}
+{"modern":true,"operation":"artifact_readiness","actual_authoring_pass":true,"ui_digest":"sha256:6469564c6c8dba8f3a7424f735cbccaa437d84b84061a6e301692051c374daa7","native_ui_observation":false}
+{"modern":false,"named_run":"fixture-a","backlog_files":2,"independent_sessions":true,"resource_digest":"sha256:6469564c6c8dba8f3a7424f735cbccaa437d84b84061a6e301692051c374daa7","authorizes":false}
+{"modern":true,"named_run":"fixture-a","backlog_files":2,"independent_sessions":true,"resource_digest":"sha256:6469564c6c8dba8f3a7424f735cbccaa437d84b84061a6e301692051c374daa7","authorizes":false}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    'agdf_dispatch',
+    'agdf_inspect',
++   'agdf_prepare',
++   'agdf_record',
++   'agdf_approve',
++   'agdf_revise',
++   'agdf_closeout'
+  ]
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cockpit-mcp-test.js:105:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/cockpit-mcp-test.js:104:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'agdf_dispatch',
+    'agdf_inspect',
+    'agdf_prepare',
+    'agdf_record',
+    'agdf_approve',
+    'agdf_revise',
+    'agdf_closeout'
+  ],
+  expected: [ 'agdf_dispatch', 'agdf_inspect' ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

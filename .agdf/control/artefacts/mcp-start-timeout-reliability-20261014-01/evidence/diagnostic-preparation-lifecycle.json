@@ -1,0 +1,39 @@
+{
+  "evidence_class": "actual source helper descriptor in disposable project, synthetic host readback only",
+  "cases": [
+    {
+      "action": "enable",
+      "result": "configured_pending_restart",
+      "changes": [
+        {
+          "kind": "host_registration_enable",
+          "path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/governance-target/.codex/config.toml"
+        }
+      ]
+    },
+    {
+      "action": "enable",
+      "result": "unchanged",
+      "changes": []
+    },
+    {
+      "action": "disable",
+      "result": "disabled",
+      "changes": [
+        {
+          "kind": "host_registration_disable",
+          "path": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM/governance-target/.codex/config.toml"
+        }
+      ]
+    },
+    {
+      "action": "disable",
+      "result": "unchanged",
+      "changes": []
+    }
+  ],
+  "native_qualified": false,
+  "activated_in_host": false,
+  "cleanup": "own unregistered disposable root only",
+  "runtime_root": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-9RUXJM"
+}

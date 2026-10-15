@@ -20,6 +20,23 @@ Projektspezifische Produktoberflächen, Vorschau-Server und Testanwendungen geh�
 bearbeiteten Projekt. Vorhandene Ergebniszugänge werden zugeordnet angezeigt und über
 unterstützte Hostwege geöffnet; die App bildet die Zielanwendung nicht nach.
 
+## Bestand übernehmen, Ergänzungen gezielt prüfen
+
+Die [Umsetzungszuordnung im Konzept](07-ui-konzept.md#9-bestand-und-erforderliche-weiterentwicklung)
+trennt vorhandene Fähigkeiten, verbleibende Ergänzungen und offene Host-Nachweise. Die Regeln
+hier begründen keinen erneuten Bau bereits vorhandener Entscheidungs-, Quellen-, Status- oder
+Übergabelogik. Neue Ansichten erweitern die dort genannten Komponenten und Core-Projektionen.
+
+Die Mocks tragen außerhalb der eigentlichen Produktansicht die Hinweise **„Bereits umgesetzt“**
+und **„Noch ergänzen“**. Diese Hinweise dienen dem Entwurfsreview und werden nicht Teil der
+Anwenderoberfläche. Ein Vorher-/Nachher-Vergleich nutzt die vorhandene geprüfte Archivbindung;
+Abschnittsfragen erweitern den vorhandenen Handoff. Der manuelle Textweg im Mock ist kein Ersatz
+für eine bereits unterstützte Nachrichtenübermittlung im Host.
+
+**Prüfkriterium:** Für jede geplante Änderung ist erkennbar, welche vorhandene Komponente sie
+weiterverwendet und welche konkrete Lücke sie schließt. Gestaltungsziel, Quellcode,
+Paketstand und native Qualifizierung bleiben getrennte Aussagen.
+
 ## 1 Verständliche Sprache
 
 **Regel:** Sichtbare Schritte heißen nach der Aufgabe des Anwenders. Entscheidungskarten
@@ -274,6 +291,39 @@ Freigabevermerk allein wird nicht als Beleg für die heute gelesene Dokumentfass
 Geänderte Fassung, unklare Speicherung und Format-Fallback besitzen unterscheidbare
 Recovery-Zustände mit genau einer sicheren nächsten Handlung.
 
+### Reale Bestände statt idealisierter Einzelfälle
+
+**Regel:** Eine Übersicht weist ihren Suchumfang aus. „Aktiv“ bezeichnet keine persönliche
+Aufgabe, „abgeschlossen“ keine uneingeschränkte Qualität. Bei relevanten Widersprüchen erklärt
+die Ansicht Quelle, Phase und Konsequenz. Aktuelle Aktionen kommen aus der kanonischen
+Auswertung; historische Dokumenttexte bleiben unverändert und erhalten eine Einordnung.
+
+**Beispiel:** Der Host-Adapter-Run zeigt die Rücksetzung neben der abweichenden Backlog-Angabe.
+Der Core-/MCP-Abschluss führt mit interner Erprobung und angenommenen Risiken. Der abgeschlossene
+Inhalts-Run erklärt die frühere offene QA-Aufforderung vor dem Originalbericht.
+
+**Prüfkriterium:** Der Anwender muss keinen Widerspruch selbst auflösen. Er findet die
+erläuternde Quelle, erkennt die Nutzungsgrenze und erhält keine unberechtigte Freigabeaktion.
+Die [vier Praxisfälle](07-ui-konzept.md#praxisreferenz-vier-echte-vorhaben-in-derselben-mcp-app)
+sind verbindliche Beispiele dafür, keine zusätzlichen Status- oder Governance-Regeln.
+
+### Lesen mit erhaltenem Arbeitsbezug
+
+**Regel:** Umfangreiche Dokumente bieten Inhaltsübersicht, Suche und Rückweg zur Aufgabe.
+Eine Rückfrage übernimmt Quelle, Quellfassung und Abschnitt. Ein Vergleich benötigt ein
+belegtes Dokumentpaar; eine Run-Revision ist keine Dokument-Fassungsnummer. Ein Quellenwechsel
+bewahrt den Entwurf und verlangt die Prüfung seines Bezugs. Leseposition, Suchfilter und
+Frageentwürfe werden bei Navigation erhalten und nicht als Arbeitsauftrag interpretiert.
+
+**Beispiel:** Im vollständigen Cockpit-PRD führt die Suche nach AC-003 zur Dokumentprüfung.
+„Zu diesem Abschnitt fragen“ bereitet den Bezug im bestehenden Gespräch vor. Bei fehlender
+Nachrichtenfähigkeit bleibt der Text manuell übernehmbar und ausdrücklich ungesendet.
+
+**Prüfkriterium:** Die Originalstelle bleibt lesbar; Rückkehr per Tastatur landet am Auslöser.
+Beim Run-Wechsel wird kein Entwurf einem anderen Vorhaben zugeordnet. Alte Nachweise werden
+als Historie erreicht, aktuelle Risiken bleiben bei der Aufgabe sichtbar. Schmale Ansichten
+und 200 Prozent Schrift dürfen Aktionen oder den Rückweg nicht abschneiden.
+
 ## 10 Prüfung, Nachweise und Pflege
 
 **Regel:** Jede neue oder überarbeitete Ansicht wird gegen die passenden Regeln dieses
@@ -282,8 +332,8 @@ Darstellungsstand. Aussagen über Host-Fähigkeiten benötigen die Beobachtung d
 verwendeten Fassung im betreffenden Host. Die vorhandenen Qualifizierungsvoraussetzungen
 bleiben erhalten. Eine dokumentierte Abweichung nennt Grund, betroffene Ansicht und Nutzerfolge.
 
-**Beispiel:** Der [kompakte Plugin-Mock](mockups/cockpit-erlebnis.html) führt die Gestaltung
-für Entscheidungsvorbereitung, bestätigte Speicherung und die Vorbereitung der Abnahme. Die
+**Beispiel:** Der [Plugin-Mock mit vier echten Runs](mockups/cockpit-erlebnis.html) führt die
+Gestaltung für Wiederaufnahme, Statuskonflikte, umfangreiche Quellen und begrenzte Abschlüsse. Die
 [v3-Serie](mockups/human-gate-mocks-v3.md) ergänzt Gate-Inhalte, Arbeitsübergabe und
 Fortsetzungsdiagnose. Die fünf historischen Imagegen-Mocks zeigen den frühen App-Ablauf. Die
 [Übersicht aller menschlichen Gates](07-ui-konzept.md#durchgehender-vertrag-für-alle-menschlichen-gates)

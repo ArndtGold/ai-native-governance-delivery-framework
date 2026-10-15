@@ -13,6 +13,7 @@ import {
   fsyncSync,
   existsSync,
   lstatSync,
+  linkSync,
   openSync,
   readFileSync,
   unlinkSync,
@@ -96,12 +97,27 @@ export function atomicWrite(path, content, { checkpoint = () => {}, temporaryPat
 function lockError(path) {
   const error = new Error("AGDF_RUN_WRITE_LOCKED");
   error.lock_path = path;
+  // A simultaneous reclaim inspection can hold the short guard while the real
+  // publication owner is live. Classify only a stable, regular, bounded owner
+  // record; this does not reclaim, remove or authorize a wait for an unknown lock.
+  try {
+    const before = lstatSync(path);
+    if (before.isFile() && !before.isSymbolicLink() && before.size <= 4096) {
+      const bytes = readFileSync(path, 'utf8'), owner = JSON.parse(bytes), after = lstatSync(path);
+      if (before.dev === after.dev && before.ino === after.ino && !after.isSymbolicLink()
+        && readFileSync(path, 'utf8') === bytes && ownerState(owner) === 'live') error.lock_owner_status = 'live';
+    }
+  } catch {}
   return error;
 }
 
 function ownerState(owner) {
-  if (!owner || !Number.isSafeInteger(owner.pid) || owner.pid <= 0
-      || typeof owner.token !== "string" || !/^[0-9a-f-]{36}$/iu.test(owner.token)) return "unknown";
+  if (!owner || Object.keys(owner).sort().join(',') !== 'pid,schema_version,started_at,token'
+      || owner.schema_version !== 1 || typeof owner.started_at !== 'string'
+      || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(owner.started_at)
+      || !Number.isFinite(Date.parse(owner.started_at)) || new Date(owner.started_at).toISOString() !== owner.started_at
+      || !Number.isSafeInteger(owner.pid) || owner.pid <= 0
+      || typeof owner.token !== "string" || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/iu.test(owner.token)) return "unknown";
   try {
     process.kill(owner.pid, 0);
     return "live";
@@ -121,7 +137,8 @@ function reclaimAbandonedLock(path) {
   try {
     let original;
     try {
-      if (!lstatSync(path).isFile()) throw lockError(path);
+      const file = lstatSync(path);
+      if (!file.isFile() || file.size > 4096) throw lockError(path);
       original = readFileSync(path, "utf8");
     } catch (error) {
       if (error?.code === "ENOENT") return;
@@ -144,28 +161,62 @@ function reclaimAbandonedLock(path) {
   }
 }
 
+function publishOwnedLock(lockPath, owner, checkpoint) {
+  const stagedPath = `${lockPath}.${owner.token}.pending`;
+  const descriptor = openSync(stagedPath, 'wx', 0o600);
+  const created = fstatSync(descriptor);
+  let published = false;
+  try {
+    writeFileSync(descriptor, `${JSON.stringify(owner)}\n`, 'utf8'); fsyncSync(descriptor);
+    checkpoint('owner_staged');
+    // Exclusive hard-link publication exposes one complete record or EEXIST,
+    // never the previous visible-but-empty owner window. Both names are local
+    // to this directory and inode; a changed staging path cannot be adopted.
+    const staged = lstatSync(stagedPath);
+    if (staged.isSymbolicLink() || staged.dev !== created.dev || staged.ino !== created.ino) throw lockError(lockPath);
+    linkSync(stagedPath, lockPath);
+    published = true;
+    checkpoint('owner_published');
+    unlinkSync(stagedPath);
+    return descriptor;
+  } catch (error) {
+    // Failure before handing off the descriptor must not strand our live lock.
+    // Never unlink a replaced or modified owner record.
+    try {
+      if (published) {
+        const current = lstatSync(lockPath);
+        if (!current.isSymbolicLink() && current.dev === created.dev && current.ino === created.ino
+          && readFileSync(lockPath, 'utf8') === `${JSON.stringify(owner)}\n`) unlinkSync(lockPath);
+      }
+    } catch (cleanupError) { if (cleanupError.code !== 'ENOENT') throw cleanupError; }
+    finally { closeSync(descriptor); }
+    try {
+      const staged = lstatSync(stagedPath);
+      if (!staged.isSymbolicLink() && staged.dev === created.dev && staged.ino === created.ino) unlinkSync(stagedPath);
+    } catch (cleanupError) { if (cleanupError.code !== 'ENOENT') throw cleanupError; }
+    throw error;
+  }
+}
+
 export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
   const lockPath = `${path}.lock`;
+  const owner = { schema_version: 1, pid: process.pid, token: randomUUID(), started_at: new Date().toISOString() };
   let lockDescriptor;
-  try {
-    lockDescriptor = openSync(lockPath, "wx");
-  } catch (error) {
-    if (error.code !== "EEXIST") throw error;
-    reclaimAbandonedLock(lockPath);
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      lockDescriptor = openSync(lockPath, "wx");
-    } catch (retryError) {
-      if (retryError.code === "EEXIST") throw lockError(lockPath);
-      throw retryError;
+      lockDescriptor = publishOwnedLock(lockPath, owner, checkpoint); break;
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      try { reclaimAbandonedLock(lockPath); }
+      catch (locked) {
+        if (attempt < 2 && !existsSync(lockPath)) continue; // Fresh proven absence; no wait/reclaim of an unknown owner.
+        throw locked;
+      }
+      if (attempt === 2) throw lockError(lockPath);
     }
   }
-  const owner = { schema_version: 1, pid: process.pid, token: randomUUID(), started_at: new Date().toISOString() };
   const created = fstatSync(lockDescriptor);
-  let ownerWritten = false;
   try {
-    writeFileSync(lockDescriptor, `${JSON.stringify(owner)}\n`, "utf8");
-    fsyncSync(lockDescriptor);
-    ownerWritten = true;
     checkpoint("lock_acquired");
     const result = work(owner);
     checkpoint("before_lock_release");
@@ -176,8 +227,8 @@ export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
     try {
       const currentFile = lstatSync(lockPath);
       if (currentFile.dev === created.dev && currentFile.ino === created.ino) {
-        const current = ownerWritten ? JSON.parse(readFileSync(lockPath, "utf8")) : null;
-        if (!ownerWritten || current.token === owner.token) unlinkSync(lockPath);
+        const current = JSON.parse(readFileSync(lockPath, "utf8"));
+        if (current.token === owner.token) unlinkSync(lockPath);
       }
     } catch (error) {
       if (error?.code !== "ENOENT" && error instanceof SyntaxError === false) throw error;

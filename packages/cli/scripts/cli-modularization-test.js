@@ -88,6 +88,7 @@ assert.deepEqual(parsed.options, {
   urAction: undefined,
   prdAction: undefined,
   sdAction: undefined,
+  tpAction: undefined,
   continueDelivery: false,
   presentationId: undefined,
   fixture: resolve("/tmp/root/fixture.json"),

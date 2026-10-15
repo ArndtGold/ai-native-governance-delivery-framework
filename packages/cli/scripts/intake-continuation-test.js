@@ -88,7 +88,7 @@ try {
   const artefacts = join(root, ".agdf/control/artefacts/new-run");
   mkdirSync(artefacts, { recursive: true });
   const ur = join(artefacts, "UR.md");
-  writeFileSync(ur, "# UR: Bound intake\n\nA new scope. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein neuer Umfang wird gebunden.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
+  writeFileSync(ur, "# UR: Bound intake\n\nA new scope. The user should review this document before approval.\n\n## Goal\nThe user can inspect the bound requirement before deciding.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein neuer Umfang wird gebunden.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
   assert.equal(run("run-step", "--run", "new-run", "--revision", revision("new-run"), "--step", "ur", "--title", "Bound intake").value.outcome, "recorded");
   const legacyUr = readFileSync(ur, "utf8");
   const fakeState = { artefacts: new Map([["UR", { path: ".agdf/control/artefacts/new-run/UR.md" }]]) };
@@ -104,7 +104,8 @@ try {
 
   const initialRevision = revision("new-run");
   const revise = (rev = revision("new-run")) => dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", rev, "--ur-action", "revise");
-  assert.equal(revise().continuation.draft_registered, true);
+  const revisionRoute = revise();
+  assert.equal(revisionRoute.continuation?.draft_registered, true, JSON.stringify(revisionRoute));
   writeFileSync(ur, legacyUr + "\nRequirements clarification: open\n");
   assert.equal(run("run-update", "--run", "new-run", "--revision", initialRevision).value.outcome, "updated");
   const openRoute = resume();
@@ -180,7 +181,7 @@ try {
     unlinkSync(recordPath);
   }
   writeFileSync(recordPath, record);
-  writeFileSync(ur, "# UR: Bound intake\n\nChanged scope. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Der Umfang wurde geändert.\n- Ziel: Das geänderte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
+  writeFileSync(ur, "# UR: Bound intake\n\nChanged scope. The user should review this document before approval.\n\n## Goal\nThe user can inspect the changed requirement before deciding.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Der Umfang wurde geändert.\n- Ziel: Das geänderte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
   assert.equal(approve(p.presentation_id).outcome, "rejected");
   assert.equal(run("run-update", "--run", "new-run", "--revision", revision("new-run")).value.outcome, "updated");
   assert.equal(approve(p.presentation_id).reason, "presentation_binding_invalid");

@@ -11,13 +11,16 @@ import {readSourceRevisions} from '../../core/lib/control-state/run-source-revis
 import {validateRevisionHistory} from '../../core/lib/control-state/run-revision-history.js';
 import {runSealState} from '../../core/lib/control-state/run-seal.js';
 
+const args=process.argv.slice(2);
+assert.ok(!args.length || (args.length===2 && args[0]==='--source-gate' && Object.hasOwn(SOURCE_PHASE_MATRIX,args[1])), 'Invalid source-gate test selector');
+const matrix=args.length ? {[args[1]]:SOURCE_PHASE_MATRIX[args[1]]} : SOURCE_PHASE_MATRIX;
 const runtime=createOwnedRuntimeFixture(),root=runtime.governanceTarget,seeds=mkdtempSync(join(tmpdir(),'agdf-mcp-expanded-seeds-'));
 try {
   const cli=join(runtime.dispatcherRoot,'bin/create-agdf.js'),fixture=createExpandedSourceRevisionFixture(root,cli,seeds);
   const {f,restore,prepare,state}=fixture;let cells=0;
   await withStdioClient(runtime,async client=>{
     const call=async input=>{const result=await client.callTool({name:'agdf_revise',arguments:input});assert.ok(result.structuredContent,JSON.stringify(result));return result.structuredContent;};
-    for(const [gate,phases] of Object.entries(SOURCE_PHASE_MATRIX))for(const phase of phases){
+    for(const [gate,phases] of Object.entries(matrix))for(const phase of phases){
       restore(phase);const {input}=prepare(gate),before=readFileSync(f.state,'utf8');
       const commandPath=join(root,f.prefix+'cli-command-'+randomUUID()+'.json');writeFileSync(commandPath,JSON.stringify(input));
       const cliPreview=JSON.parse(execFileSync(process.execPath,[cli,'agdf-revise','--command-file',commandPath],{encoding:'utf8'}));
@@ -37,5 +40,5 @@ try {
       cells++;
     }
   });
-  assert.equal(cells,18);console.log('SCN-069/074: all 18 source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.');
+  assert.equal(cells,Object.values(matrix).flat().length);console.log(`SCN-069/074: all ${cells} selected source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.`);
 } finally {rmSync(seeds,{recursive:true,force:true});runtime.dispose();}

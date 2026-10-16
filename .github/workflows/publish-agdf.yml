@@ -1,13 +1,10 @@
 name: Publish AGDF packages
-
 permissions:
   contents: read
-
 on:
   push:
     tags:
-      - "agdf-v*"
-
+      - agdf-v*
 jobs:
   codex-e2e:
     uses: ./.github/workflows/codex-release-e2e.yml
@@ -17,22 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-
       - name: Install checkout dependencies
         run: npm ci --ignore-scripts
-
       - name: Verify release workflow contract
         run: npm --prefix packages/cli run test:release-workflows
-
       - name: Verify release tag matches package versions
         shell: bash
         run: |
@@ -68,47 +61,35 @@ jobs:
             echo "@agdf/cli depends on create-agdf@${AGDF_CLI_CREATE_AGDF_VERSION}, expected ${CREATE_AGDF_VERSION}" >&2
             exit 1
           fi
-
       - name: Verify runtime-free source and plugin metadata
         run: node plugins/agdf/scripts/check-runtime-integrity.mjs
-
       - name: Prepare and verify release assets
         run: npm run build && npm --prefix packages/cli run release:prepare
-
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
-
       - name: Verify versioned AGDF skill evaluations
         run: npm --prefix packages/cli run eval:skills
-
       - name: Verify registry-state classification
         run: npm --prefix packages/cli run test:release-registry-state
-
       - name: Install MCP validation dependencies from checkout
         working-directory: packages/mcp-server
         run: npm ci --ignore-scripts
-
-      - name: Run create-agdf smoke test
-        run: npm --prefix packages/cli run smoke-test
-
-      - name: Run @agdf/mcp-server tests
-        run: npm --prefix packages/mcp-server test
-
       - name: Run @agdf/cli smoke test
         run: npm --prefix packages/cli/distribution/agdf run smoke-test
-
       - name: Verify create-agdf package contents
         run: npm --prefix packages/cli run test:package-contents
-
       - name: Verify @agdf/cli package contents
         run: npm --prefix packages/cli/distribution/agdf run test:package
-
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix packages/mcp-server run test:package
-
+    timeout-minutes: 10
   publish:
     runs-on: ubuntu-latest
-    needs: [validate, codex-e2e]
+    timeout-minutes: 10
+    needs:
+      - validate
+      - codex-e2e
+      - tests
     env:
       NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache
     permissions:
@@ -116,44 +97,58 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-
       - name: Install checkout dependencies
         run: npm ci --ignore-scripts
-
       - name: Require publish credential
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         shell: bash
         run: |
           test -n "$NODE_AUTH_TOKEN" || { echo "NPM_TOKEN is required for the coupled AGDF publish" >&2; exit 1; }
-
       - name: Check exact registry versions before publishing
         run: node scripts/release-registry-state.mjs --preflight
-
       - name: Prepare and verify release assets
         run: npm run build && npm --prefix packages/cli run release:prepare
-
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
-
       - name: Verify create-agdf package contents
         run: npm --prefix packages/cli run test:package-contents
-
       - name: Publish create-agdf to npm
         working-directory: dist/npm/create-agdf
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance
-
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  tests:
+    uses: ./.github/workflows/verify-agdf.yml
+    with:
+      scope: linux
+  wait-create-agdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: publish
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
       - name: Wait for create-agdf readiness
         shell: bash
         run: |
@@ -191,19 +186,76 @@ jobs:
           }
 
           wait_for_npm_package "create-agdf"
-
-      - name: Install and verify @agdf/mcp-server against published create-agdf
-        working-directory: packages/mcp-server
+        env:
+          NPM_CONFIG_FETCH_RETRIES: "0"
+          NPM_CONFIG_FETCH_TIMEOUT: "10000"
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  verify-published-mcp:
+    needs: wait-create-agdf
+    uses: ./.github/workflows/verify-agdf.yml
+    with:
+      scope: linux
+      suite: mcp
+      published: true
+  publish-mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: verify-published-mcp
+    env:
+      NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
+      - name: Require publish credential
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
         run: |
-          npm install --package-lock=false --ignore-scripts --no-audit --no-fund
-          npm test
-
+          test -n "$NODE_AUTH_TOKEN" || { echo "NPM_TOKEN is required for the coupled AGDF publish" >&2; exit 1; }
+      - name: Prepare and verify release assets
+        run: npm run build && npm --prefix packages/cli run release:prepare
+      - name: Verify built plugin integrity
+        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+      - name: Verify create-agdf package contents
+        run: npm --prefix packages/cli run test:package-contents
       - name: Publish @agdf/mcp-server to npm
         working-directory: dist/npm/agdf-mcp-server
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
-
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  wait-mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: publish-mcp
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
       - name: Wait for @agdf/mcp-server readiness
         shell: bash
         run: |
@@ -231,16 +283,72 @@ jobs:
             echo "Timed out waiting for @agdf/mcp-server@${VERSION} after ${MAX_ATTEMPTS} attempts. Last error: ${LAST_ERROR}" >&2
             exit 1
           fi
-
+        env:
+          NPM_CONFIG_FETCH_RETRIES: "0"
+          NPM_CONFIG_FETCH_TIMEOUT: "10000"
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  publish-wrapper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: wait-mcp
+    env:
+      NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
+      - name: Require publish credential
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          test -n "$NODE_AUTH_TOKEN" || { echo "NPM_TOKEN is required for the coupled AGDF publish" >&2; exit 1; }
+      - name: Prepare and verify release assets
+        run: npm run build && npm --prefix packages/cli run release:prepare
+      - name: Verify built plugin integrity
+        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+      - name: Verify create-agdf package contents
+        run: npm --prefix packages/cli run test:package-contents
       - name: Publish @agdf/cli to npm
         working-directory: dist/npm/agdf
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
-
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  wait-wrapper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: publish-wrapper
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
       - name: Wait for @agdf/cli readiness
         shell: bash
-        run: |
+        run: |+
           VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).version")"
           MAX_ATTEMPTS=20
           SLEEP_SECONDS=15
@@ -276,6 +384,37 @@ jobs:
 
           wait_for_npm_package "@agdf/cli"
 
+        env:
+          NPM_CONFIG_FETCH_RETRIES: "0"
+          NPM_CONFIG_FETCH_TIMEOUT: "10000"
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  wait-wrapper-latest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: wait-wrapper
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
+      - name: Wait for @agdf/cli latest readiness
+        shell: bash
+        run: |
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).version")"
+          MAX_ATTEMPTS=20
+          SLEEP_SECONDS=15
+          NPM_ERROR_LOG="$(mktemp)"
+          trap 'rm -f "${NPM_ERROR_LOG}"' EXIT
+
           MAX_LATEST_ATTEMPTS=20
           LATEST_VERSION=""
           LAST_LATEST_ERROR=""
@@ -301,13 +440,32 @@ jobs:
             echo "Timed out waiting for @agdf/cli@latest to resolve to ${VERSION} after ${MAX_LATEST_ATTEMPTS} attempts. Last error: ${LAST_LATEST_ERROR}" >&2
             exit 1
           fi
-
+        env:
+          NPM_CONFIG_FETCH_RETRIES: "0"
+          NPM_CONFIG_FETCH_TIMEOUT: "10000"
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node scripts/release-registry-state.mjs --report
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: wait-wrapper-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
       - name: Run clean public bootstrap smoke test
         run: AGDF_EXPECTED_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).version")" node ./packages/cli/scripts/release-bootstrap-smoke-test.js
-
       - name: Confirm all exact registry versions
         run: node scripts/release-registry-state.mjs --complete
-
       - name: Report exact registry state after failure
         if: failure()
         run: node scripts/release-registry-state.mjs --report

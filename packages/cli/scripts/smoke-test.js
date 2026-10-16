@@ -279,22 +279,27 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
     || releaseBootstrap.includes('["--yes", "@agdf/cli@latest", "codex"]')) {
     throw new Error("Clean public bootstrap must execute the exact release version after the workflow verifies the latest dist-tag separately.");
   }
-  const publishJobIndex = publishWorkflow.indexOf("\n  publish:");
-  const validateJob = publishWorkflow.slice(0, publishJobIndex);
-  const publishJob = publishWorkflow.slice(publishJobIndex);
-  if (!(validateJob.indexOf("Verify runtime-free source and plugin metadata") < validateJob.indexOf("Prepare and verify release assets")
-    && validateJob.indexOf("Prepare and verify release assets") < validateJob.indexOf("Verify built plugin integrity")
-    && validateJob.indexOf("Verify built plugin integrity") < validateJob.indexOf("Install MCP validation dependencies from checkout")
-    && validateJob.indexOf("Install MCP validation dependencies from checkout") < validateJob.indexOf("Run create-agdf smoke test")
-    && validateJob.indexOf("Run create-agdf smoke test") < validateJob.indexOf("Run @agdf/mcp-server tests")
-    && validateJob.indexOf("Run @agdf/mcp-server tests") < validateJob.indexOf("Verify @agdf/mcp-server package contents")
-    && validateJob.indexOf("Run create-agdf smoke test") < validateJob.indexOf("Verify create-agdf package contents"))) {
+  const { parse } = await import('yaml');
+  const release = parse(publishWorkflow);
+  const validateJob = release.jobs.validate.steps.map(step => step.name);
+  const before = (first, second) => validateJob.includes(first) && validateJob.includes(second)
+    && validateJob.indexOf(first) < validateJob.indexOf(second);
+  if (!(before('Verify runtime-free source and plugin metadata', 'Prepare and verify release assets')
+    && before('Prepare and verify release assets', 'Verify built plugin integrity')
+    && before('Verify built plugin integrity', 'Install MCP validation dependencies from checkout')
+    && before('Install MCP validation dependencies from checkout', 'Verify @agdf/mcp-server package contents')
+    && release.jobs.tests.uses === './.github/workflows/verify-agdf.yml'
+    && release.jobs.tests.with.scope === 'linux'
+    && release.jobs.publish.needs.includes('tests')
+    && release.jobs['verify-published-mcp'].with.suite === 'mcp'
+    && release.jobs['verify-published-mcp'].with.published === true)) {
     throw new Error("Publish validation must verify runtime-free source, prepare release assets and verify installed/package layouts before publication eligibility.");
   }
+  const publishJob = JSON.stringify(release.jobs.publish.steps);
   if (!(publishJob.indexOf("Prepare and verify release assets") < publishJob.indexOf("Verify built plugin integrity")
     && publishJob.indexOf("Verify built plugin integrity") < publishJob.indexOf("Verify create-agdf package contents")
     && publishJob.indexOf("Verify create-agdf package contents") < publishJob.indexOf("Publish create-agdf to npm")
-    && publishJob.includes("contents: read"))) {
+    && release.jobs.publish.permissions.contents === 'read')) {
     throw new Error("Publish job must prepare and verify the release-built plugin with read-only repository contents before npm publish.");
   }
 }

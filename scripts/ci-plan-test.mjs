@@ -30,8 +30,12 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
     }
   }
   const selected = inventory.filter(c => c.args.includes('--source-gate'));
-  assert.deepEqual(selected.map(c => c.args.at(-1)).sort(), Object.keys(SOURCE_PHASE_MATRIX).sort());
-  assert.equal(selected.reduce((n, c) => n + SOURCE_PHASE_MATRIX[c.args.at(-1)].length, 0), 18);
+  const cells = Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => [gate, phase]));
+  assert.deepEqual(selected.map(c => [c.args[c.args.indexOf('--source-gate') + 1], c.args[c.args.indexOf('--phase') + 1]]).sort(), cells.sort());
+  assert.equal(selected.length, 18);
+  for (const suite of ['cli', 'mcp']) for (const row of ciJobs({ suite }).filter(row => row.commands?.some(c => c.args.includes('--phase')))) {
+    assert.equal(row.commands.length, 1, `${row.id}: source/phase fixtures need an exclusive job`);
+  }
   assert.deepEqual(keys(testInventory({ suite: 'mcp' })), keys(inventory.filter(c => c.cwd === 'packages/mcp-server')));
   const mcp = ciJobs({ scope: 'linux', suite: 'mcp' })[0];
   const published = ciJobPlan(mcp, { suite: 'mcp', published: true });
@@ -71,7 +75,12 @@ test('over-budget tests fail planning instead of being omitted; selectors reject
     ['--matrix', 'true', '--suite', 'skip'], ['--matrix', 'true', '--scope', 'linux;echo']]) {
     assert.notEqual(spawnSync(process.execPath, ['scripts/ci-plan.mjs', ...args], { encoding: 'utf8' }).status, 0);
   }
-  assert.notEqual(spawnSync(process.execPath, ['packages/mcp-server/test/expanded-source-revision.test.js', '--source-gate', 'skip'], { encoding: 'utf8' }).status, 0);
+  for (const selector of [['--source-gate', 'skip'], ['--phase', 'SD'], ['--source-gate', 'PRD', '--phase', 'PRD'],
+    ['--source-gate', 'PRD', '--phase', 'skip'], ['--source-gate', 'PRD', '--phase', 'SD', 'extra']]) {
+    const result = spawnSync(process.execPath, ['packages/mcp-server/test/expanded-source-revision.test.js', ...selector], { encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Invalid source-gate\/phase test selector/);
+  }
 });
 
 test('all executable workflow jobs have a ten-minute ceiling and callers share the tested plan', () => {

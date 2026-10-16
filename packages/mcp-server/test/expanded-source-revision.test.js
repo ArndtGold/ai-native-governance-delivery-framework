@@ -12,8 +12,9 @@ import {validateRevisionHistory} from '../../core/lib/control-state/run-revision
 import {runSealState} from '../../core/lib/control-state/run-seal.js';
 
 const args=process.argv.slice(2);
-assert.ok(!args.length || (args.length===2 && args[0]==='--source-gate' && Object.hasOwn(SOURCE_PHASE_MATRIX,args[1])), 'Invalid source-gate test selector');
-const matrix=args.length ? {[args[1]]:SOURCE_PHASE_MATRIX[args[1]]} : SOURCE_PHASE_MATRIX;
+assert.ok(!args.length || ([2,4].includes(args.length) && args[0]==='--source-gate' && Object.hasOwn(SOURCE_PHASE_MATRIX,args[1]) &&
+  (args.length===2 || (args[2]==='--phase' && SOURCE_PHASE_MATRIX[args[1]].includes(args[3])))), 'Invalid source-gate/phase test selector');
+const matrix=args.length ? {[args[1]]:args.length===4 ? [args[3]] : SOURCE_PHASE_MATRIX[args[1]]} : SOURCE_PHASE_MATRIX;
 const runtime=createOwnedRuntimeFixture(),root=runtime.governanceTarget,seeds=mkdtempSync(join(tmpdir(),'agdf-mcp-expanded-seeds-'));
 try {
   const cli=join(runtime.dispatcherRoot,'bin/create-agdf.js'),fixture=createExpandedSourceRevisionFixture(root,cli,seeds);
@@ -21,6 +22,7 @@ try {
   await withStdioClient(runtime,async client=>{
     const call=async input=>{const result=await client.callTool({name:'agdf_revise',arguments:input});assert.ok(result.structuredContent,JSON.stringify(result));return result.structuredContent;};
     for(const [gate,phases] of Object.entries(matrix))for(const phase of phases){
+      console.log(`SCN-069/074: starting ${gate}/${phase}`);
       restore(phase);const {input}=prepare(gate),before=readFileSync(f.state,'utf8');
       const commandPath=join(root,f.prefix+'cli-command-'+randomUUID()+'.json');writeFileSync(commandPath,JSON.stringify(input));
       const cliPreview=JSON.parse(execFileSync(process.execPath,[cli,'agdf-revise','--command-file',commandPath],{encoding:'utf8'}));
@@ -38,6 +40,7 @@ try {
       assert.equal(replay.outcome,'already_applied');assert.equal((await call(applied)).outcome,'already_applied');
       assert.equal(readSourceRevisions(state().content).receipts.length,1);
       cells++;
+      console.log(`SCN-069/074: passed ${gate}/${phase}`);
     }
   });
   assert.equal(cells,Object.values(matrix).flat().length);console.log(`SCN-069/074: all ${cells} selected source/phase cells passed through actual generated CLI command adapter and owned STDIO MCP: identical read-only preview, canonical receipt/history, QA withdrawal and cross-adapter replay. Synthetic disposable decisions only; no native host proof.`);

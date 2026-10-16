@@ -73,7 +73,7 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
   }
   const commands = expand(suite === 'cli' ? 'smoke-test' : 'test', `packages/${suite === 'cli' ? 'cli' : 'mcp-server'}`);
   // This file exercises 18 independent source/phase cells. Preserve the full
-  // default invocation locally; CI executes all four validated source selectors.
+  // default invocation locally; CI executes each validated source/phase cell.
   return commands.flatMap(command => {
     if (command.tool === 'node') {
       const file = command.args.find(arg => !arg.startsWith('--'));
@@ -82,8 +82,9 @@ export function testInventory({ repository = root, suite = 'cli' } = {}) {
     }
     if (command.cwd !== 'packages/mcp-server' || command.args[0] !== './test/expanded-source-revision.test.js') return [command];
     const total = Object.values(SOURCE_PHASE_MATRIX).flat().length;
-    return Object.entries(SOURCE_PHASE_MATRIX).map(([gate, phases]) => ({ ...command, args: [...command.args, '--source-gate', gate],
-      seconds: Object.fromEntries(Object.entries(command.seconds ?? {}).map(([key, value]) => [key, value * phases.length / total + (key === 'windows' ? 60 : 15)])) }));
+    return Object.entries(SOURCE_PHASE_MATRIX).flatMap(([gate, phases]) => phases.map(phase => ({ ...command,
+      args: [...command.args, '--source-gate', gate, '--phase', phase], isolated: true,
+      seconds: Object.fromEntries(Object.entries(command.seconds ?? {}).map(([key, value]) => [key, value / total + (key === 'windows' ? 60 : 15)])) })));
   }).map(command => ({ ...command, id: createHash('sha256').update(identity(command)).digest('hex').slice(0, 12) }));
 }
 
@@ -96,8 +97,11 @@ export function partitionTests(commands, speed) {
     .sort((a, b) => b.cost - a.cost || a.order - b.order);
   for (const task of ranked) {
     if (task.cost > CI_TEST_BUDGET_SECONDS) throw Error(`Test needs finer partitioning: ${task.command.cwd} ${task.command.args.join(' ')} (${task.cost}s)`);
-    let group = groups.find(group => group.seconds + task.cost <= CI_TEST_BUDGET_SECONDS);
-    if (!group) { group = { seconds: 0, tasks: [] }; groups.push(group); }
+    // These transport fixtures have substantial per-invocation setup and highly
+    // variable Windows I/O. Their old PRD block exhausted run 38885088312's budget.
+    // Reserve a complete job for each cell rather than trusting averaged totals.
+    let group = !task.command.isolated && groups.find(group => !group.isolated && group.seconds + task.cost <= CI_TEST_BUDGET_SECONDS);
+    if (!group) { group = { seconds: 0, tasks: [], isolated: Boolean(task.command.isolated) }; groups.push(group); }
     group.tasks.push(task); group.seconds += task.cost;
   }
   return groups.map(group => ({ seconds: group.seconds,

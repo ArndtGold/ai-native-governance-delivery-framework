@@ -154,8 +154,10 @@ const evidenceText = evidenceTemplates.map((path) => readFileSync(path, "utf8"))
 for (const forbiddenKey of ["inquiryUrl", "sessionUrl", "identityDocument", "identityImage", "accessToken", "refreshToken", "sessionToken", "cookie", "credential"]) {
   assert.equal(new RegExp(`\\"${forbiddenKey}\\"\\s*:`, "i").test(evidenceText), false, `evidence templates must not define ${forbiddenKey}`);
 }
-const workflow = readFileSync(join(repoRoot, ".github", "workflows", "agdf-guardrails.yml"), "utf8");
-assert.equal(workflow.includes("node scripts/verify-ci.mjs --lane"), true, "CI must execute the shared verification plan");
+const workflow = ['agdf-guardrails.yml', 'verify-agdf.yml'].map(name =>
+  readFileSync(join(repoRoot, '.github', 'workflows', name), 'utf8')).join('\n');
+assert.equal(workflow.includes('uses: ./.github/workflows/verify-agdf.yml'), true, 'CI must use the shared verification workflow');
+assert.equal(workflow.includes('node scripts/ci-plan.mjs --job'), true, 'CI must execute partitions of the shared verification plan');
 const { verificationPlan } = await import("../../../scripts/verify-ci.mjs");
 const commands = verificationPlan().flatMap(stage => stage.commands.map(command => `${command.tool} ${command.args.join(' ')}`));
 assert.equal(commands.includes("npm --prefix packages/cli run release:prepare"), true, "CI must execute canonical release preparation");

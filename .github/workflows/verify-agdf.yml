@@ -1,0 +1,80 @@
+name: Partitioned AGDF verification
+
+on:
+  workflow_call:
+    inputs:
+      scope:
+        type: string
+        default: all
+      suite:
+        type: string
+        default: cli
+      published:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      - id: plan
+        name: Derive complete test partitions from canonical npm scripts
+        env:
+          CI_SCOPE: ${{ inputs.scope }}
+          CI_SUITE: ${{ inputs.suite }}
+        run: echo "matrix=$(node scripts/ci-plan.mjs --matrix true --scope "$CI_SCOPE" --suite "$CI_SUITE")" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: plan
+    name: ${{ matrix.id }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Enable Windows Git long paths
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            packages/control-ui/package-lock.json
+            packages/mcp-server/package-lock.json
+            pages/package-lock.json
+      - name: Verify the assigned partition with the shared local and CI plan
+        env:
+          CI_JOB: ${{ matrix.id }}
+          CI_SCOPE: ${{ inputs.scope }}
+          CI_SUITE: ${{ inputs.suite }}
+          CI_PUBLISHED: ${{ inputs.published }}
+        run: node scripts/ci-plan.mjs --job "$CI_JOB" --scope "$CI_SCOPE" --suite "$CI_SUITE" --published "$CI_PUBLISHED"
+      - name: Preserve command durations, including failures
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: ci-timings-${{ inputs.suite }}-${{ inputs.published }}-${{ matrix.id }}
+          path: ci-timings.json
+          if-no-files-found: error
+          retention-days: 14

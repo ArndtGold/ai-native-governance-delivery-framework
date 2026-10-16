@@ -57,4 +57,4 @@ export function createExpandedSourceRevisionFixture(root, cli, seeds) {
   };
   return {f,service,state,read,envelope,record,approve,save,restore,prepare};
 }
-export const SOURCE_PHASE_MATRIX={UR:['PRD','SD','TP','CD+Tests','QA','UAT'],PRD:['SD','TP','CD+Tests','QA','UAT'],SD:['TP','CD+Tests','QA','UAT'],TP:['CD+Tests','QA','UAT']};
+export { SOURCE_PHASE_MATRIX } from '../../../core/test/fixtures/source-phase-matrix.js';

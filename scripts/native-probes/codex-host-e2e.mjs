@@ -23,6 +23,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { spawnHostSync } from "../../packages/cli/lib/host-command.js";
 import { CODEX_HOOK_STATES } from "../../packages/core/lib/interaction-catalog.js";
+import { RELEASE_SCENARIOS } from './release-scenarios.mjs';
 
 const SERVER = "agdf";
 const TOOL = "agdf_dispatch";
@@ -34,6 +35,8 @@ if (!model) {
   process.exit(2);
 }
 const keep = args.includes("--keep");
+const scenario = option('--scenario', null);
+if (scenario !== null && !RELEASE_SCENARIOS.includes(scenario)) throw Error('Invalid release scenario');
 const codex = process.env.CODEX_BIN || "codex";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -141,7 +144,8 @@ const session = (input, label) => {
 
 const authSource = join(homedir(), ".codex", "auth.json");
 const authCopy = join(codexHome, "auth.json");
-const observation = { schema_version: 1, kind: "agdf_codex_host_e2e", recorded_at: new Date().toISOString(), requested_model: model };
+const observation = { schema_version: 1, kind: "agdf_codex_host_e2e", recorded_at: new Date().toISOString(), requested_model: model,
+  ...(scenario ? { scenario } : {}) };
 const commit = run("git", ["rev-parse", "HEAD"], { cwd: repo });
 const status = run("git", ["--no-optional-locks", "-c", "core.fsmonitor=false", "status", "--porcelain"], { cwd: repo });
 observation.source = { commit: commit.status === 0 ? commit.stdout.trim() : null,
@@ -153,7 +157,7 @@ try {
   step("host", version.status === 0, { version: observation.host.version });
 
   // 2. Install the current checkout through the AGDF CLI into the isolated host
-  const install = run(process.execPath, [join(repo, "create-agdf", "bin", "create-agdf.js"), "codex", "--accept-plugin-capabilities", "--json"]);
+  const install = run(process.execPath, [join(repo, "packages", "cli", "bin", "create-agdf.js"), "codex", "--accept-plugin-capabilities", "--json"]);
   let installReport = null;
   try { installReport = JSON.parse(install.stdout); } catch {}
   observation.agdf = { version: installReport?.plugin?.version?.installed ?? null };
@@ -175,7 +179,7 @@ try {
 
   // Prepare a real, isolated AGDF control target. A bare Git repository is intentionally not
   // sufficient for a positive dispatch result: it would correctly return target_content_mismatch.
-  const cli = join(repo, "create-agdf", "bin", "create-agdf.js");
+  const cli = join(repo, "packages", "cli", "bin", "create-agdf.js");
   const controlInit = run(process.execPath, [cli, "init", "--dir", target, "--json"], { cwd: target });
   const controlRun = run(process.execPath, [cli, "run-create", "--dir", target, "--run", "codex-e2e", "--json"], { cwd: target });
   step("control_fixture", controlInit.status === 0 && controlRun.status === 0,
@@ -198,6 +202,8 @@ try {
   if (localAuth && !apiKey) { copyFileSync(authSource, authCopy); chmodSync(authCopy, 0o600); }
 
   // 4. One real agdf_dispatch call on an explicit target: a non-authorizing terminal control result
+  observation.approval_path = hasAuth ? approvalPath : null;
+  if (!scenario || scenario === 'dispatch') {
   const good = canRunSessions ? session({ skill_id: "gate-check", presentation_language: "de", working_directory: target,
     target_source: "explicit_target", primary_target: target, run_id: "codex-e2e" }, "dispatch") : null;
   const call = good?.calls?.at(-1);
@@ -210,12 +216,16 @@ try {
       authorizes: call?.authorizes ?? null, approval_blocked: call?.approval_blocked ?? null, host_action: call?.host_action ?? null,
       exec_status: good.output.status, exec_stderr: redact(good.output.stderr).slice(0, 200) } : { skipped: hasAuth ? "prerequisite_failed" : "no ~/.codex/auth.json to copy" });
 
+  }
   // 5. Defined failure: a relative working directory yields invalid_input, not a crash
+  if (!scenario || scenario === 'failure_case') {
   const bad = canRunSessions ? session({ skill_id: "gate-check", presentation_language: "de", working_directory: "relative/dir" }, "failure") : null;
   const failure = bad?.calls?.at(-1);
   step("failure_case", Boolean(bad?.output.status === 0 && bad.observed_models.length === 1 && bad.observed_models[0] === model && bad.calls.length === 1 && failure?.outcome === "invalid_input" && failure.terminal === true && failure.authorizes === false && failure.plugin_id === "agdf@agdf"),
     canRunSessions ? { observed_models: bad.observed_models, plugin_id: failure?.plugin_id ?? null, calls: bad.calls.length, outcome: failure?.outcome ?? null, exec_status: bad.output.status, host_action: failure?.host_action ?? null } : { skipped: hasAuth ? "prerequisite_failed" : "authentication unavailable" });
+  }
   // Regression: judgement skills must receive contracts even though this isolated host has no trusted hook.
+  if (!scenario || scenario === 'skill_continuation') {
   const continued = canRunSessions ? session({ skill_id: "code-review", presentation_language: "de", working_directory: target,
     target_source: "explicit_target", primary_target: target, run_id: "codex-e2e" }, "continuation") : null;
   const continuation = continued?.calls?.at(-1);
@@ -228,11 +238,12 @@ try {
       exec_status: continued?.output.status ?? null,
       plugin_id: continuation?.plugin_id ?? null, outcome: continuation?.outcome ?? null,
       contract_modules: continuation?.contract_modules ?? [], contracts_verified: continuation?.contracts_verified ?? false });
+  }
   rmSync(authCopy, { force: true });
 
   // 6. Removal: the documented AGDF uninstall runs `codex plugin remove` and removes the owned runtime.
   // Do not edit host configuration before removal: evidence must describe the real uninstall.
-  const uninstall = run(process.execPath, [join(repo, "create-agdf", "bin", "create-agdf.js"), "uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"]);
+  const uninstall = run(process.execPath, [join(repo, "packages", "cli", "bin", "create-agdf.js"), "uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"]);
   writeFileSync(join(results, "uninstall-process.json"), redact(JSON.stringify(uninstall, null, 2)));
   const after = run(codex, ["mcp", "list"], { cwd: target });
   const config = existsSync(configPath) ? readFileSync(configPath, "utf8") : "";

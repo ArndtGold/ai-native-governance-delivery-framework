@@ -36,9 +36,10 @@ function expandVerificationSteps(steps) {
     })));
   });
 }
-const sharedGuardrails = guardrails.jobs.verify.steps.filter(step => String(step.run ?? '').includes('scripts/verify-ci.mjs'));
-assert.equal(sharedGuardrails.length, 1, 'Guardrails must execute the complete shared plan once');
-assert.equal(sharedGuardrails[0].run, "node scripts/verify-ci.mjs --lane ${{ matrix.repository_checks && 'repository' || 'runtime' }} ${{ matrix.smoke_shard && format('--smoke-shard {0}', matrix.smoke_shard) || '' }}");
+assert.equal(guardrails.jobs.verify.uses, './.github/workflows/verify-agdf.yml');
+assert.equal(publish.jobs.tests.uses, './.github/workflows/verify-agdf.yml');
+assert.equal(publish.jobs.tests.with.scope, 'linux');
+assert.ok(publish.jobs.publish.needs.includes('tests'));
 const guardrailPlan = verificationPlan().flatMap(stage => stage.commands.map(command => ({
   run: `${command.tool} ${command.args.join(' ')}`, ...(command.cwd ? { 'working-directory': command.cwd } : {}),
 })));
@@ -99,12 +100,23 @@ assert.ok(firstPublish > 0);
 assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("--preflight")) < firstPublish);
 assert.ok(publishSteps.findIndex((step) => String(step.run ?? "").includes("NPM_TOKEN is required")) < firstPublish);
 assert.ok(publishSteps.some((step) => step.if === "failure()" && String(step.run).includes("--report")));
-assert.ok(publishSteps.some((step) => String(step.run ?? "").includes("--complete")));
+assert.ok(publish.jobs.bootstrap.steps.some((step) => String(step.run ?? "").includes("--complete")));
+const chain = ['publish', 'wait-create-agdf', 'verify-published-mcp', 'publish-mcp', 'wait-mcp', 'publish-wrapper', 'wait-wrapper', 'wait-wrapper-latest', 'bootstrap'];
+for (let i = 1; i < chain.length; i++) assert.equal(publish.jobs[chain[i]].needs, chain[i - 1]);
+assert.deepEqual(publish.jobs['verify-published-mcp'].with, { scope: 'linux', suite: 'mcp', published: true });
+for (const name of ['publish', 'publish-mcp', 'publish-wrapper']) {
+  assert.deepEqual(publish.jobs[name].permissions, { contents: 'read', 'id-token': 'write' });
+  assert.equal(publish.jobs[name].steps.filter(step => String(step.run ?? '').includes('npm publish')).length, 1);
+}
+for (const name of ['wait-create-agdf', 'wait-mcp', 'wait-wrapper', 'wait-wrapper-latest', 'bootstrap']) {
+  assert.ok(!publish.jobs[name].permissions?.['id-token']);
+  assert.ok(publish.jobs[name].steps.every(step => !JSON.stringify(step).includes('secrets.')));
+}
 for (const [name, text] of Object.entries({ publish: publishText, guardrails: guardrailsText, native: nativeText, evidence: evidenceText })) {
   for (const [, reference] of text.matchAll(/uses:\s+(actions\/[^\s#]+)/gu)) {
     assert.match(reference, /^actions\/[a-z-]+@[0-9a-f]{40}$/u, `${name} must pin each external action by full SHA`);
   }
-  assert.equal(text.includes("--package-lock=false"), name === "publish", `${name} dependency policy drift`);
+  assert.equal(text.includes("--package-lock=false"), false, `${name}: unlocked installs belong only to published MCP partitions`);
 }
 assert.match(nativeText, /refs\/tags\/agdf-v\*/u);
 assert.doesNotMatch(nativeText, /refs\/tags\/create-agdf-v\*/u);

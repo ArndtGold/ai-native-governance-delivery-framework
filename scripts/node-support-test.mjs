@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
+import { ciJobs } from "./ci-plan.mjs";
 
 const root = new URL("../", import.meta.url);
 const json = path => JSON.parse(readFileSync(new URL(path, root), "utf8"));
@@ -30,11 +31,11 @@ for (const file of readdirSync(new URL(".github/workflows/", root))) {
   }
 }
 const guardrails = parse(readFileSync(new URL(".github/workflows/agdf-guardrails.yml", root), "utf8"));
-assert.deepEqual(guardrails.jobs.verify.strategy.matrix.include.map(row => [row.os, row.node]),
-  [["ubuntu-latest", 22], ["windows-latest", 22], ["windows-latest", 22], ["windows-latest", 22], ["ubuntu-latest", 24]]);
-assert.deepEqual(guardrails.jobs.verify.strategy.matrix.include.filter(row => row.os === 'windows-latest').map(row => row.smoke_shard),
-  ['installation', 'package', 'governance']);
-assert.equal(guardrails.jobs.verify['timeout-minutes'], 45, 'sharding must retain the existing per-job time budget');
+assert.equal(guardrails.jobs.verify.uses, './.github/workflows/verify-agdf.yml');
+const shared = parse(readFileSync(new URL('.github/workflows/verify-agdf.yml', root), 'utf8'));
+assert.deepEqual([...new Set(ciJobs().map(row => row.os + '/' + row.node))],
+  ['ubuntu-latest/22', 'windows-latest/22', 'ubuntu-latest/24']);
+assert.equal(shared.jobs.verify['timeout-minutes'], 10);
 
 function assertWindowsCheckoutPreconditions(steps) {
   const checkout = steps.findIndex(step => step.uses?.startsWith("actions/checkout@"));
@@ -42,7 +43,7 @@ function assertWindowsCheckoutPreconditions(steps) {
     && step.if === "runner.os == 'Windows'");
   assert.ok(longPaths >= 0 && longPaths < checkout, "Windows Git long paths must be enabled before checkout");
 }
-const guardrailSteps = guardrails.jobs.verify.steps;
+const guardrailSteps = shared.jobs.verify.steps;
 assertWindowsCheckoutPreconditions(guardrailSteps);
 const nativeRelease = parse(readFileSync(new URL(".github/workflows/codex-release-e2e.yml", root), "utf8"));
 assertWindowsCheckoutPreconditions(nativeRelease.jobs.native.steps);

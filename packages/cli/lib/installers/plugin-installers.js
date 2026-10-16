@@ -4,7 +4,7 @@ import { inspectCodexPlugin, bootstrapCommands as codexCommands } from "../host-
 import { inspectClaudePlugin, bootstrapCommands as claudeCommands } from "../host-adapters/claude/plugin.js";
 import { inspectCopilotPlugin, bootstrapCommands as copilotCommands } from "../host-adapters/copilot/plugin.js";
 export { installCodexGlobalPlugin } from "../host-adapters/codex/plugin.js";
-export { installClaudeGlobalPlugin } from "../host-adapters/claude/plugin.js";
+export { installClaudeGlobalPlugin, preflightClaudeInstall } from "../host-adapters/claude/plugin.js";
 export { COPILOT_CLI_NPM_PACKAGE, installCopilotGlobalPlugin, classifyCopilotMarketplaceList, copilotNpmInvocation, setCopilotPluginEnabled } from "../host-adapters/copilot/plugin.js";
 export { pluginListHasPlugin, pluginVersionFromList } from "./plugin-command.js";
 

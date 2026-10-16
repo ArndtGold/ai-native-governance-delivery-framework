@@ -12,7 +12,11 @@ export function historicalEvidenceEntries(transaction) {
 
 export function rollbackMarketplaceFilesystem(transaction, recovery) {
   try {
-    transaction.rollback();
+    // A committed transaction cannot be rolled back; claiming a restoration would misreport the state.
+    if (transaction.rollback() === "already_closed") {
+      recovery.push({ filesystem: transaction.root, status: "not_applicable_committed" });
+      return false;
+    }
     recovery.push({ filesystem: transaction.root, status: "restored" });
     return true;
   } catch (rollbackError) {

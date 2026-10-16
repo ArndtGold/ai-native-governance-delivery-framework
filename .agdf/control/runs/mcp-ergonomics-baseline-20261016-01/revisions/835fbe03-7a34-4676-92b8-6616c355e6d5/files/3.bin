@@ -1,0 +1,82 @@
+# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: mcp-ergonomics-baseline-20261016-01
+- lifecycle: active
+- revision: 5
+- revision_id: 8313194f-c300-49df-a2bb-0ba055dfd7dd
+- content_seal: sha256:dd3141e68f9d602a93e5b1443f761c9d53297fbba23156799b4da66ce6561e5a
+- approval_seal: sha256:b007f5169e0dfea238204ff026f6e0cda3da48f11deb8e5236a48348350a38d5
+- updated_at: 2026-10-16T06:46:32.523Z
+- mode: structured_slice
+- current_gate: PRD
+- decision: in_progress
+- owner: agent
+
+## Objective
+
+A repeatable MCP ergonomics evaluation exists and has produced a committed baseline for the current AGDF MCP interfaces. Later phases can re-run the same evaluation unchanged and compare their results with this baseline.
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Brownfield Review at `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md` selected `structured_slice`. |
+| What is approved? | Approval: UR |
+| What is missing? | Exact Approval: PRD. |
+| What is the next allowed action? | Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved. |
+| What is explicitly forbidden right now? | create SD; create TP; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | `Approval: UR` · 2026-10-16 · revision 3 · `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md` sha256:32802403e063c7cd · presentation 8796f227-97ae-4fe7-afe3-a9bca433bf54 sha256:9698f3f9681c58ce1a289a9013e92c92406389d9110ca2cff754162a74cb0a2a |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md` | approved |  |
+| Brownfield Review | `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md` | done |  |
+| Verified Change |  | missing |  |
+| PRD |  | missing |  |
+| SD |  | missing |  |
+| TP |  | missing |  |
+| Brownfield Analysis |  | missing |  |
+| CD+Tests |  | missing |  |
+| CR |  | missing |  |
+| QA |  | missing |  |
+
+## Mode/Slice Decision
+
+- decision: structured_slice
+- required_next_gate: PRD
+- scope_reason: bounded_structured_slice: new repeatable MCP ergonomics evaluation reusing the MCP test harness, native probes and eval layout; no full-depth trigger; all seven bounded-slice checks pass. Rejected: quick_task/verified_change (new capability, several owners, nondeterministic native layer) and structured_delivery (no evidenced trigger).
+- evidence: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-16 · revision 3 · `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md` sha256:32802403e063c7cd · presentation 8796f227-97ae-4fe7-afe3-a9bca433bf54 sha256:9698f3f9681c58ce1a289a9013e92c92406389d9110ca2cff754162a74cb0a2a |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Run creation | run-create | Control initialization | direct |
+| UR draft | `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+| Brownfield Review | `.agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_slice` | direct |
+
+## Closeout
+
+- next_allowed_action: Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved.
+- quality_outlook:

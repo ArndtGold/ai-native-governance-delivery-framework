@@ -137,6 +137,40 @@ export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "lib/npm-invocation.js",
 ]);
 
+const COPILOT_CONTEXT_EMITTER = `  const emitContext = (additionalContext) => {
+    if (surface === "copilot") console.log(JSON.stringify({ additionalContext }));
+    else console.log(additionalContext);
+  };`;
+
+const COPILOT_CONSENT_GATE = `  let consentEnabled = false;
+  if (["codex", "claude", "copilot", "opencode"].includes(surface)) {`;
+
+// Claude Code runs the hook only while the AGDF plugin is enabled, so enablement is its consent
+// (automaticRuntimeChecks.surfaces.claude: plugin-enablement); no receipt exists or is required.
+const CLAUDE_PLUGIN_CONSENT_GATE = `  let consentEnabled = surface === "claude";
+  if (["codex", "copilot", "opencode"].includes(surface)) {`;
+
+// Claude Code loads a directory-marketplace plugin in place, so the version alone cannot reveal a
+// stale plugin root; its installation provenance can. The notice is appended last, so the kernel,
+// the binding and the runtime facts keep their positions.
+const CLAUDE_DRIFT_AWARE_CONTEXT_EMITTER = `  let installationDrift = null;
+  if (surface === "claude") {
+    try { installationDrift = inspectClaudeHostInstallationDrift({ pluginRoot }); } catch {}
+  }
+  const driftContext = installationDrift?.status === "drift"
+    ? \`AGDF installation drift: \${JSON.stringify({
+      ...installationDrift,
+      recovery: installationDrift.packaged_app_copy
+        ? "Tell the user before relying on AGDF: this session loads AGDF from the private copy of packaged app " + installationDrift.packaged_app_copy + ", not from the installation. Reinstall AGDF from a terminal outside that app, then restart it."
+        : "Tell the user before relying on AGDF: this session loads another AGDF state than the one last installed for Claude, for example after another host's AGDF install changed the shared marketplace. Reinstall AGDF for Claude from a terminal outside Claude Desktop, then restart Claude Code.",
+    })}\`
+    : "";
+  const emitContext = (additionalContext) => {
+    const context = driftContext ? [additionalContext, driftContext].join("\\n\\n") : additionalContext;
+    if (surface === "copilot") console.log(JSON.stringify({ additionalContext: context }));
+    else console.log(context);
+  };`;
+
 export function syncPluginRuntime({ outputRoot, mcpRuntime = false, copilot = false } = {}) {
   outputRoot = safeOutputRoot(outputRoot);
   const bundledPackageRoot = join(outputRoot, "create-agdf");
@@ -221,7 +255,8 @@ import { homedir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { digestNormalizedPluginSource } from "./create-agdf/lib/runtime/plugin-provenance.js";
+import { digestNormalizedPluginSource } from "./create-agdf/lib/runtime/plugin-provenance.js";${copilot ? "" : `
+import { inspectClaudeHostInstallationDrift } from "./create-agdf/runtime/core/lib/runtime/host-installation.js";`}
 import { resolvePluginHostEnvironment } from "./create-agdf/lib/runtime/local-validator.js";
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from "./create-agdf/lib/runtime-check-consent/contract.js";
 import { resolveRepositoryContext } from "./create-agdf/lib/repository-context.js";
@@ -266,12 +301,8 @@ if (process.argv.length !== 2) {
   const activationKernel = ${JSON.stringify(activationKernel.kernel)};
   const bindingContext = dispatchBinding ? \`AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}\` : unavailableDispatchContext();
   const baseContext = [activationKernel, bindingContext].join("\\n\\n");
-  const emitContext = (additionalContext) => {
-    if (surface === "copilot") console.log(JSON.stringify({ additionalContext }));
-    else console.log(additionalContext);
-  };
-  let consentEnabled = false;
-  if (["codex", "claude", "copilot", "opencode"].includes(surface)) {
+${copilot ? COPILOT_CONTEXT_EMITTER : CLAUDE_DRIFT_AWARE_CONTEXT_EMITTER}
+${copilot ? COPILOT_CONSENT_GATE : CLAUDE_PLUGIN_CONSENT_GATE}
     try {
       const receipt = JSON.parse(readFileSync(join(dataRoot, "runtime-checks", \`\${surface}.json\`), "utf8"));
       consentEnabled = receipt?.schema_version === 1
@@ -279,7 +310,7 @@ if (process.argv.length !== 2) {
         && receipt?.capability_id === "automatic-runtime-checks"
         && receipt?.surface === surface
         && receipt?.requested_state === "enabled";
-      if (consentEnabled && ["codex", "claude", "copilot"].includes(surface)) {
+      if (consentEnabled && [${copilot ? '"codex", "claude", "copilot"' : '"codex", "copilot"'}].includes(surface)) {
         const definition = JSON.parse(readFileSync(new URL("../meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
         const currentIdentity = runtimeCheckCapabilityIdentity({
           capability: definition.automaticRuntimeChecks,
@@ -321,7 +352,7 @@ if (process.argv.length !== 2) {
     });
     try {
       const report = JSON.parse(child.stdout || "{}");
-      const supportedStatuses = new Set(["pass", "warn", "block", "blocked", "error", "failed", "unknown", "unavailable"]);
+      const supportedStatuses = new Set(["pass", "warn", "revise", "block"]);
       const rawStatus = typeof report.status === "string" ? report.status : "unknown";
       const rawFindings = report.summary?.findings ?? report.reports?.reduce((sum, item) => sum + (item.summary?.findings ?? 0), 0) ?? 0;
       check = {

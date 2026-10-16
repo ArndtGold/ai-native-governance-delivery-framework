@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tryLinkFile } from '../../../scripts/support/symlinks.js';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -29,7 +30,9 @@ try {
     { ...record, evidence: [{ path: '../outside.log', digest: hash }] }]) assert.equal(evaluateDecisionAppQualification(root, altered, expected), false);
   assert.equal(evaluateDecisionAppQualification(root, record, { ...expected, client: undefined }), false);
   writeFileSync(join(root, path), 'Changed evidence'); assert.equal(inspectDecisionAppQualification(root, record, expected).reason, 'qualification_evidence_digest_mismatch'); assert.equal(evaluateDecisionAppQualification(root, record, expected), false);
-  rmSync(join(root, path)); symlinkSync(join(root, 'elsewhere.log'), join(root, path));
-  writeFileSync(join(root, 'elsewhere.log'), bytes); assert.equal(inspectDecisionAppQualification(root, record, expected).reason, 'qualification_evidence_symlink'); assert.equal(evaluateDecisionAppQualification(root, record, expected), false);
+  rmSync(join(root, path));
+  if (tryLinkFile(join(root, 'elsewhere.log'), join(root, path), 'decision-qualification')) {
+    writeFileSync(join(root, 'elsewhere.log'), bytes); assert.equal(inspectDecisionAppQualification(root, record, expected).reason, 'qualification_evidence_symlink'); assert.equal(evaluateDecisionAppQualification(root, record, expected), false);
+  }
   console.log('Private qualification tuple/evidence containment, exact host/candidate/hash binding and unknown/missing/tampered/symlink rejection passed (synthetic contract only).');
 } finally { rmSync(root, { recursive: true, force: true }); }

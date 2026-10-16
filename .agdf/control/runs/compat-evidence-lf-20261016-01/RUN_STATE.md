@@ -1,0 +1,105 @@
+# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: compat-evidence-lf-20261016-01
+- lifecycle: completed
+- revision: 8
+- revision_id: f4fefd8f-0e8f-4190-9bd8-bd25d8e8ee47
+- content_seal: sha256:b1d071074953a2716d99eabaea46c80aa0338d8a3634a3f2056cf39fc2298d7f
+- approval_seal: sha256:487186d6922302624374dd126383cab40e690e29384207e6a1ac0aa419ee47b7
+- updated_at: 2026-10-16T06:48:15.894Z
+- mode: quick_task
+- current_gate: OR
+- decision: completed
+- owner: agent
+
+## Objective
+
+The committed host-compatibility evidence matches the LF bytes CI checks out, so `compatibility:check` passes on CI as it does locally.
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Run delivery completed; exact OR-lite at .agdf/control/artefacts/compat-evidence-lf-20261016-01/OR.md. |
+| What is approved? | Approval: UR |
+| What is missing? | No approval is pending. |
+| What is the next allowed action? | Run completed; prepare a VCS handoff only when explicitly requested. |
+| What is explicitly forbidden right now? | repeat completed Run work; perform VCS or release actions automatically |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | `Approval: UR` · 2026-10-16 · revision 4 · `.agdf/control/artefacts/compat-evidence-lf-20261016-01/UR.md` sha256:0d63140d6547e8b7 · presentation b87e8675-44bf-4877-b603-5376f06d417a sha256:a01ca82a17d2fdf3608c7d8037137f914a89bd509440d0cd20c20fd5623ed133 |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | `.agdf/control/artefacts/compat-evidence-lf-20261016-01/UR.md` | approved |  |
+| Brownfield Review | `.agdf/control/artefacts/compat-evidence-lf-20261016-01/BROWNFIELD_REVIEW.md` | done |  |
+| Verified Change |  | missing |  |
+| PRD |  | missing |  |
+| SD |  | missing |  |
+| TP |  | missing |  |
+| Brownfield Analysis |  | missing |  |
+| CD+Tests |  | missing |  |
+| CR | .agdf/control/artefacts/compat-evidence-lf-20261016-01/CODE_REVIEW.md | done | Bound actual Code Review result |
+| QA |  | missing |  |
+| OR | .agdf/control/artefacts/compat-evidence-lf-20261016-01/OR.md | done | Bound exact orchestration report |
+
+## Mode/Slice Decision
+
+- decision: quick_task
+- required_next_gate: Quick Task Execution
+- scope_reason: Evidence regeneration with the existing recorder after normalizing one working copy to its committed LF bytes; no product code, contract, architecture, policy or persistence change; CR remains mandatory.
+- evidence: .agdf/control/artefacts/compat-evidence-lf-20261016-01/BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-16 · revision 4 · `.agdf/control/artefacts/compat-evidence-lf-20261016-01/UR.md` sha256:0d63140d6547e8b7 · presentation b87e8675-44bf-4877-b603-5376f06d417a sha256:a01ca82a17d2fdf3608c7d8037137f914a89bd509440d0cd20c20fd5623ed133 |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Run creation | run-create | Control initialization | direct |
+| UR draft | `.agdf/control/artefacts/compat-evidence-lf-20261016-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+| Brownfield Review | `.agdf/control/artefacts/compat-evidence-lf-20261016-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `quick_task` | direct |
+| .agdf/control/artefacts/compat-evidence-lf-20261016-01/CD_TESTS.md | agent | quick task implementation and checks | direct |
+| Code Review | code-review | decision pass: .agdf/control/artefacts/compat-evidence-lf-20261016-01/CODE_REVIEW.md | direct |
+| OR | .agdf/control/artefacts/compat-evidence-lf-20261016-01/OR.md | selected Run closeout; no VCS or publication effect | bound cooperative result |
+
+## Closeout
+
+- next_allowed_action: Run completed; prepare a VCS handoff only when explicitly requested.
+- quality_outlook:
+
+## Run Operations
+
+- schema_version: 1
+
+| operation_id | request_digest | receipt |
+|---|---|---|
+| 95a6a834-3876-4e82-9f02-a61c72591b89 | sha256:f7a24ad4c74e85ee2c7c937bea51bfaefea8a48e754356d8bd0d3e971c9f1627 | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTAtMTZUMDY6NDc6MzIuMzk1WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImJkNTE2YTdmLWY4MjgtNDc4Yi05NmIwLTRiYzMzODQ2Yjk0MyIsInJlY29yZCI6eyJjb3ZlcnMiOiJxdWljayB0YXNrIGltcGxlbWVudGF0aW9uIGFuZCBjaGVja3MiLCJzb3VyY2UiOnsiZGlnZXN0Ijoic2hhMjU2OjAzOGFjYjA0MjdhODdmOWQwZTQ0YmM0MmU1YmExY2Q5YTJmNzdlNDUwZWUwZWZkMTJlZmE5ZTMyY2U5YzZmMjciLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29tcGF0LWV2aWRlbmNlLWxmLTIwMjYxMDE2LTAxL0NEX1RFU1RTLm1kIn0sInNvdXJjZV9zZXRfZGlnZXN0Ijoic2hhMjU2OjQ4OTU2YTE3MmZjNTdjYmI5NjcyNjY0NzcyZjJiYzYyZmI3ZmI0MTQzNjJiNWYyZWM2MDBlNzQwOTRkMmIyMzEiLCJzdGF0dXMiOiJkb25lIiwic3RlcCI6ImV2aWRlbmNlIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjY5Mjc4YTRhLTg3ZGUtNDI1YS05N2MwLWY1ZTM5NTEyMTZkNiIsInJldmlzaW9uIjo2fSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOiJiZDUxNmE3Zi1mODI4LTQ3OGItOTZiMC00YmMzMzg0NmI5NDMiLCJraW5kIjoic3RlcC5yZWNvcmQiLCJvcGVyYXRpb25faWQiOiI5NWE2YTgzNC0zODc2LTRlODItOWYwMi1hNjFjNzI1OTFiODkiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjE0LjUifSwicmVxdWVzdF9kaWdlc3QiOiJzaGEyNTY6ZjdhMjRhZDRjNzRlODVlZTJjN2M5MzdiZWE1MWJmYWVmZWE4YTQ4ZTc1NDM1NmQ4YmQwZDNlOTcxYzlmMTYyNyIsInJ1bl9pZCI6ImNvbXBhdC1ldmlkZW5jZS1sZi0yMDI2MTAxNi0wMSIsInNjaGVtYV92ZXJzaW9uIjoiMSIsInRhcmdldF9pZCI6InNoYTI1NjphZmIzMTg3M2VmYTkxZDg5MmI5MDQ2NjMxMjY4ZDc5ZjFjOGNiNDNhYTM5MmMwZWY1ZTRkMmZkNTAwMjkzZjEwIn0 |
+| c083fe1c-0ae7-4281-8d10-b7424193e57d | sha256:0e0fffe2ebebfcbc9839b2513ceb2ce74c6dbd076d28f4f226b8cda080ba871c | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTAtMTZUMDY6NDc6NTAuMjcxWiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6IjY5Mjc4YTRhLTg3ZGUtNDI1YS05N2MwLWY1ZTM5NTEyMTZkNiIsInJlY29yZCI6eyJjb3ZlcnMiOiJzZWxlY3RlZCBSdW4gc2NvcGUiLCJzb3VyY2UiOnsiZGlnZXN0Ijoic2hhMjU2OmRhYWQzOGJmZjhkZjJiMmU2ZWRiY2JkNzRhMjdmZmRjMTE0YmE4MTU0NzZjODBlZjdjZjFhOTM5ZjQwNTE0OTYiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29tcGF0LWV2aWRlbmNlLWxmLTIwMjYxMDE2LTAxL0NPREVfUkVWSUVXLm1kIn0sInNvdXJjZV9zZXRfZGlnZXN0Ijoic2hhMjU2OjFkNzU3ZDkxNjk3YWM4ZjExMDEyYzczZDQ0ZDdkZmZiNjZmZjIwZDgyMWQ5Zjk5ZDlkNjZjZjZkMjQ3OTlmNWQiLCJzdGF0dXMiOiJkb25lIiwic3RlcCI6InJldmlldyJ9LCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiI1MGU3NmVmYS03Y2VlLTQ1ZTItYWNjNC05Mzg1YTFjMjlkYzMiLCJyZXZpc2lvbiI6N30sImV4cGVjdGVkX3JldmlzaW9uX2lkIjoiNjkyNzhhNGEtODdkZS00MjVhLTk3YzAtZjVlMzk1MTIxNmQ2Iiwia2luZCI6InN0ZXAucmVjb3JkIiwib3BlcmF0aW9uX2lkIjoiYzA4M2ZlMWMtMGFlNy00MjgxLThkMTAtYjc0MjQxOTNlNTdkIiwicHJvZHVjZXIiOnsiY29udHJhY3QiOiJydW4tY29tbWFuZC8xIiwicGFja2FnZV92ZXJzaW9uIjoiMC4xNC41In0sInJlcXVlc3RfZGlnZXN0Ijoic2hhMjU2OjBlMGZmZmUyZWJlYmZjYmM5ODM5YjI1MTNjZWIyY2U3NGM2ZGJkMDc2ZDI4ZjRmMjI2YjhjZGEwODBiYTg3MWMiLCJydW5faWQiOiJjb21wYXQtZXZpZGVuY2UtbGYtMjAyNjEwMTYtMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6YWZiMzE4NzNlZmE5MWQ4OTJiOTA0NjYzMTI2OGQ3OWYxYzhjYjQzYWEzOTJjMGVmNWU0ZDJmZDUwMDI5M2YxMCJ9 |
+| 9a215a0e-1991-4bdf-84a5-82cafcdbe88b | sha256:5ab38eaf4b1129b04b1e4c53d4fa8a94efe455124bf238d90e122272f662640a | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTAtMTZUMDY6NDg6MTUuODU4WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6IjUwZTc2ZWZhLTdjZWUtNDVlMi1hY2M0LTkzODVhMWMyOWRjMyIsInJlY29yZCI6eyJjb25maXJtYXRpb25fZGlnZXN0Ijoic2hhMjU2OjZkOWMzZDA5NGI2OGI1YzRmYWE4MTUzNDk5ZWY2OTVlNjRiZTQwMTE4ZWNmMjBlNjk4M2MwNTZkNTZjYTM4NjMiLCJjb250ZXh0X2V2aWRlbmNlX2RpZ2VzdCI6InNoYTI1Njo5MzE3NmEzMjY0OTNiY2NlZTQ4MzhkMWM5NWMzODFkMjZkYTc5MmIxYTcxMThiN2RjMmE0ZmJlMTU2NmMyYTlhIiwibGlmZWN5Y2xlIjoiY29tcGxldGVkIiwib3IiOnsiZGlnZXN0Ijoic2hhMjU2OjQwYjVkNDRiOTBmN2RkOWQzMmEwZDI0MzNmNDgxMDc1YmY0NDYyZGI3NmM1YTYwOWM3YTA1MWI3MGM1ODkyNjYiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29tcGF0LWV2aWRlbmNlLWxmLTIwMjYxMDE2LTAxL09SLm1kIn19LCJyZXN1bHRpbmdfcmV2aXNpb25faWQiOiJmNGZlZmQ4Zi0wZThmLTQxOTAtOWJkOC1iZDI1ZDhlOGVlNDciLCJyZXZpc2lvbiI6OH0sImV4cGVjdGVkX3JldmlzaW9uX2lkIjoiNTBlNzZlZmEtN2NlZS00NWUyLWFjYzQtOTM4NWExYzI5ZGMzIiwia2luZCI6ImNsb3Nlb3V0LnJlY29yZCIsIm9wZXJhdGlvbl9pZCI6IjlhMjE1YTBlLTE5OTEtNGJkZi04NGE1LTgyY2FmY2RiZTg4YiIsInByb2R1Y2VyIjp7ImNvbnRyYWN0IjoicnVuLWNvbW1hbmQvMSIsInBhY2thZ2VfdmVyc2lvbiI6IjAuMTQuNSJ9LCJyZXF1ZXN0X2RpZ2VzdCI6InNoYTI1Njo1YWIzOGVhZjRiMTEyOWIwNGIxZTRjNTNkNGZhOGE5NGVmZTQ1NTEyNGJmMjM4ZDkwZTEyMjI3MmY2NjI2NDBhIiwicnVuX2lkIjoiY29tcGF0LWV2aWRlbmNlLWxmLTIwMjYxMDE2LTAxIiwic2NoZW1hX3ZlcnNpb24iOiIxIiwidGFyZ2V0X2lkIjoic2hhMjU2OmFmYjMxODczZWZhOTFkODkyYjkwNDY2MzEyNjhkNzlmMWM4Y2I0M2FhMzkyYzBlZjVlNGQyZmQ1MDAyOTNmMTAifQ |
+
+## Evidence Bindings
+
+- schema_version: 1
+
+| operation_id | binding |
+|---|---|
+| 95a6a834-3876-4e82-9f02-a61c72591b89 | eyJhY3Rpb24iOiJzdGVwLnJlY29yZCIsImFzc3VyYW5jZSI6eyJpbmRlcGVuZGVudF9odW1hbl9wcm9vZiI6InVuYXZhaWxhYmxlIiwibGFuZSI6ImNvb3BlcmF0aXZlX2xvY2FsIiwicmVwbHlfcHJvdmVuYW5jZSI6ImNhbGxlcl9mb3J3YXJkZWRfZGVsaWJlcmF0ZV9yZXBseSJ9LCJvcGVyYXRpb25faWQiOiI5NWE2YTgzNC0zODc2LTRlODItOWYwMi1hNjFjNzI1OTFiODkiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjE0LjUifSwicmVwb3J0Ijp7ImRpZ2VzdCI6InNoYTI1NjowMzhhY2IwNDI3YTg3ZjlkMGU0NGJjNDJlNWJhMWNkOWEyZjc3ZTQ1MGVlMGVmZDEyZWZhOWUzMmNlOWM2ZjI3IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvbXBhdC1ldmlkZW5jZS1sZi0yMDI2MTAxNi0wMS9DRF9URVNUUy5tZCJ9LCJydW5faWQiOiJjb21wYXQtZXZpZGVuY2UtbGYtMjAyNjEwMTYtMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2Vfc2V0X2RpZ2VzdCI6InNoYTI1Njo0ODk1NmExNzJmYzU3Y2JiOTY3MjY2NDc3MmYyYmM2MmZiN2ZiNDE0MzYyYjVmMmVjNjAwZTc0MDk0ZDJiMjMxIiwic291cmNlcyI6W3siZGlnZXN0Ijoic2hhMjU2OjBkNjMxNDBkNjU0N2U4Yjc4YjNhOTA1YjYyOWU4ZTliM2UyZTcyOWU3ZmQ2Y2I5YmNlOTBmYjBkMjhkOWI2NjkiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29tcGF0LWV2aWRlbmNlLWxmLTIwMjYxMDE2LTAxL1VSLm1kIiwic3RhdHVzIjoiYXBwcm92ZWQiLCJ0eXBlIjoiVVIifSx7ImRpZ2VzdCI6bnVsbCwicGF0aCI6IiIsInN0YXR1cyI6Im1pc3NpbmciLCJ0eXBlIjoiUFJEIn0seyJkaWdlc3QiOm51bGwsInBhdGgiOiIiLCJzdGF0dXMiOiJtaXNzaW5nIiwidHlwZSI6IlNEIn0seyJkaWdlc3QiOm51bGwsInBhdGgiOiIiLCJzdGF0dXMiOiJtaXNzaW5nIiwidHlwZSI6IlRQIn1dLCJzdGVwIjoiZXZpZGVuY2UifQ |
+| c083fe1c-0ae7-4281-8d10-b7424193e57d | eyJhY3Rpb24iOiJzdGVwLnJlY29yZCIsImFzc3VyYW5jZSI6eyJpbmRlcGVuZGVudF9odW1hbl9wcm9vZiI6InVuYXZhaWxhYmxlIiwibGFuZSI6ImNvb3BlcmF0aXZlX2xvY2FsIiwicmVwbHlfcHJvdmVuYW5jZSI6ImNhbGxlcl9mb3J3YXJkZWRfZGVsaWJlcmF0ZV9yZXBseSJ9LCJvcGVyYXRpb25faWQiOiJjMDgzZmUxYy0wYWU3LTQyODEtOGQxMC1iNzQyNDE5M2U1N2QiLCJwcm9kdWNlciI6eyJjb250cmFjdCI6InJ1bi1jb21tYW5kLzEiLCJwYWNrYWdlX3ZlcnNpb24iOiIwLjE0LjUifSwicmVwb3J0Ijp7ImRpZ2VzdCI6InNoYTI1NjpkYWFkMzhiZmY4ZGYyYjJlNmVkYmNiZDc0YTI3ZmZkYzExNGJhODE1NDc2YzgwZWY3Y2YxYTkzOWY0MDUxNDk2IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvbXBhdC1ldmlkZW5jZS1sZi0yMDI2MTAxNi0wMS9DT0RFX1JFVklFVy5tZCJ9LCJydW5faWQiOiJjb21wYXQtZXZpZGVuY2UtbGYtMjAyNjEwMTYtMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJzb3VyY2Vfc2V0X2RpZ2VzdCI6InNoYTI1NjoxZDc1N2Q5MTY5N2FjOGYxMTAxMmM3M2Q0NGQ3ZGZmYjY2ZmYyMGQ4MjFkOWY5OWQ5ZDY2Y2Y2ZDI0Nzk5ZjVkIiwic291cmNlcyI6W3siZGlnZXN0Ijoic2hhMjU2OjBkNjMxNDBkNjU0N2U4Yjc4YjNhOTA1YjYyOWU4ZTliM2UyZTcyOWU3ZmQ2Y2I5YmNlOTBmYjBkMjhkOWI2NjkiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29tcGF0LWV2aWRlbmNlLWxmLTIwMjYxMDE2LTAxL1VSLm1kIiwic3RhdHVzIjoiYXBwcm92ZWQiLCJ0eXBlIjoiVVIifSx7ImRpZ2VzdCI6bnVsbCwicGF0aCI6IiIsInN0YXR1cyI6Im1pc3NpbmciLCJ0eXBlIjoiUFJEIn0seyJkaWdlc3QiOm51bGwsInBhdGgiOiIiLCJzdGF0dXMiOiJtaXNzaW5nIiwidHlwZSI6IlNEIn0seyJkaWdlc3QiOm51bGwsInBhdGgiOiIiLCJzdGF0dXMiOiJtaXNzaW5nIiwidHlwZSI6IlRQIn0seyJkaWdlc3QiOm51bGwsInBhdGgiOiIiLCJzdGF0dXMiOiJtaXNzaW5nIiwidHlwZSI6IkNEK1Rlc3RzIn1dLCJzdGVwIjoicmV2aWV3In0 |

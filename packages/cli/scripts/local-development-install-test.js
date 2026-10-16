@@ -257,6 +257,8 @@ try {
 
   let claudeListCalls = 0;
   const claudeInstalled = installClaudeGlobalPlugin({
+    // The packaged-app preflight probes the real %LOCALAPPDATA%; this case exercises the projection.
+    preflight: () => ["packaged_app_preflight:passed"],
     prepare: (options) => prepareLocalMarketplace({
       ...options,
       dataRoot: marketplaceDataRoot,
@@ -527,6 +529,8 @@ try {
   const claudeLifecycleOutput = [];
   assert.equal(await runCli(["claude", "--json"], {
     parser: { cwd: fixtureRoot },
+    // The packaged-app preflight probes the real %LOCALAPPDATA%; this case exercises the lifecycle report.
+    preflightClaudeInstall: () => ["packaged_app_preflight:passed"],
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log(value) { claudeLifecycleOutput.push(value); }, error(value) { claudeLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: marketplaceDataRoot, builtPluginRoot, codexInstallVersion: localVersion }),

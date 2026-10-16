@@ -1705,7 +1705,11 @@ if (pluginDefinition && canonicalRequestActivationGuard && isFile(footprintSessi
     }
     try {
       const transported = surface === "copilot" ? JSON.parse(probe.stdout).additionalContext : probe.stdout;
-      const content = normalizeLf(transported).replace(/\n$/u, "");
+      // The budget covers the base context; Claude appends runtime facts under plugin-enablement consent
+      // and a possible installation drift notice after it.
+      const content = normalizeLf(transported).replace(/\n$/u, "").split("\n\n")
+        .filter((block) => !block.startsWith("AGDF runtime facts:") && !block.startsWith("AGDF installation drift:"))
+        .join("\n\n");
       const bindingLine = content.split("\n").find((line) => line.startsWith("AGDF dispatcher binding: "));
       const binding = JSON.parse(bindingLine.slice("AGDF dispatcher binding: ".length));
       const routeSource = binding.route_source_after_activation;

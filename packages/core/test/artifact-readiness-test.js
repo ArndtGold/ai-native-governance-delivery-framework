@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { tryLinkFile } from '../../../scripts/support/symlinks.js';
 import { inspectArtifactReadiness } from '../lib/control-inspect/artifact-readiness.js';
 import { evaluatePrdReadiness } from '../lib/control-evaluation/prd-readiness.js';
 import { artifactReadinessFixture, readyPrd } from './fixtures/artifact-readiness.js';
@@ -44,9 +45,11 @@ try {
   assert.equal(inspectArtifactReadiness(f.root, { ...input, runId: 'missing-run' }).diagnostics[0].code, 'artifact_run_invalid');
   rmSync(f.path);
   assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_source_unavailable');
-  symlinkSync(join(f.root, `${f.prefix}UR.md`), f.path);
-  assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_read_resource_denied');
-  rmSync(f.path); writeFileSync(f.path, readyPrd);
+  if (tryLinkFile(join(f.root, `${f.prefix}UR.md`), f.path, 'artifact-readiness')) {
+    assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_read_resource_denied');
+    rmSync(f.path);
+  }
+  writeFileSync(f.path, readyPrd);
   f.reseal(text => text.replace('- lifecycle: active', '- lifecycle: completed'));
   assert.equal(inspectArtifactReadiness(f.root, input).diagnostics[0].code, 'artifact_run_inactive');
   f.reseal(text => text.replace('- lifecycle: completed', '- lifecycle: active').replace('| PRD | missing | |', '| PRD | approved | Synthetic isolated test evidence |'));

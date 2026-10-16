@@ -451,6 +451,20 @@ function prepareMarketplace() {
   return { root: fakeMarketplaceRoot, commit() {}, rollback() {} };
 }
 
+// The packaged-app preflight probes the real %LOCALAPPDATA%; these cases exercise the install sequence.
+const claudePreflight = () => ["packaged_app_preflight:passed"];
+const claudePluginRoot = join(mkdtempSync(join(tmpdir(), "agdf-cli-claude-plugin-")), "agdf");
+mkdirSync(claudePluginRoot, { recursive: true });
+writeFileSync(join(claudePluginRoot, ".agdf-installation.json"), JSON.stringify({
+  schema_version: 1, owner: "create-agdf", source_digest: "a".repeat(64), runtime_digest: "e".repeat(64),
+}));
+function prepareClaudeMarketplace() {
+  return { ...prepareMarketplace(), pluginRoot: claudePluginRoot, sourceDigest: "a".repeat(64), runtimeDigest: "e".repeat(64) };
+}
+const claudeListJson = (version) => JSON.stringify(version
+  ? [{ id: "agdf@agdf", version, enabled: true, installPath: claudePluginRoot }]
+  : []);
+
 {
   const recording = installerRecording(['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
   const installed = installCodexGlobalPlugin({ exec: recording.exec, prepare: prepareMarketplace });
@@ -502,7 +516,7 @@ function prepareMarketplace() {
 
 {
   const cancelled = installerRecording([]);
-  assert.equal(await runCli(["claude", "--runtime-checks", "cancel", "--json"], { io: cancelled.io.io, exec: cancelled.exec, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
+  assert.equal(await runCli(["claude", "--runtime-checks", "cancel", "--json"], { io: cancelled.io.io, exec: cancelled.exec, prepare: prepareMarketplace, inspectPluginInstallation, preflightClaudeInstall: claudePreflight }), 0);
   assert.equal(cancelled.calls.length, 0, "cancel must stop before every host mutation");
   const cancelledReport = JSON.parse(cancelled.io.out[0]);
   assert.equal(cancelledReport.runtime_checks.effective, "cancelled");
@@ -739,23 +753,39 @@ assert.doesNotMatch(germanDetailsRendered, /Technical details|Permission control
 
 {
   const quiet = recordingIo();
-  const outputs = ["[]", "", "", "", "", `agdf@agdf ${pluginDefinition.version}\n`];
-  assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
+  const outputs = ["[]", "", "", claudeListJson(null), "", claudeListJson(pluginDefinition.version)];
+  assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareClaudeMarketplace, inspectPluginInstallation, preflightClaudeInstall: claudePreflight }), 0);
   assert.match(quiet.out.at(-1), /Next action: Restart the host and start a fresh session\./);
 }
 
 {
-  const recording = installerRecording(["[]", "", "", `agdf@agdf ${pluginDefinition.version}\n`, "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
-  installClaudeGlobalPlugin({ exec: recording.exec, prepare: prepareMarketplace });
-  assert.deepEqual(recording.calls.slice(4, 6).map(({ args }) => args), [
+  // The owned directory marketplace is loaded in place: an unchanged version needs no reinstall.
+  const recording = installerRecording(["[]", "", "", claudeListJson(pluginDefinition.version), claudeListJson(pluginDefinition.version)]);
+  const unchanged = installClaudeGlobalPlugin({ exec: recording.exec, prepare: prepareClaudeMarketplace, preflight: claudePreflight });
+  assert.deepEqual(recording.calls.slice(0, 5).map(({ args }) => args), [
+    ["plugin", "marketplace", "list", "--json"],
+    ["plugin", "marketplace", "add", fakeMarketplaceRoot, "--scope", "user"],
+    ["plugin", "marketplace", "update", "agdf"],
+    ["plugin", "list", "--json"],
+    ["plugin", "list", "--json"],
+  ]);
+  assert.equal(recording.calls.some(({ args }) => ["install", "uninstall"].includes(args[1])), false);
+  assert.equal(unchanged.verificationStatus, "healthy");
+  assert.ok(unchanged.evidence.includes("plugin_operation:unchanged"));
+  assert.ok(unchanged.evidence.includes("plugin_list:json"));
+
+  const upgrade = installerRecording(["[]", "", "", claudeListJson("0.0.1"), "", "", claudeListJson(pluginDefinition.version)]);
+  installClaudeGlobalPlugin({ exec: upgrade.exec, prepare: prepareClaudeMarketplace, preflight: claudePreflight });
+  assert.deepEqual(upgrade.calls.slice(4, 6).map(({ args }) => args), [
     ["plugin", "uninstall", "agdf@agdf", "--keep-data"],
     ["plugin", "install", "agdf@agdf"],
-  ]);
+  ], "a version change still goes through Claude Code");
 }
 
 {
   let call = 0;
   assert.throws(() => installClaudeGlobalPlugin({
+    preflight: claudePreflight,
     prepare: prepareMarketplace,
     exec() {
       call += 1;

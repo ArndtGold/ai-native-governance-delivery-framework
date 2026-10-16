@@ -62,6 +62,12 @@ function runCliWithPath(args, binDir, extraEnv = {}) {
       ...process.env,
       // Never let a smoke install touch the real Claude home.
       CLAUDE_CONFIG_DIR: join(binDir, "..", "claude-home"),
+      // The Claude packaged-app preflight probes %LOCALAPPDATA%; an isolated one keeps the result the same
+      // inside a packaged host such as Claude Desktop, while npm keeps its real cache.
+      LOCALAPPDATA: join(binDir, "..", "localappdata"),
+      ...(process.env.LOCALAPPDATA && !process.env.npm_config_cache
+        ? { npm_config_cache: join(process.env.LOCALAPPDATA, "npm-cache") }
+        : {}),
       ...extraEnv,
       PATH: `${binDir}${delimiter}${process.env.PATH}`,
     },
@@ -402,11 +408,11 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
 }
 
 smokePhase("claude update");
-{
+for (const [installedVersion, reinstall] of [[pluginDefinition.version, false], ["0.0.1", true]]) {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-update-"));
   const logPath = join(tempDir, "claude.log");
   const statePath = join(tempDir, "installed");
-  writeFileSync(statePath, "installed", "utf8");
+  writeFileSync(statePath, installedVersion, "utf8");
 
   try {
     const binDir = makeFakeExecutable(tempDir, "claude", `#!/usr/bin/env node
@@ -415,22 +421,35 @@ const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
 if (args.join(" ") === "plugin marketplace list --json") console.log("[]");
 if (args.join(" ") === "plugin list") {
-  if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf ${pluginDefinition.version}");
+  if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf " + fs.readFileSync(process.env.FAKE_CLAUDE_STATE, "utf8"));
+  process.exit(0);
+}
+// An in-place host lists the owned marketplace plugin root as the plugin's location.
+if (args.join(" ") === "plugin list --json") {
+  const installPath = require("node:path").join(process.env.AGDF_DATA_DIR, "marketplaces", "agdf", "plugins", "agdf");
+  console.log(JSON.stringify(fs.existsSync(process.env.FAKE_CLAUDE_STATE)
+    ? [{ id: "agdf@agdf", version: fs.readFileSync(process.env.FAKE_CLAUDE_STATE, "utf8"), scope: "user", enabled: true, installPath }]
+    : []));
   process.exit(0);
 }
 if (args.join(" ") === "plugin uninstall agdf@agdf --keep-data") {
   fs.rmSync(process.env.FAKE_CLAUDE_STATE, { force: true });
 }
 if (args.join(" ") === "plugin install agdf@agdf") {
-  fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
+  fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "${pluginDefinition.version}");
 }
 `);
     runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     const uninstallIndex = calls.indexOf("plugin uninstall agdf@agdf --keep-data");
     const installIndex = calls.indexOf("plugin install agdf@agdf");
-    if (uninstallIndex < 0 || installIndex < 0 || uninstallIndex >= installIndex || calls.includes("plugin update agdf@agdf")) {
-      throw new Error(`Claude existing install must use uninstall then install: ${calls.join(" | ")}`);
+    if (calls.includes("plugin update agdf@agdf")) throw new Error(`Claude must not use plugin update: ${calls.join(" | ")}`);
+    if (reinstall && (uninstallIndex < 0 || installIndex < 0 || uninstallIndex >= installIndex)) {
+      throw new Error(`Claude version change must use uninstall then install: ${calls.join(" | ")}`);
+    }
+    // The owned directory marketplace is loaded in place, so an unchanged version is not reinstalled.
+    if (!reinstall && (uninstallIndex >= 0 || installIndex >= 0)) {
+      throw new Error(`Claude same-version install must not reinstall: ${calls.join(" | ")}`);
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

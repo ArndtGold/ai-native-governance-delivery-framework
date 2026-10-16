@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { CAPABILITIES, HOSTS, SCENARIOS, SCENARIO_SPECS, canonical, importHistoricalHC, proofState, validateObservation } from "./contract.mjs";
 import { evaluateClaim } from "./evaluate.mjs";
-import { checkComparison, comparison, hash, MANIFEST_PATH, recordComparison, safePath, sourceClosure, sourceSnapshot } from "./run.mjs";
+import { checkComparison, checkoutBytes, comparison, hash, MANIFEST_PATH, recordComparison, safePath, sourceClosure, sourceSnapshot } from "./run.mjs";
 import { renderComparison } from "./render.mjs";
 import { environment } from "../../packages/cli/scripts/host-compatibility-test.js";
 import { inspectPluginSurface } from "../../packages/cli/lib/installers/plugin-installers.js";
@@ -165,6 +165,18 @@ try {
   }));
   await recordComparison(temp, { runSuite: synthetic });
   check("record then read-only check", () => assert.equal(checkComparison(temp).status, "pass"));
+  check("CRLF working copy hashes like the LF checkout", () => {
+    const historicalPath = join(temp, manifest.historical_sources[0].path); const historicalBytes = readFileSync(historicalPath, "utf8");
+    writeFileSync(join(temp, changed), original.replace(/\r?\n/g, "\r\n"));
+    writeFileSync(historicalPath, historicalBytes.replace(/\r?\n/g, "\r\n"));
+    assert.equal(canonical(sourceSnapshot(temp, manifest)), canonical(baseline));
+    assert.equal(checkComparison(temp).status, "pass");
+    writeFileSync(join(temp, changed), original); writeFileSync(historicalPath, historicalBytes);
+  });
+  check("checkout bytes keep binary and lone CR content", () => {
+    for (const value of ["a\0\r\nb", "a\rb", "a\nb"]) assert.deepEqual(checkoutBytes(Buffer.from(value, "latin1")), Buffer.from(value, "latin1"));
+    assert.deepEqual(checkoutBytes(Buffer.from("a\r\nb\r\n")), Buffer.from("a\nb\n"));
+  });
   const reportPath = join(temp, "docs/compatibility/HOST_COMPATIBILITY.md"); const reportBytes = readFileSync(reportPath);
   const factsPath = join(temp, "docs/compatibility/evidence/facts.json"); const factsBefore = readFileSync(factsPath);
   await recordComparison(temp, { runSuite: synthetic });

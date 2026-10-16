@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tryLinkFile } from '../../../scripts/support/symlinks.js';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { transitionDecisionForRunState } from '#agdf-core/control-evaluation/gate-policy.js';
@@ -47,9 +48,11 @@ try {
   assert.equal(dispatch({ ...r, status_card: { ...r.status_card, run_id: 'foreign' } })(input).outcome, 'evaluator_error');
   rmSync(join(root, path('UR')));
   assert.equal(dispatch(r)(input).outcome, 'evaluator_error');
-  symlinkSync(join(root, path('CR')), join(root, path('UR')));
-  assert.equal(dispatch(r)(input).outcome, 'evaluator_error');
-  rmSync(join(root, path('UR'))); write('UR', '# Approved scope\n');
+  if (tryLinkFile(join(root, path('CR')), join(root, path('UR')), 'compact-continuation')) {
+    assert.equal(dispatch(r)(input).outcome, 'evaluator_error');
+    rmSync(join(root, path('UR')));
+  }
+  write('UR', '# Approved scope\n');
   quick.artefacts.set('CR', { path: path('CR'), status: 'done' });
   actual = dispatch(report(quick))(input);
   assert.equal(actual.continuation.phase, 'compact_closeout'); assert.equal(actual.skill.skill_id, 'release-or');

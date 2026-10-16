@@ -15,6 +15,14 @@ const SNAPSHOT = `${OUTPUT}/evidence/snapshot.json`;
 const FACTS = `${OUTPUT}/evidence/facts.json`;
 const OWNER = ".agdf-compatibility-owned.json";
 export const hash = content => createHash("sha256").update(content).digest("hex");
+// Git checks text out with LF (.gitattributes: * text=auto eol=lf), but a Windows working copy can
+// keep CRLF until the next checkout. Hash repository files as CI checks them out; binary content
+// (a NUL byte, as in Git's text=auto detection) stays byte-exact.
+export function checkoutBytes(content) {
+  if (content.includes(0) || !content.includes(13)) return content;
+  return Buffer.from(content.toString("latin1").replace(/\r\n/g, "\n"), "latin1");
+}
+const fileHash = path => hash(checkoutBytes(readFileSync(path)));
 const readJson = path => JSON.parse(readFileSync(path, "utf8"));
 const bytes = value => `${JSON.stringify(value, null, 2)}\n`;
 const relativePath = (root, path) => relative(root, path).split(sep).join("/");
@@ -115,7 +123,7 @@ export function sourceSnapshot(root, manifest) {
   const common = [...new Set([...support.filter(file => !owned.has(file)), ...manifest.extra_sources, MANIFEST_PATH])].sort();
   const files = [...new Set([...common, ...Object.values(hostFiles).flat()])].sort();
   if (files.some(file => file.startsWith(`${OUTPUT}/`) || file.startsWith(`${OBSERVATIONS}/`) || file.startsWith(".agdf/control/"))) throw new Error("self_invalidating_source_set");
-  const fingerprints = Object.fromEntries(files.map(file => [file, hash(readFileSync(safePath(root, file)))]));
+  const fingerprints = Object.fromEntries(files.map(file => [file, fileHash(safePath(root, file))]));
   const definition = readJson(safePath(root, "plugins/agdf/meta/agdf-plugin.definition.json"));
   const payloads = Object.fromEntries(HOSTS.map(host => {
     const profile = host === "copilot" ? "packages/cli/generated/plugins/copilot/agdf" : "packages/cli/generated/plugins/agdf";
@@ -129,7 +137,7 @@ export function sourceSnapshot(root, manifest) {
 function readReferences(root, observations) {
   return Object.fromEntries(observations.flatMap(o => o.references ?? []).map(ref => {
     const path = safePath(root, ref.path);
-    return [ref.path, existsSync(path) ? hash(readFileSync(path)) : null];
+    return [ref.path, existsSync(path) ? fileHash(path) : null];
   }));
 }
 
@@ -137,11 +145,11 @@ function historicalInputs(root, manifest) {
   return manifest.historical_sources.flatMap(source => {
     if (source.format !== "historical_hc_v1") throw new Error("unknown_historical_format");
     const path = safePath(root, source.path); const schemaPath = safePath(root, source.schema_path);
-    const reference = { path: source.path, sha256: hash(readFileSync(path)), schema_sha256: hash(readFileSync(schemaPath)) };
+    const reference = { path: source.path, sha256: fileHash(path), schema_sha256: fileHash(schemaPath) };
     return importHistoricalHC(readJson(path), reference).map(o => ({ ...o,
       original_references: o.original_references.map(ref => {
         const pathname = relativePath(root, resolve(dirname(path), ref.split("#")[0]));
-        try { const p = safePath(root, pathname); return { path: pathname, sha256: existsSync(p) && lstatSync(p).isFile() ? hash(readFileSync(p)) : null }; }
+        try { const p = safePath(root, pathname); return { path: pathname, sha256: existsSync(p) && lstatSync(p).isFile() ? fileHash(p) : null }; }
         catch { return { path: null, sha256: null }; }
       }) }));
   });
@@ -181,9 +189,9 @@ export function checkComparison(root = process.cwd()) {
     const current = sourceSnapshot(root, manifest);
     if (canonical(current) !== canonical(snapshot.source)) throw new Error("source_snapshot_changed");
     const source = snapshot.observation_source;
-    if (!source.path.startsWith(`${OBSERVATIONS}/`) || hash(readFileSync(safePath(root, source.path))) !== source.sha256) throw new Error("observation_source_changed");
+    if (!source.path.startsWith(`${OBSERVATIONS}/`) || fileHash(safePath(root, source.path)) !== source.sha256) throw new Error("observation_source_changed");
     const observations = readJson(safePath(root, source.path));
-    const inputSources = Object.fromEntries(manifest.native_sources.map(path => [path, hash(readFileSync(safePath(root, path)))]));
+    const inputSources = Object.fromEntries(manifest.native_sources.map(path => [path, fileHash(safePath(root, path))]));
     if (canonical(inputSources) !== canonical(snapshot.input_sources)) throw new Error("native_input_changed");
     if (canonical(observations) !== canonical(snapshot.observations)) throw new Error("published_observations_changed");
     const historical = historicalInputs(root, manifest);
@@ -228,7 +236,7 @@ async function record(root, { runSuite, beforePublish = () => {} } = {}) {
   for (const source of manifest.native_sources) {
     if (!source.startsWith(`${OBSERVATIONS}/`)) throw new Error("native_source_outside_observations");
     const content = readFileSync(safePath(root, source));
-    inputSources[source] = hash(content);
+    inputSources[source] = hash(checkoutBytes(content));
     const input = JSON.parse(content);
     if (!Array.isArray(input) || input.some(o => o.lane === "deterministic_adapter" || o.publication?.reviewed !== true
         || !o.references?.every(ref => manifest.public_evidence.includes(ref.path)))) throw new Error("unreviewed_native_source");
@@ -262,13 +270,13 @@ async function record(root, { runSuite, beforePublish = () => {} } = {}) {
       const destination = safePath(stage, path.slice(OUTPUT.length + 1)); mkdirSync(dirname(destination), { recursive: true });
       const content = readFileSync(safePath(root, path));
       publicationSafe(content.toString("utf8"));
-      if (references[path] && hash(content) !== references[path]) throw new Error("native_evidence_changed_during_recording");
+      if (references[path] && hash(checkoutBytes(content)) !== references[path]) throw new Error("native_evidence_changed_during_recording");
       writeFileSync(destination, content);
     }
     writeFileSync(join(stage, OWNER), bytes({ owner: "agdf-host-compatibility", files: filesUnder(stage) }));
     beforePublish();
     if (canonical(sourceSnapshot(root, manifest)) !== canonical(before)) throw new Error("source_changed_before_publication");
-    const finalInputs = Object.fromEntries(manifest.native_sources.map(path => [path, hash(readFileSync(safePath(root, path)))]));
+    const finalInputs = Object.fromEntries(manifest.native_sources.map(path => [path, fileHash(safePath(root, path))]));
     if (canonical(finalInputs) !== canonical(inputSources)) throw new Error("native_input_changed_during_recording");
     if (canonical(historicalInputs(root, manifest)) !== canonical(historical)) throw new Error("historical_source_changed_during_recording");
     const finalReferences = { ...readReferences(root, observations.filter(o => o.lane !== "deterministic_adapter")), [FACTS]: factsDigest };

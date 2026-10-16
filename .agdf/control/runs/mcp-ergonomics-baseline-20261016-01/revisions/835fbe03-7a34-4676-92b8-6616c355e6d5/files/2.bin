@@ -1,0 +1,131 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "initiating_phase": "PRD",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "mcp-ergonomics-baseline-20261016-01",
+  "expected_revision_id": "8313194f-c300-49df-a2bb-0ba055dfd7dd",
+  "operation_id": "835fbe03-7a34-4676-92b8-6616c355e6d5",
+  "source_gate": "UR",
+  "reason": "User decision 2026-10-16 during PRD clarification: native measurement runs only on Claude Code on this Windows machine; Codex leaves this run.",
+  "intended_change": "Narrow the native layer from Claude Code and Codex to Claude Code only, compare two Claude models (Opus 5.5 and Sonnet 5.5) instead of two hosts, drop the Codex-specific risk and record native Codex measurement as a non-goal and follow-up slice.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:32802403e063c7cdfe8275f16168ec715f65c97c169d3641620f4e1ab3bb6a60"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude Code agent (cooperative impact review for Arndt Gold)",
+    "earliest_source": "UR",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:fbd8fb87eebfb508051817dcdfaeb8920ac9637fa5f9d57c52b22c9e2c8f994f",
+        "reason": "UR revision requires a fresh post-UR Brownfield Review and Mode/Slice decision; host scope of the native layer changes."
+      }
+    ],
+    "implementation_evidence": "No implementation, tests or reviews exist yet in this run; nothing to retain.",
+    "unresolved": []
+  },
+  "changed_statements": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:32802403e063c7cdfe8275f16168ec715f65c97c169d3641620f4e1ab3bb6a60",
+      "statement": "- Coding agents on Claude Code and Codex that call the AGDF MCP tools.",
+      "intended_change": "Affected agents are coding agents on Claude Code only.",
+      "reason": "User decision 2026-10-16 during PRD clarification: native measurement runs only on Claude Code on this Windows machine; Codex leaves this run."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:32802403e063c7cdfe8275f16168ec715f65c97c169d3641620f4e1ab3bb6a60",
+      "statement": "- A native agent measurement on Claude Code and Codex over a fixed, versioned set of representative AGDF",
+      "intended_change": "Native measurement runs on Claude Code only, on this Windows machine, with the models Opus 5.5 and Sonnet 5.5.",
+      "reason": "User decision 2026-10-16 during PRD clarification: native measurement runs only on Claude Code on this Windows machine; Codex leaves this run."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:32802403e063c7cdfe8275f16168ec715f65c97c169d3641620f4e1ab3bb6a60",
+      "statement": "- Unknown whether Claude Code and Codex can load the AGDF MCP server without the AGDF skills and hooks.",
+      "intended_change": "Unknown whether Claude Code can load the AGDF MCP server without the AGDF skills and hooks.",
+      "reason": "User decision 2026-10-16 during PRD clarification: native measurement runs only on Claude Code on this Windows machine; Codex leaves this run."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:32802403e063c7cdfe8275f16168ec715f65c97c169d3641620f4e1ab3bb6a60",
+      "statement": "- Codex requires approval for MCP tool calls. Non-interactive runs may need an approval policy that does",
+      "intended_change": "Remove the Codex approval risk; add native Codex measurement to the non-goals as a follow-up slice.",
+      "reason": "User decision 2026-10-16 during PRD clarification: native measurement runs only on Claude Code on this Windows machine; Codex leaves this run."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:fbd8fb87eebfb508051817dcdfaeb8920ac9637fa5f9d57c52b22c9e2c8f994f",
+        "status": "done"
+      },
+      "record_digest": "sha256:15fb9f2c7956016a5610500aaf94fa2b128f73c7d54929951efcf779c494dcc0",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR revision renews post-UR analysis and evidence; association to the changed scope is reassessed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR revision renews post-UR analysis and evidence; association to the changed scope is reassessed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+        "digest": "sha256:32802403e063c7cdfe8275f16168ec715f65c97c169d3641620f4e1ab3bb6a60",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b860906ec855f27eff3cd37b3431648b882e6793392161aefd286dbd49ae86c9",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR revision renews post-UR analysis and evidence; association to the changed scope is reassessed."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:fbd8fb87eebfb508051817dcdfaeb8920ac9637fa5f9d57c52b22c9e2c8f994f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:287d120922e81e9c0e03019f6838b425e23d98543ec5f958d88475f324637d66",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR revision renews post-UR analysis and evidence; association to the changed scope is reassessed."
+    }
+  ]
+}

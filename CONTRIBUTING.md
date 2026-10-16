@@ -170,13 +170,41 @@ before rerunning. Verification never raises payload limits or refreshes evidence
 
 For diagnosis in the current working copy, `npm run verify:ci` runs the same plan in place;
 it does not establish that the staged commit is complete. Node 22 is the local baseline.
-Guardrails also runs Windows with Node 22 and Linux with Node 24. Windows divides the same npm
-smoke suite into installation, package and governance jobs; together they run every original command
-in order within each partition. Each job retains the 45-minute limit and the complete build and
-package prerequisites. Local success proves only the current Node/OS lane; all five GitHub jobs
-must pass before merge. The repository lane retains
+Guardrails also runs Windows with Node 22 and Linux with Node 24. The reusable `verify-agdf.yml`
+workflow derives its matrix from the canonical npm test chains through `scripts/ci-plan.mjs`.
+Compound CLI and MCP suites are expanded to test files; the 18 MCP source/phase cases use the
+shared fixture inventory and four source selectors. Every platform/Node lane retains the full
+test multiset. New tests are assigned automatically; unsupported commands, lifecycle hooks and
+oversized individual tests fail planning rather than disappear from CI.
+
+Each executing job has a ten-minute ceiling. Test groups budget at most six estimated minutes,
+including 50% headroom over the recorded suite durations; preparation and cleanup have separate
+reserve. `scripts/ci-duration-baseline.json` contains scheduling estimates, not a test inventory
+or proof of current performance. Verification itself stops with a failure after eight minutes;
+timing out never counts as passing the tests. Each job uploads `ci-timings.json` and adds command
+durations to its summary, including failures. Actual GitHub job timestamps, including setup and
+cleanup, are the duration evidence. Queue time and total workflow duration are separate.
+
+Inspect or reproduce an individual partition with:
+
+```bash
+node scripts/ci-plan.mjs --matrix true
+node scripts/ci-plan.mjs --job linux-22-tests-1
+```
+
+Tests within a group execute serially in their canonical order. Each group prepares its own
+platform-specific payloads from the checkout; generated output is not shared across runners.
+Local success proves only the current Node/OS lane; every required GitHub job must pass before
+merge. The repository lane retains
 Pages, community and compatibility checks; both runtime lanes retain package consumers and smoke
 tests. The compatibility-evidence workflow shares the same dependency preparation stages.
+
+Release validation uses the same Linux partitions. Publication, exact-version propagation,
+published-dependency MCP tests, latest-tag propagation and bootstrap verification are separate
+dependent jobs, preserving package publication order. Native Codex release probes run each of
+the three model scenarios separately on both platforms, with installation, discovery and removal
+checked in every scenario; the evidence gate requires all six exact commit/version/model tuples.
+These release-only paths require a trusted release or explicit manual invocation and credentials.
 
 For targeted debugging, the commands below are still available:
 

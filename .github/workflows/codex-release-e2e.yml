@@ -12,10 +12,12 @@ permissions:
 
 jobs:
   native:
-    name: Codex E2E (${{ matrix.platform }})
+    name: Codex E2E (${{ matrix.platform }}, ${{ matrix.scenario }})
     strategy:
       fail-fast: false
       matrix:
+        platform: [linux, win32]
+        scenario: [dispatch, failure_case, skill_continuation]
         include:
           - os: ubuntu-latest
             platform: linux
@@ -23,7 +25,7 @@ jobs:
             platform: win32
     runs-on: ${{ matrix.os }}
     environment: codex-release
-    timeout-minutes: 20
+    timeout-minutes: 10
     defaults:
       run:
         shell: bash
@@ -43,6 +45,8 @@ jobs:
           node-version: 22
       - name: Install dependencies without lifecycle scripts
         run: npm ci --ignore-scripts
+      - name: Prepare the complete checkout payload
+        run: node scripts/verify-ci.mjs --profile prepare
       - name: Install MCP dependencies from checkout
         working-directory: packages/mcp-server
         run: npm ci --ignore-scripts
@@ -56,14 +60,15 @@ jobs:
       - name: Run real CLI lifecycle
         env:
           CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
+          RELEASE_SCENARIO: ${{ matrix.scenario }}
         run: |
           test -n "$CODEX_API_KEY" || { echo "CODEX_API_KEY is required for the release gate" >&2; exit 1; }
-          node scripts/native-probes/codex-host-e2e.mjs --model "$(node -p "require('./scripts/native-probes/codex-release-policy.json').model")"
+          node scripts/native-probes/codex-host-e2e.mjs --scenario "$RELEASE_SCENARIO" --model "$(node -p "require('./scripts/native-probes/codex-release-policy.json').model")"
       - name: Preserve bounded evidence only
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: codex-release-${{ matrix.platform }}
+          name: codex-release-${{ matrix.platform }}-${{ matrix.scenario }}
           if-no-files-found: error
           retention-days: 30
           path: |

@@ -16,7 +16,7 @@ jobs:
   record:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     outputs:
       changed: ${{ steps.refresh.outputs.changed }}
     steps:

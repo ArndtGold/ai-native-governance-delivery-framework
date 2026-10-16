@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { SMOKE_SHARDS, smokeShardCommands, verificationPlan, runVerification } from './verify-ci.mjs';
+import { verificationPlan, runVerification } from './verify-ci.mjs';
 import { exportSnapshot, verifyCommit } from './verify-commit.mjs';
 import { npmInvocation } from '../packages/cli/lib/npm-invocation.js';
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -44,38 +44,6 @@ test('build shares CI checks without recursive builds; evidence preparation rema
   assert.throws(() => verificationPlan({ profile: 'unchecked' }), /Unknown/);
   assert.throws(() => verificationPlan({ profile: 'build', stage: 'assemble' }), /no stage/);
   assert.throws(() => verificationPlan({ profile: 'build', lane: 'runtime' }), /no stage/);
-});
-
-test('Windows smoke shards cover the complete canonical suite without omissions or reordering', () => {
-  const suite = JSON.parse(readFileSync(new URL('../packages/cli/package.json', import.meta.url))).scripts['smoke-test'].split(' && ');
-  const decode = command => [command.tool, ...command.args].join(' ');
-  const parts = SMOKE_SHARDS.map(shard => smokeShardCommands(shard));
-  assert.deepEqual(parts.flat().map(decode), suite);
-  assert.ok(parts.every(commands => commands.length > 0));
-  for (const [index, shard] of SMOKE_SHARDS.entries()) {
-    const full = verificationPlan({ lane: 'runtime' });
-    const partition = verificationPlan({ lane: 'runtime', smokeShard: shard });
-    assert.deepEqual(partition.filter(item => item.id !== 'cli-smoke'), full.filter(item => item.id !== 'cli-smoke'));
-    assert.deepEqual(partition.find(item => item.id === 'cli-smoke').commands, parts[index]);
-    assert.ok(parts[index].every(command => command.cwd === 'packages/cli'));
-    assert.throws(() => verificationPlan({ smokeShard: shard }), /complete runtime/);
-    assert.throws(() => verificationPlan({ lane: 'runtime', stage: 'cli-smoke', smokeShard: shard }), /no stage/);
-  }
-  assert.throws(() => smokeShardCommands('skip'), /Unknown/);
-  assert.throws(() => verificationPlan({ lane: 'runtime', smokeShard: 'skip' }), /Unknown/);
-  const temporary = mkdtempSync(join(tmpdir(), 'agdf-smoke-partitions-'));
-  try {
-    mkdirSync(join(temporary, 'packages/cli'), { recursive: true });
-    const manifestPath = join(temporary, 'packages/cli/package.json');
-    for (const commands of [suite.filter(command => command !== 'npm run test:local-validator'),
-      [...suite, 'npm run test:local-validator'],
-      ['npm run test:run-command-flow', 'npm run test:local-validator'],
-      [...suite, 'node scripts/missing.js; echo unsafe'],
-    ]) {
-      writeFileSync(manifestPath, JSON.stringify({ scripts: { 'smoke-test': commands.join(' && ') } }));
-      assert.throws(() => smokeShardCommands('installation', temporary), /boundary|boundaries|Unsupported/i);
-    }
-  } finally { rmSync(temporary, { recursive: true, force: true }); }
 });
 
 test('real npm build failures prevent assembly and preserve stored evidence', () => {

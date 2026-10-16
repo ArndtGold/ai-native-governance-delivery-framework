@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { RELEASE_SCENARIOS, COMMON_STEPS } from './release-scenarios.mjs';
 
 export const REQUIRED_STEPS = Object.freeze(["host", "install", "installation_consent", "control_fixture",
   "discovery", "dispatch", "failure_case", "skill_continuation", "removal"]);
 
 export function assertReleaseEvidence(observations, { commit, version, policy }) {
   assert.match(commit, /^[a-f0-9]{40}$/);
-  assert.equal(observations.length, policy.platforms.length, "one observation per required native platform");
-  assert.deepEqual(observations.map(row => row.host?.os).sort(), [...policy.platforms].sort());
+  const partitioned = observations.some(row => row.scenario !== undefined);
+  const expected = policy.platforms.flatMap(os => partitioned ? RELEASE_SCENARIOS.map(scenario => `${os}:${scenario}`) : [os]).sort();
+  assert.deepEqual(observations.map(row => partitioned ? `${row.host?.os}:${row.scenario}` : row.host?.os).sort(), expected,
+    'all native platform/scenario pairs exactly once; no missing, duplicate or mixed evidence');
   for (const observation of observations) {
     assert.equal(observation.kind, "agdf_codex_host_e2e");
     assert.equal(observation.result, "pass");
@@ -18,20 +21,27 @@ export function assertReleaseEvidence(observations, { commit, version, policy })
     assert.equal(observation.agdf?.version, version);
     assert.equal(observation.host.version, policy.codex_version);
     assert.equal(observation.requested_model, policy.model);
-    assert.deepEqual(observation.steps.map(row => row.name).sort(), [...REQUIRED_STEPS].sort());
+    const required = partitioned ? [...COMMON_STEPS, observation.scenario] : [...REQUIRED_STEPS];
+    assert.deepEqual(observation.steps.map(row => row.name).sort(), required.sort());
     for (const step of observation.steps) assert.equal(step.status, "pass", step.name);
     const evidenceFor = name => observation.steps.find(row => row.name === name).evidence;
     assert.equal(evidenceFor("installation_consent").mcp_approval?.status, "configured");
+    if (!partitioned || observation.scenario === 'dispatch') {
     assert.equal(evidenceFor("dispatch").outcome, "control_result");
     assert.equal(evidenceFor("dispatch").terminal, true);
     assert.equal(evidenceFor("dispatch").authorizes, false);
+    }
+    if (!partitioned || observation.scenario === 'failure_case') {
     assert.equal(evidenceFor("failure_case").outcome, "invalid_input");
+    }
+    if (!partitioned || observation.scenario === 'skill_continuation') {
     assert.equal(evidenceFor("skill_continuation").outcome, "skill_continuation");
     assert.equal(evidenceFor("skill_continuation").contracts_verified, true);
+    }
     for (const key of ["mcp_listed", "config_mcp_section", "plugin_cache", "mcp_runtime"]) {
       assert.equal(evidenceFor("removal")[key], false);
     }
-    for (const name of ["dispatch", "failure_case", "skill_continuation"]) {
+    for (const name of partitioned ? [observation.scenario] : RELEASE_SCENARIOS) {
       const evidence = observation.steps.find(row => row.name === name).evidence;
       assert.deepEqual(evidence.observed_models, [policy.model]);
       assert.equal(evidence.calls, 1);

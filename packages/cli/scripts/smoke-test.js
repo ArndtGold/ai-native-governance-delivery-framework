@@ -229,7 +229,7 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
 {
   const guardrailsWorkflowPath = fileURLToPath(new URL("../../.github/workflows/agdf-guardrails.yml", packageRoot));
   const guardrailsWorkflow = readFileSync(guardrailsWorkflowPath, "utf8");
-  if (!guardrailsWorkflow.includes("node scripts/verify-ci.mjs --lane")) throw new Error("Guardrails must use the shared verification plan.");
+  if (!guardrailsWorkflow.includes("uses: ./.github/workflows/verify-agdf.yml")) throw new Error("Guardrails must use the shared verification plan.");
   const { verificationPlan } = await import(new URL("../../scripts/verify-ci.mjs", packageRoot));
   const stages = verificationPlan().map(stage => stage.id);
   for (const stage of ['runtime', 'community', 'delivery-map']) {

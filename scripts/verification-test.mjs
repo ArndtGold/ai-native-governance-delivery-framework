@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import './ci-plan-test.mjs';
 import { test } from 'node:test';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

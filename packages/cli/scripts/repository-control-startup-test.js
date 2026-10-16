@@ -20,7 +20,11 @@ try {
   const b = repository(base, "root B"); addRun(b, "current", { sealed: true }); git(b, "init", "-q");
   const sotPath = join(b, ".agdf/control/SOT_REGISTRY.md");
   writeFileSync(sotPath, readFileSync(sotPath, "utf8") + "\n| Fixture domain | A.md | active |\n| Fixture domain | B.md | active |\n");
-  const beforeA = treeDigest(a), beforeB = treeDigest(b);
+  // doctor reports revise for a run without next action and for a repository without active runs.
+  const c = repository(base, "root C"); git(c, "init", "-q");
+  addRun(c, "gapped", { sealed: true, transform: (text) => text.replace(/^- next_allowed_action:.*$/mu, "- next_allowed_action:") });
+  const d = repository(base, "root D"); git(d, "init", "-q");
+  const beforeA = treeDigest(a), beforeB = treeDigest(b), beforeC = treeDigest(c), beforeD = treeDigest(d);
   const source = await runControlMaintenance(a);
   const launch = { target: a, executable: process.execPath, validator: "/owned/runtime.js", env: {}, deadline: 1000, now: () => 0 };
   let calls = 0;
@@ -88,8 +92,12 @@ try {
   const bFacts = launchHook(b);
   assert.equal(bFacts.repository_control.target, realpathSync(b));
   assert.equal(bFacts.repository_control.status, "current");
-  assert.ok(["block", "blocked"].includes(bFacts.automatic_check.status), "blocked delivery readiness remains separate from current control compatibility");
+  assert.equal(bFacts.automatic_check.status, "block", "blocked delivery readiness remains separate from current control compatibility");
   assert.equal(bFacts.repository_control.invocation, undefined);
+  const cCheck = launchHook(c).automatic_check;
+  assert.equal(cCheck.status, "revise", "doctor revise reaches the runtime facts");
+  assert.ok(cCheck.findings > 0);
+  assert.equal(launchHook(d).automatic_check.status, "revise", "no active run is revise, not unknown");
   assert.equal(launchHook(base).repository_control, undefined);
   // OpenCode's adapter supplies an explicit child cwd and ignores stdin.
   const openCodeIdentity = runtimeCheckCapabilityIdentity({ capability: definition.automaticRuntimeChecks, surface: "opencode",
@@ -102,5 +110,6 @@ try {
   assert.equal(openCodeFacts.repository_control.target, realpathSync(a));
   assert.equal(openCodeFacts.repository_control.status, "migration_required");
   assert.equal(treeDigest(a), beforeA); assert.equal(treeDigest(b), beforeB);
+  assert.equal(treeDigest(c), beforeC); assert.equal(treeDigest(d), beforeD);
   console.log("Repository control bounded startup, consent and reentry tests passed.");
 } finally { rmSync(base, { recursive: true, force: true }); }

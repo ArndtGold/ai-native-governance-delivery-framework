@@ -352,7 +352,7 @@ ${copilot ? COPILOT_CONSENT_GATE : CLAUDE_PLUGIN_CONSENT_GATE}
     });
     try {
       const report = JSON.parse(child.stdout || "{}");
-      const supportedStatuses = new Set(["pass", "warn", "block", "blocked", "error", "failed", "unknown", "unavailable"]);
+      const supportedStatuses = new Set(["pass", "warn", "revise", "block"]);
       const rawStatus = typeof report.status === "string" ? report.status : "unknown";
       const rawFindings = report.summary?.findings ?? report.reports?.reduce((sum, item) => sum + (item.summary?.findings ?? 0), 0) ?? 0;
       check = {

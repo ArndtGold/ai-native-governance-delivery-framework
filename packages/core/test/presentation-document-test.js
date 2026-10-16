@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { tryLinkFile } from '../../../scripts/support/symlinks.js';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createSdDefinitionTestRun, syntheticSd } from '../../cli/scripts/fixtures/sd-definition.js';
@@ -68,9 +69,11 @@ try {
     gate: 'SD', presentation_id: binding.presentationId, response: 'Approval: SD' } } };
   assert.equal(command('agdf_approve', approve).reason, 'presentation_document_digest_mismatch');
   assert.equal(readFileSync(f.state, 'utf8'), before);
-  rmSync(snapshot); symlinkSync(f.file('SD.md'), snapshot);
-  assert.equal(readPresentationDocument(root, binding).reason, 'presentation_document_invalid');
-  assert.equal(command('agdf_approve', { ...approve, operation_id: randomUUID() }).reason, 'presentation_document_invalid');
-  assert.equal(readFileSync(f.state, 'utf8'), before);
+  rmSync(snapshot);
+  if (tryLinkFile(f.file('SD.md'), snapshot, 'presentation-document')) {
+    assert.equal(readPresentationDocument(root, binding).reason, 'presentation_document_invalid');
+    assert.equal(command('agdf_approve', { ...approve, operation_id: randomUUID() }).reason, 'presentation_document_invalid');
+    assert.equal(readFileSync(f.state, 'utf8'), before);
+  }
   console.log('Bound immutable document chunks, UTF-8 boundaries, exact-byte digest, shared Inspect projection and tamper/symlink approval denial passed (synthetic only).');
 } finally { rmSync(root, { recursive: true, force: true }); }

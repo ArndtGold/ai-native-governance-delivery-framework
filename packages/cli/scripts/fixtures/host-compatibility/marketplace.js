@@ -1,5 +1,6 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import process from "node:process";
 import { prepareLocalMarketplace } from "../../../lib/installers/local-marketplace.js";
 import { pluginDefinition } from "../../../lib/cli/runtime-context.js";
 
@@ -46,7 +47,12 @@ export function createMarketplaceFixture(base, surface, built, install) {
           transaction.rollback();
         } };
       };
-      return install({ exec, prepare, dataRoot: join(base, "data"), recoverCache: () => ({ status: "unavailable", reason: "fixture_failure" }), loadedSessions: () => [] });
+      // Claude installs record their result below the Claude config root and probe %LOCALAPPDATA%;
+      // both stay inside the fixture, never in the user's real Claude home.
+      const claudeIsolation = surface === "claude"
+        ? { env: { ...process.env, CLAUDE_CONFIG_DIR: join(base, "claude-home") }, preflight: () => ["packaged_app_preflight:passed"] }
+        : {};
+      return install({ exec, prepare, dataRoot: join(base, "data"), recoverCache: () => ({ status: "unavailable", reason: "fixture_failure" }), loadedSessions: () => [], ...claudeIsolation });
     },
     stagedRoot: () => transaction?.pluginRoot,
     dispose: () => rmSync(base, { recursive: true, force: true }),

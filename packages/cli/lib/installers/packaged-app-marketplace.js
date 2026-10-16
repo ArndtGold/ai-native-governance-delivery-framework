@@ -59,7 +59,7 @@ export function reconcilePackagedAppMarketplaceCopies({
 }
 
 export function packagedAppCopyEvidence(copies) {
-  return copies.map((copy) => `packaged_app_copy:${copy.package}:${copy.state}${copy.reason ? `:${copy.reason}` : ""}`);
+  return copies.map((copy) => `packaged_app_copy:${copy.package}:${copy.state}${copy.reason ? `:${copy.reason}` : ""}${copy.cleanup ? `:cleanup_pending=${copy.cleanup}` : ""}`);
 }
 
 export function packagedAppCopiesHealthy(copies) {

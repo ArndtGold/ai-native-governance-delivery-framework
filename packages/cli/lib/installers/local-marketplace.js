@@ -694,18 +694,26 @@ function prepareLocalMarketplaceFromSource({
       damagedReason,
       ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
       changed: true,
-      commit() {
-        if (closed) return;
+      // The committed marker is the commit point. A host that already serves the new root may opt in to
+      // report a failed backup cleanup instead of throwing; the marker stays for the next run's recovery.
+      commit({ tolerateCleanupFailure = false } = {}) {
+        if (closed) return Object.freeze({ cleanup: "none" });
         atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: "committed" })}\n`);
         closed = true;
-        if (existsSync(backupRoot)) {
-          assertTransactionBackupIdentity(backupRoot, transaction);
-          cleanupBackup(backupRoot, parent);
+        try {
+          if (existsSync(backupRoot)) {
+            assertTransactionBackupIdentity(backupRoot, transaction);
+            cleanupBackup(backupRoot, parent);
+          }
+          rmSync(transactionPath);
+        } catch (error) {
+          if (!tolerateCleanupFailure) throw error;
+          return Object.freeze({ cleanup: "pending", reason: error?.code || "cleanup_failed" });
         }
-        rmSync(transactionPath);
+        return Object.freeze({ cleanup: "done" });
       },
       rollback() {
-        if (closed) return;
+        if (closed) return "already_closed";
         if (existsSync(backupRoot)) assertTransactionBackupIdentity(backupRoot, transaction);
         if (existsSync(backupRoot)) {
           if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);

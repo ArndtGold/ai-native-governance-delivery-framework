@@ -142,6 +142,14 @@ const COPILOT_CONTEXT_EMITTER = `  const emitContext = (additionalContext) => {
     else console.log(additionalContext);
   };`;
 
+const COPILOT_CONSENT_GATE = `  let consentEnabled = false;
+  if (["codex", "claude", "copilot", "opencode"].includes(surface)) {`;
+
+// Claude Code runs the hook only while the AGDF plugin is enabled, so enablement is its consent
+// (automaticRuntimeChecks.surfaces.claude: plugin-enablement); no receipt exists or is required.
+const CLAUDE_PLUGIN_CONSENT_GATE = `  let consentEnabled = surface === "claude";
+  if (["codex", "copilot", "opencode"].includes(surface)) {`;
+
 // Claude Code loads a directory-marketplace plugin in place, so the version alone cannot reveal a
 // stale plugin root; its installation provenance can. The notice is appended last, so the kernel,
 // the binding and the runtime facts keep their positions.
@@ -154,7 +162,7 @@ const CLAUDE_DRIFT_AWARE_CONTEXT_EMITTER = `  let installationDrift = null;
       ...installationDrift,
       recovery: installationDrift.packaged_app_copy
         ? "Tell the user before relying on AGDF: this session loads AGDF from the private copy of packaged app " + installationDrift.packaged_app_copy + ", not from the installation. Reinstall AGDF from a terminal outside that app, then restart it."
-        : "Tell the user before relying on AGDF: this session loads another AGDF state than the one installed last. Restart Claude Code; reinstall AGDF if the drift persists.",
+        : "Tell the user before relying on AGDF: this session loads another AGDF state than the one last installed for Claude, for example after another host's AGDF install changed the shared marketplace. Reinstall AGDF for Claude from a terminal outside Claude Desktop, then restart Claude Code.",
     })}\`
     : "";
   const emitContext = (additionalContext) => {
@@ -294,8 +302,7 @@ if (process.argv.length !== 2) {
   const bindingContext = dispatchBinding ? \`AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}\` : unavailableDispatchContext();
   const baseContext = [activationKernel, bindingContext].join("\\n\\n");
 ${copilot ? COPILOT_CONTEXT_EMITTER : CLAUDE_DRIFT_AWARE_CONTEXT_EMITTER}
-  let consentEnabled = false;
-  if (["codex", "claude", "copilot", "opencode"].includes(surface)) {
+${copilot ? COPILOT_CONSENT_GATE : CLAUDE_PLUGIN_CONSENT_GATE}
     try {
       const receipt = JSON.parse(readFileSync(join(dataRoot, "runtime-checks", \`\${surface}.json\`), "utf8"));
       consentEnabled = receipt?.schema_version === 1
@@ -303,7 +310,7 @@ ${copilot ? COPILOT_CONTEXT_EMITTER : CLAUDE_DRIFT_AWARE_CONTEXT_EMITTER}
         && receipt?.capability_id === "automatic-runtime-checks"
         && receipt?.surface === surface
         && receipt?.requested_state === "enabled";
-      if (consentEnabled && ["codex", "claude", "copilot"].includes(surface)) {
+      if (consentEnabled && [${copilot ? '"codex", "claude", "copilot"' : '"codex", "copilot"'}].includes(surface)) {
         const definition = JSON.parse(readFileSync(new URL("../meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
         const currentIdentity = runtimeCheckCapabilityIdentity({
           capability: definition.automaticRuntimeChecks,

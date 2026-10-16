@@ -25,6 +25,8 @@ const repoRoot = dirname(dirname(packageRoot));
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
 const builtCopilotPluginRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-local-marketplace-"));
+// Claude installs write their installation record below the Claude config root; never the user's.
+process.env.CLAUDE_CONFIG_DIR = join(fixtureRoot, "claude-home");
 
 function json(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -69,6 +71,24 @@ function fakeTransaction(root = join(fixtureRoot, "fake-marketplace"), { changed
       },
     }),
   };
+}
+
+// A Claude transaction carries the staged plugin root and digests the installer verifies after commit.
+function fakeClaudeTransaction(root) {
+  const fake = fakeTransaction(root);
+  const pluginRoot = join(root, "plugins", "agdf");
+  const sourceDigest = "a".repeat(64);
+  const runtimeDigest = "e".repeat(64);
+  mkdirSync(pluginRoot, { recursive: true });
+  writeFileSync(join(pluginRoot, ".agdf-installation.json"), JSON.stringify({
+    schema_version: 1, owner: "create-agdf", source_digest: sourceDigest, runtime_digest: runtimeDigest,
+  }));
+  return { ...fake, prepare: () => ({ ...fake.prepare(), pluginRoot, sourceDigest, runtimeDigest }) };
+}
+
+// The packaged-app preflight probes the real %LOCALAPPDATA%; these fixtures exercise the install sequence.
+function installClaude(options) {
+  return installClaudeGlobalPlugin({ preflight: () => ["packaged_app_preflight:passed"], ...options });
 }
 
 function commandKey(executable, args) {
@@ -706,7 +726,7 @@ try {
     };
     for (const [surface, install] of [
       ["codex", installCodexGlobalPlugin],
-      ["claude", installClaudeGlobalPlugin],
+      ["claude", installClaude],
     ]) {
       const historicalRecoveryEvidence = install({
         prepare: () => ({
@@ -734,7 +754,7 @@ try {
   }
   const unverifiedHistoricalClaudeTx = fakeTransaction(join(fixtureRoot, "claude-unverified-historical-marketplace"));
   const unverifiedHistoricalClaudeCalls = [];
-  assert.throws(() => installClaudeGlobalPlugin({
+  assert.throws(() => installClaude({
     prepare: () => ({
       ...unverifiedHistoricalClaudeTx.prepare(),
       existingClassification: "owned_supported_historical_rebuild",
@@ -760,7 +780,7 @@ try {
 
   const claudeTx = fakeTransaction(join(fixtureRoot, "claude-marketplace"));
   const claudeCalls = [];
-  const claude = installClaudeGlobalPlugin({
+  const claude = installClaude({
     prepare: claudeTx.prepare,
     exec: scriptedExec({
       "claude plugin marketplace list --json": "[]",
@@ -771,15 +791,18 @@ try {
   assert.equal(claudeTx.state.committed, 1);
   assert.ok(claudeCalls.includes(`claude plugin marketplace add ${join(fixtureRoot, "claude-marketplace")} --scope user`));
   assert.ok(claudeCalls.includes("claude plugin marketplace update agdf"));
-  assert.ok(claudeCalls.includes("claude plugin uninstall agdf@agdf --keep-data"), "installed plugin must be reinstalled, not updated");
-  assert.ok(claudeCalls.includes("claude plugin install agdf@agdf"));
-  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf --keep-data") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
+  // A text-only listing cannot show whether Claude's cached copy is current, so the plugin is refreshed.
+  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf --keep-data") < claudeCalls.indexOf("claude plugin install agdf@agdf"),
+    "an unverifiable cached copy is refreshed through uninstall and install");
+  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf --keep-data") >= 0);
   assert.equal(claudeCalls.includes("claude plugin update agdf@agdf"), false, "same-version update must no longer be used");
+  assert.ok(claude.evidence.includes("plugin_operation:reinstalled"));
+  assert.ok(claude.evidence.includes("plugin_list:text_fallback"), "a host without JSON listing falls back to text");
 
   const claudeRetryTx = fakeTransaction(join(fixtureRoot, "claude-retry-marketplace"));
   const claudeRetryCalls = [];
   let claudeInstallAttempts = 0;
-  const claudeRetry = installClaudeGlobalPlugin({
+  const claudeRetry = installClaude({
     prepare: claudeRetryTx.prepare,
     recoverCache: () => ({ status: "recovered", reason: "claude_cache_temp_recovery_bounded_retry" }),
     exec: scriptedExec({
@@ -789,7 +812,10 @@ try {
         if (claudeInstallAttempts === 1) throw Object.assign(new Error("EPERM rename"), { stderr: "EPERM rename" });
         return "";
       },
-      "claude plugin list": `agdf@agdf ${pluginDefinition.version}\n`,
+      "claude plugin list": (() => {
+        let listCalls = 0;
+        return () => (listCalls += 1) === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;
+      })(),
     }, claudeRetryCalls),
   });
   assert.equal(claudeInstallAttempts, 2);
@@ -799,14 +825,15 @@ try {
   const claudeRetryFailureTx = fakeTransaction(join(fixtureRoot, "claude-retry-failure-marketplace"));
   let retryFailureAttempts = 0;
   let retryFailureListCalls = 0;
-  const retryFailure = captureError(() => installClaudeGlobalPlugin({
+  const retryFailure = captureError(() => installClaude({
     prepare: claudeRetryFailureTx.prepare,
     recoverCache: () => ({ status: "recovered", reason: "claude_cache_temp_recovery_bounded_retry" }),
     exec: scriptedExec({
       "claude plugin marketplace list --json": "[]",
       "claude plugin list": () => {
         retryFailureListCalls += 1;
-        return retryFailureListCalls === 1 ? `agdf@agdf ${pluginDefinition.version}\n` : "";
+        // An older installed version takes the uninstall/install path whose restoration is under test.
+        return retryFailureListCalls === 1 ? "agdf@agdf 0.0.1\n" : "";
       },
       "claude plugin install agdf@agdf": () => {
         retryFailureAttempts += 1;
@@ -823,10 +850,10 @@ try {
   assert.ok(retryFailure.evidence.rollback.some((entry) =>
     entry.status === "restored" && entry.args?.join(" ") === "plugin install agdf@agdf"));
 
-  const claudeFreshTx = fakeTransaction(join(fixtureRoot, "claude-fresh-marketplace"));
+  const claudeFreshTx = fakeClaudeTransaction(join(fixtureRoot, "claude-fresh-marketplace"));
   const claudeFreshCalls = [];
   const multiLineList = `Installed plugins:\n\n  ❯ agdf@agdf\n    Version: ${pluginDefinition.version}\n    Scope: user\n    Status: ✔ enabled\n`;
-  const claudeFresh = installClaudeGlobalPlugin({
+  const claudeFresh = installClaude({
     prepare: claudeFreshTx.prepare,
     exec: scriptedExec({
       "claude plugin marketplace list --json": "[]",
@@ -952,7 +979,7 @@ try {
 
   const conflictTx = fakeTransaction(join(fixtureRoot, "conflict-marketplace"));
   const conflictCalls = [];
-  assert.throws(() => installClaudeGlobalPlugin({
+  assert.throws(() => installClaude({
     prepare: conflictTx.prepare,
     exec: scriptedExec({ "claude plugin marketplace list --json": '[{"name":"agdf","source":"foreign/repository"}]' }, conflictCalls),
   }), /Refusing to replace/);

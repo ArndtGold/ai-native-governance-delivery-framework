@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 import { packageRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
-import { inspectClaudeHostInstallationDrift, packagedAppCopies, sameFileSystemEntry } from "#agdf-core/runtime/host-installation.js";
+import { claudeInstallationRecordPath, inspectClaudeHostInstallationDrift, packagedAppCopies, readClaudeInstallationRecord, sameFileSystemEntry, writeClaudeInstallationRecord } from "#agdf-core/runtime/host-installation.js";
+import { claudePluginDataRoot } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { packagedAppCopiesHealthy, packagedAppCopyEvidence, reconcilePackagedAppMarketplaceCopies } from "../lib/installers/packaged-app-marketplace.js";
 import { installClaudeGlobalPlugin } from "../lib/installers/plugin-installers.js";
 import { syncPluginRuntime } from "../../../scripts/sync-plugin-runtime.js";
@@ -134,52 +135,59 @@ try {
       loadedSessions: () => [],
       migrateMcp: () => [],
       prepareMcp: () => [],
+      preflight: () => ["packaged_app_preflight:passed"],
+      recordInstallation() { order.push("record"); },
+      verifyInstallation() {
+        order.push("verify");
+        return { status: "matched", evidence: ["installation_verification:matched"] };
+      },
       reconcilePackagedCopies(input) {
         order.push("reconcile");
         reconcileInput = input;
         return reconciled;
       },
     });
-    assert.deepEqual(order, ["commit", "reconcile"], `${label}: packaged copies are reconciled only after the commit`);
+    assert.deepEqual(order, ["commit", "record", "reconcile", "verify"], `${label}: record, reconciliation and verification follow the commit`);
     assert.deepEqual({ ...reconcileInput, env: undefined }, { root, sourceDigest: digest("a"), pluginDigest: digest("b"), env: undefined });
     assert.equal(installed.verificationStatus, status, label);
     assert.deepEqual(installed.packagedAppCopies, reconciled);
     if (label === "stale") assert.ok(installed.evidence.includes("packaged_app_copy:Claude_x:stale:EBUSY"));
   }
 
-  // Claude Code loads a directory-marketplace plugin in place; its cache copy records what was installed.
-  const cacheRoot = join(fixtureRoot, "claude-cache", "agdf", "agdf", pluginDefinition.version);
-  installedPlugin(cacheRoot, digest("a"));
-  const claudeConfig = (name, marketplaceLocation, pluginSource, { installed = true } = {}) => {
+  // Claude Code loads a directory-marketplace plugin in place; the installer records what it committed in
+  // the Claude plugin data root, which packaged apps do not virtualize.
+  const claudeConfig = (name, marketplaceLocation, pluginSource, { record = digest("a"), runtime = digest("e") } = {}) => {
     const configDir = join(fixtureRoot, name);
     writeJson(join(marketplaceLocation, ".claude-plugin", "marketplace.json"), { name: "agdf", plugins: [{ name: "agdf", source: pluginSource }] });
     writeJson(join(configDir, "plugins", "known_marketplaces.json"), {
       agdf: { source: { source: "directory", path: marketplaceLocation }, installLocation: marketplaceLocation },
     });
-    if (installed) {
-      writeJson(join(configDir, "plugins", "installed_plugins.json"), {
-        version: 2,
-        plugins: { "agdf@agdf": [{ scope: "user", installPath: cacheRoot, version: pluginDefinition.version }] },
+    const env = { CLAUDE_CONFIG_DIR: configDir, LOCALAPPDATA: localAppData };
+    if (record) {
+      writeClaudeInstallationRecord({
+        pluginRoot: join(marketplaceLocation, pluginSource), marketplaceRoot: marketplaceLocation,
+        sourceDigest: record, runtimeDigest: runtime, env,
       });
     }
-    return { CLAUDE_CONFIG_DIR: configDir, LOCALAPPDATA: localAppData };
+    return env;
   };
   const marketplaceLocation = join(fixtureRoot, "marketplace");
   const loadedRoot = join(marketplaceLocation, "plugins", "agdf");
   installedPlugin(loadedRoot, digest("c"));
   const driftEnv = claudeConfig("claude-config", marketplaceLocation, "./plugins/agdf");
+  assert.equal(claudeInstallationRecordPath({ env: driftEnv }),
+    join(claudePluginDataRoot({ claudeConfigDir: driftEnv.CLAUDE_CONFIG_DIR }), "installation.json"),
+    "the record lives in the plugin data root the MCP runtime already uses");
   const drift = inspectClaudeHostInstallationDrift({ pluginRoot: loadedRoot, env: driftEnv, platform: "win32" });
   assert.deepEqual(drift, {
     status: "drift",
     loaded_root: loadedRoot,
     loaded_source_digest: digest("c"),
     loaded_runtime_digest: digest("e"),
-    installed_root: cacheRoot,
+    installed_root: loadedRoot,
     installed_source_digest: digest("a"),
     installed_runtime_digest: digest("e"),
   });
-  assert.equal(inspectClaudeHostInstallationDrift({ pluginRoot: cacheRoot, env: driftEnv }).status, "not_applicable",
-    "only the registered in-place root is compared");
   const copiedRoot = join(fixtureRoot, "copy", "plugins", "agdf");
   installedPlugin(copiedRoot, digest("c"));
   assert.equal(inspectClaudeHostInstallationDrift({ pluginRoot: copiedRoot, env: driftEnv }).status, "not_applicable",
@@ -188,8 +196,13 @@ try {
     "a generated bundle without installation provenance is not compared");
   assert.equal(inspectClaudeHostInstallationDrift({
     pluginRoot: loadedRoot,
-    env: claudeConfig("claude-config-uninstalled", marketplaceLocation, "./plugins/agdf", { installed: false }),
-  }).status, "unknown");
+    env: claudeConfig("claude-config-unrecorded", marketplaceLocation, "./plugins/agdf", { record: null }),
+  }).status, "unknown", "an install without record yields no notice");
+  const foreignEnv = claudeConfig("claude-config-foreign", marketplaceLocation, "./plugins/agdf", { record: null });
+  writeJson(claudeInstallationRecordPath({ env: foreignEnv }), { schema_version: 1, owner: "someone-else", plugin_id: "agdf@agdf",
+    plugin_root: loadedRoot, source_digest: digest("a"), runtime_digest: digest("e") });
+  assert.equal(readClaudeInstallationRecord({ env: foreignEnv }), null, "only an AGDF-owned record is trusted");
+  assert.equal(inspectClaudeHostInstallationDrift({ pluginRoot: loadedRoot, env: foreignEnv }).status, "unknown");
   installedPlugin(loadedRoot, digest("a"));
   assert.equal(inspectClaudeHostInstallationDrift({ pluginRoot: loadedRoot, env: driftEnv }).status, "matched");
 
@@ -206,10 +219,15 @@ try {
     pluginRoot: join(localAppData, "agdf-shadow", "plugins", "agdf"), env: shadowEnv, platform: "win32",
   }).packaged_app_copy, "Claude_shadow");
 
-  // The generated Claude SessionStart check appends the drift after kernel, binding and facts.
+  // The generated Claude SessionStart check appends runtime facts and the drift notice after the binding,
+  // and takes the drift verdict from the shared inspection instead of comparing on its own.
   const projectedPluginRoot = join(fixtureRoot, "projection", "agdf");
   cpSync(join(packageRoot, "../..", "plugins", "agdf"), projectedPluginRoot, { recursive: true });
   syncPluginRuntime({ outputRoot: join(projectedPluginRoot, "runtime") });
+  const generatedCheck = readFileSync(join(projectedPluginRoot, "runtime", "agdf-session-check.js"), "utf8");
+  assert.match(generatedCheck, /import \{ inspectClaudeHostInstallationDrift \} from "\.\/create-agdf\/runtime\/core\/lib\/runtime\/host-installation\.js";/);
+  assert.doesNotMatch(generatedCheck, /installed_plugins\.json|readClaudeInstallationRecord|compareInstallationProvenance/,
+    "the hook holds no second comparison");
   const projectionEnv = claudeConfig("claude-config-projection", join(fixtureRoot, "projection"), "./agdf");
   const sessionCheck = (env) => spawnSync(process.execPath, [join(projectedPluginRoot, "runtime", "agdf-session-check.js")], {
     cwd: fixtureRoot,
@@ -221,7 +239,10 @@ try {
   assert.equal(drifted.status, 0, drifted.stderr);
   const lines = drifted.stdout.trimEnd().split("\n");
   assert.match(lines.at(-1), /^AGDF installation drift: \{/);
-  assert.ok(lines.findIndex((line) => line.startsWith("AGDF dispatcher binding: ")) < lines.length - 1, "the binding stays in place");
+  const bindingIndex = lines.findIndex((line) => line.startsWith("AGDF dispatcher binding: "));
+  const factsIndex = lines.findIndex((line) => line.startsWith("AGDF runtime facts: "));
+  assert.ok(bindingIndex >= 0 && bindingIndex < factsIndex && factsIndex < lines.length - 1,
+    "binding, runtime facts and drift notice keep their order");
   const notice = JSON.parse(lines.at(-1).slice("AGDF installation drift: ".length));
   assert.equal(notice.status, "drift");
   assert.equal(notice.loaded_source_digest, digest("c"));
@@ -232,10 +253,12 @@ try {
   const matched = sessionCheck({});
   assert.equal(matched.status, 0, matched.stderr);
   assert.doesNotMatch(matched.stdout, /AGDF installation drift:/);
+  assert.match(matched.stdout, /AGDF runtime facts: /, "Claude plugin enablement is the runtime-check consent");
   installedPlugin(projectedPluginRoot, digest("c"));
   const codex = sessionCheck({ AGDF_SURFACE: "codex" });
   assert.equal(codex.status, 0, codex.stderr);
-  assert.doesNotMatch(codex.stdout, /AGDF installation drift:/, "only Claude records its install in installed_plugins.json");
+  assert.doesNotMatch(codex.stdout, /AGDF installation drift:/, "only Claude records its install in the plugin data root");
+  assert.doesNotMatch(codex.stdout, /AGDF runtime facts: /, "Codex still requires its receipt");
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });
 }

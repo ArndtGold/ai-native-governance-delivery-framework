@@ -19,6 +19,7 @@ import {
   installClaudeGlobalPlugin,
   installCopilotGlobalPlugin,
   installCodexGlobalPlugin,
+  preflightClaudeInstall,
 } from "../installers/plugin-installers.js";
 import { defaultCopilotSettingsPath } from "../installers/copilot-settings.js";
 import {
@@ -62,6 +63,7 @@ function createHandlers({
   exec,
   packagedCopilotExec,
   prepare,
+  preflightClaudeInstall: preflightClaude,
   openCodePackageSource,
   copilotSettingsPath,
   askInstallSetupDecision,
@@ -86,6 +88,7 @@ function createHandlers({
     ...(exec ? { exec } : {}),
     ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
     ...(prepare ? { prepare } : {}),
+    ...(preflightClaude ? { preflight: preflightClaude } : {}),
     copilotSettingsPath: copilotSettingsPath ?? defaultCopilotSettingsPath({ env }),
     env,
     ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
@@ -380,6 +383,11 @@ function printOpenCodeVerbose(payload, options, io) {
 async function runGuidedInstall(options, dependencies) {
   const language = options.language?.chat_language ?? "en";
   try {
+    // Inside a packaged app every following write would stay private to that app, so the Claude check
+    // runs before setup, consent, control or marketplace work can change anything.
+    if (options.target === "claude") {
+      (dependencies.installerAdapters.preflight ?? preflightClaudeInstall)({ env: dependencies.env });
+    }
     const outcome = await runInstallSetup({ options, interactive: dependencies.interactive, env: dependencies.env }, {
       exec: dependencies.exec,
       inspectPlugin: dependencies.inspectPluginInstallation,
@@ -1001,6 +1009,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     exec: adapters.exec,
     packagedCopilotExec: adapters.packagedCopilotExec,
     prepare: adapters.prepare,
+    preflightClaudeInstall: adapters.preflightClaudeInstall,
     openCodePackageSource: adapters.openCodePackageSource,
     copilotSettingsPath: adapters.copilotSettingsPath,
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,

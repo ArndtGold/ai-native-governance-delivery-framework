@@ -1,0 +1,70 @@
+{
+  "captured_with": "claude 2.1.268 plugin list --json",
+  "captured_on": "2026-10-15",
+  "note": "User paths anonymized; otherwise unmodified host output.",
+  "output": [
+    {
+      "id": "agdf@agdf",
+      "version": "0.14.5",
+      "scope": "user",
+      "enabled": true,
+      "installPath": "C:\\Users\\example\\.claude\\plugins\\cache\\agdf\\agdf\\0.14.5",
+      "installedAt": "2026-10-15T16:29:20.903Z",
+      "lastUpdated": "2026-10-15T16:29:20.903Z",
+      "mcpServers": {
+        "agdf": {
+          "type": "stdio",
+          "command": "node",
+          "args": [
+            "${CLAUDE_PLUGIN_ROOT}/mcp/agdf-mcp-launch.js"
+          ]
+        },
+        "agdf-cockpit": {
+          "type": "stdio",
+          "command": "node",
+          "args": [
+            "${CLAUDE_PLUGIN_ROOT}/mcp/agdf-mcp-launch.js",
+            "--cockpit-dir",
+            "${CLAUDE_PROJECT_DIR}"
+          ]
+        }
+      }
+    },
+    {
+      "id": "merit@merit",
+      "version": "0.1.0",
+      "scope": "local",
+      "enabled": false,
+      "installPath": "C:\\Users\\example\\.claude\\plugins\\cache\\merit\\merit\\0.1.0",
+      "installedAt": "2026-10-05T07:23:43.259Z",
+      "lastUpdated": "2026-10-05T07:23:43.259Z",
+      "projectPath": "C:\\Workspace\\example-project"
+    },
+    {
+      "id": "playwright@claude-plugins-official",
+      "version": "8f814f49002f",
+      "scope": "user",
+      "enabled": true,
+      "installPath": "C:\\Users\\example\\.claude\\plugins\\cache\\claude-plugins-official\\playwright\\8f814f49002f",
+      "installedAt": "2026-09-22T17:26:38.874Z",
+      "lastUpdated": "2026-10-15T11:31:16.402Z",
+      "mcpServers": {
+        "playwright": {
+          "command": "npx",
+          "args": [
+            "@playwright/mcp@latest"
+          ]
+        }
+      }
+    },
+    {
+      "id": "voice@voice",
+      "version": "0.1.0",
+      "scope": "user",
+      "enabled": true,
+      "installPath": "C:\\Users\\example\\.claude\\plugins\\cache\\voice\\voice\\0.1.0",
+      "installedAt": "2026-10-05T12:50:43.682Z",
+      "lastUpdated": "2026-10-05T12:50:43.682Z"
+    }
+  ]
+}

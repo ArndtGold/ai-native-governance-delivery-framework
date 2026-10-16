@@ -49,8 +49,16 @@ function combinedOutput(result) {
   return `${result.stdout}\n${result.stderr}`;
 }
 
-function assertSessionBase(stdout, pluginRoot, expectedSurface) {
-  const content = stdout.replaceAll("\r\n", "\n").replace(/\n$/u, "");
+function assertSessionBase(stdout, pluginRoot, expectedSurface, { facts = false } = {}) {
+  const output = stdout.replaceAll("\r\n", "\n").replace(/\n$/u, "");
+  const factBlocks = output.split("\n\n").filter((block) => block.startsWith("AGDF runtime facts:"));
+  assert.equal(factBlocks.length, facts ? 1 : 0, facts
+    ? "Claude plugin enablement is the runtime-check consent, so its session receives runtime facts"
+    : "runtime facts require explicit automatic-check consent");
+  // The footprint budget covers the base context; runtime facts and a drift notice are appended after it.
+  const content = output.split("\n\n")
+    .filter((block) => !block.startsWith("AGDF runtime facts:") && !block.startsWith("AGDF installation drift:"))
+    .join("\n\n");
   const definition = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "utf8"));
   const contract = readFileSync(join(pluginRoot, "meta", "contracts", "request-activation.md"), "utf8")
     .replaceAll("\r\n", "\n")
@@ -78,7 +86,6 @@ function assertSessionBase(stdout, pluginRoot, expectedSurface) {
   const routeSourcePath = resolve(dirname(binding.argv_prefix[0]), binding.route_source_after_activation.path);
   assert.equal(realpathSync(routeSourcePath), realpathSync(join(pluginRoot, "meta", "contracts", "request-activation.md")));
   assert.equal(readFileSync(routeSourcePath, "utf8"), contract, "SessionStart route source must resolve to the packaged canonical contract");
-  assert.equal(content.includes("AGDF runtime facts:"), false, "runtime facts require explicit automatic-check consent");
 }
 
 try {
@@ -117,7 +124,7 @@ try {
     },
   });
   assert.equal(healthyHook.status, 0, healthyHook.stderr);
-  assertSessionBase(healthyHook.stdout, installedPluginRoot, "claude");
+  assertSessionBase(healthyHook.stdout, installedPluginRoot, "claude", { facts: true });
 
   const mismatchedHook = spawnSync("bash", [join(installedPluginRoot, "hooks", "session-start.sh")], {
     cwd: fixtureRoot,
@@ -130,7 +137,7 @@ try {
     },
   });
   assert.equal(mismatchedHook.status, 0, mismatchedHook.stderr);
-  assertSessionBase(mismatchedHook.stdout, installedPluginRoot, "claude");
+  assertSessionBase(mismatchedHook.stdout, installedPluginRoot, "claude", { facts: true });
 
   const provenancePath = join(installedPluginRoot, ".agdf-installation.json");
   const validProvenance = readFileSync(provenancePath, "utf8");

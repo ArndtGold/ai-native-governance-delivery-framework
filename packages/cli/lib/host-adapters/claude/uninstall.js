@@ -9,6 +9,7 @@ import { readRuntimeCheckReceipt } from "../../runtime-check-consent/state.js";
 import { inspectClaudePlugin, uninstallCommand } from "./plugin.js";
 import { ownedRuntimeCheckRules } from "./permission-rules.js";
 import { ownedFileSnapshot } from "../../lifecycle/owned-mutation.js";
+import { claudeInstallationRecordPath } from "#agdf-core/runtime/host-installation.js";
 
 export { ownedRuntimeCheckRules };
 
@@ -50,6 +51,10 @@ export function planClaudeGlobalUninstall({
   if (existsSync(marketplaceRoot)) retained.push(`shared AGDF marketplace directory (may still serve Codex): ${marketplaceRoot}`);
   const cacheRoot = join(dirname(claudeSettingsPath), "plugins", "cache", "agdf");
   if (existsSync(cacheRoot)) retained.push(`Claude Code plugin cache (host-owned): ${cacheRoot}`);
+  const installationRecord = claudeInstallationRecordPath({ env });
+  if (existsSync(installationRecord)) {
+    retained.push(`AGDF installation record in the Claude plugin data (removed by Claude Code with that data): ${installationRecord}`);
+  }
   return Object.freeze({
     operation: "uninstall",
     surface: "claude",

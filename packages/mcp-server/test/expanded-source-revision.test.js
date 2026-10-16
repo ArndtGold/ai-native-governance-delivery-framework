@@ -4,17 +4,19 @@ import {randomUUID} from 'node:crypto';
 import {mkdtempSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {createOwnedRuntimeFixture} from './owned-runtime.js';
-import {withStdioClient} from './helpers.js';
-import {createExpandedSourceRevisionFixture,SOURCE_PHASE_MATRIX} from '../../cli/scripts/fixtures/expanded-source-revision.js';
-import {readSourceRevisions} from '../../core/lib/control-state/run-source-revisions.js';
-import {validateRevisionHistory} from '../../core/lib/control-state/run-revision-history.js';
-import {runSealState} from '../../core/lib/control-state/run-seal.js';
+import {SOURCE_PHASE_MATRIX} from '../../core/test/fixtures/source-phase-matrix.js';
 
 const args=process.argv.slice(2);
 assert.ok(!args.length || ([2,4].includes(args.length) && args[0]==='--source-gate' && Object.hasOwn(SOURCE_PHASE_MATRIX,args[1]) &&
   (args.length===2 || (args[2]==='--phase' && SOURCE_PHASE_MATRIX[args[1]].includes(args[3])))), 'Invalid source-gate/phase test selector');
 const matrix=args.length ? {[args[1]]:args.length===4 ? [args[3]] : SOURCE_PHASE_MATRIX[args[1]]} : SOURCE_PHASE_MATRIX;
+// Planning validates selectors before generation or MCP dependency installation.
+const [{createOwnedRuntimeFixture},{createExpandedSourceRevisionFixture},{readSourceRevisions},
+  {validateRevisionHistory},{runSealState},{withStdioClient}]=await Promise.all([
+  import('./owned-runtime.js'),import('../../cli/scripts/fixtures/expanded-source-revision.js'),
+  import('../../core/lib/control-state/run-source-revisions.js'),import('../../core/lib/control-state/run-revision-history.js'),
+  import('../../core/lib/control-state/run-seal.js'),import('./helpers.js'),
+]);
 const runtime=createOwnedRuntimeFixture(),root=runtime.governanceTarget,seeds=mkdtempSync(join(tmpdir(),'agdf-mcp-expanded-seeds-'));
 try {
   const cli=join(runtime.dispatcherRoot,'bin/create-agdf.js'),fixture=createExpandedSourceRevisionFixture(root,cli,seeds);

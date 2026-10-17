@@ -1,0 +1,44 @@
+{
+  "canonical_version": "0.14.5",
+  "source_digest": "8ba86d882a70c53aa01a3b58a3b766f59ee6a8c5c0603aec4f2c2b6a5cc46538",
+  "runtime_digest": "220e1fcd21e4f18eab5945b442ef3f5d9d92ab3d65172d8614dd8cfa44243c3e",
+  "installed_source_matches": true,
+  "installed_runtime_matches": true,
+  "declaration": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "agdf": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "{{AGDF_PLUGIN_ROOT}}/mcp/agdf-mcp-launch.js",
+          "--surface",
+          "codex",
+          "--data",
+          "{{AGDF_MCP_DATA}}"
+        ]
+      },
+      "agdf-cockpit": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "{{AGDF_PLUGIN_ROOT}}/mcp/agdf-mcp-launch.js",
+          "--surface",
+          "codex",
+          "--data",
+          "{{AGDF_MCP_DATA}}",
+          "--cockpit"
+        ]
+      }
+    }
+  },
+  "ui": {
+    "schema_version": "1",
+    "uri": "ui://agdf/cockpit/v1.html",
+    "mime_type": "text/html;profile=mcp-app",
+    "bytes": 1235647,
+    "digest": "sha256:19f6546a5401d9f89a0e78b5500f131b650de4e89b278883e2ee64101368a979",
+    "source_digest": "sha256:ba482e2d5fdbc9a72a0b3f6c49dde9d8baa140247d46ffc124cfb3537745fc45"
+  },
+  "source_fingerprint": "865a140423f8fef8f9e5abb756ed87ba5db2631b27021611e73dff2d779d9aad"
+}

@@ -1,0 +1,131 @@
+{
+  "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+  "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "baseline_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+  "observed_head": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+  "assurance": "cooperative_local",
+  "independent_human_proof": "unavailable",
+  "aggregate_result": "failed checks remain; CD+Tests revise; no clean single-run pass",
+  "resumed_execution": [
+    {
+      "log": "verification-prior-attempt.log",
+      "scope": "Prior canonical build/CI attempt through early CLI smoke; stopped at old migration fixture. Earlier passed stages are retained, not claimed as a final-source single-run pass."
+    },
+    {
+      "log": "verification-smoke-resume1.log",
+      "scope": "Migration passes; repair stopped with a stale fixture copy, then corrected."
+    },
+    {
+      "log": "verification-smoke-resume2.log",
+      "scope": "Repair through lifecycle/profile/Codex tests pass; final MCP functional stages pass through provenance; warm p95 performance fails. Package and SDK commands subsequently executed separately."
+    },
+    {
+      "log": "verification-final-build-and-archives.log",
+      "scope": "Final MCP package and SDK pass; canonical build profile, runtime/built runtime, CLI/wrapper packages and archives/consumers pass. CLI local-validator through Copilot installer pass; local-preparation fixture still expected old Codex payload and fails."
+    },
+    {
+      "log": "verification-preparation-fixture-attempt.log",
+      "scope": "New required Codex UI checked; all-host Copilot budget negative still lacked its required UI input. Fixture input corrected; budget assertion retained."
+    },
+    {
+      "log": "verification-final-tail.log",
+      "scope": "Exact resumed CLI tail and remaining repository stages all pass.",
+      "process_exit_code": 0,
+      "completed_cli_commands": [
+        "npm run test:local-preparation",
+        "npm run test:local-development-install",
+        "npm run test:package-build",
+        "npm run test:package-contents",
+        "npm run test:lifecycle",
+        "npm run test:copilot-repository-retention",
+        "npm run test:control-command",
+        "npm run test:control-command-process",
+        "npm run test:control-command-package",
+        "npm run test:cli-gates",
+        "npm run test:control-state",
+        "npm run test:run-command-flow",
+        "npm run test:run-step-transaction",
+        "npm run test:run-recovery",
+        "npm run test:run-lock",
+        "npm run test:prd-readiness",
+        "npm run test:run-revision",
+        "npm run test:next-action",
+        "npm run test:late-source-revision",
+        "npm run test:intake-continuation",
+        "npm run test:prd-definition",
+        "npm run test:sd-readiness",
+        "npm run test:sd-definition",
+        "npm run test:tp-definition",
+        "npm run test:artifact-language",
+        "npm run test:parent-reconciliation",
+        "npm run test:interaction-presentation",
+        "npm run test:operational-localization",
+        "npm run test:verified-change",
+        "npm run test:runtime-integrity-layout",
+        "npm run test:runtime-integrity-negative",
+        "npm run test:agent-skills-conformance",
+        "npm run test:skill-evals",
+        "npm run eval:skills",
+        "npm run test:proportionality",
+        "npm run test:delivery-path-search",
+        "npm run test:delivery-path-search-unit",
+        "npm run test:delivery-path-search-generator",
+        "npm run test:opencode-hardening",
+        "node scripts/smoke-test.js",
+        "node scripts/test-routing.js"
+      ],
+      "completed_repository_stages": [
+        "wrapper-smoke",
+        "pages-install",
+        "pages"
+      ]
+    },
+    {
+      "log": "final-compatibility-closeout.log",
+      "scope": "Final source/payload freshness check passes, 56 scenarios, zero unexpected failures.",
+      "process_exit_code": 0,
+      "source_fingerprint": "865a140423f8fef8f9e5abb756ed87ba5db2631b27021611e73dff2d779d9aad"
+    }
+  ],
+  "final_source_binding": [
+    "implementation-source-manifest.json",
+    "final-generated-tuple.json",
+    "final-cli-source-comparison.json"
+  ],
+  "remaining_failed_checks": {
+    "core": {
+      "passes": 58,
+      "failures": 2,
+      "baseline_reproduced": true,
+      "logs": [
+        "core-all-final.log",
+        "core-baseline.log"
+      ]
+    },
+    "browser": {
+      "full_run_passes": 40,
+      "full_run_failures": 4,
+      "targeted_same_source_rechecks_pass": 2,
+      "remaining_baseline_reproduced_failures": 2,
+      "no_clean_full_suite_pass": true
+    },
+    "mcp_performance": {
+      "warm_p95_limit_ms": 1000,
+      "candidate_lane_ms": 1099.807,
+      "candidate_isolated_repeat_ms": 1535.622,
+      "baseline_ms": 1152.097,
+      "regression_attribution": "not established; failure not waived"
+    }
+  },
+  "native_visible_ui": {
+    "executed": false,
+    "cli_transport_is_substitute": false,
+    "active_desktop_candidate_installed": false,
+    "real_legacy_retirement_performed": false
+  },
+  "vcs_delivery": {
+    "commit": false,
+    "push": false,
+    "public_release": false
+  }
+}

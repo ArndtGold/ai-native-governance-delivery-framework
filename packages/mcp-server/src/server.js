@@ -57,7 +57,7 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
-        if (!uiAllowed(context)) return toolResult(runtime, runtime.failure("resource_denied", name), serialize ?? runtime.serialize);
+        if (!uiAllowed(context)) return toolResult(runtime, runtime.failure(runtime.unsupportedUiCode ?? "resource_denied", name), serialize ?? runtime.serialize);
         if (tool.requiresUi && !supportsUi(context)) return toolResult(runtime, runtime.failure('host_ui_unsupported', name, argumentsValue, { dispatch: 'not_dispatched' }), serialize ?? runtime.serialize);
         try {
           let result = tool.parentOwned ? await tool.execute(tool.parse(argumentsValue), context.signal,
@@ -75,7 +75,7 @@ export function buildAgdfServer({ runtime, executor } = {}) {
   }
   if (runtime.ui) {
     const resource = loadCockpitResource(runtime.ui);
-    server.registerResource(runtime.mode === 'decision' ? 'AGDF Gate Decision' : 'AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
+    server.registerResource(runtime.mode === 'decision' ? 'AGDF Gate Decision' : runtime.ui.label ?? 'AGDF Cockpit', resource.uri, { mimeType: resource.mimeType, _meta: resource._meta },
       async (_uri, context) => {
         if (!uiAllowed(context) || runtime.mode === 'decision' && !supportsUi(context)) throw new ProtocolError(ProtocolErrorCode.InvalidParams, "resource_denied");
         return { contents: [resource] };
@@ -87,7 +87,7 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         annotations: definition.annotations, ...(definition._meta ? { _meta: definition._meta } : {}),
         ...(definition.outputSchema ? { outputSchema: definition.outputSchema } : {}),
       }));
-      const listedResource = { uri: resource.uri, name: 'AGDF Cockpit', mimeType: resource.mimeType, _meta: resource._meta };
+      const listedResource = { uri: resource.uri, name: runtime.ui.label ?? 'AGDF Cockpit', mimeType: resource.mimeType, _meta: resource._meta };
       server.server.removeRequestHandler("tools/list");
       server.server.setRequestHandler("tools/list", (_request, context) => ({ tools: !uiAllowed(context) ? [] : runtime.mode === 'decision' && !supportsUi(context)
         ? listedTools.filter(tool => !tools.find(entry => entry.name === tool.name)?.requiresUi) : listedTools }));

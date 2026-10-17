@@ -24,29 +24,37 @@ import {
 
 const MCP_RUNTIME_OWNER = "create-agdf:mcp-runtime";
 
-export async function createMcpCockpitRuntime({ surface, cockpitDir, inspected = inspectMcpDispatcherRuntime() } = {}) {
-  if (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir)) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
+export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime() } = {}) {
+  const pluginMode = cockpitMode === 'plugin';
+  if (cockpitMode !== undefined && !pluginMode || pluginMode && (surface !== 'codex' || cockpitDir !== undefined)
+    || !pluginMode && (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir))) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
   let root;
-  try { root = realpathSync(cockpitDir); if (!lstatSync(root).isDirectory()) throw Error(); }
+  try { if (!pluginMode) { root = realpathSync(cockpitDir); if (!lstatSync(root).isDirectory()) throw Error(); } }
   catch { throw new TypeError('AGDF_COCKPIT_TARGET_INVALID'); }
-  const [{ COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS, parseCockpitArguments },
+  const [{ COCKPIT_RENDER_DEFINITION, COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments },
     { createCockpitSessionService }, { READ_LIMITS }] = await Promise.all([
     import("#agdf-core/control-inspect/cockpit-contract.js"),
     import("#agdf-core/control-inspect/cockpit-session.js"),
     import("#agdf-core/control-read/snapshot.js"),
   ]);
-  const session = createCockpitSessionService(root);
+  const session = createCockpitSessionService(root, { pluginMode });
+  const renderDefinition = pluginMode ? COCKPIT_PLUGIN_RENDER_DEFINITION : COCKPIT_RENDER_DEFINITION;
   const tools = [
-    { name: COCKPIT_RENDER_DEFINITION.name, definition: COCKPIT_RENDER_DEFINITION,
-      parse: value => parseCockpitArguments(value, true), execute: value => session.render(value) },
+    { name: renderDefinition.name, definition: renderDefinition,
+      parse: value => pluginMode ? parsePluginCockpitArguments(value) : parseCockpitArguments(value, true), execute: value => session.render(value) },
     { name: COCKPIT_READ_DEFINITION.name, definition: COCKPIT_READ_DEFINITION,
       parse: parseCockpitArguments, execute: (value, signal) => session.read(value, signal) },
   ];
   // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
-  return Object.freeze({ mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools,
-    uiCapabilityRequired: surface === 'claude', responseLimit: READ_LIMITS.response,
-    ui: Object.freeze({ uri: COCKPIT_UI_URI, mimeType: COCKPIT_MIME, limit: COCKPIT_LIMITS.html }),
-    serialize: value => JSON.stringify(value), failure: code => session.failure(code), close: () => session.close(),
+  return Object.freeze({ mode: 'cockpit', definition: renderDefinition, tools,
+    uiCapabilityRequired: pluginMode || surface === 'claude', responseLimit: READ_LIMITS.response,
+    ...(pluginMode ? { unsupportedUiCode: 'host_ui_unsupported' } : {}),
+    ui: Object.freeze({ uri: COCKPIT_UI_URI, mimeType: COCKPIT_MIME, limit: COCKPIT_LIMITS.html,
+      ...(pluginMode ? { label: 'Cockpit' } : {}) }),
+    serialize: value => JSON.stringify(value), failure: code => code === 'host_ui_unsupported'
+      ? { ...session.failure(code), retryable: false,
+        next_action: 'Use a Codex session that advertises MCP App UI support; configuration or tool discovery alone cannot render Cockpit.' }
+      : session.failure(code), close: () => session.close(),
     inspectOwnership: () => session.inspectOwnership(),
     trustedContext: Object.freeze({ surface, expectedVersion: inspected.expectedVersion, provenanceStatus: inspected.provenanceStatus }),
   });

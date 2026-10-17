@@ -1,9 +1,11 @@
-import { existsSync, readFileSync, rmSync, rmdirSync, mkdirSync, lstatSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, rmdirSync, mkdirSync, lstatSync, realpathSync } from "node:fs";
 import { createHash } from 'node:crypto';
 import { withOwnedFileLock } from '#agdf-core/control-state/run-state-writer.js';
-import { inspectMcpServerPackage } from '../package.js';
+import { inspectInstallationProvenance } from '#agdf-core/runtime/plugin-provenance.js';
+import { inspectMcpServerPackage, inspectMcpExecutableRoot } from '../package.js';
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, isAbsolute, resolve, relative } from "node:path";
+import { fileURLToPath } from 'node:url';
 import {
   allSourceResult,
   atomicWrite,
@@ -220,7 +222,7 @@ export function inspectCodexSetup({ target, env = {}, pluginRoot } = {}) {
       const sections = [...snapshot.content.matchAll(/^[ \t]*\[([^\n]+)\][ \t]*$/gm)];
       for (let index = 0; index < sections.length; index++) {
         const header = sections[index][1];
-        const id = /^mcp_servers\.(agdf(?:-[a-z0-9-]+)?)$/u.exec(header)?.[1];
+        const id = /^mcp_servers\.([A-Za-z0-9_-]+)$/u.exec(header)?.[1];
         const plugin = header === 'plugins."agdf@agdf"';
         if (!id && !plugin) continue;
         if (entries.length >= 32) throw Error('bounded_entries');
@@ -263,12 +265,231 @@ export function inspectCodexSetup({ target, env = {}, pluginRoot } = {}) {
     try {
       const path = join(pluginRoot, 'mcp.json'), snapshot = safeSnapshot(path);
       if (Buffer.byteLength(snapshot.content) > 65_536) throw Error('bounded_source');
-      const declaration = JSON.parse(snapshot.content).mcpServers?.agdf;
+      const config = JSON.parse(snapshot.content);
+      const declaration = config.mcpServers?.agdf;
       if (declaration?.type !== 'stdio' || typeof declaration.command !== 'string' || !Array.isArray(declaration.args)) throw Error('invalid_declaration');
       pluginDeclaration = { status: 'declared', path, digest: createHash('sha256').update(snapshot.content).digest('hex'), transport: 'stdio' };
+      for (const [name, value] of Object.entries(config.mcpServers ?? {})) {
+        if (name === 'agdf') continue;
+        entries.push({ server_id: name, display_name: name === 'agdf-cockpit' ? 'Cockpit' : name,
+          source: 'plugin_declaration', config_source: 'plugin_manifest', path, scope: 'plugin',
+          role: name === 'agdf-cockpit' ? 'cockpit' : 'legacy_or_conflict', owner: 'codex_plugin',
+          source_digest: pluginDeclaration.digest, target: null, declared_enabled: null,
+          configured: 'declared', started: 'unobserved', discovered: 'unobserved', app_rendered: 'unobserved',
+          app_interacted: 'unobserved', effective_policy: 'unknown', session_freshness: 'unobserved',
+          evidence_class: 'configuration_only' });
+      }
     } catch {}
   }
   return Object.freeze({ source: 'codex_adapter_derived', authorizes: false, entries, checked_sources: checked,
     plugin_declaration: pluginDeclaration, effective_host_policy: 'unknown',
     session_action: 'supported_client_refresh_and_verify', shared_app_data: 'host_owned_untouched' });
+}
+
+const TRANSITION_MARKER = '# AGDF-COCKPIT-TRANSITION: ';
+const sha = text => 'sha256:' + createHash('sha256').update(text).digest('hex');
+const potentialAlias = name => name.replaceAll('-', '_').toLowerCase();
+
+// Inventory nested env/tool tables without interpreting or rewriting their values.
+// Nested tables for a Cockpit identity remain unsupported transition inputs.
+function mcpTable(header) {
+  const match = /^mcp_servers\.([A-Za-z0-9_-]+)((?:\.[A-Za-z0-9_-]+)*)$/u.exec(header);
+  return match ? { name: match[1], nested: Boolean(match[2]) } : null;
+}
+
+export function inspectCodexCockpitPlugin(pluginRoot) {
+  try {
+    if (!isAbsolute(pluginRoot) || realpathSync(pluginRoot) !== pluginRoot) throw Error('plugin_path_invalid');
+    const json = path => {
+      const snapshot = safeSnapshot(join(pluginRoot, path));
+      if (Buffer.byteLength(snapshot.content) > 131_072) throw Error('plugin_metadata_limit');
+      return JSON.parse(snapshot.content);
+    };
+    const definition = json('meta/agdf-plugin.definition.json');
+    const provenance = inspectInstallationProvenance(pluginRoot, { definition,
+      runtimeManifest: json('runtime/runtime-manifest.json'), pluginVersion: json('.codex-plugin/plugin.json').version });
+    if (provenance.status !== 'matched') throw Error('plugin_provenance_invalid');
+    return { status: 'matched', version: definition.version, digest: 'sha256:' + provenance.marker.source_digest,
+      declaration: json('mcp.json') };
+  } catch { return { status: 'unconfirmed' }; }
+}
+
+// Same adapter and locks as registration writes. Retain the original section and runtime.
+export function createCodexCockpitTransition({ target, env = {}, serverId: id, restore = false,
+  evidence, evidenceDigest, revalidate = () => {} } = {}) {
+  if (!['agdf-cockpit', 'agdf-cockpit-local'].includes(id)) throw Error('AGDF_MCP_CODEX_ROLE_INVALID');
+  const snapshots = sources({ scope: 'project', target, env }).map(source => safeSnapshot(source.path));
+  const snapshot = snapshots[0], range = sectionRange(snapshot.content, id);
+  if (!range) throw Error('AGDF_MCP_COCKPIT_LEGACY_MISSING');
+  const path = snapshot.path;
+  const beforeHeader = snapshot.content.slice(0, range.start);
+  const markerMatch = beforeHeader.match(/# AGDF-COCKPIT-TRANSITION: ([^\n]+)\n$/u);
+  const original = snapshot.content.slice(range.start, range.end);
+  let afterSection, marker, replaceStart = range.start;
+  if (restore) {
+    if (!markerMatch) throw Error('AGDF_MCP_COCKPIT_ROLLBACK_CONFLICT');
+    marker = JSON.parse(markerMatch[1]);
+    if (marker.schema_version !== 1 || marker.server_id !== id || marker.target_id !== evidence.target_id
+      || marker.plugin_digest !== evidence.plugin_digest || marker.disabled_digest !== sha(original) || marker.evidence_digest !== evidenceDigest)
+      throw Error('AGDF_MCP_COCKPIT_ROLLBACK_CONFLICT');
+    const enabled = /^[ \t]*enabled[ \t]*=[^\n]*(?:\n|$)/gmu;
+    if ([...original.matchAll(enabled)].length !== 1) throw Error('AGDF_MCP_COCKPIT_ROLLBACK_CONFLICT');
+    afterSection = original.replace(enabled, marker.original_enabled ?? '');
+    if (sha(afterSection) !== marker.original_digest) throw Error('AGDF_MCP_COCKPIT_ROLLBACK_CONFLICT');
+    replaceStart -= markerMatch[0].length;
+  } else {
+    if (markerMatch) throw Error('AGDF_MCP_COCKPIT_TRANSITION_EXISTS');
+    if (evidence.config_path !== path || evidence.config_digest !== sha(snapshot.content)
+      || evidence.section_digest !== sha(original)) throw Error('AGDF_MCP_CODEX_SOURCE_CHANGED');
+    const body = snapshot.content.slice(range.sectionStart + `[mcp_servers.${id}]`.length, range.end);
+    const values = new Map();
+    for (const line of body.split('\n')) {
+      if (!line.trim() || line.trim().startsWith('#')) continue;
+      const match = /^[ \t]*([a-z_]+)[ \t]*=[ \t]*(.+)$/u.exec(line);
+      if (!match || !['command', 'args', 'cwd', 'startup_timeout_sec', 'tool_timeout_sec', 'enabled'].includes(match[1])
+        || values.has(match[1])) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+      let value; try { value = JSON.parse(match[2]); } catch { throw Error('AGDF_MCP_REGISTRATION_FOREIGN'); }
+      values.set(match[1], value);
+    }
+    const command = values.get('command'), args = values.get('args');
+    if (!isAbsolute(command ?? '') || !Array.isArray(args) || args.length !== 5 || args[1] !== '--surface'
+      || args[2] !== 'codex' || args[3] !== '--cockpit-dir' || args[4] !== target
+      || values.has('cwd') && values.get('cwd') !== target
+      || values.has('enabled') && typeof values.get('enabled') !== 'boolean'
+      || ['startup_timeout_sec', 'tool_timeout_sec'].some(key => values.has(key) && !(Number.isFinite(values.get(key)) && values.get(key) > 0)))
+      throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+    if (!isAbsolute(args[0]) || !args[0].endsWith('/node_modules/@agdf/mcp-server/bin/agdf-mcp.js')
+      || realpathSync(args[0]) !== args[0]) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+    let runtimeRoot = args[0]; for (let n = 0; n < 5; n++) runtimeRoot = dirname(runtimeRoot);
+    const runtime = inspectMcpExecutableRoot({ root: runtimeRoot, expectedVersion: runtimeRoot.split('/').at(-1) });
+    if (runtime.status !== 'matched' || runtime.nodeExecutable !== command || runtime.entrypoint !== args[0]) throw Error('AGDF_MCP_SERVER_VERIFICATION_FAILED');
+    const owned = identity(range.marker);
+    if (owned) {
+      if (owned.role !== 'cockpit' || owned.server_id !== id || owned.digest !== runtime.digest || owned.version !== runtime.version
+        || !runtime.references.some(ref => ref.role === 'cockpit' && ref.server_id === id && ref.path === path && ref.target === target))
+        throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+    } else {
+      // Narrow historical unmarked local form: contained immutable runtime + original preparation.
+      const within = relative(join(target, 'dist/local'), runtimeRoot);
+      if (within.startsWith('..') || isAbsolute(within)) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+      let found = false, parent = dirname(runtimeRoot);
+      for (let depth = 0; depth < 4; depth++, parent = dirname(parent)) {
+        const file = join(parent, 'preparation.json');
+        if (!existsSync(file)) continue;
+        if (realpathSync(file) !== file || lstatSync(file).size > 65_536) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+        const preparation = JSON.parse(readFileSync(file, 'utf8'));
+        found = preparation.activated === false && preparation.authorizes === false && preparation.node === command
+          && preparation.entrypoint === args[0] && preparation.server_digest === runtime.digest
+          && preparation.dispatcher_digest === runtime.dispatcherDigest && preparation.sdk_digest === runtime.sdkDigest
+          && (!preparation.target || preparation.target === target);
+        break;
+      }
+      if (!found) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+    }
+    // No higher/lower scope same key, aliases or second Cockpit is silently adopted.
+    for (const source of snapshots) {
+      if (/'''|"""/u.test(source.content) || /^[ \t]*mcp_servers(?:[. \t]|=)/mu.test(source.content))
+        throw Error('AGDF_MCP_COCKPIT_INVENTORY_UNCONFIRMED');
+      const headers = [...source.content.matchAll(/^[ \t]*\[mcp_servers\.([^\n\]]+)\][ \t]*$/gm)];
+      for (const header of headers) {
+        const table = mcpTable(`mcp_servers.${header[1]}`);
+        if (!table) throw Error('AGDF_MCP_COCKPIT_INVENTORY_UNCONFIRMED');
+        if ([potentialAlias('agdf-cockpit'), potentialAlias('agdf-cockpit-local')].includes(potentialAlias(table.name))
+          && !(source.path === path && table.name === id && !table.nested)) throw Error('AGDF_MCP_COCKPIT_NAME_CONFLICT');
+      }
+      if (!evidence.inventory.origins.some(origin => origin.path === source.path && origin.digest === sha(source.content)))
+        throw Error('AGDF_MCP_COCKPIT_INVENTORY_UNCONFIRMED');
+    }
+    const enabled = /^[ \t]*enabled[ \t]*=[^\n]*(?:\n|$)/gmu;
+    const oldLine = [...original.matchAll(enabled)][0]?.[0] ?? null;
+    if (oldLine) afterSection = original.replace(enabled, 'enabled = false\n');
+    else {
+      const headerEnd = original.indexOf('\n', original.indexOf(`[mcp_servers.${id}]`));
+      if (headerEnd < 0) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+      afterSection = original.slice(0, headerEnd + 1) + 'enabled = false\n' + original.slice(headerEnd + 1);
+    }
+    marker = { schema_version: 1, server_id: id, target_id: evidence.target_id,
+      plugin_digest: evidence.plugin_digest, original_digest: sha(original), original_enabled: oldLine,
+      disabled_digest: sha(afterSection), evidence_digest: evidenceDigest };
+  }
+  const after = snapshot.content.slice(0, replaceStart) + (restore ? '' : TRANSITION_MARKER + JSON.stringify(marker) + '\n')
+    + afterSection + snapshot.content.slice(range.end);
+  const expected = { ...snapshot, content: after };
+  let applied = false;
+  const locked = work => withOwnedFileLock(`${path}.agdf-transaction`, work);
+  return { path, preview: { server_id: id, before_digest: sha(snapshot.content), result_digest: sha(after) },
+    apply() { return locked(() => {
+      if (applied && sameBytes(expected)) return;
+      if (!snapshots.every(sameBytes)) throw Error('AGDF_MCP_CODEX_SOURCE_CHANGED');
+      revalidate(); atomicWrite(path, after); applied = true;
+    }); },
+    rollback() { if (!applied) return; return locked(() => {
+      if (!sameBytes(expected)) throw Error('AGDF_MCP_CODEX_ROLLBACK_CONFLICT');
+      restoreSnapshot(snapshot); applied = false;
+    }); } };
+}
+
+// Admission runs before the installer publishes a candidate. Availability still needs native proof.
+export function inspectCodexCockpitAdmission({ target, env = {}, exec } = {}) {
+  const conflicts = [], checked = [];
+  for (const source of sources({ scope: 'project', target, env })) {
+    try {
+      const snapshot = safeSnapshot(source.path), content = snapshot.content;
+      if (Buffer.byteLength(content) > 65_536 || /'''|"""/u.test(content)) throw Error('unsupported_source');
+      checked.push({ path: source.path, digest: sha(content) });
+      const headers = [...content.matchAll(/^[ \t]*\[([^\n]+)\][ \t]*$/gm)];
+      for (let i = 0; i < headers.length; i++) {
+        const header = headers[i][1];
+        if (!header.replace(/[\s"']/gu, '').startsWith('mcp_servers.')) continue;
+        const table = mcpTable(header);
+        if (!table) throw Error('unsupported_mcp_header');
+        const name = table.name;
+        if (potentialAlias(name) !== 'agdf_cockpit') continue;
+        if (table.nested) throw Error('unsupported_mcp_header');
+        const body = content.slice(headers[i].index + headers[i][0].length, headers[i + 1]?.index ?? content.length);
+        const enabled = [...body.matchAll(/^[ \t]*enabled[ \t]*=[ \t]*([^\n#]+)(?:#[^\n]*)?$/gm)];
+        if (enabled.length === 1 && enabled[0][1].trim() === 'false') continue;
+        conflicts.push({ path: source.path, server_id: name, reason: 'same_key_or_possible_alias' });
+      }
+      if (/^[ \t]*mcp_servers(?:[. \t]|=)/mu.test(content)) throw Error('unsupported_mcp_assignment');
+    } catch (error) { conflicts.push({ path: source.path, reason: error.message }); }
+  }
+  let nativeProviderStatus = 'unobserved';
+  if (exec) {
+    try {
+      const output = String(exec('codex', ['mcp', 'list', '--json'], { cwd: target, encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1024 * 1024, timeout: 15_000 }));
+      if (Buffer.byteLength(output) > 1024 * 1024) throw Error('host_inventory_limit');
+      const providers = JSON.parse(output);
+      if (!Array.isArray(providers) || providers.length > 256
+        || providers.some(row => typeof row?.name !== 'string' || typeof row.enabled !== 'boolean')) throw Error('host_inventory_invalid');
+      nativeProviderStatus = 'configuration_readback'; // This is not tools discovery or UI evidence.
+      for (const row of providers) {
+        if (!row.enabled || potentialAlias(row.name) !== 'agdf_cockpit') continue;
+        const launcher = row.transport?.args?.[0];
+        const pluginRoot = typeof launcher === 'string' && isAbsolute(launcher) && launcher.endsWith('/mcp/agdf-mcp-launch.js')
+          ? launcher.slice(0, -'/mcp/agdf-mcp-launch.js'.length) : null;
+        let own = false;
+        if (pluginRoot && row.name === 'agdf-cockpit') {
+          const identity = inspectCodexCockpitPlugin(pluginRoot);
+          const declaration = identity.declaration?.mcpServers?.['agdf-cockpit'];
+          own = declaration?.command === row.transport?.command && exactJson(declaration.args) === exactJson(row.transport?.args)
+            && declaration.args?.[0] === join(pluginRoot, 'mcp/agdf-mcp-launch.js') && identity.status === 'matched';
+          if (own) {
+            // Owned bytes identify an implementation, not the plugin connection offering it.
+            const origin = JSON.parse(String(exec(process.execPath,
+              [fileURLToPath(new URL('./codex-origin-probe.js', import.meta.url)), target], {
+                cwd: target, env: { ...process.env, ...env }, encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 65_536, timeout: 15_000,
+              })));
+            own = origin.status === 'observed' && Array.isArray(origin.providers) && origin.providers.length === 1
+              && origin.providers[0].server_id === 'agdf-cockpit' && origin.providers[0].plugin_id === 'agdf@agdf';
+          }
+        }
+        if (!own) conflicts.push({ server_id: row.name, reason: 'host_same_key_or_possible_alias' });
+      }
+    } catch (error) { conflicts.push({ reason: 'host_inventory_unavailable', detail: error.code ?? 'unconfirmed' }); }
+  }
+  return Object.freeze({ admitted: conflicts.length === 0, conflicts, checked_sources: checked,
+    native_provider_status: nativeProviderStatus, authorizes: false });
 }

@@ -1,0 +1,59 @@
+[smoke-continuation] npm run test:local-preparation
+
+> create-agdf@0.14.5 test:local-preparation
+> node scripts/local-preparation-test.js
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /AGDF_COPILOT_PAYLOAD_GROWTH/. Input:
+
+'file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/cockpit-ui-build.mjs:58\n' +
+  '  } catch { throw new Error(failure); }\n' +
+  '                  ^\n' +
+  '\n' +
+  'Error: AGDF_COCKPIT_UI_BUILD_REQUIRED: run npm --prefix packages/control-ui run build:mcp, then retry the all build.\n' +
+  '    at readBuiltUi (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/cockpit-ui-build.mjs:58:19)\n' +
+  '    at readCockpitUiBuild (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/cockpit-ui-build.mjs:41:10)\n' +
+  '    at syncPackageAssets (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/sync-package-assets.js:627:7)\n' +
+  '    at file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/packages/cli/scripts/sync-package-assets.js:5:35\n' +
+  '    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n' +
+  '    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n' +
+  '    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' +
+  '\n' +
+  'Node.js v22.22.3\n'
+
+    at file:///private/tmp/agdf-cockpit-integration-work/packages/cli/scripts/local-preparation-test.js:60:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/cockpit-ui-build.mjs:58\n' +
+    '  } catch { throw new Error(failure); }\n' +
+    '                  ^\n' +
+    '\n' +
+    'Error: AGDF_COCKPIT_UI_BUILD_REQUIRED: run npm --prefix packages/control-ui run build:mcp, then retry the all build.\n' +
+    '    at readBuiltUi (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/cockpit-ui-build.mjs:58:19)\n' +
+    '    at readCockpitUiBuild (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/cockpit-ui-build.mjs:41:10)\n' +
+    '    at syncPackageAssets (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/scripts/sync-package-assets.js:627:7)\n' +
+    '    at file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-local-preparation-60h4DX/packages/cli/scripts/sync-package-assets.js:5:35\n' +
+    '    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n' +
+    '    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n' +
+    '    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' +
+    '\n' +
+    'Node.js v22.22.3\n',
+  expected: /AGDF_COPILOT_PAYLOAD_GROWTH/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:local-preparation` failed with error:
+npm error code 1
+npm error path /private/tmp/agdf-cockpit-integration-work/packages/cli
+npm error workspace create-agdf@0.14.5
+npm error location /private/tmp/agdf-cockpit-integration-work/packages/cli
+npm error command failed
+npm error command sh -c node scripts/local-preparation-test.js

@@ -98,3 +98,60 @@ test('Derived setup separates declarations from desktop/runtime/App observations
     assert.equal(unknown.entries[0].configured, 'unknown');
   } finally { rmSync(target, { recursive: true, force: true }); }
 });
+
+test('inventory retains foreign names and separates plugin/local providers without payload', () => {
+  const target = mkdtempSync(join(tmpdir(), 'agdf-cockpit-provider-'));
+  try {
+    mkdirSync(join(target, '.codex'));
+    writeFileSync(join(target, '.codex/config.toml'), '[mcp_servers.agdf_cockpit]\ncommand = "/foreign"\n[ mcp_servers.bad ]\n');
+    const plugin = join(target, 'plugin'); mkdirSync(plugin);
+    writeFileSync(join(plugin, 'mcp.json'), JSON.stringify({ mcpServers: {
+      agdf: { type: 'stdio', command: 'node', args: [] },
+      'agdf-cockpit': { type: 'stdio', command: 'node', args: ['SECRET_LAUNCHER'] },
+    } }));
+    const setup = inspectCodexSetup({ target, env: { CODEX_HOME: join(target, 'user') }, pluginRoot: plugin });
+    assert.ok(setup.entries.some(row => row.server_id === 'agdf_cockpit' && row.config_source === 'project'));
+    assert.ok(setup.entries.some(row => row.server_id === 'agdf-cockpit' && row.scope === 'plugin'));
+    assert.equal(JSON.stringify(setup).includes('SECRET_LAUNCHER'), false);
+    assert.equal(setup.effective_host_policy, 'unknown');
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});
+
+test('candidate admission blocks same keys, normalized aliases and unsupported sources before mutation', async () => {
+  const { inspectCodexCockpitAdmission } = await import('../lib/mcp-lifecycle/adapters/codex.js');
+  const target = mkdtempSync(join(tmpdir(), 'agdf-cockpit-admission-'));
+  const env = { CODEX_HOME: join(target, 'user') };
+  try {
+    mkdirSync(join(target, '.codex')); mkdirSync(env.CODEX_HOME);
+    const project = join(target, '.codex/config.toml'), user = join(env.CODEX_HOME, 'config.toml');
+    writeFileSync(project, '# CANARY\n[mcp_servers.agdf-cockpit-local]\ncommand = "/legacy"\n');
+    assert.equal(inspectCodexCockpitAdmission({ target, env }).admitted, true);
+    const nestedForeign = '[mcp_servers.foreign]\ncommand = "/foreign"\n[mcp_servers.foreign.env]\nSECRET = "PRIVATE_CANARY"\n[mcp_servers.foreign.tools.read]\napproval_mode = "never"\n';
+    writeFileSync(user, nestedForeign);
+    const ordinary = inspectCodexCockpitAdmission({ target, env });
+    assert.equal(ordinary.admitted, true);
+    assert.equal(JSON.stringify(ordinary).includes('PRIVATE_CANARY'), false);
+    assert.equal(readFileSync(user, 'utf8'), nestedForeign);
+    for (const name of ['agdf-cockpit', 'agdf_cockpit', 'AGDF_COCKPIT']) {
+      const content = `[mcp_servers.${name}]\ncommand = "/foreign"\n`;
+      writeFileSync(user, content);
+      const result = inspectCodexCockpitAdmission({ target, env });
+      assert.equal(result.admitted, false); assert.equal(result.conflicts[0].path, user);
+      assert.equal(readFileSync(user, 'utf8'), content);
+    }
+    writeFileSync(user, '');
+    const native = inspectCodexCockpitAdmission({ target, env, exec: () => JSON.stringify([
+      { name: 'agdf-cockpit', enabled: true, transport: { command: '/foreign', args: ['/foreign'] } },
+    ]) });
+    assert.equal(native.admitted, false);
+    assert.equal(native.conflicts[0].reason, 'host_same_key_or_possible_alias');
+    assert.equal(inspectCodexCockpitAdmission({ target, env, exec() { throw Error('unavailable'); } }).admitted, false);
+    writeFileSync(user, '[mcp_servers.agdf-cockpit]\nenabled = false\n');
+    assert.equal(inspectCodexCockpitAdmission({ target, env }).admitted, true);
+    writeFileSync(user, '[mcp_servers."agdf-cockpit"]\nenabled = false\n');
+    assert.equal(inspectCodexCockpitAdmission({ target, env }).admitted, false);
+    writeFileSync(user, '[mcp_servers.agdf-cockpit.tools.read]\napproval_mode = "never"\n');
+    assert.equal(inspectCodexCockpitAdmission({ target, env }).admitted, false);
+    assert.match(readFileSync(project, 'utf8'), /CANARY/);
+  } finally { rmSync(target, { recursive: true, force: true }); }
+});

@@ -26,11 +26,19 @@ import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
 process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
 const installationCwd = mkdtempSync(join(tmpdir(), "agdf-cli-install-workspace-"));
+const codexTestHome = mkdtempSync(join(tmpdir(), 'agdf-cli-codex-home-'));
 function runCli(argv, adapters = {}) {
   // Host-operation fixtures must not depend on the production checkout's control compatibility.
   const parser = ["codex", "claude", "copilot", "opencode"].includes(argv[0])
     ? { cwd: installationCwd, ...adapters.parser } : adapters.parser;
-  return runApplicationCli(argv, { ...adapters, parser });
+  // These host-operation fixtures have no other MCP provider. Admission/conflict
+  // ordering and preservation are covered by codex-cockpit-config-test.
+  const exec = argv[0] === 'codex' && adapters.exec ? (command, args, options) =>
+    command === 'codex' && args.join(' ') === 'mcp list --json' ? '[]'
+      : adapters.exec(command, args, options) : adapters.exec;
+  const env = argv[0] === 'codex' ? { ...process.env, ...adapters.env,
+    CODEX_HOME: adapters.env?.CODEX_HOME ?? codexTestHome } : adapters.env;
+  return runApplicationCli(argv, { ...adapters, parser, ...(exec ? { exec } : {}), ...(env ? { env } : {}) });
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -843,4 +851,5 @@ assert.deepEqual(failureEvidenceEntries(["a", { b: 1 }]), ["a", '{"b":1}']);
 assert.deepEqual(failureEvidenceEntries("plain"), ["plain"]);
 
 rmSync(installationCwd, { recursive: true, force: true });
+rmSync(codexTestHome, { recursive: true, force: true });
 console.log("cli modularization tests passed");

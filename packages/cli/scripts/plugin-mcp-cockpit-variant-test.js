@@ -66,6 +66,16 @@ try {
     assert.ok(files.includes(`mcp/server/ui/${name}`), name);
   }
 
+  // Codex carries the same exact UI without implicitly enabling Claude's variant.
+  syncPluginMcp({ pluginRoot, cockpitUi: ui, surface: 'codex' });
+  assert.deepEqual(declaration(), plain);
+  const codex = JSON.parse(readFileSync(join(pluginRoot, 'mcp.json'), 'utf8'));
+  assert.deepEqual(Object.keys(codex.mcpServers), ['agdf', 'agdf-cockpit']);
+  assert.deepEqual(codex.mcpServers['agdf-cockpit'].args, [...codex.mcpServers.agdf.args, '--cockpit']);
+  for (const name of ['manifest.json', 'cockpit.html']) assert.deepEqual(readFileSync(join(pluginRoot, 'mcp/server/ui', name)), ui.files[name]);
+  syncPluginMcp({ pluginRoot, cockpitUi: ui, surface: 'all' });
+  assert.deepEqual(declaration(), plain, 'published Codex payload does not change Claude declaration');
+
   // Rebuilding without the cockpit removes the variant again.
   syncPluginMcp({ pluginRoot });
   assert.deepEqual(declaration(), plain);

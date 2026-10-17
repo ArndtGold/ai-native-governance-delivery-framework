@@ -34,6 +34,15 @@ try {
   const inspected = { expectedVersion: "0.0.0", provenanceStatus: "matched" };
   assert.equal((await createMcpCockpitRuntime({ surface: "claude", cockpitDir: temporary, inspected })).uiCapabilityRequired, true);
   assert.equal((await createMcpCockpitRuntime({ surface: "codex", cockpitDir: temporary, inspected })).uiCapabilityRequired, false);
+  const pluginRuntime = await createMcpCockpitRuntime({ surface: 'codex', cockpitMode: 'plugin', inspected });
+  assert.equal(pluginRuntime.uiCapabilityRequired, true);
+  assert.equal(pluginRuntime.ui.label, 'Cockpit');
+  assert.deepEqual(pluginRuntime.definition.inputSchema.required, ['working_directory', 'primary_target', 'target_source']);
+  assert.throws(() => pluginRuntime.tools[0].parse({}), /resource_denied/);
+  await pluginRuntime.close();
+  for (const invalid of [{ surface: 'claude', cockpitMode: 'plugin' }, { surface: 'codex', cockpitMode: 'plugin', cockpitDir: temporary }, { surface: 'codex', cockpitMode: 'other' }]) {
+    await assert.rejects(createMcpCockpitRuntime({ ...invalid, inspected }), /AGDF_COCKPIT_TARGET_INVALID/);
+  }
   for (const surface of ["copilot", "opencode"]) {
     await assert.rejects(createMcpCockpitRuntime({ surface, cockpitDir: temporary, inspected }), /AGDF_COCKPIT_TARGET_INVALID/);
   }

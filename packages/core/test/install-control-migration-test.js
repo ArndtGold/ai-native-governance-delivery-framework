@@ -286,11 +286,13 @@ try {
   const cliRoot = repository("cli-install");
   const cliRun = addRun(cliRoot, "cli-old");
   const output = [];
-  const cliAdapters = { interactive: false, parser: { cwd: cliRoot }, env: { AGDF_DATA_DIR: join(base, "cli-data") },
+  const cliAdapters = { interactive: false, parser: { cwd: cliRoot },
+    env: { AGDF_DATA_DIR: join(base, "cli-data"), CODEX_HOME: join(base, 'codex-home') },
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log: (value) => output.push(value), error: (value) => output.push(value) },
     prepare: () => ({ root: join(base, "fixture-marketplace"), commit() {}, rollback() {} }),
     exec(_executable, args) {
+      if (args.join(' ') === 'mcp list --json') return '[]';
       if (args.join(" ") === "plugin marketplace list --json") return '{"marketplaces":[]}';
       if (args.join(" ") === "plugin list") return "agdf@agdf 0.14.5\n";
       return "";

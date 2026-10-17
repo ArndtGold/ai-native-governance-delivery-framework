@@ -230,14 +230,32 @@ test('a generated next step from an earlier gate is replaced; custom text and ba
     assert.equal(customRun.persisted.next_allowed_action, custom);
     assert.deepEqual(treeBytes(f.root), beforeRead, 'reading the cockpit never repairs stored state');
   } finally { f.close(); }
-  const b = fixture(); try {
+  const b = await approvalFixture(); try {
     const retracted = 'Draft the PRD slice before anything else.';
     let source = replaceFirstScalar(fs.readFileSync(b.runPath, 'utf8'), 'current_gate', 'PRD');
     source = replaceFirstScalar(source, 'next_allowed_action', retracted);
     fs.writeFileSync(b.runPath, sealRunState(b.root, source));
     const run = createCockpitReader(b.root).snapshot('fixture-a').data.run;
     assert.equal(run.evaluation.current_gate, 'UR');
+    assert.equal(run.evaluation.blocking_reason, 'none', 'the backward-move fixture has complete decision content');
     assert.equal(run.evaluation.next_allowed_action, evaluateGateCheck(b.root, { runId: 'fixture-a', ignoreRunIdEnv: true }).next_allowed_action);
     assert.equal(run.evaluation.next_allowed_action, retracted, 'a backward move keeps the stored next step');
   } finally { b.close(); }
+});
+
+test('an actual decision-content blocker overrides a stored next step without repairing the source', () => {
+  const f = fixture(); try {
+    const custom = 'Draft the PRD slice before anything else.';
+    let source = replaceFirstScalar(fs.readFileSync(f.runPath, 'utf8'), 'current_gate', 'PRD');
+    source = replaceFirstScalar(source, 'next_allowed_action', custom);
+    fs.writeFileSync(f.runPath, sealRunState(f.root, source));
+    const before = treeBytes(f.root), expected = evaluateGateCheck(f.root, {runId:'fixture-a',ignoreRunIdEnv:true});
+    const run = createCockpitReader(f.root).snapshot('fixture-a').data.run;
+    assert.equal(run.evaluation.blocking_reason, 'AGDF_DECISION_CONTENT_INCOMPLETE');
+    assert.equal(run.evaluation.next_allowed_action, expected.next_allowed_action);
+    assert.notEqual(run.evaluation.next_allowed_action, custom);
+    assert.equal(run.persisted.current_gate, 'PRD');
+    assert.equal(run.persisted.next_allowed_action, custom);
+    assert.deepEqual(treeBytes(f.root), before);
+  } finally { f.close(); }
 });

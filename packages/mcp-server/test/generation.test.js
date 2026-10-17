@@ -167,6 +167,30 @@ try {
 
   if (process.env.AGDF_GENERATION_TRACE_PATH) writeFileSync(process.env.AGDF_GENERATION_TRACE_PATH, JSON.stringify({ evidence_kind: 'actual_child_process_synthetic_host', events: trace }, null, 2) + '\n');
   console.log('Actual owned child IPC, exact manifest qualification, three live-view slots, original-view routing, capacity refusal, control replay/conflict and acknowledged real-exit retirement passed; synthetic host only.');
+  // Real child qualification and IPC must use the plugin render schema, never the bound or Decision runtime.
+  const cockpitRuntime = await dispatcher.createMcpCockpitRuntime({ surface: 'codex', cockpitMode: 'plugin' });
+  const cockpitFacade = await createOwnedGenerationFacade({ runtime: cockpitRuntime, publisher,
+    surface: 'codex', cockpitMode: 'plugin',
+    createControlRuntime: runtimeControl => dispatcher.createMcpDispatchRuntime({ surface: 'codex', runtimeControl }) });
+  try {
+    assert.deepEqual(cockpitFacade.tools.map(tool => tool.name), ['agdf_cockpit', 'agdf_cockpit_read']);
+    const render = cockpitFacade.tool('agdf_cockpit'), reader = cockpitFacade.tool('agdf_cockpit_read');
+    assert.throws(() => render.parse({}), /resource_denied/);
+    const sessions = [];
+    for (let n = 0; n < 4; n++) {
+      const opened = await render.execute(render.parse({ working_directory: target, primary_target: target,
+        target_source: 'explicit_target', run_id: f.runId }), undefined, { uiSupported: true });
+      assert.ok(opened._meta?.agdf_cockpit, JSON.stringify(opened));
+      sessions.push(opened._meta.agdf_cockpit.session_id);
+    }
+    const limit = await render.execute(render.parse({ working_directory: target, primary_target: target,
+      target_source: 'explicit_target' }), undefined, { uiSupported: true });
+    assert.equal(limit.code, 'resource_limit');
+    const result = await reader.execute(reader.parse({ operation: 'snapshot', session_id: sessions[0], run_id: f.runId }), undefined, { uiSupported: true });
+    assert.equal(result.data.run.run_id, f.runId);
+    for (const session_id of sessions) assert.equal((await reader.execute(reader.parse({ operation: 'close', session_id }), undefined, { uiSupported: true })).data.closed, true);
+  } finally { await cockpitFacade.close(); await cockpitRuntime.close(); }
+  assert.equal(cockpitFacade.runtimeControl.status().occupancy, 0);
   clean = true;
 } finally {
   await client?.close(); await server?.closeAgdfRuntime(); await server?.close();

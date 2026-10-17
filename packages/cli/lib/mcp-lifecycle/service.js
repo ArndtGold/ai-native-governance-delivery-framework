@@ -1,10 +1,10 @@
 import { execHostFileSync } from "../host-command.js";
-import { realpathSync, statSync, readFileSync, lstatSync } from "node:fs";
+import { realpathSync, statSync, readFileSync, lstatSync, existsSync } from "node:fs";
 import { createHash } from 'node:crypto';
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
 import { pluginDefinition } from "../cli/runtime-context.js";
-import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
+import { defaultAgdfDataRoot, settleCodexCockpitPublication } from "../installers/local-marketplace.js";
 import {
   createMcpRegistrationSpec,
   createMcpRegistrationTransaction,
@@ -28,7 +28,10 @@ import {
 import { printMcpLifecycleResult } from "./presentation.js";
 import { mcpCapabilityProfile } from "./profile-context.js";
 import { createMcpLifecycleResult } from "./result.js";
-import { inspectCodexSetup } from './adapters/codex.js';
+import { inspectCodexSetup, createCodexCockpitTransition, inspectCodexCockpitPlugin } from './adapters/codex.js';
+import { validateCockpitTransitionEvidence } from './evidence.js';
+import { resolveControlCommandTarget } from '#agdf-core/control-state/approval-command-contract.js';
+import { pluginMcpRuntimeIdentity } from './plugin-runtime.js';
 
 const ACTIONS = new Set(["status", "enable", "disable"]);
 const SURFACES = new Set(["codex", "claude", "opencode", "copilot"]);
@@ -186,7 +189,7 @@ export function runMcpLifecycle({
   createRetirementTransaction = createMcpRuntimeRetirementTransaction,
   // Hosts whose runtime plugin declares the AGDF MCP server itself; enable refuses a second registration.
   pluginManagedSurfaces = PLUGIN_MANAGED_SURFACES,
-  role = 'governance', serverId, preparedRuntime, descriptor,
+  role = 'governance', serverId, preparedRuntime, descriptor, retireCockpit, restoreCockpit, cockpitEvidence,
 } = {}) {
   if (!ACTIONS.has(action) || !SURFACES.has(surface) || !SCOPES.has(scope) || !isAbsolute(target || "")) {
     throw new Error("AGDF_MCP_LIFECYCLE_INPUT_INVALID");
@@ -202,6 +205,95 @@ export function runMcpLifecycle({
   const base = { action, surface, scope, target: selectedTarget, execPath, nodeVersion, expectedVersion,
     ...(surface === 'codex' ? { setupObserve: () => inspectCodexSetup({ target: selectedTarget, env, pluginRoot: env.AGDF_DISPATCH_PLUGIN_ROOT }) } : {}),
     permissionEffect: mcpPermissionEffect(surface, { scope, target: selectedTarget }) };
+
+  if (retireCockpit !== undefined || restoreCockpit !== undefined || cockpitEvidence !== undefined) {
+    if (surface !== 'codex' || scope !== 'project' || role !== 'governance'
+      || retireCockpit && restoreCockpit || (retireCockpit ? action !== 'disable' : !restoreCockpit || action !== 'enable')
+      || !cockpitEvidence) throw Error('AGDF_MCP_COCKPIT_TRANSITION_INPUT_INVALID');
+    const transitionBase = { ...base, capability: 'unverified', host: null,
+      runtime: { status: 'not_evaluated', version: expectedVersion }, registration: null };
+    try {
+      const evidencePath = resolve(selectedTarget, cockpitEvidence);
+      const containment = relative(join(selectedTarget, '.agdf/control/artefacts'), evidencePath);
+      if (containment.startsWith('..') || isAbsolute(containment) || realpathSync(evidencePath) !== evidencePath
+        || lstatSync(evidencePath).size > 65_536) throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+      const bytes = readFileSync(evidencePath, 'utf8'), evidence = JSON.parse(bytes);
+      const digest = 'sha256:' + createHash('sha256').update(bytes).digest('hex');
+      const id = retireCockpit ?? restoreCockpit;
+      const revalidate = ({ allowCandidate = false } = {}) => {
+        if (readFileSync(evidencePath, 'utf8') !== bytes) throw Error('AGDF_MCP_CODEX_SOURCE_CHANGED');
+        const result = validateCockpitTransitionEvidence(evidence, { expected: {
+          target_id: resolveControlCommandTarget(selectedTarget).target_id, legacy_id: id, version: expectedVersion } });
+        if (!result.valid || evidence.host.os !== process.platform || evidence.host.arch !== process.arch)
+          throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+        const readDigest = path => {
+          if (!isAbsolute(path) || realpathSync(path) !== path || !lstatSync(path).isFile() || lstatSync(path).size > 4 * 1024 ** 2)
+            throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+          return 'sha256:' + createHash('sha256').update(readFileSync(path)).digest('hex');
+        };
+        for (const ref of evidence.evidence) {
+          const file = resolve(selectedTarget, ref.path), rel = relative(join(selectedTarget, '.agdf/control/artefacts'), file);
+          if (rel.startsWith('..') || isAbsolute(rel) || readDigest(file) !== ref.digest) throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+        }
+        if (env.AGDF_DISPATCH_PLUGIN_ROOT && (resolve(env.AGDF_DISPATCH_PLUGIN_ROOT) !== evidence.plugin_root
+          || existsSync(env.AGDF_DISPATCH_PLUGIN_ROOT) && realpathSync(env.AGDF_DISPATCH_PLUGIN_ROOT) !== evidence.plugin_root))
+          throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+        const installed = inspectCodexCockpitPlugin(evidence.plugin_root);
+        const priorAbsent = restoreCockpit && evidence.previous_plugin_digest === null && !existsSync(evidence.plugin_root);
+        const candidateCurrent = installed.status === 'matched' && installed.version === expectedVersion && installed.digest === evidence.plugin_digest;
+        const previousCurrent = installed.status === 'matched' && installed.version === evidence.previous_plugin_version
+          && installed.digest === evidence.previous_plugin_digest;
+        if (restoreCockpit ? !(previousCurrent || priorAbsent || allowCandidate && candidateCurrent)
+          : !candidateCurrent || !installed.declaration.mcpServers?.['agdf-cockpit'])
+          throw Error('AGDF_MCP_COCKPIT_INSTALLATION_CHANGED');
+        const candidate = inspectMcpExecutableRoot({ root: evidence.runtime_root, expectedVersion });
+        if (candidate.status !== 'matched' || 'sha256:' + candidate.digest !== evidence.server_digest
+          || 'sha256:' + candidate.dispatcherDigest !== evidence.dispatcher_digest
+          || 'sha256:' + candidate.sdkDigest !== evidence.sdk_digest
+          || readDigest(join(candidate.packageRoot, 'ui/cockpit.html')) !== evidence.ui_digest)
+          throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+        // Prior runtime bytes remain verifiable after rollback, but a retirement
+        // must describe the runtime shipped by the installed candidate itself.
+        if (!restoreCockpit) {
+          const shipped = pluginMcpRuntimeIdentity(evidence.plugin_root);
+          if (candidate.version !== shipped.version || candidate.digest !== shipped.digest
+            || candidate.dispatcherDigest !== shipped.dispatcherDigest || candidate.sdkDigest !== shipped.sdkDigest)
+            throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+        }
+        if (!restoreCockpit) {
+          for (const origin of evidence.inventory.origins) {
+            if (!isAbsolute(origin.path)) throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+            // Absent user/project files are explicitly covered with the empty-byte digest.
+            const actual = existsSync(origin.path) ? readDigest(origin.path) : 'sha256:' + createHash('sha256').update('').digest('hex');
+            if (actual !== origin.digest) throw Error('AGDF_MCP_CODEX_SOURCE_CHANGED');
+          }
+          if (!evidence.inventory.origins.some(ref => ref.path === join(evidence.plugin_root, 'mcp.json')))
+            throw Error('AGDF_MCP_COCKPIT_EVIDENCE_INVALID');
+          const aliases = name => name.replaceAll('-', '_').toLowerCase();
+          if (evidence.providers.some(provider => aliases(provider.server_id) === 'agdf_cockpit'
+            && provider.origin !== evidence.plugin_root)) throw Error('AGDF_MCP_COCKPIT_NAME_CONFLICT');
+        }
+      };
+      revalidate({ allowCandidate: Boolean(restoreCockpit) });
+      const transaction = createCodexCockpitTransition({ target: selectedTarget, env, serverId: id,
+        restore: Boolean(restoreCockpit), evidence, evidenceDigest: digest, revalidate });
+      if (restoreCockpit && evidence.previous_plugin_digest !== evidence.plugin_digest
+        && inspectCodexCockpitPlugin(evidence.plugin_root).digest === evidence.plugin_digest) {
+        const restored = settleCodexCockpitPublication({ pluginRoot: evidence.plugin_root, target: selectedTarget,
+          sourceDigest: evidence.plugin_digest.slice(7), previousSourceDigest: evidence.previous_plugin_digest?.slice(7) ?? null, action: 'rollback' });
+        if ((restored.source_digest ? `sha256:${restored.source_digest}` : null) !== evidence.previous_plugin_digest)
+          throw Error('AGDF_MCP_COCKPIT_INSTALLATION_CHANGED');
+      }
+      transaction.apply();
+      return envelope({ ...transitionBase, result: 'configured_pending_restart', discovery: 'pending_restart',
+        registration: { status: 'matched', selected_status: 'matched', effective_status: 'matched',
+          selected_source: 'project', effective_source: 'project', path: transaction.path, native_scope: 'project' },
+        changes: [{ code: restoreCockpit ? 'cockpit_legacy_restored' : 'cockpit_legacy_retired', ...transaction.preview }],
+        diagnostics: [{ code: 'cockpit_transition_pending' }], nextAction: { code: 'restart_host' } });
+    } catch (error) {
+      return failure(transitionBase, 'cockpit_transition_failed', [{ code: 'cockpit_legacy_retained', reason: error.message }]);
+    }
+  }
 
   if (role !== 'governance') {
     if (surface !== 'codex' || !['cockpit', 'diagnostic'].includes(role) || role === 'cockpit' && scope !== 'project'

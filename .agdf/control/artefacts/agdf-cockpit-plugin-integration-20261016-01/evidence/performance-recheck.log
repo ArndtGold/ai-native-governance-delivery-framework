@@ -1,0 +1,16 @@
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[960.43,955.386,940.267,1014.561,926.135,918.758,968.621,935.375,926.372,906.77,925.124,966.819,942.639,930.783,943.211,925.125,964.436,933.589,1106.456,1007.317],"cold_p95_ms":1014.561,"warm_dispatch_ms":[1026.581,923.35,1068.384,877.029,1005.182,862.544,864.384,876.935,934.331,865.796,867.779,1341.896,1535.622,1419.846,972.707,1293.656,1574.84,1079.612,1175.475,901.168],"warm_p95_ms":1535.622}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: warm dispatch p95 exceeded 1000 ms: 1535.622453
+    at file:///private/tmp/agdf-cockpit-integration-work/packages/mcp-server/test/performance.test.js:50:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

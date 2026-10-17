@@ -1,0 +1,169 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "document orientation|copied repository sources"
+    ],
+    "configFile": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/playwright.config.mjs",
+    "rootDir": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/agdf-cockpit-browser-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "journeys.spec.mjs",
+      "file": "journeys.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "document orientation separates approved Run facts from draft originals in both Pages themes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 37596,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjE0MTkpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MjEyNzIpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-16T16:15:40.259Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-8f1c7ab9eabbf5174b21",
+          "file": "journeys.spec.mjs",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 30789,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MjI3OTEpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MjEyNzIpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-16T16:16:18.666Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-97a8d4275eb98903d42b",
+          "file": "journeys.spec.mjs",
+          "line": 196,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-16T16:15:38.078Z",
+    "duration": 71530.718,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

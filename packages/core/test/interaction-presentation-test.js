@@ -56,6 +56,33 @@ const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "
 
 assert.deepEqual(validateLocaleRegistry(registry), { valid: true, errors: [] });
 assert.deepEqual(validateLocaleRegistry(sourceRegistry), { valid: true, errors: [] });
+const freezeLocaleData = value => {
+  if (value && typeof value === 'object') { for (const child of Object.values(value)) freezeLocaleData(child); Object.freeze(value); }
+  return value;
+};
+const immutableRegistry = freezeLocaleData(structuredClone(registry));
+const immutableResult = validateLocaleRegistry(immutableRegistry);
+assert.deepEqual(immutableResult, { valid: true, errors: [] });
+immutableResult.valid = false; immutableResult.errors.push('caller mutation');
+assert.deepEqual(validateLocaleRegistry(immutableRegistry), { valid: true, errors: [] }, 'caller changes cannot poison retained validation');
+const shallowRegistry = Object.freeze(structuredClone(registry));
+assert.equal(validateLocaleRegistry(shallowRegistry).valid, true);
+delete shallowRegistry.locales.de.gateTitles.UR;
+assert.equal(validateLocaleRegistry(shallowRegistry).valid, false, 'a frozen root never hides changed nested data');
+const inheritedRegistry = structuredClone(registry), inheritedLocale = {fallbackLocale:'en'};
+delete inheritedRegistry.fallbackLocale;
+Object.setPrototypeOf(inheritedRegistry, inheritedLocale);
+freezeLocaleData(inheritedRegistry);
+assert.equal(validateLocaleRegistry(inheritedRegistry).valid, true);
+inheritedLocale.fallbackLocale = 'de';
+assert.equal(validateLocaleRegistry(inheritedRegistry).valid, false, 'a mutable custom prototype never retains validation');
+const accessorRegistry = structuredClone(registry);
+let accessorTitle = accessorRegistry.locales.de.gateTitles.UR;
+Object.defineProperty(accessorRegistry.locales.de.gateTitles, 'UR', {enumerable:true,get:()=>accessorTitle});
+freezeLocaleData(accessorRegistry);
+assert.equal(validateLocaleRegistry(accessorRegistry).valid, true);
+accessorTitle = '';
+assert.equal(validateLocaleRegistry(accessorRegistry).valid, false, 'frozen accessors never retain an earlier validation');
 for (const [command, key] of [["gate-check", "selectIntendedRun"], ["doctor", "selectOrEvaluateActiveRuns"], ["delivery-map", "selectOrEvaluateActiveRuns"]]) {
   assert.equal(sourceRegistry.locales.en.operationalValues[key], runSelectionRecovery(command), "locale source must match the canonical recovery owner exactly");
   const card = {

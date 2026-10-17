@@ -1,5 +1,4 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
-import { memoizeControlRead } from "./control-read/fs.js";
 import { DISPATCH_RECOVERY_CODES, DECISION_CARD_COPY_BUDGETS } from "./interaction-catalog.js";
 import { TASK_TARGET_SOURCES, TASK_TARGET_UNRESOLVED_REASONS } from "./task-target-resolution.js";
 
@@ -70,12 +69,30 @@ export function canonicalizeLanguageTag(value) {
   }
 }
 
+// Only a fully immutable data graph can retain a successful pure validation.
+// This holds no Run, target, approval or filesystem observation; weak keys do not retain catalogs.
+const validatedImmutableLocales = new WeakSet();
+function immutableLocaleData(value, seen = new WeakSet()) {
+  if (value === null || ['string', 'number', 'boolean'].includes(typeof value)) return true;
+  if (typeof value !== 'object' || !Object.isFrozen(value)) return false;
+  const array = Array.isArray(value), prototype = Object.getPrototypeOf(value);
+  if (prototype !== (array ? Array.prototype : Object.prototype) && prototype !== null) return false;
+  if (seen.has(value)) return true;
+  seen.add(value);
+  return Reflect.ownKeys(value).every(key => {
+    if (typeof key !== 'string') return false;
+    const field = Object.getOwnPropertyDescriptor(value, key);
+    return field && Object.hasOwn(field, 'value') && (field.enumerable || array && key === 'length')
+      && immutableLocaleData(field.value, seen);
+  });
+}
+
 export function validateLocaleRegistry(registry) {
-  // Captured readers reuse the already frozen runtime catalog validation only within their view.
-  // Mutable catalogs and ordinary live callers retain fresh validation on every invocation.
-  return Object.isFrozen(registry)
-    ? memoizeControlRead(registry, () => validateReadLocaleRegistry(registry))
-    : validateReadLocaleRegistry(registry);
+  if (validatedImmutableLocales.has(registry)) return { valid: true, errors: [] };
+  const result = validateReadLocaleRegistry(registry);
+  // A frozen outer object alone is insufficient; nested mutable data and accessors stay live.
+  if (result.valid && immutableLocaleData(registry)) validatedImmutableLocales.add(registry);
+  return result;
 }
 
 function validateReadLocaleRegistry(registry) {

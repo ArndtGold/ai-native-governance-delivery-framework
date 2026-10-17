@@ -24,9 +24,47 @@ technischen Zuständigkeiten. Die Oberfläche verwendet Aufgaben wie „Ziel und
 „Verhalten festlegen“ und „Lösung planen“; die technischen Kürzel stehen in Details.
 Die folgenden Abschnitte bleiben die Referenz des Bestands.
 
+## Plugin-Integration in Codex: Entwicklungsstand vom 16. Oktober 2026
+
+Der aktuelle Codex-Laufzeitbuild liefert das **Cockpit** im AGDF-Plugin mit. Intern gehören
+`agdf` und `agdf-cockpit` zum selben Plugin; sie verwenden denselben Launcher und geprüften
+Paketbestand, behalten aber eigene Verbindungen und Sitzungszustände. Die normale Codex-Paketierung
+enthält die exakten geprüften UI-Dateien. Die folgenden historischen Hostnachweise qualifizieren
+diesen neuen Stand nicht automatisch.
+
+Beim Plugin-Aufruf von `agdf_cockpit` sind `working_directory`, `target_source` und `primary_target`
+verpflichtend. Core prüft das bestätigte Projekt und bindet es unveränderlich an die neue Ansicht.
+`run_id` bleibt der explizite optionale Run-Selektor. Die vier Ansichtsplätze und der exklusive
+Kontext-Eigentümer gelten gemeinsam über alle Projekte einer Verbindung. Nachfolgende Leseaufrufe
+akzeptieren weiterhin nur die vorhandenen Sitzungs-/Snapshot-Selektoren. Alte verzeichnisgebundene
+Codex-/Claude-Aufrufe behalten ihr Schema; das Plugin führt keine aktuelle globale Projektauswahl ein.
+
+Der sichtbare Name ist Cockpit, die technische Kennung `agdf-cockpit`. Unverändert bleiben
+`agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Pluginzugehörigkeit allein
+beweist keine Namensisolierung im Host. Deklarationsherkunft, mögliche Namensangleichungen und
+tatsächliche Verbindungs-/Werkzeugzuordnung müssen beobachtet werden. Das allgemeine Cockpit
+ersetzt den begrenzten Decision-App-Reader des `agdf`-Servers nicht.
+
+Die bestehende Lifecycle-Verwaltung prüft konkurrierende lokale Kennungen vor Veröffentlichung
+des Installationskandidaten. Zur Ablösung braucht sie exakte Besitz-/Laufzeitnachweise, den
+unveränderten Konfigurationsstand und passende native Discovery-, UI-Initialisierungs-, Rendering-,
+Interaktions- und Teardown-Beobachtungen. Bei vorhandenem Altzugang behält der Installer seinen bestehenden Paket-Rückstand im eigenen Journal bis zur nativen Qualifikation; eine weitere Installation darf ihn nicht verwerfen. Es entsteht keine zweite Migrationsdatenbank. Der Abschluss desselben Journals verlangt den normalen nativen Kontext und die beobachtete Abwesenheit des alten Providers. Die eigene alte Sektion wird gezielt auf `enabled = false`
+gesetzt; Konfiguration und Laufzeit bleiben als Rückweg erhalten. Bei gleicher Kennung ist zuerst
+ein unterstützter isolierter nativer Kontext für dasselbe Projekt erforderlich. Ein fehlender
+Nachweis lässt die alte Verbindung bestehen. Der Rückweg prüft zuerst den früheren Pluginzustand
+und danach die unveränderte deaktivierte Sektion; fremde oder zwischenzeitlich geänderte Bytes
+werden nicht überschrieben. Der abschließende normale frische Hostkontext muss genau einen
+eindeutig zugeordneten Cockpit-Zugang samt sichtbarer Interaktion zeigen.
+
+Die normale Nutzung verlangt keine separate Einrichtung. Agenteninterne Wartungsoptionen und
+Grenzen stehen in [INSTALL.md](../../INSTALL.md#cockpit-in-the-codex-plugin-development-integration).
+Öffnen/Lesen schreibt weder Hostkonfiguration noch kanonischen Kontrollzustand. Fehlende
+UI-Unterstützung, unklare Herkunft und ausstehender Neustart bleiben benannte Grenzen; Quell- und
+Protokollprüfungen gelten nicht als native Codex-Qualifikation oder Veröffentlichung.
+
 ## 1. Einordnung und Zuständigkeiten
 
-Die separate lokale Verbindung `agdf-cockpit-local` stellt `agdf_cockpit` und
+Im historischen verzeichnisgebundenen Aufbau stellt die separate lokale Verbindung `agdf-cockpit-local` `agdf_cockpit` und
 `agdf_cockpit_read` sowie die UI-Resource `ui://agdf/cockpit/v1.html` bereit. Der reguläre
 AGDF-Server bleibt ein eigener Zugang zur Ablaufsteuerung und zu begrenzten Core-Operationen.
 Neben `agdf_dispatch` und `agdf_inspect` enthält sein nachgeführter Repository-Entwicklungsstand

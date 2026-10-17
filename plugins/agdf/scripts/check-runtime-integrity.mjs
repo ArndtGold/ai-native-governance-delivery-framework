@@ -496,11 +496,13 @@ function expectedSkillDescription(skill, suffix) {
 
 // Mirrors packages/core/lib/runtime/plugin-provenance.js: the installer writes absolute paths into the
 // Codex MCP declaration, and provenance digests the template for any config of the owned shape.
-function codexMcpTemplate({ pluginRoot = "{{AGDF_PLUGIN_ROOT}}", dataRoot = "{{AGDF_MCP_DATA}}", portable = true } = {}) {
+function codexMcpTemplate({ pluginRoot = "{{AGDF_PLUGIN_ROOT}}", dataRoot = "{{AGDF_MCP_DATA}}", portable = true, cockpit = false } = {}) {
   return `${JSON.stringify({
     ...(portable ? { $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json" } : {}),
     mcpServers: { agdf: { ...(portable ? { type: "stdio" } : {}), command: "node",
-      args: [`${pluginRoot.replaceAll("\\", "/")}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")] } },
+      args: [`${pluginRoot.replaceAll("\\", "/")}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")] },
+      ...(cockpit ? { 'agdf-cockpit': { ...(portable ? { type: 'stdio' } : {}), command: 'node',
+        args: [`${pluginRoot.replaceAll('\\', '/')}/mcp/agdf-mcp-launch.js`, '--surface', 'codex', '--data', dataRoot.replaceAll('\\', '/'), '--cockpit'] } } : {}) },
   }, null, 2)}\n`;
 }
 function normalizeCodexPluginMcpConfig(content) {
@@ -510,14 +512,16 @@ function normalizeCodexPluginMcpConfig(content) {
     if (Array.isArray(args) && args.length === 5 && typeof args[0] === "string"
         && args[0].endsWith("/mcp/agdf-mcp-launch.js") && typeof args[4] === "string" && args[4]) {
       const portable = Object.hasOwn(config, "$schema");
-      const expected = codexMcpTemplate({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable });
-      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return codexMcpTemplate({ portable });
+      const cockpit = Object.hasOwn(config.mcpServers, 'agdf-cockpit');
+      const expected = codexMcpTemplate({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable, cockpit });
+      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return codexMcpTemplate({ portable, cockpit });
     }
   } catch {}
   return content;
 }
 function codexMcpShape(content) {
-  return normalizeCodexPluginMcpConfig(content) === codexMcpTemplate();
+  const normalized = normalizeCodexPluginMcpConfig(content);
+  return normalized === codexMcpTemplate() || normalized === codexMcpTemplate({ cockpit: true });
 }
 
 function digestPluginSource(root, canonicalVersion) {
@@ -1304,6 +1308,9 @@ if (codexPlugin && pluginDefinition) {
     if (codexPlugin.mcpServers !== "./mcp.json") failures.push("runtime Codex plugin manifest must declare the plugin-local MCP server file");
     if (!isFile(codexMcpPath) || !codexMcpShape(readFileSync(codexMcpPath, "utf8"))) {
       failures.push("runtime Codex MCP config must start only the plugin-local AGDF MCP launcher with an absolute data root");
+    } else if (readJson(codexMcpPath, 'Codex MCP config').mcpServers?.['agdf-cockpit']
+      && ['cockpit.html', 'manifest.json'].some(file => !isFile(join(pluginRoot, 'mcp/server/ui', file)))) {
+      failures.push('runtime Codex Cockpit declaration requires its bundled UI');
     }
   }
   if (codexPlugin.interface?.displayName !== pluginDefinition.displayName) failures.push("Codex plugin display name must match canonical AGDF plugin definition");

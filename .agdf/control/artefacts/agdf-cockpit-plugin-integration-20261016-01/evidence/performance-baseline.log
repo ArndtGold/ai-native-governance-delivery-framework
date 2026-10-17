@@ -1,0 +1,36 @@
+[
+  {
+    "name": "create-agdf",
+    "version": "0.14.5",
+    "source": "/private/tmp/agdf-cockpit-browser-baseline/packages/cli",
+    "output": "/private/tmp/agdf-cockpit-browser-baseline/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.14.5",
+    "source": "/private/tmp/agdf-cockpit-browser-baseline/packages/cli/distribution/agdf",
+    "output": "/private/tmp/agdf-cockpit-browser-baseline/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "source": "/private/tmp/agdf-cockpit-browser-baseline/packages/mcp-server",
+    "output": "/private/tmp/agdf-cockpit-browser-baseline/dist/npm/agdf-mcp-server"
+  }
+]
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[1776.36,915.658,832.691,820.211,803.412,1194.591,992.686,824.473,796.886,800.435,822.568,807.992,814.634,848.608,838.494,833.71,1314.163,989.463,796.02,816.69],"cold_p95_ms":1314.163,"warm_dispatch_ms":[1152.097,920.988,787.813,769.807,732.895,795.118,955.604,777.316,755.459,800.11,1117.658,810.402,864.772,761.606,750.998,757.001,868.758,785.788,1659.219,896.583],"warm_p95_ms":1152.097}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: warm dispatch p95 exceeded 1000 ms: 1152.097144
+    at file:///private/tmp/agdf-cockpit-browser-baseline/packages/mcp-server/test/performance.test.js:50:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

@@ -95,7 +95,8 @@ test('compact graph names retain purpose, platform, partition and revision scena
   const jobs = ciJobs();
   const label = id => jobs.find(row => row.id === id).graphLabel;
   assert.equal(label('linux-22-activation'), 'Skills · Linux22');
-  assert.equal(label('windows-22-mcp-part-4'), 'MCP · Win22 4of5');
+  const mcpParts = jobs.filter(row => row.area === 'mcp' && row.os === 'windows-latest' && row.node === 22).length;
+  assert.equal(label('windows-22-mcp-part-4'), `MCP · Win22 4of${mcpParts}`);
   assert.equal(label('windows-22-revision-ur-during-qa'), 'UR→QA · Win22');
   assert.equal(label('linux-24-revision-prd-during-cd-tests'), 'PRD→CD+Tests · Linux24');
   assert.equal(label('linux-22-checks-contracts'), 'Contracts · Linux22');
@@ -107,6 +108,16 @@ test('compact graph names retain purpose, platform, partition and revision scena
       if (part) assert.ok(row.graphLabel.endsWith(`${part[1]}of${rows.filter(other => other.area === row.area && other.os === row.os && other.node === row.node && !other.commands?.some(command => command.isolated)).length}`));
     }
   }
+});
+
+test('measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring', () => {
+  const jobs = ciJobs().filter(row => row.os === 'windows-latest');
+  const lifecycle = jobs.find(row => row.commands?.some(command => command.args.includes('scripts/mcp-lifecycle-test.js')));
+  const wholeFlow = jobs.find(row => row.commands?.some(command => command.args.includes('./test/whole-flow.test.js')));
+  assert.ok(lifecycle && wholeFlow);
+  assert.notEqual(lifecycle.id, wholeFlow.id, 'run 39142873658 exhausted its budget when both heavy fixtures shared one job');
+  assert.ok(lifecycle.seconds <= CI_TEST_BUDGET_SECONDS);
+  assert.ok(wholeFlow.seconds <= CI_TEST_BUDGET_SECONDS);
 });
 
 test('graph matrices route every existing partition exactly once for every caller', () => {

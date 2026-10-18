@@ -455,3 +455,27 @@ interaction-presentation.js +73 bytes. Inventory: 229 / 2003983 -> 229 / 2004304
 Inspect discovery remains below its unchanged 5000-byte limit; no spare payload
 headroom or additional file is included. The Run retains the initial failed budget
 check and INSPECT_MODULE_PAYLOAD_DELTA_01.json with the exact affected projections.
+
+## Cockpit final shared-runtime fixes (2026-10-18)
+
+Actions run `39129507729` failed during package generation on both Linux and
+Windows: the generated Copilot inventory measured 260 files / 2265459 bytes,
+while the baseline allowed 260 / 2264072. The same failure was reproduced locally.
+
+The four existing shared runtime files account for the full change from the
+previous 2263001-byte payload:
+
+| Source | Previous bytes | Current bytes | Change |
+|---|---:|---:|---:|
+| `packages/mcp-server/src/server.js` | 7127 | 8236 | +1109 |
+| `packages/mcp-server/src/ui-capability.js` | 1030 | 1142 | +112 |
+| `packages/core/lib/control-evaluation/report-decision.js` | 10180 | 11325 | +1145 |
+| `packages/core/lib/control-evaluation/decision-content-readiness.js` | 7147 | 7239 | +92 |
+| Total | | | +2458 |
+
+The earlier baseline accounted for only 1071 of these 2458 bytes, leaving a
+1387-byte shortfall after the final discovery, large-Run and localized-summary
+fixes. The corrected baseline is the exact measured 260 files / 2265459 bytes.
+No additional files, UI assets or spare headroom are admitted. Payload provenance,
+file/byte limits, exclusions and the one-byte-over-budget rejection remain active;
+CI test coverage and job timeouts are unchanged.

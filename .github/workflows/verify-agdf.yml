@@ -21,7 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
+      activation: ${{ steps.plan.outputs.activation }}
+      installation: ${{ steps.plan.outputs.installation }}
+      delivery: ${{ steps.plan.outputs.delivery }}
+      runs: ${{ steps.plan.outputs.runs }}
+      revisions: ${{ steps.plan.outputs.revisions }}
+      mcp: ${{ steps.plan.outputs.mcp }}
+      presentation: ${{ steps.plan.outputs.presentation }}
+      packages: ${{ steps.plan.outputs.packages }}
+      checks: ${{ steps.plan.outputs.checks }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -32,20 +40,22 @@ jobs:
         env:
           CI_SCOPE: ${{ inputs.scope }}
           CI_SUITE: ${{ inputs.suite }}
-        run: echo "matrix=$(node scripts/ci-plan.mjs --matrix true --scope "$CI_SCOPE" --suite "$CI_SUITE")" >> "$GITHUB_OUTPUT"
+        run: node scripts/ci-plan.mjs --matrix github --scope "$CI_SCOPE" --suite "$CI_SUITE" >> "$GITHUB_OUTPUT"
 
-  verify:
+  # Separate matrix jobs give each functional area its own graph block.
+  activation:
     needs: plan
+    if: needs.plan.outputs.activation != ''
     name: ${{ matrix.label }}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.plan.outputs.activation) }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
-    defaults:
+    defaults: &partition-defaults
       run:
         shell: bash
-    steps:
+    steps: &partition-steps
       - name: Enable Windows Git long paths
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
@@ -78,3 +88,99 @@ jobs:
           path: ci-timings.json
           if-no-files-found: error
           retention-days: 14
+
+  installation:
+    needs: plan
+    if: needs.plan.outputs.installation != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.installation) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  delivery:
+    needs: plan
+    if: needs.plan.outputs.delivery != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.delivery) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  runs:
+    needs: plan
+    if: needs.plan.outputs.runs != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.runs) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  revisions:
+    needs: plan
+    if: needs.plan.outputs.revisions != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.revisions) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  mcp:
+    needs: plan
+    if: needs.plan.outputs.mcp != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.mcp) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  presentation:
+    needs: plan
+    if: needs.plan.outputs.presentation != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.presentation) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  packages:
+    needs: plan
+    if: needs.plan.outputs.packages != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.packages) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps
+
+  checks:
+    needs: plan
+    if: needs.plan.outputs.checks != ''
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.checks) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults: *partition-defaults
+    steps: *partition-steps

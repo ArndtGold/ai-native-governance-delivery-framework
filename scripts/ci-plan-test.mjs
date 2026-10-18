@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { parse } from 'yaml';
-import { ciJobs, ciJobPlan, testInventory, partitionTests, CI_TEST_BUDGET_SECONDS } from './ci-plan.mjs';
+import { ciJobs, ciJobPlan, ciGraphMatrices, testInventory, partitionTests, CI_TEST_BUDGET_SECONDS } from './ci-plan.mjs';
 import { verificationPlan } from './verify-ci.mjs';
 import { SOURCE_PHASE_MATRIX } from '../packages/core/test/fixtures/source-phase-matrix.js';
 import { TEST_DOMAINS } from './ci-test-domains.mjs';
@@ -86,6 +86,47 @@ test('the workflow matrix exposes functional labels for repository, release and 
   }
 });
 
+test('graph matrices route every existing partition exactly once for every caller', () => {
+  const workflow = parse(readFileSync(new URL('../.github/workflows/verify-agdf.yml', import.meta.url), 'utf8'));
+  const areas = [...Object.keys(TEST_DOMAINS), 'checks'];
+  assert.deepEqual(Object.keys(workflow.jobs), ['plan', ...areas]);
+  assert.deepEqual(Object.keys(workflow.jobs.plan.outputs), areas);
+  for (const area of areas) {
+    const job = workflow.jobs[area];
+    assert.equal(workflow.jobs.plan.outputs[area], `\${{ steps.plan.outputs.${area} }}`);
+    assert.equal(job.needs, 'plan', `${area}: areas must execute in parallel`);
+    assert.equal(job.if, `needs.plan.outputs.${area} != ''`, `${area}: skip absent areas before matrix expansion`);
+    assert.equal(job.strategy.matrix, `\${{ fromJSON(needs.plan.outputs.${area}) }}`);
+    assert.equal(job.strategy['fail-fast'], false);
+    assert.equal(job.name, '${{ matrix.label }}');
+    assert.equal(job['runs-on'], '${{ matrix.os }}');
+    assert.equal(job['timeout-minutes'], 10);
+    assert.deepEqual(job.defaults, { run: { shell: 'bash' } });
+    assert.deepEqual(job.steps, workflow.jobs.activation.steps, 'all areas share the same runner and timing artifacts');
+  }
+  const sort = rows => rows.sort((a, b) => a.id.localeCompare(b.id));
+  for (const scope of ['all', 'linux']) for (const suite of ['cli', 'mcp']) {
+    const jobs = ciJobs({ scope, suite });
+    const grouped = ciGraphMatrices(jobs);
+    const result = spawnSync(process.execPath, ['scripts/ci-plan.mjs', '--matrix', 'github', '--scope', scope, '--suite', suite], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    const outputs = Object.fromEntries(result.stdout.trim().split('\n').map(line => {
+      const separator = line.indexOf('=');
+      return [line.slice(0, separator), JSON.parse(line.slice(separator + 1))];
+    }));
+    assert.deepEqual(outputs, grouped, 'planner output is directly consumable by GITHUB_OUTPUT');
+    assert.deepEqual(Object.keys(grouped), suite === 'cli' ? areas : ['revisions', 'mcp']);
+    const rows = Object.values(grouped).flatMap(matrix => matrix.include);
+    assert.deepEqual(sort(rows), sort(jobs.map(({ commands, speed, checkStages, ...row }) => row)), 'grouping preserves all partition selectors and metadata');
+    for (const [area, matrix] of Object.entries(grouped)) {
+      assert.ok(matrix.include.length > 0 && matrix.include.length <= 256);
+      assert.ok(matrix.include.every(row => area === 'checks' ? row.kind === 'checks' : row.kind === 'tests' && row.area === area));
+    }
+  }
+  assert.deepEqual(ciGraphMatrices([]), {});
+  assert.throws(() => ciGraphMatrices([{ area: 'missing', kind: 'tests' }]), /Unknown CI graph area/);
+});
+
 test('new nested tests are assigned automatically; unsupported or unsafe inventories fail', () => {
   const root = mkdtempSync(join(tmpdir(), 'agdf-ci-inventory-'));
   const dir = join(root, 'packages/cli');
@@ -116,7 +157,7 @@ test('new nested tests are assigned automatically; unsupported or unsafe invento
 test('over-budget tests fail planning instead of being omitted; selectors reject invalid work', () => {
   assert.throws(() => partitionTests([{ cwd: '.', tool: 'node', args: ['slow.js'], seconds: { windows: 600 } }], 'windows'), /finer partitioning/);
   for (const args of [['--job', 'missing'], ['--matrix', 'true', '--job', 'linux-22-checks'], ['--matrix', 'true', '--scope', 'skip'],
-    ['--matrix', 'true', '--suite', 'skip'], ['--matrix', 'true', '--scope', 'linux;echo']]) {
+    ['--matrix', 'true', '--suite', 'skip'], ['--matrix', 'true', '--scope', 'linux;echo'], ['--matrix', 'invalid']]) {
     assert.notEqual(spawnSync(process.execPath, ['scripts/ci-plan.mjs', ...args], { encoding: 'utf8' }).status, 0);
   }
   for (const selector of [['--source-gate', 'skip'], ['--phase', 'SD'], ['--source-gate', 'PRD', '--phase', 'PRD'],
@@ -137,8 +178,10 @@ test('all executable workflow jobs have a ten-minute ceiling and callers share t
   assert.equal(workflows['agdf-guardrails.yml'].jobs.verify.uses, './.github/workflows/verify-agdf.yml');
   assert.equal(workflows['publish-agdf.yml'].jobs.tests.uses, './.github/workflows/verify-agdf.yml');
   const reusable = workflows['verify-agdf.yml'];
-  assert.equal(reusable.jobs.verify.strategy['fail-fast'], false);
-  assert.equal(reusable.jobs.verify.name, '${{ matrix.label }}');
-  assert.ok(reusable.jobs.verify.steps.some(step => step.run?.includes('node scripts/ci-plan.mjs --job')));
+  for (const [id, job] of Object.entries(reusable.jobs).filter(([id]) => id !== 'plan')) {
+    assert.equal(job.strategy['fail-fast'], false, id);
+    assert.equal(job.name, '${{ matrix.label }}');
+    assert.ok(job.steps.some(step => step.run?.includes('node scripts/ci-plan.mjs --job')));
+  }
   assert.ok(reusable.jobs.plan.steps.some(step => step.run?.includes('node scripts/ci-plan.mjs --matrix')));
 });

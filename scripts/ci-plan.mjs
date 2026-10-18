@@ -183,17 +183,33 @@ export function ciJobPlan(job, { suite = 'cli', published = false } = {}) {
   return plan;
 }
 
+// Graph groups only reorganize the already validated partitions. They never
+// rebalance commands or introduce execution dependencies between test areas.
+export function ciGraphMatrices(jobs) {
+  const groups = Object.fromEntries([...Object.keys(TEST_DOMAINS), 'checks'].map(area => [area, { include: [] }]));
+  for (const { commands, speed, checkStages, ...row } of jobs) {
+    const area = row.kind === 'checks' ? 'checks' : row.area;
+    if (!Object.hasOwn(groups, area)) throw Error(`Unknown CI graph area: ${area}`);
+    groups[area].include.push(row);
+  }
+  return Object.fromEntries(Object.entries(groups).filter(([, matrix]) => matrix.include.length));
+}
+
 export async function ciMain(args) {
   const options = {};
   for (let i = 0; i < args.length; i += 2) {
-    if (!['--matrix', '--job', '--scope', '--suite', '--published'].includes(args[i]) || !args[i + 1] || Object.hasOwn(options, args[i])) throw Error('Usage: ci-plan.mjs --matrix true|--job <id> [--scope all|linux] [--suite cli|mcp] [--published true|false]');
+    if (!['--matrix', '--job', '--scope', '--suite', '--published'].includes(args[i]) || !args[i + 1] || Object.hasOwn(options, args[i])) throw Error('Usage: ci-plan.mjs --matrix true|github | --job <id> [--scope all|linux] [--suite cli|mcp] [--published true|false]');
     options[args[i]] = args[i + 1];
   }
   if (Boolean(options['--matrix']) === Boolean(options['--job'])) throw Error('Select exactly one of --matrix or --job');
-  if (options['--matrix'] && options['--matrix'] !== 'true') throw Error('Invalid matrix flag');
+  if (options['--matrix'] && !['true', 'github'].includes(options['--matrix'])) throw Error('Invalid matrix flag');
   if (options['--published'] && !['true', 'false'].includes(options['--published'])) throw Error('Invalid published flag');
   const scope = options['--scope'] ?? 'all', suite = options['--suite'] ?? 'cli';
   const jobs = ciJobs({ scope, suite });
+  if (options['--matrix'] === 'github') {
+    for (const [area, matrix] of Object.entries(ciGraphMatrices(jobs))) console.log(`${area}=${JSON.stringify(matrix)}`);
+    return;
+  }
   if (options['--matrix']) {
     console.log(JSON.stringify({ include: jobs.map(({ commands, speed, checkStages, ...row }) => row) }));
     return;

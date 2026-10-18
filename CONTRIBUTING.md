@@ -194,6 +194,13 @@ community. These select stages from the same local verification plan, preserving
 preparation requirements. Repository-only stages remain on Linux/Node 22. Summaries and timing
 artifacts include the functional job label; machine IDs remain available for local reproduction.
 
+The Actions graph has a separate matrix block for each of the eight test areas and one for
+repository checks. All nine blocks depend only on `plan` and execute in parallel. The planner's
+`--matrix github` output groups the existing partitions without changing their commands, IDs or
+budgets; areas absent from a caller's suite are skipped before matrix expansion. YAML anchors
+share the same execution steps and shell configuration across every block. GitHub chooses the
+visual placement of the blocks; graph layout does not add execution dependencies.
+
 Each executing job has a ten-minute ceiling. Test groups budget at most six estimated minutes,
 including 50% headroom over the recorded suite durations; preparation and cleanup have separate
 reserve. `scripts/ci-duration-baseline.json` contains scheduling estimates, not a test inventory

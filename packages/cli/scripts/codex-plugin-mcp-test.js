@@ -219,6 +219,33 @@ try {
   assert.throws(() => blocked.apply(), /evidence_changed/);
   assert.equal(readFileSync(path, 'utf8'), original);
 
+  // Windows registrations use native separators, while historic declarations
+  // may use portable ones. Both must retain exact ownership and rollback bytes.
+  const portableConfig = original.replace(/^args = (.+)$/mu, (_line, raw) => {
+    const args = JSON.parse(raw); args[0] = args[0].replaceAll('\\', '/');
+    return 'args = ' + JSON.stringify(args);
+  });
+  writeFileSync(path, portableConfig);
+  const portableEvidence = { ...evidence, config_digest: hash(portableConfig), section_digest: hash(portableConfig),
+    inventory: { origins: evidence.inventory.origins.map(row => row.path === path ? { ...row, digest: hash(portableConfig) } : row) } };
+  const portableTx = createCodexCockpitTransition({ target: transitionTarget, env, serverId: legacyId,
+    evidence: portableEvidence, evidenceDigest: hash('portable fixture evidence') });
+  portableTx.apply(); assert.ok(readFileSync(path, 'utf8').includes('enabled = false'));
+  portableTx.rollback(); assert.equal(readFileSync(path, 'utf8'), portableConfig, 'Portable-path rollback preserves every original byte');
+  assert.ok(existsSync(runtime.entrypoint), 'Portable-path retirement retains the verified runtime');
+  const aliasedConfig = portableConfig.replace(/^args = (.+)$/mu, (_line, raw) => {
+    const args = JSON.parse(raw); args[0] = args[0].replace('/node_modules/', '/node_modules/../node_modules/');
+    return 'args = ' + JSON.stringify(args);
+  });
+  writeFileSync(path, aliasedConfig);
+  const aliasedEvidence = { ...portableEvidence, config_digest: hash(aliasedConfig), section_digest: hash(aliasedConfig),
+    inventory: { origins: portableEvidence.inventory.origins.map(row => row.path === path ? { ...row, digest: hash(aliasedConfig) } : row) } };
+  assert.throws(() => createCodexCockpitTransition({ target: transitionTarget, env, serverId: legacyId,
+    evidence: aliasedEvidence, evidenceDigest: hash('noncanonical fixture evidence') }), /REGISTRATION_FOREIGN/,
+  'Separator compatibility never admits a noncanonical executable alias');
+  assert.equal(readFileSync(path, 'utf8'), aliasedConfig, 'Rejected alias never mutates configuration');
+  writeFileSync(path, original);
+
   // Exercise the real service boundary with explicitly synthetic native observations.
   // This fixture qualifies the guarded transition logic, never a real host session.
   const published = prepareLocalMarketplace({ dataRoot: env.AGDF_DATA_DIR, builtPluginRoot: pluginRoot, expectedVersion: version });

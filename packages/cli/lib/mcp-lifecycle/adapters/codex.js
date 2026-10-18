@@ -4,7 +4,7 @@ import { withOwnedFileLock } from '#agdf-core/control-state/run-state-writer.js'
 import { inspectInstallationProvenance } from '#agdf-core/runtime/plugin-provenance.js';
 import { inspectMcpServerPackage, inspectMcpExecutableRoot } from '../package.js';
 import { homedir } from "node:os";
-import { dirname, join, isAbsolute, resolve, relative, sep } from "node:path";
+import { dirname, basename, join, isAbsolute, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from 'node:url';
 import {
   allSourceResult,
@@ -359,11 +359,12 @@ export function createCodexCockpitTransition({ target, env = {}, serverId: id, r
       || values.has('enabled') && typeof values.get('enabled') !== 'boolean'
       || ['startup_timeout_sec', 'tool_timeout_sec'].some(key => values.has(key) && !(Number.isFinite(values.get(key)) && values.get(key) > 0)))
       throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
-    if (!isAbsolute(args[0]) || !args[0].endsWith('/node_modules/@agdf/mcp-server/bin/agdf-mcp.js')
-      || realpathSync(args[0]) !== args[0]) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
-    let runtimeRoot = args[0]; for (let n = 0; n < 5; n++) runtimeRoot = dirname(runtimeRoot);
-    const runtime = inspectMcpExecutableRoot({ root: runtimeRoot, expectedVersion: runtimeRoot.split('/').at(-1) });
-    if (runtime.status !== 'matched' || runtime.nodeExecutable !== command || runtime.entrypoint !== args[0]) throw Error('AGDF_MCP_SERVER_VERIFICATION_FAILED');
+    if (!isAbsolute(args[0]) || !portablePath(args[0]).endsWith('/node_modules/@agdf/mcp-server/bin/agdf-mcp.js')
+      || portablePath(realpathSync(args[0])) !== portablePath(args[0])) throw Error('AGDF_MCP_REGISTRATION_FOREIGN');
+    const entrypoint = realpathSync(args[0]);
+    let runtimeRoot = entrypoint; for (let n = 0; n < 5; n++) runtimeRoot = dirname(runtimeRoot);
+    const runtime = inspectMcpExecutableRoot({ root: runtimeRoot, expectedVersion: basename(runtimeRoot) });
+    if (runtime.status !== 'matched' || runtime.nodeExecutable !== command || runtime.entrypoint !== entrypoint) throw Error('AGDF_MCP_SERVER_VERIFICATION_FAILED');
     const owned = identity(range.marker);
     if (owned) {
       if (owned.role !== 'cockpit' || owned.server_id !== id || owned.digest !== runtime.digest || owned.version !== runtime.version

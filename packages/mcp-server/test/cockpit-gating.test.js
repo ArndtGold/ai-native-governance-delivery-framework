@@ -33,7 +33,7 @@ try {
       assert.equal(provider?.identity_scope, 'sdk_server_instance');
       assert.equal(provider.authorizes, false);
       assert.match(provider.connection_id, /^[a-f0-9-]{36}$/u);
-      assert.match(provider.server_module, /\/src\/server\.js$/u);
+      assert.equal(provider.server_module, fileURLToPath(new URL('../src/server.js', import.meta.url)));
       assert.equal(render._meta['agdf/peer'].client_info.name, 'agdf-mcp-test');
       assert.deepEqual(render._meta['agdf/peer'].capabilities.extensions[MCP_APP_UI_EXTENSION], ui.extensions[MCP_APP_UI_EXTENSION]);
       if (previous) assert.notEqual(provider.connection_id, previous);

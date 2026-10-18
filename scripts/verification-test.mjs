@@ -193,6 +193,9 @@ test('both snapshot modes export an index larger than the default subprocess out
     git(repo, '-c', 'init.templateDir=', 'init', '-q');
     git(repo, 'config', 'user.name', 'Snapshot fixture');
     git(repo, 'config', 'user.email', 'snapshot@example.invalid');
+    // Keep byte assertions portable on hosts with core.autocrlf=true as well.
+    writeFileSync(join(repo, '.gitattributes'), 'bulk/** -text\n');
+    git(repo, 'add', '.gitattributes');
     const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: repo, input: 'committed bytes\n', encoding: 'utf8' }).trim();
     const names = Array.from({ length: 8000 }, (_, i) => `bulk/${String(i).padStart(5, '0')}-${'x'.repeat(80)}.txt`);
     names.push('bulk/spaces and unicode-ä.txt');
@@ -208,7 +211,7 @@ test('both snapshot modes export an index larger than the default subprocess out
       for (const name of [names[0], names.at(-2), names.at(-1)]) {
         assert.equal(readFileSync(join(snapshot, name), 'utf8'), 'committed bytes\n');
       }
-      assert.equal(git(snapshot, 'ls-files').trim().split('\n').length, names.length);
+      assert.equal(git(snapshot, 'ls-files').trim().split('\n').length, names.length + 1);
       assert.deepEqual(readFileSync(join(repo, '.git/index')), before);
       assert.equal(existsSync(join(repo, names[0])), false, 'export must not populate the source working copy');
       rmSync(snapshot, { recursive: true, force: true });

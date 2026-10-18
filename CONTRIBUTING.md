@@ -201,11 +201,11 @@ budgets; areas absent from a caller's suite are skipped before matrix expansion.
 share the same execution steps and shell configuration across every block. GitHub chooses the
 visual placement of the blocks; graph layout does not add execution dependencies.
 
-Graph group IDs spell out their responsibilities in German, for example
-`Aktivierung-Skills`, `Run-Steuerung`, `Quellrevisionen`,
+Graph group IDs spell out their responsibilities in English, for example
+`Activation-Skills`, `Run-Control`, `Source-Revisions`,
 and `MCP-Cockpit`. GitHub uses these IDs as the matrix group headings when leaf names
 depend on matrix values. IDs use ASCII letters and hyphens because workflow job IDs cannot
-contain spaces or ampersands. The planning node is displayed as `Testplan erstellen`;
+contain spaces or ampersands. The planning node is displayed as `Create test plan`;
 the Guardrails caller is displayed as `CI`. Group IDs are limited to 19 characters so the
 functional name fits GitHub's matrix heading tab.
 

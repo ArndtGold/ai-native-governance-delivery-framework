@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   plan:
-    name: Testplan erstellen
+    name: Create test plan
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
@@ -44,7 +44,7 @@ jobs:
         run: node scripts/ci-plan.mjs --matrix github --scope "$CI_SCOPE" --suite "$CI_SUITE" >> "$GITHUB_OUTPUT"
 
   # Separate matrix jobs give each functional area its own graph block.
-  Aktivierung-Skills:
+  Activation-Skills:
     needs: plan
     if: needs.plan.outputs.activation != ''
     name: ${{ matrix.graphLabel }}
@@ -114,7 +114,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Run-Steuerung:
+  Run-Control:
     needs: plan
     if: needs.plan.outputs.runs != ''
     name: ${{ matrix.graphLabel }}
@@ -126,7 +126,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Quellrevisionen:
+  Source-Revisions:
     needs: plan
     if: needs.plan.outputs.revisions != ''
     name: ${{ matrix.graphLabel }}
@@ -150,7 +150,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Darstellung-Sprache:
+  Language-Rendering:
     needs: plan
     if: needs.plan.outputs.presentation != ''
     name: ${{ matrix.graphLabel }}
@@ -162,7 +162,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Pakete-Integritaet:
+  Package-Integrity:
     needs: plan
     if: needs.plan.outputs.packages != ''
     name: ${{ matrix.graphLabel }}

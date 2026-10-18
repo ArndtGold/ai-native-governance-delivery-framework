@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   plan:
+    name: Testplan erstellen
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
@@ -43,7 +44,7 @@ jobs:
         run: node scripts/ci-plan.mjs --matrix github --scope "$CI_SCOPE" --suite "$CI_SUITE" >> "$GITHUB_OUTPUT"
 
   # Separate matrix jobs give each functional area its own graph block.
-  activation:
+  Aktivierung-und-Skills:
     needs: plan
     if: needs.plan.outputs.activation != ''
     name: ${{ matrix.graphLabel }}
@@ -89,7 +90,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  installation:
+  Installation-und-Hosts:
     needs: plan
     if: needs.plan.outputs.installation != ''
     name: ${{ matrix.graphLabel }}
@@ -101,7 +102,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  delivery:
+  Delivery-und-Readiness:
     needs: plan
     if: needs.plan.outputs.delivery != ''
     name: ${{ matrix.graphLabel }}
@@ -113,7 +114,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  runs:
+  Run-Steuerung-und-Wiederherstellung:
     needs: plan
     if: needs.plan.outputs.runs != ''
     name: ${{ matrix.graphLabel }}
@@ -125,7 +126,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  revisions:
+  Quellrevisionen:
     needs: plan
     if: needs.plan.outputs.revisions != ''
     name: ${{ matrix.graphLabel }}
@@ -137,7 +138,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  mcp:
+  MCP-und-Cockpit:
     needs: plan
     if: needs.plan.outputs.mcp != ''
     name: ${{ matrix.graphLabel }}
@@ -149,7 +150,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  presentation:
+  Darstellung-und-Sprache:
     needs: plan
     if: needs.plan.outputs.presentation != ''
     name: ${{ matrix.graphLabel }}
@@ -161,7 +162,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  packages:
+  Pakete-und-Integritaet:
     needs: plan
     if: needs.plan.outputs.packages != ''
     name: ${{ matrix.graphLabel }}
@@ -173,7 +174,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  checks:
+  Repository-Pruefungen:
     needs: plan
     if: needs.plan.outputs.checks != ''
     name: ${{ matrix.graphLabel }}

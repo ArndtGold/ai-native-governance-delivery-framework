@@ -201,6 +201,13 @@ budgets; areas absent from a caller's suite are skipped before matrix expansion.
 share the same execution steps and shell configuration across every block. GitHub chooses the
 visual placement of the blocks; graph layout does not add execution dependencies.
 
+Graph group IDs spell out their responsibilities in German, for example
+`Aktivierung-und-Skills`, `Run-Steuerung-und-Wiederherstellung`, `Quellrevisionen`,
+and `MCP-und-Cockpit`. GitHub uses these IDs as the matrix group headings when leaf names
+depend on matrix values. IDs use ASCII letters and hyphens because workflow job IDs cannot
+contain spaces or ampersands. The planning node is displayed as `Testplan erstellen`;
+the Guardrails caller is displayed as `CI`.
+
 Leaf jobs use compact graph labels such as `Skills · Linux22`, `MCP · Win22 4of5`,
 and `UR→QA · Win22`. The number after the platform is the Node major version.
 These labels avoid slash-separated name hierarchies, which GitHub compresses by hiding the

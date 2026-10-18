@@ -123,20 +123,28 @@ test('measured Windows MCP lifecycle and whole-flow costs prevent the exhausted 
 test('graph matrices route every existing partition exactly once for every caller', () => {
   const workflow = parse(readFileSync(new URL('../.github/workflows/verify-agdf.yml', import.meta.url), 'utf8'));
   const areas = [...Object.keys(TEST_DOMAINS), 'checks'];
-  assert.deepEqual(Object.keys(workflow.jobs), ['plan', ...areas]);
+  const graphJobs = Object.entries(workflow.jobs).filter(([id]) => id !== 'plan');
+  assert.equal(graphJobs.length, areas.length);
+  assert.ok(workflow.jobs.plan.name && workflow.jobs.plan.name !== 'plan', 'planning has a descriptive display name');
   assert.deepEqual(Object.keys(workflow.jobs.plan.outputs), areas);
   for (const area of areas) {
-    const job = workflow.jobs[area];
+    const matrix = `\${{ fromJSON(needs.plan.outputs.${area}) }}`;
+    const owners = graphJobs.filter(([, job]) => job.strategy.matrix === matrix);
+    assert.equal(owners.length, 1, `${area}: exactly one graph group must consume its matrix`);
+    const [id, job] = owners[0];
+    assert.match(id, /^[a-zA-Z_][a-zA-Z0-9_-]*$/, 'graph titles remain valid workflow job IDs');
+    assert.notEqual(id, area, 'group headers must use descriptive names instead of area abbreviations');
+    assert.ok(id.length >= 12, `${area}: group header is too terse`);
     assert.equal(workflow.jobs.plan.outputs[area], `\${{ steps.plan.outputs.${area} }}`);
     assert.equal(job.needs, 'plan', `${area}: areas must execute in parallel`);
     assert.equal(job.if, `needs.plan.outputs.${area} != ''`, `${area}: skip absent areas before matrix expansion`);
-    assert.equal(job.strategy.matrix, `\${{ fromJSON(needs.plan.outputs.${area}) }}`);
+    assert.equal(job.strategy.matrix, matrix);
     assert.equal(job.strategy['fail-fast'], false);
     assert.equal(job.name, '${{ matrix.graphLabel }}');
     assert.equal(job['runs-on'], '${{ matrix.os }}');
     assert.equal(job['timeout-minutes'], 10);
     assert.deepEqual(job.defaults, { run: { shell: 'bash' } });
-    assert.deepEqual(job.steps, workflow.jobs.activation.steps, 'all areas share the same runner and timing artifacts');
+    assert.deepEqual(job.steps, graphJobs[0][1].steps, 'all areas share the same runner and timing artifacts');
   }
   const sort = rows => rows.sort((a, b) => a.id.localeCompare(b.id));
   for (const scope of ['all', 'linux']) for (const suite of ['cli', 'mcp']) {

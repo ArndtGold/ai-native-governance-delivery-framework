@@ -1,0 +1,100 @@
+{
+  "checks": [
+    {
+      "root": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+      "provenance": {
+        "status": "matched",
+        "version": "0.14.5",
+        "digest": "sha256:3753a404b41f4d3a60ed17454511bf7410ba438a389dbd53f944e8870cbe1653",
+        "declaration": {
+          "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+          "mcpServers": {
+            "agdf": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin"
+              ]
+            },
+            "agdf-cockpit": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin",
+                "--cockpit"
+              ]
+            }
+          }
+        }
+      },
+      "runtime_identity": {
+        "version": "0.14.5",
+        "digest": "34d86a933d4270465786d3729b1e25e39890105220415c61f4e61360239ee245",
+        "dispatcherDigest": "41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+        "sdkDigest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+      },
+      "ui_digest": "sha256:19f6546a5401d9f89a0e78b5500f131b650de4e89b278883e2ee64101368a979"
+    },
+    {
+      "root": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-3753a404b41f",
+      "provenance": {
+        "status": "matched",
+        "version": "0.14.5",
+        "digest": "sha256:3753a404b41f4d3a60ed17454511bf7410ba438a389dbd53f944e8870cbe1653",
+        "declaration": {
+          "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+          "mcpServers": {
+            "agdf": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin"
+              ]
+            },
+            "agdf-cockpit": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin",
+                "--cockpit"
+              ]
+            }
+          }
+        }
+      },
+      "runtime_identity": {
+        "version": "0.14.5",
+        "digest": "34d86a933d4270465786d3729b1e25e39890105220415c61f4e61360239ee245",
+        "dispatcherDigest": "41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+        "sdkDigest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+      },
+      "ui_digest": "sha256:19f6546a5401d9f89a0e78b5500f131b650de4e89b278883e2ee64101368a979"
+    }
+  ],
+  "prepared_runtime": {
+    "root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/65df822bdb20cdd0c1efc4dab06042d131767e63b55c77081a45a33c7c9acde4/0.14.5",
+    "status": "matched",
+    "version": "0.14.5",
+    "digest": "34d86a933d4270465786d3729b1e25e39890105220415c61f4e61360239ee245",
+    "dispatcher_digest": "41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+  },
+  "matches_reviewed": true,
+  "native_ui_qualified": false
+}

@@ -1,0 +1,31 @@
+{
+  "authorizes": false,
+  "evidence_class": "read_only_installed_host_source",
+  "proves_live_race": false,
+  "excerpts": [
+    {
+      "module": "main-CLu1A25j.js",
+      "module_sha256": "8aedee047ec0a078e65b24dc917c64ad544220395e773feb6740f4447008a495",
+      "character_offset": 355907,
+      "excerpt": "async function mce(e,t,n,r,i){let a=up(e,t.sandboxId,t.initId),o=a==null?null:lp.get(a.id);if(o==null||a==null)return null;let s=n(t.conversationId);o.browserTarget?.unregister();let c=r.dup(),l=i.dup(),u=new AbortController,d=()=>{o.browserTarget===f&&(delete o.browserTarget,f.presented&&sp.emit(`change`)),u.abort(),c[Symbol.dispose](),l[Symbol.dispose](),a.removeListener(`did-start-navigation`,p),a.removeListener(`destroyed`,d)},f={browserTabId:g.Yt(`mcp-app-${(0,_.randomUUID)()}`),conversationId:s,presented:!1,title:t.title,reveal:c,unregister:d,mcpAppBrowser:Promise.resolve().then(()=>Ise(a,()=>{if(o.browserTarget!==f||a.isDestroyed()||e.isDestroyed())throw Error(`MCP App browser registration is no longer available.`)},u.signal,d,l))};o.browserTarget=f;let p=e=>{e.isMainFrame&&!e.isSameDocument&&d()};a.on(`did-start-navigation`,p),a.once(`destroyed`,d);try{await f.mcpAppBrowser}catch(e){throw d(),e}return{unregister:d,setPresented(e){o.browserTarget===f&&f.presented!==e&&(f.presented=e,sp.emit(`change`))}}}function hce(e){return sp.on(`change`,e),()=>{sp.off(`change`,e)}}function gce(e,t){return[...lp.values()].some(n=>n.ownerWebContents===e&&n.browserTarget?.conversationId===t&&n.browserTarget.presented)}function _ce(e,t){return Array.from(lp.values()).flatMap(n=>n.ownerWebContents!==e||n.browserTarget?.conversationId!==t||up(e,n.sandboxId,n.initId)==null?[]:[{title:n.browserTarget.title,reveal:n.browserTarget.reveal,mcpAppBrowser:n.browserTarget.mcpAppBrowser,pageKey:n.browserTarget.browserTabId}])}function vce(e,t,{applicationNetwork:n,allowNonMcpAppSandboxWebviews:r=!1,navigation:a,scrollBounce:o}){let s=(a,s,c)=>{let l=(t,n={})=>{zf().warning(`mcp_app_sandbox.attach_rejected`,{safe:t,sensitive:{ownerWebContentsId:e.id,...n}}),a.preventDefault()},u=i.mn(c.partit"
+    },
+    {
+      "module": "main-CLu1A25j.js",
+      "module_sha256": "8aedee047ec0a078e65b24dc917c64ad544220395e773feb6740f4447008a495",
+      "character_offset": 357136,
+      "excerpt": "function _ce(e,t){return Array.from(lp.values()).flatMap(n=>n.ownerWebContents!==e||n.browserTarget?.conversationId!==t||up(e,n.sandboxId,n.initId)==null?[]:[{title:n.browserTarget.title,reveal:n.browserTarget.reveal,mcpAppBrowser:n.browserTarget.mcpAppBrowser,pageKey:n.browserTarget.browserTabId}])}function vce(e,t,{applicationNetwork:n,allowNonMcpAppSandboxWebviews:r=!1,navigation:a,scrollBounce:o}){let s=(a,s,c)=>{let l=(t,n={})=>{zf"
+    },
+    {
+      "module": "main-CLu1A25j.js",
+      "module_sha256": "8aedee047ec0a078e65b24dc917c64ad544220395e773feb6740f4447008a495",
+      "character_offset": 1865127,
+      "excerpt": "getPages:e=>{if(!this.mcpAppsBrowserUseEnabled)throw Error(`MCP Apps task route is unavailable.`);if(!this.canServeSession({conversationId:e},t))throw e!==t.sessionId&&!this.pendingLocalWorkSessionIds.has(t.sessionId)?Error(g.V):Error(`MCP Apps task route is unavailable.`);let n=this.sessionRoutes.get(e),r=n==null?null:D.webContents.fromId(n.ownerWebContentsId);if(n==null||r==null||r.isDestroyed())throw Error(`MCP Apps task window is unavailable.`);return _ce(r,n.browserConversationId)}}).catch(e=>(this.errorReporter.reportNonFatal(e instanceof Error?e:Error(String(e)),{kind:`mcp-app-browser-backend-startup`}),null))),QG().info(`browser_use_iab_backend_startup_ready`,{safe:{backend:`iab`,platform:process.platform,release:D.app.getVersion()},sensitive:{pipePath:t.server.pipePath,sessionId:t.sessionId}})}catch(n){QG().warning(`browser_use_iab_backend_startup_failed`,{safe:{backend:`iab`,phase:`native-pipe-startup`,platform:process.platform,reason:n instanceof Error?n.name||`Error`:typeof"
+    },
+    {
+      "module": "widget-2822a44259e7.js",
+      "module_sha256": "5182c5c46535bfc101391087036bf47652689440b06ac0951a706e3ee0820c04",
+      "character_offset": 35619,
+      "excerpt": "function Xs(e){let t=(0,$s.c)(24),{panelTabId:n,sandboxElement:r,sandboxId:i,title:a}=e,o=ee(Wr),s=ie(Ks)??o,c=hi(`1146407612`),l=$e(tc,n)!=null,u;t[0]===s?u=t[1]:(u=oi(s),t[0]=s,t[1]=u);let d=u,f;t[2]!==n||t[3]!==s?(f=()=>{let e=s.get(ji,n);n!=null&&e!=null&&Ei(s,e,n)},t[2]=n,t[3]=s,t[4]=f):f=t[4];let p=(0,ec.useEffectEvent)(f),m;t[5]!==d||t[6]!==c||t[7]!==l||t[8]!==n||t[9]!==p||t[10]!==r||t[11]!==i||t[12]!==s||t[13]!==a?(m=()=>{if(!c||!l||d==null||E?.mcpAppSandbox==null)return;let e=pe(r.getAttribute(`src`)??void 0);if(e==null)return;let t=E.mcpAppSandbox.registerBrowserTarget({conversationId:d,initId:e,sandboxId:i,title:a},p,(e,t)=>Ys(r,e,t));t.catch(Qs);let o=s.watch(e=>{let{get:r}=e,i=r(ji,n),a=!r(fa)&&i!=null&&(i===`bottom`?r(mr):r(pt)&&r(ca))&&r(fi(i).visibleTabs$).some(e=>{let{tab:t}=e;return t.tabId===n});t.setPresented(a).catch(Zs)});return()=>{o(),t[Symbol.dispose]()}},t[5]=d,t[6]=c,t[7]=l,t[8]=n,t[9]=p,t[10]=r,t[11]=i,t[12]=s,t[13]=a,t[14]=m):m=t[14];let h;return t[15]!==d||t[16]!==c||t[17]!==l||t[18]!==n||t[19]!==r||t[20]!==i||t[21]!==s||t[22]!==a?(h=[c,n,d,l,r,i,a,s],t[15]=d,t[16]=c,t[17]=l,t[18]=n,t[19]=r,t[20]=i,t[21]=s,t[22]=a,t[23]=h):h=t[23],(0,ec.useEffect)(m,h),null}function Zs(e){l.info(`mcp_app_sandbox.browser_presentation_failed`,{safe:{},sensitive:{error:e}})}function Qs(e){l.info(`mcp_app_sandbox.browser_target_failed`,{safe:{},sensitive:{error:e}})}var $s,ec,tc;function nc(){return(nc=e((()=>{$s=ze(),O(),ve(),ec=Ze(),Bt(),cn(),De(),_t(),Mr(),Ar(),j(),Js(),tc=Ae(Wr,(e,{get:t,scope:n})=>(t(Ks)??n).get(ji,e),(e,{get:t,scope:n,set:r})=>(t(Ks)??n).watch(({get:t})=>{r(t(ji,e))}))})))()}var rc,ic,ac,oc;function sc(){return(sc=e((()=>{f(),rc=`openai/find`,ic=`ui/openai/find`,ac=G({method:i(ic),params:G({enabled:I()})}),oc=G({method:i(`ui/notifications/openai/find`),params:G({command:W([`open`,`next`,`previous`])})})})))()}var cc;function lc(){return"
+    }
+  ]
+}

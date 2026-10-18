@@ -1,18 +1,20 @@
 import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
+import { randomUUID } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
 import { loadCockpitResource } from './cockpit-resource.js';
-import { requestDeclaresMcpAppUi, requestMcpClientInfo } from "./ui-capability.js";
+import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabilities } from "./ui-capability.js";
 
 export const SERVER_NAME = "agdf-mcp";
 
-function toolResult(runtime, result, serialize = runtime.serialize) {
+function toolResult(runtime, result, serialize = runtime.serialize, provider, peer) {
   const { _meta, ...publicResult } = result;
   const text = serialize(_meta ? publicResult : result);
   const response = {
     content: [{ type: "text", text: result.presentation_delivery?.text ?? text }],
     structuredContent: JSON.parse(text),
-    ...(_meta ? { _meta } : {}),
+    ...(_meta || provider ? { _meta: { ..._meta, ...(provider ? { 'agdf/provider': provider, 'agdf/peer': peer } : {}) } } : {}),
   };
   if (runtime.mode === 'cockpit' && Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) {
     const failure = runtime.failure('resource_limit');
@@ -41,8 +43,20 @@ export function buildAgdfServer({ runtime, executor } = {}) {
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
     { capabilities: { tools: {}, ...(runtime.ui ? { resources: {} } : {}) } },
   );
-  // A UI-gated cockpit is offered only to clients that declare MCP app UI support for its resource type.
+  // Capability checks guard execution and resource access. Codex must first
+  // discover the plugin tool metadata before selecting its UI-capable route.
   const gated = runtime.mode === 'cockpit' && runtime.uiCapabilityRequired === true;
+  const discoverBeforeUi = gated && runtime.trustedContext.surface === 'codex';
+  // serveStdio pins one SDK server instance for the connection's lifetime.
+  // This is a server-issued observation, never a guessed host namespace or approval.
+  const provider = gated && runtime.trustedContext.surface === 'codex' ? Object.freeze({
+    schema_version: 1, authorizes: false, identity_scope: 'sdk_server_instance',
+    connection_id: randomUUID(), server_module: fileURLToPath(import.meta.url),
+    version: runtime.trustedContext.expectedVersion,
+  }) : undefined;
+  const respond = (result, serialize, context) => toolResult(runtime, result, serialize, provider, provider ? {
+    client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
+  } : undefined);
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   for (const tool of tools) {
@@ -57,18 +71,18 @@ export function buildAgdfServer({ runtime, executor } = {}) {
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
-        if (!uiAllowed(context)) return toolResult(runtime, runtime.failure(runtime.unsupportedUiCode ?? "resource_denied", name), serialize ?? runtime.serialize);
-        if (tool.requiresUi && !supportsUi(context)) return toolResult(runtime, runtime.failure('host_ui_unsupported', name, argumentsValue, { dispatch: 'not_dispatched' }), serialize ?? runtime.serialize);
+        if (!uiAllowed(context)) return respond(runtime.failure(runtime.unsupportedUiCode ?? "resource_denied", name), serialize ?? runtime.serialize, context);
+        if (tool.requiresUi && !supportsUi(context)) return respond(runtime.failure('host_ui_unsupported', name, argumentsValue, { dispatch: 'not_dispatched' }), serialize ?? runtime.serialize, context);
         try {
           let result = tool.parentOwned ? await tool.execute(tool.parse(argumentsValue), context.signal,
             { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) })
             : await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
           if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
             { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
-          return toolResult(runtime, result, serialize ?? runtime.serialize);
+          return respond(result, serialize ?? runtime.serialize, context);
         } catch (error) {
           const code = error instanceof DispatchExecutionError ? error.code : "dispatch_worker_failed";
-          return toolResult(runtime, runtime.failure(code, name, argumentsValue, { dispatch: error.dispatch ?? 'unknown' }), serialize ?? runtime.serialize);
+          return respond(runtime.failure(code, name, argumentsValue, { dispatch: error.dispatch ?? 'unknown' }), serialize ?? runtime.serialize, context);
         }
       },
     );
@@ -89,7 +103,7 @@ export function buildAgdfServer({ runtime, executor } = {}) {
       }));
       const listedResource = { uri: resource.uri, name: runtime.ui.label ?? 'AGDF Cockpit', mimeType: resource.mimeType, _meta: resource._meta };
       server.server.removeRequestHandler("tools/list");
-      server.server.setRequestHandler("tools/list", (_request, context) => ({ tools: !uiAllowed(context) ? [] : runtime.mode === 'decision' && !supportsUi(context)
+      server.server.setRequestHandler("tools/list", (_request, context) => ({ tools: !discoverBeforeUi && !uiAllowed(context) ? [] : runtime.mode === 'decision' && !supportsUi(context)
         ? listedTools.filter(tool => !tools.find(entry => entry.name === tool.name)?.requiresUi) : listedTools }));
       server.server.removeRequestHandler("resources/list");
       server.server.setRequestHandler("resources/list", (_request, context) => ({ resources: uiAllowed(context) && (runtime.mode !== 'decision' || supportsUi(context)) ? [listedResource] : [] }));

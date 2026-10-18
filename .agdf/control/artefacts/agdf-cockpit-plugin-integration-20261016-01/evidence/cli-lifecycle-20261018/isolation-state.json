@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "authorizes": false,
+  "root": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv",
+  "home": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+  "project": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+  "evidence": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/evidence",
+  "packages": [
+    {
+      "label": "old",
+      "source": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.backup/plugins/agdf",
+      "dataRoot": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data",
+      "pluginRoot": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/marketplaces/agdf/plugins/agdf",
+      "marketplaceRoot": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/marketplaces/agdf",
+      "version": "0.14.5+codex.local-fb1def114314",
+      "sourceDigest": "fb1def114314338c2d49ac9e03eceb3f939a23e9827e189221f35d4b39c9b235",
+      "identity": {
+        "status": "matched",
+        "version": "0.14.5",
+        "digest": "sha256:fb1def114314338c2d49ac9e03eceb3f939a23e9827e189221f35d4b39c9b235",
+        "declaration": {
+          "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+          "mcpServers": {
+            "agdf": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/mcp/codex-plugin"
+              ]
+            }
+          }
+        }
+      },
+      "declaration": {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        "mcpServers": {
+          "agdf": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+              "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+              "--surface",
+              "codex",
+              "--data",
+              "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/mcp/codex-plugin"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "label": "candidate",
+      "source": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+      "dataRoot": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data",
+      "pluginRoot": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf/plugins/agdf",
+      "marketplaceRoot": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf",
+      "version": "0.14.5+codex.local-dc02ea9eae18",
+      "sourceDigest": "dc02ea9eae188c0af7f20d331a581523ce246f17474f1e5654b9101b4fc18a89",
+      "identity": {
+        "status": "matched",
+        "version": "0.14.5",
+        "digest": "sha256:dc02ea9eae188c0af7f20d331a581523ce246f17474f1e5654b9101b4fc18a89",
+        "declaration": {
+          "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+          "mcpServers": {
+            "agdf": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/mcp/codex-plugin"
+              ]
+            },
+            "agdf-cockpit": {
+              "type": "stdio",
+              "command": "node",
+              "args": [
+                "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+                "--surface",
+                "codex",
+                "--data",
+                "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/mcp/codex-plugin",
+                "--cockpit"
+              ]
+            }
+          }
+        }
+      },
+      "declaration": {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        "mcpServers": {
+          "agdf": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+              "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+              "--surface",
+              "codex",
+              "--data",
+              "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/mcp/codex-plugin"
+            ]
+          },
+          "agdf-cockpit": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+              "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+              "--surface",
+              "codex",
+              "--data",
+              "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/mcp/codex-plugin",
+              "--cockpit"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "production": [
+    "/Users/arndtgold/.codex/config.toml",
+    "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/.agdf-owned.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/.agents/plugins/marketplace.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/.codex-plugin/plugin.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.backup/.agdf-owned.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.backup/.agents/plugins/marketplace.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.backup/plugins/agdf/mcp.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.backup/plugins/agdf/.codex-plugin/plugin.json",
+    "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.transaction.json"
+  ]
+}

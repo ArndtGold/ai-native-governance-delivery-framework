@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "kind": "cockpit_transition",
+  "surface": "codex",
+  "result": "partial",
+  "authorizes": false,
+  "assurance": "cooperative_local",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+  "config_digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8",
+  "section_digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8",
+  "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+  "plugin_digest": "sha256:dc02ea9eae188c0af7f20d331a581523ce246f17474f1e5654b9101b4fc18a89",
+  "version": "0.14.5",
+  "runtime_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/511e28ab67dc4d925b967a272ce4fe4cf79a14d72ebbdb8aaeede5b880f361a2/0.14.5",
+  "server_digest": "sha256:3b9588378c4078bea7781f6cac6c55b5382b5455b730c7c35973019f7fee3bea",
+  "dispatcher_digest": "sha256:41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+  "sdk_digest": "sha256:b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+  "ui_digest": "sha256:706955ccb5e1f8fd988ab5939c696beb1ab20fb93beddeea2f2a45dda1a9bf68",
+  "legacy_id": "agdf-cockpit-local",
+  "previous_plugin_digest": "sha256:fb1def114314338c2d49ac9e03eceb3f939a23e9827e189221f35d4b39c9b235",
+  "previous_plugin_version": "0.14.5",
+  "host": {
+    "name": "chatgpt",
+    "version": "26.1013.40934",
+    "session_id": "session:e287e9a1-2037-45eb-b093-61ac8206a6ec",
+    "os": "darwin",
+    "arch": "x64"
+  },
+  "observations": [
+    "discovery",
+    "ui_initialize",
+    "render",
+    "interaction",
+    "provider_attribution",
+    "context_invalidation",
+    "compensating_core_close"
+  ],
+  "inventory": {
+    "complete": false,
+    "origins": [
+      {
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+        "digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8"
+      },
+      {
+        "path": "/Users/arndtgold/.codex/config.toml",
+        "digest": "sha256:0155a9c155fecdba26b1c9a5e595832c3ee0175fdfbb7aed569182d5c5d52b17"
+      },
+      {
+        "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+        "digest": "sha256:7b4e47d91c331a27572db2a920da2e6cb82c58e818aebc11f37f89257005fb65"
+      }
+    ]
+  },
+  "providers": [
+    {
+      "origin": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+      "server_id": "agdf-cockpit",
+      "connection_id": "57360ba7-af0f-4266-a923-fd8bd40316c8",
+      "tools": [
+        "agdf_cockpit",
+        "agdf_cockpit_read"
+      ],
+      "exposed_tools": {
+        "agdf_cockpit": "mcp__agdf_cockpit__agdf_cockpit",
+        "agdf_cockpit_read": "mcp__agdf_cockpit__agdf_cockpit_read"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/NATIVE_PANEL_EVIDENCE_20261018.md",
+      "digest": "sha256:20ab218c3535c54039492d43bb4a82ff3526f7fc81e82f0553df30657e9684df"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/NATIVE_CLOSE_OBSERVATION_20261018.md",
+      "digest": "sha256:fb73c93f05dfffe8d9ccb1e9b19661319c0876148d788a5f8617d8a8541ebbae"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/HOST_EVIDENCE_LIMIT_20261018.md",
+      "digest": "sha256:95f98e4f4a8e58d6612a9dd8d46633f66e998351af327248cc812791686a04a9"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CLI_LIFECYCLE_EVIDENCE_20261018.md",
+      "digest": "sha256:83b1320d76dd4bf752d223529986fe8792f4514e38511041c65572c6c7dc9ca2"
+    }
+  ],
+  "limitations": [
+    "Native host teardown is unconfirmed; only compensating Core cleanup was confirmed.",
+    "The complete effective provider/origin inventory and isolated native contexts are not qualified."
+  ]
+}

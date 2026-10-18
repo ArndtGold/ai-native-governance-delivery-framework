@@ -1,0 +1,30 @@
+[
+  {
+    "check": "workspace-ui-build",
+    "argv": [
+      "npm",
+      "--prefix",
+      "packages/control-ui",
+      "run",
+      "build:mcp"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "workspace-generate",
+    "argv": [
+      "node",
+      "scripts/sync-package-assets.js"
+    ],
+    "exit_code": 0
+  },
+  {
+    "check": "workspace-compatibility-check",
+    "argv": [
+      "npm",
+      "run",
+      "compatibility:check"
+    ],
+    "exit_code": 0
+  }
+]

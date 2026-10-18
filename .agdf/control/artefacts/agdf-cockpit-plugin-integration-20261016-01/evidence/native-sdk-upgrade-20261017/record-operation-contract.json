@@ -1,0 +1,894 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "inspect_result",
+  "terminal": false,
+  "authorizes": false,
+  "operation": "operation-contract",
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/0c6f92936e9831c2ed88f2ff473e5f7aaa76833fd637b1765fcc57e0e4731630/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "report": {
+    "schema_version": "1",
+    "available": true,
+    "group": "agdf_record",
+    "kind": "step.record",
+    "payload_schema": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "ur"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "route"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "route": {
+              "enum": [
+                "quick_task",
+                "structured_slice",
+                "structured_delivery"
+              ]
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "reason",
+            "route"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "review"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "decision": {
+              "enum": [
+                "pass",
+                "revise",
+                "block"
+              ]
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "decision"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "step": {
+              "const": "evidence"
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "digest"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "covers": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "step",
+            "source",
+            "reason",
+            "covers"
+          ]
+        },
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "step": {
+                  "const": "internal"
+                },
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "digest": {
+                      "type": "string",
+                      "pattern": "^sha256:[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "digest"
+                  ]
+                },
+                "internal_step": {
+                  "const": "UX Intent Definition"
+                },
+                "decision": {
+                  "enum": [
+                    "ready",
+                    "blocked",
+                    "not_applicable"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                },
+                "covers": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "step",
+                "source",
+                "internal_step",
+                "decision"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "step": {
+                  "const": "internal"
+                },
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "digest": {
+                      "type": "string",
+                      "pattern": "^sha256:[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "digest"
+                  ]
+                },
+                "internal_step": {
+                  "enum": [
+                    "Brownfield Analysis",
+                    "CD+Tests",
+                    "TP Review",
+                    "Clean Implementation Review",
+                    "CR"
+                  ]
+                },
+                "decision": {
+                  "enum": [
+                    "pass",
+                    "revise",
+                    "block",
+                    "not_applicable"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8192
+                },
+                "covers": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "step",
+                "source",
+                "internal_step",
+                "decision"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "owner": "run-steps.recordRunStep",
+    "effects": [
+      "register bounded actual internal/evidence result; update Run/backlog"
+    ],
+    "confirmation": "authorized_recording",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1"
+        },
+        "presentation_language": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+        },
+        "working_directory": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "target_source": {
+          "enum": [
+            "explicit_target",
+            "continued_target",
+            "current_repository"
+          ]
+        },
+        "primary_target": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "target_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+        },
+        "expected_revision_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "assurance": {
+          "const": "cooperative_local"
+        },
+        "command": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "step.record"
+            },
+            "payload": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "ur"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "title"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "route"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "route": {
+                      "enum": [
+                        "quick_task",
+                        "structured_slice",
+                        "structured_delivery"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "reason",
+                    "route"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "review"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "decision": {
+                      "enum": [
+                        "pass",
+                        "revise",
+                        "block"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "decision"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "step": {
+                      "const": "evidence"
+                    },
+                    "source": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^sha256:[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "digest"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "covers": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [
+                    "step",
+                    "source",
+                    "reason",
+                    "covers"
+                  ]
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "step": {
+                          "const": "internal"
+                        },
+                        "source": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "digest": {
+                              "type": "string",
+                              "pattern": "^sha256:[0-9a-f]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "digest"
+                          ]
+                        },
+                        "internal_step": {
+                          "const": "UX Intent Definition"
+                        },
+                        "decision": {
+                          "enum": [
+                            "ready",
+                            "blocked",
+                            "not_applicable"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "covers": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "source",
+                        "internal_step",
+                        "decision"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "step": {
+                          "const": "internal"
+                        },
+                        "source": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "digest": {
+                              "type": "string",
+                              "pattern": "^sha256:[0-9a-f]{64}$"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "digest"
+                          ]
+                        },
+                        "internal_step": {
+                          "enum": [
+                            "Brownfield Analysis",
+                            "CD+Tests",
+                            "TP Review",
+                            "Clean Implementation Review",
+                            "CR"
+                          ]
+                        },
+                        "decision": {
+                          "enum": [
+                            "pass",
+                            "revise",
+                            "block",
+                            "not_applicable"
+                          ]
+                        },
+                        "reason": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "covers": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "source",
+                        "internal_step",
+                        "decision"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "payload"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "presentation_language",
+        "working_directory",
+        "target_source",
+        "primary_target",
+        "target_id",
+        "run_id",
+        "expected_revision_id",
+        "operation_id",
+        "assurance",
+        "command"
+      ]
+    },
+    "retry_class": "inspect_original_operation_after_dispatch",
+    "assurance": "cooperative_local",
+    "reference_limits": {
+      "input_bytes": 65536,
+      "source_file_bytes": 131072,
+      "result_bytes": 1048576
+    },
+    "internal_result_formats": {
+      "UX Intent Definition": {
+        "declaration": "- decision: ready | blocked | not_applicable",
+        "values": [
+          "ready",
+          "blocked",
+          "not_applicable"
+        ],
+        "readiness_value": "ready"
+      },
+      "reviews": {
+        "declaration": "- decision: pass | revise | block | not_applicable",
+        "result_scope": "actual current owner report; no generated judgement or approval"
+      }
+    },
+    "authorizes": false,
+    "authoring_format": null,
+    "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+      "expected_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab"
+    },
+    "current": {
+      "current_gate": "CD+Tests",
+      "lifecycle": "active",
+      "status": "open",
+      "missing_approval": "none",
+      "next_operation": {
+        "type": "implement_approved_plan",
+        "skill_id": "gate-check",
+        "operation_key": "implementation.execute",
+        "actor": "agent",
+        "effect": "implementation",
+        "gate": "CD+Tests"
+      },
+      "completion": {
+        "status": "pending",
+        "gate": "OR",
+        "fulfilled": false
+      },
+      "artefacts": [
+        {
+          "type": "UR",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md",
+          "status": "approved",
+          "digest": "sha256:312e32382d3aaabb71c9fb5f928d1ac82cd25a2d223fbc1e2382169f6f16363e",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "Brownfield Review",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "digest": "sha256:09d23a00220979c4c1ee6ea51d2e8605b0bff50d8fba9c45f0c0d621f4792d06",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "PRD",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+          "status": "approved",
+          "digest": "sha256:d2d0257b7f2e7d3eb4dc869a16af33b01be23d29a9885286c16b509a8b0035c4",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "SD",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+          "status": "approved",
+          "digest": "sha256:4f8e7c5ce8f7a3e700cf14f04e276c12d3f569a98f669f3952a26de39435f64a",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "TP",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+          "status": "approved",
+          "digest": "sha256:f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d",
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "Brownfield Analysis",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "digest": "sha256:af8daa35f99055a55fc6eb7951054073736b200d2d3a78cd393fe9802644b56f",
+          "association": "current"
+        },
+        {
+          "type": "CD+Tests",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+          "status": "revise",
+          "digest": "sha256:35cc00876c1a618a9ed9309b7da0cf749e99586ea757ebf0fcd68319c5d3c6d0",
+          "association": "current"
+        },
+        {
+          "type": "CR",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "QA",
+          "path": "",
+          "status": "missing",
+          "digest": null,
+          "association": "applicability_unknown"
+        },
+        {
+          "type": "UX Intent Definition",
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+          "status": "done",
+          "digest": "sha256:1713ba0fed2d1d4c2d1c3c2260a2767e5af25476da4bae6fd9bd75a477b6d93a",
+          "association": "current"
+        }
+      ],
+      "source_bindings": [
+        {
+          "binding_id": "12ab11b1-30dc-4b29-b28e-1b56210be13d",
+          "source": {
+            "digest": "sha256:312e32382d3aaabb71c9fb5f928d1ac82cd25a2d223fbc1e2382169f6f16363e",
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md",
+            "type": "UR"
+          },
+          "destination": {
+            "digest": "sha256:d2d0257b7f2e7d3eb4dc869a16af33b01be23d29a9885286c16b509a8b0035c4",
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+            "status": "draft",
+            "type": "PRD"
+          },
+          "relationship": {
+            "from": "PRD",
+            "relationship": "derived_from",
+            "to": "UR"
+          }
+        },
+        {
+          "binding_id": "6e76ec3a-c5a7-4084-852f-4839bce0a456",
+          "source": {
+            "digest": "sha256:d2d0257b7f2e7d3eb4dc869a16af33b01be23d29a9885286c16b509a8b0035c4",
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+            "type": "PRD"
+          },
+          "destination": {
+            "digest": "sha256:4f8e7c5ce8f7a3e700cf14f04e276c12d3f569a98f669f3952a26de39435f64a",
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+            "status": "draft",
+            "type": "SD"
+          },
+          "relationship": {
+            "from": "SD",
+            "relationship": "derived_from",
+            "to": "PRD"
+          }
+        },
+        {
+          "binding_id": "ee872f9b-492e-403f-8f30-e54243d48703",
+          "source": {
+            "digest": "sha256:4f8e7c5ce8f7a3e700cf14f04e276c12d3f569a98f669f3952a26de39435f64a",
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+            "type": "SD"
+          },
+          "destination": {
+            "digest": "sha256:f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d",
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+            "status": "draft",
+            "type": "TP"
+          },
+          "relationship": {
+            "from": "TP",
+            "relationship": "derived_from",
+            "to": "SD"
+          }
+        }
+      ]
+    }
+  },
+  "presentation": null,
+  "recovery": null,
+  "host_action": {
+    "mode": "consume_report_and_continue",
+    "source": "report",
+    "allow_surrounding_text": true,
+    "may_request_run_or_evidence": false
+  },
+  "timing": {
+    "wrapper_ms": 0,
+    "input_ms": 11.346,
+    "target_ms": 1.749,
+    "control_ms": 594.92,
+    "render_ms": 0,
+    "total_ms": 608.151
+  },
+  "diagnostics": []
+}

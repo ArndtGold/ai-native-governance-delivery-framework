@@ -155,3 +155,48 @@ test('candidate admission blocks same keys, normalized aliases and unsupported s
     assert.match(readFileSync(project, 'utf8'), /CANARY/);
   } finally { rmSync(target, { recursive: true, force: true }); }
 });
+
+// A process cwd is insufficient: the unscoped host deliberately omits Legacy.
+// Exercise the actual protocol owner against a bounded child transport.
+import { EventEmitter } from 'node:events';
+import { observeCodexOrigins } from '../lib/mcp-lifecycle/adapters/codex-origin-probe.js';
+for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged', 'inventory-error']) {
+  test(`Codex origin discovery binds a disposable project context (${fault ?? 'success'})`, async () => {
+    const target = process.cwd(), writes = [];
+    const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = new EventEmitter();
+    child.kill = () => { child.killed = true; };
+    child.stdin = new EventEmitter();
+    child.stdin.write = line => {
+      const request = JSON.parse(line); writes.push(request);
+      const reply = result => queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, result }) + '\n'));
+      if (request.method === 'initialize') reply({});
+      if (request.method === 'thread/start') {
+        assert.deepEqual(request.params, { cwd: target, ephemeral: true });
+        if (fault === 'start-error') queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, error: {} }) + '\n'));
+        else reply({ cwd: target, thread: { id: 'ephemeral-fixture', cwd: fault === 'wrong-target' ? '/foreign' : target, ephemeral: fault !== 'persistent' } });
+      }
+      if (request.method === 'mcpServerStatus/list') {
+        assert.equal(request.params.threadId, 'ephemeral-fixture');
+        if (fault === 'inventory-error') queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, error: {} }) + '\n'));
+        else reply({ data: request.params.threadId ? [
+          { name: 'agdf-cockpit', pluginId: 'agdf@agdf', runtimeStatus: 'connected', tools: { agdf_cockpit: {}, agdf_cockpit_read: {} } },
+          { name: 'agdf-cockpit-local', pluginId: null, runtimeStatus: 'connected', tools: { agdf_cockpit: {}, agdf_cockpit_read: {} } },
+        ] : [], nextCursor: fault === 'paged' ? 'unread-page' : null });
+      }
+    };
+    const result = await observeCodexOrigins({ target, all: true, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
+    assert.equal(result.status, fault ? 'unavailable' : 'observed');
+    if (!fault) assert.deepEqual(result.providers.map(row => row.server_id), ['agdf-cockpit', 'agdf-cockpit-local']);
+    if (['wrong-target', 'persistent', 'start-error'].includes(fault)) assert.equal(writes.some(row => row.method === 'mcpServerStatus/list'), false);
+    assert.equal(writes.some(row => row.method === 'turn/start'), false);
+    assert.equal(child.killed, true);
+  });
+}
+test('Codex project origin timeout closes its process without global-inventory fallback', async () => {
+  const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.stdin = new EventEmitter();
+  const writes = []; child.stdin.write = line => writes.push(JSON.parse(line)); child.kill = () => { child.killed = true; };
+  const result = await observeCodexOrigins({ target: process.cwd(), timeoutMs: 10, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
+  assert.deepEqual(result, { status: 'unavailable', reason: 'timeout' });
+  assert.deepEqual(writes.map(row => row.method), ['initialize']);
+  assert.equal(child.killed, true);
+});

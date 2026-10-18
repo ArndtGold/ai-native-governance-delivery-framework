@@ -1,0 +1,96 @@
+
+> build:prepare
+> node scripts/verify-ci.mjs --profile prepare
+
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 4s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (4.1s)
+[verify-ci] ui-build
+
+> agdf-control-ui@0.0.0 build:mcp
+> node scripts/build-mcp.mjs
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 442 modules transformed.
+rendering chunks...
+✓ built in 377ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1238852,"digest":"sha256:46fe32d07c4db5f7fadd78ca5a8c1e35765b289c8b52a44b695c8b4b2736f3a8","source_digest":"sha256:7c87b9178bf2fb593943eb669e9e8e40c53bc23d8cfd61a08d9781cf6868a3cf"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 286ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":933248,"digest":"sha256:6d7e10586a1fc46eacd56b990e37e1774e1607147a4bd6a81ba066f7c61ecaef","source_digest":"sha256:7c87b9178bf2fb593943eb669e9e8e40c53bc23d8cfd61a08d9781cf6868a3cf"}
+[verify-ci] ui-build passed (1.9s)
+[verify-ci] generate
+[verify-ci] generate passed (1.3s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.14.5",
+    "source": "/private/tmp/agdf-cockpit-integration-work/packages/cli",
+    "output": "/private/tmp/agdf-cockpit-integration-work/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.14.5",
+    "source": "/private/tmp/agdf-cockpit-integration-work/packages/cli/distribution/agdf",
+    "output": "/private/tmp/agdf-cockpit-integration-work/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "source": "/private/tmp/agdf-cockpit-integration-work/packages/mcp-server",
+    "output": "/private/tmp/agdf-cockpit-integration-work/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (0.9s)
+[verify-ci] prepare
+
+> create-agdf@0.14.5 release:prepare
+> npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+
+
+> create-agdf@0.14.5 sync-package-assets
+> node ../../scripts/sync-package-assets.js
+
+
+> create-agdf@0.14.5 test:distribution-profile-history
+> node scripts/distribution-profile-history-test.js
+
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+
+> create-agdf@0.14.5 test:release-bump
+> node scripts/release-bump-test.js
+
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+
+> create-agdf@0.14.5 test:release-version-coherence
+> node scripts/release-version-coherence-test.js
+
+Release version coherence passed (49 surfaces at 0.14.5; 8 profile snapshots)
+
+> create-agdf@0.14.5 test:public-plugin
+> node scripts/public-plugin-test.js
+
+Public plugin tests passed (63 inventoried candidate files; digest c603accbe548299e0f2bcb63fc18af164c9b6c2829afbab3fc6696be8a796cf1)
+
+> create-agdf@0.14.5 test:portable-plugin
+> node scripts/portable-plugin-test.js
+
+Portable plugin schema/profile/resource/selection/retry tests passed; digest c603accbe548299e0f2bcb63fc18af164c9b6c2829afbab3fc6696be8a796cf1
+[verify-ci] prepare passed (39.6s)

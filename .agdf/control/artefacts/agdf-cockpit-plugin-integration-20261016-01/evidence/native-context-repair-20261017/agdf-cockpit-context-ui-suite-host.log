@@ -1,0 +1,789 @@
+npm notice run agdf-control-ui@0.0.0 test
+npm notice run node --test test/service.test.mjs && vitest run
+TAP version 13
+# Subtest: saved work summary and explicit current comparison survive HTTP with one-file overview and no writes
+ok 1 - saved work summary and explicit current comparison survive HTTP with one-file overview and no writes
+  ---
+  duration_ms: 1083.156405
+  type: 'test'
+  ...
+# Subtest: SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+ok 2 - SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+  ---
+  duration_ms: 1978.299143
+  type: 'test'
+  ...
+# Subtest: SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+ok 3 - SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+  ---
+  duration_ms: 452.573021
+  type: 'test'
+  ...
+# Subtest: SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+ok 4 - SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+  ---
+  duration_ms: 1101.780283
+  type: 'test'
+  ...
+# Subtest: SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+ok 5 - SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+  ---
+  duration_ms: 747.11631
+  type: 'test'
+  ...
+# Subtest: SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+ok 6 - SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+  ---
+  duration_ms: 1017.894104
+  type: 'test'
+  ...
+# Subtest: SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+ok 7 - SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+  ---
+  duration_ms: 1066.437207
+  type: 'test'
+  ...
+# Subtest: authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding
+ok 8 - authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding
+  ---
+  duration_ms: 1232.607107
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9171.186704
+
+ RUN  v5.0.3 /private/tmp/agdf-cockpit-integration-work/packages/control-ui
+
+ ❯ test/draft-check.test.tsx (6 tests | 1 failed) 2521ms
+   ❯ Bound draft check (6)
+     × SCN-013: response after overview navigation never installs the obsolete result 1081ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/draft-check.test.tsx > Bound draft check > SCN-013: response after overview navigation never installs the obsolete result
+TestingLibraryElementError: Unable to find an element with the text: Prüfung läuft. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-busy[39m=[32m"false"[39m
+      [33maria-label[39m=[32m"AGDF Cockpit"[39m
+      [33mclass[39m=[32m"compact-cockpit agdf-surface"[39m
+      [33mstyle[39m=[32m"--cockpit-header-height: 0px;"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"cockpit-brand-header cockpit-brand-header--card"[39m
+      [36m>[39m
+        [36m<img[39m
+          [33malt[39m=[32m""[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"cockpit-brand-mark"[39m
+          [33msrc[39m=[32m"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%20role='img'%20aria-label='AGDF'%3e%3cdefs%3e%3clinearGradient%20id='agdf-logo-bg'%20x1='80'%20y1='48'%20x2='432'%20y2='464'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%230F766E'/%3e%3cstop%20offset='1'%20stop-color='%232563EB'/%3e%3c/linearGradient%3e%3c/defs%3e%3crect%20width='512'%20height='512'%20rx='112'%20fill='%2306131F'/%3e%3crect%20x='32'%20y='32'%20width='448'%20height='448'%20rx='96'%20fill='url(%23agdf-logo-bg)'/%3e%3cpath%20d='M256%2084%20400%20168v176L256%20428%20112%20344V168L256%2084Z'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='40'%20stroke-linejoin='round'/%3e%3cpath%20d='M256%20168v104m0%200-80%2048m80-48%2080%2048'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='32'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3ccircle%20cx='256'%20cy='168'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='256'%20cy='272'%20r='45'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='176'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='336'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3c/svg%3e"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"cockpit-brand-copy"[39m
+        [36m>[39m
+          [36m<h1[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [0mAGDF Cockpit[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"cockpit-brand-project"[39m
+            [33mtitle[39m=[32m"/fixture"[39m
+          [36m>[39m
+            [0mrun-a[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"cockpit-brand-actions"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"read-only"[39m
+          [36m>[39m
+            [0mNur Lesen[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Neu laden"[39m
+            [33mclass[39m=[32m"refresh-control"[39m
+            [33mdata-refreshing[39m=[32m"false"[39m
+            [33mtitle[39m=[32m"Neu laden"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"cockpit-icon"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"1.5"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M20 7v5h-5 M20 12a8 8 0 1 0-2.34 5.66"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"refresh-announcement"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"reading-feedback"[39m
+      [36m/>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"compact-run"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"compact-run-summary"[39m
+          [36m>[39m
+            [36m<h2>[39m
+              [0mrun-a[0m
+            [36m</h2>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"compact-run-followup"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33maria-label[39m=[32m"So geht dein Vorhaben weiter"[39m
+              [33mclass[39m=[32m"work-step agdf-surface agdf-controlled-surface work-step--compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"work-step-heading"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"work-step-eyebrow"[39m
+                [36m>[39m
+                  [0mGespeicherter Arbeitsstand[0m
+                [36m</span>[39m
+                [36m<h2>[39m
+                  [0mUmsetzung und Prüfung[0m
+                [36m</h2>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"work-step-saved"[39m
+              [36m>[39m
+                [0mZuletzt als „[0m
+                [0mIn Arbeit[0m
+                [0m“ gespeichert.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"work-step-prerequisites"[39m
+                [33mdata-assessment[39m=[32m"open"[39m
+              [36m>[39m
+                [36m<h3>[39m
+                  [0mWeiterarbeit offen[0m
+                [36m</h3>[39m
+                [36m<p>[39m
+                  [0mLaut aktueller Kontrollauswertung. Die Weiterarbeit bleibt auf den freigegebenen Umfang begrenzt.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"work-step-action"[39m
+                [36m>[39m
+                  [0mFreigegebenen Umfang umsetzen.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mKeine registrierte Nachweisquelle für diesen Schritt verfügbar.[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"compact-actions"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"text-link"[39m
+                    [33mdisabled[39m=[32m""[39m
+                  [36m>[39m
+                    [0mRun ansehen [0m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"cockpit-icon"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"1.5"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M14 4h6v6 M20 4l-9 9 M10 4H4v16h16v-6"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"text-link"[39m
+                  [36m>[39m
+                    [0mAlle Vorhaben[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"work-step-support"[39m
+              [36m>[39m
+                [36m<details[39m
+                  [33maria-labelledby[39m=[32m"_r_1_"[39m
+                  [33mclass[39m=[32m"work-step-evidence"[39m
+                [36m>[39m
+                  [36m<summary[39m
+                    [33mid[39m=[32m"_r_1_"[39m
+                  [36m>[39m
+                    [0mNachweislücken im Run-Dokument · 0[0m
+                  [36m</summary>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"muted"[39m
+                  [36m>[39m
+                    [0mIm Run-Dokument sind keine Nachweislücken gespeichert. Diese Angabe zählt keine Befunde aus QA- und Review-Berichten.[0m
+                  [36m</p>[39m
+                  [36m<ul />[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"work-step-sources"[39m
+                  [36m/>[39m
+                  [36m<details[39m
+                    [33mclass[39m=[32m"work-step-original"[39m
+                  [36m>[39m
+                    [36m<summary>[39m
+                      [0mKontrollauswertung · Originalangaben[0m
+                    [36m</summary>[39m
+                    [36m<dl[39m
+                      [33mclass[39m=[32m"work-step-facts"[39m
+                    [36m>[39m
+                      [36m<dt>[39m
+                        [0mKontrollstatus[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [0mOffen[0m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mKontrollprüfung[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [0mBestanden[0m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mBlocker[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [36m<code>[39m
+                          [0mnone[0m
+                        [36m</code>[39m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mAusstehende Freigabe[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [36m<code>[39m
+                          [0mnone[0m
+                        [36m</code>[39m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mNächster Schritt laut Quelle[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [0mImplement approved scope[0m
+                      [36m</dd>[39m
+                    [36m</dl>[39m
+                  [36m</details>[39m
+                [36m</details>[39m
+                [36m<section[39m
+                  [33maria-label[39m=[32m"Dokumente"[39m
+                  [33mclass[39m=[32m"run-documents"[39m
+                [36m>[39m
+                  [36m<h3>[39m
+                    [0mDokumente · [0m
+                    [0m0[0m
+                  [36m</h3>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"muted"[39m
+                  [36m>[39m
+                    [0mKeine Dokumente registriert.[0m
+                  [36m</p>[39m
+                [36m</section>[39m
+              [36m</div>[39m
+            [36m</section>[39m
+          [36m</div>[39m
+          [36m<section[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33maria-label[39m=[32m"Entwurfsprüfung"[39m
+            [33mclass[39m=[32m"draft-check panel agdf-surface"[39m
+          [36m>[39m
+            [36m<h2>[39m
+              [0mEntwurfsprüfung[0m
+              [0m · PRD[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33maria-live[39m=[32m"polite"[39m
+              [33mrole[39m=[32m"status"[39m
+            [36m>[39m
+              [36m<strong>[39m
+                [0mNoch nicht geprüft[0m
+              [36m</strong>[39m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0mPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.[0m
+            [36m</p>[39m
+            [36m<button[39m
+              [33maria-disabled[39m=[32m"false"[39m
+              [33mdata-focus-id[39m=[32m"draft-check:run-a"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mEntwurf prüfen[0m
+            [36m</button>[39m
+            [36m<details>[39m
+              [36m<summary>[39m
+                [0mPrüfquelle und Originalbefunde[0m
+              [36m</summary>[39m
+              [36m<dl>[39m
+                [36m<dt>[39m
+                  [0mGate[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mPRD[0m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mRevision[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [36m<code>[39m
+                    [0m11111111-1111-4111-8111-111111111111[0m
+                  [36m</code>[39m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mQuelle[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [36m<code>[39m
+                    [0m.agdf/control/artefacts/run-a/PRD.md[0m
+                  [36m</code>[39m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mSHA-256[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [36m<code>[39m
+                    [0msha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[0m
+                  [36m</code>[39m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mBeobachtet[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0m2026-10-07T08:00:00Z[0m
+                [36m</dd>[39m
+              [36m</dl>[39m
+            [36m</details>[39m
+          [36m</section>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"compact-identity"[39m
+          [36m>[39m
+            [36m<summary>[39m
+              [0mZiel und Run-ID · Originalangaben[0m
+            [36m</summary>[39m
+            [36m<code[39m
+              [33mclass[39m=[32m"compact-run-id"[39m
+            [36m>[39m
+              [0mrun-a[0m
+            [36m</code>[39m
+          [36m</details>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"compact-footnote"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mFreigaben bleiben bei dir.[0m
+        [36m</span>[39m
+        [36m<time[39m
+          [33mdatetime[39m=[32m"2026-10-07T08:00:00Z"[39m
+        [36m>[39m
+          [0mStand [0m
+          [0m10:00[0m
+        [36m</time>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-busy[39m=[32m"false"[39m
+      [33maria-label[39m=[32m"AGDF Cockpit"[39m
+      [33mclass[39m=[32m"compact-cockpit agdf-surface"[39m
+      [33mstyle[39m=[32m"--cockpit-header-height: 0px;"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"cockpit-brand-header cockpit-brand-header--card"[39m
+      [36m>[39m
+        [36m<img[39m
+          [33malt[39m=[32m""[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"cockpit-brand-mark"[39m
+          [33msrc[39m=[32m"data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%20role='img'%20aria-label='AGDF'%3e%3cdefs%3e%3clinearGradient%20id='agdf-logo-bg'%20x1='80'%20y1='48'%20x2='432'%20y2='464'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%230F766E'/%3e%3cstop%20offset='1'%20stop-color='%232563EB'/%3e%3c/linearGradient%3e%3c/defs%3e%3crect%20width='512'%20height='512'%20rx='112'%20fill='%2306131F'/%3e%3crect%20x='32'%20y='32'%20width='448'%20height='448'%20rx='96'%20fill='url(%23agdf-logo-bg)'/%3e%3cpath%20d='M256%2084%20400%20168v176L256%20428%20112%20344V168L256%2084Z'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='40'%20stroke-linejoin='round'/%3e%3cpath%20d='M256%20168v104m0%200-80%2048m80-48%2080%2048'%20fill='none'%20stroke='%23ECFEFF'%20stroke-width='32'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3ccircle%20cx='256'%20cy='168'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='256'%20cy='272'%20r='45'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='176'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3ccircle%20cx='336'%20cy='320'%20r='42'%20fill='%23ECFEFF'/%3e%3c/svg%3e"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"cockpit-brand-copy"[39m
+        [36m>[39m
+          [36m<h1[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [0mAGDF Cockpit[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"cockpit-brand-project"[39m
+            [33mtitle[39m=[32m"/fixture"[39m
+          [36m>[39m
+            [0mrun-a[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"cockpit-brand-actions"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"read-only"[39m
+          [36m>[39m
+            [0mNur Lesen[0m
+          [36m</span>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Neu laden"[39m
+            [33mclass[39m=[32m"refresh-control"[39m
+            [33mdata-refreshing[39m=[32m"false"[39m
+            [33mtitle[39m=[32m"Neu laden"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"cockpit-icon"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"1.5"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M20 7v5h-5 M20 12a8 8 0 1 0-2.34 5.66"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"refresh-announcement"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"reading-feedback"[39m
+      [36m/>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"compact-run"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"compact-run-summary"[39m
+          [36m>[39m
+            [36m<h2>[39m
+              [0mrun-a[0m
+            [36m</h2>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"compact-run-followup"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33maria-label[39m=[32m"So geht dein Vorhaben weiter"[39m
+              [33mclass[39m=[32m"work-step agdf-surface agdf-controlled-surface work-step--compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"work-step-heading"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"work-step-eyebrow"[39m
+                [36m>[39m
+                  [0mGespeicherter Arbeitsstand[0m
+                [36m</span>[39m
+                [36m<h2>[39m
+                  [0mUmsetzung und Prüfung[0m
+                [36m</h2>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"work-step-saved"[39m
+              [36m>[39m
+                [0mZuletzt als „[0m
+                [0mIn Arbeit[0m
+                [0m“ gespeichert.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"work-step-prerequisites"[39m
+                [33mdata-assessment[39m=[32m"open"[39m
+              [36m>[39m
+                [36m<h3>[39m
+                  [0mWeiterarbeit offen[0m
+                [36m</h3>[39m
+                [36m<p>[39m
+                  [0mLaut aktueller Kontrollauswertung. Die Weiterarbeit bleibt auf den freigegebenen Umfang begrenzt.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"work-step-action"[39m
+                [36m>[39m
+                  [0mFreigegebenen Umfang umsetzen.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mKeine registrierte Nachweisquelle für diesen Schritt verfügbar.[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"compact-actions"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"text-link"[39m
+                    [33mdisabled[39m=[32m""[39m
+                  [36m>[39m
+                    [0mRun ansehen [0m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mclass[39m=[32m"cockpit-icon"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"1.5"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M14 4h6v6 M20 4l-9 9 M10 4H4v16h16v-6"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"text-link"[39m
+                  [36m>[39m
+                    [0mAlle Vorhaben[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"work-step-support"[39m
+              [36m>[39m
+                [36m<details[39m
+                  [33maria-labelledby[39m=[32m"_r_1_"[39m
+                  [33mclass[39m=[32m"work-step-evidence"[39m
+                [36m>[39m
+                  [36m<summary[39m
+                    [33mid[39m=[32m"_r_1_"[39m
+                  [36m>[39m
+                    [0mNachweislücken im Run-Dokument · 0[0m
+                  [36m</summary>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"muted"[39m
+                  [36m>[39m
+                    [0mIm Run-Dokument sind keine Nachweislücken gespeichert. Diese Angabe zählt keine Befunde aus QA- und Review-Berichten.[0m
+                  [36m</p>[39m
+                  [36m<ul />[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"work-step-sources"[39m
+                  [36m/>[39m
+                  [36m<details[39m
+                    [33mclass[39m=[32m"work-step-original"[39m
+                  [36m>[39m
+                    [36m<summary>[39m
+                      [0mKontrollauswertung · Originalangaben[0m
+                    [36m</summary>[39m
+                    [36m<dl[39m
+                      [33mclass[39m=[32m"work-step-facts"[39m
+                    [36m>[39m
+                      [36m<dt>[39m
+                        [0mKontrollstatus[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [0mOffen[0m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mKontrollprüfung[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [0mBestanden[0m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mBlocker[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [36m<code>[39m
+                          [0mnone[0m
+                        [36m</code>[39m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mAusstehende Freigabe[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [36m<code>[39m
+                          [0mnone[0m
+                        [36m</code>[39m
+                      [36m</dd>[39m
+                      [36m<dt>[39m
+                        [0mNächster Schritt laut Quelle[0m
+                      [36m</dt>[39m
+                      [36m<dd>[39m
+                        [0mImplement approved scope[0m
+                      [36m</dd>[39m
+                    [36m</dl>[39m
+                  [36m</details>[39m
+                [36m</details>[39m
+                [36m<section[39m
+                  [33maria-label[39m=[32m"Dokumente"[39m
+                  [33mclass[39m=[32m"run-documents"[39m
+                [36m>[39m
+                  [36m<h3>[39m
+                    [0mDokumente · [0m
+                    [0m0[0m
+                  [36m</h3>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"muted"[39m
+                  [36m>[39m
+                    [0mKeine Dokumente registriert.[0m
+                  [36m</p>[39m
+                [36m</section>[39m
+              [36m</div>[39m
+            [36m</section>[39m
+          [36m</div>[39m
+          [36m<section[39m
+            [33maria-busy[39m=[32m"false"[39m
+            [33maria-label[39m=[32m"Entwurfsprüfung"[39m
+            [33mclass[39m=[32m"draft-check panel agdf-surface"[39m
+          [36m>[39m
+            [36m<h2>[39m
+              [0mEntwurfsprüfung[0m
+              [0m · PRD[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33maria-live[39m=[32m"polite"[39m
+              [33mrole[39m=[32m"status"[39m
+            [36m>[39m
+              [36m<strong>[39m
+                [0mNoch nicht geprüft[0m
+              [36m</strong>[39m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted"[39m
+            [36m>[39m
+              [0mPrüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.[0m
+            [36m</p>[39m
+            [36m<button[39m
+              [33maria-disabled[39m=[32m"false"[39m
+              [33mdata-focus-id[39m=[32m"draft-check:run-a"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mEntwurf prüfen[0m
+            [36m</button>[39m
+            [36m<details>[39m
+              [36m<summary>[39m
+                [0mPrüfquelle und Originalbefunde[0m
+              [36m</summary>[39m
+              [36m<dl>[39m
+                [36m<dt>[39m
+                  [0mGate[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mPRD[0m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mRevision[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [36m<code>[39m
+                    [0m11111111-1111-4111-8111-111111111111[0m
+                  [36m</code>[39m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mQuelle[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [36m<code>[39m
+                    [0m.agdf/control/artefacts/run-a/PRD.md[0m
+                  [36m</code>[39m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mSHA-256[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [36m<code>[39m
+                    [0msha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[0m
+                  [36m</code>[39m
+                [36m</dd>[39m
+                [36m<dt>[39m
+                  [0mBeobachtet[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0m2026-10-07T08:00:00Z[0m
+                [36m</dd>[39m
+              [36m</dl>[39m
+            [36m</details>[39m
+          [36m</section>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"compact-identity"[39m
+          [36m>[39m
+            [36m<summary>[39m
+              [0mZiel und Run-ID · Originalangaben[0m
+            [36m</summary>[39m
+            [36m<code[39m
+              [33mclass[39m=[32m"compact-run-id"[39m
+            [36m>[39m
+              [0mrun-a[0m
+            [36m</code>[39m
+          [36m</details>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"compact-footnote"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mFreigaben bleiben bei dir.[0m
+        [36m</span>[39m
+        [36m<time[39m
+          [33mdatetime[39m=[32m"2026-10-07T08:00:00Z"[39m
+        [36m>[39m
+          [0mStand [0m
+          [0m10:00[0m
+        [36m</time>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ test/draft-check.test.tsx:49:18
+     47|     render(<App compact transport={read as ReadTransport} initialRunId…
+     48|     fireEvent.click(await screen.findByRole('button', { name: 'Entwurf…
+     49|     await screen.findByText('Prüfung läuft');
+       |                  ^
+     50|     fireEvent.click(screen.getByRole('button', { name: 'Alle Vorhaben'…
+     51|     await act(async () => resolve(selected('run-a', true)));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 20 passed (21)
+      Tests  1 failed | 238 passed (239)
+   Start at  12:02:11
+   Duration  37.31s (tests 41%, environment 36%, import 19%, transform 3%)
+
+Environment  jsdom was created 21 times · 32.40s total, 36% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

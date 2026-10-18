@@ -480,10 +480,12 @@ export function inspectCodexCockpitAdmission({ target, env = {}, exec } = {}) {
             const origin = JSON.parse(String(exec(process.execPath,
               [fileURLToPath(new URL('./codex-origin-probe.js', import.meta.url)), target], {
                 cwd: target, env: { ...process.env, ...env }, encoding: 'utf8',
-                stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 65_536, timeout: 15_000,
+                stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 65_536, timeout: 50_000,
               })));
-            own = origin.status === 'observed' && Array.isArray(origin.providers) && origin.providers.length === 1
-              && origin.providers[0].server_id === 'agdf-cockpit' && origin.providers[0].plugin_id === 'agdf@agdf';
+            own = origin.status === 'observed' && origin.scope?.cwd === target && origin.scope?.ephemeral === true
+              && typeof origin.scope?.thread_id === 'string' && origin.scope.thread_id.length > 0 && Array.isArray(origin.providers) && origin.providers.length === 1
+              && origin.providers[0].server_id === 'agdf-cockpit' && origin.providers[0].plugin_id === 'agdf@agdf'
+              && origin.providers[0].runtime_status === 'connected';
           }
         }
         if (!own) conflicts.push({ server_id: row.name, reason: 'host_same_key_or_possible_alias' });

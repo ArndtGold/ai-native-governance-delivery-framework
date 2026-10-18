@@ -119,7 +119,7 @@ try {
       exec(command, argv) {
         if (command === 'codex') return JSON.stringify([{ name: 'agdf-cockpit', enabled: true, transport: cockpit }]);
         assert.ok(argv[0].endsWith('codex-origin-probe.js')); originsRead++;
-        return JSON.stringify({ status: 'observed', providers });
+        return JSON.stringify({ status: 'observed', scope: { cwd: root, ephemeral: true, thread_id: 'fixture-ephemeral' }, providers: providers.map(row => ({ ...row, runtime_status: 'connected' })) });
       } });
     assert.equal(originsRead, 1, 'owned launcher bytes alone cannot prove the connection owner');
     assert.equal(admission.admitted, providers.length === 1 && providers[0].plugin_id === 'agdf@agdf');

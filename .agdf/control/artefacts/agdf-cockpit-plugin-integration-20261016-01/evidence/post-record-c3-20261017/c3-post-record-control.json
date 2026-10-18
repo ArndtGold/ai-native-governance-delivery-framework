@@ -1,0 +1,40 @@
+{
+  "outcome": "skill_continuation",
+  "terminal": false,
+  "control": {
+    "status": "open",
+    "current_gate": "CD+Tests",
+    "gate_route": {
+      "gate": "CD+Tests",
+      "skills": [
+        "gate-check"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+    "revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+    "doctor_status": "pass"
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/0c6f92936e9831c2ed88f2ff473e5f7aaa76833fd637b1765fcc57e0e4731630/0.14.5/node_modules/create-agdf/",
+    "runtime_digest": "41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+    "provenance_status": "matched"
+  }
+}

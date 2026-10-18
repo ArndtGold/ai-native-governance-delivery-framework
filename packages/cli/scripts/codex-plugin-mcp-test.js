@@ -6,7 +6,7 @@ import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "../lib
 import { prepareLocalMarketplace, settleCodexCockpitPublication } from "../lib/installers/local-marketplace.js";
 import { planGlobalUninstall } from "../lib/lifecycle/operations.js";
 import { ensurePluginMcpRuntime, launchPluginMcpServer } from "../lib/mcp-lifecycle/plugin-runtime.js";
-import { createCodexCockpitTransition, inspectCodexCockpitAdmission } from "../lib/mcp-lifecycle/adapters/codex.js";
+import { createCodexCockpitTransition, inspectCodexCockpitAdmission, inspectCodexCockpitPlugin } from "../lib/mcp-lifecycle/adapters/codex.js";
 import { createHash } from "node:crypto";
 import { runMcpLifecycle } from "../lib/mcp-lifecycle/service.js";
 import { resolveControlCommandTarget } from "#agdf-core/control-state/approval-command-contract.js";
@@ -108,6 +108,10 @@ try {
   assert.deepEqual(prewarm, [["/node", [...args, "--prepare"]]]);
   assert.deepEqual(prepareCodexPluginMcp({ pluginRoot: join(root, "missing"), exec() { return ""; } }), ["codex_plugin_mcp:deferred_to_first_start"]);
   const cockpit = JSON.parse(readFileSync(join(staged.pluginRoot, 'mcp.json'), 'utf8')).mcpServers['agdf-cockpit'];
+  for (const path of [staged.pluginRoot, staged.pluginRoot.replaceAll('\\', '/')]) {
+    assert.equal(inspectCodexCockpitPlugin(path).status, 'matched', 'Native and portable separators identify the same canonical installed plugin');
+    assert.equal(inspectCodexCockpitPlugin(path + '/.').status, 'unconfirmed', 'Separator compatibility must not admit noncanonical paths');
+  }
   for (const providers of [
     [{ server_id: 'agdf-cockpit', plugin_id: 'agdf@agdf' }],
     [{ server_id: 'agdf-cockpit', plugin_id: 'foreign@foreign' }],

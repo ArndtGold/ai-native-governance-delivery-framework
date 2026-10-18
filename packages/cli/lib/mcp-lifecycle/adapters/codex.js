@@ -4,7 +4,7 @@ import { withOwnedFileLock } from '#agdf-core/control-state/run-state-writer.js'
 import { inspectInstallationProvenance } from '#agdf-core/runtime/plugin-provenance.js';
 import { inspectMcpServerPackage, inspectMcpExecutableRoot } from '../package.js';
 import { homedir } from "node:os";
-import { dirname, join, isAbsolute, resolve, relative } from "node:path";
+import { dirname, join, isAbsolute, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from 'node:url';
 import {
   allSourceResult,
@@ -289,6 +289,7 @@ export function inspectCodexSetup({ target, env = {}, pluginRoot } = {}) {
 const TRANSITION_MARKER = '# AGDF-COCKPIT-TRANSITION: ';
 const sha = text => 'sha256:' + createHash('sha256').update(text).digest('hex');
 const potentialAlias = name => name.replaceAll('-', '_').toLowerCase();
+const portablePath = path => path.split(sep).join('/');
 
 // Inventory nested env/tool tables without interpreting or rewriting their values.
 // Nested tables for a Cockpit identity remain unsupported transition inputs.
@@ -299,7 +300,7 @@ function mcpTable(header) {
 
 export function inspectCodexCockpitPlugin(pluginRoot) {
   try {
-    if (!isAbsolute(pluginRoot) || realpathSync(pluginRoot) !== pluginRoot) throw Error('plugin_path_invalid');
+    if (!isAbsolute(pluginRoot) || portablePath(realpathSync(pluginRoot)) !== portablePath(pluginRoot)) throw Error('plugin_path_invalid');
     const json = path => {
       const snapshot = safeSnapshot(join(pluginRoot, path));
       if (Buffer.byteLength(snapshot.content) > 131_072) throw Error('plugin_metadata_limit');
@@ -474,7 +475,7 @@ export function inspectCodexCockpitAdmission({ target, env = {}, exec } = {}) {
           const identity = inspectCodexCockpitPlugin(pluginRoot);
           const declaration = identity.declaration?.mcpServers?.['agdf-cockpit'];
           own = declaration?.command === row.transport?.command && exactJson(declaration.args) === exactJson(row.transport?.args)
-            && declaration.args?.[0] === join(pluginRoot, 'mcp/agdf-mcp-launch.js') && identity.status === 'matched';
+            && declaration.args?.[0] === portablePath(join(pluginRoot, 'mcp/agdf-mcp-launch.js')) && identity.status === 'matched';
           if (own) {
             // Owned bytes identify an implementation, not the plugin connection offering it.
             const origin = JSON.parse(String(exec(process.execPath,

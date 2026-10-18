@@ -201,6 +201,12 @@ budgets; areas absent from a caller's suite are skipped before matrix expansion.
 share the same execution steps and shell configuration across every block. GitHub chooses the
 visual placement of the blocks; graph layout does not add execution dependencies.
 
+Leaf jobs use compact graph labels such as `Skills · Linux22`, `MCP · Win22 4of5`,
+and `UR→QA · Win22`. The number after the platform is the Node major version.
+These labels avoid slash-separated name hierarchies, which GitHub compresses by hiding the
+functional name. Full labels remain in command summaries and timing artifacts; machine IDs
+continue to select the same executable partitions.
+
 Each executing job has a ten-minute ceiling. Test groups budget at most six estimated minutes,
 including 50% headroom over the recorded suite durations; preparation and cleanup have separate
 reserve. `scripts/ci-duration-baseline.json` contains scheduling estimates, not a test inventory

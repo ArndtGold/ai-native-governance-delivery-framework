@@ -18,6 +18,7 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
   const jobs = ciJobs();
   assert.equal(new Set(jobs.map(row => row.id)).size, jobs.length);
   assert.equal(new Set(jobs.map(row => row.label)).size, jobs.length);
+  assert.equal(new Set(jobs.map(row => row.graphLabel)).size, jobs.length, 'compact status names remain unique');
   const lanes = [...new Set(jobs.map(row => `${row.os}/${row.node}`))];
   assert.deepEqual(lanes, ['ubuntu-latest/22', 'windows-latest/22', 'ubuntu-latest/24']);
   for (const lane of lanes) {
@@ -43,6 +44,9 @@ test('every OS/Node lane covers the entire canonical inventory and required chec
         assert.ok(Object.hasOwn(TEST_DOMAINS, row.area));
       }
       assert.ok(row.label.includes(`Node ${row.node}`));
+      assert.ok(row.graphLabel.includes(`${row.os === 'windows-latest' ? 'Win' : 'Linux'}${row.node}`));
+      assert.doesNotMatch(row.graphLabel, /\//, 'graph names must not hide functional content in a slash hierarchy');
+      assert.ok(row.graphLabel.length <= 24, `${row.id}: graph label is too long`);
       assert.doesNotMatch(row.id, /-tests-\d+$|^.*-checks$/);
     }
   }
@@ -73,15 +77,34 @@ test('the workflow matrix exposes functional labels for repository, release and 
     const { include: rows } = JSON.parse(result.stdout);
     assert.ok(rows.length > 0 && rows.length <= 256);
     assert.ok(rows.every(row => row.os === 'ubuntu-latest' && row.node === 22));
-    assert.ok(rows.every(row => row.label && row.area && !row.commands && !row.checkStages));
+    assert.ok(rows.every(row => row.label && row.graphLabel && row.area && !row.commands && !row.checkStages));
     assert.equal(rows.some(row => row.kind === 'checks'), suite === 'cli');
     for (const row of rows) {
       const job = ciJobs({ scope: 'linux', suite }).find(job => job.id === row.id);
       assert.ok(job, `matrix selector must resolve: ${row.id}`);
       assert.equal(job.label, row.label);
+      assert.equal(job.graphLabel, row.graphLabel);
       const plan = ciJobPlan(job, { suite, published: suite === 'mcp' });
       assert.ok(plan.length > 0);
       if (suite === 'mcp') assert.ok(plan.find(stage => stage.id === 'mcp-dependencies').commands[0].args.includes('--package-lock=false'));
+    }
+  }
+});
+
+test('compact graph names retain purpose, platform, partition and revision scenario', () => {
+  const jobs = ciJobs();
+  const label = id => jobs.find(row => row.id === id).graphLabel;
+  assert.equal(label('linux-22-activation'), 'Skills · Linux22');
+  assert.equal(label('windows-22-mcp-part-4'), 'MCP · Win22 4of5');
+  assert.equal(label('windows-22-revision-ur-during-qa'), 'UR→QA · Win22');
+  assert.equal(label('linux-24-revision-prd-during-cd-tests'), 'PRD→CD+Tests · Linux24');
+  assert.equal(label('linux-22-checks-contracts'), 'Contracts · Linux22');
+  for (const suite of ['cli', 'mcp']) {
+    const rows = ciJobs({ suite });
+    assert.equal(new Set(rows.map(row => row.graphLabel)).size, rows.length);
+    for (const row of rows) {
+      const part = /-part-(\d+)$/.exec(row.id);
+      if (part) assert.ok(row.graphLabel.endsWith(`${part[1]}of${rows.filter(other => other.area === row.area && other.os === row.os && other.node === row.node && !other.commands?.some(command => command.isolated)).length}`));
     }
   }
 });
@@ -98,7 +121,7 @@ test('graph matrices route every existing partition exactly once for every calle
     assert.equal(job.if, `needs.plan.outputs.${area} != ''`, `${area}: skip absent areas before matrix expansion`);
     assert.equal(job.strategy.matrix, `\${{ fromJSON(needs.plan.outputs.${area}) }}`);
     assert.equal(job.strategy['fail-fast'], false);
-    assert.equal(job.name, '${{ matrix.label }}');
+    assert.equal(job.name, '${{ matrix.graphLabel }}');
     assert.equal(job['runs-on'], '${{ matrix.os }}');
     assert.equal(job['timeout-minutes'], 10);
     assert.deepEqual(job.defaults, { run: { shell: 'bash' } });
@@ -180,7 +203,7 @@ test('all executable workflow jobs have a ten-minute ceiling and callers share t
   const reusable = workflows['verify-agdf.yml'];
   for (const [id, job] of Object.entries(reusable.jobs).filter(([id]) => id !== 'plan')) {
     assert.equal(job.strategy['fail-fast'], false, id);
-    assert.equal(job.name, '${{ matrix.label }}');
+    assert.equal(job.name, '${{ matrix.graphLabel }}');
     assert.ok(job.steps.some(step => step.run?.includes('node scripts/ci-plan.mjs --job')));
   }
   assert.ok(reusable.jobs.plan.steps.some(step => step.run?.includes('node scripts/ci-plan.mjs --matrix')));

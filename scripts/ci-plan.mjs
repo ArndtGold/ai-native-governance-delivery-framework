@@ -19,11 +19,11 @@ export const CI_EXECUTION_BUDGET_MS = 8 * 60 * 1000;
 
 const prerequisites = new Set(['dependencies', 'ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'assemble', 'prepare', 'mcp-dependencies']);
 const checkAreas = {
-  contracts: { label: 'Repository contracts', stages: ['maintenance', 'shell'] },
-  compatibility: { label: 'Runtime & host compatibility', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility'] },
-  distribution: { label: 'Distribution & package consumers', stages: ['cli-package', 'wrapper-package', 'mcp-package', 'archives', 'wrapper-smoke'] },
-  'run-safety': { label: 'Run persistence & delivery map', stages: ['transactions', 'delivery-map'] },
-  documentation: { label: 'Documentation & community', stages: ['community', 'pages-install', 'pages'] },
+  contracts: { label: 'Repository contracts', shortLabel: 'Contracts', stages: ['maintenance', 'shell'] },
+  compatibility: { label: 'Runtime & host compatibility', shortLabel: 'Compat', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility'] },
+  distribution: { label: 'Distribution & package consumers', shortLabel: 'Archives', stages: ['cli-package', 'wrapper-package', 'mcp-package', 'archives', 'wrapper-smoke'] },
+  'run-safety': { label: 'Run persistence & delivery map', shortLabel: 'Run safety', stages: ['transactions', 'delivery-map'] },
+  documentation: { label: 'Documentation & community', shortLabel: 'Docs', stages: ['community', 'pages-install', 'pages'] },
 };
 
 const identity = c => JSON.stringify([c.cwd, c.tool, c.args, c.env ?? {}]);
@@ -129,26 +129,29 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
   for (const platform of platforms.filter(row => scope === 'all' || (row.os === 'ubuntu-latest' && row.node === 22))) {
     const prefix = `${platform.speed}-${platform.node}`;
     const suffix = `${platform.speed === 'windows' ? 'Windows' : 'Linux'} / Node ${platform.node}`;
+    const graphPlatform = `${platform.speed === 'windows' ? 'Win' : 'Linux'}${platform.node}`;
     if (suite === 'cli') {
       const checks = verificationPlan({ lane: platform.lane }).filter(stage => !prerequisites.has(stage.id) && stage.id !== 'cli-smoke');
       for (const stage of checks) {
         const owners = Object.values(checkAreas).filter(area => area.stages.includes(stage.id));
         if (owners.length !== 1) throw Error(`CI check needs exactly one owner: ${stage.id}`);
       }
-      for (const [area, { label, stages }] of Object.entries(checkAreas)) {
+      for (const [area, { label, shortLabel, stages }] of Object.entries(checkAreas)) {
         const checkStages = checks.filter(stage => stages.includes(stage.id)).map(stage => stage.id);
         if (checkStages.length) rows.push({ ...platform, id: `${prefix}-checks-${area}`, label: `${label} / ${suffix}`,
+          graphLabel: `${shortLabel} · ${graphPlatform}`,
           area, kind: 'checks', checkStages, seconds: null });
       }
     }
     const groups = [];
-    for (const [area, { label }] of Object.entries(TEST_DOMAINS)) {
+    for (const [area, { label, shortLabel }] of Object.entries(TEST_DOMAINS)) {
       const partitions = partitionTests(inventory.filter(command => command.domain === area && !command.isolated), platform.speed);
       for (const [index, group] of partitions.entries()) {
         const part = partitions.length > 1 ? `-part-${index + 1}` : '';
         const partLabel = partitions.length > 1 ? ` / Part ${index + 1} of ${partitions.length}` : '';
         groups.push(group);
         rows.push({ ...platform, id: `${prefix}-${area}${part}`, label: `${label}${partLabel} / ${suffix}`,
+          graphLabel: `${shortLabel} · ${graphPlatform}${part ? ` ${index + 1}of${partitions.length}` : ''}`,
           area, kind: 'tests', ...group });
       }
     }
@@ -158,6 +161,7 @@ export function ciJobs({ repository = root, scope = 'all', suite = 'cli' } = {})
       const [group] = partitionTests([command], platform.speed);
       groups.push(group);
       rows.push({ ...platform, id: `${prefix}-revision-${gate.toLowerCase()}-during-${phase.toLowerCase().replaceAll('+', '-')}`,
+        graphLabel: `${gate}→${phase} · ${graphPlatform}`,
         label: `Source revision / ${gate} changed during ${phase} / ${suffix}`, area: 'revisions', kind: 'tests', ...group });
     }
     // Multiset equality catches missing *and* duplicate assignments, even if a

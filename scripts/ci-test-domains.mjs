@@ -1,14 +1,14 @@
 // Classification only: package.json npm chains remain the executable inventory.
 // A nested script inherits its parent's area unless it has a more specific owner.
 export const TEST_DOMAINS = {
-  activation: { label: 'Activation & skills', scripts: [
+  activation: { label: 'Activation & skills', shortLabel: 'Skills', scripts: [
     'test:instruction-footprint', 'test:request-activation', 'test:request-activation-callbacks',
     'test:request-activation-host-schema', 'test:gate-check-missing-control', 'test:task-target-resolution',
     'test:skill-dispatch', 'test:host-command', 'test:agent-skills-conformance', 'test:skill-evals',
     'eval:skills', 'test:proportionality', 'test:delivery-path-search', 'test:delivery-path-search-unit',
     'test:delivery-path-search-generator',
   ] },
-  installation: { label: 'Installation & hosts', scripts: [
+  installation: { label: 'Installation & hosts', shortLabel: 'Install', scripts: [
     'test:canonical-init', 'test:install-setup-contract', 'test:install-setup-interaction',
     'test:install-setup-service', 'test:install-control-migration', 'test:install-control-repair',
     'test:control-maintenance', 'test:runtime-check-consent', 'test:local-marketplace',
@@ -17,27 +17,27 @@ export const TEST_DOMAINS = {
     'test:local-development-install', 'test:lifecycle', 'test:copilot-repository-retention',
     'test:opencode-hardening',
   ] },
-  delivery: { label: 'Delivery & readiness', scripts: [
+  delivery: { label: 'Delivery & readiness', shortLabel: 'Delivery', scripts: [
     'test:cli-gates', 'test:prd-readiness', 'test:next-action', 'test:intake-continuation',
     'test:prd-definition', 'test:sd-readiness', 'test:sd-definition', 'test:tp-definition',
     'test:parent-reconciliation',
   ] },
-  runs: { label: 'Run commands & recovery', scripts: [
+  runs: { label: 'Run commands & recovery', shortLabel: 'Runs', scripts: [
     'test:control-inspect', 'test:control-command', 'test:control-command-process', 'test:control-state',
     'test:run-command-flow', 'test:run-step-transaction', 'test:run-recovery', 'test:run-lock',
     'test:verified-change',
   ] },
-  revisions: { label: 'Source revisions', scripts: [
+  revisions: { label: 'Source revisions', shortLabel: 'Revision', scripts: [
     'test:run-revision', 'test:late-source-revision', 'test:late-source-revision-performance',
   ] },
-  mcp: { label: 'MCP & Cockpit', scripts: [
+  mcp: { label: 'MCP & Cockpit', shortLabel: 'MCP', scripts: [
     'test:mcp-lifecycle', 'test:plugin-mcp-runtime', 'test:plugin-mcp-cockpit-variant',
     'test:claude-plugin-mcp', 'test:codex-plugin-mcp', 'test:mcp-server',
   ] },
-  presentation: { label: 'Presentation & language', scripts: [
+  presentation: { label: 'Presentation & language', shortLabel: 'Language', scripts: [
     'test:artifact-language', 'test:interaction-presentation', 'test:operational-localization',
   ] },
-  packages: { label: 'Packages & integrity', scripts: [
+  packages: { label: 'Packages & integrity', shortLabel: 'Packages', scripts: [
     'release:prepare', 'test:release-workflows', 'test:release-registry-state',
     'test:cli-modularization', 'test:local-validator', 'test:package-build', 'test:package-contents',
     'test:control-command-package', 'test:runtime-integrity-layout', 'test:runtime-integrity-negative',

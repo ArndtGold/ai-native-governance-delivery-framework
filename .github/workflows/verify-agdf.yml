@@ -46,7 +46,7 @@ jobs:
   activation:
     needs: plan
     if: needs.plan.outputs.activation != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.activation) }}
@@ -92,7 +92,7 @@ jobs:
   installation:
     needs: plan
     if: needs.plan.outputs.installation != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.installation) }}
@@ -104,7 +104,7 @@ jobs:
   delivery:
     needs: plan
     if: needs.plan.outputs.delivery != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.delivery) }}
@@ -116,7 +116,7 @@ jobs:
   runs:
     needs: plan
     if: needs.plan.outputs.runs != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.runs) }}
@@ -128,7 +128,7 @@ jobs:
   revisions:
     needs: plan
     if: needs.plan.outputs.revisions != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.revisions) }}
@@ -140,7 +140,7 @@ jobs:
   mcp:
     needs: plan
     if: needs.plan.outputs.mcp != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.mcp) }}
@@ -152,7 +152,7 @@ jobs:
   presentation:
     needs: plan
     if: needs.plan.outputs.presentation != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.presentation) }}
@@ -164,7 +164,7 @@ jobs:
   packages:
     needs: plan
     if: needs.plan.outputs.packages != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.packages) }}
@@ -176,7 +176,7 @@ jobs:
   checks:
     needs: plan
     if: needs.plan.outputs.checks != ''
-    name: ${{ matrix.label }}
+    name: ${{ matrix.graphLabel }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.checks) }}

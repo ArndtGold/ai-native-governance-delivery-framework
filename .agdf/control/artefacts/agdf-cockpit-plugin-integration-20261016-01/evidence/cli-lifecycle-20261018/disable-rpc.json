@@ -1,0 +1,75 @@
+[
+  {
+    "direction": "out",
+    "message": {
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "clientInfo": {
+          "name": "agdf_cli_lifecycle_probe",
+          "version": "1"
+        },
+        "capabilities": {
+          "experimentalApi": true,
+          "requestAttestation": false
+        }
+      }
+    }
+  },
+  {
+    "direction": "in",
+    "message": {
+      "id": 1,
+      "result": {
+        "userAgent": "Codex Desktop/0.163.0 (Mac OS 15.7.7; x86_64) dumb (agdf_cli_lifecycle_probe; 1)",
+        "codexHome": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+        "platformFamily": "unix",
+        "platformOs": "macos"
+      }
+    }
+  },
+  {
+    "direction": "out",
+    "message": {
+      "method": "initialized"
+    }
+  },
+  {
+    "direction": "out",
+    "message": {
+      "id": 2,
+      "method": "config/value/write",
+      "params": {
+        "keyPath": "plugins.\"agdf@agdf\".enabled",
+        "value": false,
+        "mergeStrategy": "replace",
+        "filePath": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home/config.toml"
+      }
+    }
+  },
+  {
+    "direction": "in",
+    "message": {
+      "method": "remoteControl/status/changed",
+      "params": {
+        "status": "disabled",
+        "serverName": "Arndts-iMac.Goldstar",
+        "installationId": "0ce95da8-2c69-42e0-8495-dd08ca4df4e2",
+        "environmentId": null
+      },
+      "emittedAtMs": 1792305819700
+    }
+  },
+  {
+    "direction": "in",
+    "message": {
+      "id": 2,
+      "result": {
+        "status": "ok",
+        "version": "sha256:13ecf11e926eab633963b1f367b254fd8b0ac941557e1be5a9ace860a10de9c6",
+        "filePath": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home/config.toml",
+        "overriddenMetadata": null
+      }
+    }
+  }
+]

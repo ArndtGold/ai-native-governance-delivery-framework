@@ -165,6 +165,19 @@ try {
 assert.deepEqual(parseLauncherArguments([], { CLAUDE_PLUGIN_DATA: "/claude/data" }), { surface: "claude", dataRoot: "/claude/data", prepareOnly: false });
 assert.deepEqual(parseLauncherArguments(["--prepare"], { CLAUDE_PLUGIN_DATA: "/claude/data" }), { surface: "claude", dataRoot: "/claude/data", prepareOnly: true });
 const absolute = join(tmpdir(), "codex-data");
+assert.deepEqual(parseLauncherArguments(['--surface', 'codex', '--data', absolute, '--cockpit']),
+  { surface: 'codex', dataRoot: absolute, cockpitMode: 'plugin', prepareOnly: false });
+assert.deepEqual(parseLauncherArguments(['--surface', 'codex', '--data', absolute, '--cockpit', '--prepare']),
+  { surface: 'codex', dataRoot: absolute, cockpitMode: 'plugin', prepareOnly: true });
+for (const args of [['--surface', 'copilot', '--data', absolute, '--cockpit'],
+  ['--surface', 'codex', '--data', absolute, '--cockpit', '--cockpit-dir', absolute]]) assert.equal(parseLauncherArguments(args), null);
+{
+  let observed;
+  await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', absolute, '--cockpit'], env: {},
+    stderr: { write(text) { throw Error(text); } }, ensure: () => ({ status: 'matched' }), acquireClaim() {},
+    startFacade(input) { observed = input; } });
+  assert.equal(observed.cockpitMode, 'plugin'); assert.equal(observed.cockpitDir, undefined);
+}
 assert.deepEqual(parseLauncherArguments(["--surface", "codex", "--data", absolute], {}), { surface: "codex", dataRoot: absolute, prepareOnly: false });
 assert.deepEqual(parseLauncherArguments(["--surface", "codex", "--data", absolute, "--prepare"], {}), { surface: "codex", dataRoot: absolute, prepareOnly: true });
 assert.deepEqual(parseLauncherArguments(["--surface", "copilot", "--data", absolute], {}), { surface: "copilot", dataRoot: absolute, prepareOnly: false });

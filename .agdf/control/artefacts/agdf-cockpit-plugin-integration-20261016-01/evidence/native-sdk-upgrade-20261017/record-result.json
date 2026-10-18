@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "3d070c97-2653-4ba7-b105-2aa4b1df738f",
+  "request_digest": "sha256:d0da29367e2740bc08839b5da1fed66ec70fc0ee8c47f54f9af5f5c0187cd11c",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+    "expected_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+    "resulting_revision_id": "7249e0fa-3bcb-449e-83ec-b261b2f45373",
+    "revision": 17,
+    "record": {
+      "step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+        "digest": "sha256:d1ac4dfdf7d98bd63547d0b09959322d12b432b830bd9f52ce77118140eba982"
+      },
+      "status": "revise",
+      "covers": "AC-001..AC-008; T-007 final automated pass; T-008 native discovery/opening partial, UI access unavailable; T-009 evidence; CPI-E02/E03/E04 closed, CPI-E01 open",
+      "source_set_digest": "sha256:03a93b9a0d6587855fafceee62aaefa7b3919ebeb6a1d8c551eeceda0a84d18e"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "3d070c97-2653-4ba7-b105-2aa4b1df738f",
+    "request_digest": "sha256:d0da29367e2740bc08839b5da1fed66ec70fc0ee8c47f54f9af5f5c0187cd11c",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+    "expected_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+    "created_at": "2026-10-17T14:55:02.711Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+      "resulting_revision_id": "7249e0fa-3bcb-449e-83ec-b261b2f45373",
+      "revision": 17,
+      "record": {
+        "step": "CD+Tests",
+        "source": {
+          "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+          "digest": "sha256:d1ac4dfdf7d98bd63547d0b09959322d12b432b830bd9f52ce77118140eba982"
+        },
+        "status": "revise",
+        "covers": "AC-001..AC-008; T-007 final automated pass; T-008 native discovery/opening partial, UI access unavailable; T-009 evidence; CPI-E02/E03/E04 closed, CPI-E01 open",
+        "source_set_digest": "sha256:03a93b9a0d6587855fafceee62aaefa7b3919ebeb6a1d8c551eeceda0a84d18e"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 17,
+    "revision_id": "7249e0fa-3bcb-449e-83ec-b261b2f45373",
+    "lifecycle": "active",
+    "gate": "CD+Tests",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "implement_approved_plan",
+      "skill_id": "gate-check",
+      "operation_key": "implementation.execute",
+      "actor": "agent",
+      "effect": "implementation",
+      "gate": "CD+Tests"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+    "step": "internal",
+    "previous_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+    "revision": "17",
+    "revision_id": "7249e0fa-3bcb-449e-83ec-b261b2f45373",
+    "current_gate": "CD+Tests",
+    "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    "backlog": "updated",
+    "operation_id": "3d070c97-2653-4ba7-b105-2aa4b1df738f",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "3d070c97-2653-4ba7-b105-2aa4b1df738f",
+      "request_digest": "sha256:d0da29367e2740bc08839b5da1fed66ec70fc0ee8c47f54f9af5f5c0187cd11c",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+      "expected_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+      "created_at": "2026-10-17T14:55:02.711Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "845aa755-b849-4230-b81b-b5f3892689ab",
+        "resulting_revision_id": "7249e0fa-3bcb-449e-83ec-b261b2f45373",
+        "revision": 17,
+        "record": {
+          "step": "CD+Tests",
+          "source": {
+            "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+            "digest": "sha256:d1ac4dfdf7d98bd63547d0b09959322d12b432b830bd9f52ce77118140eba982"
+          },
+          "status": "revise",
+          "covers": "AC-001..AC-008; T-007 final automated pass; T-008 native discovery/opening partial, UI access unavailable; T-009 evidence; CPI-E02/E03/E04 closed, CPI-E01 open",
+          "source_set_digest": "sha256:03a93b9a0d6587855fafceee62aaefa7b3919ebeb6a1d8c551eeceda0a84d18e"
+        }
+      }
+    }
+  }
+}

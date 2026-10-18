@@ -1,0 +1,25 @@
+{
+  "authorizes": false,
+  "result": "incomplete",
+  "official_diagnostic_source": "https://learn.chatgpt.com/docs/reference/troubleshooting#feedback-and-logs",
+  "event_count": 163,
+  "app_request_method_counts": {
+    "initializeMcpApp": 2,
+    "callMcp": 143
+  },
+  "observed": [
+    "Cockpit host app initialization",
+    "read bridge callMcp requests without arguments or responses",
+    "fullscreen opening",
+    "tab-close display change",
+    "old app registration removal",
+    "new app session creation"
+  ],
+  "not_established": [
+    "raw ui/initialize request/response",
+    "actual MCP server connection ID (AppServer transport connectionId is not that identity)",
+    "per-read tool/operation arguments and response",
+    "acknowledged server-side view retirement or context clearance"
+  ],
+  "transition_qualified": false
+}

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "authorizes": false,
+  "trace_id": "4cf918be-c39d-4efd-8b42-9a987b22ac07",
+  "truncated": false,
+  "events": 128,
+  "checks": {
+    "document": [
+      {
+        "request_sequence": 21,
+        "response_sequence": 24,
+        "response_state": "available",
+        "data_keys": [
+          "kind",
+          "run",
+          "document"
+        ]
+      }
+    ],
+    "prepare_context": [
+      {
+        "request_sequence": 44,
+        "response_sequence": 46,
+        "response_state": "available",
+        "data_keys": [
+          "packet",
+          "byte_count",
+          "limit"
+        ]
+      }
+    ],
+    "validate_context": [
+      {
+        "request_sequence": 47,
+        "response_sequence": 48,
+        "response_state": "available",
+        "data_keys": [
+          "context_id",
+          "generation",
+          "current"
+        ]
+      }
+    ],
+    "invalidate_context": [
+      {
+        "request_sequence": 73,
+        "response_sequence": 75,
+        "response_state": "available",
+        "data_keys": [
+          "invalidated",
+          "host_publication_required",
+          "invalidation_id"
+        ]
+      }
+    ],
+    "run": [
+      {
+        "request_sequence": 71,
+        "response_sequence": 77,
+        "response_state": "available",
+        "data_keys": [
+          "kind",
+          "run"
+        ]
+      }
+    ],
+    "complete_context_invalidation": [
+      {
+        "request_sequence": 82,
+        "response_sequence": 83,
+        "response_state": "available",
+        "data_keys": [
+          "completed",
+          "invalidation_id"
+        ]
+      }
+    ],
+    "snapshot": [
+      {
+        "request_sequence": 113,
+        "response_sequence": 116,
+        "response_state": "available",
+        "data_keys": [
+          "kind",
+          "run"
+        ]
+      }
+    ]
+  },
+  "ui_initialize": {
+    "request_sequence": 1,
+    "response_sequence": 2,
+    "host_info": {
+      "name": "chatgpt",
+      "version": "26.1013.40934"
+    },
+    "protocol_version": "2026-01-26"
+  },
+  "taskplan_read": {
+    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+    "content_sha256": "f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d",
+    "local_sha256": "f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d",
+    "matches": true,
+    "response_sequence": 24
+  },
+  "host_context_replies": [
+    {
+      "request_sequence": 49,
+      "response_sequence": 52,
+      "requested_kind": null,
+      "result": {
+        "_meta": {
+          "openai/modelContext": {
+            "updateId": "b15eb493-29af-42b0-b2e0-dd1c5f381a18"
+          }
+        }
+      }
+    },
+    {
+      "request_sequence": 76,
+      "response_sequence": 81,
+      "requested_kind": "agdf_cockpit_invalid_selection",
+      "result": {
+        "_meta": {
+          "openai/modelContext": {
+            "updateId": "d543683c-7e4b-410a-8391-3a42e65b58fb"
+          }
+        }
+      }
+    }
+  ],
+  "opening_metadata": {
+    "agdf_cockpit": {
+      "session_id": "4032a7d7-5f13-4e6f-bda4-9c59398c3f22",
+      "target": {
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+      },
+      "render_generation": 1,
+      "initial_run_id": "agdf-cockpit-plugin-integration-20261016-01",
+      "idle_timeout_ms": 1800000,
+      "lifetime_ms": 28800000
+    },
+    "agdf/provider": {
+      "schema_version": 1,
+      "authorizes": false,
+      "identity_scope": "sdk_server_instance",
+      "connection_id": "57360ba7-af0f-4266-a923-fd8bd40316c8",
+      "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/511e28ab67dc4d925b967a272ce4fe4cf79a14d72ebbdb8aaeede5b880f361a2/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+      "version": "0.14.5"
+    },
+    "agdf/peer": {
+      "client_info": {
+        "name": "codex-mcp-client",
+        "title": "Codex",
+        "version": "0.163.0-alpha.10.2"
+      },
+      "capabilities": {
+        "experimental": {
+          "codex/auth-change": {}
+        },
+        "elicitation": {
+          "form": {},
+          "url": {}
+        },
+        "extensions": {
+          "io.modelcontextprotocol/ui": {
+            "mimeTypes": [
+              "text/html;profile=mcp-app",
+              "text/html+skybridge"
+            ]
+          },
+          "openai/elicitation": {
+            "form": {}
+          },
+          "openai/form": {}
+        }
+      }
+    }
+  },
+  "native_teardown_observed": false
+}

@@ -63,7 +63,7 @@ export const CODEX_PLUGIN_MCP_FILE = "mcp.json";
 const CODEX_ROOT_TOKEN = "{{AGDF_PLUGIN_ROOT}}";
 const CODEX_DATA_TOKEN = "{{AGDF_MCP_DATA}}";
 
-export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN, portable = true } = {}) {
+export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN, portable = true, cockpit = false } = {}) {
   const root = pluginRoot.replaceAll("\\", "/");
   return `${JSON.stringify({
     ...(portable ? { $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json" } : {}),
@@ -73,6 +73,10 @@ export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, data
         command: "node",
         args: [`${root}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")],
       },
+      ...(cockpit ? { 'agdf-cockpit': {
+        ...(portable ? { type: 'stdio' } : {}), command: 'node',
+        args: [`${root}/mcp/agdf-mcp-launch.js`, '--surface', 'codex', '--data', dataRoot.replaceAll('\\', '/'), '--cockpit'],
+      } } : {}),
     },
   }, null, 2)}\n`;
 }
@@ -100,8 +104,9 @@ export function normalizeCodexPluginMcpConfig(content) {
     if (Array.isArray(args) && args.length === 5 && typeof args[0] === "string"
         && args[0].endsWith("/mcp/agdf-mcp-launch.js") && typeof args[4] === "string" && args[4]) {
       const portable = Object.hasOwn(config, "$schema");
-      const expected = renderCodexPluginMcpConfig({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable });
-      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return renderCodexPluginMcpConfig({ portable });
+      const cockpit = Object.hasOwn(config.mcpServers, 'agdf-cockpit');
+      const expected = renderCodexPluginMcpConfig({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable, cockpit });
+      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return renderCodexPluginMcpConfig({ portable, cockpit });
     }
   } catch {}
   return content;

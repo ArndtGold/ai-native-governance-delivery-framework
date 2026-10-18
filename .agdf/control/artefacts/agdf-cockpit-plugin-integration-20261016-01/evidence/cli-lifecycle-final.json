@@ -1,0 +1,35 @@
+{
+  "kind": "isolated_codex_cli_lifecycle",
+  "native_ui_proof": false,
+  "scope_correction": "AGDF disable is repository-scoped; reenable changes that same native config layer. Global removal is observed after guarded cleanup of the disposable project override.",
+  "steps": [
+    {
+      "step": "install",
+      "passed": true
+    },
+    {
+      "step": "reenable-exact-disabled-project-layer",
+      "passed": false
+    },
+    {
+      "step": "reenabled-discovery",
+      "inventory": [
+        {
+          "name": "unrelated-fixture",
+          "enabled": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "step": "restore-created-disposable-project-config-to-absence",
+      "passed": false
+    },
+    {
+      "step": "preserve-foreign-user-canary",
+      "passed": true
+    }
+  ],
+  "passed": false,
+  "auth_retained": false
+}

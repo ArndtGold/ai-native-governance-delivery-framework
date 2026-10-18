@@ -1,0 +1,510 @@
+[
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 1,
+    "observed_at": "2026-10-18T09:47:46.035Z",
+    "direction": "out",
+    "message": {
+      "method": "ui/initialize",
+      "params": {
+        "appCapabilities": {},
+        "appInfo": {
+          "name": "AGDF Cockpit",
+          "version": "1.0.0"
+        },
+        "protocolVersion": "2026-01-26"
+      },
+      "jsonrpc": "2.0",
+      "id": 0
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 3,
+    "observed_at": "2026-10-18T09:47:46.100Z",
+    "direction": "out",
+    "message": {
+      "jsonrpc": "2.0",
+      "method": "ui/notifications/initialized"
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 25,
+    "observed_at": "2026-10-18T09:49:07.353Z",
+    "direction": "out",
+    "message": {
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit_read",
+        "arguments": {
+          "operation": "prepare_context",
+          "snapshot_id": "cc2701ee-83dc-438c-b194-ba91eac94520",
+          "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+          "revision_id": "945b1eb3-5b01-4189-960f-adda17e77851",
+          "resource_id": "7bf2fe6c-45a4-40a9-a3bc-463bd2b30b10",
+          "graph_ids": [],
+          "excluded_ids": [],
+          "generation": 10,
+          "session_id": "1f201b9f-8c20-4c59-8b6f-19fd3ce40ab2"
+        },
+        "_meta": {
+          "progressToken": 24
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 24
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 28,
+    "observed_at": "2026-10-18T09:49:07.659Z",
+    "direction": "out",
+    "message": {
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit_read",
+        "arguments": {
+          "operation": "validate_context",
+          "context_id": "edac4ed5-d20a-43b2-b809-d7e861cf1aa1",
+          "generation": 10,
+          "session_id": "1f201b9f-8c20-4c59-8b6f-19fd3ce40ab2"
+        },
+        "_meta": {
+          "progressToken": 25
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 25
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 29,
+    "observed_at": "2026-10-18T09:49:07.778Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 25,
+      "result": {
+        "_meta": {
+          "agdf/provider": {
+            "schema_version": 1,
+            "authorizes": false,
+            "identity_scope": "sdk_server_instance",
+            "connection_id": "539a34d6-d435-4d25-a36f-99620205476b",
+            "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/5ef5b3c068966f4b8b852aa6aedaa9590b0dab3f36f722e805036d2013a9458d/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+            "version": "0.14.5"
+          },
+          "agdf/peer": {
+            "client_info": {
+              "name": "codex-mcp-client",
+              "title": "Codex",
+              "version": "0.163.0-alpha.10.2"
+            },
+            "capabilities": {
+              "experimental": {
+                "codex/auth-change": {}
+              },
+              "elicitation": {
+                "form": {},
+                "url": {}
+              },
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app",
+                    "text/html+skybridge"
+                  ]
+                },
+                "openai/elicitation": {
+                  "form": {}
+                },
+                "openai/form": {}
+              }
+            }
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":\"cc2701ee-83dc-438c-b194-ba91eac94520\",\"observed_as_of\":\"2026-10-18T09:48:53.852Z\",\"source_digest\":\"e97046a2611e51167ba1fbee88f910b522915d248d5de01c1201565ed91622a7\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"context_id\":\"edac4ed5-d20a-43b2-b809-d7e861cf1aa1\",\"generation\":10,\"current\":true},\"authorizes\":false}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "target": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "snapshot_id": "cc2701ee-83dc-438c-b194-ba91eac94520",
+          "observed_as_of": "2026-10-18T09:48:53.852Z",
+          "source_digest": "e97046a2611e51167ba1fbee88f910b522915d248d5de01c1201565ed91622a7",
+          "state": "available",
+          "code": null,
+          "retryable": false,
+          "data": {
+            "context_id": "edac4ed5-d20a-43b2-b809-d7e861cf1aa1",
+            "generation": 10,
+            "current": true
+          },
+          "authorizes": false
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 32,
+    "observed_at": "2026-10-18T09:49:07.916Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 26,
+      "result": {
+        "_meta": {
+          "openai/modelContext": {
+            "updateId": "9ec160ab-581d-43d9-add9-9a458f5d9515"
+          }
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 56,
+    "observed_at": "2026-10-18T09:49:41.110Z",
+    "direction": "out",
+    "message": {
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit_read",
+        "arguments": {
+          "operation": "invalidate_context",
+          "session_id": "1f201b9f-8c20-4c59-8b6f-19fd3ce40ab2"
+        },
+        "_meta": {
+          "progressToken": 38
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 38
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 58,
+    "observed_at": "2026-10-18T09:49:41.208Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 38,
+      "result": {
+        "_meta": {
+          "agdf/provider": {
+            "schema_version": 1,
+            "authorizes": false,
+            "identity_scope": "sdk_server_instance",
+            "connection_id": "539a34d6-d435-4d25-a36f-99620205476b",
+            "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/5ef5b3c068966f4b8b852aa6aedaa9590b0dab3f36f722e805036d2013a9458d/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+            "version": "0.14.5"
+          },
+          "agdf/peer": {
+            "client_info": {
+              "name": "codex-mcp-client",
+              "title": "Codex",
+              "version": "0.163.0-alpha.10.2"
+            },
+            "capabilities": {
+              "experimental": {
+                "codex/auth-change": {}
+              },
+              "elicitation": {
+                "form": {},
+                "url": {}
+              },
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app",
+                    "text/html+skybridge"
+                  ]
+                },
+                "openai/elicitation": {
+                  "form": {}
+                },
+                "openai/form": {}
+              }
+            }
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"invalidated\":true,\"host_publication_required\":true,\"invalidation_id\":\"cf45b9f9-be06-493b-ba7e-8c70c8252996\"},\"authorizes\":false}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "target": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "snapshot_id": null,
+          "observed_as_of": null,
+          "source_digest": null,
+          "state": "available",
+          "code": null,
+          "retryable": false,
+          "data": {
+            "invalidated": true,
+            "host_publication_required": true,
+            "invalidation_id": "cf45b9f9-be06-493b-ba7e-8c70c8252996"
+          },
+          "authorizes": false
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 59,
+    "observed_at": "2026-10-18T09:49:41.211Z",
+    "direction": "out",
+    "message": {
+      "method": "ui/update-model-context",
+      "params": {
+        "structuredContent": {
+          "schema_version": "1",
+          "kind": "agdf_cockpit_invalid_selection",
+          "generation": 11,
+          "invalidation_id": "cf45b9f9-be06-493b-ba7e-8c70c8252996",
+          "observed_at": "2026-10-18T09:49:41.210Z",
+          "authorizes": false,
+          "current": false
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 39
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 61,
+    "observed_at": "2026-10-18T09:49:41.395Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 39,
+      "result": {
+        "_meta": {
+          "openai/modelContext": {
+            "updateId": "7afc5929-c77d-4a9d-bc8c-70fa92726d57"
+          }
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 62,
+    "observed_at": "2026-10-18T09:49:41.404Z",
+    "direction": "out",
+    "message": {
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit_read",
+        "arguments": {
+          "operation": "complete_context_invalidation",
+          "invalidation_id": "cf45b9f9-be06-493b-ba7e-8c70c8252996",
+          "session_id": "1f201b9f-8c20-4c59-8b6f-19fd3ce40ab2"
+        },
+        "_meta": {
+          "progressToken": 40
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 40
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 63,
+    "observed_at": "2026-10-18T09:49:41.624Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 40,
+      "result": {
+        "_meta": {
+          "agdf/provider": {
+            "schema_version": 1,
+            "authorizes": false,
+            "identity_scope": "sdk_server_instance",
+            "connection_id": "539a34d6-d435-4d25-a36f-99620205476b",
+            "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/5ef5b3c068966f4b8b852aa6aedaa9590b0dab3f36f722e805036d2013a9458d/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+            "version": "0.14.5"
+          },
+          "agdf/peer": {
+            "client_info": {
+              "name": "codex-mcp-client",
+              "title": "Codex",
+              "version": "0.163.0-alpha.10.2"
+            },
+            "capabilities": {
+              "experimental": {
+                "codex/auth-change": {}
+              },
+              "elicitation": {
+                "form": {},
+                "url": {}
+              },
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app",
+                    "text/html+skybridge"
+                  ]
+                },
+                "openai/elicitation": {
+                  "form": {}
+                },
+                "openai/form": {}
+              }
+            }
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"completed\":true,\"invalidation_id\":\"cf45b9f9-be06-493b-ba7e-8c70c8252996\"},\"authorizes\":false}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "target": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "snapshot_id": null,
+          "observed_as_of": null,
+          "source_digest": null,
+          "state": "available",
+          "code": null,
+          "retryable": false,
+          "data": {
+            "completed": true,
+            "invalidation_id": "cf45b9f9-be06-493b-ba7e-8c70c8252996"
+          },
+          "authorizes": false
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 64,
+    "observed_at": "2026-10-18T09:49:41.630Z",
+    "direction": "out",
+    "message": {
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit_read",
+        "arguments": {
+          "operation": "close",
+          "session_id": "1f201b9f-8c20-4c59-8b6f-19fd3ce40ab2"
+        },
+        "_meta": {
+          "progressToken": 41
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 41
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 66,
+    "observed_at": "2026-10-18T09:49:41.894Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 41,
+      "result": {
+        "_meta": {
+          "agdf/provider": {
+            "schema_version": 1,
+            "authorizes": false,
+            "identity_scope": "sdk_server_instance",
+            "connection_id": "539a34d6-d435-4d25-a36f-99620205476b",
+            "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/5ef5b3c068966f4b8b852aa6aedaa9590b0dab3f36f722e805036d2013a9458d/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+            "version": "0.14.5"
+          },
+          "agdf/peer": {
+            "client_info": {
+              "name": "codex-mcp-client",
+              "title": "Codex",
+              "version": "0.163.0-alpha.10.2"
+            },
+            "capabilities": {
+              "experimental": {
+                "codex/auth-change": {}
+              },
+              "elicitation": {
+                "form": {},
+                "url": {}
+              },
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app",
+                    "text/html+skybridge"
+                  ]
+                },
+                "openai/elicitation": {
+                  "form": {}
+                },
+                "openai/form": {}
+              }
+            }
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"closed\":true},\"authorizes\":false}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "target": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "snapshot_id": null,
+          "observed_as_of": null,
+          "source_digest": null,
+          "state": "available",
+          "code": null,
+          "retryable": false,
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "283c44c1-6da7-4102-b6c7-a67fd1071980",
+    "sequence": 67,
+    "observed_at": "2026-10-18T09:49:41.903Z",
+    "direction": "out",
+    "message": {
+      "jsonrpc": "2.0",
+      "method": "ui/notifications/request-teardown",
+      "params": {}
+    }
+  }
+]

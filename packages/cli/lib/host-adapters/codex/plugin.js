@@ -1,6 +1,6 @@
 import process from "node:process";
 import { inspectPluginList } from "../../installers/plugin-command.js";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { inspectGeneratedRepositoryMarketplace } from "#agdf-core/runtime/plugin-provenance.js";
 import { execHostFileSync } from "../../host-command.js";
@@ -10,6 +10,7 @@ import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./ident
 import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "./plugin-mcp.js";
 import { ownedFileSnapshot } from "../../lifecycle/owned-mutation.js";
+import { inspectCodexCockpitAdmission, inspectCodexSetup } from '../../mcp-lifecycle/adapters/codex.js';
 
 // Codex lists its complete remote catalog too. Keep capture bounded while allowing
 // that output to exceed Node's 1 MiB default; other host commands retain their limits.
@@ -22,9 +23,17 @@ export function installCodexGlobalPlugin({
   env = process.env,
   migrateMcp = migrateLegacyCodexMcpRegistration,
   prepareMcp = prepareCodexPluginMcp,
+  target,
 } = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
+  if (target) target = realpathSync(target);
+  // This check precedes prepare(), which publishes the marketplace candidate.
+  const cockpitAdmission = target ? inspectCodexCockpitAdmission({ target, env, exec }) : null;
+  if (cockpitAdmission && !cockpitAdmission.admitted) throw lifecycleAdapterError('cockpit_conflict',
+    'Cockpit server identity is already occupied or configuration coverage is unresolved. Preserve the existing route; qualify the same-key candidate in an isolated native context before a guarded transition.', cockpitAdmission);
+  const legacyCockpit = target && inspectCodexSetup({ target, env }).entries.some(entry => entry.role === 'cockpit'
+    && entry.scope !== 'plugin' && entry.configured !== 'disabled');
   const transaction = prepare({ expectedVersion, codexRegistrationRevision: CODEX_REGISTRATION_REVISION, ...(dataRoot ? { dataRoot } : {}) });
   const expectedInstallVersion = transaction.codexInstallVersion ?? expectedVersion;
   const migration = { state: "unknown", source: "", addedLocal: false, removedLegacy: false, refreshOwnedLocal: false, removedOwnedLocal: false };
@@ -37,7 +46,10 @@ export function installCodexGlobalPlugin({
     if (installedVersion !== expectedInstallVersion) {
       throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedInstallVersion, installedVersion, "npx --yes @agdf/cli@latest codex"));
     }
-    transaction.commit();
+    transaction.commit(legacyCockpit ? { retainCockpitRollbackFor: target } : undefined);
+    const retainedCockpit = legacyCockpit && existsSync(`${transaction.root}.transaction.json`)
+      ? JSON.parse(readFileSync(`${transaction.root}.transaction.json`, 'utf8'))
+      : { previous_source_digest: transaction.sourceDigest, previous_version: expectedVersion };
     // Best effort, both: retire the legacy user-scope `agdf` registration, which shares the plugin server
     // name and survives `codex plugin remove`, then prewarm the runtime the launcher would install on first start.
     const mcpEvidence = [
@@ -45,7 +57,11 @@ export function installCodexGlobalPlugin({
       ...(transaction.pluginRoot ? prepareMcp({ exec, pluginRoot: transaction.pluginRoot }) : []),
     ];
     return {
-      surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion: expectedInstallVersion, canonicalVersion: expectedVersion, installedVersion, verificationStatus: "healthy",
+      surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion: expectedInstallVersion, canonicalVersion: expectedVersion, installedVersion, verificationStatus: legacyCockpit ? 'configured_pending_restart' : "healthy",
+      ...(legacyCockpit ? { cockpitTransition: { state: 'qualification_pending', target,
+        previous_installation_retained: transaction.changed === true,
+        previous_plugin_digest: retainedCockpit.previous_source_digest ? `sha256:${retainedCockpit.previous_source_digest}` : null,
+        previous_plugin_version: retainedCockpit.previous_version ?? null } } : {}),
       evidence: [
         "durable_local_marketplace",
         `marketplace:${migration.state}`,
@@ -59,6 +75,8 @@ export function installCodexGlobalPlugin({
         ...historicalEvidenceEntries(transaction),
         ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`]),
         ...mcpEvidence,
+        ...(cockpitAdmission ? ['cockpit_configuration_admission:passed', 'cockpit_native_provider:unobserved'] : []),
+        ...(legacyCockpit ? ['cockpit_transition:qualification_pending', 'cockpit_legacy:retained'] : []),
       ],
       pluginRoot: transaction.pluginRoot ?? null,
       digest: transaction.digest ?? null,

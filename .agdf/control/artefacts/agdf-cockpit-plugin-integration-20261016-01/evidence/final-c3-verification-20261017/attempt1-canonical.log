@@ -1,0 +1,206 @@
+
+> verify:ci
+> node scripts/verify-ci.mjs
+
+[verify-ci] dependencies
+
+added 9 packages, and audited 12 packages in 905ms
+
+3 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+[verify-ci] dependencies passed (1.3s)
+[verify-ci] maintenance
+
+> test:maintenance-contracts
+> npm run test:verification && node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs
+
+
+> test:verification
+> node --test scripts/verification-test.mjs
+
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, darwin.
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 71.010851
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 2 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 7.973927
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 3 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 2606.464814
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 4 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 40.788866
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 5 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 0.624887
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 6 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 0.981803
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 7 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 23089.115576
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 8 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 4.197911
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 9 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 258.427469
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 10 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 10444.044046
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 36876.213519
+Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+Payload budget review/report tests passed.
+Coupled release workflow contract passed.
+Evidence publication tests passed (create, update, path rejection, stale source; isolated Git remote and mocked GitHub).
+Release gate: native matrix, publish dependency, credential/artifact boundaries and negative evidence tests passed.
+TAP version 13
+# Subtest: adaptive mode starts with ten cases and repeats only selected or deviant first runs
+ok 1 - adaptive mode starts with ten cases and repeats only selected or deviant first runs
+  ---
+  duration_ms: 4.077009
+  type: 'test'
+  ...
+# Subtest: the actual scheduler completes all first runs before conditional repeats
+ok 2 - the actual scheduler completes all first runs before conditional repeats
+  ---
+  duration_ms: 17.619466
+  type: 'test'
+  ...
+# Subtest: fixed mode and boundary IDs are validated before host setup
+ok 3 - fixed mode and boundary IDs are validated before host setup
+  ---
+  duration_ms: 1.317737
+  type: 'test'
+  ...
+# Subtest: expected target_unresolved remains a separate target-binding observation
+ok 4 - expected target_unresolved remains a separate target-binding observation
+  ---
+  duration_ms: 0.288752
+  type: 'test'
+  ...
+# Subtest: JSONL parsing separates cached input and counts completed search calls once
+ok 5 - JSONL parsing separates cached input and counts completed search calls once
+  ---
+  duration_ms: 1.972482
+  type: 'test'
+  ...
+# Subtest: unavailable usage or search telemetry remains unknown
+ok 6 - unavailable usage or search telemetry remains unknown
+  ---
+  duration_ms: 0.254312
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 357.272822
+[verify-ci] maintenance passed (62.8s)
+[verify-ci] shell
+Shell syntax passed (10 tracked scripts).
+[verify-ci] shell passed (1.1s)
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 4s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (4.4s)
+[verify-ci] ui-build
+
+> agdf-control-ui@0.0.0 build:mcp
+> node scripts/build-mcp.mjs
+
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 441 modules transformed.
+rendering chunks...
+✓ built in 503ms
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1235741,"digest":"sha256:3afd5e86b7793ef0225490dfbe8805ffefef53bb1655a52553f7617e4feee2f7","source_digest":"sha256:b7a42566b0fdbba88ca45cc1fdd924c4f0948343fde84cfdf53b124acaf7b3f4"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 488ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":933248,"digest":"sha256:6d7e10586a1fc46eacd56b990e37e1774e1607147a4bd6a81ba066f7c61ecaef","source_digest":"sha256:b7a42566b0fdbba88ca45cc1fdd924c4f0948343fde84cfdf53b124acaf7b3f4"}
+[verify-ci] ui-build passed (2.4s)
+[verify-ci] generate
+[verify-ci] generate passed (1.3s)
+[verify-ci] build-contracts
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+[verify-ci] build-contracts passed (25.6s)
+[verify-ci] evals
+
+> create-agdf@0.14.5 eval:skills
+> node ../../evals/scripts/run-skill-evals.js
+
+AGDF skill evals: pass (106/106 cases; 14 skills; deterministic replay, not live host execution)
+[verify-ci] evals passed (1.0s)
+[verify-ci] compatibility-freshness
+
+> compatibility:check
+> node scripts/host-compatibility/run.mjs check
+
+{
+  "status": "fail",
+  "diagnostic": "source_snapshot_changed"
+}
+Verification failed at compatibility-freshness: npm run compatibility:check (1)
+Inspect the diagnostic. For source_snapshot_changed, run npm run build:prepare, then npm run compatibility:record with MCP dependencies installed; review the evidence and rerun npm run build. Other evidence errors require repair, not automatic recording.

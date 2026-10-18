@@ -71,3 +71,8 @@
 .decision-comment { display: grid; gap: .5rem; margin-top: 1rem; }
 .decision-comment textarea { min-height: 6rem; width: 100%; resize: vertical; font: inherit; padding: .75rem; }
 .decision-card button:focus-visible, .decision-card textarea:focus-visible { outline: 3px solid var(--agdf-accent, #0c7975); outline-offset: 3px; }
+
+.mcp-entry[data-terminal="true"] { display: flow-root; min-height: 0; height: auto; }
+.mcp-terminal { display: flow-root; margin: 0; padding: var(--agdf-space-4); min-height: 0; }
+.mcp-terminal h1 { font-size: var(--agdf-text-xl); margin: 0 0 var(--agdf-space-2); }
+.mcp-terminal p { margin: 0; }

@@ -1,0 +1,84 @@
+[
+  {
+    "stage": "marketplaces-before",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "list",
+      "--json"
+    ],
+    "started_at": "2026-10-18T07:25:28.829833+00:00",
+    "finished_at": "2026-10-18T07:25:29.487881+00:00",
+    "exit_code": 0
+  },
+  {
+    "stage": "marketplace-remove",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "remove",
+      "agdf",
+      "--json"
+    ],
+    "started_at": "2026-10-18T07:25:29.488416+00:00",
+    "finished_at": "2026-10-18T07:25:29.957212+00:00",
+    "exit_code": 0
+  },
+  {
+    "stage": "marketplace-add",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "add",
+      "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf",
+      "--json"
+    ],
+    "started_at": "2026-10-18T07:25:29.957602+00:00",
+    "finished_at": "2026-10-18T07:25:30.377147+00:00",
+    "exit_code": 0
+  },
+  {
+    "stage": "restore-native-registration",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "add",
+      "agdf@agdf",
+      "--json"
+    ],
+    "started_at": "2026-10-18T07:25:30.377544+00:00",
+    "finished_at": "2026-10-18T07:25:31.014495+00:00",
+    "exit_code": 0
+  },
+  {
+    "stage": "marketplaces-refreshed",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "list",
+      "--json"
+    ],
+    "started_at": "2026-10-18T07:25:31.015027+00:00",
+    "finished_at": "2026-10-18T07:25:31.492209+00:00",
+    "exit_code": 0
+  },
+  {
+    "stage": "native-install",
+    "argv": [
+      "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "/private/tmp/agdf-cockpit-cli-source/packages/cli/scripts/install-local-plugin.js",
+      "codex",
+      "--dir",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "--accept-plugin-capabilities",
+      "--json"
+    ],
+    "started_at": "2026-10-18T07:25:31.492891+00:00",
+    "finished_at": "2026-10-18T07:26:14.124968+00:00",
+    "exit_code": 1
+  }
+]

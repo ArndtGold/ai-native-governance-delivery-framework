@@ -1,0 +1,35 @@
+AGDF Cockpit – Prüfung nach ausdrücklicher Sichtbestätigung, 18.10.2026
+
+Befund: Der Benutzer hat bestätigt, dass die neue Karte rechts im Test-Chat geöffnet ist. Trotzdem liefert die unterstützte CUA-Schnittstelle dieses Chats initial und nach dokumentierter Diagnose jeweils mcpapps tabs=[]; der vollständige Browserzustand zeigt auch iab tabs=[] und apps=[].
+Chat/CUA codexSessionId: 01a14a53-1091-7fa1-9145-287353b8dac1.
+CWD: /Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017
+Ziel: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework
+Run: agdf-cockpit-plugin-integration-20261016-01
+
+Dies widerlegt die menschliche Sichtbestätigung nicht. Es belegt, dass die Ansicht von der verfügbaren Automationsschnittstelle nicht als bedienbarer Tab exponiert wird. Kein Tab-Handle bzw. keine App-Session-ID verfügbar. Die codexSessionId ist nur die Chat-Zuordnung.
+
+Die dokumentierte Diagnose wurde tatsächlich über agent.documentation.get('browser-troubleshooting') gelesen: Leere Inventare belegen keine Trennung der Verbindung; bestehende Browserbindung beibehalten und keine verborgenen Methoden erraten. Das effektive mcpapps-Backend kann nur bestehende Sidepanel-Tabs kontrollieren und keine Tabs erzeugen/navigieren. Es gibt hier keinen dokumentierten Zugriff auf den DOM einer nicht inventarisierten Karte. Keine privaten APIs, Shell-GUI-Steuerung oder alternative Browser-Simulation verwendet.
+
+Die vorhandene Karte wurde ausdrücklich nicht erneut geöffnet. Kein anderes Fenster oder alter Tab übernommen. Neue Referenz nur als Referenz kopiert:
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/installed-tuple-reference.json
+Erwartete HTML-/Modulhashes in findings.json, kein tatsächlicher DOM-Abgleich möglich und kein früherer Paketbefund übernommen.
+
+Nicht durchführbar: Screenshot; vollständiges module.textContent(); SDK-Aufzeichnung/initialize/toolresult/Provider/Peer; TP-Lesen und Kontextübergabe mit update-model-context; einmaliger Schließbutton; Invalidierung/complete_context_invalidation/Core close/request-teardown; separater Host-resource-teardown; anschließender Snapshot der ursprünglichen Session.
+Keine dieser Aktionen ausgeführt und kein Erfolg oder Fehler einer nicht ausgeführten Aktion erfunden. Insbesondere kein session_expired behauptet.
+Keine trace_id/App-Session-/Init-ID beobachtet: keine Host-Logs auf Verdacht durchsucht. Keine Kompensation, kein direkter Reader-close und kein weiterer Schließversuch.
+
+Nur neue Nachweise in diesem /private/tmp-Verzeichnis geschrieben; keine Repository-/Control-/Konfigurations-/Plugin-Änderung, keine Legacy-/QA-/Gate-Entscheidung, keine qualifizierte Transition und keine Fremdchat-Nachricht.
+
+Belege:
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/cua-inventory.json
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/findings.json
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/tool-inventory.json
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/supported-diagnostic-note.txt
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/installed-tuple-reference.json
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/before-selected.json
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/after-selected.json
+/private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/unchanged-selected.json
+
+Vorher/Nachher: 7 explizite Konfigurations-/Run-/TP-Pfade verglichen, 0 Änderungen.
+
+Nachtrag: Nach erneuter, vom ursprünglichen Chat gemeldeter navigate_to_codex_page-Vordergrund-Navigation wurde genau ein zusätzlicher cua.getState()-Aufruf ausgeführt. Unverändert apps=[] und beide Browser tabs=[]. Beleg: /private/tmp/agdf-visible-cockpit-access-gap-20261018-080841/foreground-inventory.json. Kein alter Legacy-Tab geprüft oder übernommen. Keine weitere Schleife.

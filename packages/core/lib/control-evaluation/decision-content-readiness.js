@@ -83,7 +83,8 @@ export function observeDecisionContent(root, state, { gate, locale = 'en', sourc
       else groups.goal = goal;
       if (locale !== sourceLanguage) {
         const key = locale === 'de' ? 'ziel' : 'goal';
-        const value = readAuthoredContent(intent.text, 'localized', { locale, sourceLanguage })?.[key];
+        const value = readAuthoredContent(intent.text, 'localized', { locale, sourceLanguage })?.[key]
+          ?? readAuthoredContent(intent.text, 'localized_goal', { locale, sourceLanguage });
         if (!concreteDecisionContent(value)) gap(key, intent.path, 'ur-definition', 'localized_content_missing');
         else groups.goal = value;
       }

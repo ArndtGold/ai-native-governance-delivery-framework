@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "authorizes": false,
+  "evidence_class": "actual_codex_cli_and_stdio_app_server_isolated_profile",
+  "cli_version": "codex-cli 0.163.0",
+  "phases": [
+    "old",
+    "updated",
+    "disabled",
+    "reenabled",
+    "removed"
+  ],
+  "passed": true,
+  "production_canaries_unchanged": true,
+  "foreign_disabled_server_preserved": true,
+  "desktop_native_qualified": false,
+  "update_route": "native local marketplace remove/add then plugin add; no synthetic Git upgrade",
+  "candidate": "0.14.5+codex.local-dc02ea9eae18",
+  "source_digest": "dc02ea9eae188c0af7f20d331a581523ce246f17474f1e5654b9101b4fc18a89",
+  "phase_assertions": [
+    {
+      "phase": "old",
+      "attributed_servers": [
+        "agdf"
+      ],
+      "governance_tool_count": 7,
+      "cockpit_ui_tools_hidden_without_declared_ui": true,
+      "runtimeStatus": "not_reported_by_host"
+    },
+    {
+      "phase": "updated",
+      "attributed_servers": [
+        "agdf",
+        "agdf-cockpit"
+      ],
+      "governance_tool_count": 7,
+      "cockpit_ui_tools_hidden_without_declared_ui": true,
+      "runtimeStatus": "not_reported_by_host"
+    },
+    {
+      "phase": "disabled",
+      "attributed_servers": [],
+      "governance_tool_count": 0,
+      "cockpit_ui_tools_hidden_without_declared_ui": true,
+      "runtimeStatus": "not_reported_by_host"
+    },
+    {
+      "phase": "reenabled",
+      "attributed_servers": [
+        "agdf",
+        "agdf-cockpit"
+      ],
+      "governance_tool_count": 7,
+      "cockpit_ui_tools_hidden_without_declared_ui": true,
+      "runtimeStatus": "not_reported_by_host"
+    },
+    {
+      "phase": "removed",
+      "attributed_servers": [],
+      "governance_tool_count": 0,
+      "cockpit_ui_tools_hidden_without_declared_ui": true,
+      "runtimeStatus": "not_reported_by_host"
+    }
+  ],
+  "actual_config_write_paths_verified": true,
+  "scope_limit": "No model inference, desktop rendering, UI protocol initialization or native view teardown was executed. No claim of live runtimeStatus, which host returned as null."
+}

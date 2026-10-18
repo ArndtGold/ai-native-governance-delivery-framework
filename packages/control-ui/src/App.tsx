@@ -30,6 +30,14 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
   const titleStore = useRef(createBacklogTitleStore());
   const titlePending = useRef<AbortController | null>(null), freshnessPending = useRef<AbortController | null>(null);
   const draftPending = useRef<AbortController | null>(null);
+  const contextPending = useRef<symbol | null>(null);
+  const beforeContextRead = useCallback(() => {
+    const token = Symbol(); contextPending.current = token;
+    // Context replaces the server capture, just like navigation and draft reads.
+    // A late freshness reply belongs to the preceding capture, not this view.
+    freshnessPending.current?.abort();
+    return () => { if (contextPending.current === token) contextPending.current = null; };
+  }, []);
   const workspace = useRef<HTMLDivElement>(null);
   const [wideReader, setWideReader] = useState(true);
   useLayoutEffect(() => {
@@ -228,7 +236,7 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     if (!snapshot || state.stale || state.phase !== 'ready' || !cardVisible || draftAction.busy) return;
     let checking = false; const controller = new AbortController();
     const check = async () => {
-      if (document.hidden || checking || titlePending.current || draftPending.current) return; checking = true;
+      if (document.hidden || checking || titlePending.current || draftPending.current || contextPending.current) return; checking = true;
       const generation = sequence.current;
       try {
         const request = new AbortController(); freshnessPending.current = request;
@@ -245,13 +253,13 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
     };
     let waiting: AbortController | null = null;
     const listen = async () => {
-      if (!read.waitForChanges || document.hidden || controller.signal.aborted || waiting) return;
+      if (!read.waitForChanges || document.hidden || controller.signal.aborted || waiting || contextPending.current) return;
       waiting = new AbortController(); const request = waiting, generation = sequence.current;
       try {
         const result = await read.waitForChanges(snapshot, request.signal, state.scope!.target.target_id);
         if (!request.signal.aborted && !controller.signal.aborted && generation === sequence.current && !document.hidden) {
           if (!result.data || typeof result.data.changed !== 'boolean') return;
-          if (result.data.changed) await check();
+          if (result.data.changed && !contextPending.current) await check();
         }
       } catch { return; /* Hosts without this operation keep the freshness fallback. */ }
       finally { if (waiting === request) waiting = null; }
@@ -311,10 +319,14 @@ export function App({ secret = '', transport, compact = false, onExpand, initial
         {state.inventory?.data && state.route.view === 'overview' && <Overview key={titleEpoch} result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setBacklogView} loadTitles={loadTitles} titleStore={titleStore.current} resetTitles={state.stale} titlesEnabled={state.phase === 'ready' && !state.stale && cardVisible} onSelect={id => void navigate({ view: 'detail', runId: id })}/>}
         {state.detail && state.route.view === 'detail' && <RunDetail result={state.detail} onOpen={open} draftCheck={<DraftCheck result={state.detail} action={draftAction} current={!state.stale && !state.problem && state.phase === 'ready' && !draftAction.invalidated} onReload={() => void navigate(reloadRoute, true)}/>} summaryOnly={summarizing} current={!state.stale && !state.problem && state.phase === 'ready'}/>}
         {state.document && state.route.view === 'document' && <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={runTitle} onOpen={id => { const resource = state.detail?.data?.resources.find(r => r.resource_id === id); if (resource) open(resource); }}/>}</div>
-      {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} onScope={value => {
+      {state.detail && state.route.view !== 'overview' && <ContextPanel key={`${state.route.runId}:${state.route.resourcePath ?? 'run'}`} read={read} beforeRead={beforeContextRead} onScope={value => {
         if (draftPending.current || state.scope?.snapshot_id !== live.current.scope?.snapshot_id || renderedGeneration !== sequence.current || value.data?.kind !== 'context' || value.data.run.run_id !== live.current.route.runId) return;
-        const parent = { ...value, data: value.data.run } as Envelope<Detail>;
-        const doc = value.data.document ? { ...value, data: value.data.document } as Envelope<DocumentData> : null;
+        // A successful context scope can have no graph nodes or unavailable refs.
+        // Core returns this kind only after reading the selected Run/document.
+        const selected = value.code === null && ['available', 'empty', 'partial'].includes(value.state)
+          ? { ...value, state: 'available' as const } : value;
+        const parent = { ...selected, data: value.data.run } as Envelope<Detail>;
+        const doc = value.data.document ? { ...selected, data: value.data.document } as Envelope<DocumentData> : null;
         dispatch({ type: 'ready', generation: sequence.current, route: { ...live.current.route, resourceId: doc?.data?.resource.resource_id }, scope: value, inventory: null, detail: parent, document: doc });
       }} detail={state.detail} document={state.route.view === 'document' ? state.document : null} disabled={expired || state.stale || state.phase !== 'ready' || draftAction.busy} handoff={handoff}/>}
   </>;

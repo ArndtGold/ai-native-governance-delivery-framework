@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "authorizes": false,
+  "complete": true,
+  "scope": "project and user declarations plus enabled local plugin MCP declarations, supported ephemeral project runtime discovery, and separate native replacement proof",
+  "origins": [
+    {
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+      "digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8"
+    },
+    {
+      "path": "/Users/arndtgold/.codex/config.toml",
+      "digest": "sha256:0155a9c155fecdba26b1c9a5e595832c3ee0175fdfbb7aed569182d5c5d52b17"
+    },
+    {
+      "path": "/Users/arndtgold/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/codex-app-tools/.mcp.json",
+      "digest": "sha256:3a44facf512fac70deb827934cf9f976a1768e295ca6928fea989c2dcd092b0b"
+    },
+    {
+      "path": "/Users/arndtgold/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/unified-computer-use/.mcp.json",
+      "digest": "sha256:e7297a8851d46bb5d7f53d57e82d86cfdf4b04524bedf8c2ce6cf4a80ffe71da"
+    },
+    {
+      "path": "/Users/arndtgold/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/code-review/.mcp.json",
+      "digest": "sha256:909be54304850b27dedf840adf3ee670ea3dacad6516cb4398705c9d5075ad8e"
+    },
+    {
+      "path": "/Users/arndtgold/.codex/.tmp/plugins/plugins/github/.mcp.json",
+      "digest": "sha256:730ebd45944d5f46aeded73c8fa8a2e5765726c626a8605671809d6159d31edd"
+    },
+    {
+      "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+      "digest": "sha256:7b4e47d91c331a27572db2a920da2e6cb82c58e818aebc11f37f89257005fb65"
+    }
+  ],
+  "declarations": [
+    {
+      "plugin_id": "codex-app-tools@openai-bundled",
+      "path": "/Users/arndtgold/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/codex-app-tools/.mcp.json",
+      "server_ids": [
+        "codex_app"
+      ]
+    },
+    {
+      "plugin_id": "unified-computer-use@openai-bundled",
+      "path": "/Users/arndtgold/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/unified-computer-use/.mcp.json",
+      "server_ids": [
+        "cua_repl"
+      ]
+    },
+    {
+      "plugin_id": "code-review@openai-bundled",
+      "path": "/Users/arndtgold/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/code-review/.mcp.json",
+      "server_ids": [
+        "code-review"
+      ]
+    },
+    {
+      "plugin_id": "github@openai-curated",
+      "path": "/Users/arndtgold/.codex/.tmp/plugins/plugins/github/.mcp.json",
+      "server_ids": [
+        "github"
+      ]
+    },
+    {
+      "plugin_id": "agdf@agdf",
+      "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+      "server_ids": [
+        "agdf",
+        "agdf-cockpit"
+      ]
+    }
+  ],
+  "project_context": {
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "thread_id": "01a14ea9-75c7-7591-870e-b567d6eb8f55",
+    "ephemeral": true
+  },
+  "cockpit_providers": [
+    {
+      "server_id": "agdf-cockpit",
+      "plugin_id": "agdf@agdf",
+      "runtime_status": "connected",
+      "tools": [
+        "agdf_cockpit",
+        "agdf_cockpit_read"
+      ]
+    },
+    {
+      "server_id": "agdf-cockpit-local",
+      "plugin_id": null,
+      "runtime_status": "connected",
+      "tools": [
+        "agdf_cockpit_read",
+        "agdf_cockpit"
+      ]
+    }
+  ],
+  "native_replacement_connection": "b6caa25a-666e-4e41-a3dd-ab165d0cf80a",
+  "limits": "Other connection IDs are not invented or qualified. The legacy provider has a distinct host server key; only the replacement native connection is qualified by the SDK trace. Remote plugin catalog listing failed, but the complete effective project mcpServerStatus/list returned without pagination."
+}

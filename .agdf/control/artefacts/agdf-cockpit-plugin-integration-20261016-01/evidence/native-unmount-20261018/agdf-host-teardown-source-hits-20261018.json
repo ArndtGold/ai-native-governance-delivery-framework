@@ -1,0 +1,30 @@
+[
+  {
+    "path": "webview/assets/app-initial-90eb42395b7d.js",
+    "digest": "2687d59e8c67ccf81c7efb3820211070df303c6a200c9e0e8d604f26253f2f5e",
+    "term": "tab_close",
+    "offset": 7840359,
+    "excerpt": ",props:z,onBeforeClose:s?.onBeforeClose,onClose:(x!=null&&N?.onClose!=null&&_!=null?(e,t)=>{N.onClose?.(e,t),_()}:N?.onClose)??((e,n)=>{if(s!=null){s.onClose(e,n);return}if(rZo(O,`tab_closed`),yQo(O),!Hyi(e,{excludeTab:{panelId:n,tabId:O}}).some(e=>{if(!wQo(e))return!1;let n=NNn(e);return n?.hostId===l&&n.path===t})){let n={conversationId:Yy(e.value)??hy({entrypoint:`home`}),hostId:l,path:t},r=e.get(aT,n).length;e.get(oT,n)?.isSubmitting!==!0&&(r>0&&oQo(e,{...E,threadId:Xy(e.value)},{annotationCount:r,outcome:`abandoned`}),WNn(e,n,[]),GNn(e,n))}let r=pB(n),i=n===`right`&&e.get(r.activeTab$)?.tabId===O,a=n===`right`&&e.get(r.tabs$).some(e=>e.tabId!==O);i&&!a&&e.get(ib)&&(e.set(ib,!"
+  },
+  {
+    "path": "webview/assets/app-initial-90eb42395b7d.js",
+    "digest": "2687d59e8c67ccf81c7efb3820211070df303c6a200c9e0e8d604f26253f2f5e",
+    "term": "tab_close",
+    "offset": 7925746,
+    "excerpt": "})})}function r4o(e,t){let n=e.get(jX,t);n!=null&&(n.sandboxError==null&&n.availableDisplayModes?.includes(`inline`)?(fn.info(`mcp_app_sandbox.display_mode_changed`,{safe:{reason:`tab_close`,previousDisplayMode:n.displayMode,displayMode:`inline`},sensitive:{mcpAppId:t,sourceMcpAppId:n.sourceMcpAppId}}),$2o(e,t,`inline`)):(fn.info(`mcp_app_sandbox.session_closed`,{safe:{reason:`tab_close`,displayMode:n.displayMode,hasSandboxError:n.sandboxError!=null,availableDisplayModes:n.availableDisplayModes},sensitive:{mcpAppId:t,sourceMcpAppId:n.sourceMcpAppId}}),DX(e,t,{isOpen:!1})))}function DX(e,t,n){e.set(kX,e=>{let r=e.get(t);if(r==null)return e;let i={...r,...n};return(0,c4o.default)(r,"
+  },
+  {
+    "path": "webview/assets/app-initial-90eb42395b7d.js",
+    "digest": "2687d59e8c67ccf81c7efb3820211070df303c6a200c9e0e8d604f26253f2f5e",
+    "term": "tab_close",
+    "offset": 7925946,
+    "excerpt": "isplayMode:n.displayMode,displayMode:`inline`},sensitive:{mcpAppId:t,sourceMcpAppId:n.sourceMcpAppId}}),$2o(e,t,`inline`)):(fn.info(`mcp_app_sandbox.session_closed`,{safe:{reason:`tab_close`,displayMode:n.displayMode,hasSandboxError:n.sandboxError!=null,availableDisplayModes:n.availableDisplayModes},sensitive:{mcpAppId:t,sourceMcpAppId:n.sourceMcpAppId}}),DX(e,t,{isOpen:!1})))}function DX(e,t,n){e.set(kX,e=>{let r=e.get(t);if(r==null)return e;let i={...r,...n};return(0,c4o.default)(r,i)?e:new Map(e).set(t,i)})}function i4o(e,t,n,r,i){let a=e.get(AX,t),o=a?.sessionId,s=o==null?null:e.get(jX,o);a!=null&&o!=null&&s!=null&&Si(e,()=>{e.set(OX,e=>new Map(e).set(t,{...a,content:{...a.con"
+  },
+  {
+    "path": "webview/assets/app-initial-90eb42395b7d.js",
+    "digest": "2687d59e8c67ccf81c7efb3820211070df303c6a200c9e0e8d604f26253f2f5e",
+    "term": "registration_removed",
+    "offset": 7927322,
+    "excerpt": "e,t){let n=e.get(AX,t),r=n?.content.mcpAppHostAdapter?.dispose,i=e.get(MX,t),a=i!=null&&e.get(jX,i)?.sourceMcpAppId===t;e.set(OX,e=>{if(!e.has(t))return e;fn.info(`mcp_app_sandbox.registration_removed`,{safe:{ownsSession:a},sensitive:{mcpAppId:i,invocationId:t}});let n=new Map(e);if(n.delete(t),a)for(let[e,t]of n)t.sessionId===i&&n.set(e,{...t,sessionId:null});return n}),i!=null&&a&&e.set(kX,e=>{let t=new Map(e);return t.delete(i),t}),i!=null&&a&&e.set(_4o,i,null),e.set(g4o,t,!1),i!=null&&a&&(k2o(e,i),cGo(e,i),n?.content.onSessionDispose?.(i)),r?.(a?i??void 0:void 0)}function s4o(e,t){let n=NIt(e);if(n==null||n!==NIt(t))return!1;let r=e.mcpAppScope,i=t.mcpAppScope;return e.hostId!==t.hostId|"
+  }
+]

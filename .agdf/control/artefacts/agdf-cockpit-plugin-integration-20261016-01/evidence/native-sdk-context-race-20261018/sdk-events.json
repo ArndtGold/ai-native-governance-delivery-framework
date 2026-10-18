@@ -1,0 +1,136 @@
+[
+  {
+    "trace_id": "efa83df1-d5c7-40e9-ba45-d0cf160de497",
+    "sequence": 1,
+    "observed_at": "2026-10-18T09:32:22.275Z",
+    "direction": "out",
+    "message": {
+      "method": "ui/initialize",
+      "params": {
+        "appCapabilities": {},
+        "appInfo": {
+          "name": "AGDF Cockpit",
+          "version": "1.0.0"
+        },
+        "protocolVersion": "2026-01-26"
+      },
+      "jsonrpc": "2.0",
+      "id": 0
+    }
+  },
+  {
+    "trace_id": "efa83df1-d5c7-40e9-ba45-d0cf160de497",
+    "sequence": 3,
+    "observed_at": "2026-10-18T09:32:22.472Z",
+    "direction": "out",
+    "message": {
+      "jsonrpc": "2.0",
+      "method": "ui/notifications/initialized"
+    }
+  },
+  {
+    "trace_id": "efa83df1-d5c7-40e9-ba45-d0cf160de497",
+    "sequence": 53,
+    "observed_at": "2026-10-18T09:36:54.190Z",
+    "direction": "out",
+    "message": {
+      "method": "tools/call",
+      "params": {
+        "name": "agdf_cockpit_read",
+        "arguments": {
+          "operation": "close",
+          "session_id": "d173710e-ad89-4b43-a66e-b3bf5379fb00"
+        },
+        "_meta": {
+          "progressToken": 77
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 77
+    }
+  },
+  {
+    "trace_id": "efa83df1-d5c7-40e9-ba45-d0cf160de497",
+    "sequence": 55,
+    "observed_at": "2026-10-18T09:36:54.384Z",
+    "direction": "in",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 77,
+      "result": {
+        "_meta": {
+          "agdf/provider": {
+            "schema_version": 1,
+            "authorizes": false,
+            "identity_scope": "sdk_server_instance",
+            "connection_id": "1b7d242a-1f0f-4e79-914e-bee7bd0913ff",
+            "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/21bec77406102f7ca42a4da28a596189f20402b9ee0116b4a59b52412e240e90/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+            "version": "0.14.5"
+          },
+          "agdf/peer": {
+            "client_info": {
+              "name": "codex-mcp-client",
+              "title": "Codex",
+              "version": "0.163.0-alpha.10.2"
+            },
+            "capabilities": {
+              "experimental": {
+                "codex/auth-change": {}
+              },
+              "elicitation": {
+                "form": {},
+                "url": {}
+              },
+              "extensions": {
+                "io.modelcontextprotocol/ui": {
+                  "mimeTypes": [
+                    "text/html;profile=mcp-app",
+                    "text/html+skybridge"
+                  ]
+                },
+                "openai/elicitation": {
+                  "form": {}
+                },
+                "openai/form": {}
+              }
+            }
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"closed\":true},\"authorizes\":false}"
+          }
+        ],
+        "structuredContent": {
+          "schema_version": "1",
+          "target": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "snapshot_id": null,
+          "observed_as_of": null,
+          "source_digest": null,
+          "state": "available",
+          "code": null,
+          "retryable": false,
+          "data": {
+            "closed": true
+          },
+          "authorizes": false
+        }
+      }
+    }
+  },
+  {
+    "trace_id": "efa83df1-d5c7-40e9-ba45-d0cf160de497",
+    "sequence": 56,
+    "observed_at": "2026-10-18T09:36:54.389Z",
+    "direction": "out",
+    "message": {
+      "jsonrpc": "2.0",
+      "method": "ui/notifications/request-teardown",
+      "params": {}
+    }
+  }
+]

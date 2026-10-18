@@ -1,0 +1,36 @@
+[smoke-continuation] npm run test:install-control-migration
+
+> create-agdf@0.14.5 test:install-control-migration
+> node ../core/test/install-control-migration-test.js
+
+Installation control migration: batch consent, partial migration, read-only deferral, bound snapshots, backups, CLI/JSON and EN/DE rendering passed.
+[smoke-continuation] npm run test:install-control-repair
+
+> create-agdf@0.14.5 test:install-control-repair
+> node scripts/install-control-repair-test.js
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+    at file:///private/tmp/agdf-cockpit-integration-work/packages/cli/scripts/install-control-repair-test.js:359:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3
+npm error Lifecycle script `test:install-control-repair` failed with error:
+npm error code 1
+npm error path /private/tmp/agdf-cockpit-integration-work/packages/cli
+npm error workspace create-agdf@0.14.5
+npm error location /private/tmp/agdf-cockpit-integration-work/packages/cli
+npm error command failed
+npm error command sh -c node scripts/install-control-repair-test.js

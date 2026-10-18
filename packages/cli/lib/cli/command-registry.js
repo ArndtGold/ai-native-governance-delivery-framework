@@ -167,7 +167,9 @@ export function validateCommandOptions(options) {
   }
   if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step"
       && !(options.target === "run-revise" && ["preview", "apply"].includes(options.revisionMode)
-        && !options.runStep && Object.keys(options.stepFields).every(key => key === "evidence"))) {
+        && !options.runStep && Object.keys(options.stepFields).every(key => key === "evidence"))
+      && !(options.target === 'mcp' && (options.retireCockpit || options.restoreCockpit)
+        && !options.runStep && Object.keys(options.stepFields).every(key => key === 'evidence'))) {
     throw new Error("--step and step fields are supported only by run-step");
   }
   if (options.target === "run-step" && (!options.runId || !options.revisionId || !options.runStep)) {
@@ -242,6 +244,13 @@ export function validateCommandOptions(options) {
     }
     if (!options.dirExplicit) throw new Error("mcp requires an explicit --dir target");
     if (options.scope && !["project", "user"].includes(options.scope)) throw new Error("mcp --scope must be project or user");
+  }
+  if (options.retireCockpit !== undefined || options.restoreCockpit !== undefined) {
+    if (options.target !== 'mcp' || options.surface !== 'codex' || options.scope !== 'project'
+      || options.retireCockpit && options.restoreCockpit
+      || !['agdf-cockpit', 'agdf-cockpit-local'].includes(options.retireCockpit ?? options.restoreCockpit)
+      || (options.retireCockpit ? options.mcpAction !== 'disable' : options.mcpAction !== 'enable')
+      || !options.stepFields?.evidence) throw new Error('Cockpit transition requires Codex project scope, matching enable/disable and exact --evidence');
   }
   if (options.approvalEnvelope && options.target !== "gate-check") throw new Error("--approval-envelope is supported only by gate-check");
   if (options.approvalEnvelope && (options.json || options.statusCard || options.allActive)) {

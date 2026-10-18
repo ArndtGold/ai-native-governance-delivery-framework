@@ -1,0 +1,157 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/node_modules/.bin/playwright",
+      "test",
+      "sdk-trace.spec.mjs"
+    ],
+    "configFile": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/playwright.config.mjs",
+    "rootDir": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/agdf-cockpit-browser-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "sdk-trace.spec.mjs",
+      "file": "sdk-trace.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "built Cockpit exports actual SDK packets, preserves provider correlation and closes Core (synthetic host)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3848,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"session_expired\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"session_expired\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n    at /private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser/sdk-trace.spec.mjs:68:45",
+                    "location": {
+                      "file": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser/sdk-trace.spec.mjs",
+                      "column": 45,
+                      "line": 68
+                    },
+                    "snippet": "  66 |     expect(replies.some(row => row.message.result.structuredContent?.data?.closed === true)).toBe(true);\n  67 |     const closed = await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: prepared._meta.agdf_cockpit.session_id } });\n> 68 |     expect(closed.structuredContent.reason).toBe('session_expired');\n     |                                             ^\n  69 |     expect(await page.evaluate(() => window.sdkTraceHarness.logs.length)).toBeGreaterThan(0);\n  70 |     expect(treeBytes(f.root)).toEqual(before);\n  71 |     writeFileSync(evidencePath('cockpit-sdk-trace-browser.json'), JSON.stringify({ evidence_class: 'built_ui_real_sdk_core_synthetic_host', native_qualified: false,"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser/sdk-trace.spec.mjs",
+                        "column": 45,
+                        "line": 68
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"session_expired\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\n  66 |     expect(replies.some(row => row.message.result.structuredContent?.data?.closed === true)).toBe(true);\n  67 |     const closed = await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: prepared._meta.agdf_cockpit.session_id } });\n> 68 |     expect(closed.structuredContent.reason).toBe('session_expired');\n     |                                             ^\n  69 |     expect(await page.evaluate(() => window.sdkTraceHarness.logs.length)).toBeGreaterThan(0);\n  70 |     expect(treeBytes(f.root)).toEqual(before);\n  71 |     writeFileSync(evidencePath('cockpit-sdk-trace-browser.json'), JSON.stringify({ evidence_class: 'built_ui_real_sdk_core_synthetic_host', native_qualified: false,\n    at /private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser/sdk-trace.spec.mjs:68:45"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTg2MDEpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MTg1NTApIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T13:11:25.742Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test-results/sdk-trace-built-Cockpit-ex-51303-closes-Core-synthetic-host-/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser/sdk-trace.spec.mjs",
+                    "column": 45,
+                    "line": 68
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "38175be6745069fdf8b4-95673ed5c6cecd991d6f",
+          "file": "sdk-trace.spec.mjs",
+          "line": 16,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T13:11:23.489Z",
+    "duration": 7299.714,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

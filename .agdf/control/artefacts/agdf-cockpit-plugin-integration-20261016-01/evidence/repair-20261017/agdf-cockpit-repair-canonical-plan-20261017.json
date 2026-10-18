@@ -1,0 +1,394 @@
+[
+  {
+    "id": "dependencies",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "ci",
+          "--ignore-scripts"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "maintenance",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "run",
+          "test:maintenance-contracts"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "shell",
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "scripts/check-shell-syntax.mjs"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ui-dependencies",
+    "build": true,
+    "prepare": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "ci",
+          "--ignore-scripts"
+        ],
+        "cwd": "packages/control-ui"
+      }
+    ]
+  },
+  {
+    "id": "ui-build",
+    "build": true,
+    "prepare": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "run",
+          "build:mcp"
+        ],
+        "cwd": "packages/control-ui"
+      }
+    ]
+  },
+  {
+    "id": "generate",
+    "build": true,
+    "prepare": true,
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "scripts/sync-package-assets.js"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "build-contracts",
+    "build": true,
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "packages/cli/scripts/build-contract-test.js"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "evals",
+    "build": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli",
+          "run",
+          "eval:skills"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "compatibility-freshness",
+    "build": true,
+    "repository": true,
+    "failureHint": "Inspect the diagnostic. For source_snapshot_changed, run npm run build:prepare, then npm run compatibility:record with MCP dependencies installed; review the evidence and rerun npm run build. Other evidence errors require repair, not automatic recording.",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "run",
+          "compatibility:check"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "assemble",
+    "build": true,
+    "prepare": true,
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "scripts/assemble-npm.mjs"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "prepare",
+    "prepare": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli",
+          "run",
+          "release:prepare"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mcp-dependencies",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "ci",
+          "--ignore-scripts"
+        ],
+        "cwd": "packages/mcp-server"
+      }
+    ]
+  },
+  {
+    "id": "runtime",
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "plugins/agdf/scripts/check-runtime-integrity.mjs"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "community",
+    "repository": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "run",
+          "test:community-health"
+        ]
+      },
+      {
+        "tool": "npm",
+        "args": [
+          "run",
+          "check:community-health"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "host-compatibility",
+    "repository": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "run",
+          "test:host-compatibility"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "built-runtime",
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs"
+        ],
+        "env": {
+          "AGDF_RUNTIME_INTEGRITY_ROOT": "packages/cli/generated/plugins/agdf"
+        }
+      }
+    ]
+  },
+  {
+    "id": "cli-package",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli",
+          "run",
+          "test:package-contents"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wrapper-package",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli/distribution/agdf",
+          "run",
+          "test:package"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "transactions",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli",
+          "run",
+          "test:run-step-transaction"
+        ]
+      },
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli",
+          "run",
+          "test:run-lock"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delivery-map",
+    "repository": true,
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "packages/cli/bin/create-agdf.js",
+          "delivery-map",
+          "--dir",
+          ".",
+          "--all-active"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mcp-package",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/mcp-server",
+          "run",
+          "test:package"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "archives",
+    "commands": [
+      {
+        "tool": "node",
+        "args": [
+          "scripts/pack-npm.mjs"
+        ]
+      },
+      {
+        "tool": "node",
+        "args": [
+          "scripts/test-package-consumers.mjs"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cli-smoke",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli",
+          "run",
+          "smoke-test"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wrapper-smoke",
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "packages/cli/distribution/agdf",
+          "run",
+          "smoke-test"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pages-install",
+    "repository": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "pages",
+          "ci"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pages",
+    "repository": true,
+    "commands": [
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "pages",
+          "run",
+          "check"
+        ]
+      },
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "pages",
+          "run",
+          "test:landing"
+        ]
+      },
+      {
+        "tool": "npm",
+        "args": [
+          "--prefix",
+          "pages",
+          "run",
+          "test:public-documents"
+        ]
+      }
+    ]
+  }
+]

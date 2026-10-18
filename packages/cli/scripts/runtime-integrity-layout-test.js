@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
-import { digestNormalizedPluginSource } from "#agdf-core/runtime/plugin-provenance.js";
+import { digestNormalizedPluginSource, renderCodexPluginMcpConfig } from "#agdf-core/runtime/plugin-provenance.js";
 import {
   DISPATCHER_BINDING_PREFIX,
   REQUEST_ACTIVATION_MARKERS,
@@ -105,6 +105,29 @@ try {
   const installedDefault = runIntegrity(join(installedPluginRoot, "scripts", "check-runtime-integrity.mjs"));
   assert.equal(installedDefault.status, 0, combinedOutput(installedDefault));
   assert.match(installedDefault.stdout, /mode=installed/);
+
+  const mcpPath = join(installedPluginRoot, 'mcp.json'), mcpBytes = readFileSync(mcpPath, 'utf8');
+  const markerPath = join(installedPluginRoot, '.agdf-installation.json'), markerBytes = readFileSync(markerPath, 'utf8');
+  for (const cockpit of [false, true]) {
+    writeFileSync(mcpPath, renderCodexPluginMcpConfig({ cockpit }));
+    writeFileSync(markerPath, JSON.stringify({ ...JSON.parse(markerBytes),
+      source_digest: digestNormalizedPluginSource(installedPluginRoot, JSON.parse(markerBytes).canonical_version) }));
+    const historicalOrCurrent = runIntegrity(join(installedPluginRoot, 'scripts/check-runtime-integrity.mjs'));
+    assert.equal(historicalOrCurrent.status, 0, combinedOutput(historicalOrCurrent));
+  }
+  for (const mutate of [
+    c => { c.mcpServers['agdf-cockpit'].args[4] = '/foreign/data'; },
+    c => { c.mcpServers['agdf-cockpit'].args.pop(); },
+    c => { c.mcpServers.cockpit = c.mcpServers['agdf-cockpit']; },
+    c => { c.mcpServers['agdf-cockpit'].env = { FOREIGN: 'value' }; },
+  ]) {
+    const config = JSON.parse(renderCodexPluginMcpConfig({ cockpit: true })); mutate(config);
+    writeFileSync(mcpPath, JSON.stringify(config));
+    const invalid = runIntegrity(join(installedPluginRoot, 'scripts/check-runtime-integrity.mjs'));
+    assert.notEqual(invalid.status, 0);
+    assert.match(combinedOutput(invalid), /runtime Codex MCP config/);
+  }
+  writeFileSync(mcpPath, mcpBytes); writeFileSync(markerPath, markerBytes);
 
   const installedOverride = runIntegrity(
     join(installedPluginRoot, "scripts", "check-runtime-integrity.mjs"),

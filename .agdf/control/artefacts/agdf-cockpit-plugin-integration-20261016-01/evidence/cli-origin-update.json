@@ -1,0 +1,32 @@
+{
+  "native_ui_proof": false,
+  "steps": [
+    {
+      "step": "clean-install",
+      "plugin_result": "healthy"
+    },
+    {
+      "step": "real-native-origin-probe",
+      "exit_code": 0,
+      "result": {
+        "status": "observed",
+        "providers": [
+          {
+            "server_id": "agdf-cockpit",
+            "plugin_id": "agdf@agdf"
+          }
+        ]
+      }
+    },
+    {
+      "step": "normal-update",
+      "plugin_result": "healthy",
+      "failure": null
+    },
+    {
+      "step": "cleanup",
+      "exit_code": 0
+    }
+  ],
+  "auth_retained": false
+}

@@ -1,0 +1,5 @@
+# Browser Interaction Troubleshooting
+- An empty browser.tabs.list() result is not evidence that the selected browser disconnected. Keep the existing browser binding.
+- If a documented API is unavailable, use alternatives exposed by its effective API and capabilities rather than guessing hidden methods.
+Source: actual agent.documentation.get('browser-troubleshooting') returned in mcp__cua_repl.js. These two statements are a shortened transcription, not a complete raw document.
+MCP Apps effective documentation: existing side-panel tabs only; inline apps absent from list; backend cannot create/navigate tabs; native computer APIs disabled.

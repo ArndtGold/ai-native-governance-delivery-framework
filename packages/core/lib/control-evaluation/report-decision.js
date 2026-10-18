@@ -1,3 +1,5 @@
+import { READ_LIMITS } from '../control-read/snapshot.js';
+
 // A bounded report grammar, not a general Markdown parser. Only initial metadata
 // and the first scalar block of an explicit H2 decision section author a result.
 const metadata = new Set(['decision', 'status', 'gate', 'gate approval', 'based on',
@@ -165,24 +167,38 @@ const contentProfiles = Object.freeze({
 
 // Closed internal profiles only; no caller-selected heading/regex or Markdown API.
 export function readAuthoredContent(text, profile, { locale, sourceLanguage } = {}) {
-  if (typeof text !== 'string' || Buffer.byteLength(text) > 131072) return null;
+  // Objective belongs to the captured Run, whose append-only history can exceed
+  // the report limit. Keep the shared capture bound and scan the whole document
+  // so a later duplicate Objective still fails closed. Report profiles retain
+  // their smaller source limit; callers cannot opt arbitrary profiles out.
+  const limit = profile === 'objective' ? READ_LIMITS.file : 131072;
+  if (typeof text !== 'string' || Buffer.byteLength(text) > limit) return null;
   if (profile === 'title') {
     for (const row of reportLines(text.replace(/\r\n?/gu, '\n'))) if (row.level === 1 && !row.markup) return row.name;
     return null;
   }
-  const localized = profile === 'localized';
+  const localizedGoal = profile === 'localized_goal';
+  const localized = profile === 'localized' || localizedGoal;
   const spec = localized && ['en', 'de'].includes(locale) && ['en', 'de'].includes(sourceLanguage)
-    ? { heading: new RegExp('^AGDF Approval Summary \\(' + locale + ';[\\t ]*source=' + sourceLanguage + '\\)$', 'iu'), fields: null }
+    ? { heading: new RegExp('^AGDF Approval Summary \\(' + locale + ';[\\t ]*source=' + sourceLanguage + '\\)$', 'iu'), fields: null, paragraph: localizedGoal }
     : contentProfiles[profile];
   if (!spec) return null;
-  let active = false, sections = 0, started = false;
+  let active = false, sectionActive = false, sections = 0, started = false;
   const lines = [], fields = {};
   for (const row of reportLines(text.replace(/\r\n?/gu, '\n'))) {
     if (row.boundary || row.markup) { active = false; continue; }
     if (row.level) {
-      active = row.level === 2 && spec.heading.test(row.name); started = false;
+      active = row.level === 2 && spec.heading.test(row.name); sectionActive = active; started = false;
       if (active && ++sections !== 1) return null;
       continue;
+    }
+    // Older approved UR summaries author prose instead of named fields. Observe
+    // their first paragraph verbatim, never infer a sentence or translate one.
+    // Named fields anywhere in that section must use the scalar reader instead;
+    // malformed/mixed fields cannot be rescued by this compatibility profile.
+    if (localizedGoal && sectionActive) {
+      const key = row.line.match(/^(?:- )?([\p{L}][\p{L}\p{N}_ -]*):[\t ]*/u)?.[1].toLowerCase();
+      if (key && (summaryFields.has(key) || /^ac-[a-z0-9-]+$/iu.test(key))) return null;
     }
     if (!active) continue;
     if (!row.line.trim()) { if (spec.paragraph && started) active = false; continue; }

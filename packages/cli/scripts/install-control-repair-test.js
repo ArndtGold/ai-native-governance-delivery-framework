@@ -342,13 +342,15 @@ try {
   const output = [];
   let cliOffer = 0;
   let cliConfirm = 0;
-  const adapters = { interactive: true, parser: { cwd: cli.root }, env: { AGDF_DATA_DIR: join(base, "cli-data") },
+  const adapters = { interactive: true, parser: { cwd: cli.root },
+    env: { AGDF_DATA_DIR: join(base, "cli-data"), CODEX_HOME: join(base, 'codex-home') },
     io: { log: (value) => output.push(value), error: (value) => output.push(value) },
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     prepare: () => ({ root: join(base, "fixture-marketplace"), commit() {}, rollback() {} }),
     askControlRepair: () => { cliOffer++; return "start"; },
     askControlRepairConfirmation: () => { cliConfirm++; return "repair"; },
     exec(_executable, args) {
+      if (args.join(' ') === 'mcp list --json') return '[]';
       if (args.join(" ") === "plugin marketplace list --json") return '{"marketplaces":[]}';
       if (args.join(" ") === "plugin list") return "agdf@agdf 0.14.5\n";
       return "";

@@ -8,7 +8,7 @@ const OWNER = 'agdf:npm-assembly';
 export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
   if (surface && !['codex', 'claude', 'copilot', 'opencode'].includes(surface)) throw new Error('AGDF_ASSEMBLY_SURFACE_INVALID');
   if (typeof cockpit !== 'boolean' || cockpit && surface !== 'codex') throw new Error('AGDF_ASSEMBLY_COCKPIT_INVALID');
-  const ui = cockpit ? readCockpitUiBuild({ failure: 'AGDF_ASSEMBLY_UI_INVALID' }).root : undefined;
+  const ui = cockpit || surface === 'codex' || surface === undefined ? readCockpitUiBuild({ failure: 'AGDF_ASSEMBLY_UI_INVALID' }).root : undefined;
   const dist = surface ? join(repoRoot, 'dist', 'local', cockpit ? 'codex-cockpit' : surface) : join(repoRoot, 'dist');
   const output = join(dist, 'npm');
   for (const root of relative(repoRoot, output).split(sep).map((_, index, parts) => join(repoRoot, ...parts.slice(0, index + 1)))) if (existsSync(root) && (lstatSync(root).isSymbolicLink() || !lstatSync(root).isDirectory())) throw new Error('AGDF_ASSEMBLY_PATH_INVALID');
@@ -36,7 +36,7 @@ export function assembleNpm({ beforePublish, surface, cockpit = false } = {}) {
         if (!existsSync(join(source, entry))) throw new Error(`AGDF_ASSEMBLY_SOURCE_MISSING: ${name}/${entry}`);
         cpSync(join(source, entry), join(target, entry), { recursive: true });
       }
-      if (cockpit && name === 'agdf-mcp-server') {
+      if (ui && name === 'agdf-mcp-server') {
         const directory = join(target, 'ui'); mkdirSync(directory);
         for (const file of ['manifest.json', 'cockpit.html']) cpSync(join(ui, file), join(directory, file));
         manifest.files = [...manifest.files, 'ui'];

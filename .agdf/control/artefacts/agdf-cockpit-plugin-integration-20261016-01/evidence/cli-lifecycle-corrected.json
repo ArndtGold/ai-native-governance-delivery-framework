@@ -1,0 +1,40 @@
+{
+  "kind": "isolated_codex_cli_lifecycle",
+  "native_ui_proof": false,
+  "reinstall_preserves_explicit_disable": true,
+  "enable_via_native_config_api": true,
+  "steps": [
+    {
+      "step": "reinstall",
+      "plugin_installed": true
+    },
+    {
+      "step": "host-settings-enable",
+      "passed": false
+    },
+    {
+      "step": "reenabled-discovery",
+      "inventory": [
+        {
+          "name": "unrelated-fixture",
+          "enabled": false
+        }
+      ],
+      "passed": false
+    },
+    {
+      "step": "removed-discovery",
+      "inventory": [
+        {
+          "name": "unrelated-fixture",
+          "enabled": false
+        }
+      ],
+      "passed": true
+    },
+    {
+      "step": "preserve-disabled-foreign-canary",
+      "passed": true
+    }
+  ]
+}

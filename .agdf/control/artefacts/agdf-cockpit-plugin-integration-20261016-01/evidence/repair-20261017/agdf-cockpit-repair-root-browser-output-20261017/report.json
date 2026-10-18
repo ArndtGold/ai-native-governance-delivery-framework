@@ -1,0 +1,1952 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/playwright.config.mjs",
+    "rootDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/agdf-cockpit-browser-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "backlog-summary.spec.mjs",
+      "file": "backlog-summary.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "open normalized report findings stay visible when the Run-document evidence list is empty",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5371,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6Mzc1OCkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:56:54.213Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cdf43b2a6d0379dee3e4-f7f8c67755f2e749225d",
+          "file": "backlog-summary.spec.mjs",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "saved action and evidence limitation wrap without clipping in compact and expanded views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2479,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MzgxNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:00.530Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cdf43b2a6d0379dee3e4-37d9daed049d40e854b3",
+          "file": "backlog-summary.spec.mjs",
+          "line": 62,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "backlog-titles.spec.mjs",
+      "file": "backlog-titles.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SCN-084/085/092/093/094/095/100: stable stored titles and supplementary UR details, reversed order, scope replacement and unchanged sources in light/dark",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3297,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6Mzg1OCkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:03.037Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "265d81b5789d2df68fbe-fc157427d1905eda028a",
+          "file": "backlog-titles.spec.mjs",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "backlog.spec.mjs",
+      "file": "backlog.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "supplementary title batches keep the expanded list and controls still while scrolling",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1847,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MzkxNCkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:06.361Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "58f6cde637bb7bead135-4b862f2888f9d9b9e636",
+          "file": "backlog.spec.mjs",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "backlog areas filter stored entries locally, keep search on return, and match Pages in light/dark at four widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6Mzk1MikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:08.223Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "58f6cde637bb7bead135-1f4349ddad76fa7bcc29",
+          "file": "backlog.spec.mjs",
+          "line": 59,
+          "column": 1
+        },
+        {
+          "title": "a malformed planned section does not turn its count into zero or obscure readable active entries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1851,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NDAxMykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:11.506Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "58f6cde637bb7bead135-6b51aee772e253b1e113",
+          "file": "backlog.spec.mjs",
+          "line": 110,
+          "column": 1
+        },
+        {
+          "title": "SCN-008/009/011/012/013: compact active three-preview, full search, long wrapped rows and exact expanded return",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4343,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NDA0NSkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:13.380Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "58f6cde637bb7bead135-9175e768b97425bcfa53",
+          "file": "backlog.spec.mjs",
+          "line": 124,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "changes.spec.mjs",
+      "file": "changes.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "actual light overview waits for deliberate reload after a file event",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2353,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NDExNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:17.751Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9d939590e366ca0fdf8b-194c280920b1a436090a",
+          "file": "changes.spec.mjs",
+          "line": 7,
+          "column": 40
+        },
+        {
+          "title": "actual dark overview waits for deliberate reload after a file event",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2948,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NDE2OSkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:20.129Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9d939590e366ca0fdf8b-5bfb942f0ee0890f920f",
+          "file": "changes.spec.mjs",
+          "line": 7,
+          "column": 40
+        },
+        {
+          "title": "light changed original uses the header dot until deliberate reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3096,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NDIyMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:23.092Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9d939590e366ca0fdf8b-7fe5f4803518ed025bd2",
+          "file": "changes.spec.mjs",
+          "line": 44,
+          "column": 40
+        },
+        {
+          "title": "dark changed original uses the header dot until deliberate reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3005,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NDI3NCkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MzcxMikgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:26.208Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9d939590e366ca0fdf8b-efe1f8f4e1b62d9dacbb",
+          "file": "changes.spec.mjs",
+          "line": 44,
+          "column": 40
+        }
+      ]
+    },
+    {
+      "title": "decision-card.spec.mjs",
+      "file": "decision-card.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Busy host queue: en, survives the tool deadline and delivers once after idle (synthetic SDK host)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 0,
+                  "error": {
+                    "message": "Error: AGDF_DECISION_UI_INVALID",
+                    "stack": "Error: AGDF_DECISION_UI_INVALID\n    at readBuiltUi (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:58:19)\n    at readDecisionUiBuild (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:44:10)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-card.spec.mjs:16:16",
+                    "location": {
+                      "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                      "column": 19,
+                      "line": 58
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m../../../../scripts/cockpit-ui-build.mjs:58\n\n  56 |       || manifest.source_digest !== mcpUiSourceDigest()) throw Error();\n  57 |     build = Object.freeze({ root: uiRoot, manifest, files: Object.freeze({ [manifestName]: manifestBytes, [htmlName]: html }) });\n> 58 |   } catch { throw new Error(failure); }\n     |                   ^\n  59 |   return build;\n  60 | }\n  61 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                        "column": 19,
+                        "line": 58
+                      },
+                      "message": "Error: AGDF_DECISION_UI_INVALID\n\n   at ../../../../scripts/cockpit-ui-build.mjs:58\n\n  56 |       || manifest.source_digest !== mcpUiSourceDigest()) throw Error();\n  57 |     build = Object.freeze({ root: uiRoot, manifest, files: Object.freeze({ [manifestName]: manifestBytes, [htmlName]: html }) });\n> 58 |   } catch { throw new Error(failure); }\n     |                   ^\n  59 |   return build;\n  60 | }\n  61 |\n    at readBuiltUi (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:58:19)\n    at readDecisionUiBuild (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:44:10)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-card.spec.mjs:16:16"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-card.spec.mjs",
+                        "column": 6,
+                        "line": 24
+                      },
+                      "message": "\u001b[31m\"afterAll\" hook timeout of 60000ms exceeded.\u001b[39m\n\n  22 |   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve)); origin = 'http://127.0.0.1:' + server.address().port;\n  23 | });\n> 24 | test.afterAll(async () => { await new Promise(resolve => server?.close(resolve)); rmSync(temporary, { recursive: true, force: true }); });\n     |      ^\n  25 | for (const locale of Object.keys(registry.locales)) test(`Busy host queue: ${locale}, survives the tool deadline and delivers once after idle (synthetic SDK host)`, async ({ page }) => {\n  26 |   await page.clock.install(); await page.goto(origin); const frame = page.frameLocator('iframe'), l = registry.locales[locale].decisionCard;\n  27 |   await expect(frame.getByRole('button', { name: registry.locales.en.decisionCard.approve, exact: true })).toBeVisible();\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-card.spec.mjs:24:6"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:57:29.395Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/decision-card-Busy-host-qu-b7b19-er-idle-synthetic-SDK-host-/error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/decision-card-Busy-host-qu-b7b19-er-idle-synthetic-SDK-host-/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                    "column": 19,
+                    "line": 58
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-cabc5a0c8fb7cb2ef93b",
+          "file": "decision-card.spec.mjs",
+          "line": 25,
+          "column": 53
+        },
+        {
+          "title": "Busy host queue: de, survives the tool deadline and delivers once after idle (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.893Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-7c1f7457d91afdca0b8d",
+          "file": "decision-card.spec.mjs",
+          "line": 25,
+          "column": 53
+        },
+        {
+          "title": "Post-approval continuation: en/continue_agent, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-5a976bd7449f336ca03d",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: en/continue_human, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-31b6a9c93b5a2490c5ef",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: en/continue_stale, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-6f4b1c6d14202a6a8180",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: en/continue_unknown, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-5fb3e54810e7b28ce0b5",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: de/continue_agent, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-912dafeef540d265589f",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: de/continue_human, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-2a7dcdb2675bf0ff1126",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: de/continue_stale, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-14a1d025fe21cab09d09",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "Post-approval continuation: de/continue_unknown, no second click (synthetic SDK host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-107501498099f028e26f",
+          "file": "decision-card.spec.mjs",
+          "line": 46,
+          "column": 3
+        },
+        {
+          "title": "SDK close: browser iframe removal fallback (synthetic host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-e137387c5e5d9217905f",
+          "file": "decision-card.spec.mjs",
+          "line": 81,
+          "column": 56
+        },
+        {
+          "title": "SDK close: host teardown before navigation (synthetic host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-4b0e08ad33aba1a74d81",
+          "file": "decision-card.spec.mjs",
+          "line": 81,
+          "column": 56
+        },
+        {
+          "title": "Actual built resource + SDK bridge: en rendering/keyboard/read/recovery/teardown (synthetic host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.895Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-72711e8c8b1c68e27f12",
+          "file": "decision-card.spec.mjs",
+          "line": 88,
+          "column": 53
+        },
+        {
+          "title": "Actual built resource + SDK bridge: de rendering/keyboard/read/recovery/teardown (synthetic host)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:29.895Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "588c7747b4f3bc32c080-d1b07e84d84d5c249d38",
+          "file": "decision-card.spec.mjs",
+          "line": 88,
+          "column": 53
+        }
+      ]
+    },
+    {
+      "title": "decision-close-integration.spec.mjs",
+      "file": "decision-close-integration.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 26692,
+                  "error": {
+                    "message": "Error: AGDF_DECISION_UI_INVALID",
+                    "stack": "Error: AGDF_DECISION_UI_INVALID\n    at readBuiltUi (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:58:19)\n    at readDecisionUiBuild (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:44:10)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:39:57\n    at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:29:5",
+                    "location": {
+                      "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                      "column": 19,
+                      "line": 58
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m../../../../scripts/cockpit-ui-build.mjs:58\n\n  56 |       || manifest.source_digest !== mcpUiSourceDigest()) throw Error();\n  57 |     build = Object.freeze({ root: uiRoot, manifest, files: Object.freeze({ [manifestName]: manifestBytes, [htmlName]: html }) });\n> 58 |   } catch { throw new Error(failure); }\n     |                   ^\n  59 |   return build;\n  60 | }\n  61 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                        "column": 19,
+                        "line": 58
+                      },
+                      "message": "Error: AGDF_DECISION_UI_INVALID\n\n   at ../../../../scripts/cockpit-ui-build.mjs:58\n\n  56 |       || manifest.source_digest !== mcpUiSourceDigest()) throw Error();\n  57 |     build = Object.freeze({ root: uiRoot, manifest, files: Object.freeze({ [manifestName]: manifestBytes, [htmlName]: html }) });\n> 58 |   } catch { throw new Error(failure); }\n     |                   ^\n  59 |   return build;\n  60 | }\n  61 |\n    at readBuiltUi (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:58:19)\n    at readDecisionUiBuild (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:44:10)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:39:57\n    at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:29:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:58:31.514Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/decision-close-integration-d201e-ts-own-view-synthetic-host-/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                    "column": 19,
+                    "line": 58
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3883e3044bf0c605046b-0eb082b2b5019fa02d0f",
+          "file": "decision-close-integration.spec.mjs",
+          "line": 15,
+          "column": 1
+        },
+        {
+          "title": "Confirmed approval handoff retires its assembled Core session while keeping the receipt and exact historical document (synthetic host)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 48050,
+                  "error": {
+                    "message": "Error: AGDF_DECISION_UI_INVALID",
+                    "stack": "Error: AGDF_DECISION_UI_INVALID\n    at readBuiltUi (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:58:19)\n    at readDecisionUiBuild (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:44:10)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:115:57\n    at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:107:5",
+                    "location": {
+                      "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                      "column": 19,
+                      "line": 58
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m../../../../scripts/cockpit-ui-build.mjs:58\n\n  56 |       || manifest.source_digest !== mcpUiSourceDigest()) throw Error();\n  57 |     build = Object.freeze({ root: uiRoot, manifest, files: Object.freeze({ [manifestName]: manifestBytes, [htmlName]: html }) });\n> 58 |   } catch { throw new Error(failure); }\n     |                   ^\n  59 |   return build;\n  60 | }\n  61 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                        "column": 19,
+                        "line": 58
+                      },
+                      "message": "Error: AGDF_DECISION_UI_INVALID\n\n   at ../../../../scripts/cockpit-ui-build.mjs:58\n\n  56 |       || manifest.source_digest !== mcpUiSourceDigest()) throw Error();\n  57 |     build = Object.freeze({ root: uiRoot, manifest, files: Object.freeze({ [manifestName]: manifestBytes, [htmlName]: html }) });\n> 58 |   } catch { throw new Error(failure); }\n     |                   ^\n  59 |   return build;\n  60 | }\n  61 |\n    at readBuiltUi (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:58:19)\n    at readDecisionUiBuild (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs:44:10)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:115:57\n    at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:107:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:59:00.242Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/decision-close-integration-de8c8-al-document-synthetic-host-/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/cockpit-ui-build.mjs",
+                    "column": 19,
+                    "line": 58
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3883e3044bf0c605046b-ad028d571bfc299ddda3",
+          "file": "decision-close-integration.spec.mjs",
+          "line": 83,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "draft-check.spec.mjs",
+      "file": "draft-check.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SCN-015/016/018: built compact/expanded checks use actual Core, preserve keyboard/disclosure/position and wrap long findings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:59:50.348Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8803cd11fec4d678e654-aa6c44e4e3b6fbf28268",
+          "file": "draft-check.spec.mjs",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "journeys.spec.mjs",
+      "file": "journeys.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "document orientation separates approved Run facts from draft originals in both Pages themes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 28811,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6OTA0OSkgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:59:57.033Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-8f1c7ab9eabbf5174b21",
+          "file": "journeys.spec.mjs",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "SCN-044: Pages fonts survive host body overrides across card, list, Run and document",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6291,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTU3NjUpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:00:25.863Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-7a84ebce4ff73afcae4a",
+          "file": "journeys.spec.mjs",
+          "line": 111,
+          "column": 1
+        },
+        {
+          "title": "SCN-002/005/007/008/010: explicit graph inspection stays passive and readable at container boundaries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2677,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTU5MTIpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:00:32.169Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-6ff76f8c997e8dadae5f",
+          "file": "journeys.spec.mjs",
+          "line": 168,
+          "column": 1
+        },
+        {
+          "title": "SCN-003/007/028/031: copied repository sources, explicit stored pointers, keyboard focus, source fidelity and unchanged bytes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 25809,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTU5NTQpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:00:34.862Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-97a8d4275eb98903d42b",
+          "file": "journeys.spec.mjs",
+          "line": 195,
+          "column": 1
+        },
+        {
+          "title": "SCN-005/010/012/028: visible invalid run, persisted discrepancy, missing and unsupported documents",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2604,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTY1MjQpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:00.704Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-1adcd893807c50b1f191",
+          "file": "journeys.spec.mjs",
+          "line": 238,
+          "column": 1
+        },
+        {
+          "title": "SCN-009/014/018/024: hostile document, stale reload, retry and removed selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2706,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTY1OTkpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:03.328Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-631f2770995766564779",
+          "file": "journeys.spec.mjs",
+          "line": 259,
+          "column": 1
+        },
+        {
+          "title": "sticky card and document headers, sliding view selector and narrow summary retain source identity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3008,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTY2NzYpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:06.048Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-c043aa2385468d8b175d",
+          "file": "journeys.spec.mjs",
+          "line": 281,
+          "column": 1
+        },
+        {
+          "title": "summary leads with the work step and stale reads never claim a missing Run or current control",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7325,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTY3NzYpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:09.076Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-46bb4ceab68f819d2b18",
+          "file": "journeys.spec.mjs",
+          "line": 332,
+          "column": 1
+        },
+        {
+          "title": "neutral light reading planes and Pages dark surfaces survive host colors across all views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5861,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTY5MTEpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:16.418Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-3fe7e71c35733f53cc13",
+          "file": "journeys.spec.mjs",
+          "line": 364,
+          "column": 1
+        },
+        {
+          "title": "Pages action and type hierarchy retains the Cockpit neutral light palette",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3830,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTY5OTMpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:22.293Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-7ce4de2bb759b7a56ae1",
+          "file": "journeys.spec.mjs",
+          "line": 443,
+          "column": 1
+        },
+        {
+          "title": "work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3304,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTcwNDgpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:26.139Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-27713d657e03d43126d1",
+          "file": "journeys.spec.mjs",
+          "line": 511,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "run-documents.spec.mjs",
+      "file": "run-documents.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SCN-001/004/015/016: visible zero/four actual registrations and unconfirmed raw version retain passive original evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4542,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTcwODcpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    },
+                    {
+                      "buffer": "KG5vZGU6MTcxMjQpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:29.472Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45ef6ce105f3a6d48fb3-bdd2ea1509ab8077af5b",
+          "file": "run-documents.spec.mjs",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "SCN-001/003/015/016/017: actual approved version and six registered resources; same DOM measured resizing, themes, keyboard and raw-source reading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6464,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTcxNzUpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:34.027Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45ef6ce105f3a6d48fb3-2bf5b6ee343f7db303c9",
+          "file": "run-documents.spec.mjs",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "SCN-005/007/010/013/018: deliberate actual draft check survives document/return; busy retry, corrections, source change and reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6024,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:40.507Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45ef6ce105f3a6d48fb3-3b0c2f3bee65e747e3f9",
+          "file": "run-documents.spec.mjs",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "SCN-001/010/015/017: built consumer renders multiple long references and old-server absence truthfully",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2439,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTczNzMpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:46.544Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "45ef6ce105f3a6d48fb3-afdae88935ad93d2d01b",
+          "file": "run-documents.spec.mjs",
+          "line": 115,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "scoped.spec.mjs",
+      "file": "scoped.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "scoped HTTP reading preserves stored backlog, source navigation and Pages themes at four widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3639,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6MTc0MTMpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6NzIwNykgV2FybmluZzogVGhlICdOT19DT0xPUicgZW52IGlzIGlnbm9yZWQgZHVlIHRvIHRoZSAnRk9SQ0VfQ09MT1InIGVudiBiZWluZyBzZXQuCihVc2UgYG5vZGUgLS10cmFjZS13YXJuaW5ncyAuLi5gIHRvIHNob3cgd2hlcmUgdGhlIHdhcm5pbmcgd2FzIGNyZWF0ZWQpCg=="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T07:01:49.014Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02b8f7c7f89398679c19-2c7e16f43b212d993152",
+          "file": "scoped.spec.mjs",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T06:56:51.345Z",
+    "duration": 301390.544,
+    "expected": 28,
+    "skipped": 13,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

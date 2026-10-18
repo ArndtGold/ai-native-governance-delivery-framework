@@ -54,15 +54,21 @@ test('SCN-003/004/014: actual canonical approval binds raw returned bytes; norma
   } finally { f.close(); }
 });
 test('SCN-004: missing or foreign/malformed approval presentation never confirms current version', async () => {
-  for (const mutation of ['missing', 'malformed', 'foreign']) {
+  for (const mutation of ['missing', 'malformed', 'foreign', 'document_missing', 'document_changed']) {
     const f = await approvalFixture(); try {
       assert.equal(f.approve().outcome, 'approved');
-      const dir = join(f.root, '.agdf/control/runs/fixture-a/presentations'), path = join(dir, fs.readdirSync(dir)[0]);
+      const dir = join(f.root, '.agdf/control/runs/fixture-a/presentations');
+      const path = join(dir, `${f.presentationId}.json`), document = join(dir, `${f.presentationId}.document`);
+      assert.equal(JSON.parse(fs.readFileSync(path, 'utf8')).record.presentation_id, f.presentationId);
       if (mutation === 'missing') fs.rmSync(path);
       else if (mutation === 'malformed') fs.writeFileSync(path, '{broken');
+      else if (mutation === 'document_missing') fs.rmSync(document);
+      else if (mutation === 'document_changed') fs.appendFileSync(document, '\nChanged presentation snapshot\n');
       else { const p = JSON.parse(fs.readFileSync(path, 'utf8')); p.record.run_id = 'foreign'; fs.writeFileSync(path, JSON.stringify(p)); }
+      const before = treeBytes(f.root);
       const fresh = createCockpitReader(f.root).snapshot('fixture-a'); assert.equal(row(fresh).state, 'approval_unconfirmed');
       assert.ok(row(fresh).recorded_approval); assert.equal(row(fresh).version_kind, 'current');
+      assert.deepEqual(treeBytes(f.root), before, mutation);
     } finally { f.close(); }
   }
 });

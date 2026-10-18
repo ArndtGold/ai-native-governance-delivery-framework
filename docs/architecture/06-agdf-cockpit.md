@@ -24,9 +24,54 @@ technischen Zuständigkeiten. Die Oberfläche verwendet Aufgaben wie „Ziel und
 „Verhalten festlegen“ und „Lösung planen“; die technischen Kürzel stehen in Details.
 Die folgenden Abschnitte bleiben die Referenz des Bestands.
 
+## Plugin-Integration in Codex: Entwicklungsstand vom 16. Oktober 2026
+
+Der aktuelle Codex-Laufzeitbuild liefert das **Cockpit** im AGDF-Plugin mit. Intern gehören
+`agdf` und `agdf-cockpit` zum selben Plugin; sie verwenden denselben Launcher und geprüften
+Paketbestand, behalten aber eigene Verbindungen und Sitzungszustände. Die normale Codex-Paketierung
+enthält die exakten geprüften UI-Dateien. Die folgenden historischen Hostnachweise qualifizieren
+diesen neuen Stand nicht automatisch.
+
+Der Codex-Plugin-Server liefert seine Werkzeugbeschreibungen bereits bei der Discovery,
+auch wenn diese Anfrage noch keine MCP-App-UI-Fähigkeit meldet. Erst so kann der Host den
+passenden UI-Aufruf auswählen. Das Anzeigen der Beschreibungen öffnet keine Ansicht:
+Rendern, Lesen und Zugriff auf die UI-Ressource prüfen weiterhin die deklarierte UI-Fähigkeit
+der tatsächlichen Anfrage. Ohne sie wird kein Ansichtsplatz angelegt. Die bestehende
+Discovery-Sperre des optionalen Claude-Profils bleibt erhalten.
+
+Beim Plugin-Aufruf von `agdf_cockpit` sind `working_directory`, `target_source` und `primary_target`
+verpflichtend. Core prüft das bestätigte Projekt und bindet es unveränderlich an die neue Ansicht.
+`run_id` bleibt der explizite optionale Run-Selektor. Die vier Ansichtsplätze und der exklusive
+Kontext-Eigentümer gelten gemeinsam über alle Projekte einer Verbindung. Nachfolgende Leseaufrufe
+akzeptieren weiterhin nur die vorhandenen Sitzungs-/Snapshot-Selektoren. Alte verzeichnisgebundene
+Codex-/Claude-Aufrufe behalten ihr Schema; das Plugin führt keine aktuelle globale Projektauswahl ein.
+
+Der sichtbare Name ist Cockpit, die technische Kennung `agdf-cockpit`. Unverändert bleiben
+`agdf_cockpit`, `agdf_cockpit_read` und `ui://agdf/cockpit/v1.html`. Pluginzugehörigkeit allein
+beweist keine Namensisolierung im Host. Deklarationsherkunft, mögliche Namensangleichungen und
+tatsächliche Verbindungs-/Werkzeugzuordnung müssen beobachtet werden. Das allgemeine Cockpit
+ersetzt den begrenzten Decision-App-Reader des `agdf`-Servers nicht.
+
+Die bestehende Lifecycle-Verwaltung prüft konkurrierende lokale Kennungen vor Veröffentlichung
+des Installationskandidaten. Zur Ablösung braucht sie exakte Besitz-/Laufzeitnachweise, den
+unveränderten Konfigurationsstand und passende native Discovery-, UI-Initialisierungs-, Rendering-,
+Interaktions- und Teardown-Beobachtungen. Bei vorhandenem Altzugang behält der Installer seinen bestehenden Paket-Rückstand im eigenen Journal bis zur nativen Qualifikation; eine weitere Installation darf ihn nicht verwerfen. Es entsteht keine zweite Migrationsdatenbank. Der Abschluss desselben Journals verlangt den normalen nativen Kontext und die beobachtete Abwesenheit des alten Providers. Die eigene alte Sektion wird gezielt auf `enabled = false`
+gesetzt; Konfiguration und Laufzeit bleiben als Rückweg erhalten. Bei gleicher Kennung ist zuerst
+ein unterstützter isolierter nativer Kontext für dasselbe Projekt erforderlich. Ein fehlender
+Nachweis lässt die alte Verbindung bestehen. Der Rückweg prüft zuerst den früheren Pluginzustand
+und danach die unveränderte deaktivierte Sektion; fremde oder zwischenzeitlich geänderte Bytes
+werden nicht überschrieben. Der abschließende normale frische Hostkontext muss genau einen
+eindeutig zugeordneten Cockpit-Zugang samt sichtbarer Interaktion zeigen.
+
+Die normale Nutzung verlangt keine separate Einrichtung. Agenteninterne Wartungsoptionen und
+Grenzen stehen in [INSTALL.md](../../INSTALL.md#cockpit-in-the-codex-plugin-development-integration).
+Öffnen/Lesen schreibt weder Hostkonfiguration noch kanonischen Kontrollzustand. Fehlende
+UI-Unterstützung, unklare Herkunft und ausstehender Neustart bleiben benannte Grenzen; Quell- und
+Protokollprüfungen gelten nicht als native Codex-Qualifikation oder Veröffentlichung.
+
 ## 1. Einordnung und Zuständigkeiten
 
-Die separate lokale Verbindung `agdf-cockpit-local` stellt `agdf_cockpit` und
+Im historischen verzeichnisgebundenen Aufbau stellt die separate lokale Verbindung `agdf-cockpit-local` `agdf_cockpit` und
 `agdf_cockpit_read` sowie die UI-Resource `ui://agdf/cockpit/v1.html` bereit. Der reguläre
 AGDF-Server bleibt ein eigener Zugang zur Ablaufsteuerung und zu begrenzten Core-Operationen.
 Neben `agdf_dispatch` und `agdf_inspect` enthält sein nachgeführter Repository-Entwicklungsstand
@@ -442,6 +487,57 @@ verweist auf ihren geprüften Einstiegspunkt. Die vorherige Runtime bleibt für 
 erhalten. `activation.json` unterscheidet die konfigurierte Verbindung von einem tatsächlich
 geprüften nativen Host. Bereits laufende Server und eingebettete Dokumente werden dadurch
 nicht im Speicher ersetzt: Codex muss die Verbindung neu aufbauen und das Cockpit neu öffnen.
+
+### SDK-Diagnose einer eingebetteten Cockpit-Ansicht
+
+Unter „Host-Verbindung prüfen“ kann für eine frische Ansicht „SDK-Nachweis aufzeichnen“
+gestartet werden. Der öffentliche SDK-Transport puffert zunächst nur Öffnen und Initialisierung.
+Ab der Diagnoseaktion erfasst er die tatsächlich empfangenen und erfolgreich gesendeten
+JSON-RPC-Nachrichten dieser Ansicht, einschließlich Leseantworten und gegebenenfalls Teardown.
+Der Puffer ist auf 256 Ereignisse und 1 MiB begrenzt;
+ein überschrittenes Limit wird ausdrücklich als `truncated` ausgewiesen. Er ersetzt weder
+Protokollhandler noch Quellenprüfung oder Sitzungsbesitz. Fehler der Diagnoseausgabe ändern
+den Transportausgang nicht.
+
+Erst die Diagnoseaktion gibt den Puffer und spätere Ereignisse mit `AGDF_SDK_TRACE` an die
+Konsole und, bei gemeldeter Logging-Fähigkeit, über `App.sendLog` an den Host aus. Die
+Konsole erhält nur Initialisierung, Kontextübergabe und -entwertung sowie Schließung mit
+ihren zugehörigen Antworten. Polling füllt dadurch nicht das begrenzte Warnprotokoll des
+Hosts. Der begrenzte SDK-Puffer und `App.sendLog` behalten den vollständigen erfassten Strom.
+Die
+Nachrichten können gelesene Originalquellen enthalten. Es gibt keinen zusätzlichen externen
+Sammler und keinen Modellaufruf. Die erfolgreiche Übergabe an die Logging-Schnittstelle
+garantiert keine dauerhafte Speicherung: Export, Vollständigkeit und tatsächliche Host-Dateien
+müssen separat geprüft werden. Geschlossene Ansichten lassen sich nicht nachträglich aus
+diesem flüchtigen Puffer auslesen.
+
+Nach Beginn der Aufzeichnung führt „Sitzung beenden und Host schließen lassen“ einmalig
+den vorhandenen Kontextentwertungsablauf aus und wartet auf dessen Bestätigung. Erst danach
+schließt die Ansicht ihre unveränderlich gebundene Core-Sitzung und prüft deren Antwort.
+Währenddessen wird die Arbeitsansicht entfernt, damit keine neue Lese- oder Kontextübergabe
+beginnt. Bei unbestätigter Bereinigung bleibt die Ansicht gesperrt; es gibt keine automatische
+Wiederholung und keine Schließanforderung an den Host.
+
+Nach bestätigter Bereinigung folgt der öffentliche SDK-Aufruf `App.requestTeardown()`.
+Er sendet `ui/notifications/request-teardown`; der Host entscheidet, ob er mit
+`ui/resource-teardown` antwortet oder die Karte weiter anzeigt. Sichtbarkeit bestätigt daher
+keine Ressourcenfreigabe. Ein nachfolgendes Host-Teardown nutzt denselben Schließvorgang,
+ohne die Sitzung doppelt zu schließen. Bei erzwungenem Host-Teardown bleibt die vorhandene
+Core-Quarantäne für einen unbestätigten Kontextverlust erhalten.
+
+Der Codex-Plugin-Server ergänzt Werkzeugantworten um `_meta["agdf/provider"]`. Dessen
+`connection_id` wird einmal je tatsächlicher SDK-Serverinstanz erzeugt; der STDIO-Einstieg
+bindet diese Instanz an die Verbindung. Render- und Leseantworten derselben Verbindung
+tragen dieselbe Kennung. `server_module` bezeichnet das tatsächlich geladene Servermodul.
+`_meta["agdf/peer"]` enthält die am vorhandenen SDK-Einstieg beobachtete Client-Identität
+und dessen tatsächlich deklarierte Fähigkeiten, einschließlich einer vorhandenen
+`io.modelcontextprotocol/ui`-Erweiterung. Das ist beobachteter SDK-Zustand; es ist keine
+Kopie der zugrunde liegenden STDIO-Bytes.
+Diese Angaben sind kooperative Laufzeitbeobachtungen mit `authorizes: false`, keine vom Host
+vergebene Kennung, Namensraumgarantie oder Freigabe. Die Zuordnung verlangt zusätzlich
+beobachteten Werkzeugursprung und geprüfte Installations-/Runtime-Identität. Eine neue
+Instrumentierungsfassung benötigt neue passende native Nachweise; der Übergangsvalidator
+und die Bedingungen für die Legacy-Abschaltung bleiben unverändert.
 
 ## 5. Quellen und ContextGraph
 

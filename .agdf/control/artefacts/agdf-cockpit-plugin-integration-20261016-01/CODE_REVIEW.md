@@ -1,0 +1,43 @@
+# Code Review: integrated Cockpit and guarded Legacy migration
+
+- decision: pass
+Reviewer: Codex
+Date: 2026-10-18
+run_id: agdf-cockpit-plugin-integration-20261016-01
+source_revision: 0418e278-3b74-4395-96aa-a5ed4b6a416e
+
+## Scope and evidence
+
+Review of the implemented plugin integration and its corrective working-tree diff, supplementing CODE_REVIEW_SOURCE_20261018.md and its baseline 16d088885fc2d0383f3850a4bbd20789a8b8ff0f through HEAD 568b2545b2b50fa29027da6bad6b60a84aaae8f2. The earlier review covers the existing Core/installer/launcher/package ownership implementation; this final refresh inspects the subsequent actual UI/MCP changes, new bounded SDK trace and view-close modules, project-origin probe/caller/tests, and the applied retirement result. Unrelated control artefacts for other Runs are outside scope. This is not a claim of line-by-line inspection of every generated asset or a new full-CI execution.
+
+Checked source paths: control-ui App/ContextPanel freshness and capture ordering; EmbeddedEntry bootstrap/session and onteardown races, unique sibling keys, owned observer cleanup, confirmed inline-before-size-before-teardown sequencing; HostProbe explicit opt-in and no autonomous question sending; CockpitBridge's unchanged default Decision resize behavior; createViewCloser's immutable binding, joined close/quarantine semantics and validated close envelope; SdkTrace's original public transport forwarding, opt-in source capture, limits and logging-recursion exclusion; MCP server response identity metadata and Codex-only early tool discovery with execution/resource UI enforcement; request-capability precedence; the CLI project's ephemeral inventory phase machine, cwd/ephemeral verification, bounded termination, no turn/start and refusal of incomplete inventory; adapter admission requiring the connected exact plugin source.
+
+Tests were inspected for actual failures and invariants rather than assertion weakening: red 1987-versus-112 terminal measurement; duplicate-key stale main subtree; rejected inline acknowledgement prevents teardown; no observer/read restart or repeated close; context capture does not race stale freshness; supported MCP capability versions preserve gated calls; project-scoped discovery reveals Legacy while global discovery omits it; wrong-target/persistent/start-error/pagination/error/timeout are rejected. Existing package/MCP lifecycle tests supplement the focused UI and probe regressions.
+
+## Findings
+
+No confirmed actionable functional, data-integrity, security or maintainability defect remains in the reviewed source/effect scope. No style-only changes are requested.
+
+The guard successfully validated the actual replacement/native proof and complete project inventory before applying retirement. Exact config comparison shows only enabled=false and the existing rollback marker; user config is unchanged. Original legacy executable/runtime/preparation and prior plugin rollback state remain retained. Fresh independent CLI project discovery shows only the AGDF-owned replacement connected and the old provider disabled with no tools. No direct edit bypassed the owner or weakened its evidence validator.
+
+## Qualification limits and risks
+
+A source review pass does not assert final native production qualification, QA pass, acceptance or release readiness. The user explicitly instructed no further restart and accepted the existing proof. The current Desktop's pre-existing connection has not been refreshed after config retirement. Historical native clean/same-key/destructive lifecycle scenario limits remain evidence-only qualifications, as retained in CD_TESTS.md and USER_EVIDENCE_ACCEPTANCE_20261018.md. CPI-E01 remains open for the QA/evidence dimension and is not resolved by this Code Review. Final measured size 32x416 is retained as a transition observation; the human's positive final card observation is the evidence for the visible result, not the mocked rectangle.
+
+The qualification-pending publication rollback point remains available. This review does not commit that publication or claim an unobserved native refresh. No restart or additional UI loop is requested.
+
+## Required next step
+
+Task Plan Review evaluates the fulfilled implementation and explicit evidence-only limitations against the approved TP and latest direct user constraint; then Clean Implementation Review and the sole QA decision owner consume the same actual evidence. Any permissible human acceptance of evidence deviations remains separate from the technical QA result and exact-material gate approval.
+
+## Context Graph
+
+- memory_target: scope_artifact
+- memory_reason: Run-specific source/effect review and bounded host qualification evidence.
+- memory_refs: CR_FINAL_20261018.md; CD_TESTS.md; LEGACY_RETIREMENT_APPLIED_20261018.md
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Existing ownership and no new reusable graph node or source-of-truth registry is introduced.

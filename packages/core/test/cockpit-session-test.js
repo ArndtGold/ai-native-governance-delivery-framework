@@ -267,3 +267,66 @@ test('SCN-051/061: production MCP overview ignores unrelated 64 MiB tree boundar
     } finally { await browserPool.close(); }
   } finally { await service.close(); f.close(); }
 });
+
+test('plugin views bind two projects once, share capacity, and keep failure identity', async () => {
+  const first = fixture(), second = fixture();
+  for (const f of [first, second]) {
+    fs.mkdirSync(join(f.root, '.git'));
+    fs.writeFileSync(join(f.root, '.git/HEAD'), 'ref: refs/heads/main\n');
+  }
+  const created = [], service = createCockpitSessionService(undefined, { pluginMode: true,
+    poolFactory: root => { created.push(root); return { close: async () => {},
+      request: async () => { throw Error('unavailable'); } }; } });
+  const open = f => service.render({ working_directory: f.root, primary_target: f.root, target_source: 'explicit_target' });
+  try {
+    await assert.rejects(service.render({}), /resource_denied/);
+    const denied = await service.render({ working_directory: first.root, primary_target: 'relative', target_source: 'explicit_target' });
+    assert.equal(denied.code, 'resource_denied'); assert.equal(denied.target, null); assert.equal(created.length, 0);
+    const missingRun = await service.render({ working_directory: first.root, primary_target: first.root,
+      target_source: 'explicit_target', run_id: 'missing-run' });
+    assert.equal(missingRun.code, 'run_missing'); assert.equal(missingRun.data.requested_run_id, 'missing-run');
+    assert.equal(created.length, 0, 'unknown explicit Run allocates no worker');
+    const a = await open(first), b = await open(second);
+    assert.equal(a.target.display_path, first.root); assert.equal(b.target.display_path, second.root);
+    assert.notEqual(a.target.target_id, b.target.target_id);
+    const aid = a._meta.agdf_cockpit.session_id, bid = b._meta.agdf_cockpit.session_id;
+    const failure = await service.read({ operation: 'snapshot', session_id: aid });
+    assert.equal(failure.target.display_path, first.root); assert.equal(failure.code, 'read_failed');
+    assert.equal((await service.read({ operation: 'snapshot', session_id: bid, primary_target: first.root })).code, 'resource_denied');
+    await open(first); await open(second);
+    assert.equal((await open(first)).code, 'resource_limit'); assert.equal(created.length, 4);
+    await service.read({ operation: 'close', session_id: aid });
+    assert.equal((await open(second)).target.display_path, second.root);
+    assert.equal((await service.read({ operation: 'snapshot', session_id: aid })).code, 'session_expired');
+  } finally { await service.close(); first.close(); second.close(); }
+});
+
+test('plugin production workers preserve cross-project data and one publication owner', async () => {
+  const a = fixture(), b = fixture();
+  for (const f of [a, b]) { fs.mkdirSync(join(f.root, '.git')); fs.writeFileSync(join(f.root, '.git/HEAD'), 'ref: refs/heads/main\n'); }
+  fs.writeFileSync(join(b.root, b.documentPath), '# Other project document\n');
+  const beforeA = treeBytes(a.root), beforeB = treeBytes(b.root);
+  const service = createCockpitSessionService(undefined, { pluginMode: true });
+  async function view(f) {
+    const opened = await service.render({ primary_target: f.root, working_directory: f.root, target_source: 'continued_target', run_id: 'fixture-a' });
+    const session_id = opened._meta.agdf_cockpit.session_id;
+    const call = input => service.read({ ...input, session_id });
+    const snapshot = await call({ operation: 'snapshot', run_id: 'fixture-a' });
+    const resource = snapshot.data.run.resources.find(r => r.type === 'UR');
+    const doc = await call({ operation: 'document', snapshot_id: snapshot.snapshot_id, run_id: 'fixture-a', resource_id: resource.resource_id });
+    const context = await call({ operation: 'context', snapshot_id: doc.snapshot_id, run_id: 'fixture-a' });
+    return { call, doc, selectors: { operation: 'prepare_context', snapshot_id: context.snapshot_id, run_id: 'fixture-a',
+      revision_id: context.data.run.revision_id, resource_id: context.data.document.resource.resource_id, graph_ids: [], excluded_ids: [], generation: 1 } };
+  }
+  try {
+    const x = await view(a), y = await view(b);
+    assert.match(x.doc.data.document.content, /Fixture document/); assert.match(y.doc.data.document.content, /Other project/);
+    assert.equal((await x.call(x.selectors)).state, 'available');
+    assert.equal((await y.call(y.selectors)).code, 'busy');
+    const invalidation = await x.call({ operation: 'invalidate_context' });
+    assert.equal((await y.call(y.selectors)).code, 'busy');
+    await x.call({ operation: 'complete_context_invalidation', invalidation_id: invalidation.data.invalidation_id });
+    assert.equal((await y.call(y.selectors)).state, 'available');
+    assert.deepEqual(treeBytes(a.root), beforeA); assert.deepEqual(treeBytes(b.root), beforeB);
+  } finally { await service.close(); a.close(); b.close(); }
+});

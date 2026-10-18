@@ -1,0 +1,40 @@
+{
+  "marker": {
+    "schema_version": 1,
+    "owner": "create-agdf",
+    "profile_id": "runtime-plugin",
+    "marketplace_id": "agdf",
+    "canonical_version": "0.14.5",
+    "codex_install_version": "0.14.5+codex.local-3753a404b41f",
+    "source_digest": "3753a404b41f4d3a60ed17454511bf7410ba438a389dbd53f944e8870cbe1653",
+    "runtime_digest": "7c746260ba2447d1d5322072c4ef40a2dce360ff264bc473f4302547009029b2"
+  },
+  "declaration": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "agdf": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "/private/tmp/agdf-cockpit-cli-instance/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+          "--surface",
+          "codex",
+          "--data",
+          "/private/tmp/agdf-cockpit-cli-instance/agdf-data/mcp/codex-plugin"
+        ]
+      },
+      "agdf-cockpit": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "/private/tmp/agdf-cockpit-cli-instance/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+          "--surface",
+          "codex",
+          "--data",
+          "/private/tmp/agdf-cockpit-cli-instance/agdf-data/mcp/codex-plugin",
+          "--cockpit"
+        ]
+      }
+    }
+  }
+}

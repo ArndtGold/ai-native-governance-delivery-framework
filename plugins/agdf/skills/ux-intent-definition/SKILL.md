@@ -72,8 +72,32 @@ and approved as PRD content. Technical storage, derivation and component ownersh
    `primary_state_presentation_owner_by_mode`; do not turn either into technical ownership.
 5. Define activation/deactivation, blockers with visible next actions, actionable recovery (including
    visible retry for recoverable transient failure) and relevant state transitions.
-6. Propose observable PRD acceptance criteria and identify open product questions.
+6. Use UI previews as described below when seeing or trying the proposed behavior materially helps
+   resolve a product question. Propose observable PRD acceptance criteria and identify open questions.
 7. Return exactly one decision: `ready | blocked | not_applicable`.
+
+### UI previews for clarification
+
+Use a focused preview during UX intent clarification and reuse its findings during PRD alignment.
+Start with the user's task and unresolved decision, not a decorative dashboard. Show the relevant
+starting state, primary action, visible outcome and, where relevant, a blocker or recovery path.
+For example: can the user find what was checked, identify an open risk and decide whether to approve?
+Match known product context; identify illustrative data and unconfirmed assumptions explicitly.
+
+Use an available in-conversation visualization capability such as `visualize` when suitable. Its
+availability is optional: a wireframe or written scenario walkthrough can answer the same question.
+Do not require a preview for already clear semantics, add a preview gate or install a dependency.
+Keep prototype interactions local; they cannot submit real approvals, modify delivery state or start
+implementation. A requested change to the actual product still follows its existing delivery path.
+
+Walk through the concrete task with the user and record observed behavior, feedback, unresolved
+assumptions and resulting proposed criteria in the existing `evidence`, `open_product_questions`
+and `proposed_prd_acceptance_criteria` fields. Distinguish agent inspection from user observation;
+check rendering and the relevant interaction before claiming they work. If no inspection or user
+observation occurred, say so. Retain the scenario and findings in the analysis even when the inline
+preview is ephemeral; reference a durable preview only if one exists. Preview feedback is analytical
+input, not PRD approval, implementation evidence or host qualification. Layout and component choices
+remain illustrative; only explicitly adopted product behavior becomes approved PRD content.
 
 ## Decision Rules
 

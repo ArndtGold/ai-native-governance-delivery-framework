@@ -136,6 +136,20 @@ verhindert, dass der Coding-Agent fehlende Produktentscheidungen erst während d
 trifft. Bei einer kleinen, eindeutig beschriebenen Änderung kann sie ausdrücklich nicht erforderlich
 sein.
 
+### Eine vorgeschlagene Oberfläche vor der PRD-Freigabe ausprobieren
+
+Wenn sich ein Bedienablauf anhand von Text schwer beurteilen lässt, hilft eine gezielte UI-Vorschau
+im Gespräch. Spiele eine konkrete Aufgabe durch, etwa: „Finde heraus, was geprüft wurde, erkenne das
+offene Risiko und entscheide, ob du freigeben kannst.“ Zeige Ausgangszustand, Aktion, Ergebnis und
+relevante Wege nach einem Fehler. Nutze bei Bedarf ein verfügbares Visualisierungswerkzeug; eine
+Skizze oder ein beschriebener Szenariodurchlauf erfüllt denselben Zweck.
+
+Halte Szenario, tatsächliche Rückmeldungen und ungeprüfte Annahmen in der UX-Analyse fest. Überführe
+bestätigtes Verhalten bei der PRD-Abstimmung in Akzeptanzkriterien und dokumentiere wesentliche
+Entscheidungen in Approval Decisions. Das PRD muss ohne die Vorschau verständlich bleiben.
+Interaktionen im Prototyp bleiben lokal; Zustimmung zum Entwurf erteilt keine Freigabe und belegt
+keine funktionierende Implementierung oder Host-Integration. Es entsteht kein zusätzliches Gate.
+
 ## Fünf typische Fehlentwicklungen
 
 AGDF soll nicht möglichst viele Dokumente erzeugen. Es soll früh erkennen, wenn schnelle

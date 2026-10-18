@@ -142,6 +142,18 @@ This clarification is not another user gate. It provides testable criteria for t
 the coding agent from making missing product decisions during implementation. A small, unambiguous
 change can explicitly record that this clarification is not required.
 
+### Try a proposed interface before PRD approval
+
+When a user flow is hard to assess from text, a focused UI preview in the conversation can help.
+Try a concrete task, for example: “Find what was checked, identify the open risk and decide whether
+you can approve.” Include the relevant starting state, action, outcome and recovery behavior.
+Use an available visualization tool when useful; a wireframe or written walkthrough also works.
+
+Record the scenario, actual feedback and untested assumptions in the UX analysis. During PRD
+alignment, turn confirmed behavior into acceptance criteria and record material choices in Approval
+Decisions. The PRD must remain understandable without the preview. Prototype interactions stay local;
+liking a preview grants no approval and proves no implemented or host behavior. This adds no gate.
+
 ## Five common delivery failures
 
 AGDF is not intended to produce as many documents as possible. It is intended to detect when fast

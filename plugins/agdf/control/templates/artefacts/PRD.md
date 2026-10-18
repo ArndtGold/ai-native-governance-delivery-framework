@@ -23,6 +23,12 @@ What exactly must be delivered?
 Every field must be populated or explicitly justified as `not_applicable`. Medium/high impact requires
 a `ready` UX Intent Definition result before this PRD is ready.
 
+If UI previews or scenario walkthroughs informed clarification, summarize the user task and confirmed
+findings here. Map adopted behavior to criterion IDs in Acceptance Criteria, retain observation limits
+in Evidence Requirements and resolve material choices in Approval Decisions. Keep the PRD sufficient
+to understand the required behavior without access to an ephemeral preview. A mockup is supporting
+input and carries no separate approval or implementation proof.
+
 ## 3. Working Modes And Effective State
 
 For every user-relevant working mode, define:

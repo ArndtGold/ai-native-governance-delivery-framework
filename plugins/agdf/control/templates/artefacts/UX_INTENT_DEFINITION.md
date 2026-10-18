@@ -43,6 +43,12 @@ grants no implementation permission. After PRD approval, the PRD is the sole pro
 
 ## 6. Decision Evidence
 
+When a UI preview or scenario walkthrough helps clarify behavior, retain the user task, relevant
+states, illustrative assumptions, actual observations and feedback in the fields below. Derive
+proposed PRD criteria from confirmed findings. Distinguish agent inspection from user observation
+and record untested interactions explicitly. A preview is optional analytical input; it grants no
+approval and proves no implementation or host behavior. See `ux-intent-definition` for the workflow.
+
 - blocking_reason:
 - open_product_questions:
 - affected_outputs:

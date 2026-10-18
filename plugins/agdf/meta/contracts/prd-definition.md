@@ -46,6 +46,16 @@ no redundant question, and Run IDs are not product questions. Genuine later_sd/l
 remain owner-bound deferrals, never hidden product decisions. Conflicting approved UR intent routes
 to its existing revision owner before a changed product draft can be presented.
 
+When a visible flow or decision remains hard to assess in prose, use a focused UI preview or scenario
+walkthrough following `ux-intent-definition`'s UI preview guidance. Reuse existing UX findings rather
+than creating a parallel specification or requiring another preview. Carry the scenario, observed
+feedback and qualification limits into the existing UX Intent And Success and Evidence Requirements
+sections; translate adopted behavior into stable acceptance criterion IDs. Record material product
+choices in the same Approval Decisions table, preserving unresolved `before_prd` rows. A positive
+reaction to a mockup resolves only the product questions actually answered; it is not `Approval: PRD`.
+An unavailable visualization capability alone is not a readiness blocker when semantics can be
+clarified otherwise. Preview fidelity does not prescribe SD choices or prove working implementation.
+
 Gate-check alone evaluates readiness. Permission to finish clarification under
 AGDF_PRD_DECISIONS_OPEN does not remove the blocker or permit approval. Missing required UX input
 and unrelated integrity/source blockers are not PRD clarification permission. Use the interaction

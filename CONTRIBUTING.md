@@ -202,11 +202,12 @@ share the same execution steps and shell configuration across every block. GitHu
 visual placement of the blocks; graph layout does not add execution dependencies.
 
 Graph group IDs spell out their responsibilities in German, for example
-`Aktivierung-und-Skills`, `Run-Steuerung-und-Wiederherstellung`, `Quellrevisionen`,
-and `MCP-und-Cockpit`. GitHub uses these IDs as the matrix group headings when leaf names
+`Aktivierung-Skills`, `Run-Steuerung`, `Quellrevisionen`,
+and `MCP-Cockpit`. GitHub uses these IDs as the matrix group headings when leaf names
 depend on matrix values. IDs use ASCII letters and hyphens because workflow job IDs cannot
 contain spaces or ampersands. The planning node is displayed as `Testplan erstellen`;
-the Guardrails caller is displayed as `CI`.
+the Guardrails caller is displayed as `CI`. Group IDs are limited to 19 characters so the
+functional name fits GitHub's matrix heading tab.
 
 Leaf jobs use compact graph labels such as `Skills · Linux22`, `MCP · Win22 4of5`,
 and `UR→QA · Win22`. The number after the platform is the Node major version.

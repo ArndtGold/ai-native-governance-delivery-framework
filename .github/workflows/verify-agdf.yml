@@ -44,7 +44,7 @@ jobs:
         run: node scripts/ci-plan.mjs --matrix github --scope "$CI_SCOPE" --suite "$CI_SUITE" >> "$GITHUB_OUTPUT"
 
   # Separate matrix jobs give each functional area its own graph block.
-  Aktivierung-und-Skills:
+  Aktivierung-Skills:
     needs: plan
     if: needs.plan.outputs.activation != ''
     name: ${{ matrix.graphLabel }}
@@ -90,7 +90,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  Installation-und-Hosts:
+  Installation-Hosts:
     needs: plan
     if: needs.plan.outputs.installation != ''
     name: ${{ matrix.graphLabel }}
@@ -102,7 +102,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Delivery-und-Readiness:
+  Delivery-Readiness:
     needs: plan
     if: needs.plan.outputs.delivery != ''
     name: ${{ matrix.graphLabel }}
@@ -114,7 +114,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Run-Steuerung-und-Wiederherstellung:
+  Run-Steuerung:
     needs: plan
     if: needs.plan.outputs.runs != ''
     name: ${{ matrix.graphLabel }}
@@ -138,7 +138,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  MCP-und-Cockpit:
+  MCP-Cockpit:
     needs: plan
     if: needs.plan.outputs.mcp != ''
     name: ${{ matrix.graphLabel }}
@@ -150,7 +150,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Darstellung-und-Sprache:
+  Darstellung-Sprache:
     needs: plan
     if: needs.plan.outputs.presentation != ''
     name: ${{ matrix.graphLabel }}
@@ -162,7 +162,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Pakete-und-Integritaet:
+  Pakete-Integritaet:
     needs: plan
     if: needs.plan.outputs.packages != ''
     name: ${{ matrix.graphLabel }}
@@ -174,7 +174,7 @@ jobs:
     defaults: *partition-defaults
     steps: *partition-steps
 
-  Repository-Pruefungen:
+  Repository-Checks:
     needs: plan
     if: needs.plan.outputs.checks != ''
     name: ${{ matrix.graphLabel }}

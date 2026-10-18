@@ -134,7 +134,7 @@ test('graph matrices route every existing partition exactly once for every calle
     const [id, job] = owners[0];
     assert.match(id, /^[a-zA-Z_][a-zA-Z0-9_-]*$/, 'graph titles remain valid workflow job IDs');
     assert.notEqual(id, area, 'group headers must use descriptive names instead of area abbreviations');
-    assert.ok(id.length >= 12, `${area}: group header is too terse`);
+    assert.ok(id.length >= 10 && id.length <= 19, `${area}: group header must be descriptive and fit the visible tab`);
     assert.equal(workflow.jobs.plan.outputs[area], `\${{ steps.plan.outputs.${area} }}`);
     assert.equal(job.needs, 'plan', `${area}: areas must execute in parallel`);
     assert.equal(job.if, `needs.plan.outputs.${area} != ''`, `${area}: skip absent areas before matrix expansion`);

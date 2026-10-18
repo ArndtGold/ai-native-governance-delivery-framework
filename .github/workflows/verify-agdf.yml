@@ -36,7 +36,7 @@ jobs:
 
   verify:
     needs: plan
-    name: ${{ matrix.id }}
+    name: ${{ matrix.label }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}

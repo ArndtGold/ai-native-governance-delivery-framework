@@ -178,6 +178,43 @@ fixture setup and CLI/STDIO assertions. Every platform/Node lane retains the ful
 test multiset. New tests are assigned automatically; unsupported commands, lifecycle hooks and
 oversized individual tests fail planning rather than disappear from CI.
 
+The matrix groups tests by functional responsibility before balancing durations: activation and
+skills, installation and hosts, delivery readiness, Run commands and recovery, source revisions,
+MCP and Cockpit, presentation and language, and packages and integrity. The classification in
+`scripts/ci-test-domains.mjs` annotates canonical npm suites; it does not add executable tests.
+New nested tests inherit their suite's area. A new top-level CLI suite without an owner fails
+planning and must be classified. Cross-cutting files have explicit overrides. Only an area that
+exceeds the budget receives local `Part 1 of N` subdivisions; unrelated areas never share a
+test partition. The 18 isolated revision jobs name the changed source and execution phase,
+for example `Source revision / UR changed during QA / Windows / Node 22`.
+
+The former combined checks job is split into repository contracts, runtime and host compatibility,
+distribution and package consumers, Run persistence and delivery map, and documentation and
+community. These select stages from the same local verification plan, preserving their order and
+preparation requirements. Repository-only stages remain on Linux/Node 22. Summaries and timing
+artifacts include the functional job label; machine IDs remain available for local reproduction.
+
+The Actions graph has a separate matrix block for each of the eight test areas and one for
+repository checks. All nine blocks depend only on `plan` and execute in parallel. The planner's
+`--matrix github` output groups the existing partitions without changing their commands, IDs or
+budgets; areas absent from a caller's suite are skipped before matrix expansion. YAML anchors
+share the same execution steps and shell configuration across every block. GitHub chooses the
+visual placement of the blocks; graph layout does not add execution dependencies.
+
+Graph group IDs spell out their responsibilities in English, for example
+`Activation-Skills`, `Run-Control`, `Source-Revisions`,
+and `MCP-Cockpit`. GitHub uses these IDs as the matrix group headings when leaf names
+depend on matrix values. IDs use ASCII letters and hyphens because workflow job IDs cannot
+contain spaces or ampersands. The planning node is displayed as `Create test plan`;
+the Guardrails caller is displayed as `CI`. Group IDs are limited to 19 characters so the
+functional name fits GitHub's matrix heading tab.
+
+Leaf jobs use compact graph labels such as `Skills · Linux22`, `MCP · Win22 4of5`,
+and `UR→QA · Win22`. The number after the platform is the Node major version.
+These labels avoid slash-separated name hierarchies, which GitHub compresses by hiding the
+functional name. Full labels remain in command summaries and timing artifacts; machine IDs
+continue to select the same executable partitions.
+
 Each executing job has a ten-minute ceiling. Test groups budget at most six estimated minutes,
 including 50% headroom over the recorded suite durations; preparation and cleanup have separate
 reserve. `scripts/ci-duration-baseline.json` contains scheduling estimates, not a test inventory
@@ -190,7 +227,9 @@ Inspect or reproduce an individual partition with:
 
 ```bash
 node scripts/ci-plan.mjs --matrix true
-node scripts/ci-plan.mjs --job linux-22-tests-1
+node scripts/ci-plan.mjs --job linux-22-activation
+node scripts/ci-plan.mjs --job linux-22-revision-ur-during-qa
+node scripts/ci-plan.mjs --job linux-22-checks-distribution
 ```
 
 Tests within a group execute serially in their canonical order. Each group prepares its own

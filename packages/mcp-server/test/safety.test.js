@@ -79,6 +79,7 @@ const continuationWriteOwners = new Map([
   ["runtime/core/lib/fs-swap.js", ["renameSync"]],
   ["runtime/core/lib/control-read/snapshot.js", ["openSync"]],
   ["runtime/core/lib/control-state/run-presentation.js", ["writeFileSync", "mkdirSync", "openSync", "fsyncSync"]],
+  ["runtime/core/lib/control-state/preview-snapshot.js", ["writeFileSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/run-step-transaction.js", ["renameSync", "unlinkSync", "rmSync", "mkdirSync"]],
   ["runtime/core/lib/control-state/run-owned-outputs.js", ["unlinkSync"]],
 ]);
@@ -124,6 +125,18 @@ assert.match(snapshotSource, /fs\.openSync\(path, fs\.constants\.O_RDONLY \| \(f
 assert.equal((snapshotSource.match(/fs\.openSync\(/g) ?? []).length, 1, 'The bounded snapshot may open only the checked read-only descriptor.');
 const presentationReader = readOnlyGraph.get(resolve(dispatcherRoot, 'runtime/core/lib/control-state/run-presentation.js'));
 assert.match(presentationReader, /openSync\(path, constants\.O_RDONLY \| \(constants\.O_NOFOLLOW/u);
+// Presentation publishing creates each preview snapshot file through one exclusive,
+// non-following open, so it cannot open over or through an existing file.
+function assertExclusiveCreate(content) {
+  assert.equal((content.match(/\bopenSync\(/gu) ?? []).length, 1, 'The preview snapshot writer may open only its exclusive-create descriptor.');
+  assert.match(content, /openSync\([^;]*constants\.O_CREAT \| constants\.O_EXCL \| \(constants\.O_NOFOLLOW \?\? 0\)/u);
+}
+assertExclusiveCreate(visited.get(resolve(dispatcherRoot, 'runtime/core/lib/control-state/preview-snapshot.js')));
+const exclusiveOpen = 'openSync(path, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0), 0o600)';
+assertExclusiveCreate(exclusiveOpen);
+assert.throws(() => assertExclusiveCreate(exclusiveOpen.replace(' | constants.O_EXCL', '')), assert.AssertionError);
+assert.throws(() => assertExclusiveCreate(exclusiveOpen.replace(' | (constants.O_NOFOLLOW ?? 0)', '')), assert.AssertionError);
+assert.throws(() => assertExclusiveCreate(`${exclusiveOpen}; openSync(path, constants.O_RDONLY)`), assert.AssertionError);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/unexpected-writer.js", "writeFileSync()"), /write boundary/);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync(); mkdirSync()"), /write boundary/);
 assert.throws(() => assertWriteBoundary("runtime/core/lib/fs-swap.js", "renameSync()", new Map()), /write boundary/);

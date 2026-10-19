@@ -1,0 +1,70 @@
+{
+  "schema_version": "1",
+  "kind": "agdf_mcp_ergonomics_cd_tests_comparisons",
+  "run_id": "mcp-ergonomics-baseline-20261016-01",
+  "recorded_at": "2026-10-16T14:51:30.237Z",
+  "baseline": "evals/mcp-ergonomics/baselines/2026-10-16-win32-x64",
+  "git_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+  "tools_list_before_vs_head": {
+    "identical": true,
+    "differences": 0
+  },
+  "protocol_run_c_vs_run_a": {
+    "status": "unchanged",
+    "differences": 0,
+    "same_digests": true,
+    "run_a_commit": "5ff1b5121bff5cdf3fb8caa94aa5ae65915dfe7b",
+    "run_c_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f"
+  },
+  "protocol_run_c_summary": {
+    "ok": 14,
+    "sdk_validation": 8,
+    "tool_error_other": 0,
+    "agdf_failure": 8,
+    "protocol_error": 0,
+    "failure_without_isError": 8,
+    "total": 30
+  },
+  "native_run_3": {
+    "sessions": 48,
+    "measured": 48,
+    "consumed_usd": 9.47911,
+    "cap_reached": false,
+    "complete": true,
+    "isolation_ok": true,
+    "other_mcp_servers_max": 0,
+    "mcp_check_first_attempt_connected": 48,
+    "mcp_check_ms": {
+      "min": 3260,
+      "max": 5617
+    },
+    "claude_code_version": "2.1.296",
+    "node": "v24.19.0"
+  },
+  "compare_against_baseline": {
+    "protocol-c+native-3": {
+      "protocol": {
+        "status": "unchanged",
+        "differences": 0
+      },
+      "native": {
+        "status": "unchanged",
+        "changed": 0,
+        "not_comparable": 0,
+        "compared_metrics": 240
+      }
+    },
+    "protocol-b+native-3": {
+      "protocol": {
+        "status": "unchanged",
+        "differences": 0
+      },
+      "native": {
+        "status": "unchanged",
+        "changed": 0,
+        "not_comparable": 0,
+        "compared_metrics": 240
+      }
+    }
+  }
+}

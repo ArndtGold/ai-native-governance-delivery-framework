@@ -20,7 +20,7 @@ export const CI_EXECUTION_BUDGET_MS = 8 * 60 * 1000;
 const prerequisites = new Set(['dependencies', 'ui-dependencies', 'ui-build', 'generate', 'build-contracts', 'evals', 'assemble', 'prepare', 'mcp-dependencies']);
 const checkAreas = {
   contracts: { label: 'Repository contracts', shortLabel: 'Contracts', stages: ['maintenance', 'shell'] },
-  compatibility: { label: 'Runtime & host compatibility', shortLabel: 'Compat', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility'] },
+  compatibility: { label: 'Runtime & host compatibility', shortLabel: 'Compat', stages: ['compatibility-freshness', 'runtime', 'built-runtime', 'host-compatibility', 'mcp-ergonomics'] },
   distribution: { label: 'Distribution & package consumers', shortLabel: 'Archives', stages: ['cli-package', 'wrapper-package', 'mcp-package', 'archives', 'wrapper-smoke'] },
   'run-safety': { label: 'Run persistence & delivery map', shortLabel: 'Run safety', stages: ['transactions', 'delivery-map'] },
   documentation: { label: 'Documentation & community', shortLabel: 'Docs', stages: ['community', 'pages-install', 'pages'] },

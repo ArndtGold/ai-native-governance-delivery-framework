@@ -1,0 +1,6497 @@
+{
+  "schema_version": "1",
+  "kind": "agdf_mcp_ergonomics_baseline",
+  "matrix_version": "v1",
+  "task_set_version": "v1",
+  "complete": true,
+  "provenance": {
+    "protocol": {
+      "agdf_version": "0.14.5",
+      "server_digest": "0edb490c378b286ada3e5484d12a35d2a0f683941ac219d3239bb21a3e00e078",
+      "dispatcher_digest": "38b66f89d16ad4706ea7df4d5b5568cc302283c34eb275f5edfe6335b44119d2",
+      "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+      "git_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+      "platform": "win32-x64",
+      "node": "v22.22.3",
+      "surface": "claude",
+      "protocol": "2026-07-28",
+      "recorded_at": "2026-10-16T15:20:14.058Z"
+    },
+    "native": {
+      "claude_code_version": "2.1.296",
+      "platform": "win32-x64",
+      "node": "v24.19.0",
+      "recorded_at": "2026-10-16T13:28:31.140Z",
+      "git_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+      "agdf_version": "0.14.5"
+    }
+  },
+  "protocol": {
+    "executions_per_call": 5,
+    "tools": {
+      "agdf": {
+        "names": [
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_approve",
+          "agdf_revise",
+          "agdf_closeout"
+        ],
+        "total_definition_bytes": 31889,
+        "metrics": [
+          {
+            "tool": "agdf_dispatch",
+            "definition_bytes": 10045,
+            "params_total": 14,
+            "params_documented": 14,
+            "documented_share": 1,
+            "description_chars": 1123,
+            "has_output_schema": true,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_inspect",
+            "definition_bytes": 4535,
+            "params_total": 14,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 74,
+            "has_output_schema": true,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_prepare",
+            "definition_bytes": 1716,
+            "params_total": 11,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 254,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_record",
+            "definition_bytes": 6755,
+            "params_total": 11,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 338,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_approve",
+            "definition_bytes": 1905,
+            "params_total": 11,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 249,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_revise",
+            "definition_bytes": 4467,
+            "params_total": 11,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 344,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_closeout",
+            "definition_bytes": 2466,
+            "params_total": 11,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 269,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          }
+        ]
+      },
+      "agdf_cockpit_without_ui": {
+        "names": [],
+        "total_definition_bytes": 0,
+        "metrics": []
+      },
+      "agdf_cockpit_with_ui": {
+        "names": [
+          "agdf_cockpit",
+          "agdf_cockpit_read"
+        ],
+        "total_definition_bytes": 5753,
+        "metrics": [
+          {
+            "tool": "agdf_cockpit",
+            "definition_bytes": 1043,
+            "params_total": 1,
+            "params_documented": 0,
+            "documented_share": 0,
+            "description_chars": 672,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "tool": "agdf_cockpit_read",
+            "definition_bytes": 4710,
+            "params_total": 0,
+            "params_documented": 0,
+            "documented_share": null,
+            "description_chars": 231,
+            "has_output_schema": false,
+            "has_title": false,
+            "annotations": {
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "idempotentHint": false,
+              "openWorldHint": false
+            }
+          }
+        ]
+      }
+    },
+    "calls": [
+      {
+        "id": "D-VALID-STATUS",
+        "tool": "agdf_dispatch",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "control_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 4080,
+        "text_bytes": 3683,
+        "structured_bytes": 3214,
+        "est_tokens": 921,
+        "latency_ms": {
+          "median": 586.035,
+          "p95": 1170.252,
+          "samples": [
+            1170.252,
+            573.36,
+            562.659,
+            618.076,
+            586.035
+          ]
+        }
+      },
+      {
+        "id": "D-SCHEMA-UNKNOWN-PROPERTY",
+        "tool": "agdf_dispatch",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 106,
+        "text_bytes": 106,
+        "structured_bytes": 0,
+        "est_tokens": 27,
+        "latency_ms": {
+          "median": 1.701,
+          "p95": 1.777,
+          "samples": [
+            1.777,
+            1.262,
+            1.701,
+            1.765,
+            1.19
+          ]
+        }
+      },
+      {
+        "id": "D-SEM-RELATIVE-DIRECTORY",
+        "tool": "agdf_dispatch",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "invalid_input",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 1260,
+        "text_bytes": 1204,
+        "structured_bytes": 1000,
+        "est_tokens": 301,
+        "latency_ms": {
+          "median": 373.033,
+          "p95": 388.663,
+          "samples": [
+            374.347,
+            388.663,
+            369.764,
+            373.033,
+            370.432
+          ]
+        }
+      },
+      {
+        "id": "D-SEM-UNRESOLVED-TARGET",
+        "tool": "agdf_dispatch",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "target_unresolved",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 3037,
+        "text_bytes": 2753,
+        "structured_bytes": 2431,
+        "est_tokens": 689,
+        "latency_ms": {
+          "median": 386.826,
+          "p95": 390.326,
+          "samples": [
+            386.826,
+            380.076,
+            390.326,
+            387.918,
+            386.09
+          ]
+        }
+      },
+      {
+        "id": "I-VALID-DOCTOR",
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "inspect_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 2548,
+        "text_bytes": 2222,
+        "structured_bytes": 1726,
+        "est_tokens": 556,
+        "latency_ms": {
+          "median": 420.088,
+          "p95": 425.994,
+          "samples": [
+            399.744,
+            425.994,
+            420.088,
+            411.77,
+            422.681
+          ]
+        }
+      },
+      {
+        "id": "I-VALID-STATUS-CARD",
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "inspect_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 21897,
+        "text_bytes": 21374,
+        "structured_bytes": 17709,
+        "est_tokens": 5344,
+        "latency_ms": {
+          "median": 559.178,
+          "p95": 599.109,
+          "samples": [
+            550.399,
+            599.109,
+            540.395,
+            559.178,
+            561.391
+          ]
+        }
+      },
+      {
+        "id": "I-VALID-DOCUMENT-PAGES",
+        "page": 1,
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F4",
+        "class": "ok",
+        "outcome": "inspect_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 35263,
+        "text_bytes": 35003,
+        "structured_bytes": 34667,
+        "est_tokens": 8751,
+        "latency_ms": {
+          "median": 382.839,
+          "p95": 446.146,
+          "samples": [
+            417.449,
+            365.684,
+            382.751,
+            446.146,
+            382.839
+          ]
+        }
+      },
+      {
+        "id": "I-VALID-DOCUMENT-PAGES",
+        "page": 2,
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F4",
+        "class": "ok",
+        "outcome": "inspect_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 35254,
+        "text_bytes": 34994,
+        "structured_bytes": 34658,
+        "est_tokens": 8749,
+        "latency_ms": {
+          "median": 385.488,
+          "p95": 535.57,
+          "samples": [
+            400.459,
+            363.392,
+            354.518,
+            535.57,
+            385.488
+          ]
+        }
+      },
+      {
+        "id": "I-VALID-DOCUMENT-PAGES",
+        "page": 3,
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F4",
+        "class": "ok",
+        "outcome": "inspect_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 14559,
+        "text_bytes": 14299,
+        "structured_bytes": 13963,
+        "est_tokens": 3575,
+        "latency_ms": {
+          "median": 389.35,
+          "p95": 409.017,
+          "samples": [
+            401.679,
+            376.594,
+            389.35,
+            409.017,
+            377.623
+          ]
+        }
+      },
+      {
+        "id": "I-SCHEMA-UNKNOWN-OPERATION",
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 122,
+        "text_bytes": 122,
+        "structured_bytes": 0,
+        "est_tokens": 31,
+        "latency_ms": {
+          "median": 0.904,
+          "p95": 1.116,
+          "samples": [
+            1.116,
+            0.904,
+            0.894,
+            1.084,
+            0.897
+          ]
+        }
+      },
+      {
+        "id": "I-SEM-UNKNOWN-RUN",
+        "tool": "agdf_inspect",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "inspect_result",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 10345,
+        "text_bytes": 10020,
+        "structured_bytes": 7898,
+        "est_tokens": 2505,
+        "latency_ms": {
+          "median": 467.202,
+          "p95": 487.393,
+          "samples": [
+            468.285,
+            467.202,
+            456.879,
+            432.916,
+            487.393
+          ]
+        }
+      },
+      {
+        "id": "P-VALID-PREPARE-PRD",
+        "tool": "agdf_prepare",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "accepted",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 6195,
+        "text_bytes": 6195,
+        "structured_bytes": 6195,
+        "est_tokens": 1549,
+        "latency_ms": {
+          "median": 859.704,
+          "p95": 907.149,
+          "samples": [
+            859.704,
+            856.427,
+            907.149,
+            837.866,
+            862.373
+          ]
+        }
+      },
+      {
+        "id": "P-SCHEMA-MISSING-OPERATION-ID",
+        "tool": "agdf_prepare",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 112,
+        "text_bytes": 112,
+        "structured_bytes": 0,
+        "est_tokens": 28,
+        "latency_ms": {
+          "median": 0.88,
+          "p95": 1.189,
+          "samples": [
+            1.189,
+            0.88,
+            0.848,
+            1.023,
+            0.873
+          ]
+        }
+      },
+      {
+        "id": "P-SEM-STALE-REVISION",
+        "tool": "agdf_prepare",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "rejected",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 1344,
+        "text_bytes": 1344,
+        "structured_bytes": 1344,
+        "est_tokens": 336,
+        "latency_ms": {
+          "median": 539.203,
+          "p95": 572.751,
+          "samples": [
+            533.09,
+            572.751,
+            539.203,
+            535.781,
+            570.6
+          ]
+        }
+      },
+      {
+        "id": "R-VALID-EVIDENCE",
+        "tool": "agdf_record",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "accepted",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 4096,
+        "text_bytes": 4096,
+        "structured_bytes": 4096,
+        "est_tokens": 1024,
+        "latency_ms": {
+          "median": 694.135,
+          "p95": 709.089,
+          "samples": [
+            701.015,
+            709.089,
+            673.75,
+            694.135,
+            682.426
+          ]
+        }
+      },
+      {
+        "id": "R-SCHEMA-MISSING-COVERS",
+        "tool": "agdf_record",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 2687,
+        "text_bytes": 2687,
+        "structured_bytes": 0,
+        "est_tokens": 672,
+        "latency_ms": {
+          "median": 1.014,
+          "p95": 1.953,
+          "samples": [
+            1.953,
+            1.014,
+            1.171,
+            0.899,
+            0.881
+          ]
+        }
+      },
+      {
+        "id": "R-SEM-TARGET-MISMATCH",
+        "tool": "agdf_record",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "rejected",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 1100,
+        "text_bytes": 1100,
+        "structured_bytes": 1100,
+        "est_tokens": 275,
+        "latency_ms": {
+          "median": 545.596,
+          "p95": 558.146,
+          "samples": [
+            545.596,
+            543.339,
+            551.292,
+            558.146,
+            530.086
+          ]
+        }
+      },
+      {
+        "id": "A-VALID-APPROVE-UR",
+        "tool": "agdf_approve",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F3",
+        "class": "ok",
+        "outcome": "accepted",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 5494,
+        "text_bytes": 5494,
+        "structured_bytes": 5494,
+        "est_tokens": 1374,
+        "latency_ms": {
+          "median": 966.431,
+          "p95": 1017.792,
+          "samples": [
+            966.431,
+            991.818,
+            1017.792,
+            933.047,
+            956.692
+          ]
+        }
+      },
+      {
+        "id": "A-SCHEMA-MISSING-RESPONSE",
+        "tool": "agdf_approve",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F3",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 177,
+        "text_bytes": 177,
+        "structured_bytes": 0,
+        "est_tokens": 45,
+        "latency_ms": {
+          "median": 0.966,
+          "p95": 1.071,
+          "samples": [
+            1.071,
+            0.848,
+            1.027,
+            0.897,
+            0.966
+          ]
+        }
+      },
+      {
+        "id": "A-SEM-UNKNOWN-PRESENTATION",
+        "tool": "agdf_approve",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F3",
+        "class": "agdf_failure",
+        "outcome": "rejected",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 2345,
+        "text_bytes": 2345,
+        "structured_bytes": 2345,
+        "est_tokens": 587,
+        "latency_ms": {
+          "median": 764.977,
+          "p95": 933.516,
+          "samples": [
+            738.561,
+            901.511,
+            933.516,
+            747.041,
+            764.977
+          ]
+        }
+      },
+      {
+        "id": "V-VALID-PREVIEW-UR",
+        "tool": "agdf_revise",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": "accepted",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 8461,
+        "text_bytes": 8461,
+        "structured_bytes": 8461,
+        "est_tokens": 2116,
+        "latency_ms": {
+          "median": 608.846,
+          "p95": 813.411,
+          "samples": [
+            598.215,
+            608.846,
+            593.119,
+            630.111,
+            813.411
+          ]
+        }
+      },
+      {
+        "id": "V-SCHEMA-UNKNOWN-GATE",
+        "tool": "agdf_revise",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 1357,
+        "text_bytes": 1357,
+        "structured_bytes": 0,
+        "est_tokens": 340,
+        "latency_ms": {
+          "median": 0.991,
+          "p95": 1.569,
+          "samples": [
+            1.569,
+            0.991,
+            0.92,
+            0.994,
+            0.925
+          ]
+        }
+      },
+      {
+        "id": "V-SEM-PROPOSAL-DIGEST",
+        "tool": "agdf_revise",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "rejected",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 1204,
+        "text_bytes": 1204,
+        "structured_bytes": 1204,
+        "est_tokens": 301,
+        "latency_ms": {
+          "median": 574.363,
+          "p95": 588.031,
+          "samples": [
+            580.994,
+            588.031,
+            561.063,
+            574.363,
+            568.137
+          ]
+        }
+      },
+      {
+        "id": "C-VALID-CLOSEOUT",
+        "tool": "agdf_closeout",
+        "server": "agdf",
+        "call_class": "valid",
+        "fixture": "F5",
+        "class": "ok",
+        "outcome": "accepted",
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 4196,
+        "text_bytes": 4196,
+        "structured_bytes": 4196,
+        "est_tokens": 1049,
+        "latency_ms": {
+          "median": 1155.538,
+          "p95": 1222.924,
+          "samples": [
+            1155.538,
+            1146.014,
+            1116.38,
+            1183.523,
+            1222.924
+          ]
+        }
+      },
+      {
+        "id": "C-SCHEMA-MISSING-CONFIRMATION",
+        "tool": "agdf_closeout",
+        "server": "agdf",
+        "call_class": "schema_invalid",
+        "fixture": "F5",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 491,
+        "text_bytes": 491,
+        "structured_bytes": 0,
+        "est_tokens": 123,
+        "latency_ms": {
+          "median": 0.907,
+          "p95": 3.359,
+          "samples": [
+            3.359,
+            0.876,
+            0.856,
+            0.907,
+            0.925
+          ]
+        }
+      },
+      {
+        "id": "C-SEM-NOT-AT-OR",
+        "tool": "agdf_closeout",
+        "server": "agdf",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "rejected",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 1165,
+        "text_bytes": 1165,
+        "structured_bytes": 1165,
+        "est_tokens": 292,
+        "latency_ms": {
+          "median": 571.98,
+          "p95": 588.69,
+          "samples": [
+            588.69,
+            577.26,
+            567.363,
+            571.98,
+            569.594
+          ]
+        }
+      },
+      {
+        "id": "K-NOUI-RENDER",
+        "tool": "agdf_cockpit",
+        "server": "cockpit_without_ui",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "blocked:resource_denied",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 359,
+        "text_bytes": 294,
+        "structured_bytes": 294,
+        "est_tokens": 74,
+        "latency_ms": {
+          "median": 1.328,
+          "p95": 552.263,
+          "samples": [
+            552.263,
+            1.574,
+            1.328,
+            1.157,
+            1.268
+          ]
+        }
+      },
+      {
+        "id": "K-NOUI-SNAPSHOT",
+        "tool": "agdf_cockpit_read",
+        "server": "cockpit_without_ui",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "agdf_failure",
+        "outcome": "blocked:resource_denied",
+        "is_error": false,
+        "failure_without_isError": true,
+        "text_bytes_raw": 359,
+        "text_bytes": 294,
+        "structured_bytes": 294,
+        "est_tokens": 74,
+        "latency_ms": {
+          "median": 1.419,
+          "p95": 3.267,
+          "samples": [
+            3.267,
+            1.206,
+            1.419,
+            1.758,
+            1.227
+          ]
+        }
+      },
+      {
+        "id": "K-NOUI-SEM-UNKNOWN-OPERATION",
+        "tool": "agdf_cockpit_read",
+        "server": "cockpit_without_ui",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 1832,
+        "text_bytes": 1832,
+        "structured_bytes": 0,
+        "est_tokens": 458,
+        "latency_ms": {
+          "median": 0.989,
+          "p95": 1.58,
+          "samples": [
+            1.58,
+            1.504,
+            0.989,
+            0.93,
+            0.919
+          ]
+        }
+      },
+      {
+        "id": "K-VALID-RENDER",
+        "tool": "agdf_cockpit",
+        "server": "cockpit_with_ui",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": null,
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 225,
+        "text_bytes": 160,
+        "structured_bytes": 160,
+        "est_tokens": 40,
+        "latency_ms": {
+          "median": 1.307,
+          "p95": 547.225,
+          "samples": [
+            547.225,
+            1.273,
+            1.307,
+            1.157,
+            1.661
+          ]
+        }
+      },
+      {
+        "id": "K-VALID-SNAPSHOT",
+        "tool": "agdf_cockpit_read",
+        "server": "cockpit_with_ui",
+        "call_class": "valid",
+        "fixture": "F2",
+        "class": "ok",
+        "outcome": null,
+        "is_error": false,
+        "failure_without_isError": false,
+        "text_bytes_raw": 8740,
+        "text_bytes": 8675,
+        "structured_bytes": 8675,
+        "est_tokens": 2169,
+        "latency_ms": {
+          "median": 54.873,
+          "p95": 281.78,
+          "samples": [
+            281.78,
+            67.242,
+            54.873,
+            52.102,
+            49.859
+          ]
+        }
+      },
+      {
+        "id": "K-SEM-UNKNOWN-OPERATION",
+        "tool": "agdf_cockpit_read",
+        "server": "cockpit_with_ui",
+        "call_class": "semantic_failure",
+        "fixture": "F2",
+        "class": "sdk_validation",
+        "outcome": null,
+        "is_error": true,
+        "failure_without_isError": false,
+        "text_bytes_raw": 1832,
+        "text_bytes": 1832,
+        "structured_bytes": 0,
+        "est_tokens": 458,
+        "latency_ms": {
+          "median": 0.939,
+          "p95": 1.353,
+          "samples": [
+            1.353,
+            0.939,
+            0.948,
+            0.867,
+            0.91
+          ]
+        }
+      }
+    ],
+    "summary": {
+      "classes": {
+        "ok": 14,
+        "sdk_validation": 9,
+        "tool_error_other": 0,
+        "agdf_failure": 9,
+        "protocol_error": 0,
+        "failure_without_isError": 9,
+        "total": 32
+      },
+      "per_tool": {
+        "agdf_dispatch": {
+          "calls": 4,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 2,
+            "protocol_error": 0,
+            "failure_without_isError": 2,
+            "total": 4
+          },
+          "text_bytes_max": 3683,
+          "text_bytes_median": 1978.5,
+          "est_tokens_max": 921,
+          "latency_median_ms": 379.93
+        },
+        "agdf_inspect": {
+          "calls": 7,
+          "classes": {
+            "ok": 6,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 0,
+            "protocol_error": 0,
+            "failure_without_isError": 0,
+            "total": 7
+          },
+          "text_bytes_max": 35003,
+          "text_bytes_median": 14299,
+          "est_tokens_max": 8751,
+          "latency_median_ms": 389.35
+        },
+        "agdf_prepare": {
+          "calls": 3,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 3
+          },
+          "text_bytes_max": 6195,
+          "text_bytes_median": 1344,
+          "est_tokens_max": 1549,
+          "latency_median_ms": 539.203
+        },
+        "agdf_record": {
+          "calls": 3,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 3
+          },
+          "text_bytes_max": 4096,
+          "text_bytes_median": 2687,
+          "est_tokens_max": 1024,
+          "latency_median_ms": 545.596
+        },
+        "agdf_approve": {
+          "calls": 3,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 3
+          },
+          "text_bytes_max": 5494,
+          "text_bytes_median": 2345,
+          "est_tokens_max": 1374,
+          "latency_median_ms": 764.977
+        },
+        "agdf_revise": {
+          "calls": 3,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 3
+          },
+          "text_bytes_max": 8461,
+          "text_bytes_median": 1357,
+          "est_tokens_max": 2116,
+          "latency_median_ms": 574.363
+        },
+        "agdf_closeout": {
+          "calls": 3,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 1,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 3
+          },
+          "text_bytes_max": 4196,
+          "text_bytes_median": 1165,
+          "est_tokens_max": 1049,
+          "latency_median_ms": 571.98
+        },
+        "agdf_cockpit": {
+          "calls": 2,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 0,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 2
+          },
+          "text_bytes_max": 294,
+          "text_bytes_median": 227,
+          "est_tokens_max": 74,
+          "latency_median_ms": 1.318
+        },
+        "agdf_cockpit_read": {
+          "calls": 4,
+          "classes": {
+            "ok": 1,
+            "sdk_validation": 2,
+            "tool_error_other": 0,
+            "agdf_failure": 1,
+            "protocol_error": 0,
+            "failure_without_isError": 1,
+            "total": 4
+          },
+          "text_bytes_max": 8675,
+          "text_bytes_median": 1832,
+          "est_tokens_max": 2169,
+          "latency_median_ms": 1.204
+        }
+      }
+    }
+  },
+  "native": {
+    "config": {
+      "models": [
+        "claude-opus-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "variants": [
+        "with_skills",
+        "mcp_only"
+      ],
+      "repetitions": 2,
+      "cap_usd": 25,
+      "mcp_timeout_ms": 60000,
+      "allowed_tools": {
+        "with_skills": [
+          "mcp__plugin_agdf_agdf__agdf_dispatch",
+          "mcp__plugin_agdf_agdf__agdf_inspect",
+          "mcp__plugin_agdf_agdf__agdf_prepare",
+          "mcp__plugin_agdf_agdf__agdf_record",
+          "mcp__plugin_agdf_agdf__agdf_approve",
+          "mcp__plugin_agdf_agdf__agdf_revise",
+          "mcp__plugin_agdf_agdf__agdf_closeout",
+          "Skill",
+          "Read",
+          "Bash",
+          "PowerShell"
+        ],
+        "mcp_only": [
+          "mcp__plugin_agdf_agdf__agdf_dispatch",
+          "mcp__plugin_agdf_agdf__agdf_inspect",
+          "mcp__plugin_agdf_agdf__agdf_prepare",
+          "mcp__plugin_agdf_agdf__agdf_record",
+          "mcp__plugin_agdf_agdf__agdf_approve",
+          "mcp__plugin_agdf_agdf__agdf_revise",
+          "mcp__plugin_agdf_agdf__agdf_closeout",
+          "Read"
+        ]
+      },
+      "builtin_tools": {
+        "with_skills": [
+          "Skill",
+          "Read",
+          "Bash",
+          "PowerShell",
+          "ToolSearch"
+        ],
+        "mcp_only": [
+          "Read",
+          "ToolSearch"
+        ]
+      },
+      "claudeai_mcp_servers": false
+    },
+    "consumed_usd": 9.47911,
+    "cap_usd": 25,
+    "cap_reached": false,
+    "isolation": {
+      "changed": [],
+      "credential_copy_removed": true,
+      "ok": true
+    },
+    "error": null,
+    "reevaluation": {
+      "tasks": [
+        "T6"
+      ],
+      "predicates": [
+        "stale_write_guarded"
+      ],
+      "changes": [
+        {
+          "task": "T6",
+          "variant": "with_skills",
+          "model": "claude-opus-5-5",
+          "repetition": 1,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "with_skills",
+          "model": "claude-sonnet-5-5",
+          "repetition": 1,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "mcp_only",
+          "model": "claude-opus-5-5",
+          "repetition": 1,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "mcp_only",
+          "model": "claude-sonnet-5-5",
+          "repetition": 1,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "with_skills",
+          "model": "claude-opus-5-5",
+          "repetition": 2,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "with_skills",
+          "model": "claude-sonnet-5-5",
+          "repetition": 2,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "mcp_only",
+          "model": "claude-opus-5-5",
+          "repetition": 2,
+          "before": true,
+          "after": false
+        },
+        {
+          "task": "T6",
+          "variant": "mcp_only",
+          "model": "claude-sonnet-5-5",
+          "repetition": 2,
+          "before": true,
+          "after": false
+        }
+      ]
+    },
+    "sessions": [
+      {
+        "repetition": 1,
+        "task": "T1",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 36368,
+        "tool_calls": {
+          "Bash": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "Bash": 2187
+        },
+        "total_tokens": 61432,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.163229,
+        "wall_time_ms": 29927,
+        "num_turns": 3,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3502
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T1",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 23397,
+        "tool_calls": {
+          "Bash": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "Bash": 1737
+        },
+        "total_tokens": 60926,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.07805699999999999,
+        "wall_time_ms": 17990,
+        "num_turns": 3,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3371
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T1",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 24666,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 3
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 3241
+        },
+        "total_tokens": 38449,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1236358,
+        "wall_time_ms": 19543,
+        "num_turns": 5,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3317
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T1",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 15954,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 4466
+        },
+        "total_tokens": 47505,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.10798920000000001,
+        "wall_time_ms": 10551,
+        "num_turns": 3,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "pending",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3313
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T2",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 58923,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_dispatch": 3,
+          "PowerShell": 1,
+          "Bash": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 2,
+        "agdf_tools_discovered": [
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_dispatch": 3181,
+          "PowerShell": 108,
+          "Bash": 367
+        },
+        "total_tokens": 252000,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.4036104,
+        "wall_time_ms": 53301,
+        "num_turns": 9,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3653
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T2",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 47974,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "Bash": 3,
+          "agdf_dispatch": 2,
+          "PowerShell": 1,
+          "Read": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 2,
+        "agdf_tools_discovered": [
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "Bash": 275,
+          "agdf_dispatch": 2561,
+          "PowerShell": 108,
+          "Read": 245
+        },
+        "total_tokens": 183167,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.143636,
+        "wall_time_ms": 42411,
+        "num_turns": 9,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3620
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T2",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 30172,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_dispatch": 2,
+          "Read": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 8,
+          "agdf_dispatch": 1301,
+          "Read": 80
+        },
+        "total_tokens": 100955,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.20236790000000002,
+        "wall_time_ms": 25036,
+        "num_turns": 6,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "expected exactly one new run, found 0",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3325
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T2",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 12488,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1,
+          "Read": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_prepare"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 631,
+          "Read": 16
+        },
+        "total_tokens": 20191,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0339652,
+        "wall_time_ms": 7175,
+        "num_turns": 4,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "expected exactly one new run, found 0",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3467
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T3",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 39574,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 5,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 5915,
+          "agdf_approve": 1374
+        },
+        "total_tokens": 190891,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.3281032,
+        "wall_time_ms": 34463,
+        "num_turns": 8,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3460
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T3",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 36824,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 5,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 5621,
+          "agdf_approve": 1374
+        },
+        "total_tokens": 233595,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1641693,
+        "wall_time_ms": 31259,
+        "num_turns": 9,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3452
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T3",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 86598,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 13,
+          "Read": 6
+        },
+        "invalid_argument_calls": 7,
+        "is_error_results": 11,
+        "agdf_failure_results": 3,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect",
+          "agdf_prepare"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 4532,
+          "Read": 641
+        },
+        "total_tokens": 289485,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.3804968,
+        "wall_time_ms": 79361,
+        "num_turns": 22,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "approved gates: none",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 5518
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T3",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 18208,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 3
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 730
+        },
+        "total_tokens": 76093,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.08956219999999998,
+        "wall_time_ms": 12710,
+        "num_turns": 5,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "approved gates: none",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3864
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T4",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 50862,
+        "tool_calls": {
+          "Bash": 2,
+          "Read": 4
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "Bash": 315,
+          "Read": 36161
+        },
+        "total_tokens": 174389,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.5851021,
+        "wall_time_ms": 45433,
+        "num_turns": 7,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 4463
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T4",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 65536,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 2,
+          "Bash": 1,
+          "PowerShell": 6
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 947,
+          "Bash": 34,
+          "PowerShell": 2209
+        },
+        "total_tokens": 259322,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1518737,
+        "wall_time_ms": 60099,
+        "num_turns": 11,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3334
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T4",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 70549,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 8,
+          "Read": 3
+        },
+        "invalid_argument_calls": 4,
+        "is_error_results": 5,
+        "agdf_failure_results": 2,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 8,
+          "agdf_inspect": 3523,
+          "Read": 19920
+        },
+        "total_tokens": 182486,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.43938040000000006,
+        "wall_time_ms": 65385,
+        "num_turns": 14,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3329
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T4",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 37723,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 5,
+          "Read": 3
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 3,
+        "agdf_failure_results": 2,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 2967,
+          "Read": 19920
+        },
+        "total_tokens": 140855,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.19663350000000002,
+        "wall_time_ms": 32495,
+        "num_turns": 10,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3345
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T5",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 35389,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 3
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 3571
+        },
+        "total_tokens": 107077,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.2130766,
+        "wall_time_ms": 30198,
+        "num_turns": 5,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3546
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T5",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 12739,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 632
+        },
+        "total_tokens": 58177,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0633049,
+        "wall_time_ms": 7365,
+        "num_turns": 3,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3391
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T5",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 23248,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 127
+        },
+        "total_tokens": 17633,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0590578,
+        "wall_time_ms": 18102,
+        "num_turns": 3,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3277
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T5",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 26717,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 4,
+          "Read": 1
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 2,
+        "agdf_failure_results": 3,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 1259,
+          "Read": 16
+        },
+        "total_tokens": 51366,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0569621,
+        "wall_time_ms": 21559,
+        "num_turns": 7,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3346
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T6",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 26025,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 2
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 4696
+        },
+        "total_tokens": 95932,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.2459964,
+        "wall_time_ms": 19677,
+        "num_turns": 5,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 4206
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T6",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 40926,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 3,
+          "Bash": 2
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 966,
+          "Bash": 2769
+        },
+        "total_tokens": 198699,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1502324,
+        "wall_time_ms": 32201,
+        "num_turns": 8,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 4601
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T6",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 34644,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 4
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 5613
+        },
+        "total_tokens": 107038,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.28023180000000003,
+        "wall_time_ms": 29390,
+        "num_turns": 6,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3889
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 1,
+        "task": "T6",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 25738,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 3
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 1002
+        },
+        "total_tokens": 56846,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0649186,
+        "wall_time_ms": 20470,
+        "num_turns": 6,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3583
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T1",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 32531,
+        "tool_calls": {
+          "Bash": 2,
+          "Read": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "Bash": 1163,
+          "Read": 1456
+        },
+        "total_tokens": 62730,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.17359600000000003,
+        "wall_time_ms": 27199,
+        "num_turns": 4,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3561
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T1",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 23960,
+        "tool_calls": {
+          "Bash": 2,
+          "Read": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "Bash": 340,
+          "Read": 1456
+        },
+        "total_tokens": 61144,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.07804449999999999,
+        "wall_time_ms": 18416,
+        "num_turns": 4,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3415
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T1",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 22821,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 4466
+        },
+        "total_tokens": 47486,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.214872,
+        "wall_time_ms": 17615,
+        "num_turns": 3,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "pending",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3443
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T1",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 13703,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 4559
+        },
+        "total_tokens": 47367,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1061736,
+        "wall_time_ms": 8174,
+        "num_turns": 3,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "pending",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3320
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T2",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 67212,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_dispatch": 3,
+          "Bash": 4,
+          "Read": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 1,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 2,
+        "agdf_tools_discovered": [
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_dispatch": 3181,
+          "Bash": 458,
+          "Read": 245
+        },
+        "total_tokens": 244068,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.32216999999999996,
+        "wall_time_ms": 61805,
+        "num_turns": 10,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3496
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T2",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 50766,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_dispatch": 2,
+          "PowerShell": 2,
+          "Read": 1,
+          "Bash": 1,
+          "Write": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 2,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 2,
+        "agdf_tools_discovered": [
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_dispatch": 2561,
+          "PowerShell": 171,
+          "Read": 245,
+          "Bash": 4,
+          "Write": 34
+        },
+        "total_tokens": 180310,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1451409,
+        "wall_time_ms": 44872,
+        "num_turns": 9,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 4946
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T2",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 37489,
+        "tool_calls": {
+          "ToolSearch": 3,
+          "agdf_dispatch": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 8,
+          "agdf_dispatch": 1301
+        },
+        "total_tokens": 102455,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.21186069999999999,
+        "wall_time_ms": 30036,
+        "num_turns": 6,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "expected exactly one new run, found 0",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 5229
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T2",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 26057,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_dispatch": 2,
+          "Read": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 1,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_dispatch": 1301,
+          "Read": 129
+        },
+        "total_tokens": 130920,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.14012000000000002,
+        "wall_time_ms": 20441,
+        "num_turns": 7,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "expected exactly one new run, found 0",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3456
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T3",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 65113,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 5,
+          "PowerShell": 1,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 5926,
+          "PowerShell": 9,
+          "agdf_approve": 1374
+        },
+        "total_tokens": 228744,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.3452182,
+        "wall_time_ms": 59497,
+        "num_turns": 9,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3478
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T3",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 33536,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 5,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 5621,
+          "agdf_approve": 1374
+        },
+        "total_tokens": 238126,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.16684010000000002,
+        "wall_time_ms": 28411,
+        "num_turns": 9,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3281
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T3",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 59909,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 9,
+          "Read": 2
+        },
+        "invalid_argument_calls": 5,
+        "is_error_results": 6,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 8,
+          "agdf_inspect": 3628,
+          "Read": 156
+        },
+        "total_tokens": 150260,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.25094930000000004,
+        "wall_time_ms": 54583,
+        "num_turns": 14,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "approved gates: none",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3431
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T3",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 49870,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 10,
+          "agdf_approve": 1
+        },
+        "invalid_argument_calls": 4,
+        "is_error_results": 4,
+        "agdf_failure_results": 4,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 7197,
+          "agdf_approve": 1374
+        },
+        "total_tokens": 182370,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1648286,
+        "wall_time_ms": 44336,
+        "num_turns": 14,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3455
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T4",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 52909,
+        "tool_calls": {
+          "Bash": 2,
+          "Read": 5
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [],
+        "response_tokens": {
+          "Bash": 176,
+          "Read": 36780
+        },
+        "total_tokens": 177957,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.5930546,
+        "wall_time_ms": 47356,
+        "num_turns": 8,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3334
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T4",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 17441,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 3
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 791
+        },
+        "total_tokens": 101046,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0775182,
+        "wall_time_ms": 12173,
+        "num_turns": 5,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3413
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T4",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 77463,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 8,
+          "Read": 2
+        },
+        "invalid_argument_calls": 4,
+        "is_error_results": 4,
+        "agdf_failure_results": 2,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 8,
+          "agdf_inspect": 3523,
+          "Read": 19904
+        },
+        "total_tokens": 181535,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.44072449999999996,
+        "wall_time_ms": 72280,
+        "num_turns": 13,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3260
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T4",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 29816,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 4,
+          "Read": 3
+        },
+        "invalid_argument_calls": 3,
+        "is_error_results": 4,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 2115,
+          "Read": 19920
+        },
+        "total_tokens": 115685,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1818942,
+        "wall_time_ms": 24537,
+        "num_turns": 9,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "pages read 0/3, complete false",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3402
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T5",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 27820,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 2
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 668
+        },
+        "total_tokens": 81310,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.15513839999999998,
+        "wall_time_ms": 22133,
+        "num_turns": 4,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3512
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T5",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 15981,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 1
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 4559
+        },
+        "total_tokens": 67665,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1008018,
+        "wall_time_ms": 10365,
+        "num_turns": 3,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": true,
+        "reason": null,
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3613
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T5",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 24095,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_dispatch": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 2,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_approve",
+          "agdf_closeout",
+          "agdf_dispatch",
+          "agdf_inspect",
+          "agdf_prepare",
+          "agdf_record",
+          "agdf_revise"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_dispatch": 1364
+        },
+        "total_tokens": 59980,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1759386,
+        "wall_time_ms": 16960,
+        "num_turns": 4,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "pending",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 5617
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T5",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 17215,
+        "tool_calls": {
+          "ToolSearch": 1,
+          "agdf_inspect": 2
+        },
+        "invalid_argument_calls": 2,
+        "is_error_results": 2,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 209
+        },
+        "total_tokens": 24223,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.032742,
+        "wall_time_ms": 11625,
+        "num_turns": 4,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no successful AGDF read bound to the run",
+        "mutation_violations": 0,
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3632
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T6",
+        "variant": "with_skills",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 33980,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 4
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 5624
+        },
+        "total_tokens": 168385,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.3009251,
+        "wall_time_ms": 28464,
+        "num_turns": 7,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3627
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T6",
+        "variant": "with_skills",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 27849,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "Bash": 2
+        },
+        "invalid_argument_calls": 0,
+        "is_error_results": 0,
+        "agdf_failure_results": 0,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "Bash": 2928
+        },
+        "total_tokens": 97250,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.1183719,
+        "wall_time_ms": 22106,
+        "num_turns": 5,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 28,
+        "hook_guard": true,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Bash",
+          "PowerShell",
+          "Read",
+          "Skill",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3711
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T6",
+        "variant": "mcp_only",
+        "model": "claude-opus-5-5",
+        "exit": 0,
+        "process_ms": 48330,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 4
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 3548
+        },
+        "total_tokens": 75353,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.19084689999999999,
+        "wall_time_ms": 42929,
+        "num_turns": 7,
+        "model_reported": "claude-opus-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3821
+            }
+          ]
+        }
+      },
+      {
+        "repetition": 2,
+        "task": "T6",
+        "variant": "mcp_only",
+        "model": "claude-sonnet-5-5",
+        "exit": 0,
+        "process_ms": 24513,
+        "tool_calls": {
+          "ToolSearch": 2,
+          "agdf_inspect": 3
+        },
+        "invalid_argument_calls": 1,
+        "is_error_results": 1,
+        "agdf_failure_results": 1,
+        "agdf_shell_calls": 0,
+        "agdf_tools_discovered": [
+          "agdf_inspect",
+          "agdf_record"
+        ],
+        "response_tokens": {
+          "ToolSearch": 0,
+          "agdf_inspect": 985
+        },
+        "total_tokens": 57501,
+        "permission_denials": 0,
+        "denied_tools": [],
+        "cost_usd": 0.0657476,
+        "wall_time_ms": 19201,
+        "num_turns": 6,
+        "model_reported": "claude-sonnet-5-5",
+        "mcp_status": "connected",
+        "agdf_skill_entries": 0,
+        "hook_guard": false,
+        "other_mcp_servers": 0,
+        "builtin_tools": [
+          "Read",
+          "ToolSearch"
+        ],
+        "status": "measured",
+        "success": false,
+        "reason": "no write with the stale revision was attempted and rejected",
+        "mutation_violations": 0,
+        "reevaluated": {
+          "predicate": "stale_write_guarded",
+          "previous_success": true
+        },
+        "mcp_check": {
+          "connected": true,
+          "attempts": [
+            {
+              "status": "connected",
+              "ms": 3572
+            }
+          ]
+        }
+      }
+    ],
+    "cells": {
+      "claude-opus-5-5|with_skills|T1": {
+        "model": "claude-opus-5-5",
+        "variant": "with_skills",
+        "task": "T1",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              2,
+              3
+            ],
+            "min": 2,
+            "max": 3
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              2187,
+              2619
+            ],
+            "min": 2187,
+            "max": 2619
+          },
+          "total_tokens": {
+            "values": [
+              61432,
+              62730
+            ],
+            "min": 61432,
+            "max": 62730
+          },
+          "cost_usd": {
+            "values": [
+              0.163229,
+              0.17359600000000003
+            ],
+            "min": 0.163229,
+            "max": 0.17359600000000003
+          },
+          "wall_time_ms": {
+            "values": [
+              29927,
+              27199
+            ],
+            "min": 27199,
+            "max": 29927
+          }
+        }
+      },
+      "claude-sonnet-5-5|with_skills|T1": {
+        "model": "claude-sonnet-5-5",
+        "variant": "with_skills",
+        "task": "T1",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              2,
+              3
+            ],
+            "min": 2,
+            "max": 3
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              1737,
+              1796
+            ],
+            "min": 1737,
+            "max": 1796
+          },
+          "total_tokens": {
+            "values": [
+              60926,
+              61144
+            ],
+            "min": 60926,
+            "max": 61144
+          },
+          "cost_usd": {
+            "values": [
+              0.07805699999999999,
+              0.07804449999999999
+            ],
+            "min": 0.07804449999999999,
+            "max": 0.07805699999999999
+          },
+          "wall_time_ms": {
+            "values": [
+              17990,
+              18416
+            ],
+            "min": 17990,
+            "max": 18416
+          }
+        }
+      },
+      "claude-opus-5-5|mcp_only|T1": {
+        "model": "claude-opus-5-5",
+        "variant": "mcp_only",
+        "task": "T1",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              4,
+              2
+            ],
+            "min": 2,
+            "max": 4
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              3241,
+              4466
+            ],
+            "min": 3241,
+            "max": 4466
+          },
+          "total_tokens": {
+            "values": [
+              38449,
+              47486
+            ],
+            "min": 38449,
+            "max": 47486
+          },
+          "cost_usd": {
+            "values": [
+              0.1236358,
+              0.214872
+            ],
+            "min": 0.1236358,
+            "max": 0.214872
+          },
+          "wall_time_ms": {
+            "values": [
+              19543,
+              17615
+            ],
+            "min": 17615,
+            "max": 19543
+          }
+        }
+      },
+      "claude-sonnet-5-5|mcp_only|T1": {
+        "model": "claude-sonnet-5-5",
+        "variant": "mcp_only",
+        "task": "T1",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              4466,
+              4559
+            ],
+            "min": 4466,
+            "max": 4559
+          },
+          "total_tokens": {
+            "values": [
+              47505,
+              47367
+            ],
+            "min": 47367,
+            "max": 47505
+          },
+          "cost_usd": {
+            "values": [
+              0.10798920000000001,
+              0.1061736
+            ],
+            "min": 0.1061736,
+            "max": 0.10798920000000001
+          },
+          "wall_time_ms": {
+            "values": [
+              10551,
+              8174
+            ],
+            "min": 8174,
+            "max": 10551
+          }
+        }
+      },
+      "claude-opus-5-5|with_skills|T2": {
+        "model": "claude-opus-5-5",
+        "variant": "with_skills",
+        "task": "T2",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              8,
+              9
+            ],
+            "min": 8,
+            "max": 9
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              1
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "response_tokens_total": {
+            "values": [
+              3656,
+              3884
+            ],
+            "min": 3656,
+            "max": 3884
+          },
+          "total_tokens": {
+            "values": [
+              252000,
+              244068
+            ],
+            "min": 244068,
+            "max": 252000
+          },
+          "cost_usd": {
+            "values": [
+              0.4036104,
+              0.32216999999999996
+            ],
+            "min": 0.32216999999999996,
+            "max": 0.4036104
+          },
+          "wall_time_ms": {
+            "values": [
+              53301,
+              61805
+            ],
+            "min": 53301,
+            "max": 61805
+          }
+        }
+      },
+      "claude-sonnet-5-5|with_skills|T2": {
+        "model": "claude-sonnet-5-5",
+        "variant": "with_skills",
+        "task": "T2",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              8,
+              8
+            ],
+            "min": 8,
+            "max": 8
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              2
+            ],
+            "min": 0,
+            "max": 2
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "response_tokens_total": {
+            "values": [
+              3189,
+              3015
+            ],
+            "min": 3015,
+            "max": 3189
+          },
+          "total_tokens": {
+            "values": [
+              183167,
+              180310
+            ],
+            "min": 180310,
+            "max": 183167
+          },
+          "cost_usd": {
+            "values": [
+              0.143636,
+              0.1451409
+            ],
+            "min": 0.143636,
+            "max": 0.1451409
+          },
+          "wall_time_ms": {
+            "values": [
+              42411,
+              44872
+            ],
+            "min": 42411,
+            "max": 44872
+          }
+        }
+      },
+      "claude-opus-5-5|mcp_only|T2": {
+        "model": "claude-opus-5-5",
+        "variant": "mcp_only",
+        "task": "T2",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "expected exactly one new run, found 0"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "expected exactly one new run, found 0"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              5,
+              5
+            ],
+            "min": 5,
+            "max": 5
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              1389,
+              1309
+            ],
+            "min": 1309,
+            "max": 1389
+          },
+          "total_tokens": {
+            "values": [
+              100955,
+              102455
+            ],
+            "min": 100955,
+            "max": 102455
+          },
+          "cost_usd": {
+            "values": [
+              0.20236790000000002,
+              0.21186069999999999
+            ],
+            "min": 0.20236790000000002,
+            "max": 0.21186069999999999
+          },
+          "wall_time_ms": {
+            "values": [
+              25036,
+              30036
+            ],
+            "min": 25036,
+            "max": 30036
+          }
+        }
+      },
+      "claude-sonnet-5-5|mcp_only|T2": {
+        "model": "claude-sonnet-5-5",
+        "variant": "mcp_only",
+        "task": "T2",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "expected exactly one new run, found 0"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "expected exactly one new run, found 0"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              3,
+              6
+            ],
+            "min": 3,
+            "max": 6
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              647,
+              1430
+            ],
+            "min": 647,
+            "max": 1430
+          },
+          "total_tokens": {
+            "values": [
+              20191,
+              130920
+            ],
+            "min": 20191,
+            "max": 130920
+          },
+          "cost_usd": {
+            "values": [
+              0.0339652,
+              0.14012000000000002
+            ],
+            "min": 0.0339652,
+            "max": 0.14012000000000002
+          },
+          "wall_time_ms": {
+            "values": [
+              7175,
+              20441
+            ],
+            "min": 7175,
+            "max": 20441
+          }
+        }
+      },
+      "claude-opus-5-5|with_skills|T3": {
+        "model": "claude-opus-5-5",
+        "variant": "with_skills",
+        "task": "T3",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              7,
+              8
+            ],
+            "min": 7,
+            "max": 8
+          },
+          "invalid_argument_calls": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "is_error_results": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              7289,
+              7309
+            ],
+            "min": 7289,
+            "max": 7309
+          },
+          "total_tokens": {
+            "values": [
+              190891,
+              228744
+            ],
+            "min": 190891,
+            "max": 228744
+          },
+          "cost_usd": {
+            "values": [
+              0.3281032,
+              0.3452182
+            ],
+            "min": 0.3281032,
+            "max": 0.3452182
+          },
+          "wall_time_ms": {
+            "values": [
+              34463,
+              59497
+            ],
+            "min": 34463,
+            "max": 59497
+          }
+        }
+      },
+      "claude-sonnet-5-5|with_skills|T3": {
+        "model": "claude-sonnet-5-5",
+        "variant": "with_skills",
+        "task": "T3",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              8,
+              8
+            ],
+            "min": 8,
+            "max": 8
+          },
+          "invalid_argument_calls": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "is_error_results": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              6995,
+              6995
+            ],
+            "min": 6995,
+            "max": 6995
+          },
+          "total_tokens": {
+            "values": [
+              233595,
+              238126
+            ],
+            "min": 233595,
+            "max": 238126
+          },
+          "cost_usd": {
+            "values": [
+              0.1641693,
+              0.16684010000000002
+            ],
+            "min": 0.1641693,
+            "max": 0.16684010000000002
+          },
+          "wall_time_ms": {
+            "values": [
+              31259,
+              28411
+            ],
+            "min": 28411,
+            "max": 31259
+          }
+        }
+      },
+      "claude-opus-5-5|mcp_only|T3": {
+        "model": "claude-opus-5-5",
+        "variant": "mcp_only",
+        "task": "T3",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "approved gates: none"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "approved gates: none"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              21,
+              13
+            ],
+            "min": 13,
+            "max": 21
+          },
+          "invalid_argument_calls": {
+            "values": [
+              7,
+              5
+            ],
+            "min": 5,
+            "max": 7
+          },
+          "is_error_results": {
+            "values": [
+              11,
+              6
+            ],
+            "min": 6,
+            "max": 11
+          },
+          "agdf_failure_results": {
+            "values": [
+              3,
+              1
+            ],
+            "min": 1,
+            "max": 3
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              5173,
+              3792
+            ],
+            "min": 3792,
+            "max": 5173
+          },
+          "total_tokens": {
+            "values": [
+              289485,
+              150260
+            ],
+            "min": 150260,
+            "max": 289485
+          },
+          "cost_usd": {
+            "values": [
+              0.3804968,
+              0.25094930000000004
+            ],
+            "min": 0.25094930000000004,
+            "max": 0.3804968
+          },
+          "wall_time_ms": {
+            "values": [
+              79361,
+              54583
+            ],
+            "min": 54583,
+            "max": 79361
+          }
+        }
+      },
+      "claude-sonnet-5-5|mcp_only|T3": {
+        "model": "claude-sonnet-5-5",
+        "variant": "mcp_only",
+        "task": "T3",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "approved gates: none"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              1
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              4,
+              13
+            ],
+            "min": 4,
+            "max": 13
+          },
+          "invalid_argument_calls": {
+            "values": [
+              2,
+              4
+            ],
+            "min": 2,
+            "max": 4
+          },
+          "is_error_results": {
+            "values": [
+              2,
+              4
+            ],
+            "min": 2,
+            "max": 4
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              4
+            ],
+            "min": 1,
+            "max": 4
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              730,
+              8571
+            ],
+            "min": 730,
+            "max": 8571
+          },
+          "total_tokens": {
+            "values": [
+              76093,
+              182370
+            ],
+            "min": 76093,
+            "max": 182370
+          },
+          "cost_usd": {
+            "values": [
+              0.08956219999999998,
+              0.1648286
+            ],
+            "min": 0.08956219999999998,
+            "max": 0.1648286
+          },
+          "wall_time_ms": {
+            "values": [
+              12710,
+              44336
+            ],
+            "min": 12710,
+            "max": 44336
+          }
+        }
+      },
+      "claude-opus-5-5|with_skills|T4": {
+        "model": "claude-opus-5-5",
+        "variant": "with_skills",
+        "task": "T4",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              6,
+              7
+            ],
+            "min": 6,
+            "max": 7
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              36476,
+              36956
+            ],
+            "min": 36476,
+            "max": 36956
+          },
+          "total_tokens": {
+            "values": [
+              174389,
+              177957
+            ],
+            "min": 174389,
+            "max": 177957
+          },
+          "cost_usd": {
+            "values": [
+              0.5851021,
+              0.5930546
+            ],
+            "min": 0.5851021,
+            "max": 0.5930546
+          },
+          "wall_time_ms": {
+            "values": [
+              45433,
+              47356
+            ],
+            "min": 45433,
+            "max": 47356
+          }
+        }
+      },
+      "claude-sonnet-5-5|with_skills|T4": {
+        "model": "claude-sonnet-5-5",
+        "variant": "with_skills",
+        "task": "T4",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              10,
+              4
+            ],
+            "min": 4,
+            "max": 10
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              2
+            ],
+            "min": 1,
+            "max": 2
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              2
+            ],
+            "min": 1,
+            "max": 2
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              1
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              3190,
+              791
+            ],
+            "min": 791,
+            "max": 3190
+          },
+          "total_tokens": {
+            "values": [
+              259322,
+              101046
+            ],
+            "min": 101046,
+            "max": 259322
+          },
+          "cost_usd": {
+            "values": [
+              0.1518737,
+              0.0775182
+            ],
+            "min": 0.0775182,
+            "max": 0.1518737
+          },
+          "wall_time_ms": {
+            "values": [
+              60099,
+              12173
+            ],
+            "min": 12173,
+            "max": 60099
+          }
+        }
+      },
+      "claude-opus-5-5|mcp_only|T4": {
+        "model": "claude-opus-5-5",
+        "variant": "mcp_only",
+        "task": "T4",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              13,
+              12
+            ],
+            "min": 12,
+            "max": 13
+          },
+          "invalid_argument_calls": {
+            "values": [
+              4,
+              4
+            ],
+            "min": 4,
+            "max": 4
+          },
+          "is_error_results": {
+            "values": [
+              5,
+              4
+            ],
+            "min": 4,
+            "max": 5
+          },
+          "agdf_failure_results": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              23451,
+              23435
+            ],
+            "min": 23435,
+            "max": 23451
+          },
+          "total_tokens": {
+            "values": [
+              182486,
+              181535
+            ],
+            "min": 181535,
+            "max": 182486
+          },
+          "cost_usd": {
+            "values": [
+              0.43938040000000006,
+              0.44072449999999996
+            ],
+            "min": 0.43938040000000006,
+            "max": 0.44072449999999996
+          },
+          "wall_time_ms": {
+            "values": [
+              65385,
+              72280
+            ],
+            "min": 65385,
+            "max": 72280
+          }
+        }
+      },
+      "claude-sonnet-5-5|mcp_only|T4": {
+        "model": "claude-sonnet-5-5",
+        "variant": "mcp_only",
+        "task": "T4",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "pages read 0/3, complete false"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              9,
+              8
+            ],
+            "min": 8,
+            "max": 9
+          },
+          "invalid_argument_calls": {
+            "values": [
+              2,
+              3
+            ],
+            "min": 2,
+            "max": 3
+          },
+          "is_error_results": {
+            "values": [
+              3,
+              4
+            ],
+            "min": 3,
+            "max": 4
+          },
+          "agdf_failure_results": {
+            "values": [
+              2,
+              0
+            ],
+            "min": 0,
+            "max": 2
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              22887,
+              22035
+            ],
+            "min": 22035,
+            "max": 22887
+          },
+          "total_tokens": {
+            "values": [
+              140855,
+              115685
+            ],
+            "min": 115685,
+            "max": 140855
+          },
+          "cost_usd": {
+            "values": [
+              0.19663350000000002,
+              0.1818942
+            ],
+            "min": 0.1818942,
+            "max": 0.19663350000000002
+          },
+          "wall_time_ms": {
+            "values": [
+              32495,
+              24537
+            ],
+            "min": 24537,
+            "max": 32495
+          }
+        }
+      },
+      "claude-opus-5-5|with_skills|T5": {
+        "model": "claude-opus-5-5",
+        "variant": "with_skills",
+        "task": "T5",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": null
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              4,
+              3
+            ],
+            "min": 3,
+            "max": 4
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              3571,
+              668
+            ],
+            "min": 668,
+            "max": 3571
+          },
+          "total_tokens": {
+            "values": [
+              107077,
+              81310
+            ],
+            "min": 81310,
+            "max": 107077
+          },
+          "cost_usd": {
+            "values": [
+              0.2130766,
+              0.15513839999999998
+            ],
+            "min": 0.15513839999999998,
+            "max": 0.2130766
+          },
+          "wall_time_ms": {
+            "values": [
+              30198,
+              22133
+            ],
+            "min": 22133,
+            "max": 30198
+          }
+        }
+      },
+      "claude-sonnet-5-5|with_skills|T5": {
+        "model": "claude-sonnet-5-5",
+        "variant": "with_skills",
+        "task": "T5",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": null
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              1
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "tool_calls_total": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "invalid_argument_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "is_error_results": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              632,
+              4559
+            ],
+            "min": 632,
+            "max": 4559
+          },
+          "total_tokens": {
+            "values": [
+              58177,
+              67665
+            ],
+            "min": 58177,
+            "max": 67665
+          },
+          "cost_usd": {
+            "values": [
+              0.0633049,
+              0.1008018
+            ],
+            "min": 0.0633049,
+            "max": 0.1008018
+          },
+          "wall_time_ms": {
+            "values": [
+              7365,
+              10365
+            ],
+            "min": 7365,
+            "max": 10365
+          }
+        }
+      },
+      "claude-opus-5-5|mcp_only|T5": {
+        "model": "claude-opus-5-5",
+        "variant": "mcp_only",
+        "task": "T5",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              2,
+              3
+            ],
+            "min": 2,
+            "max": 3
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              2
+            ],
+            "min": 0,
+            "max": 2
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              127,
+              1364
+            ],
+            "min": 127,
+            "max": 1364
+          },
+          "total_tokens": {
+            "values": [
+              17633,
+              59980
+            ],
+            "min": 17633,
+            "max": 59980
+          },
+          "cost_usd": {
+            "values": [
+              0.0590578,
+              0.1759386
+            ],
+            "min": 0.0590578,
+            "max": 0.1759386
+          },
+          "wall_time_ms": {
+            "values": [
+              18102,
+              16960
+            ],
+            "min": 16960,
+            "max": 18102
+          }
+        }
+      },
+      "claude-sonnet-5-5|mcp_only|T5": {
+        "model": "claude-sonnet-5-5",
+        "variant": "mcp_only",
+        "task": "T5",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no successful AGDF read bound to the run"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              6,
+              3
+            ],
+            "min": 3,
+            "max": 6
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              2
+            ],
+            "min": 1,
+            "max": 2
+          },
+          "is_error_results": {
+            "values": [
+              2,
+              2
+            ],
+            "min": 2,
+            "max": 2
+          },
+          "agdf_failure_results": {
+            "values": [
+              3,
+              0
+            ],
+            "min": 0,
+            "max": 3
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              1275,
+              209
+            ],
+            "min": 209,
+            "max": 1275
+          },
+          "total_tokens": {
+            "values": [
+              51366,
+              24223
+            ],
+            "min": 24223,
+            "max": 51366
+          },
+          "cost_usd": {
+            "values": [
+              0.0569621,
+              0.032742
+            ],
+            "min": 0.032742,
+            "max": 0.0569621
+          },
+          "wall_time_ms": {
+            "values": [
+              21559,
+              11625
+            ],
+            "min": 11625,
+            "max": 21559
+          }
+        }
+      },
+      "claude-opus-5-5|with_skills|T6": {
+        "model": "claude-opus-5-5",
+        "variant": "with_skills",
+        "task": "T6",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              4,
+              6
+            ],
+            "min": 4,
+            "max": 6
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              0,
+              1
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              4696,
+              5624
+            ],
+            "min": 4696,
+            "max": 5624
+          },
+          "total_tokens": {
+            "values": [
+              95932,
+              168385
+            ],
+            "min": 95932,
+            "max": 168385
+          },
+          "cost_usd": {
+            "values": [
+              0.2459964,
+              0.3009251
+            ],
+            "min": 0.2459964,
+            "max": 0.3009251
+          },
+          "wall_time_ms": {
+            "values": [
+              19677,
+              28464
+            ],
+            "min": 19677,
+            "max": 28464
+          }
+        }
+      },
+      "claude-sonnet-5-5|with_skills|T6": {
+        "model": "claude-sonnet-5-5",
+        "variant": "with_skills",
+        "task": "T6",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              7,
+              4
+            ],
+            "min": 4,
+            "max": 7
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              0
+            ],
+            "min": 0,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              3735,
+              2928
+            ],
+            "min": 2928,
+            "max": 3735
+          },
+          "total_tokens": {
+            "values": [
+              198699,
+              97250
+            ],
+            "min": 97250,
+            "max": 198699
+          },
+          "cost_usd": {
+            "values": [
+              0.1502324,
+              0.1183719
+            ],
+            "min": 0.1183719,
+            "max": 0.1502324
+          },
+          "wall_time_ms": {
+            "values": [
+              32201,
+              22106
+            ],
+            "min": 22106,
+            "max": 32201
+          }
+        }
+      },
+      "claude-opus-5-5|mcp_only|T6": {
+        "model": "claude-opus-5-5",
+        "variant": "mcp_only",
+        "task": "T6",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              5,
+              6
+            ],
+            "min": 5,
+            "max": 6
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              5613,
+              3548
+            ],
+            "min": 3548,
+            "max": 5613
+          },
+          "total_tokens": {
+            "values": [
+              107038,
+              75353
+            ],
+            "min": 75353,
+            "max": 107038
+          },
+          "cost_usd": {
+            "values": [
+              0.28023180000000003,
+              0.19084689999999999
+            ],
+            "min": 0.19084689999999999,
+            "max": 0.28023180000000003
+          },
+          "wall_time_ms": {
+            "values": [
+              29390,
+              42929
+            ],
+            "min": 29390,
+            "max": 42929
+          }
+        }
+      },
+      "claude-sonnet-5-5|mcp_only|T6": {
+        "model": "claude-sonnet-5-5",
+        "variant": "mcp_only",
+        "task": "T6",
+        "sessions": [
+          {
+            "repetition": 1,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          },
+          {
+            "repetition": 2,
+            "status": "measured",
+            "reason": "no write with the stale revision was attempted and rejected"
+          }
+        ],
+        "metrics": {
+          "success": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls_total": {
+            "values": [
+              5,
+              5
+            ],
+            "min": 5,
+            "max": 5
+          },
+          "invalid_argument_calls": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "is_error_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_failure_results": {
+            "values": [
+              1,
+              1
+            ],
+            "min": 1,
+            "max": 1
+          },
+          "agdf_shell_calls": {
+            "values": [
+              0,
+              0
+            ],
+            "min": 0,
+            "max": 0
+          },
+          "response_tokens_total": {
+            "values": [
+              1002,
+              985
+            ],
+            "min": 985,
+            "max": 1002
+          },
+          "total_tokens": {
+            "values": [
+              56846,
+              57501
+            ],
+            "min": 56846,
+            "max": 57501
+          },
+          "cost_usd": {
+            "values": [
+              0.0649186,
+              0.0657476
+            ],
+            "min": 0.0649186,
+            "max": 0.0657476
+          },
+          "wall_time_ms": {
+            "values": [
+              20470,
+              19201
+            ],
+            "min": 19201,
+            "max": 20470
+          }
+        }
+      }
+    }
+  },
+  "findings_map": {
+    "schema_version": "1",
+    "map_version": "v1",
+    "source": "AGDF MCP interface review of 2026-10-16 (twelve findings)",
+    "findings": [
+      {
+        "id": "F01",
+        "finding": "AGDF domain failures are returned without isError",
+        "metrics": [
+          "protocol.summary.classes.failure_without_isError",
+          "native.agdf_failure_results"
+        ]
+      },
+      {
+        "id": "F02",
+        "finding": "Worker maps every exception to dispatch_worker_failed (repair runtime / effect_unknown before dispatch)",
+        "metrics": [],
+        "not_measurable": "Call matrix v1 has no input that fails inside the worker after SDK validation (for example the 64 KB command budget); add such a call in a later matrix version."
+      },
+      {
+        "id": "F03",
+        "finding": "invalid_input is terminal and sends agent-directed text to the human",
+        "metrics": [
+          "protocol.calls.D-SEM-RELATIVE-DIRECTORY",
+          "native.T5.success",
+          "native.invalid_argument_calls"
+        ]
+      },
+      {
+        "id": "F04",
+        "finding": "agdf_inspect and the command tools leave parameters undocumented",
+        "metrics": [
+          "protocol.tools.documented_share",
+          "native.mcp_only.success",
+          "native.invalid_argument_calls"
+        ]
+      },
+      {
+        "id": "F05",
+        "finding": "Command rejections return codes without recovery guidance; cockpit errors are undifferentiated",
+        "metrics": [
+          "protocol.calls.semantic_failure.outcome",
+          "native.T6.success"
+        ]
+      },
+      {
+        "id": "F06",
+        "finding": "Behavioral instructions live in descriptions and results",
+        "metrics": [
+          "native.with_skills_vs_mcp_only.success",
+          "protocol.calls.D-VALID-STATUS.text_bytes"
+        ],
+        "partial": "Indirect only: the share of instruction payload is not separated from data in v1."
+      },
+      {
+        "id": "F07",
+        "finding": "Tools mix effect classes (preview with apply, runtime replacement with recording)",
+        "metrics": [
+          "protocol.tools.annotations"
+        ],
+        "partial": "Static annotations only; host permission prompts per call are not measured in v1."
+      },
+      {
+        "id": "F08",
+        "finding": "Large responses and a 1 MB cap far above host limits",
+        "metrics": [
+          "protocol.calls.text_bytes",
+          "protocol.calls.est_tokens",
+          "native.response_tokens"
+        ]
+      },
+      {
+        "id": "F09",
+        "finding": "Per-call worker and provenance hashing cause high latency",
+        "metrics": [
+          "protocol.calls.latency_ms",
+          "native.wall_time_ms"
+        ]
+      },
+      {
+        "id": "F10",
+        "finding": "Command tools lack outputSchema; dispatch fields are loosely typed",
+        "metrics": [
+          "protocol.tools.has_output_schema"
+        ]
+      },
+      {
+        "id": "F11",
+        "finding": "No MCP-specific evaluations exist",
+        "metrics": [
+          "baseline.exists"
+        ],
+        "partial": "Closed by this baseline itself."
+      },
+      {
+        "id": "F12",
+        "finding": "Metadata inconsistencies (capability manifest, idempotentHint, missing titles, handle lifetimes)",
+        "metrics": [
+          "protocol.tools.has_title",
+          "protocol.tools.annotations"
+        ],
+        "partial": "The capability manifest and handle-lifetime texts are not compared in v1."
+      }
+    ]
+  }
+}

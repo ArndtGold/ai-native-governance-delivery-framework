@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "kind": "agdf_mcp_ergonomics_variant_spike",
+  "recorded_at": "2026-10-16T07:51:55.307Z",
+  "model": "claude-sonnet-5-5",
+  "host": {
+    "version": "2.1.268",
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "install": {
+    "status": 1,
+    "result": null,
+    "effective_state": null,
+    "stderr": "AGDF install refused: this process runs inside the packaged app Claude_pzs8sxrjxfjjc, whose %LOCALAPPDATA% writes stay private to that app. Run the installation from a terminal outside Claude_pzs8sxrjxfjjc.\n"
+  },
+  "mcp_list": [],
+  "variants": {
+    "with_skills": {
+      "exit": 0,
+      "stderr": "[claude-code:unrecognized_model] {\"model\":\"claude-sonnet-5-5\",\"query_source\":\"sdk\"}\n",
+      "event_types": {
+        "system:init": 1,
+        "assistant": 5,
+        "user": 2,
+        "rate_limit_event": 1,
+        "system:thinking_tokens": 2,
+        "system:post_turn_summary": 1,
+        "result:success": 1
+      },
+      "init_keys": [
+        "agents",
+        "analytics_disabled",
+        "apiKeySource",
+        "capabilities",
+        "claude_code_version",
+        "cwd",
+        "fast_mode_disabled_reason",
+        "fast_mode_state",
+        "mcp_servers",
+        "memory_paths",
+        "messaging_socket_path",
+        "model",
+        "output_style",
+        "permissionMode",
+        "plugins",
+        "powershell_path",
+        "product_feedback_disabled",
+        "session_id",
+        "skills",
+        "slash_commands",
+        "subtype",
+        "terminal_slash_commands",
+        "tools",
+        "type",
+        "uuid"
+      ],
+      "model": "claude-sonnet-5-5",
+      "mcp_servers": {
+        "agdf": [],
+        "other_count": 15
+      },
+      "agdf_mcp_tools": [],
+      "skill_entries": 0,
+      "slash_command_entries": 0,
+      "plugins": [],
+      "hook_mentions": 0,
+      "agdf_guard_in_context": false,
+      "result_keys": [
+        "api_error_status",
+        "duration_api_ms",
+        "duration_ms",
+        "fast_mode_disabled_reason",
+        "fast_mode_state",
+        "first_content_frame_ms",
+        "is_error",
+        "modelUsage",
+        "num_turns",
+        "permission_denials",
+        "queued_turn_count",
+        "result",
+        "result_index",
+        "session_id",
+        "stop_reason",
+        "subagent_stats",
+        "subtype",
+        "terminal_reason",
+        "time_to_request_ms",
+        "total_cost_usd",
+        "ttft_ms",
+        "ttft_stream_ms",
+        "type",
+        "usage",
+        "uuid"
+      ],
+      "usage_keys": [
+        "cache_creation",
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens",
+        "inference_geo",
+        "input_tokens",
+        "iterations",
+        "output_tokens",
+        "output_tokens_details",
+        "server_tool_use",
+        "service_tier",
+        "speed"
+      ],
+      "total_cost_usd": 0.5505785,
+      "duration_ms": 8801,
+      "num_turns": 3,
+      "is_error": false,
+      "result_subtype": "success",
+      "tool_calls": [
+        {
+          "name": "ToolSearch",
+          "is_error": false,
+          "result_bytes": 32
+        },
+        {
+          "name": "ToolSearch",
+          "is_error": false,
+          "result_bytes": 32
+        }
+      ]
+    },
+    "mcp_only": {
+      "exit": 0,
+      "stderr": "[claude-code:unrecognized_model] {\"model\":\"claude-sonnet-5-5\",\"query_source\":\"sdk\"}\n",
+      "event_types": {
+        "system:init": 1,
+        "system:thinking_tokens": 4,
+        "assistant": 4,
+        "user": 1,
+        "rate_limit_event": 1,
+        "system:post_turn_summary": 1,
+        "result:success": 1
+      },
+      "init_keys": [
+        "agents",
+        "analytics_disabled",
+        "apiKeySource",
+        "capabilities",
+        "claude_code_version",
+        "cwd",
+        "fast_mode_disabled_reason",
+        "fast_mode_state",
+        "mcp_servers",
+        "memory_paths",
+        "messaging_socket_path",
+        "model",
+        "output_style",
+        "permissionMode",
+        "plugins",
+        "powershell_path",
+        "product_feedback_disabled",
+        "session_id",
+        "skills",
+        "slash_commands",
+        "subtype",
+        "tools",
+        "type",
+        "uuid"
+      ],
+      "model": "claude-sonnet-5-5",
+      "mcp_servers": {
+        "agdf": [],
+        "other_count": 0
+      },
+      "agdf_mcp_tools": [],
+      "skill_entries": 0,
+      "slash_command_entries": 0,
+      "plugins": [],
+      "hook_mentions": 0,
+      "agdf_guard_in_context": false,
+      "result_keys": [
+        "api_error_status",
+        "duration_api_ms",
+        "duration_ms",
+        "fast_mode_disabled_reason",
+        "fast_mode_state",
+        "first_content_frame_ms",
+        "is_error",
+        "modelUsage",
+        "num_turns",
+        "permission_denials",
+        "queued_turn_count",
+        "result",
+        "result_index",
+        "session_id",
+        "stop_reason",
+        "subagent_stats",
+        "subtype",
+        "terminal_reason",
+        "time_to_request_ms",
+        "total_cost_usd",
+        "ttft_ms",
+        "ttft_stream_ms",
+        "type",
+        "usage",
+        "uuid"
+      ],
+      "usage_keys": [
+        "cache_creation",
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens",
+        "inference_geo",
+        "input_tokens",
+        "iterations",
+        "output_tokens",
+        "output_tokens_details",
+        "server_tool_use",
+        "service_tier",
+        "speed"
+      ],
+      "total_cost_usd": 0.5562245,
+      "duration_ms": 8484,
+      "num_turns": 2,
+      "is_error": false,
+      "result_subtype": "success",
+      "tool_calls": [
+        {
+          "name": "ToolSearch",
+          "is_error": false,
+          "result_bytes": 32
+        }
+      ]
+    }
+  },
+  "uninstall": {
+    "status": 1
+  },
+  "cost_probe": {
+    "model_alias": "sonnet",
+    "resolved_model": "claude-sonnet-5",
+    "trivial_session_cost_usd": 0.1866,
+    "cache_creation_input_tokens": 46639,
+    "note": "Claude Code 2.1.268 reports unrecognized_model for claude-sonnet-5-5; aliases resolve to the 5 generation"
+  }
+}

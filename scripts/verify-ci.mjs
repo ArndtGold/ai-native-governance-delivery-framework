@@ -29,6 +29,7 @@ const stages = [
   { id: 'runtime', commands: [node('plugins/agdf/scripts/check-runtime-integrity.mjs')] },
   { id: 'community', repository: true, commands: [npm(['run', 'test:community-health']), npm(['run', 'check:community-health'])] },
   { id: 'host-compatibility', repository: true, commands: [npm(['run', 'test:host-compatibility'])] },
+  { id: 'mcp-ergonomics', repository: true, commands: [npm(['run', 'test:mcp-ergonomics'])] },
   { id: 'built-runtime', commands: [node('packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs', [], { env: { AGDF_RUNTIME_INTEGRITY_ROOT: 'packages/cli/generated/plugins/agdf' } })] },
   { id: 'cli-package', commands: [npm(['--prefix', 'packages/cli', 'run', 'test:package-contents'])] },
   { id: 'wrapper-package', commands: [npm(['--prefix', 'packages/cli/distribution/agdf', 'run', 'test:package'])] },

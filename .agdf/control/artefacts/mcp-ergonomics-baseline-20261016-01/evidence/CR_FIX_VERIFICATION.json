@@ -1,0 +1,82 @@
+{
+  "schema_version": "1",
+  "kind": "agdf_mcp_ergonomics_cr_fix_verification",
+  "run_id": "mcp-ergonomics-baseline-20261016-01",
+  "recorded_at": "2026-10-16T15:26:12.035Z",
+  "git_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+  "baseline": "evals/mcp-ergonomics/baselines/2026-10-16-win32-x64",
+  "protocol_run_d_vs_e": {
+    "status": "unchanged",
+    "differences": 0,
+    "same_digests": true
+  },
+  "protocol_run_d_summary": {
+    "ok": 14,
+    "sdk_validation": 9,
+    "tool_error_other": 0,
+    "agdf_failure": 9,
+    "protocol_error": 0,
+    "failure_without_isError": 9,
+    "total": 32
+  },
+  "protocol_run_a_vs_d": {
+    "status": "changed",
+    "changed_calls": [
+      "D-SEM-UNRESOLVED-TARGET#0",
+      "K-NOUI-SNAPSHOT#0",
+      "K-NOUI-SEM-UNKNOWN-OPERATION#0"
+    ],
+    "changed_fields": [
+      "text_bytes",
+      "structured_bytes",
+      "est_tokens",
+      "presence"
+    ],
+    "cause": "CR-10 normalization of doubly escaped roots (D-SEM-UNRESOLVED-TARGET) and CR-12 two added cockpit calls without UI capability; same server, dispatcher and SDK digests"
+  },
+  "native_reevaluation": {
+    "tasks": [
+      "T6"
+    ],
+    "predicate": [
+      "stale_write_guarded"
+    ],
+    "sessions": 8,
+    "changed": 8,
+    "evidence_writes_in_transcripts": 0
+  },
+  "compare_against_baseline": {
+    "protocol-e+native-3-reevaluated": {
+      "protocol": "unchanged",
+      "native": "unchanged",
+      "changed": 0,
+      "not_comparable": 0
+    },
+    "native-3-raw (pre-fix T6 verdicts)": {
+      "native": "changed",
+      "changed": 4,
+      "changed_metrics": [
+        "claude-opus-5-5|with_skills|T6:success",
+        "claude-sonnet-5-5|with_skills|T6:success",
+        "claude-opus-5-5|mcp_only|T6:success",
+        "claude-sonnet-5-5|mcp_only|T6:success"
+      ]
+    }
+  },
+  "tools_list_before_vs_cr": {
+    "identical": true,
+    "differences": 0
+  },
+  "suites": {
+    "test:mcp-ergonomics": "pass (34 tests)",
+    "test:verification": "pass",
+    "test:host-compatibility": "pass",
+    "compatibility:check": "pass",
+    "mcp-server test:package": "pass",
+    "mcp-server test:sdk-digest": "pass"
+  },
+  "diff_scope": {
+    "outside_allowed_paths": 0,
+    "under_packages": 0
+  }
+}

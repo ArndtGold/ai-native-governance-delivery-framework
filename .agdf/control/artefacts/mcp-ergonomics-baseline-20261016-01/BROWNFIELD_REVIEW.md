@@ -156,3 +156,11 @@ redaction mechanisms instead of copying them.
 - quality_outlook: Good basis: the reuse path is concrete and the slice is bounded. Main quality risks
   are native-run cost (Opus) and variance with two repetitions, and the MCP-only variant's feasibility in
   Claude Code; PRD and SD must close them before TP.
+
+## Reassessment After UR Summary Revision
+
+- reviewed_at: 2026-10-16
+- reviewer: Claude Code (claude-opus-5-5)
+- trigger: UR source revision `ad5a4176-32d1-4b55-a42f-779bb2d8eaee`, which changed only the UR's localized AGDF Approval Summary into valid summary fields; the English UR sections, scope, goal, non-goals and acceptance signals are byte-identical.
+- result: the post-UR review above still holds. Owners, source-of-truth artefacts, reuse strategy, UI/UX impact `none` and the Mode/Slice Decision `structured_slice` are unchanged; the implementation that now exists confirms the reuse path (shared MCP test harness, owned-runtime fixture, extracted Claude session module, no file under `packages/` changed).
+- decision: `structured_slice`, required next gate `PRD`.

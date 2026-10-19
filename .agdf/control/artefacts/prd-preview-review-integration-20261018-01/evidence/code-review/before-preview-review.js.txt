@@ -1,0 +1,136 @@
+import { readFileSync, statSync } from '../control-read/fs.js';
+import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from './contained-file.js';
+import { canonicalJson, digest, exactObject, DIGEST_PATTERN } from './approval-command-contract.js';
+import { canonicalRunText } from './run-text.js';
+import { readAcceptanceCriteria } from '../control-evaluation/acceptance-criteria.js';
+import { renderPreview } from './preview-render.js';
+
+export const PREVIEW_LIMITS = Object.freeze({ descriptor: 16384, files: 32, file: 131072, total: 1048576, rendered: 2097152, chunk: 131072 });
+export const PREVIEW_REVIEW_FORMAT = Object.freeze({ section: 'Preview Review', fence: 'json', schema_version: '1',
+  fields: Object.freeze(['schema_version', 'version', 'source_ur_digest', 'entry', 'files', 'review_task', 'scenarios', 'criterion_ids', 'open_questions']),
+  file_fields: Object.freeze(['path', 'digest', 'bytes', 'media_type']), limits: PREVIEW_LIMITS,
+  entry: '.agdf/control/artefacts/<run_id>/previews/<short-name-vN>/index.html', digest_rule: 'raw bytes for files; canonical approved UR text for source_ur_digest',
+});
+export const previewError = code => { throw Error(`preview_${code}`); };
+const text = (value, max = 1200) => typeof value === 'string' && !!value.trim() && value.length <= max && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/u.test(value);
+const media = new Set(['text/html', 'text/css', 'text/javascript', 'image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']);
+
+// Initial metadata only. Examples, later prose and code blocks cannot declare a requirement.
+export function previewRequirement(content) {
+  const header = String(content).replace(/^\uFEFF/u, '').split(/^##[ \t]/mu)[0];
+  const lines = header.split(/\r?\n/u), fields = [];
+  let fence = false;
+  for (const line of lines) {
+    if (/^\s*(?:```|~~~)/u.test(line)) { fence = !fence; continue; }
+    if (!fence && /^Preview requirement:/u.test(line)) fields.push(line.slice(20).trim());
+  }
+  if (fields.length > 1 || fields.some(value => !['none', 'before_prd_interactive'].includes(value))) previewError('requirement_invalid');
+  return fields[0] === 'before_prd_interactive';
+}
+
+// Reject duplicate JSON keys before JSON.parse can discard their first value.
+function uniqueJson(source) {
+  let offset = 0;
+  const ws = () => { while (/\s/u.test(source[offset] ?? '') && offset < source.length) ++offset; };
+  const string = () => {
+    const start = offset++;
+    while (offset < source.length) { const c = source[offset++]; if (c === '\\') ++offset; else if (c === '"') return JSON.parse(source.slice(start, offset)); }
+    previewError('descriptor_invalid');
+  };
+  const value = (depth = 0) => {
+    if (depth > 32) previewError('descriptor_invalid');
+    ws(); const c = source[offset];
+    if (c === '"') { string(); return; }
+    if (c === '{' || c === '[') {
+      ++offset; ws(); const end = c === '{' ? '}' : ']', names = new Set();
+      if (source[offset] === end) { ++offset; return; }
+      for (;;) {
+        ws();
+        if (c === '{') { if (source[offset] !== '"') previewError('descriptor_invalid'); const key = string(); if (names.has(key)) previewError('descriptor_duplicate_key'); names.add(key); ws(); if (source[offset++] !== ':') previewError('descriptor_invalid'); }
+        value(depth + 1); ws(); if (source[offset] === end) { ++offset; return; }
+        if (source[offset++] !== ',') previewError('descriptor_invalid');
+      }
+    }
+    const primitive = source.slice(offset).match(/^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/u)?.[0];
+    if (!primitive) previewError('descriptor_invalid'); offset += primitive.length;
+  };
+  try { value(); ws(); if (offset !== source.length) previewError('descriptor_invalid'); return JSON.parse(source); }
+  catch (error) { if (error.message.startsWith('preview_')) throw error; previewError('descriptor_invalid'); }
+}
+
+function descriptorSource(content) {
+  const lines = String(content).replace(/\r\n?/gu, '\n').split('\n');
+  let fence = null, section = false, seen = 0, collecting = false, closed = false, html = false;
+  const body = [];
+  for (const line of lines) {
+    if (collecting) { if (line === '```') { collecting = false; closed = true; } else body.push(line); continue; }
+    if (fence) { if (line.startsWith(fence)) fence = null; continue; }
+    if (/^<!--/u.test(line)) html = true;
+    if (html) { if (line.includes('-->')) html = false; continue; }
+    if (/^## /u.test(line)) { section = line.trim() === '## Preview Review'; if (section) ++seen; continue; }
+    if (section && line === '```json') { if (closed) previewError('descriptor_invalid'); collecting = true; continue; }
+    const mark = line.match(/^ {0,3}(`{3,}|~{3,})/u)?.[1];
+    if (mark) { fence = mark; if (section) previewError('descriptor_invalid'); continue; }
+    if (section && line.trim()) previewError('descriptor_invalid');
+  }
+  if (!seen) return null;
+  if (seen !== 1 || !closed || collecting) previewError('descriptor_invalid');
+  const source = body.join('\n');
+  if (Buffer.byteLength(source) > PREVIEW_LIMITS.descriptor) previewError('descriptor_limit');
+  return uniqueJson(source);
+}
+
+export function validatePreviewDescriptor(row, runId, criteria, urDigest) {
+  if (Buffer.byteLength(canonicalJson(row)) > PREVIEW_LIMITS.descriptor) previewError('descriptor_limit');
+  if (!exactObject(row, PREVIEW_REVIEW_FORMAT.fields)
+    || row.schema_version !== '1' || !/^[a-z][a-z0-9-]{0,63}-v[1-9][0-9]{0,5}$/u.test(row.version ?? '')
+    || !DIGEST_PATTERN.test(row.source_ur_digest ?? '') || urDigest && row.source_ur_digest !== urDigest
+    || !text(row.review_task) || !Array.isArray(row.scenarios) || !row.scenarios.length || row.scenarios.length > 16
+    || !row.scenarios.every(v => text(v, 240)) || !Array.isArray(row.open_questions) || row.open_questions.length > 16 || !row.open_questions.every(v => text(v))
+    || !Array.isArray(row.criterion_ids) || !row.criterion_ids.length || row.criterion_ids.length > 64
+    || new Set(row.criterion_ids).size !== row.criterion_ids.length || !row.criterion_ids.every(id => /^[A-Z][A-Z0-9-]*$/u.test(id) && (!criteria || criteria.includes(id)))
+    || !Array.isArray(row.files) || !row.files.length || row.files.length > PREVIEW_LIMITS.files) previewError('descriptor_invalid');
+  const prefix = `.agdf/control/artefacts/${runId}/previews/${row.version}/`;
+  if (row.entry !== prefix + 'index.html') previewError('entry_invalid');
+  let previous = '', total = 0;
+  for (const file of row.files) {
+    if (!exactObject(file, PREVIEW_REVIEW_FORMAT.file_fields) || !isSafeControlRelativePath(file.path)
+      || !file.path.startsWith(prefix) || /[%?#\s<>"']/u.test(file.path) || file.path <= previous
+      || !DIGEST_PATTERN.test(file.digest ?? '') || !Number.isSafeInteger(file.bytes) || file.bytes < 1 || file.bytes > PREVIEW_LIMITS.file
+      || !media.has(file.media_type)) previewError('file_binding_invalid');
+    previous = file.path; total += file.bytes;
+  }
+  if (total > PREVIEW_LIMITS.total || row.files.find(f => f.path === row.entry)?.media_type !== 'text/html') previewError('file_limit');
+  return row;
+}
+
+export function readPreviewBytes(root, path) {
+  if (hasSymlinkComponent(root, path)) previewError('path_unsafe');
+  const file = containedRegularFile(root, path);
+  if (file.status !== 'valid' || statSync(file.path).size > PREVIEW_LIMITS.file) previewError('file_unavailable');
+  const bytes = readFileSync(file.path);
+  if (bytes.length > PREVIEW_LIMITS.file) previewError('file_limit');
+  return bytes;
+}
+
+export function inspectPreviewReview(root, { runId, urContent, prdContent, readBytes = path => readPreviewBytes(root, path) }) {
+  const required = previewRequirement(urContent), descriptor = descriptorSource(prdContent);
+  if (!descriptor) { if (required) previewError('descriptor_missing'); return null; }
+  const criteria = readAcceptanceCriteria(prdContent);
+  if (criteria.diagnostics.length) previewError('criteria_invalid');
+  validatePreviewDescriptor(descriptor, runId, criteria.ids, digest(canonicalRunText(urContent)));
+  const files = descriptor.files.map(file => {
+    const bytes = readBytes(file.path);
+    if (!Buffer.isBuffer(bytes) || bytes.length !== file.bytes || digest(bytes) !== file.digest) previewError('file_changed');
+    return { ...file, data: bytes };
+  });
+  const html = renderPreview(descriptor, files);
+  if (Buffer.byteLength(html) > PREVIEW_LIMITS.rendered) previewError('render_limit');
+  return { descriptor, descriptor_digest: digest(canonicalJson(descriptor)), files, html, rendered_digest: digest(html), rendered_bytes: Buffer.byteLength(html) };
+}
+
+export function previewForState(root, state, { readBytes } = {}) {
+  const runId = state.run_id ?? state.meta?.run_id;
+  const read = type => { const path = state.artefacts.get(type)?.path?.replace(/^`|`$/gu, ''); return path ? (readBytes ? readBytes(path) : readPreviewBytes(root, path)).toString('utf8') : ''; };
+  return inspectPreviewReview(root, { runId, urContent: read('UR'), prdContent: read('PRD'), readBytes });
+}

@@ -17,7 +17,7 @@ import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
 import { parseRunState } from '../control-state/run-state-parser.js';
 import { artefactFileDigest, runSealState } from '../control-state/run-seal.js';
 import { readArtefactBindings } from '../control-state/artefact-bindings.js';
-import { readPresentationDocument } from '../control-state/run-presentation.js';
+import { readPresentationDocument, readPresentationPreview } from '../control-state/run-presentation.js';
 import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.js';
 import { sourceRevisionQualityFacts } from '../control-state/run-source-revisions.js';
 import { readHistoryBytes } from '../control-state/run-revision-history.js';
@@ -208,7 +208,8 @@ export function createControlInspectService(dependencies = {}) {
         };
         switch (input.operation) {
           case 'presentation-document':
-            return { report: readPresentationDocument(target.governance_target, {
+          case 'presentation-preview':
+            return { report: (input.operation === 'presentation-preview' ? readPresentationPreview : readPresentationDocument)(target.governance_target, {
               runId: input.run_id, gate: input.gate, revisionId: input.expected_revision_id,
               presentationId: input.presentation_id, targetId: input.target_id, cursor: input.cursor,
             }), presentation: null };

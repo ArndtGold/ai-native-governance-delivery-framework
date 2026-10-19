@@ -1,3 +1,5 @@
+import { validateRunPresentationEnvelope, PRESENTATION_ID_PATTERN as UUID, PRESENTATION_RECOVERY as recovery } from "./run-presentation-envelope.js";
+export { validateRunPresentationEnvelope } from "./run-presentation-envelope.js";
 import { randomUUID } from "node:crypto";
 import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { fsyncDirectory } from "./run-state-writer.js";
@@ -7,12 +9,12 @@ import { runPath } from "./run-state-reader.js";
 import { readRun, rejected } from "./run-state-edits.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { hash } from "./run-presentation-render.js";
-import { exactObject, DIGEST_PATTERN, resolveControlCommandTarget } from './approval-command-contract.js';
+import { resolveControlCommandTarget } from './approval-command-contract.js';
+import { prepareRunContentState } from '../control-evaluation/run-state.js';
+import { previewForState } from './preview-review.js';
+import { previewSnapshotBinding, publishPreviewSnapshot, readPreviewSnapshot, validateCurrentPreviewRecord } from './preview-snapshot.js';
 
 export { renderReviewableApproval } from "./run-presentation-render.js";
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
-const recovery = "Run run-present for the current run/gate/revision, show its exact presentation, then wait for a NEW deliberate user response. Never bind an earlier reply retroactively.";
 
 function directory(path) {
   const stat = lstatSync(path);
@@ -28,7 +30,7 @@ function checkedRunDirectory(root, runId) {
   return path;
 }
 
-function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck) {
+function binding(root, { runId, gate, revisionId, language, presentationId }, evaluateGateCheck) {
   checkedRunDirectory(root, runId);
   const run = readRun(root, runId);
   if (run.rejection) throw new Error(run.rejection.reason);
@@ -37,7 +39,7 @@ function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck)
   if (seal.status !== "valid") throw new Error("presentation_state_changed");
   const report = evaluateGateCheck(root, { runId, ...(language ? { presentationLanguage: language } : {}) });
   const artefactPresentation = report.approval_presentation;
-  const text = artefactPresentation?.markdown;
+  let text = artefactPresentation?.markdown;
   if (report.status !== "open" && report.blocking_reason && report.blocking_reason !== "none") {
     const error = new Error(report.blocking_reason);
     error.recovery = [report.next_allowed_action, ...(report.prd_readiness?.open_decisions ?? [])].filter(Boolean).join("\n\n");
@@ -54,6 +56,13 @@ function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck)
   }
   if (report.status !== "open" || report.current_gate !== gate || report.missing_approval !== `Approval: ${gate}`
       || report.approval_presentation?.revision_id !== revisionId || !text) throw new Error("approval_presentation_unavailable");
+  const preview = gate === 'PRD' ? previewForState(root, prepareRunContentState(root, run.content, run.path)) : null;
+  if (preview) {
+    const path = join(root, '.agdf', 'control', 'runs', runId, 'presentations', `${presentationId}.preview.html`);
+    if (/[<>\r\n]/u.test(path)) throw Error('preview_path_unsafe');
+    const german = language?.startsWith('de');
+    text += `\n\n[${german ? 'Geprüfte Vorschau öffnen' : 'Open checked preview'} · ${preview.descriptor.version}](<${path}>)`;
+  }
   return { run_id: runId, gate, revision_id: revisionId, content_digest: seal.actual.content_seal,
     artefact_digest: artefactPresentation.artefact_digest,
     summary_digest: artefactPresentation.summary_digest,
@@ -64,6 +73,7 @@ function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck)
     document_language: artefactPresentation.document_language,
     document_digest: hash(artefactPresentation.document_content),
     document_bytes: Buffer.byteLength(artefactPresentation.document_content, 'utf8'),
+    ...(preview ? { preview_review: previewSnapshotBinding(preview, runId, presentationId), preview_content: preview } : {}),
     ...(artefactPresentation.qa_acceptance ? { qa_acceptance: artefactPresentation.qa_acceptance } : {}) };
 }
 
@@ -73,6 +83,8 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   if (operationId !== undefined && (!UUID.test(operationId) || !/^sha256:[0-9a-f]{64}$/u.test(requestDigest ?? ""))) return rejected(runId, "operation_binding_invalid");
   try {
+    const presentationId = operationId ?? randomUUID();
+    input = { ...input, presentationId };
     if (operationId) {
       const dir = join(checkedRunDirectory(root, runId), "presentations");
       const path = join(dir, `${operationId}.json`);
@@ -89,9 +101,8 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
     const dir = join(checkedRunDirectory(root, runId), "presentations");
     try { mkdirSync(dir); } catch (error) { if (error.code !== "EEXIST") throw error; }
     const identity = directory(dir);
-    const presentationId = operationId ?? randomUUID();
-    const { text, summary, companion_text: companion, document_content: documentContent, ...bindingRecord } = prepared;
-    const record = { schema_version: prepared.qa_acceptance ? 4 : 3, presentation_id: presentationId, ...(operationId ? { operation_id: operationId, request_digest: requestDigest } : {}), created_at: new Date().toISOString(), ...bindingRecord };
+    const { text, summary, companion_text: companion, document_content: documentContent, preview_content: previewContent, ...bindingRecord } = prepared;
+    const record = { schema_version: prepared.preview_review ? 5 : prepared.qa_acceptance ? 4 : 3, presentation_id: presentationId, ...(operationId ? { operation_id: operationId, request_digest: requestDigest } : {}), created_at: new Date().toISOString(), ...bindingRecord };
     if (typeof documentContent !== 'string' || record.document_bytes > 131072) throw Error('presentation_document_invalid');
     // A contained snapshot belongs to the existing presentation owner. It never
     // substitutes a later mutable artefact or exposes a caller-selected path.
@@ -109,6 +120,8 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
     }
     fsyncDirectory(dir);
     checkpoint('presentation_document_published');
+    publishPreviewSnapshot(root, record, previewContent, { resume: Boolean(operationId), checkpoint });
+    fsyncDirectory(dir);
     const body = JSON.stringify(record);
     const envelope = JSON.stringify({ record, digest: hash(body) }, null, 2) + "\n";
     const fd = openSync(join(dir, `${presentationId}.json`), "wx", 0o600);
@@ -123,32 +136,6 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
   } catch (error) {
     return rejected(runId, error.code ?? error.message, { recovery: error.recovery ?? recovery });
   }
-}
-
-// Rechecks the immutable presentation envelope without evaluating a Run hidden by its
-// own pending journal. Full policy/binding validation must precede transaction intent.
-// Pure record check is also consumed inside captured read-only observations.
-export function validateRunPresentationEnvelope(envelope, { runId, gate, revisionId, presentationId }) {
-  const { record, digest } = envelope ?? {};
-  if (!record || ![1, 2, 3, 4].includes(record.schema_version) || record.presentation_id !== presentationId
-      || record.run_id !== runId || record.gate !== gate || record.revision_id !== revisionId
-      || digest !== hash(JSON.stringify(record)) || !Number.isFinite(Date.parse(record.created_at))) {
-    return { reason: "presentation_binding_invalid", recovery };
-  }
-  if (record.schema_version === 2 && (!exactObject(envelope, ['record', 'digest'])
-    || !exactObject(record, ['schema_version', 'presentation_id', 'operation_id', 'request_digest', 'created_at', 'run_id', 'gate', 'revision_id', 'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language', 'presentation_digest'])
-    || record.operation_id !== presentationId || !UUID.test(record.operation_id) || !DIGEST_PATTERN.test(record.request_digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
-  if ([3, 4].includes(record.schema_version) && (!exactObject(envelope, ['record', 'digest'])
-    || !exactObject(record, ['schema_version', 'presentation_id', ...(record.operation_id ? ['operation_id', 'request_digest'] : []),
-      'created_at', 'run_id', 'gate', 'revision_id', 'content_digest', 'artefact_digest', 'summary_digest', 'presentation_language',
-      'presentation_digest', 'document_digest', 'document_bytes', 'document_language', ...(record.schema_version === 4 ? ['qa_acceptance'] : [])])
-    || record.operation_id && (record.operation_id !== presentationId || !UUID.test(record.operation_id) || !DIGEST_PATTERN.test(record.request_digest ?? ''))
-    || !/^[a-z]{2}(?:-[A-Za-z0-9]{2,8})*$/u.test(record.document_language ?? '')
-    || !DIGEST_PATTERN.test(record.document_digest ?? '') || !Number.isInteger(record.document_bytes)
-    || record.document_bytes < 1 || record.document_bytes > 131072)) return { reason: 'presentation_binding_invalid', recovery };
-  if (record.schema_version === 4 && (gate !== 'QA' || !exactObject(record.qa_acceptance, ['kind', 'digest'])
-    || record.qa_acceptance.kind !== 'accepted_with_deviations' || !DIGEST_PATTERN.test(record.qa_acceptance.digest ?? ''))) return { reason: 'presentation_binding_invalid', recovery };
-  return { presentationId, digest, record };
 }
 
 export function validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId }) {
@@ -176,11 +163,12 @@ export function validateRunPresentation(root, input, { evaluateGateCheck }) {
   const envelope = validateRunPresentationRecord(root, input);
   if (envelope.reason) return envelope;
   try {
-    if ([3, 4].includes(envelope.record.schema_version)) readDocumentSnapshot(root, envelope.record);
+    if ([3, 4, 5].includes(envelope.record.schema_version)) readDocumentSnapshot(root, envelope.record);
+    if (envelope.record.schema_version === 5) validateCurrentPreviewRecord(root, envelope.record);
     const fresh = binding(root, { ...input, language: envelope.record.presentation_language }, evaluateGateCheck);
-    if (Object.entries(fresh).some(([key, value]) => !['text', 'summary', 'companion_text', 'document_content'].includes(key)
-      && ([3, 4].includes(envelope.record.schema_version) || !['document_digest', 'document_bytes', 'document_language'].includes(key))
-      && (key === 'qa_acceptance' ? JSON.stringify(envelope.record[key]) !== JSON.stringify(value) : envelope.record[key] !== value))) throw new Error("presentation_state_changed");
+    if (Object.entries(fresh).some(([key, value]) => !['text', 'summary', 'companion_text', 'document_content', 'preview_content'].includes(key)
+      && ([3, 4, 5].includes(envelope.record.schema_version) || !['document_digest', 'document_bytes', 'document_language'].includes(key))
+      && (['qa_acceptance', 'preview_review'].includes(key) ? JSON.stringify(envelope.record[key]) !== JSON.stringify(value) : envelope.record[key] !== value))) throw new Error("presentation_state_changed");
     return { presentationId: envelope.presentationId, digest: envelope.digest };
   } catch (error) {
     return { reason: error.code === "ENOENT" ? "presentation_missing" : error.message, recovery: error.recovery ?? recovery };
@@ -209,7 +197,7 @@ export function readPresentationDocument(root, { runId, gate, revisionId, presen
     const checked = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
     if (checked.reason) return fail(checked.reason);
     const record = checked.record;
-    if (![3, 4].includes(record.schema_version)) return fail('presentation_document_snapshot_unavailable');
+    if (![3, 4, 5].includes(record.schema_version)) return fail('presentation_document_snapshot_unavailable');
     const bytes = readDocumentSnapshot(root, record);
     // Cursor is bound to this immutable record; offsets always end on UTF-8 boundaries.
     const prefix = `${checked.digest.slice(7)}:`;
@@ -230,4 +218,33 @@ export function readPresentationDocument(root, { runId, gate, revisionId, presen
       total_bytes: bytes.length, complete: end === bytes.length, next_cursor: end === bytes.length ? null : `${prefix}${end}`,
       authorizes: false };
   } catch (error) { return fail(error.message?.startsWith('presentation_document_') ? error.message : 'presentation_document_unavailable'); }
+}
+
+// Same exact presentation selectors as the document reader; no path input.
+// This returns untrusted illustrative HTML for an isolated viewer, never parent DOM.
+export function readPresentationPreview(root, { runId, gate, revisionId, presentationId, targetId, cursor }) {
+  const fail = reason => ({ available: false, reason, authorizes: false });
+  try {
+    if (resolveControlCommandTarget(root).target_id !== targetId) return fail('target_binding_mismatch');
+    const checked = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
+    if (checked.reason) return fail(checked.reason);
+    if (checked.record.schema_version !== 5) return fail('preview_unavailable');
+    const bytes = readPreviewSnapshot(root, checked.record), token = `${checked.digest.slice(7)}:`;
+    if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.startsWith(token) || !/^(0|[1-9][0-9]*)$/u.test(cursor.slice(token.length)))) return fail('preview_cursor_invalid');
+    const start = cursor === undefined ? 0 : Number(cursor.slice(token.length));
+    if (!Number.isSafeInteger(start) || start < 0 || start >= bytes.length || (bytes[start] & 0xc0) === 0x80) return fail('preview_cursor_invalid');
+    let end = Math.min(start + 32768, bytes.length);
+    while (end < bytes.length && (bytes[end] & 0xc0) === 0x80) --end;
+    const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(start, end));
+    const run = readRun(root, runId);
+    let applicability = run.rejection ? 'unknown' : run.meta.revision_id !== revisionId ? 'historical'
+      : runSealState(root, run.content).status === 'valid' ? 'current' : 'unknown';
+    if (applicability === 'current') {
+      try { validateCurrentPreviewRecord(root, checked.record); } catch { applicability = 'stale'; }
+    }
+    return { available: true, target_id: targetId, run_id: runId, gate, revision_id: revisionId, presentation_id: presentationId,
+      applicability, presentation_digest: checked.digest, content_digest: checked.record.preview_review.rendered_digest,
+      version: checked.record.preview_review.descriptor.version, content, byte_start: start, byte_end: end, total_bytes: bytes.length,
+      complete: end === bytes.length, next_cursor: end === bytes.length ? null : `${token}${end}`, format: 'isolated_html', authorizes: false };
+  } catch (error) { return fail(error.message.startsWith('preview_') ? error.message : 'preview_unavailable'); }
 }

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "prd-preview-review-integration-20261018-01",
+  "expected_revision_id": "768b6b77-3ac3-4874-a30c-f11ab4481cb6",
+  "destination": {
+    "type": "QA_REPORT",
+    "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+    "digest": "sha256:6bd63629b0c9dff7583c48019be4e402a325c389716cb6bc99991e200a0339ec",
+    "status": "pass"
+  },
+  "source": {
+    "type": "TP",
+    "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+    "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5"
+  },
+  "relationship": {
+    "from": "QA_REPORT",
+    "relationship": "tests",
+    "to": "TP"
+  },
+  "review": {
+    "reviewer": "Codex qa-gate: actual TP, normalized review findings and current evidence assessed",
+    "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_MAPPING_V1.json",
+    "digest": "sha256:8a7ae557a8a59b9f3b60aeefe6c8d9602137a7db62c4d77efb5323ddc66cf682"
+  },
+  "update_draft": false
+}

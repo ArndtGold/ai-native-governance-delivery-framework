@@ -43,7 +43,7 @@ const inspectContract = {
       expected_revision_id: { type: "string", pattern: REVISION_ID_PATTERN.source },
       presentation_id: { type: 'string', pattern: REVISION_ID_PATTERN.source },
       target_id: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' },
-      cursor: { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,5})$' },
+      cursor: { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' },
       variant: { enum: [...GATE_CHECK_VARIANTS] },
       module: { type: "string", minLength: 1, maxLength: 64 },
       all_active: { type: "boolean" },
@@ -52,18 +52,18 @@ const inspectContract = {
     dependentSchemas: {
       variant: { properties: { operation: { const: VARIANT_OPERATION } } },
       module: { properties: { operation: { enum: [MODULE_OPERATION, 'operation-contract', 'operation-status'] } } },
-      gate: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'presentation-document'] } } },
-      expected_revision_id: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'runtime-generations'] } } },
-      presentation_id: { properties: { operation: { const: 'presentation-document' } } },
-      target_id: { properties: { operation: { const: 'presentation-document' } } },
-      cursor: { properties: { operation: { const: 'presentation-document' } } },
+      gate: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'presentation-document', 'presentation-preview'] } } },
+      expected_revision_id: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'presentation-preview', 'runtime-generations'] } } },
+      presentation_id: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } },
+      target_id: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } },
+      cursor: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } },
     },
     allOf: [
       { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
       { if: { properties: { operation: { const: MODULE_OPERATION } } }, then: { required: ["module"] } },
-      { if: { properties: { operation: { enum: ['artifact-readiness', 'native-qualification', 'presentation-document', 'runtime-generations', 'operation-contract', 'operation-status'] } } }, then: { required: ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] } },
+      { if: { properties: { operation: { enum: ['artifact-readiness', 'native-qualification', 'presentation-document', 'presentation-preview', 'runtime-generations', 'operation-contract', 'operation-status'] } } }, then: { required: ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] } },
       { if: { properties: { operation: { const: 'artifact-readiness' } } }, then: { required: ['gate'], properties: { gate: { enum: [...ARTIFACT_READINESS_GATES] } } } },
-      { if: { properties: { operation: { const: 'presentation-document' } } }, then: { required: ['gate', 'presentation_id', 'target_id'] } },
+      { if: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } }, then: { required: ['gate', 'presentation_id', 'target_id'] } },
       { if: { properties: { operation: { enum: ['operation-contract', 'operation-status'] } } }, then: { required: ['module'] } },
     ],
   },
@@ -189,20 +189,20 @@ export function normalizeControlInspectInput(input) {
     if (!primaryTarget) throw new SkillDispatchInputError("primary_target", "artifact-readiness requires an explicit target binding");
     if (!ARTIFACT_READINESS_GATES.includes(input.gate)) throw new SkillDispatchInputError("gate", "Unsupported draft gate");
     if (!REVISION_ID_PATTERN.test(input.expectedRevisionId ?? "")) throw new SkillDispatchInputError("expected_revision_id", "A valid expected revision is required");
-  } else if (['operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'runtime-generations'].includes(operation)) {
+  } else if (['operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'presentation-preview', 'runtime-generations'].includes(operation)) {
     if (!runId || !primaryTarget || !REVISION_ID_PATTERN.test(input.expectedRevisionId ?? '')) throw new SkillDispatchInputError('binding', 'An exact target, Run and expected revision binding is required');
     if (operation === 'operation-contract' && !OPERATION_CONTRACT_MODULES.includes(input.contractModule)) {
       throw new SkillDispatchInputError('module', 'Unsupported command group/operation module', { allowedValues: OPERATION_CONTRACT_MODULES });
     }
     if (operation === 'operation-status' && !REVISION_ID_PATTERN.test(input.contractModule ?? '')) throw new SkillDispatchInputError('operation_id', 'An original operation UUID is required');
-    if (input.gate !== undefined && (!['operation-contract', 'presentation-document'].includes(operation) || !APPROVAL_GATES.includes(input.gate))) throw new SkillDispatchInputError('gate', 'Unsupported operation gate');
+    if (input.gate !== undefined && (!['operation-contract', 'presentation-document', 'presentation-preview'].includes(operation) || !APPROVAL_GATES.includes(input.gate))) throw new SkillDispatchInputError('gate', 'Unsupported operation gate');
   } else if (input.gate !== undefined || input.expectedRevisionId !== undefined) {
     throw new SkillDispatchInputError("gate", "Draft binding fields are supported only by artifact-readiness");
   }
-  if (operation === 'presentation-document') {
+  if (['presentation-document', 'presentation-preview'].includes(operation)) {
     if (!APPROVAL_GATES.includes(input.gate) || !REVISION_ID_PATTERN.test(input.presentationId ?? '')
       || !/^sha256:[0-9a-f]{64}$/u.test(input.targetId ?? '')
-      || input.cursor !== undefined && !/^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,5})$/u.test(input.cursor)) throw new SkillDispatchInputError('presentation', 'An exact presentation binding and bounded cursor are required');
+      || input.cursor !== undefined && !/^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$/u.test(input.cursor)) throw new SkillDispatchInputError('presentation', 'An exact presentation binding and bounded cursor are required');
   } else if (input.presentationId !== undefined || input.targetId !== undefined || input.cursor !== undefined) {
     throw new SkillDispatchInputError('presentation', 'Document selectors require presentation-document');
   }

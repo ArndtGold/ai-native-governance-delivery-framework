@@ -1,11 +1,44 @@
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync, statSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 export const repoRoot = fileURLToPath(new URL('../', import.meta.url));
 export const cliRoot = join(repoRoot, 'packages', 'cli');
 export const coreRoot = join(repoRoot, 'packages', 'core');
 export const mcpRoot = join(repoRoot, 'packages', 'mcp-server');
 export const coreImports = Object.freeze({ '#agdf-core': './runtime/core/lib/index.js', '#agdf-core/*': './runtime/core/lib/*' });
+// Explicit locked production closure, shipped with the standalone Core projection.
+// A development-only transitive parser must never make a clean runtime appear healthy.
+export function projectCoreDependencies(target) {
+  const manifest = JSON.parse(readFileSync(join(coreRoot, 'package.json')));
+  const lock = JSON.parse(readFileSync(join(repoRoot, 'package-lock.json'))).packages;
+  const seen = new Map();
+  function copy(name, owner) {
+    const require = createRequire(join(owner, 'package.json'));
+    let directory = dirname(require.resolve(name));
+    while (!existsSync(join(directory, 'package.json')) || JSON.parse(readFileSync(join(directory, 'package.json'))).name !== name) {
+      const parent = dirname(directory); if (parent === directory) throw Error('AGDF_CORE_DEPENDENCY_UNRESOLVED'); directory = parent;
+    }
+    directory = realpathSync(directory);
+    const pkg = JSON.parse(readFileSync(join(directory, 'package.json')));
+    const locked = lock[directory.slice(repoRoot.length).replaceAll('\\', '/')];
+    // repoRoot has a trailing separator; lock keys are repository-relative.
+    if (!locked || locked.version !== pkg.version) throw Error(`AGDF_CORE_DEPENDENCY_LOCK_MISMATCH: ${name}`);
+    if (seen.has(name)) { if (seen.get(name) !== pkg.version) throw Error('AGDF_CORE_DEPENDENCY_CONFLICT'); return; }
+    seen.set(name, pkg.version);
+    const destination = join(target, 'node_modules', name); mkdirSync(dirname(destination), { recursive: true });
+    // These exact locked packages need JavaScript/JSON at runtime. Keep both
+    // export modes and licensing; omit development TypeScript, maps and docs.
+    cpSync(directory, destination, { recursive: true, dereference: true, filter: path =>
+      !path.slice(directory.length).split(/[/\\]/u).includes('node_modules')
+      && (statSync(path).isDirectory() || /\.(?:[cm]?js|json)$/u.test(path) || /^(?:licen[cs]e|notice|copying)(?:[.-]|$)/iu.test(basename(path))) });
+    for (const dependency of Object.keys(pkg.dependencies ?? {}).sort()) copy(dependency, directory);
+  }
+  for (const [name, version] of Object.entries(manifest.dependencies ?? {})) {
+    copy(name, coreRoot); if (seen.get(name) !== version) throw Error('AGDF_CORE_DEPENDENCY_VERSION_MISMATCH');
+  }
+  return Object.fromEntries(seen);
+}
 export function projectCore(packageRoot, { copilot = false } = {}) {
   const target = join(packageRoot, 'runtime', 'core');
   // The entire projection is build-owned. Replacing only lib retains sibling copies
@@ -13,6 +46,7 @@ export function projectCore(packageRoot, { copilot = false } = {}) {
   rmSync(target, { recursive: true, force: true });
   mkdirSync(target, { recursive: true });
   cpSync(join(coreRoot, 'lib'), join(target, 'lib'), { recursive: true });
+  projectCoreDependencies(target);
   // Copilot exposes the default dispatcher/inspector, never the private Codex cockpit.
   // Keep the shared snapshot owner: default artifact-readiness imports it too.
   // The Claude Code installation drift check has no Copilot consumer either.

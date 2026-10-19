@@ -1,4 +1,4 @@
-import { validDecisionMaterial, decisionMaterialVersion } from './presentation-decision.js';
+import { validDecisionMaterial, decisionMaterialVersion } from './decision-material-contract.js';
 import { TextDecoder } from "node:util";
 import { APPROVAL_GATES, REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 import { canonicalJson, COOPERATIVE_ASSURANCE, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";

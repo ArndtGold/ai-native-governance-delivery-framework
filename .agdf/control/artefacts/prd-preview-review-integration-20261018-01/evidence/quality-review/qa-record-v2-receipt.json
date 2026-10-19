@@ -1,0 +1,129 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "1a18857b-23f0-4ef9-a221-02cd25a15efb",
+  "request_digest": "sha256:b9058ed97441ecf9ae3c9f6d08c76f4bb20b6d42904b65159f2e534d05deb90b",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "expected_revision_id": "76375044-b84a-4938-9a4f-bf20867257e8",
+    "kind": "artefact.record"
+  },
+  "effect": null,
+  "receipt": {
+    "schema_version": "2",
+    "binding_id": "7e1e543b-1e93-47a2-be30-6143f1f5cbbf",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "relationship": {
+      "from": "QA_REPORT",
+      "relationship": "tests",
+      "to": "TP"
+    },
+    "destination": {
+      "type": "QA_REPORT",
+      "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+      "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94",
+      "status": "pass"
+    },
+    "source": {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+      "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5"
+    },
+    "review": {
+      "reviewer": "Codex qa-gate: exact QA result and localized result/limits/risks checked against actual source evidence",
+      "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_MAPPING_V2.json",
+      "digest": "sha256:5c69338b078a6e01bd0eb63261960491adec58d4c14534fa2d62c0a9dff2b63c"
+    },
+    "origin": "reviewed_mapping",
+    "operation": {
+      "id": "1a18857b-23f0-4ef9-a221-02cd25a15efb",
+      "previous_revision_id": "76375044-b84a-4938-9a4f-bf20867257e8",
+      "resulting_revision_id": "b1ec1aac-45d0-4f3b-ba21-2fdce0cd2aac",
+      "revision": 21,
+      "request_digest": "sha256:b9058ed97441ecf9ae3c9f6d08c76f4bb20b6d42904b65159f2e534d05deb90b"
+    },
+    "supersedes": "35b8658d-4c06-4c69-8398-313232fc3152"
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 21,
+    "revision_id": "b1ec1aac-45d0-4f3b-ba21-2fdce0cd2aac",
+    "lifecycle": "active",
+    "gate": "QA",
+    "status": "open",
+    "missing_approval": "Approval: QA",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "QA"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "step": "artefact",
+    "previous_revision_id": "76375044-b84a-4938-9a4f-bf20867257e8",
+    "revision": "21",
+    "revision_id": "b1ec1aac-45d0-4f3b-ba21-2fdce0cd2aac",
+    "current_gate": "QA",
+    "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+    "backlog": "updated",
+    "operation_id": "1a18857b-23f0-4ef9-a221-02cd25a15efb",
+    "receipt": {
+      "schema_version": "2",
+      "binding_id": "7e1e543b-1e93-47a2-be30-6143f1f5cbbf",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "prd-preview-review-integration-20261018-01",
+      "relationship": {
+        "from": "QA_REPORT",
+        "relationship": "tests",
+        "to": "TP"
+      },
+      "destination": {
+        "type": "QA_REPORT",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+        "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94",
+        "status": "pass"
+      },
+      "source": {
+        "type": "TP",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+        "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5"
+      },
+      "review": {
+        "reviewer": "Codex qa-gate: exact QA result and localized result/limits/risks checked against actual source evidence",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_MAPPING_V2.json",
+        "digest": "sha256:5c69338b078a6e01bd0eb63261960491adec58d4c14534fa2d62c0a9dff2b63c"
+      },
+      "origin": "reviewed_mapping",
+      "operation": {
+        "id": "1a18857b-23f0-4ef9-a221-02cd25a15efb",
+        "previous_revision_id": "76375044-b84a-4938-9a4f-bf20867257e8",
+        "resulting_revision_id": "b1ec1aac-45d0-4f3b-ba21-2fdce0cd2aac",
+        "revision": 21,
+        "request_digest": "sha256:b9058ed97441ecf9ae3c9f6d08c76f4bb20b6d42904b65159f2e534d05deb90b"
+      },
+      "supersedes": "35b8658d-4c06-4c69-8398-313232fc3152"
+    }
+  }
+}

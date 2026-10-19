@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "../control-read/fs.js";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject } from "./approval-command-contract.js";
 import { containedRegularFile, hasSymlinkComponent, isSafeControlRelativePath } from "./contained-file.js";
-import { APPROVAL_GATES, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths } from "./run-seal.js";
+import { APPROVAL_GATES, canonicalRunText, computeRunSeals, listedArtefactPaths, pendingArtefactPaths } from "./run-seal-compute.js";
 import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { exactApprovedArtefacts, validateBindingProof } from "./artefact-binding-proof.js";

@@ -1,0 +1,186 @@
+{
+  "started_at": "2026-10-18T21:06:57.162438+00:00",
+  "platform": "macOS-15.7.7-x86_64-i386-64bit",
+  "head": "e1ab24407e1e936f2bc0f5d9d4434abb0754789b",
+  "branch": "feat/ux-intent-prd-ui-previews",
+  "checks": [
+    {
+      "name": "material",
+      "argv": [
+        "node",
+        "packages/core/test/preview-material-test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:06:57.530111+00:00",
+      "ended_at": "2026-10-18T21:06:58.798404+00:00",
+      "exit_code": 0,
+      "log": "material.log"
+    },
+    {
+      "name": "renderer",
+      "argv": [
+        "node",
+        "packages/core/test/preview-render-test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:06:58.806635+00:00",
+      "ended_at": "2026-10-18T21:07:01.107932+00:00",
+      "exit_code": 0,
+      "log": "renderer.log"
+    },
+    {
+      "name": "presentation",
+      "argv": [
+        "node",
+        "packages/core/test/preview-presentation-test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:01.114390+00:00",
+      "ended_at": "2026-10-18T21:07:21.814218+00:00",
+      "exit_code": 0,
+      "log": "presentation.log"
+    },
+    {
+      "name": "session",
+      "argv": [
+        "node",
+        "packages/core/test/preview-session-test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:21.814915+00:00",
+      "ended_at": "2026-10-18T21:07:33.617178+00:00",
+      "exit_code": 0,
+      "log": "session.log"
+    },
+    {
+      "name": "typecheck",
+      "argv": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:33.617762+00:00",
+      "ended_at": "2026-10-18T21:07:36.180524+00:00",
+      "exit_code": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "function-contract",
+      "argv": [
+        "node",
+        "packages/cli/scripts/skill-dispatch-function-contract-test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:36.181071+00:00",
+      "ended_at": "2026-10-18T21:07:37.184631+00:00",
+      "exit_code": 0,
+      "log": "function-contract.log"
+    },
+    {
+      "name": "skills",
+      "argv": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:agent-skills-conformance"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:37.185212+00:00",
+      "ended_at": "2026-10-18T21:07:39.398264+00:00",
+      "exit_code": 1,
+      "log": "skills.log"
+    },
+    {
+      "name": "catalog",
+      "argv": [
+        "node",
+        "packages/cli/scripts/interaction-catalog-test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:39.398939+00:00",
+      "ended_at": "2026-10-18T21:07:41.033214+00:00",
+      "exit_code": 0,
+      "log": "catalog.log"
+    },
+    {
+      "name": "inspect",
+      "argv": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:control-inspect"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:07:41.033798+00:00",
+      "ended_at": "2026-10-18T21:08:36.213449+00:00",
+      "exit_code": 0,
+      "log": "inspect.log"
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "node",
+        "scripts/check-package-boundaries.mjs"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:08:36.214863+00:00",
+      "ended_at": "2026-10-18T21:08:37.063882+00:00",
+      "exit_code": 1,
+      "log": "boundaries.log"
+    },
+    {
+      "name": "payload",
+      "argv": [
+        "node",
+        "scripts/payload-budget.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:08:37.064542+00:00",
+      "ended_at": "2026-10-18T21:08:37.515101+00:00",
+      "exit_code": 0,
+      "log": "payload.log"
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-18T21:08:37.515770+00:00",
+      "ended_at": "2026-10-18T21:08:37.827405+00:00",
+      "exit_code": 0,
+      "log": "diff-check.log"
+    }
+  ],
+  "followups": [
+    {
+      "scope": "skills",
+      "result": "pass",
+      "evidence": "../retained/conformance-pure-final.log",
+      "supersedes": "Initial undeclared resource dependency and stale generated copy were corrected."
+    },
+    {
+      "scope": "pure helper extraction and final stale-source applicability",
+      "result": "pass",
+      "evidence": "../retained/pure-helper-regressions.log"
+    },
+    {
+      "scope": "final package projection and payload",
+      "result": "pass",
+      "evidence": "../retained/budget-pure-final.json"
+    },
+    {
+      "scope": "final current dependency graph",
+      "result": "revise",
+      "evidence": "../core-cycle-assessment.json",
+      "reason": "Same 26 cyclic modules as HEAD; no newly cyclic modules after extraction."
+    }
+  ]
+}

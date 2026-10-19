@@ -84,6 +84,41 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
     };
     return {
       submit: (input: DecisionSubmission) => call('agdf_decision_action', { ...input }),
+      preview: async () => {
+        if (!view.preview) throw Error('preview_unavailable');
+        if (completed.current === view) {
+          let cursor: string | undefined, content = '', offset = 0;
+          const seen = new Set<string>();
+          do {
+            const result = await bridge.request(() => bridge.app.callServerTool({ name: 'agdf_inspect', arguments: {
+              operation: 'presentation-preview', presentation_language: view.binding.presentation_language,
+              working_directory: view.target.display_path, primary_target: view.target.display_path, target_source: 'explicit_target',
+              target_id: view.target.target_id, run_id: view.binding.run_id, gate: view.binding.gate,
+              expected_revision_id: view.binding.expected_revision_id, presentation_id: view.binding.presentation_id, ...(cursor ? { cursor } : {})
+            } }, { timeout: 10_000 }));
+            const report = (result.structuredContent as Record<string, unknown> | undefined)?.report as Record<string, unknown> | undefined;
+            if (completed.current !== view || result.isError || report?.available !== true || report.target_id !== view.target.target_id
+              || report.run_id !== view.binding.run_id || report.gate !== view.binding.gate || report.revision_id !== view.binding.expected_revision_id
+              || report.presentation_id !== view.binding.presentation_id || report.content_digest !== view.preview.content_digest
+              || report.format !== 'isolated_html' || report.byte_start !== offset || typeof report.content !== 'string') throw Error('preview_unavailable');
+            content += report.content; offset += new TextEncoder().encode(report.content).length;
+            if (offset > 2097152 || report.byte_end !== offset) throw Error('preview_unavailable');
+            if (report.complete === true && report.next_cursor === null && report.total_bytes === offset) return content;
+            if (typeof report.next_cursor !== 'string' || seen.has(report.next_cursor) || seen.size >= 64) throw Error('preview_unavailable');
+            cursor = report.next_cursor; seen.add(cursor);
+          } while (cursor);
+          throw Error('preview_unavailable');
+        }
+        if (current.current !== view) throw Error('session_invalid');
+        const result = await bridge.operation({ operation: 'preview', snapshot_id: view.snapshot_id, run_id: view.binding.run_id,
+          resource_id: view.preview.resource_id }, undefined, view.read_session_id) as { state?: string; reason?: string;
+            data?: { preview?: { content?: string; content_digest?: string; version?: string } } };
+        const preview = result.data?.preview;
+        if (current.current !== view || result.state !== 'available' || typeof preview?.content !== 'string'
+          || preview.content_digest !== view.preview.content_digest || preview.version !== view.preview.version
+          || new TextEncoder().encode(preview.content).length > 2097152) throw Error(result.reason ?? 'preview_unavailable');
+        return preview.content;
+      },
       document: async () => {
         if (completed.current === view) {
           // Immutable presentation reads are stateless. Never reopen the old

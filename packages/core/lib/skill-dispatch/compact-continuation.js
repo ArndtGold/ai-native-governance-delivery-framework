@@ -1,6 +1,6 @@
 import { readFileSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
-import { artefactFileDigest } from '../control-state/run-seal.js';
+import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { REVISION_ID_PATTERN } from '../control-state/run-identity.js';
 import { extractField, parseVerifiedChangePathList } from '../control-evaluation/verified-change.js';
 

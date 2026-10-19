@@ -84,13 +84,25 @@ function collectRunRevisionClosure(root, run, state, operationId, approvedGates,
     paths.push(path);
     let envelope;
     try { envelope = JSON.parse(readHistoryBytes(root, path).toString('utf8')); } catch { continue; }
-    if ([3, 4].includes(envelope.record?.schema_version)) {
+    if ([3, 4, 5].includes(envelope.record?.schema_version)) {
       const record = envelope.record;
       if (!APPROVAL_GATES.includes(record.gate) || validateRunPresentationEnvelope(envelope,
         { runId, gate: record.gate, revisionId: record.revision_id, presentationId: name.slice(0, -5) }).reason) throw revisionError('presentation_binding_invalid');
       const documentPath = `${presentations}/${record.presentation_id}.document`, bytes = readHistoryBytes(root, documentPath);
       if (bytes.length !== record.document_bytes || byteDigest(bytes) !== record.document_digest) throw revisionError('presentation_document_digest_mismatch');
       paths.push(documentPath);
+      if (record.schema_version === 5) {
+        for (const file of [...record.preview_review.files, ...record.preview_review.chunks]) {
+          const bytes = readHistoryBytes(root, file.snapshot);
+          if (bytes.length !== file.bytes || byteDigest(bytes) !== file.digest) throw revisionError('preview_snapshot_changed');
+          paths.push(file.snapshot);
+          if (file.path) {
+            const original = readHistoryBytes(root, file.path);
+            if (original.length !== file.bytes || byteDigest(original) !== file.digest) throw revisionError('preview_file_changed');
+            paths.push(file.path);
+          }
+        }
+      }
     }
   }
   return collectRevisionHistory(root, runId, operationId, paths);

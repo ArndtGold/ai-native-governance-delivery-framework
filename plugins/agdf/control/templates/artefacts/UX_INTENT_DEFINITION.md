@@ -43,6 +43,16 @@ grants no implementation permission. After PRD approval, the PRD is the sole pro
 
 ## 6. Decision Evidence
 
+When a UI preview or scenario walkthrough helps clarify behavior, retain the user task, relevant
+states, illustrative assumptions, actual observations and feedback in the fields below. Derive
+proposed PRD criteria from confirmed findings. Distinguish agent inspection from user observation
+and record untested interactions explicitly. Preserve any explicit UR preview requirement, including
+interaction and timing; an optional aid and a required deliverable have different completion needs.
+Record the run-local versioned preview path, source binding, file/asset digests, covered scenarios
+and validation limits in `evidence`. See `ux-intent-definition` for the canonical retention workflow.
+Missing required preview evidence keeps this analysis blocked. A preview grants no approval and
+proves no implementation or host behavior.
+
 - blocking_reason:
 - open_product_questions:
 - affected_outputs:

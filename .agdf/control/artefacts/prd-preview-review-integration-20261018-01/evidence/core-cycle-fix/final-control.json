@@ -1,0 +1,46 @@
+{
+  "outcome": "skill_continuation",
+  "terminal": false,
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "continued_target",
+    "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "evidence_sources": [],
+    "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "target_source": "continued_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "open",
+    "current_gate": "CR",
+    "gate_route": {
+      "gate": "CR",
+      "skills": [
+        "code-review"
+      ]
+    },
+    "blocking_reason": "none",
+    "missing_approval": "none",
+    "next_operation": {
+      "type": "review_implementation",
+      "skill_id": "code-review",
+      "operation_key": "review.code",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "CR"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    },
+    "next_allowed_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+    "doctor_status": "pass"
+  }
+}

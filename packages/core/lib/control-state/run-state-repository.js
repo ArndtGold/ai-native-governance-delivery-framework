@@ -18,7 +18,7 @@ import { randomUUID } from "node:crypto";
 import { assertCanonicalRunStore, canonicalScaffoldRequired, directoryIdentity, regularFileSnapshot } from "./run-store-inspection.js";
 import { parseRunState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
-import { sealRunState } from "./run-seal.js";
+import { sealRunState } from "./run-seal-compute.js";
 
 export { discoverRuns, runPath } from "./run-state-reader.js";
 

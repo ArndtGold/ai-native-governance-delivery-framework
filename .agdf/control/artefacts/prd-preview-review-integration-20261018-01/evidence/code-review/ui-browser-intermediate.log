@@ -1,0 +1,97 @@
+npm notice run agdf-control-ui@0.0.0 test
+npm notice run node --test test/service.test.mjs && vitest run
+TAP version 13
+# Subtest: saved work summary and explicit current comparison survive HTTP with one-file overview and no writes
+ok 1 - saved work summary and explicit current comparison survive HTTP with one-file overview and no writes
+  ---
+  duration_ms: 1630.697669
+  type: 'test'
+  ...
+# Subtest: SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+ok 2 - SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+  ---
+  duration_ms: 1829.396628
+  type: 'test'
+  ...
+# Subtest: SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+ok 3 - SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+  ---
+  duration_ms: 458.901713
+  type: 'test'
+  ...
+# Subtest: SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+ok 4 - SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+  ---
+  duration_ms: 1948.290773
+  type: 'test'
+  ...
+# Subtest: SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+ok 5 - SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+  ---
+  duration_ms: 2491.785174
+  type: 'test'
+  ...
+# Subtest: SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+ok 6 - SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+  ---
+  duration_ms: 3149.010449
+  type: 'test'
+  ...
+# Subtest: SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+ok 7 - SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+  ---
+  duration_ms: 2676.36872
+  type: 'test'
+  ...
+# Subtest: authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding
+ok 8 - authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding
+  ---
+  duration_ms: 5638.212071
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20698.927648
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/preview-review.test.tsx (6 tests | 1 failed) 1083ms
+   × keeps approval disabled while retrying unavailable preview access 302ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/preview-review.test.tsx > keeps approval disabled while retrying unavailable preview access
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ test/preview-review.test.tsx:71:101
+     69|   await act(async () => window.dispatchEvent(new MessageEvent('message…
+     70|   fireEvent.click(screen.getByRole('button', { name: view.labels.back …
+     71|   expect((screen.getByRole('button', { name: view.labels.approve }) as…
+       |                                                                                                     ^
+     72| });
+     73| it('shows explicitly unanswered preview questions on the decision surf…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 23 passed (24)
+      Tests  1 failed | 264 passed (265)
+   Start at  08:49:45
+   Duration  40.38s (tests 40%, environment 38%, import 17%, transform 4%)
+
+Environment  jsdom was created 24 times · 38.56s total, 38% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

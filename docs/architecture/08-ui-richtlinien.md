@@ -121,7 +121,7 @@ Unterschiede nicht verdecken.
 | Gate | Vor der Entscheidung sichtbar und prüfbar |
 |---|---|
 | `UR` | Ziel, Umfang, Ausschlüsse, betroffene Nutzer, offene Klärungen und Wirkung auf Brownfield Review und Routenwahl |
-| `PRD` | Verhalten, Akteure, Akzeptanzkriterien, Produktentscheidungen, UX-Auswirkungen und weiterhin gesperrte Umsetzung |
+| `PRD` | Verhalten, Akteure, Akzeptanzkriterien, Produktentscheidungen, UX-Auswirkungen, bei beauftragter Vorschau deren Zugang, Version und Prüfaufgabe sowie weiterhin gesperrte Umsetzung |
 | `SD` | Architektur, Owner, Wiederverwendung, Schnittstellen, Alternativen, Risiken, Fallbacks und Wirkung auf den TP |
 | `TP` | Aufgaben, Kriterien- und Designabdeckung, Tests, Nachweise, Reihenfolge, Owner, Risiken und vorgeschaltete Brownfield Analysis |
 | `QA` | Technische Entscheidung, Tests, Reviews, Befunde, Restgrenzen und bei Abweichungsannahme deren Scope, Risiko, Folge, Owner und unveränderter technischer QA-Status |
@@ -131,6 +131,13 @@ Unterschiede nicht verdecken.
 entscheidungsreif. QA-Pass und QA-Abweichungsannahme besitzen unterscheidbare Überschrift,
 Zusammenfassung und Bestätigung. UAT übernimmt jede akzeptierte Abweichung sichtbar. Ein
 kompakter oder anders gerouteter Run zeigt nur seine tatsächlich anwendbaren menschlichen Gates.
+
+Für beauftragte Vorschauen gilt der zentrale
+[PRD-Präsentationsvertrag](../../plugins/agdf/meta/contracts/interaction.md#prd-preview-review-at-approval).
+„Vorschau ansehen“ ist eine Leseaktion; die vorhandene Freigabeaktion entscheidet über das PRD.
+Eine Vorschau soll das geplante Verhalten beurteilbar machen. Ihre bloße Existenz, ein Öffnungsklick
+oder ein attraktiver Entwurf belegen weder Umsetzung noch Zustimmung. Nicht verfügbare oder
+veraltete Pflichtmaterialien erhalten einen konkreten Klärungsweg vor der Freigabeaufforderung.
 
 ## 4 Aktionen nach Aufgabe und Verfügbarkeit
 

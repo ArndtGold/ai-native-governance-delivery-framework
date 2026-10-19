@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from 'node:fs';
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, COOPERATIVE_ASSURANCE, resolveControlCommandTarget } from './approval-command-contract.js';
 import { containedRegularFile, hasSymlinkComponent } from './contained-file.js';
-import { artefactFileDigest, canonicalRunText } from './run-seal.js';
+import { artefactFileDigest, canonicalRunText } from './run-seal-compute.js';
 import { INTERNAL_STEP_FILES } from './run-owned-outputs.js';
 import { EVIDENCE_PREREQUISITES, evidenceSourceSetDigest } from './evidence-bindings.js';
 import { evaluateQaFollowUp } from '../control-evaluation/qa-follow-up.js';

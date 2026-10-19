@@ -398,6 +398,49 @@ missing summary requirement, exact artefact and the next agent action. It never 
 on an incomplete summary. The localized summary is editorial; the canonical artefact remains the only
 decision authority and the existing `run-approve` binding remains unchanged.
 
+### PRD Preview Review At Approval
+
+For an approved UR that requires a UI preview before PRD approval, the preview is supporting review
+material for this PRD decision. The UX owner retains its durable version and observations; PRD
+authoring provides a concise user task, the covered scenarios, a readable versioned preview reference,
+the affected criterion IDs and any remaining material product questions in the existing PRD sections.
+The PRD stays understandable without executing the preview. Optional aids do not create a new gate.
+
+The integrated presentation must let the reviewer answer “Should it work this way?” It includes:
+
+- the proposed behavior and concrete review task, including normal and relevant failure/recovery cases;
+- localized secondary read-only “View preview · Version <n>” access beside exact PRD document access;
+- confirmed findings and observation limits, distinguishing the proposal from delivered functionality;
+- the meaning of approval: adopt the specified behavior, scope and criteria; proceed to SD through
+  existing routing. Visual details bind only when explicitly adopted as requirements.
+
+The existing Core presentation owner alone projects this material into native and full-Chat output.
+Opening, exploring or returning from a preview does not approve, change a Run or start work. Preserve
+the selected Run and decision context; keep one existing approving action/formula. Ordinary feedback
+stays in Chat, with no extra preview approval, checkbox, forced click-tracking or second questionnaire.
+Only an actually available current-host view may be described as open; use an accessible standalone
+copy when supported. Missing required review access stays visible instead of inviting blind approval.
+
+Required integration boundary: before a ready approval presentation and again before approval
+persistence, Core must validate the preview's contained run-local path, file/asset digests, source
+binding and applicable version against this PRD. Missing, foreign or changed required material and
+open `before_prd` decisions keep approval unavailable, with a concrete recovery through the existing
+owner. A changed preview or changed requirement uses the existing revision/presentation rules and
+requires fresh affected review; an old reply cannot approve the new basis. No new gate is introduced.
+
+The implementation uses PRD presentation version 5 with an exact descriptor, raw-file snapshots,
+bounded rendered chunks and a renderer-policy binding; versions 1–4 keep their existing meanings.
+The checked standalone `.preview.html` access copy is derived; archived chunks remain the historical
+source. Existing decision-session `preview` and stateless `presentation-preview` reads expose only
+the bound view, never arbitrary paths. Source validation runs again under the approval transaction.
+These cooperative local checks establish byte identity, not an independent human-view receipt.
+Dedicated preview projection and revalidation must be tested by the existing Core and
+host adapters before being claimed as available. An agent must not invent envelope fields, a binding
+receipt, a preview button or an approval card to fill that gap. Generic source links or free-text
+digests alone do not establish machine-enforced preview binding. Report the actual capability gap.
+
+### Common Approval Sequence
+
 Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;

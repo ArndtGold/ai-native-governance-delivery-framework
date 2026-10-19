@@ -1,0 +1,6 @@
+import {renderPreview} from '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-state/preview-render.js';
+const entry='previews/demo-v1/index.html',files=[{path:entry,media_type:'text/html',data:Buffer.from('<link rel="stylesheet" href="main.css">')},{path:'previews/demo-v1/main.css',media_type:'text/css',data:Buffer.from('@import "image.css";')},{path:'previews/demo-v1/image.css',media_type:'text/css',data:Buffer.from('p{background:url("pixel.png")}')},{path:'previews/demo-v1/pixel.png',media_type:'image/png',data:Buffer.from([0,1,2])}];
+try {renderPreview({entry},files);console.log('nested_image: accepted')}catch(e){console.log('nested_image: '+e.message)}
+const source=[files[0],{path:'previews/demo-v1/main.css',media_type:'text/css',data:Buffer.from('@import "a0.css";')}];
+for(let i=0;i<13;i++)source.push({path:`previews/demo-v1/a${i}.css`,media_type:'text/css',data:Buffer.from(i===12?'p{--sample:'+ 'x'.repeat(600)+'}':`@import "a${i+1}.css";\n`.repeat(2))});
+const result=renderPreview({entry},source);console.log(JSON.stringify({case:'css_dag_expansion',raw_bytes:source.reduce((n,f)=>n+f.data.length,0),files:source.length,output_bytes:Buffer.byteLength(result),allowed_bytes:2097152}));

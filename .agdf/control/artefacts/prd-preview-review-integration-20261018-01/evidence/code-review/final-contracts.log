@@ -1,0 +1,16 @@
+npm notice run @agdf/mcp-server@0.14.5 test:package
+npm notice run node ./test/package.test.js
+AGDF MCP package boundary tests passed.
+npm notice run compatibility:check
+npm notice run node scripts/host-compatibility/run.mjs check
+{
+  "status": "pass",
+  "scenarios": {
+    "evaluated": 56,
+    "failed": 0
+  },
+  "source_fingerprint": "0e499d587bc53f3d0ce385cb38e396d230d15b29d3685d817a643e5c9d7f77a7"
+}
+community-health: pass (39 required files, 4 issue forms)
+[agdf-runtime-integrity] ok (mode=installed; 14 skills and 16 control files checked)
+warning: Empty last update token.

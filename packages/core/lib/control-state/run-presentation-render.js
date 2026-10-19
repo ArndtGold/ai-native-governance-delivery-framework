@@ -11,6 +11,7 @@ import { readRunOperations } from './run-operations.js';
 import { qaDeviationPresentation } from './qa-deviation-acceptance.js';
 import { observeDecisionContent, decisionContentRecovery } from '../control-evaluation/decision-content-readiness.js';
 import { readReportDecision } from '../control-evaluation/report-decision.js';
+import { previewForState } from './preview-review.js';
 import { readValidatedRevisionArchive, validateRevisionHistory, validateEarlyPrdHistory, earlyPrdHistoryReference, byteDigest } from './run-revision-history.js';
 
 // Compare only an actual immutable prior version from the existing archive owner.
@@ -402,6 +403,19 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
     artifactSection = `${summary.markdown}\n\n## ${german ? "Prüfartefakt" : "Review artefact"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${german ? "Artefakt" : "Artefact"}: [${basename(path)}](<${path}>)\n\nSHA-256: \`${artefactDigest}\`\n\n${german ? "Bitte öffne die verlinkte Fassung vor deiner Entscheidung." : "Open the linked version before deciding."}`;
   }
   const pack = localePack(interactionLocales, resolvePresentationLocale(interactionLocales, p.presentation_language));
+  if (gate === 'PRD') {
+    const preview = previewForState(root, runState);
+    if (preview) {
+      const d = preview.descriptor, label = pack.decisionCard;
+      const inert = value => String(value).replace(/[\\`*_{}\[\]()<>#!|]/gu, '\\$&');
+      const review = [`**${label.previewTask} · ${inert(d.version)}**`, inert(d.review_task),
+        `${label.previewScenarios}: ${d.scenarios.map(inert).join(' · ')}`,
+        `${label.previewCriteria}: ${d.criterion_ids.join(', ')}`, label.previewIllustrative,
+        ...(d.open_questions.length ? [d.open_questions.map(inert).join('\n')] : [])].join('\n\n');
+      summaryMarkdown += `\n\n${review}`; summaryDigest = hash(summaryMarkdown);
+      decisionMarkdown = (decisionMarkdown || decisionBriefFromSummary(summaryMarkdown, p.presentation_language) || '') + `\n\n${review}`;
+    }
+  }
   // One source-authored summary and one decision moment. Provenance remains
   // available without duplicating the status, transition and approval prompts.
   if (qaAcceptance) { summaryMarkdown = qaAcceptance.summary; summaryDigest = hash(summaryMarkdown); }

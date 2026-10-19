@@ -1,5 +1,5 @@
 import { extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
-import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
+import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state-policy.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
 
 // Compatible display text. Execution consumes the semantic operation, never this sentence.

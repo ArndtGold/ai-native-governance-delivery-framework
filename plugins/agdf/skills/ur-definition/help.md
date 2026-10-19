@@ -11,6 +11,8 @@
 Creates a concrete UR from the original request and answered context after bound dispatch.
 Bundles material clarification, marks assumptions and keeps approval open. Registration and
 draft revision use the existing canonical writers and require fresh control and presentation.
+Preserves explicitly requested UI previews, scenarios, interaction needs and review timing as UR
+scope for later UX/PRD clarification; it does not create the preview during UR authoring.
 
 ## SEE ALSO
 

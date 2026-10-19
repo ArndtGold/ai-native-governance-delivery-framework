@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
-  "max_files": 260,
-  "max_bytes": 2265459,
-  "rationale": "Exact measured shared payload: MCP server +1109 bytes, capability helper +112, authored-content reader +1145 and decision-content readiness +92 relative to the prior 2263001-byte payload. This includes the final Cockpit discovery and reader fixes; the previous baseline undercounted them by 1387 bytes. Copilot keeps 260 files and its existing tools/assets; 2265459 bytes, zero extra headroom."
+  "max_files": 394,
+  "max_bytes": 3406895,
+  "rationale": "Measured approval-locale correction: validate the exact immutable presentation before choosing readiness language and use that language for approval result observations. Existing file inventory; exact measured growth of 779 bytes, without spare headroom."
 }

@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "c95c8b6d-bbb3-4a14-82bc-a4691e115ac2",
+  "request_digest": "sha256:7c4466c6e8a58e2cea14f464c20a4003a057dd8ea082c5fbdb3d982e2df53759",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "expected_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+    "resulting_revision_id": "768b6b77-3ac3-4874-a30c-f11ab4481cb6",
+    "revision": 19,
+    "record": {
+      "step": "Clean Implementation Review",
+      "source": {
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a"
+      },
+      "status": "done",
+      "covers": "Approved SD/TP implementation ownership, fallback/compatibility, read and approval isolation, packaging and separately authorized Core-cycle prerequisite correction.",
+      "source_set_digest": "sha256:46d40e68ab0cf523cc2dfcfa3f9f44b38bfdca7fffb7d1d657e9c1637c2099e2"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "c95c8b6d-bbb3-4a14-82bc-a4691e115ac2",
+    "request_digest": "sha256:7c4466c6e8a58e2cea14f464c20a4003a057dd8ea082c5fbdb3d982e2df53759",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "expected_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+    "created_at": "2026-10-19T10:45:27.872Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+      "resulting_revision_id": "768b6b77-3ac3-4874-a30c-f11ab4481cb6",
+      "revision": 19,
+      "record": {
+        "step": "Clean Implementation Review",
+        "source": {
+          "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+          "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a"
+        },
+        "status": "done",
+        "covers": "Approved SD/TP implementation ownership, fallback/compatibility, read and approval isolation, packaging and separately authorized Core-cycle prerequisite correction.",
+        "source_set_digest": "sha256:46d40e68ab0cf523cc2dfcfa3f9f44b38bfdca7fffb7d1d657e9c1637c2099e2"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 19,
+    "revision_id": "768b6b77-3ac3-4874-a30c-f11ab4481cb6",
+    "lifecycle": "active",
+    "gate": "QA",
+    "status": "open",
+    "missing_approval": "Approval: QA",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "evaluate_quality",
+      "skill_id": "qa-gate",
+      "operation_key": "quality.evaluate",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "QA"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "step": "internal",
+    "previous_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+    "revision": "19",
+    "revision_id": "768b6b77-3ac3-4874-a30c-f11ab4481cb6",
+    "current_gate": "QA",
+    "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+    "backlog": "updated",
+    "operation_id": "c95c8b6d-bbb3-4a14-82bc-a4691e115ac2",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "c95c8b6d-bbb3-4a14-82bc-a4691e115ac2",
+      "request_digest": "sha256:7c4466c6e8a58e2cea14f464c20a4003a057dd8ea082c5fbdb3d982e2df53759",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "prd-preview-review-integration-20261018-01",
+      "expected_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+      "created_at": "2026-10-19T10:45:27.872Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "4a349e32-3c9a-4457-bb29-45b1d190f923",
+        "resulting_revision_id": "768b6b77-3ac3-4874-a30c-f11ab4481cb6",
+        "revision": 19,
+        "record": {
+          "step": "Clean Implementation Review",
+          "source": {
+            "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+            "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a"
+          },
+          "status": "done",
+          "covers": "Approved SD/TP implementation ownership, fallback/compatibility, read and approval isolation, packaging and separately authorized Core-cycle prerequisite correction.",
+          "source_set_digest": "sha256:46d40e68ab0cf523cc2dfcfa3f9f44b38bfdca7fffb7d1d657e9c1637c2099e2"
+        }
+      }
+    }
+  }
+}

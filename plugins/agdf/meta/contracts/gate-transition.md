@@ -157,8 +157,16 @@ Classify impact as:
 - `high`: the change spans capabilities or modes, creates competing or safety-relevant authority,
   adds high-consequence decisions or materially changes cross-surface activation and recovery.
 
+Assess the proposed user-facing behavior, not whether implementation code has already changed.
 `medium | high` requires `ux-intent-definition` before PRD readiness. `low` requires it when any
-mandatory PRD UX semantics remain ambiguous. `none` records the analytical decision
+mandatory PRD UX semantics remain ambiguous or approved UR scope explicitly requires a UI preview
+for UX/PRD clarification. Preserve that requested deliverable in routing evidence and set
+`ux_intent_definition_required: yes`; do not replace it with a text-only analysis or inflate impact
+merely to route it. Distinguish a required clarification preview from the actual product deliverable
+and from optional illustrative aids. A missing preview does not require UR creation to be repeated.
+Preserve an explicitly requested before-PRD review in the Mode/Slice Decision; compact routes must
+not bypass that agreed review sequence. Use the existing proportional modes, not a new preview mode.
+`none` records the analytical decision
 `not_applicable`. The skill is an internal, non-authorizing step: it adds no gate, approval value or
 implementation permission. A required `blocked` result keeps PRD readiness closed.
 

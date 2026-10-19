@@ -1,6 +1,7 @@
 import { decisionMaterial, presentationDecisionState } from './presentation-decision.js';
 import { prepareRunContentState } from "../control-evaluation/run-state.js";
 import { validateRunPresentation, validateRunPresentationRecord } from "./run-presentation.js";
+import { validateCurrentPreviewRecord } from './preview-snapshot.js';
 import { validateGateApprovalResponse } from "./gate-approval-validator.js";
 import { duplicateArtefactRowTypes, parseControlState } from "./run-state-parser.js";
 import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
@@ -156,7 +157,12 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
   const material = decisionMaterial(root, state, gate);
   const decided = presentationDecisionState(root, state, gate);
   if (decided.decided) return rejected(runId, 'presentation_version_decided', { decision: decided.action, receipt: decided.receipt });
-  const report = evaluateGateCheck(root, { runId });
+  // Select readiness in the immutable presentation's locale, never the caller's
+  // locale or an unrelated repository default. Full freshness validation follows.
+  const presented = presentationId ? validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId }) : null;
+  if (presented?.reason) return rejected(runId, presented.reason, { recovery: presented.recovery });
+  const language = presented?.record.presentation_language;
+  const report = evaluateGateCheck(root, { runId, ...(typeof language === 'string' ? { presentationLanguage: language } : {}) });
   if (report.status !== "open" || report.current_gate !== gate || report.missing_approval !== `Approval: ${gate}`) {
     return rejected(runId, "gate_not_ready", {
       status: report.status,
@@ -165,8 +171,6 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
       blocking_reason: report.blocking_reason,
     });
   }
-  // The durable presentation record carries its own locale. Revalidating an unrelated default
-  // locale here can reject a correctly prepared presentation before its binding is inspected.
   const artefact = parseControlState(run.content, { userGates: APPROVAL_GATES }).artefacts.get(gate);
   const digest = gate === "UAT" ? null : artefactFileDigest(root, artefact?.path);
   const durableArtefactReady = gate === "UAT"
@@ -237,6 +241,7 @@ export function prepareGateApproval(root, { runId, gate, revisionId, response, p
     validateDuringTransaction: () => {
       const current = validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId });
       if (current.reason || current.digest !== presentation.digest) throw new Error("AGDF_STALE_RUN_REVISION");
+      try { validateCurrentPreviewRecord(root, current.record); } catch { throw new Error('AGDF_STALE_RUN_REVISION'); }
     },
   };
 }

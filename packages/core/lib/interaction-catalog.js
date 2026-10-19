@@ -80,7 +80,9 @@ export const DECISION_CARD_LABEL_KEYS = freeze(['title', 'connecting', 'unavaila
   'commentRequired', 'commentTooLarge', 'documentTitle', 'notSaved', 'unknownCurrent', 'sourceLanguage', 'alreadyDecided', 'initialize',
   'machineComparison', 'documentUnchanged', 'documentChanged', 'previousDocument', 'discussionHint',
   'nextStep', 'nextInformation', 'nextChat', 'nextWaiting', 'continuationMessage', 'nextRequested', 'nextUnavailable', 'closeUnavailable', 'chatApprovalHint',
-  'approveWithDeviations', 'confirmedWithDeviations', 'deviationAcceptanceIntro']);
+  'approveWithDeviations', 'confirmedWithDeviations', 'deviationAcceptanceIntro',
+  'openPreview', 'previewTitle', 'previewUnavailable', 'previewChanged', 'retryPreview', 'previewIllustrative',
+  'previewTask', 'previewScenarios', 'previewCriteria', 'previewQuestions', 'previewUnsupported', 'previewLoading']);
 export const FLOW_EVIDENCE_LABEL_KEYS = freeze(['title', 'current', 'superseded', 'applicability_unknown', 'currentDescription', 'emptyDescription',
   'historyDescription', 'unknownDescription', 'unavailable', 'open', 'next', 'human', 'agent', 'completed', 'unconfirmedDescription', 'retainedDescription']);
 // Classify copy by its UI purpose; the existing global budgets remain unchanged.
@@ -90,6 +92,7 @@ export const DECISION_CARD_COPY_BUDGETS = freeze(Object.fromEntries(DECISION_CAR
       'sourceChanged', 'expired', 'comparisonUnavailable', 'consequence', 'permission', 'docUnavailable',
       'commentRequired', 'commentTooLarge', 'notSaved', 'unknownCurrent', 'sourceLanguage', 'alreadyDecided', 'initialize',
       'machineComparison', 'documentUnchanged', 'documentChanged', 'discussionHint',
-      'nextInformation', 'nextChat', 'nextWaiting', 'continuationMessage', 'nextRequested', 'nextUnavailable', 'closeUnavailable', 'chatApprovalHint'].includes(key)
+      'nextInformation', 'nextChat', 'nextWaiting', 'continuationMessage', 'nextRequested', 'nextUnavailable', 'closeUnavailable', 'chatApprovalHint',
+      'previewUnavailable', 'previewChanged', 'previewIllustrative', 'previewUnsupported'].includes(key)
       ? 'description' : 'label'
 ])));

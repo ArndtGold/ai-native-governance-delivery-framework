@@ -6,7 +6,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parse } from 'acorn';
-import { coreRoot, repoRoot } from './core-projection.mjs';
+import { coreRoot, repoRoot, projectCoreDependencies } from './core-projection.mjs';
+const previewParserDependencies = { parse5: '7.3.0', postcss: '8.5.29' };
 const files = root => readdirSync(root, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? files(join(root, entry.name)) : [join(root, entry.name)]);
 const graph = new Map();
 for (const file of files(join(coreRoot, 'lib')).filter(file => file.endsWith('.js'))) {
@@ -19,7 +20,7 @@ for (const file of files(join(coreRoot, 'lib')).filter(file => file.endsWith('.j
       assert.equal(node.source.type, 'Literal', 'Core dynamic imports need an explicit bounded owner');
       const specifier = node.source.value;
       if (!specifier.startsWith('node:')) {
-        assert.ok(specifier.startsWith('.'), `Core external import ${specifier}`);
+        if (!specifier.startsWith('.')) { assert.ok(Object.hasOwn(previewParserDependencies, specifier), `Core external import ${specifier}`); return; }
         const target = resolve(dirname(file), specifier);
         assert.ok(!relative(coreRoot, target).startsWith('..'), `Core backimport ${target}`);
         assert.ok(existsSync(target), `Core import missing ${target}`); dependencies.push(target);
@@ -33,10 +34,11 @@ const visited = new Set(), visiting = new Set();
 function visit(file) { if (visiting.has(file)) throw new Error(`Core cycle ${file}`); if (visited.has(file)) return; visiting.add(file); (graph.get(file) ?? []).forEach(visit); visiting.delete(file); visited.add(file); }
 [...graph.keys()].forEach(visit);
 const manifest = JSON.parse(readFileSync(join(coreRoot, 'package.json'), 'utf8'));
-assert.equal(manifest.private, true); assert.equal(manifest.engines.node, '>=22'); assert.equal(Object.keys(manifest.dependencies ?? {}).length, 0);
+assert.equal(manifest.private, true); assert.equal(manifest.engines.node, '>=22'); assert.deepEqual(manifest.dependencies, previewParserDependencies);
 const fixture = mkdtempSync(join(tmpdir(), 'agdf-core-isolation-'));
 try {
   cpSync(coreRoot, join(fixture, 'core'), { recursive: true, filter: path => !path.includes('node_modules') && !path.includes('/test') });
+  assert.deepEqual(Object.keys(projectCoreDependencies(join(fixture, 'core'))).filter(name => Object.hasOwn(previewParserDependencies, name)).sort(), Object.keys(previewParserDependencies).sort());
   const entry = pathToFileURL(join(fixture, 'core/lib/index.js')).href;
   const result = execFileSync(process.execPath, ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';

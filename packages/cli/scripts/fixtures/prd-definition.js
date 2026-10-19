@@ -8,7 +8,7 @@ import { createCoreServices } from "../../../core/lib/index.js";
 import { resolveControlCommandTarget } from "../../../core/lib/control-state/approval-command-contract.js";
 
 // Synthetic authorization in isolated test runs only; never a human production approval.
-export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false, typedRoute = false, route = "structured_delivery" } = {}) {
+export function createPrdDefinitionTestRun(root, validator, runId = "prd-authoring-test", env = process.env, { typedApprovals = false, typedRoute = false, route = "structured_delivery", previewRequirement = false } = {}) {
   const log = [];
   const call = (command, ...args) => {
     const result = spawnSync(process.execPath, [validator, command, "--dir", root, "--json", ...args], { encoding: "utf8", env });
@@ -26,6 +26,7 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
   const created = run("run-create"); assert.equal(created.code, 0, created.text);
   mkdirSync(join(root, prefix), { recursive: true });
   writeFileSync(file("UR.md"), "# UR: Synthetic saved-filter need\n\n## Problem\nOperators repeatedly recreate the same filter.\n\n## Goal\nAn operator can save and restore one named filter.\n\n## Scope\nOne user-owned saved filter, no sharing.\n\n## Non-Goals\nNo shared filters or permissions change.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Derselbe Filter muss wiederholt aufgebaut werden.\n- Ziel: Einen benannten persönlichen Filter speichern und wiederherstellen.\n- Umfang: Ein Filter ohne Teilen oder Berechtigungsänderung.\n");
+  if (previewRequirement) writeFileSync(file('UR.md'), readFileSync(file('UR.md'),'utf8').replace('\n\n## Problem','\nPreview requirement: before_prd_interactive\n\n## Problem'));
   assert.equal(run("run-step", "--revision", revision(), "--step", "ur", "--title", "Synthetic saved filter").code, 0);
   const approve = (gate, presentation, rev = revision(), response = `Approval: ${gate}`) => run("run-approve",
     "--revision", rev, "--gate", gate, "--presentation", presentation, "--response", response,
@@ -42,8 +43,9 @@ export function createPrdDefinitionTestRun(root, validator, runId = "prd-authori
         source:{path:prefix+'BROWNFIELD_REVIEW.md',digest:artefactFileDigest(root,prefix+'BROWNFIELD_REVIEW.md')}}}});
     assert.equal(result.outcome,'accepted',JSON.stringify(result));
   } else {
-    assert.equal(run("run-step", "--revision", revision(), "--step", "route", "--route", route, "--reason",
-      "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md").value?.outcome, "recorded");
+    const routed = run("run-step", "--revision", revision(), "--step", "route", "--route", route, "--reason",
+      "Synthetic public-contract test route, never live authorization", "--evidence", prefix + "BROWNFIELD_REVIEW.md");
+    assert.equal(routed.value?.outcome, "recorded", routed.text);
   }
 
   const recording = (update = false, mutate = () => {}) => {

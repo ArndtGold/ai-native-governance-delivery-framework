@@ -1,0 +1,21 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test --grep summary leads|work action leads
+
+
+Running 2 tests using 1 worker
+
+(node:95840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95898) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/journeys.spec.mjs:332:1 › summary leads with the work step and stale reads never claim a missing Run or current control (8.9s)
+(node:95986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 test/browser/journeys.spec.mjs:511:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (8.9s)
+
+  2 passed (21.7s)

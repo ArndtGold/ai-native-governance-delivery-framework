@@ -6,9 +6,10 @@ import type { HandoffController, HandoffState } from './mcp/handoff';
 
 const idle: HandoffState = { phase: 'idle' };
 const inertSubscribe = () => () => {};
-export function ContextPanel({ read, detail, document, disabled, handoff, onScope }: {
+export function ContextPanel({ read, detail, document, disabled, handoff, onScope, beforeRead }: {
   read: ReadTransport; detail: Envelope<Detail>; document?: Envelope<DocumentData> | null; disabled: boolean; handoff?: HandoffController;
   onScope: (scope: Envelope<ReadingScope>) => void;
+  beforeRead?: () => () => void;
 }) {
   const [expanded, setExpanded] = useState(false), [graph, setGraph] = useState<Envelope<GraphData> | null>(null);
   const [problem, setProblem] = useState(''), [selected, setSelected] = useState<string[]>([]), [excluded, setExcluded] = useState<string[]>([]);
@@ -17,16 +18,16 @@ export function ContextPanel({ read, detail, document, disabled, handoff, onScop
   useEffect(() => {
     if (!expanded || disabled || !runId || !detail.snapshot_id) return;
     if (graph?.snapshot_id === detail.snapshot_id) return;
-    const controller = new AbortController(); setGraph(null); setProblem('');
+    const controller = new AbortController(); const release = beforeRead?.(); setGraph(null); setProblem('');
     void read<ReadingScope>(`/api/context/${runId}?snapshot=${detail.snapshot_id}`, controller.signal,
       { target: detail.target.target_id, snapshot: detail.snapshot_id, replacement: true }).then(value => {
       if (controller.signal.aborted) return;
       if (!value.data || value.data.kind !== 'context' || value.data.run.run_id !== runId) throw Error(value.code ?? 'dto_invalid');
       setGraph({ ...value, data: value.data.context }); setSelected([]); setExcluded([]);
       onScope(value);
-    }).catch(error => { if (!controller.signal.aborted) setProblem(error instanceof Error ? error.message : 'read_failed'); });
-    return () => controller.abort();
-  }, [expanded, disabled, runId, detail.snapshot_id, detail.target.target_id, read]);
+    }).catch(error => { if (!controller.signal.aborted) setProblem(error instanceof Error ? error.message : 'read_failed'); }).finally(() => release?.());
+    return () => { controller.abort(); release?.(); };
+  }, [expanded, disabled, runId, detail.snapshot_id, detail.target.target_id, read, beforeRead]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
   const references = graph?.data?.references ?? [];
   const unavailable = references.filter(ref => ref.state !== 'available');

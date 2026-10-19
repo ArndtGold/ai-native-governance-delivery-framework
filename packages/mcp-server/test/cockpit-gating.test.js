@@ -23,6 +23,31 @@ const calls = () => existsSync(marker) ? readFileSync(marker, "utf8").split("\n"
 const session = (surface, modern, capabilities, callback) => withStdioClient({ modern, capabilities, args: [entry, surface, uiDirectory, marker] }, callback);
 
 try {
+  // Public SDK stdio: render/read/close replies identify the same real server
+  // instance. A fresh connection gets another identity. Other profiles keep theirs.
+  for (const modern of [false, true]) {
+    let previous;
+    for (let attempt = 0; attempt < 2; attempt++) await session('codex-plugin', modern, ui, async client => {
+      const render = await client.callTool({ name: 'agdf_cockpit', arguments: {} });
+      const provider = render._meta?.['agdf/provider'];
+      assert.equal(provider?.identity_scope, 'sdk_server_instance');
+      assert.equal(provider.authorizes, false);
+      assert.match(provider.connection_id, /^[a-f0-9-]{36}$/u);
+      assert.equal(provider.server_module, fileURLToPath(new URL('../src/server.js', import.meta.url)));
+      assert.equal(render._meta['agdf/peer'].client_info.name, 'agdf-mcp-test');
+      assert.deepEqual(render._meta['agdf/peer'].capabilities.extensions[MCP_APP_UI_EXTENSION], ui.extensions[MCP_APP_UI_EXTENSION]);
+      if (previous) assert.notEqual(provider.connection_id, previous);
+      previous = provider.connection_id;
+      for (const operation of ['snapshot', 'close']) {
+        const read = await client.callTool({ name: 'agdf_cockpit_read', arguments: {
+          operation, session_id: '00000000-0000-4000-8000-000000000001',
+        } });
+        assert.deepEqual(read._meta?.['agdf/provider'], provider);
+        assert.deepEqual(read._meta?.['agdf/peer'], render._meta['agdf/peer']);
+      }
+      assert.equal(render.structuredContent['agdf/provider'], undefined);
+    });
+  }
   // Capability predicate: exact extension id and MIME type, nothing inferred from other capabilities.
   assert.equal(declaresMcpAppUi(ui, COCKPIT_MIME), true);
   for (const capabilities of [undefined, {}, { roots: { listChanged: true }, elicitation: { form: {}, url: {} } },
@@ -34,6 +59,15 @@ try {
   const inspected = { expectedVersion: "0.0.0", provenanceStatus: "matched" };
   assert.equal((await createMcpCockpitRuntime({ surface: "claude", cockpitDir: temporary, inspected })).uiCapabilityRequired, true);
   assert.equal((await createMcpCockpitRuntime({ surface: "codex", cockpitDir: temporary, inspected })).uiCapabilityRequired, false);
+  const pluginRuntime = await createMcpCockpitRuntime({ surface: 'codex', cockpitMode: 'plugin', inspected });
+  assert.equal(pluginRuntime.uiCapabilityRequired, true);
+  assert.equal(pluginRuntime.ui.label, 'Cockpit');
+  assert.deepEqual(pluginRuntime.definition.inputSchema.required, ['working_directory', 'primary_target', 'target_source']);
+  assert.throws(() => pluginRuntime.tools[0].parse({}), /resource_denied/);
+  await pluginRuntime.close();
+  for (const invalid of [{ surface: 'claude', cockpitMode: 'plugin' }, { surface: 'codex', cockpitMode: 'plugin', cockpitDir: temporary }, { surface: 'codex', cockpitMode: 'other' }]) {
+    await assert.rejects(createMcpCockpitRuntime({ ...invalid, inspected }), /AGDF_COCKPIT_TARGET_INVALID/);
+  }
   for (const surface of ["copilot", "opencode"]) {
     await assert.rejects(createMcpCockpitRuntime({ surface, cockpitDir: temporary, inspected }), /AGDF_COCKPIT_TARGET_INVALID/);
   }
@@ -48,6 +82,22 @@ try {
 
   for (const modern of [false, true]) {
     const era = modern ? "2026-07-28" : "2025-11-25";
+    // Codex discovers metadata before choosing its UI-capable invocation route.
+    // Advertising tools grants neither a view nor access to the UI resource.
+    await session('codex-plugin', modern, undefined, async client => {
+      const listed = (await client.listTools()).tools;
+      assert.deepEqual(listed.map(tool => tool.name), ['agdf_cockpit', 'agdf_cockpit_read'], era);
+      assert.equal(listed[0]._meta.ui.resourceUri, COCKPIT_UI_URI);
+      assert.deepEqual((await client.listResources()).resources, [], era);
+      await assert.rejects(client.readResource({ uri: COCKPIT_UI_URI }), /resource_denied/, era);
+      const before = calls().length;
+      for (const name of ['agdf_cockpit', 'agdf_cockpit_read']) {
+        const result = await client.callTool({ name, arguments: name === 'agdf_cockpit' ? {}
+          : { operation: 'close', session_id: '00000000-0000-4000-8000-000000000000' } });
+        assert.equal(result.structuredContent.code, 'resource_denied', era);
+      }
+      assert.equal(calls().length, before, `${era}: discovery must not allocate or read a view`);
+    });
     let codexTools;
     // Codex stays unconditional, also for a client without the UI extension.
     await session("codex", modern, undefined, async (client) => {

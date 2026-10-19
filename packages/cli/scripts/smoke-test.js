@@ -62,6 +62,7 @@ function runCliWithPath(args, binDir, extraEnv = {}) {
       ...process.env,
       // Never let a smoke install touch the real Claude home.
       CLAUDE_CONFIG_DIR: join(binDir, "..", "claude-home"),
+      CODEX_HOME: join(binDir, '..', 'codex-home'),
       // The Claude packaged-app preflight probes %LOCALAPPDATA%; an isolated one keeps the result the same
       // inside a packaged host such as Claude Desktop, while npm keeps its real cache.
       LOCALAPPDATA: join(binDir, "..", "localappdata"),
@@ -314,6 +315,7 @@ smokePhase("codex global");
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "mcp list --json") console.log("[]");
 if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
 if (args.join(" ") === "plugin list") {
   console.log("agdf@agdf ${pluginDefinition.version}");
@@ -324,6 +326,7 @@ if (args.join(" ") === "plugin list") {
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     const expectedCalls = [
       "plugin list",
+      "mcp list --json",
       "plugin marketplace list --json",
       `plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --json`,
       "plugin add agdf@agdf --json",
@@ -352,6 +355,7 @@ smokePhase("host installer scenarios");
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "mcp list --json") console.log("[]");
 if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
 if (args.join(" ") === "plugin list") {
   console.log("agdf@agdf 0.0.0");

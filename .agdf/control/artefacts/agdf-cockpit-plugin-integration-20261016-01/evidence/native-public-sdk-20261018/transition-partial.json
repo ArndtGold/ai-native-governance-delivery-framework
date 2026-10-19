@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "kind": "cockpit_transition",
+  "surface": "codex",
+  "result": "partial",
+  "authorizes": false,
+  "assurance": "cooperative_local",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "config_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+  "config_digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8",
+  "section_digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8",
+  "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+  "plugin_digest": "sha256:a37fccf9eb2b8cf303a43a69e3b2bc279e114bd4bf588bc4ad98c9e550264022",
+  "version": "0.14.5",
+  "runtime_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/4ade72c5c11601d9e6835d985b0c689ff885aff16e4c63ac85855a5a654cdbcd/0.14.5",
+  "server_digest": "sha256:20f14b7fec228c7f98b77bb0994fdabc410aa97dc63aad8519ab0e29e23dbeb2",
+  "dispatcher_digest": "sha256:41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc",
+  "sdk_digest": "sha256:b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+  "ui_digest": "sha256:3524697a2bf6157279c6c6aa670c8c5395e0155e557bd8d4ccfb622e397b4c11",
+  "legacy_id": "agdf-cockpit-local",
+  "previous_plugin_digest": "sha256:fb1def114314338c2d49ac9e03eceb3f939a23e9827e189221f35d4b39c9b235",
+  "previous_plugin_version": "0.14.5",
+  "host": {
+    "name": "chatgpt",
+    "version": "26.1013.40934",
+    "session_id": "session:f7ec0a35-ac1e-46a1-8cba-58eb7e94a23b",
+    "os": "darwin",
+    "arch": "x64"
+  },
+  "observations": [
+    "discovery",
+    "ui_initialize",
+    "render",
+    "interaction",
+    "provider_attribution",
+    "context_publication",
+    "public_sdk_request_attempt",
+    "host_requestClose_inline",
+    "compensating_core_close"
+  ],
+  "inventory": {
+    "complete": false,
+    "origins": [
+      {
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+        "digest": "sha256:20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8"
+      },
+      {
+        "path": "/Users/arndtgold/.codex/config.toml",
+        "digest": "sha256:0155a9c155fecdba26b1c9a5e595832c3ee0175fdfbb7aed569182d5c5d52b17"
+      },
+      {
+        "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+        "digest": "sha256:7b4e47d91c331a27572db2a920da2e6cb82c58e818aebc11f37f89257005fb65"
+      }
+    ]
+  },
+  "providers": [
+    {
+      "origin": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+      "server_id": "agdf-cockpit",
+      "connection_id": "50e2000c-c5ca-4de6-8428-578cec87fdf9",
+      "tools": [
+        "agdf_cockpit",
+        "agdf_cockpit_read"
+      ],
+      "exposed_tools": {
+        "agdf_cockpit": "mcp__agdf_cockpit__agdf_cockpit",
+        "agdf_cockpit_read": "mcp__agdf_cockpit__agdf_cockpit_read"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/evidence/native-public-sdk-20261018/opening-trace.json",
+      "digest": "sha256:b80b4c714f0cfa8f0aedd7ab006e3cb86ff00789e7174f90dc140f4b87e72605"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/evidence/native-public-sdk-20261018/before-teardown-trace.json",
+      "digest": "sha256:a83dc6d14c348f2fd1d388ac718ed4af30620712191177337818578784abe29a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/evidence/native-public-sdk-20261018/exact-session-host-lines.json",
+      "digest": "sha256:d6f29a6da2e4b18a5286b82c0061a2d31e42ef2b56d0dadd2bc18cc9a8ecb41e"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/evidence/native-public-sdk-20261018/core-after-request.json",
+      "digest": "sha256:3786631d2aedb48f06791666a68d8f5797967c8e5607f7b1cb5f41a42196dcd2"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/evidence/native-public-sdk-20261018/compensating-close.json",
+      "digest": "sha256:53f96c6668a3c87e3f4e2e1ced20f26258d77859b2a02e364d71ca16073738b2"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/evidence/native-public-sdk-20261018/post-compensation.json",
+      "digest": "sha256:90b90f5cf8281390d3432c320ac4dda1476900573ac4b72439428084b971b41f"
+    }
+  ],
+  "limitations": [
+    "Public SDK request caused native requestClose/fullscreen-to-inline; no completed native teardown and Core session remained available before compensation.",
+    "Host console capture stopped after 50 warnings/errors; raw protocol export is incomplete.",
+    "Complete effective native provider inventory remains unqualified."
+  ]
+}

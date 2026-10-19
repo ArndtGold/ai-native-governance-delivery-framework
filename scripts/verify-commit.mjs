@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,17 +12,26 @@ export function exportSnapshot(repository, destination, { ref } = {}) {
   const indexDirectory = mkdtempSync(join(tmpdir(), 'agdf-snapshot-index-'));
   const env = { ...process.env, GIT_INDEX_FILE: join(indexDirectory, 'index') };
   try {
-    let entries, commit;
+    let commit;
     if (ref) {
       commit = git(repository, ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]).trim();
       git(repository, ['read-tree', commit], { env });
-      entries = git(repository, ['ls-files', '--stage', '-z'], { env }).split('\0').filter(Boolean);
-    } else {
-      entries = git(repository, ['ls-files', '--stage', '-z']).split('\0').filter(Boolean);
     }
+    // The index listing can exceed child_process's default output buffer. Keep
+    // its NUL-delimited bytes in a temporary file, also used as update-index input.
+    const entriesPath = join(indexDirectory, 'entries');
+    const output = openSync(entriesPath, 'w');
+    try {
+      git(repository, ['ls-files', '--stage', '-z'], { env: ref ? env : process.env, stdio: ['ignore', output, 'pipe'] });
+    } finally { closeSync(output); }
+    const entries = readFileSync(entriesPath, 'utf8').split('\0').filter(Boolean);
     if (entries.some(entry => !/^\d+ [0-9a-f]+ 0\t/u.test(entry))) throw new Error('Resolve index conflicts before verification.');
     if (entries.some(entry => entry.startsWith('160000 '))) throw new Error('Snapshot verification requires explicit submodule support.');
-    if (!ref) git(repository, ['update-index', '-z', '--index-info'], { env, input: entries.map(entry => `${entry}\0`).join('') });
+    if (!ref) {
+      const input = openSync(entriesPath, 'r');
+      try { git(repository, ['update-index', '-z', '--index-info'], { env, stdio: [input, 'pipe', 'pipe'] }); }
+      finally { closeSync(input); }
+    }
     // CI uses fetch-depth: 0. Retain release tags/history as well, without checking out files,
     // copying worktree state, linking object files or contacting the source's remote.
     git(repository, ['-c', 'init.templateDir=', 'clone', '--no-local', '--no-checkout', '--', repository, destination]);

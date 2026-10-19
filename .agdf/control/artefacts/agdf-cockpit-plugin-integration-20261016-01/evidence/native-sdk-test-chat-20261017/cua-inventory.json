@@ -1,0 +1,59 @@
+{
+  "source": "mcp__cua_repl.js: cua.getState(); cua.listTabs({browser:'mcpapps'}); cua.getState()",
+  "observations": [
+    {
+      "phase": "before_open",
+      "apps": [],
+      "browsers": [
+        {
+          "id": "2",
+          "metadata": {
+            "codexSessionId": "01a14a53-1091-7fa1-9145-287353b8dac1"
+          },
+          "name": "ChatGPT in-app browser",
+          "type": "iab",
+          "tabs": []
+        },
+        {
+          "id": "1",
+          "metadata": {
+            "codexSessionId": "01a14a53-1091-7fa1-9145-287353b8dac1"
+          },
+          "name": "Codex MCP Apps",
+          "type": "mcpapps",
+          "tabs": []
+        }
+      ]
+    },
+    {
+      "phase": "after_open",
+      "mcpapps_tabs": []
+    },
+    {
+      "phase": "after_resource_read",
+      "apps": [],
+      "browsers": [
+        {
+          "id": "2",
+          "metadata": {
+            "codexSessionId": "01a14a53-1091-7fa1-9145-287353b8dac1"
+          },
+          "name": "ChatGPT in-app browser",
+          "type": "iab",
+          "tabs": []
+        },
+        {
+          "id": "1",
+          "metadata": {
+            "codexSessionId": "01a14a53-1091-7fa1-9145-287353b8dac1"
+          },
+          "name": "Codex MCP Apps",
+          "type": "mcpapps",
+          "tabs": []
+        }
+      ]
+    }
+  ],
+  "documentation_excerpt": "Apps shown only inline in the conversation do not appear in its tab list. This backend cannot create or navigate tabs. Native computer APIs are disabled.",
+  "note": "Transcription of actual returned inventory; no inline card DOM or screenshot observed."
+}

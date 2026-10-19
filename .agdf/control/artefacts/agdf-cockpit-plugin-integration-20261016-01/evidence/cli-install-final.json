@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "contract_version": 1,
+  "operation": "install_setup",
+  "result": "partial",
+  "setup_request": "plugin_only",
+  "effective_state": "mcp_ready_hook_review_required",
+  "surface": "codex",
+  "target": null,
+  "target_source": "none",
+  "invocation_directory_source": "none",
+  "requested_scope": null,
+  "effective_scope": null,
+  "plugin": {
+    "schema_version": 1,
+    "operation": "update",
+    "result": "success",
+    "surface": "codex",
+    "scope": "global",
+    "version": {
+      "expected": "0.14.5+codex.local-8ba86d882a70",
+      "installed": "0.14.5+codex.local-8ba86d882a70",
+      "previous": null,
+      "status": "verified",
+      "transition": null
+    },
+    "verification": {
+      "status": "healthy",
+      "evidence": [
+        "durable_local_marketplace",
+        "marketplace:owned_local_current",
+        "codex plugin list",
+        "staged_plugin_root:/private/tmp/agdf-cockpit-cli-instance/agdf-data/marketplaces/agdf/plugins/agdf",
+        "staged_installation_provenance:matched",
+        "source_digest:8ba86d882a70c53aa01a3b58a3b766f59ee6a8c5c0603aec4f2c2b6a5cc46538",
+        "plugin_digest:d6e591d4ed067977092441d9be50f2a8e48081ba5d45f210336d276128ee27e9",
+        "canonical_version:0.14.5",
+        "local_install_version:0.14.5+codex.local-8ba86d882a70",
+        "codex_plugin_mcp:prepared",
+        "cockpit_configuration_admission:passed",
+        "cockpit_native_provider:unobserved"
+      ]
+    },
+    "installation": {
+      "status": "healthy"
+    },
+    "activation": {
+      "status": "pending_restart"
+    },
+    "delivery": {
+      "status": "not_evaluated"
+    },
+    "runtime_checks": {
+      "requested": "unknown",
+      "effective": "unknown",
+      "reason": "not_evaluated",
+      "capability_identity": null,
+      "verification": "not_evaluated",
+      "mutation": "none",
+      "rollback": "none"
+    },
+    "restart": {
+      "required": true,
+      "reason": "host_reload"
+    },
+    "next_action": {
+      "kind": "restart",
+      "text": "Fully restart Codex, then start a fresh session. Restoring the previous session can retain stale AGDF skills."
+    },
+    "changes": [],
+    "retained": [],
+    "failure": null,
+    "operation_status": {
+      "operation_id": "lifecycle.plugin.install.codex",
+      "outcome": "succeeded",
+      "target_scope": "global",
+      "target": null,
+      "planned_effect": "install_or_update_global_plugin",
+      "excluded_authority": [
+        "target_inference",
+        "run_creation",
+        "ur_persistence",
+        "gate_approval",
+        "implementation",
+        "qa",
+        "release"
+      ],
+      "authorizes": false
+    }
+  },
+  "runtime_checks": {
+    "requested": "enabled",
+    "effective": "decision_required",
+    "reason": "host_review_required",
+    "capability_identity": "6cd7cd35c1475c834aeb75604a18c4ee491cf5baf7e7e1604214cd9534d007cf",
+    "verification": "hook_review_required",
+    "mutation": "receipt_written",
+    "rollback": "none",
+    "next_action": "Open /hooks in Codex, review and trust the current AGDF session hook, then start a fresh session.",
+    "mcp_approval": {
+      "status": "configured",
+      "reason": "none",
+      "tool": "agdf_dispatch",
+      "policy_key": "plugins.\"agdf@agdf\".mcp_servers.agdf.tools.agdf_dispatch.approval_mode",
+      "config_file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+      "write_attempted": false,
+      "verification": "config_readback"
+    }
+  },
+  "mcp": {
+    "status": "plugin_managed"
+  },
+  "discovery": {
+    "status": "not_checked"
+  },
+  "restart": {
+    "required": true,
+    "reasons": [
+      "plugin_reload"
+    ]
+  },
+  "failure": null,
+  "next_action": {
+    "code": "review_codex_hook",
+    "parameters": {},
+    "text": "Review and trust the AGDF hook under /hooks, then start a fresh session. CLI MCP tests need no desktop restart."
+  },
+  "control": {
+    "schema_version": 1,
+    "supported_control_state_version": 2,
+    "target": "/private/tmp/agdf-cockpit-cli-instance/project",
+    "status": "absent",
+    "runs": [],
+    "diagnostics": [],
+    "changes": [],
+    "authorizes": false
+  },
+  "authorizes": false
+}

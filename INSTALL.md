@@ -74,6 +74,37 @@ npx --yes @agdf/cli@latest opencode --with-mcp --scope user --dir /absolute/path
 Claude Code, Codex and GitHub Copilot are the exception: their AGDF plugin declares the MCP server
 itself, so plugin-only installation is already complete and `--with-mcp` is rejected for those hosts.
 
+### Cockpit in the Codex plugin (development integration)
+
+The current Codex runtime build supplies **Cockpit** through the AGDF plugin. Install or update
+AGDF normally, start a fresh session when required, and ask to open Cockpit for the intended project.
+No separate Cockpit build, project MCP snippet or setup command is needed for a clean installation.
+The feature label is Cockpit; the stable technical server key is `agdf-cockpit`, alongside `agdf`.
+The host may show that technical key in settings. Existing tool names `agdf_cockpit` and
+`agdf_cockpit_read` and `ui://agdf/cockpit/v1.html` are retained. The agent supplies the confirmed
+absolute project and target source when opening; later reads remain bound to that view.
+
+An existing `agdf-cockpit` or `agdf-cockpit-local` registration is a separate legacy route.
+A name alone never proves AGDF ownership. Same-key/possible alias conflicts block an ambiguous
+installation before marketplace publication; foreign entries are preserved. Owned migration requires
+matching native discovery, visible rendering and actual interaction evidence before retirement.
+A same-key candidate must first work for the same target in a supported isolated native Codex UI
+context; if unavailable, keep the original route and report the blocked transition.
+
+The installing agent uses the existing lifecycle maintenance options only after verified replacement:
+`mcp disable --surface codex --scope project --dir /absolute/project --retire-cockpit agdf-cockpit-local --evidence .agdf/control/artefacts/RUN/transition.json`.
+This retains the old section as `enabled = false` and keeps its runtime. The paired
+`mcp enable --surface codex --scope project --dir /absolute/project --restore-cockpit agdf-cockpit-local --evidence .agdf/control/artefacts/RUN/transition.json`
+requires an unchanged transition and restores the retained prior plugin publication through its existing journal before restoring access. When an old Cockpit route exists, installation keeps the prior publication backup and reports a pending transition; another installation cannot discard that backup. The agent finalizes that same journal through `settleCodexCockpitPublication` only after verified normal-context discovery/render/interaction and absence of the old provider.
+These are agent maintenance operations, not an additional user setup flow. Use the actual verified
+legacy key and evidence; placeholders above are explanatory. Final normal-context discovery,
+rendering and interaction remain required after reload. Configuration changes alone are pending.
+
+This source integration does not itself establish a published release or fresh native qualification.
+Source, assembled package, installed payload and native observations are separate evidence levels;
+missing host UI support, permissions, isolation or restart remains an explicit limitation. Other
+host profiles retain their existing contracts. See the [Cockpit architecture](docs/architecture/06-agdf-cockpit.md).
+
 `--with-mcp` and `--plugin-only` cannot be combined. In non-interactive use, project scope is the
 complete-setup default and user scope must be written explicitly. Interactive use always asks for
 the scope. A project registration can override a user registration according to the host's native

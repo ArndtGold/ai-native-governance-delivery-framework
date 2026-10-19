@@ -5,5 +5,5 @@ import '../style.css';
 import '../theme.css';
 import './style.css';
 
-const bridge = new CockpitBridge();
+const bridge = new CockpitBridge('AGDF Cockpit', { autoResize: false });
 createRoot(document.getElementById('root')!).render(<EmbeddedEntry bridge={bridge}/>);

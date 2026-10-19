@@ -1,0 +1,70 @@
+{
+  "kind": "isolated_codex_cli_lifecycle",
+  "native_ui_proof": false,
+  "native_project_config_api": "read-only; rejected project write without mutation",
+  "previous_attempts": "retained in lifecycle.json, lifecycle-corrected.json and lifecycle-final.json",
+  "steps": [
+    {
+      "step": "explicit-project-plugin-enable-readback",
+      "method": "guarded enabled=true in disposable project plugin settings; no MCP registration",
+      "inventory": [
+        {
+          "name": "agdf",
+          "enabled": true
+        },
+        {
+          "name": "agdf-cockpit",
+          "enabled": true
+        },
+        {
+          "name": "unrelated-fixture",
+          "enabled": false
+        }
+      ],
+      "passed": true
+    },
+    {
+      "step": "restore-only-created-project-settings-to-original-absence",
+      "passed": true
+    },
+    {
+      "step": "global-offering-before-removal",
+      "inventory": [
+        {
+          "name": "agdf",
+          "enabled": true
+        },
+        {
+          "name": "agdf-cockpit",
+          "enabled": true
+        },
+        {
+          "name": "unrelated-fixture",
+          "enabled": false
+        }
+      ],
+      "passed": true
+    },
+    {
+      "step": "normal-global-uninstall",
+      "exit_code": 0,
+      "passed": true
+    },
+    {
+      "step": "global-offering-after-removal",
+      "inventory": [
+        {
+          "name": "unrelated-fixture",
+          "enabled": false
+        }
+      ],
+      "passed": true
+    },
+    {
+      "step": "preserve-foreign-disabled-server",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "auth_retained": false
+}

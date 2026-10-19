@@ -47,7 +47,8 @@ export function localizedDecisionFields(gate, text, { locale, sourceLanguage, pa
   const title = gate === 'QA' ? readAuthoredContent(text, 'title') : null;
   const fields = {}, gaps = [];
   for (const [field, key, label] of spec) {
-    const value = summary?.[field];
+    // Older approved UR summaries state the goal as prose instead of a named field.
+    const value = summary?.[field] ?? (gate === 'UR' ? readAuthoredContent(text, 'localized_goal', { locale, sourceLanguage }) : undefined);
     const concrete = gate === 'UR' ? concreteDecisionContent(value)
       : key === 'result' ? deliveredContent(value, title, path) : concreteDecisionContent(value, { allowNone: true });
     if (concrete) fields[key] = value;

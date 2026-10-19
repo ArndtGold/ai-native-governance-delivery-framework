@@ -126,7 +126,9 @@ export function validatePortableProfile(root, { profile, validateSchema } = {}) 
     declaredPath(root, "./mcp.json", "portable MCP discovery");
     const mcp = JSON.parse(readFileSync(join(root, "mcp.json"), "utf8"));
     if (validateSchema) validateSchema("mcp", mcp);
-    if (!isDeepStrictEqual(mcp, JSON.parse(renderCodexPluginMcpConfig()))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable MCP differs from canonical projection");
+    const cockpit = Object.hasOwn(mcp.mcpServers ?? {}, 'agdf-cockpit');
+    if (!isDeepStrictEqual(mcp, JSON.parse(renderCodexPluginMcpConfig({ cockpit })))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable MCP differs from canonical projection");
+    if (cockpit) for (const path of ['mcp/server/ui/cockpit.html', 'mcp/server/ui/manifest.json']) declaredPath(root, `./${path}`, path);
     for (const path of ["mcp/claude.mcp.json", "mcp/agdf-mcp-launch.js", "runtime/agdf-session-check.js"]) declaredPath(root, `./${path}`, path);
     if (!isDeepStrictEqual(fallback, createCodexPluginManifest(definition, { runtimeProfile: true }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime fallback differs from canonical projection");
   } else {

@@ -31,6 +31,8 @@ test('full plan preserves dependency ordering and mandatory package consumers in
     assert.equal(ids.includes('host-compatibility'), lane === 'repository');
     assert.equal(ids.includes('compatibility-freshness'), lane === 'repository');
     assert.equal(ids.includes('pages'), lane === 'repository');
+    assert.equal(ids.includes('mcp-ergonomics'), lane === 'repository');
+    if (lane === 'repository') assert.ok(ids.indexOf('mcp-dependencies') < ids.indexOf('mcp-ergonomics'), 'evaluation tests import the MCP client');
   }
   assert.throws(() => verificationPlan({ lane: 'skip-tests' }), /Unknown/);
   assert.throws(() => verificationPlan({ stage: 'missing' }), /Unknown/);
@@ -183,5 +185,38 @@ test('snapshot uses staged blobs, excludes unstaged/untracked fixes and preserve
     const blob = git(repo, 'rev-parse', 'HEAD:package.json').trim();
     execFileSync('git', ['update-index', '--index-info'], { cwd: repo, input: `0 ${'0'.repeat(blob.length)}\tpackage.json\n100644 ${blob} 1\tpackage.json\n` });
     assert.throws(() => exportSnapshot(repo, join(temporary, 'conflicted')), /Resolve index conflicts/);
+  } finally { rmSync(temporary, { recursive: true, force: true }); }
+});
+
+test('both snapshot modes export an index larger than the default subprocess output buffer', () => {
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf-large-index-'));
+  const repo = join(temporary, 'source'); mkdirSync(repo);
+  try {
+    git(repo, '-c', 'init.templateDir=', 'init', '-q');
+    git(repo, 'config', 'user.name', 'Snapshot fixture');
+    git(repo, 'config', 'user.email', 'snapshot@example.invalid');
+    // Keep byte assertions portable on hosts with core.autocrlf=true as well.
+    writeFileSync(join(repo, '.gitattributes'), 'bulk/** -text\n');
+    git(repo, 'add', '.gitattributes');
+    const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: repo, input: 'committed bytes\n', encoding: 'utf8' }).trim();
+    const names = Array.from({ length: 8000 }, (_, i) => `bulk/${String(i).padStart(5, '0')}-${'x'.repeat(80)}.txt`);
+    names.push('bulk/spaces and unicode-ä.txt');
+    if (process.platform !== 'win32') names.push('bulk/tab\tand-newline\n.txt');
+    const entries = names.map(name => `100644 ${blob} 0\t${name}\0`).join('');
+    assert.ok(Buffer.byteLength(entries) > 1024 * 1024, 'fixture must reproduce the former ENOBUFS threshold');
+    execFileSync('git', ['update-index', '-z', '--index-info'], { cwd: repo, input: entries });
+    git(repo, 'commit', '-qm', 'large inventory');
+    const before = readFileSync(join(repo, '.git/index'));
+    for (const ref of [undefined, 'HEAD']) {
+      const snapshot = join(temporary, ref ? 'committed' : 'staged');
+      exportSnapshot(repo, snapshot, { ref });
+      for (const name of [names[0], names.at(-2), names.at(-1)]) {
+        assert.equal(readFileSync(join(snapshot, name), 'utf8'), 'committed bytes\n');
+      }
+      assert.equal(git(snapshot, 'ls-files').trim().split('\n').length, names.length + 1);
+      assert.deepEqual(readFileSync(join(repo, '.git/index')), before);
+      assert.equal(existsSync(join(repo, names[0])), false, 'export must not populate the source working copy');
+      rmSync(snapshot, { recursive: true, force: true });
+    }
   } finally { rmSync(temporary, { recursive: true, force: true }); }
 });

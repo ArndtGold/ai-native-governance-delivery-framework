@@ -18,7 +18,7 @@ try {
   const generated = join(fixture, "packages", "cli", "generated");
   const uiRoot = join(fixture, "packages", "control-ui", "dist-mcp");
   const builtUiRoot = join(repo, "packages", "control-ui", "dist-mcp");
-  // Every host requires the Decision UI; Claude additionally requires the Cockpit UI.
+  // Every host requires Decision UI; normal Codex and Claude also require Cockpit UI.
   rmSync(uiRoot, { recursive: true, force: true });
   const missingDecisionUi = run("prepare-local-plugin.js", "codex");
   assert.notEqual(missingDecisionUi.status, 0);
@@ -28,7 +28,8 @@ try {
     cpSync(join(builtUiRoot, name), join(uiRoot, name));
   for (const surface of ["codex", "claude", "opencode"]) {
     rmSync(generated, { recursive: true, force: true });
-    if (surface === "claude") {
+    const hasCockpit = ["codex", "claude"].includes(surface);
+    if (hasCockpit) {
       const missingUi = run("prepare-local-plugin.js", surface);
       assert.notEqual(missingUi.status, 0);
       assert.match(missingUi.stderr, /AGDF_COCKPIT_UI_BUILD_REQUIRED/);
@@ -45,14 +46,17 @@ try {
     assert.ok(existsSync(packagedUi));
     for (const name of ["decision.html", "decision-manifest.json"])
       assert.deepEqual(readFileSync(join(packagedUi, name)), readFileSync(join(uiRoot, name)));
-    assert.equal(existsSync(join(packagedUi, "cockpit.html")), surface === "claude");
-    if (surface === "claude") {
+    assert.equal(existsSync(join(packagedUi, "cockpit.html")), hasCockpit);
+    if (hasCockpit) {
       for (const name of ["cockpit.html", "manifest.json"]) {
         assert.deepEqual(readFileSync(join(packagedUi, name)), readFileSync(join(uiRoot, name)));
       }
       for (const name of ["cockpit.html", "manifest.json"]) rmSync(join(uiRoot, name));
     }
   }
+  // All-host generation must reach the Copilot budget guard with valid Codex UI inputs.
+  for (const name of ["cockpit.html", "manifest.json"])
+    cpSync(join(builtUiRoot, name), join(uiRoot, name));
   for (const [script, args] of [["prepare-local-plugin.js", ["copilot"]], ["sync-package-assets.js", []]]) {
     const result = run(script, ...args);
     assert.notEqual(result.status, 0);

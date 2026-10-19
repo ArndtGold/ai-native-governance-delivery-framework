@@ -1100,3 +1100,45 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
 }
 
 console.log("AGDF MCP lifecycle, package acquisition and host adapter tests passed.");
+
+// A rendered Cockpit is qualified through a distinct evidence contract; it can never stand in for dispatch proof.
+{
+  const { validateCockpitTransitionEvidence, validateMcpDirectEvidenceResult } = await import('../lib/mcp-lifecycle/evidence.js');
+  const hash = 'sha256:' + 'a'.repeat(64);
+  const record = { schema_version: 1, kind: 'cockpit_transition', surface: 'codex', result: 'qualified',
+    assurance: 'cooperative_local', authorizes: false, target_id: hash, config_digest: hash, section_digest: hash,
+    plugin_digest: hash, previous_plugin_digest: null, previous_plugin_version: null, ui_digest: hash, server_digest: hash, dispatcher_digest: hash, sdk_digest: hash,
+    config_path: '/project/.codex/config.toml', plugin_root: '/plugin', runtime_root: '/runtime', version: '0.14.5', legacy_id: 'agdf-cockpit',
+    host: { name: 'Codex', version: 'fixture', session_id: 'fixture-session', os: process.platform, arch: process.arch },
+    observations: ['discovery', 'ui_initialize', 'render', 'interaction', 'provider_attribution', 'teardown'],
+    inventory: { complete: true, origins: [{ path: '/config', digest: hash }] },
+    providers: [{ origin: '/plugin', server_id: 'agdf-cockpit', connection_id: 'fixture', tools: ['agdf_cockpit', 'agdf_cockpit_read'], exposed_tools: { agdf_cockpit: 'fixture/cockpit/render', agdf_cockpit_read: 'fixture/cockpit/read' } }],
+    evidence: [{ path: '.agdf/control/artefacts/fixture/native.md', digest: hash }],
+    isolated_qualification: { isolated: true, context_id: 'fixture-native-context', target_id: hash, plugin_digest: hash } };
+  assert.equal(validateCockpitTransitionEvidence(record).valid, true);
+  assert.equal(validateMcpDirectEvidenceResult(record).valid, false);
+  for (const mutate of [r => { delete r.isolated_qualification; }, r => { delete r.previous_plugin_digest; }, r => { r.inventory.complete = false; },
+    r => { r.observations.splice(2, 1); }, r => { r.providers[0].tools.pop(); }, r => { r.providers = [null]; },
+    r => { r.providers[0].exposed_tools = null; }, r => { r.providers.push(structuredClone(r.providers[0])); }, r => { r.host = null; }, r => { r.evidence = [null]; }, r => { r.authorizes = true; }]) {
+    const changed = structuredClone(record); mutate(changed);
+    assert.equal(validateCockpitTransitionEvidence(changed).valid, false);
+  }
+  assert.equal(validateCockpitTransitionEvidence(record, { expected: { target_id: 'sha256:' + 'b'.repeat(64) } }).valid, false);
+}
+
+// Maintenance flags are exclusive and cannot widen normal MCP command scope.
+{
+  const { parseArgs } = await import('../lib/cli/parse-args.js');
+  const { validateCommandOptions } = await import('../lib/cli/command-registry.js');
+  const argv = ['mcp', 'disable', '--surface', 'codex', '--scope', 'project', '--dir', cliTarget,
+    '--retire-cockpit', 'agdf-cockpit-local', '--evidence', '.agdf/control/artefacts/fixture/transition.json'];
+  const options = parseArgs(argv, { cwd: cliTarget }).options;
+  assert.equal(validateCommandOptions(options).retireCockpit, 'agdf-cockpit-local');
+  for (const change of [o => { o.surface = 'claude'; }, o => { o.scope = 'user'; },
+    o => { o.mcpAction = 'status'; }, o => { o.restoreCockpit = 'agdf-cockpit-local'; },
+    o => { o.retireCockpit = 'foreign'; }, o => { delete o.stepFields.evidence; }]) {
+    const altered = structuredClone(options); change(altered);
+    assert.throws(() => validateCommandOptions(altered), /Cockpit transition/);
+  }
+  assert.throws(() => parseArgs([...argv, '--evidence', 'other.json'], { cwd: cliTarget }), /may not repeat/);
+}

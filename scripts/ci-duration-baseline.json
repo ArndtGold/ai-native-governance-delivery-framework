@@ -2,11 +2,24 @@
   "source_run": 38727591079,
   "recorded_at": "2026-10-15",
   "note": "Observed npm suite intervals in seconds; scheduling hints only. The package scripts own coverage; CI timestamps own actual duration evidence.",
+  "file_observations": [
+    {
+      "source_run": 39142873658,
+      "source_job": 117720755628,
+      "recorded_at": "2026-10-18",
+      "platform": "windows",
+      "seconds": {
+        "packages/cli/scripts/mcp-lifecycle-test.js": 152.8,
+        "packages/mcp-server/test/whole-flow.test.js": 183.2
+      }
+    }
+  ],
   "files": {
+    "packages/cli/scripts/mcp-lifecycle-test.js": { "windows": 153 },
     "packages/cli/scripts/local-development-install-test.js": { "windows": 160 },
     "packages/mcp-server/test/run-command.test.js": { "windows": 113 },
     "packages/mcp-server/test/decision-resource.test.js": { "windows": 47 },
-    "packages/mcp-server/test/whole-flow.test.js": { "windows": 66 },
+    "packages/mcp-server/test/whole-flow.test.js": { "windows": 184 },
     "packages/mcp-server/test/structured-flow.test.js": { "windows": 235 },
     "packages/mcp-server/test/revision-command.test.js": { "windows": 137 },
     "packages/mcp-server/test/expanded-source-revision.test.js": { "windows": 509 }

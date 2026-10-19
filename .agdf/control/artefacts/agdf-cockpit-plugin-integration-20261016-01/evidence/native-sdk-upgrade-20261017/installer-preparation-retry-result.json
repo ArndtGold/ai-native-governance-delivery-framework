@@ -1,0 +1,39 @@
+[
+  {
+    "stage": "installer-ui-dependencies",
+    "argv": [
+      "npm",
+      "--prefix",
+      "/private/tmp/agdf-cockpit-cli-source/packages/control-ui",
+      "ci",
+      "--ignore-scripts"
+    ],
+    "started_at": "2026-10-17T14:11:28.405349+00:00",
+    "exit_code": 0,
+    "finished_at": "2026-10-17T14:11:32.339150+00:00"
+  },
+  {
+    "stage": "installer-ui-build-retry",
+    "argv": [
+      "npm",
+      "--prefix",
+      "/private/tmp/agdf-cockpit-cli-source/packages/control-ui",
+      "run",
+      "build:mcp"
+    ],
+    "started_at": "2026-10-17T14:11:32.339717+00:00",
+    "exit_code": 0,
+    "finished_at": "2026-10-17T14:11:34.326764+00:00"
+  },
+  {
+    "stage": "installer-codex-prepare-retry",
+    "argv": [
+      "node",
+      "/private/tmp/agdf-cockpit-cli-source/packages/cli/scripts/prepare-local-plugin.js",
+      "codex"
+    ],
+    "started_at": "2026-10-17T14:11:34.327392+00:00",
+    "exit_code": 0,
+    "finished_at": "2026-10-17T14:11:35.591930+00:00"
+  }
+]

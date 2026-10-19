@@ -1,0 +1,89 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Deliver Cockpit through the AGDF plugin
+  - generic: Nur Lesen
+  - button "Stand wird aktualisiert …" [disabled]:
+  - status: Stand wird aktualisiert …
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben" [disabled]
+      - text: ›
+      - generic: Deliver Cockpit through the AGDF plugin
+  - heading "Deliver Cockpit through the AGDF plugin" [level=1]
+  - generic "Stand 18.10.2026, 08:53:57 · Datenstand und Herkunft"
+  - region "Zuletzt beobachteter Arbeitsschritt":
+    - generic: Gespeicherter Arbeitsstand
+    - heading "Umsetzung und Prüfung" [level=2]
+    - paragraph: Zuletzt als „In Arbeit“ gespeichert.
+    - heading "Aktuelle Voraussetzungen nicht bestätigt" [level=3]
+    - paragraph: Aus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.
+    - button "Stand des Vorhabens öffnen"
+    - group "Nachweislücken im Run-Dokument · 0":
+      - generic "Nachweislücken im Run-Dokument · 0"
+    - region "Dokumente":
+      - heading "Dokumente · 4" [level=3]
+      - list:
+        - strong: Anforderungen
+        - generic: "? Zuletzt beobachtet: Freigegeben"
+        - 'button "Freigegebene Anforderungen ansehen: Anforderungen"': Freigegebene Anforderungen ansehen
+        - strong: Produktanforderungen
+        - generic: "? Zuletzt beobachtet: Freigegeben"
+        - 'button "Freigegebene Produktanforderungen ansehen: Produktanforderungen"': Freigegebene Produktanforderungen ansehen
+        - strong: Lösungskonzept
+        - generic: "? Zuletzt beobachtet: Freigegeben"
+        - 'button "Freigegebenes Lösungskonzept ansehen: Lösungskonzept"': Freigegebenes Lösungskonzept ansehen
+        - strong: Umsetzungs- und Prüfplan
+        - generic: "? Zuletzt beobachtet: Freigegeben"
+        - 'button "Freigegebenen Taskplan ansehen: Umsetzungs- und Prüfplan"': Freigegebenen Taskplan ansehen
+  - region "Entwurfsprüfung":
+    - heading "Entwurfsprüfung" [level=2]
+    - status:
+      - strong: Prüfstand nicht aktuell
+    - paragraph: Prüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.
+    - button "Stand neu laden"
+    - generic "Prüfquelle und Originalbefunde"
+  - region "Nachweise zu dieser Fassung":
+    - heading "Nachweise zu dieser Fassung" [level=2]
+    - status: Dies ist eine ältere Beobachtung. Vor einer Aussage zur aktuellen Anwendbarkeit neu laden.
+    - paragraph:
+      - text: "Nächster Schritt laut Core: Der Assistent arbeitet weiter ·"
+      - code: implementation.execute
+    - heading "Aktuell anwendbare Nachweise · 4" [level=3]
+    - paragraph: Nur eindeutig zugeordnete Berichte gehören zur aktuellen Quellenfassung. Frühere oder unbestätigte Nachweise bestätigen keine aktuellen Voraussetzungen.
+    - list:
+      - strong: Nutzungsziel
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md
+      - paragraph:
+        - code: current_exact_association
+      - button "Registrierte Quelle lesen"
+      - strong: Bestandsanalyse
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md
+      - paragraph:
+        - code: current_exact_association
+      - button "Registrierte Quelle lesen"
+      - strong: Umsetzungs- und Prüfnachweise
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md
+      - paragraph:
+        - code: current_exact_association
+      - button "Registrierte Quelle lesen"
+      - strong: evidence
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/LEGACY_CUTOVER_REVIEW_20261018.md
+      - paragraph:
+        - code: current_exact_association
+      - paragraph: Quelle nicht verfügbar
+    - generic "Frühere Nachweise · 8"
+    - generic "Anwendbarkeit nicht bestätigt · 13"
+  - region "Offene Aufgabe":
+    - heading "CD+Tests · Offene Aufgabe und nächster Schritt" [level=2]
+    - paragraph: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.
+  - status: Backlog-Beobachtung stimmt mit dieser Run-Revision und ihren Quellen überein.
+  - generic "Ziel und Run-ID · Originalangaben"
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ansehen" [disabled]
+  - generic: Lokale Beobachtung · Stand wird aktualisiert … · Vorheriger Datenstand bleibt sichtbar · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"

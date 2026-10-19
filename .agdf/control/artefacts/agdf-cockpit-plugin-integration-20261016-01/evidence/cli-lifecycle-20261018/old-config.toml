@@ -1,0 +1,11 @@
+[marketplaces.agdf]
+source_type = "local"
+source = "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/marketplaces/agdf"
+
+[plugins."agdf@agdf"]
+enabled = true
+
+[mcp_servers.lifecycle_canary]
+enabled = false
+command = "node"
+args = ["--version"]

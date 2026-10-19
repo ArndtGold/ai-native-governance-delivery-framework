@@ -1,0 +1,710 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "initiating_phase": "UAT",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "mcp-ergonomics-baseline-20261016-01",
+  "expected_revision_id": "671c6b67-6d46-42a7-a994-c5037c2bf3a8",
+  "operation_id": "ad5a4176-32d1-4b55-a42f-779bb2d8eaee",
+  "source_gate": "UR",
+  "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel).",
+  "intended_change": "Reformat only the UR's localized AGDF Approval Summary into valid, unique summary fields (Problem, Lücken, Ziel, Betroffene, Umfang, Nachweise, Quellen und Abgrenzung, Abnahme, Risiken und Klärung, Risiken, Nächster Schritt). The English UR sections, scope, goal, non-goals and acceptance signals stay unchanged.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+      "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+      "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+      "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude Code agent (claude-opus-5-5), cooperative impact review for Arndt Gold",
+    "earliest_source": "UR",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "disposition": "reassess",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2080348078c09f54ac80be8b2feace7fa7394101c2978b03784f727d436a956e",
+        "reason": "A UR revision requires a fresh post-UR analysis; the delivered scope is unchanged, so the reassessment confirms the existing analysis."
+      }
+    ],
+    "implementation_evidence": "Code, tests, baseline and native evidence are unchanged by this summary-format revision; CD+Tests, CR and QA are recorded afresh under the renewed TP with a fresh test run.",
+    "unresolved": []
+  },
+  "changed_statements": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Problem (Messlücke): AGDF hat Skill-Evals, einen Proportionalitäts-Benchmark und Host-E2E-Probes, aber keine Messung, wie gut Agenten die AGDF-MCP-Tools selbst nutzen. Ohne Ausgangswert lässt sich weder belegen, dass die geplanten Änderungen das Agentenverhalten verbessern, noch eine Verschlechterung erkennen. Geplant sind Änderungen am Fehlervertrag, an den Beschreibungen, am Tool-Schnitt, am Antwortbudget und an der Latenz.",
+      "intended_change": "Same text under the valid summary field 'Lücken'.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Umfang: Erstens eine deterministische Messung auf Protokollebene. Sie läuft über den vorhandenen `@modelcontextprotocol/client` gegen die lokal installierten AGDF-MCP-Server: `agdf` und, soweit dessen Freischaltung es zulässt, `agdf-cockpit`. Erfasst werden je Tool und Ergebnisart Antwortbytes und geschätzte Tokens, das `isError`-Flag, die eigenen AGDF-Fehlerergebnisse (`invalid_input`, `evaluator_error`, `rejected`, `effect_unknown`), die Latenz und die Größe der Tool-Definitionen. Dafür laufen repräsentative gültige, ungültige und Grenzfall-Aufrufe gegen temporäre Fixture-Repositories.",
+      "intended_change": "Protocol and native measurement scope merged into one valid 'Umfang' field within 1200 characters; content unchanged.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Umfang (native Messung): Zweitens eine native Agentenmessung nur auf Claude Code auf diesem Windows-Rechner, mit den Modellen Opus 5.5 und Sonnet 5.5 und einem festen, versionierten Satz repräsentativer AGDF-Aufgaben. Je Aufgabe werden erfasst: Aufrufe je Tool, Quote ungültiger Argumente (Validierungsfehler des SDK), `isError`-Quote, AGDF-Fehlerergebnisse, Antworttokens je Tool, Gesamttokens bzw. Kosten (sofern der Host sie meldet), Laufzeit und Erfolg gegen ein prüfbares erwartetes Ergebnis. Es gibt zwei native Varianten: mit geladenen AGDF-Skills (heutiger Standard) und nur MCP ohne Skills, um zu messen, wie gut sich die Schnittstelle selbst beschreibt. Jede Aufgabe läuft so oft, dass Streuung berichtet werden kann. Daten und ein kurzer Bericht werden committet, beide mit Angaben zur Umgebung: AGDF-Version, Host- und Modellversion, Plattform und Datum. Je Messebene gibt es einen dokumentierten Befehl zum Wiederholen.",
+      "intended_change": "Merged into 'Umfang'; the committed data, report and repeat commands move to the valid field 'Nachweise'.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Nicht-Ziele: Keine Änderung an MCP-Schnittstellen, Verträgen, Beschreibungen, Annotations, Fehlerabbildung oder Laufzeitverhalten; das sind die Phasen 1 bis 3. Keine Schwellwerte oder Regressionsbudgets in der CI; das ist Phase 4. Keine native Messung auf Codex, GitHub Copilot oder OpenCode in diesem Schritt; die native Codex-Messung ist ein Folge-Slice, der diese Messung wiederverwendet. Keine Qualitätsbewertung durch ein LLM als Richter; Erfolg wird an deterministischen Erwartungen gemessen. Die Messung verändert keinen Steuerungszustand des echten Repositories; alle Aufgaben laufen auf Fixtures.",
+      "intended_change": "Non-goals become the delimitation part of the valid field 'Quellen und Abgrenzung'; content unchanged.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Abnahmesignale: Die Kennzahlen sind mit genauen Rechenregeln definiert, einschließlich der Frage, wie AGDF-Fehlerergebnisse gezählt werden, solange `isError` noch nicht gesetzt wird. Aufgabensatz, erwartete Ergebnisse, Host, Modelle, Varianten und Anzahl der Wiederholungen sind festgelegt und versioniert. Beide Messebenen sind gegen die heutigen Schnittstellen gelaufen, und Daten und Bericht sind mit Herkunftsangaben committet. Bei unveränderten Schnittstellen liefert ein erneuter Lauf auf Protokollebene exakt dieselben Werte und nativ Werte innerhalb der berichteten Streuung. Der Bericht nennt für jeden der zwölf Review-Befunde die Kennzahl, die eine Verbesserung zeigen wird, oder vermerkt, dass der Befund in diesem Schritt nicht messbar ist.",
+      "intended_change": "Same text under the valid summary field 'Abnahme'.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Quellen und Zuständigkeiten: Die MCP-Server und -Verträge liegen in `packages/mcp-server` (server.js, worker.js, worker-entry.js), `packages/cli/lib/mcp-dispatch-runtime.js` und den Verträgen unter `packages/core/lib` (skill-dispatch, control-inspect, run-command, cockpit). Vorhandene Messungen und Probes: `packages/mcp-server/test/performance.test.js`, `runtime-fixture.js`, `scripts/native-probes/claude-host-e2e.mjs` (`npm run native:claude-e2e`) sowie `evals/` mit Manifest, Proportionalitäts- und Host-Kompatibilitätsdaten. Dazu kommen `plugins/agdf/meta/agdf-mcp-capability.json` und `docs/compatibility/`. Externe Referenzen sind die MCP-Spezifikation 2026-07-28, die MCP Security Best Practices und Anthropics Leitfaden für Agenten-Tools.",
+      "intended_change": "Sources become the source part of the valid field 'Quellen und Abgrenzung', condensed to its owners and references.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Risiken und Unbekanntes: Native Läufe sind nicht deterministisch und kosten Geld; Anzahl der Aufgaben, Wiederholungen und Budget müssen in PRD und SD begrenzt werden. Offen ist, welche Token- und Kostendaten Claude Code je Sitzung und je Tool-Ergebnis preisgibt und ob `isError` und strukturierter Inhalt beim Modell ankommen; das SD muss die verlässliche Quelle jeder Kennzahl festlegen. Offen ist auch, ob Claude Code den AGDF-MCP-Server ohne AGDF-Skills und -Hooks laden kann; davon hängt die Variante „nur MCP“ ab. Opus-Sitzungen kosten deutlich mehr als Sonnet-Sitzungen; das native Budget muss beide Modelle berücksichtigen.",
+      "intended_change": "Same text under the valid summary field 'Risiken und Klärung'.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+      "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+      "statement": "Risiken (Umsetzung): Die Messung darf den echten `.agdf/control`-Zustand nicht verändern; die Isolation der Fixtures muss nachgewiesen werden. Gespeicherte Transkripte können lokale Pfade oder Prompt-Inhalte enthalten; die Evidenz bleibt deshalb strukturiert und bereinigt wie bei den bestehenden nativen Probes. Der Arbeitsbaum enthält derzeit nicht committete Änderungen auf `feat/claude-install-fix`; die Umsetzung sollte auf einem sauberen Branch beginnen. Das Brownfield Review klärt, wie weit vorhandene Probes und Fixtures wiederverwendet werden können, statt sie zu duplizieren.",
+      "intended_change": "Same text under the valid summary field 'Risiken'.",
+      "reason": "UAT preparation cannot read the localized UR goal: the summary line 'Problem (Messlücke)' is no valid summary field and ends the AGDF Approval Summary block, so 'Ziel' and every later field are lost (AGDF_DECISION_CONTENT_INCOMPLETE, localized_content_missing:ziel)."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2080348078c09f54ac80be8b2feace7fa7394101c2978b03784f727d436a956e",
+        "status": "done"
+      },
+      "record_digest": "sha256:83028b774448229391369801f949a1ca3bc54dd814a9c0d0eb206ad9e5c0e4f0",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:13bfc2ad6c335d336bf07d55e0aa7876684ca6c54be755cf02310e19b1926d97",
+        "status": "done"
+      },
+      "record_digest": "sha256:f6ba4e285ab2e93050a83434b988b489086ae6bb42cf1af90062492b9fabd1a8",
+      "operation_id": "122905f0-298c-4032-8729-4dfc3572f060",
+      "source_set_digest": "sha256:2bda12939ad31f382912ee709b6d1f02e46339fea8fc90c84dd81535fa4d592f",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2080348078c09f54ac80be8b2feace7fa7394101c2978b03784f727d436a956e",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md",
+        "digest": "sha256:21d91b26213785fff2fbc7308741d2aefb1fae627b5967f18fb685247aab6011",
+        "status": "done"
+      },
+      "record_digest": "sha256:cad52caa71992412c1f997ca06384ae5c61bf172217d3b16e152c60d1a83ca95",
+      "operation_id": "2463d018-20c7-4f7c-b03d-ecd6bf91a942",
+      "source_set_digest": "sha256:65774f437f0f399c3293a43afc9fabfbd24c4d317e605f485be07647ab859d71",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:13bfc2ad6c335d336bf07d55e0aa7876684ca6c54be755cf02310e19b1926d97",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "CR",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md",
+        "digest": "sha256:cdd9b9075a0e9db932de83dfae3c88d241fdf3087ff47703b87d30649e67817f",
+        "status": "done"
+      },
+      "record_digest": "sha256:721e064bd31d5b788f45e09b1f66231f9a3b3ccbb3806eada269b516ee9ae0b9",
+      "operation_id": "3d8e9277-03cf-4b74-a2af-0d18cbc25214",
+      "source_set_digest": "sha256:62ef58a4b89a9a9d15c9646d2b270bef6f88eab92676fa41b84c3f859c3ace96",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:21d91b26213785fff2fbc7308741d2aefb1fae627b5967f18fb685247aab6011",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "QA",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_REPORT.md",
+        "digest": "sha256:f465fc8eb8ddf1ecf0da0a1b8470d08607ab5e00a2eac73eee9eae8b7a68079c",
+        "status": "pass"
+      },
+      "record_digest": "sha256:11159280ed0d39b0d7daefa950b547eb461f63a422756a430a8265e6c7ea1526",
+      "operation_id": "ef075295-dfe4-4b00-9d21-0de485a58e8e",
+      "source_set_digest": "sha256:d0c3f7e605c8906d8bf728bc9b45e3c290b12c362fc30923c29e2197b1a3c92d",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:21d91b26213785fff2fbc7308741d2aefb1fae627b5967f18fb685247aab6011",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "TP Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "Clean Implementation Review"
+        },
+        {
+          "digest": "sha256:cdd9b9075a0e9db932de83dfae3c88d241fdf3087ff47703b87d30649e67817f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md",
+          "status": "done",
+          "type": "CR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+        "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b860906ec855f27eff3cd37b3431648b882e6793392161aefd286dbd49ae86c9",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2080348078c09f54ac80be8b2feace7fa7394101c2978b03784f727d436a956e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:287d120922e81e9c0e03019f6838b425e23d98543ec5f958d88475f324637d66",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+        "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+        "status": "documented"
+      },
+      "record_digest": "sha256:b860906ec855f27eff3cd37b3431648b882e6793392161aefd286dbd49ae86c9",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:2080348078c09f54ac80be8b2feace7fa7394101c2978b03784f727d436a956e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:287d120922e81e9c0e03019f6838b425e23d98543ec5f958d88475f324637d66",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:8c07700c03175e7101cc4d3def24ed5c673c5489f55950b7a5d9419520e60873",
+        "status": "documented"
+      },
+      "record_digest": "sha256:119fe2d3463b8c4adcffa935ca2d3ac2b65e2a45be205dbc46f00a9340e5cd37",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:960a102c3be83544b45ef5b0737bcc32f880e611e2ce9599347887e5d6bce3f2",
+        "status": "documented"
+      },
+      "record_digest": "sha256:0428082ee1d1aeee8eb97f56e0e541547c7f8e2518b8be2b07ec376d302f2c6c",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:f93e2296b97ee07676043e384b164f018e4c62bb90790a4afdc5fdb7e28e4a98",
+        "status": "documented"
+      },
+      "record_digest": "sha256:206f62745cb831cbe3118a8a95cc53cf8a7328f210812ff5fca727d451f92ba2",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:13bfc2ad6c335d336bf07d55e0aa7876684ca6c54be755cf02310e19b1926d97",
+        "status": "documented"
+      },
+      "record_digest": "sha256:9a95db61b4db5d8b170f46b9f4c6516d0bd86541bea401962efe37b6ef274570",
+      "operation_id": "122905f0-298c-4032-8729-4dfc3572f060",
+      "source_set_digest": "sha256:2bda12939ad31f382912ee709b6d1f02e46339fea8fc90c84dd81535fa4d592f",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2080348078c09f54ac80be8b2feace7fa7394101c2978b03784f727d436a956e",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:fbfad9f76e84f98ca81299b94d0bbe90fe2ea0eeffc38a8cf9b9307325b7422a",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:256ce948b0adc34bd2687850b9a2321f8722fbb0104bad5b265ebd5137404bcf",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:64a369fabf62e9bcff5452c91c50eb11f881b4c6c06b8234a37b637e70ba1054",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md",
+        "digest": "sha256:21d91b26213785fff2fbc7308741d2aefb1fae627b5967f18fb685247aab6011",
+        "status": "documented"
+      },
+      "record_digest": "sha256:db319c4354fd670367d00994910934dc8aaba7bc05c60d976dea8228f5e714f4",
+      "operation_id": "2463d018-20c7-4f7c-b03d-ecd6bf91a942",
+      "source_set_digest": "sha256:65774f437f0f399c3293a43afc9fabfbd24c4d317e605f485be07647ab859d71",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:13bfc2ad6c335d336bf07d55e0aa7876684ca6c54be755cf02310e19b1926d97",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:5b2caf2d4866a1a1f83ef34aac33fcc0703a6893d5ad51430225a176bac326ee",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:44655b82c40618bd4bda230390b26915d3ea5951d86304b6a042434f86b23fc6",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:606331c0e8b9f7a1d8691e2d7e6ec417cb7cba49a038d1028fbb0426d114c28a",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md",
+        "digest": "sha256:cdd9b9075a0e9db932de83dfae3c88d241fdf3087ff47703b87d30649e67817f",
+        "status": "documented"
+      },
+      "record_digest": "sha256:bb64bd06a45904030f70270a59b2186e21b5e1deb5dd37b81dba551528383972",
+      "operation_id": "3d8e9277-03cf-4b74-a2af-0d18cbc25214",
+      "source_set_digest": "sha256:62ef58a4b89a9a9d15c9646d2b270bef6f88eab92676fa41b84c3f859c3ace96",
+      "sources": [
+        {
+          "digest": "sha256:f412f37894ce8cc879f405d700999148dcb174009f9476701c85eee6d40bbfe3",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:0c2e378321f08a8cda9ed5c0ff2c3aee62b59b7d5f977569a181df7e0f31361f",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:0144cef299f39e3a3b8e2d708b66cce8e3a6945e9f4cc3eca1527b99c93818e8",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:db56921325fb1f2deeb149b45a593f5fb9b0aa0bb04948144c730391831462e1",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:21d91b26213785fff2fbc7308741d2aefb1fae627b5967f18fb685247aab6011",
+          "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:755202c33ef6ee8096ebf9ced5994a461b903370f3268049db4f0165e4b81959",
+        "status": "documented"
+      },
+      "record_digest": "sha256:0ad037cad125e3597f4939e4e6b3101b6bbed8fb13bd0d78ccbabac5f7600a83",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "UR source revision: every post-UR analysis, result and evidence row is reassessed under the renewed UR, although only the localized summary format changes."
+    }
+  ]
+}

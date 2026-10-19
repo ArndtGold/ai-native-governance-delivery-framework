@@ -1,0 +1,75 @@
+
+> agdf-control-ui@0.0.0 test
+> node --test test/service.test.mjs && vitest run
+
+TAP version 13
+# Subtest: saved work summary and explicit current comparison survive HTTP with one-file overview and no writes
+ok 1 - saved work summary and explicit current comparison survive HTTP with one-file overview and no writes
+  ---
+  duration_ms: 1273.645518
+  type: 'test'
+  ...
+# Subtest: SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+ok 2 - SCN-020/022/032: loopback authenticated read journey, origin/method/selector boundaries, headers and unchanged tree
+  ---
+  duration_ms: 1238.776003
+  type: 'test'
+  ...
+# Subtest: SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+ok 3 - SCN-017/026: one active and one queued job, cancellation, deadline, and shutdown
+  ---
+  duration_ms: 463.149075
+  type: 'test'
+  ...
+# Subtest: SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+ok 4 - SCN-011/017: worker failure is bounded and retry succeeds without internal exception leakage
+  ---
+  duration_ms: 1374.781699
+  type: 'test'
+  ...
+# Subtest: SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+ok 5 - SCN-022/025: startup needs explicit valid target, build and port; fresh process invalidates secret
+  ---
+  duration_ms: 1563.639446
+  type: 'test'
+  ...
+# Subtest: SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+ok 6 - SCN-026: actual serialized response cap accepts exact byte limit and rejects one byte more
+  ---
+  duration_ms: 2252.766055
+  type: 'test'
+  ...
+# Subtest: SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+ok 7 - SCN-096/100: HTTP title batch requires opaque rows, replaces scope, rejects extras and keeps all sources unchanged
+  ---
+  duration_ms: 1648.986668
+  type: 'test'
+  ...
+# Subtest: authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding
+ok 8 - authenticated change wait wakes on atomic backlog replacement and preserves its snapshot binding
+  ---
+  duration_ms: 4833.866419
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15169.920583
+
+ RUN  v5.0.3 /private/tmp/agdf-cockpit-integration-work/packages/control-ui
+
+
+ Test Files  22 passed (22)
+      Tests  246 passed (246)
+   Start at  15:17:07
+   Duration  43.32s (tests 42%, environment 37%, import 18%, transform 3%)
+
+Environment  jsdom was created 22 times · 39.80s total, 37% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

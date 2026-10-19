@@ -4,7 +4,7 @@ import type { Envelope } from '../types';
 
 export class CockpitBridge {
   readonly app: McpApp;
-  constructor(name = 'AGDF Cockpit') { this.app = new McpApp({ name, version: '1.0.0' }, {}, { autoResize: true }); }
+  constructor(name = 'AGDF Cockpit', options = { autoResize: true }) { this.app = new McpApp({ name, version: '1.0.0' }, {}, options); }
   private pending = 0;
   private closing = new Map<string, ReturnType<McpApp['callServerTool']>>();
   private sessionId = '';

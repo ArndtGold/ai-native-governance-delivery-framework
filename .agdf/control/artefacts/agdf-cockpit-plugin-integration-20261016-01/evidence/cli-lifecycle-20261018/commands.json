@@ -1,0 +1,241 @@
+[
+  {
+    "label": "cli-version",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "--version"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0,
+    "seconds": 0.501
+  },
+  {
+    "label": "add-old-marketplace",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "add",
+      "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/old-data/marketplaces/agdf",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0,
+    "seconds": 0.669
+  },
+  {
+    "label": "install-old",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "add",
+      "agdf@agdf",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0,
+    "seconds": 0.535
+  },
+  {
+    "label": "old-mcp-list",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0,
+    "seconds": 0.484
+  },
+  {
+    "label": "generate-schema",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "app-server",
+      "generate-json-schema",
+      "--experimental",
+      "--out",
+      "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/schema"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0,
+    "seconds": 0.692
+  },
+  {
+    "label": "old-mcp-list",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "remove-old-marketplace",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "remove",
+      "agdf",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "add-candidate-marketplace",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "marketplace",
+      "add",
+      "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/candidate-data/marketplaces/agdf",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "install-candidate",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "add",
+      "agdf@agdf",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "updated-mcp-list",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "disabled-mcp-list",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "reenabled-mcp-list",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "remove-candidate",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "plugin",
+      "remove",
+      "agdf@agdf",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "removed-mcp-list",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  },
+  {
+    "label": "canary-readback",
+    "argv": [
+      "/Users/arndtgold/.npm-global/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "cwd": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/project",
+    "child_environment": {
+      "CODEX_HOME": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/codex-home",
+      "AGDF_DATA_DIR": "/private/tmp/agdf-codex-lifecycle-20261018-bNdZgv/isolated-data"
+    },
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "path": ".vite/build/sandbox-preload.js",
+    "sha256": "e24e4d655e339484eb0ef842393bebfa13fb86a7863350ef49cd6a63eb1bddfa",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "let e=require(\"electron\");var t=`initId`,n=`web-sandbox.oaiusercontent.com`,r=[`navigate`,`notifyMcpAppsHostContext`,`notifyMcpAppsToolCancelled`,`notifyMcpAppsToolInput`,`notifyMcpAppsToolResult`,`requestMcpAppsResourceTeardown`,`runWidgetCode`,`setAdditionalGlobals`,`setSafeArea`,`setTheme`,`setWidgetData`,`setWidgetView`],i=[`applyAutofillCandidate`,`getCurrentPath`,`notifyMcpAppsMcpNotification`,`prepareEnvironment`,`runUserCode`,`screenshot`,`stop`],a=[...r,...i];function o(e){return[n].some(t=>e===t||e.endsWith(`.${t}`))}function s(e){return/^[A-Za-z0-9_-]{1,128}$/.test(e)}function c(e,{requireSkybridge:t=!1}={}){let n=d(e);return n==null||t&&(n.pathname!==`/`||n.searchParams.get(`app`)!==`skybridge`)?null:`${n.protocol}//${n.host}`}function l(e){let n=u(e);if(n==null||n.hash.length===0)return null;let r=new UR"
+    ]
+  },
+  {
+    "path": ".vite/build/src-Dtwb7yKT.js",
+    "sha256": "a0e4b4b014f04a9391bcfa6a0d6f2b6703590daacf3591831a62fec809b2cb76",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      ":${Cl}:shared`,Tl=`codex-sandbox`,El=`initId`,Dl=`sandboxId`,Ol=`web-sandbox.oaiusercontent.com`,kl=[`navigate`,`notifyMcpAppsHostContext`,`notifyMcpAppsToolCancelled`,`notifyMcpAppsToolInput`,`notifyMcpAppsToolResult`,`requestMcpAppsResourceTeardown`,`runWidgetCode`,`setAdditionalGlobals`,`setSafeArea`,`setTheme`,`setWidgetData`,`setWidgetView`],Al=[`applyAutofillCandidate`,`getCurrentPath`,`notifyMcpAppsMcpNotification`,`prepareEnvironment`,`runUserCode`,`screenshot`,`stop`],jl=[...kl,...Al];function Ml(e){if(!Nl(e))return!1;let t=new Set(jl);return e.every(e=>t.has(e))}function Nl(e){if(e.some(e=>typeof e!=`string`))return!1;let t=new Set(e);return t.size===e.length&&kl.every(e=>t.has(e))}function Pl(e){return[Ol].some(t=>e===t||e.endsWith(`.${t}`))}function Fl(e){return/^[A-Za-z0-9_-]{1,128}$/.test(e)}function Il(e,{persist:t=!1}={}){"
+    ]
+  },
+  {
+    "path": ".vite/build/worker.js",
+    "sha256": "a23348d825dfa28e9b7b90cea45363ba09cb5192eab4ecc0febe12c808e3d930",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      ");return K({\"openai/outputTemplate\":t.nullable(),ui:e?n.catch(void 0):n,\"ui/resourceUri\":t})}var XF=[`navigate`,`notifyMcpAppsHostContext`,`notifyMcpAppsToolCancelled`,`notifyMcpAppsToolInput`,`notifyMcpAppsToolResult`,`requestMcpAppsResourceTeardown`,`runWidgetCode`,`setAdditionalGlobals`,`setSafeArea`,`setTheme`,`setWidgetData`,`setWidgetView`],ZF=[`applyAutofillCandidate`,`getCurrentPath`,`notifyMcpAppsMcpNotification`,`prepareEnvironment`,`runUserCode`,`screenshot`,`stop`];[...XF,...ZF];var QF=Y([`read`,`created`,`updated`]),$F=K({id:V().min(1),url:V().refine(eI),title:V().optional(),mimeType:V().optional(),activities:G(QF).min(1)});K({\"openai/resourceActivities\":K({version:X(1),resources:G($F)}).loose()}).loose(),K({\"openai/resourceActivities\":W().optional()}).loose();function eI(e){try{let t=new URL(e);return(t.protocol===`http:`||t"
+    ]
+  },
+  {
+    "path": "webview/assets/app-shared-52443cbe9ac4.js",
+    "sha256": "64e2b99444d28f5a0067e309a56912749763af09f9b27f083fce2d702a2b9fc3",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "t}:shared`,Ltt=`codex-sandbox`,Rtt=`initId`,ztt=`sandboxId`,Btt=`web-sandbox.oaiusercontent.com`,zX=[`navigate`,`notifyMcpAppsHostContext`,`notifyMcpAppsToolCancelled`,`notifyMcpAppsToolInput`,`notifyMcpAppsToolResult`,`requestMcpAppsResourceTeardown`,`runWidgetCode`,`setAdditionalGlobals`,`setSafeArea`,`setTheme`,`setWidgetData`,`setWidgetView`],Vtt=[`applyAutofillCandidate`,`getCurrentPath`,`notifyMcpAppsMcpNotification`,`prepareEnvironment`,`runUserCode`,`screenshot`,`stop`],Htt=[...zX,...Vtt]})))()}function Wtt(e){let t=Ytt.safeParse(e);if(!t.success||!(`openai/resourceActivities`in t.data))return{status:`absent`};let n=Jtt.safeParse(e);return n.success?{status:`valid`,resources:n.data[`openai/resourceActivities`].resources}:{status:`invalid`}}function Gtt(e){try{let t=new URL(e);return(t.protocol===`http:`||t.protocol===`https:`)&&t."
+    ]
+  },
+  {
+    "path": "webview/assets/mcp-sandbox-rpc-de24f095d1b4.js",
+    "sha256": "876dc370c20783c061c2f59fc129b93e7164e99d835247cfbd427ee80452d955",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 4,
+    "excerpts": [
+      "tart==`function`:!1}function D(e,t,n){let r=(e,r,i=!1)=>{let a=P(r,i?{}:{signal:t});return r=>h({operation:`App request`,starting:`Sending app request`},{safe:{...n,method:e}},async()=>a(r),{signal:i?void 0:t,quiet:e!==`requestMcpAppsResourceTeardown`&&e!==`navigate`})};return{applyAutofillCandidate:e.applyAutofillCandidate==null?void 0:r(`applyAutofillCandidate`,e.applyAutofillCandidate),getCurrentPath:e.getCurrentPath==null?void 0:r(`getCurrentPath`,e.getCurrentPath),navigate:r(`navigate`,e.navigate),notifyMcpAppsHostContext:r(`notifyMcpAppsHostContext`,e.notifyMcpAppsHostContext),notifyMcpAppsMcpNotification:e.notifyMcpAppsMcpNotification==null?null:r(`notifyMcpAppsMcpNotification`,e.notifyMcpAppsMcpNotification),notifyMcpAppsToolCancelled:r(`notifyMcpAppsToolCancelled`,e.notifyMcpAppsToolCancelled),notifyMcpAppsToolInput:r(`notifyMcpA",
+      "led:r(`notifyMcpAppsToolCancelled`,e.notifyMcpAppsToolCancelled),notifyMcpAppsToolInput:r(`notifyMcpAppsToolInput`,e.notifyMcpAppsToolInput),notifyMcpAppsToolResult:r(`notifyMcpAppsToolResult`,e.notifyMcpAppsToolResult),requestMcpAppsResourceTeardown:r(`requestMcpAppsResourceTeardown`,e.requestMcpAppsResourceTeardown,!0),runWidgetCode:I(e.runWidgetCode,t),setAdditionalGlobals:r(`setAdditionalGlobals`,e.setAdditionalGlobals),setSafeArea:r(`setSafeArea`,e.setSafeArea),setTheme:r(`setTheme`,e.setTheme),setWidgetData:r(`setWidgetData`,e.setWidgetData),setWidgetView:r(`setWidgetView`,e.setWidgetView)}}function O(e,t,n){function r(e,n,r,i){return k((...i)=>h({operation:`App request handling`,starting:`Handling app request`},{safe:{...t,method:e}},async()=>(r?.(),n(...i)),{quiet:e.startsWith(`notify`)||e===`sendInstrument`||e===`updateWidgetStat",
+      ",e.notifyMcpAppsToolCancelled),notifyMcpAppsToolInput:r(`notifyMcpAppsToolInput`,e.notifyMcpAppsToolInput),notifyMcpAppsToolResult:r(`notifyMcpAppsToolResult`,e.notifyMcpAppsToolResult),requestMcpAppsResourceTeardown:r(`requestMcpAppsResourceTeardown`,e.requestMcpAppsResourceTeardown,!0),runWidgetCode:I(e.runWidgetCode,t),setAdditionalGlobals:r(`setAdditionalGlobals`,e.setAdditionalGlobals),setSafeArea:r(`setSafeArea`,e.setSafeArea),setTheme:r(`setTheme`,e.setTheme),setWidgetData:r(`setWidgetData`,e.setWidgetData),setWidgetView:r(`setWidgetView`,e.setWidgetView)}}function O(e,t,n){function r(e,n,r,i){return k((...i)=>h({operation:`App request handling`,starting:`Handling app request`},{safe:{...t,method:e}},async()=>(r?.(),n(...i)),{quiet:e.startsWith(`notify`)||e===`sendInstrument`||e===`updateWidgetState`}),void 0,i)}return{...e.notifyA",
+      "ifyMcpAppsToolInput:r(`notifyMcpAppsToolInput`,e.notifyMcpAppsToolInput),notifyMcpAppsToolResult:r(`notifyMcpAppsToolResult`,e.notifyMcpAppsToolResult),requestMcpAppsResourceTeardown:r(`requestMcpAppsResourceTeardown`,e.requestMcpAppsResourceTeardown,!0),runWidgetCode:I(e.runWidgetCode,t),setAdditionalGlobals:r(`setAdditionalGlobals`,e.setAdditionalGlobals),setSafeArea:r(`setSafeArea`,e.setSafeArea),setTheme:r(`setTheme`,e.setTheme),setWidgetData:r(`setWidgetData`,e.setWidgetData),setWidgetView:r(`setWidgetView`,e.setWidgetView)}}function O(e,t,n){function r(e,n,r,i){return k((...i)=>h({operation:`App request handling`,starting:`Handling app request`},{safe:{...t,method:e}},async()=>(r?.(),n(...i)),{quiet:e.startsWith(`notify`)||e===`sendInstrument`||e===`updateWidgetState`}),void 0,i)}return{...e.notifyAutofillCandidates==null?{}:{notify"
+    ]
+  },
+  {
+    "path": "webview/assets/page-bootstrap-display.worker-2d2dac82a377.js",
+    "sha256": "894b53e2151a01a7cb8cfaa0135fa7e8eba87c6e262f87bcf1374a3f5a631122",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "return V({\"openai/outputTemplate\":t.nullable(),ui:e?n.catch(void 0):n,\"ui/resourceUri\":t})}const YD=[`navigate`,`notifyMcpAppsHostContext`,`notifyMcpAppsToolCancelled`,`notifyMcpAppsToolInput`,`notifyMcpAppsToolResult`,`requestMcpAppsResourceTeardown`,`runWidgetCode`,`setAdditionalGlobals`,`setSafeArea`,`setTheme`,`setWidgetData`,`setWidgetView`],XD=[`applyAutofillCandidate`,`getCurrentPath`,`notifyMcpAppsMcpNotification`,`prepareEnvironment`,`runUserCode`,`screenshot`,`stop`];[...YD,...XD];const ZD=W([`read`,`created`,`updated`]),QD=V({id:I().min(1),url:I().refine($D),title:I().optional(),mimeType:I().optional(),activities:B(ZD).min(1)});V({\"openai/resourceActivities\":V({version:G(1),resources:B(QD)}).loose()}).loose(),V({\"openai/resourceActivities\":z().optional()}).loose();function $D(e){try{let t=new URL(e);return(t.protocol===`http:`|"
+    ]
+  },
+  {
+    "path": "webview/assets/shared-snapshot-visualization-18715e412bb0.js",
+    "sha256": "3f8bc5ed9bd9ebb335fc441838ac4e26a5b538fbd6513680cecebfee80886731",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "=t,m(t),await ae({allowInteractions:!1,canExpand:!1,fragment:a,locale:s.locale,lockDocumentOverflow:!1,maxHeight:E,maxWidth:c.clientWidth-A,sandboxApi:t,signal:e.signal,styleVariables:C()}))}).catch(H),()=>{e.abort(),h?.requestMcpAppsResourceTeardown({timeoutMs:500}).catch(V)}},_=[n,r,a,c,s.locale,o],t[0]=n,t[1]=r,t[2]=a,t[3]=c,t[4]=s.locale,t[5]=o,t[6]=g,t[7]=_):(g=t[6],_=t[7]),(0,Z.useEffect)(g,_);let y,x;t[8]!==c||t[9]!==s.locale||t[10]!==h||t[11]!==p?(y=()=>{c!=null&&p!=null&&k({canExpand:!1,contentWidth:c.clientWidth-A,displayMode:`inline`,locale:s.locale,maxHeight:E,sandboxApi:p,styleVariables:C(),theme:h?`dark`:`light`}).catch(B)},x=[c,s.locale,h,p],t[8]=c,t[9]=s.locale,t[10]=h,t[11]=p,t[12]=y,t[13]=x):(y=t[12],x=t[13]),(0,Z.useEffect)(y,x);let S=u+A,w;t[14]===S?w=t[15]:(w={height:S},t[14]=S,t[15]=w);let D;t[16]===s?D=t[17]:(D=s.fo"
+    ]
+  },
+  {
+    "path": "webview/assets/visualization-directive-renderer-3144e5c5002d.js",
+    "sha256": "5fd91612f87498c198e2a93d58d2278b9a96879731d7c244a5ed6f3bc1cbfe51",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "INITIALIZATION_FAILED)}}),()=>{u.abort(),Qn.current===m&&(Qn.current=null),qe.current?.api===f&&(qe.current=null),c?.abort(`navigation_away`),Ie.current===c&&(Ie.current=null),ft(e=>e===f?null:e),yt==null?(f!=null&&ra(f.requestMcpAppsResourceTeardown({timeoutMs:500})),Y.removeAttribute(`src`)):yt.dispose()}},[Qe,t,i,a,p,ze,$e,w,yt,Ve,P,Ke,L,Y,bt,B,J,xt,W,Nr]),(0,Q.useEffect)(()=>{let e=Qn.current;e?.sandboxApi===ut&&e.sync()},[I,ut]);let Lr=K?.widgetId,Rr=K?.state;(0,Q.useEffect)(()=>{ut!=null&&Lr!=null&&ra(ut.setWidgetData({toolInput:null,toolOutput:null,toolResponseMetadata:null,widgetId:Lr,widgetState:Rr??null}))},[ut,Lr,Rr]),(0,Q.useEffect)(()=>{let e=qe.current;e?.api===ut&&R!=null&&e.update(R)},[ut,R]),(0,Q.useEffect)(()=>{if(!b||ut==null||Y==null||X&&(en==null||!en.isConnected))return;let e=ta(Y,Ve),t=()=>{ra(Cr({canExpand:Ye,conte"
+    ]
+  },
+  {
+    "path": "webview/assets/visualization-sandbox-broker-3a60e6146b82.js",
+    "sha256": "e2a29b48164682a4810066badb4c83ea3ff1f21d8387790530f92d8bc5ddd452",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "rSignal=t,t.addEventListener(`abort`,this.dispose,{once:!0}),this.cacheState!=null&&n?.(this.cacheState),this.api}dispose=()=>{this.disposed||(this.disposed=!0,this.handlers=null,this.activated&&this.api!=null&&this.api.requestMcpAppsResourceTeardown({timeoutMs:500}).catch(()=>{}),this.api=null,this.consumerSignal?.removeEventListener(`abort`,this.dispose),this.consumerSignal=null,this.controller.abort(),this.element.removeEventListener(`render-process-gone`,this.handleGuestExit),this.element.removeEventListener(`destroyed`,this.handleGuestExit),this.element.remove(),this.element.destroy?.(),this.onDispose(this))};handleGuestExit=()=>{this.activated||this.dispose()};activeHandlers(){if(this.handlers==null)throw Error(`Visualization sandbox is not active`);return this.handlers}}})))()}export{d as n,p as t};\n//# sourceMappingURL=visualizati"
+    ]
+  },
+  {
+    "path": "webview/assets/widget-2822a44259e7.js",
+    "sha256": "5182c5c46535bfc101391087036bf47652689440b06ac0951a706e3ee0820c04",
+    "term": "requestMcpAppsResourceTeardown",
+    "count": 1,
+    "excerpts": [
+      "`navigation_away`),p[Symbol.dispose](),ne[Symbol.dispose](),m?.[Symbol.dispose](),ht.current=null,_t.current=null,ct.current=null,lt.current=null,ut.current=null,rn(H(),w,{isWidgetReady:!1}),jt(null),Bt(jl),h!=null&&Z(h.requestMcpAppsResourceTeardown({timeoutMs:500})),r.remove(),r instanceof HTMLIFrameElement||r.destroy?.(),l.info(`Removed app sandbox`,{safe:{initId:P}}),Tt(e=>e===r?null:e)}},[W,Ee,Fe,Pe,Jn,Yn,Wt,cn,sn,ur,_n,g,vn,_,Be,q,f,h,o,c,ln,_e,dn,Mn,Pn,Fn,$n,Qn,tr,nr,mn,En,bn,Cn,Wn,Vn,In,zn,Bn,Gn,Kn,fn,Yt,Qt,un,N,Et,w,jr,Jt,Ar,Nr,Qr,Mr,Hr,F,Ft,$t,le]),(0,Q.useLayoutEffect)(()=>{Lt.setConversation(r).catch(e=>{l.warning(`Resource watch transfer failed`,{safe:{conversationId:r,mcpAppId:w},sensitive:{error:e,hostId:_}})})},[r,_,Lt,w]),(0,Q.useLayoutEffect)(()=>{Rt.setConversation(r,Ft&&ke).catch(e=>{l.warning(`Failed to rebind MCP eve"
+    ]
+  }
+]

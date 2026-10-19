@@ -1,0 +1,229 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "summary leads|work action leads"
+    ],
+    "configFile": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/playwright.config.mjs",
+    "rootDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/agdf-cockpit-browser-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "journeys.spec.mjs",
+      "file": "journeys.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "summary leads with the work step and stale reads never claim a missing Run or current control",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10140,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.work-step-prerequisites')\nExpected substring: \u001b[32m\"\u001b[7mVor der Weiterarbeit klär\u001b[27men\"\u001b[39m\nReceived string:    \u001b[31m\"\u001b[7mAktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffn\u001b[27men\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('.work-step-prerequisites') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.work-step-prerequisites')\u001b[22m\n\u001b[2m    14 × locator resolved to <div data-assessment=\"unconfirmed\" class=\"work-step-prerequisites\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"Aktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffnen\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.work-step-prerequisites')\nExpected substring: \u001b[32m\"\u001b[7mVor der Weiterarbeit klär\u001b[27men\"\u001b[39m\nReceived string:    \u001b[31m\"\u001b[7mAktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffn\u001b[27men\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('.work-step-prerequisites') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.work-step-prerequisites')\u001b[22m\n\u001b[2m    14 × locator resolved to <div data-assessment=\"unconfirmed\" class=\"work-step-prerequisites\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"Aktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffnen\"\u001b[22m\n\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:344:60",
+                    "location": {
+                      "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs",
+                      "column": 60,
+                      "line": 344
+                    },
+                    "snippet": "  342 |     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);\n  343 |     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);\n> 344 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');\n      |                                                            ^\n  345 |     await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');\n  346 |     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();\n  347 |     const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs",
+                        "column": 60,
+                        "line": 344
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.work-step-prerequisites')\nExpected substring: \u001b[32m\"\u001b[7mVor der Weiterarbeit klär\u001b[27men\"\u001b[39m\nReceived string:    \u001b[31m\"\u001b[7mAktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffn\u001b[27men\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('.work-step-prerequisites') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.work-step-prerequisites')\u001b[22m\n\u001b[2m    14 × locator resolved to <div data-assessment=\"unconfirmed\" class=\"work-step-prerequisites\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"Aktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffnen\"\u001b[22m\n\n\n  342 |     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);\n  343 |     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);\n> 344 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');\n      |                                                            ^\n  345 |     await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');\n  346 |     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();\n  347 |     const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:344:60"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6OTQ0NTgpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6OTQzOTApIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:46:18.728Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/journeys-summary-leads-wit-adc11-sing-Run-or-current-control/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs",
+                    "column": 60,
+                    "line": 344
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-46bb4ceab68f819d2b18",
+          "file": "journeys.spec.mjs",
+          "line": 333,
+          "column": 1
+        },
+        {
+          "title": "work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9255,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.work-step-action')\nExpected: \u001b[32m\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.work-step-action') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.work-step-action')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.work-step-action')\nExpected: \u001b[32m\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.work-step-action') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.work-step-action')\u001b[22m\n\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:523:53",
+                    "location": {
+                      "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs",
+                      "column": 53,
+                      "line": 523
+                    },
+                    "snippet": "  521 |     await page.locator('.run-link[data-focus-id=\\\"fixture-a\\\"]').click();\n  522 |     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();\n> 523 |     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);\n      |                                                     ^\n  524 |     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);\n  525 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');\n  526 |     await page.getByText('Nachweislücken im Run-Dokument · '+e.missing_evidence.length,{exact:true}).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs",
+                        "column": 53,
+                        "line": 523
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.work-step-action')\nExpected: \u001b[32m\"Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.work-step-action') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.work-step-action')\u001b[22m\n\n\n  521 |     await page.locator('.run-link[data-focus-id=\\\"fixture-a\\\"]').click();\n  522 |     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();\n> 523 |     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);\n      |                                                     ^\n  524 |     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);\n  525 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');\n  526 |     await page.getByText('Nachweislücken im Run-Dokument · '+e.missing_evidence.length,{exact:true}).click();\n    at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:523:53"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": "KG5vZGU6OTQ2NDUpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    },
+                    {
+                      "buffer": "KG5vZGU6OTQ2MDYpIFdhcm5pbmc6IFRoZSAnTk9fQ09MT1InIGVudiBpcyBpZ25vcmVkIGR1ZSB0byB0aGUgJ0ZPUkNFX0NPTE9SJyBlbnYgYmVpbmcgc2V0LgooVXNlIGBub2RlIC0tdHJhY2Utd2FybmluZ3MgLi4uYCB0byBzaG93IHdoZXJlIHRoZSB3YXJuaW5nIHdhcyBjcmVhdGVkKQo="
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-17T06:46:31.805Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test-results/journeys-work-action-leads-58151-ponsive-keyboard-navigation/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs",
+                    "column": 53,
+                    "line": 523
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4a79390d111f42c6b290-27713d657e03d43126d1",
+          "file": "journeys.spec.mjs",
+          "line": 511,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-17T06:46:09.176Z",
+    "duration": 32584.294,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,19 @@
+# Closed inline card size/order correction — 2026-10-18
+
+- Run: `agdf-cockpit-plugin-integration-20261016-01`.
+- Input revision: `cc78e83a-1beb-4665-aa5a-47b6d062c6bc` (34).
+- Scope: approved-TP presentation defect; no native-pass, source-waiver or legacy-retirement claim.
+
+The user clarified the unresolved symptom: after closing, the Chat card occupies almost the entire Chat, mostly blank, with content at its bottom. This is human visual evidence; the closed inline card remains inaccessible through the available CUA surface. It narrows the symptom to retained geometry/position but does not establish a measured Host height or an exact Host implementation defect.
+
+Source inspection found a concrete ordering gap: closeFromApp queued React closed state then immediately sent the public SDK teardown notification. The terminal DOM and its final size notification were therefore not guaranteed to be committed first. The previous one-time final measurement also ran in the expanded viewport and did not repeat when the Host later returned the retained card to inline mode. A changed wrapping width or Host sizing reset could leave an earlier height effective. This is a plausible path for the reported geometry, not proof that it is the sole native cause.
+
+The correction synchronously commits only the closed-state update after confirmed Core cleanup, before request-teardown. That commit runs the final layout measurement before the Host notification. On the observed return to inline mode, a per-session guard allows exactly one additional size measurement of the actual inline terminal content. Repeated mode changes cannot repeatedly emit that terminal inline measurement, and the SDK observer remains disconnected. Context invalidation, Core close ownership, the public notification and the stable closed-card message retain their semantics. No Host internals, private RPC, CSS mutation in a live Host or vendor patch is used.
+
+The retained-card regression now checks that the terminal DOM and initial size report already exist when requestTeardown is invoked. It then toggles fullscreen/inline repeatedly and checks one bounded inline adjustment, no restarted observer or reads, one Core close and one teardown request. Initial-run plus view-close: 31 tests pass. The final strengthened initial-run suite: 26 tests pass. TypeScript noEmit, MCP production build and diff whitespace check pass. These are synthetic/source checks; the preceding full UI suite (257 tests) remains prior evidence, not represented as freshly rerun for this increment.
+
+Prepared/installed candidate: `0.14.5+codex.local-b67439329b33`, source `b67439329b333d29911399da945b0205258b9b3e44bd6c0a30742acad5a83800`, Cockpit UI `sha256:932d094c506913b8dc795c50976515557bfa063fb40f739249e62d309b75c5d8`. Normal owned publication rollback, public Codex marketplace/plugin update and exact stable/cache/runtime readback are retained in evidence. Activation is pending plugin reload. The earlier comparison view is not converted into new-tuple proof; retained immutable runtimes preserve existing view ownership.
+
+The original legacy configuration remains unchanged and enabled. Native inline size/stability of this correction must be checked on a newly created card after activation. Older retained cards are not an observation of the new candidate. No native no-flicker claim, qualified publication, retirement, final CR or QA is asserted. Complete provider inventory and the approved transition requirements remain independent conditions.
+
+Evidence: `evidence/inline-terminal-size-20261018/` and SHA256SUMS. Continuity: `SDK_RESIZE_NATIVE_COUNTEREVIDENCE_20261018.md`, `SDK_RESIZE_CLEANUP_REPAIR_20261018.md`, `CLOSED_CARD_FLICKER_REPAIR_20261018.md`, `LEGACY_CUTOVER_REVIEW_20261018.md` and canonical CD_TESTS.md. Existing approvals retain their exact scope.

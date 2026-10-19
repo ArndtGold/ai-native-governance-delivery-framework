@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-17T11:04:14.669399+00:00",
+  "stages": [
+    {
+      "stage": "workspace-ui-build",
+      "argv": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "build:mcp"
+      ],
+      "exit_code": 0
+    },
+    {
+      "stage": "workspace-generated",
+      "argv": [
+        "node",
+        "scripts/sync-package-assets.js"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

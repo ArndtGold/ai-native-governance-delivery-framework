@@ -1,0 +1,321 @@
+{
+  "result": {
+    "status": "error",
+    "error": {
+      "code": -32600,
+      "data": {
+        "config_write_error_code": "configLayerReadonly"
+      },
+      "message": "Only writes to the user config are allowed"
+    }
+  },
+  "raw": [
+    {
+      "id": 1,
+      "result": {
+        "userAgent": "Codex Desktop/0.163.0 (Mac OS 15.7.7; x86_64) dumb (agdf_isolated_lifecycle_probe; 1)",
+        "codexHome": "/private/tmp/agdf-cockpit-cli-instance/codex-home",
+        "platformFamily": "unix",
+        "platformOs": "macos"
+      }
+    },
+    {
+      "method": "remoteControl/status/changed",
+      "params": {
+        "status": "disabled",
+        "serverName": "Arndts-iMac.Goldstar",
+        "installationId": "9f63a131-7ba1-4b35-9118-cbc6dc1487ae",
+        "environmentId": null
+      },
+      "emittedAtMs": 1792168042562
+    },
+    {
+      "id": 2,
+      "result": {
+        "config": {
+          "model": "gpt-6.1-sol",
+          "review_model": null,
+          "model_context_window": null,
+          "model_auto_compact_token_limit": null,
+          "model_auto_compact_token_limit_scope": null,
+          "model_provider": null,
+          "approval_policy": null,
+          "approvals_reviewer": null,
+          "sandbox_mode": null,
+          "sandbox_workspace_write": null,
+          "forced_chatgpt_workspace_id": null,
+          "forced_login_method": null,
+          "web_search": null,
+          "tools": null,
+          "instructions": null,
+          "developer_instructions": null,
+          "compact_prompt": null,
+          "model_reasoning_effort": null,
+          "model_reasoning_summary": null,
+          "model_verbosity": null,
+          "service_tier": null,
+          "analytics": null,
+          "apps": null,
+          "browser_use": null,
+          "computer_use": null,
+          "desktop": null,
+          "experimental_thread_store": null,
+          "plugins": {
+            "agdf@agdf": {
+              "enabled": false
+            }
+          },
+          "features": {
+            "api_key_cyber_access_programs": true,
+            "api_key_model_discovery": true,
+            "auth_elicitation": true,
+            "background_paginated_rollout_migration": false,
+            "codex_apps_mcp_2026_07_28": false,
+            "mcp_2026_07_28": false,
+            "memories": false,
+            "mentions_v2": true,
+            "remote_control": false,
+            "remote_plugin": true,
+            "tool_suggest": true,
+            "windows_sandbox_service": false
+          },
+          "personality": null,
+          "tool_suggest": null,
+          "mcp_enterprise_managed_auth": null,
+          "profile": null,
+          "model_post_turn_compact_threshold_percent": null,
+          "allow_login_shell": true,
+          "include_environment_context_time": true,
+          "chatgpt_base_url": "https://chatgpt.com/backend-api/",
+          "apps_mcp_product_sku": null,
+          "allow_symlinked_codex_home": null,
+          "model_instructions_file": null,
+          "experimental_realtime_ws_backend_prompt": null,
+          "projects": {
+            "/private/tmp/agdf-cockpit-cli-instance/project": {
+              "trust_level": "trusted"
+            }
+          },
+          "disable_paste_burst": null,
+          "windows": null,
+          "ghost_snapshot": null,
+          "mcp_servers": {
+            "unrelated-fixture": {
+              "command": "/usr/bin/false",
+              "args": [],
+              "environment_id": "local",
+              "enabled": false,
+              "tool_timeout_sec": null
+            }
+          },
+          "include_environment_context": true,
+          "mcp_oauth_callback_port": null,
+          "include_apps_instructions": true,
+          "thread_unload_delay_secs": null,
+          "plan_mode_reasoning_effort": null,
+          "openai_base_url": null,
+          "project_doc_max_bytes": 32768,
+          "js_repl_node_path": null,
+          "file_opener": "vscode",
+          "show_raw_agent_reasoning": null,
+          "model_catalog_json": null,
+          "responses_api_metadata": null,
+          "orchestrator": null,
+          "background_terminal_max_timeout": 300000,
+          "profiles": {},
+          "log_dir": null,
+          "tool_output_token_limit": null,
+          "realtime": null,
+          "experimental_realtime_ws_startup_context": null,
+          "otel": null,
+          "oss_provider": null,
+          "include_permissions_instructions": true,
+          "sqlite_home": null,
+          "cli_auth_credentials_store": "file",
+          "project_doc_fallback_filenames": [],
+          "js_repl_node_module_dirs": null,
+          "default_permissions": null,
+          "hooks": null,
+          "experimental_realtime_webrtc_call_base_url": null,
+          "notify": null,
+          "project_root_markers": [
+            ".git"
+          ],
+          "cloud": null,
+          "experimental_compact_prompt_file": null,
+          "mcp_oauth_credentials_store": "auto",
+          "include_collaboration_mode_instructions": true,
+          "suppress_unstable_features_warning": null,
+          "experimental_thread_store_endpoint": null,
+          "tui": null,
+          "check_for_update_on_startup": null,
+          "goals": null,
+          "daybreak": null,
+          "mcp_oauth_callback_url": null,
+          "feedback": null,
+          "experimental_use_unified_exec_tool": null,
+          "experimental_realtime_ws_model": null,
+          "auto_review": null,
+          "shell_environment_policy": {
+            "inherit": null,
+            "ignore_default_excludes": null,
+            "exclude": null,
+            "set": null,
+            "include_only": null,
+            "filters": null,
+            "experimental_use_profile": null
+          },
+          "experimental_realtime_start_instructions": null,
+          "experimental_realtime_ws_base_url": null,
+          "permissions": null,
+          "skills": null,
+          "marketplaces": {
+            "agdf": {
+              "last_updated": null,
+              "last_revision": null,
+              "source_type": "local",
+              "source": "/private/tmp/agdf-cockpit-cli-instance/agdf-data/marketplaces/agdf",
+              "ref": null,
+              "sparse_paths": null
+            }
+          },
+          "audio": null,
+          "notice": null,
+          "memories": null,
+          "mcp_optional_startup_grace_ms": null,
+          "hide_agent_reasoning": false,
+          "agents": null,
+          "model_providers": {},
+          "history": {
+            "persistence": "save-all",
+            "max_bytes": null
+          }
+        },
+        "origins": {
+          "plugins.agdf@agdf.enabled": {
+            "name": {
+              "type": "project",
+              "dotCodexFolder": "/private/tmp/agdf-cockpit-cli-instance/project/.codex"
+            },
+            "version": "sha256:9b0537c2306492ee1118f19f2fd11465dc317f2ccbbbc25bf9abe92e65c8da0d"
+          },
+          "mcp_servers.unrelated-fixture.enabled": {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402"
+          },
+          "projects./private/tmp/agdf-cockpit-cli-instance/project.trust_level": {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402"
+          },
+          "mcp_servers.unrelated-fixture.command": {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402"
+          },
+          "marketplaces.agdf.source_type": {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402"
+          },
+          "marketplaces.agdf.source": {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402"
+          },
+          "model": {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402"
+          }
+        },
+        "layers": [
+          {
+            "name": {
+              "type": "project",
+              "dotCodexFolder": "/private/tmp/agdf-cockpit-cli-instance/project/.codex"
+            },
+            "version": "sha256:9b0537c2306492ee1118f19f2fd11465dc317f2ccbbbc25bf9abe92e65c8da0d",
+            "config": {
+              "plugins": {
+                "agdf@agdf": {
+                  "enabled": false
+                }
+              }
+            }
+          },
+          {
+            "name": {
+              "type": "user",
+              "file": "/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml",
+              "profile": null
+            },
+            "version": "sha256:b523cc473fc2dd4a75056d3c76f51f0c6b8d9eea7931dcdbba92ea975b17e402",
+            "config": {
+              "model": "gpt-6.1-sol",
+              "projects": {
+                "/private/tmp/agdf-cockpit-cli-instance/project": {
+                  "trust_level": "trusted"
+                }
+              },
+              "marketplaces": {
+                "agdf": {
+                  "source_type": "local",
+                  "source": "/private/tmp/agdf-cockpit-cli-instance/agdf-data/marketplaces/agdf"
+                }
+              },
+              "mcp_servers": {
+                "unrelated-fixture": {
+                  "command": "/usr/bin/false",
+                  "enabled": false
+                }
+              },
+              "plugins": {
+                "agdf@agdf": {
+                  "enabled": true
+                }
+              }
+            }
+          },
+          {
+            "name": {
+              "type": "system",
+              "file": "/etc/codex/config.toml"
+            },
+            "version": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "config": {}
+          }
+        ]
+      }
+    },
+    {
+      "error": {
+        "code": -32600,
+        "data": {
+          "config_write_error_code": "configLayerReadonly"
+        },
+        "message": "Only writes to the user config are allowed"
+      },
+      "id": 3
+    }
+  ]
+}

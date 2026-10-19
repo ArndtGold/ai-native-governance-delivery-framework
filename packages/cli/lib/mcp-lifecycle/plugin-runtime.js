@@ -68,6 +68,14 @@ export function sdkOverrideActive(env = process.env) {
   return env?.[SDK_OVERRIDE_ENV] === "1";
 }
 
+// The launcher and lifecycle qualification bind to the same shipped sources.
+export function pluginMcpRuntimeIdentity(pluginRoot) {
+  const version = pluginMcpVersion(pluginRoot);
+  return Object.freeze({ version, digest: digestDirectory(join(pluginRoot, 'mcp/server')),
+    dispatcherDigest: digestPluginMcpDispatcherSource(join(pluginRoot, 'runtime/create-agdf'), version),
+    sdkDigest: readPluginSdkBundle(pluginRoot).expected.sdk_digest });
+}
+
 export function ensurePluginMcpRuntime({
   pluginRoot,
   dataRoot,
@@ -87,8 +95,7 @@ export function ensurePluginMcpRuntime({
   const mcpDataRoot = join(realpathSync(resolve(dataRoot)), "mcp");
   if (existsSync(mcpDataRoot) && lstatSync(mcpDataRoot).isSymbolicLink()) throw Error('AGDF_MCP_RUNTIME_UNOWNED');
   mkdirSync(mcpDataRoot, { recursive: true });
-  const sourceServerDigest = digestDirectory(join(pluginRoot, "mcp", "server"));
-  const sourceDispatcherDigest = digestPluginMcpDispatcherSource(join(pluginRoot, "runtime", "create-agdf"), version);
+  const { digest: sourceServerDigest, dispatcherDigest: sourceDispatcherDigest } = pluginMcpRuntimeIdentity(pluginRoot);
   // Keep old, foreign and unclaimed roots intact. Same-version updates publish
   // another content-addressed package, rather than moving executing files away.
   const key = createHash('sha256').update(JSON.stringify({ version, server: sourceServerDigest,
@@ -181,6 +188,10 @@ export function parseLauncherArguments(argv, env = {}) {
   if (args.length === 2 && args[0] === "--cockpit-dir" && typeof args[1] === "string" && isAbsolute(args[1]) && !args[1].includes("${")) {
     return { surface: "claude", dataRoot: env.CLAUDE_PLUGIN_DATA, cockpitDir: args[1], prepareOnly };
   }
+  if (args.length === 5 && args[0] === '--surface' && args[1] === 'codex' && args[2] === '--data'
+    && typeof args[3] === 'string' && isAbsolute(args[3]) && !args[3].includes('${') && !args[3].includes('{{') && args[4] === '--cockpit') {
+    return { surface: 'codex', dataRoot: args[3], cockpitMode: 'plugin', prepareOnly };
+  }
   if (args.length === 4 && args[0] === "--surface" && ["codex", "copilot"].includes(args[1]) && args[2] === "--data"
       && typeof args[3] === "string" && isAbsolute(args[3])) {
     return { surface: args[1], dataRoot: args[3], prepareOnly };
@@ -230,12 +241,12 @@ export async function launchPluginMcpServer({
   ensure = ensurePluginMcpRuntime,
   acquireClaim = acquireMcpExecutableClaim,
   execPath = process.execPath,
-  startFacade = async ({ runtime, surface, cockpitDir, pluginRoot, env, publicationDeadline }) => {
+  startFacade = async ({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }) => {
     // The facade's Core resource binding reads the plugin root from the environment it is
     // loaded under; bind it on the injected environment before the dynamic import.
     env.AGDF_DISPATCH_PLUGIN_ROOT = pluginRoot;
     const { runMcpServer } = await import(pathToFileURL(join(runtime.packageRoot, "src/main.js")));
-    return runMcpServer({ surface, cockpitDir, ownedPublication: runtime, ownedPublisher: createMcpGenerationPublisher(runtime, { publicationDeadline }) });
+    return runMcpServer({ surface, cockpitDir, cockpitMode, ownedPublication: runtime, ownedPublisher: createMcpGenerationPublisher(runtime, { publicationDeadline }) });
   },
 } = {}) {
   const invocation = parseLauncherArguments(argv, env);
@@ -244,7 +255,7 @@ export async function launchPluginMcpServer({
     process.exitCode = 1;
     return null;
   }
-  const { surface, dataRoot, cockpitDir, prepareOnly } = invocation;
+  const { surface, dataRoot, cockpitDir, cockpitMode, prepareOnly } = invocation;
   const publicationDeadline = performance.now() + CONCURRENT_PUBLICATION_WAIT_MS;
   let runtime;
   try {
@@ -273,7 +284,7 @@ export async function launchPluginMcpServer({
       ? error.message : 'AGDF_MCP_EXECUTABLE_CLAIM_INVALID';
     stderr.write(`${launcherFailureLine(code)}\n`); process.exitCode = 1; return null;
   }
-  try { return await startFacade({ runtime, surface, cockpitDir, pluginRoot, env, publicationDeadline }); }
+  try { return await startFacade({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, env, publicationDeadline }); }
   catch (error) {
     const code = Object.hasOwn(LAUNCHER_FAILURES, error?.message) ? error.message : 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';
     stderr.write(`${launcherFailureLine(code, 'facade')}\n`); process.exitCode = 1; return null;

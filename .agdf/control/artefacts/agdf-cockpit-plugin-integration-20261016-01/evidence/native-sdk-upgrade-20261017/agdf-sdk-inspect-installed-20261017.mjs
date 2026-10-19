@@ -1,0 +1,28 @@
+import {readFileSync,writeFileSync,existsSync,realpathSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {inspectCodexCockpitPlugin} from '/private/tmp/agdf-cockpit-cli-source/packages/cli/lib/mcp-lifecycle/adapters/codex.js';
+import {pluginMcpRuntimeIdentity} from '/private/tmp/agdf-cockpit-cli-source/packages/cli/lib/mcp-lifecycle/plugin-runtime.js';
+import {inspectMcpExecutableRoot} from '/private/tmp/agdf-cockpit-cli-source/packages/cli/lib/mcp-lifecycle/package.js';
+const base='/private/tmp/agdf-sdk-native-upgrade-20261017';
+const read=p=>JSON.parse(readFileSync(p,'utf8'));
+const result=read(base+'/native-install-result.json');
+const expected=read(base+'/candidate-package.json');
+const version=result.plugin?.version?.installed;
+if(result.failure || result.plugin?.failure || result.plugin?.version?.status!=='verified'||version!==expected.prepared.codexInstallVersion)throw Error('Native installation is not verified at the expected candidate');
+const stable='/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf';
+const cache='/Users/arndtgold/.codex/plugins/cache/agdf/agdf/'+version;
+const records=[stable,cache].map(pluginRoot=>{
+ const provenance=inspectCodexCockpitPlugin(pluginRoot),identity=pluginMcpRuntimeIdentity(pluginRoot);
+ const ui=read(pluginRoot+'/mcp/server/ui/manifest.json');
+ const uiHash='sha256:'+createHash('sha256').update(readFileSync(pluginRoot+'/mcp/server/ui/cockpit.html')).digest('hex');
+ if(provenance.status!=='matched'||provenance.digest!=='sha256:'+expected.prepared.sourceDigest||JSON.stringify(identity)!==JSON.stringify(expected.runtime)||uiHash!==expected.ui.digest||ui.digest!==expected.ui.digest)throw Error('Installed bytes do not match the tested candidate: '+pluginRoot);
+ return {pluginRoot,provenance,identity,ui,actual_ui_digest:uiHash};
+});
+const i=expected.runtime;
+const key=createHash('sha256').update(JSON.stringify({version:i.version,server:i.digest,dispatcher:i.dispatcherDigest,sdk:i.sdkDigest,verification:'verified'})).digest('hex');
+const runtimeRoot='/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/'+key+'/'+i.version;
+const runtime=existsSync(runtimeRoot)?inspectMcpExecutableRoot({root:runtimeRoot,expectedVersion:i.version}):{status:'absent',root:runtimeRoot};
+if(runtime.status==='matched'&&(runtime.digest!==i.digest||runtime.dispatcherDigest!==i.dispatcherDigest||runtime.sdkDigest!==i.sdkDigest))throw Error('Published runtime differs from tested plugin');
+const value={schema_version:1,authorizes:false,native_qualified:false,observed_at:new Date().toISOString(),installed_version:version,source_digest:expected.prepared.sourceDigest,core_runtime_digest:expected.prepared.runtimeDigest,records,runtime,expected_server_module:runtimeRoot+'/node_modules/@agdf/mcp-server/src/server.js',activation:result.plugin.activation,restart:result.restart};
+const out=base+'/installed-tuple.json';if(existsSync(out))throw Error('Refuse tuple overwrite');writeFileSync(out,JSON.stringify(value,null,2)+'\n');
+console.log(JSON.stringify({path:out,installed_version:version,source_digest:value.source_digest,runtime_status:runtime.status,runtime_root:runtimeRoot,ui:expected.ui.digest,activation:value.activation}));

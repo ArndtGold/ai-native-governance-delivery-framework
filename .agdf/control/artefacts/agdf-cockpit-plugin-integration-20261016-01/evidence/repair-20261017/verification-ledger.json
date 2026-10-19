@@ -1,0 +1,156 @@
+{
+  "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+  "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "baseline_commit": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+  "assurance": "cooperative_local",
+  "completed_at": "2026-10-17T08:15:34.638556+00:00",
+  "aggregate_result": "all required local automated checks passed; CD+Tests revise only for outstanding native visible-UI obligations",
+  "canonical_repository_lane": {
+    "command": "npm run verify:ci",
+    "profile": "ci",
+    "lane": "repository",
+    "exit_code": 0,
+    "resumed": false,
+    "stages": [
+      "dependencies",
+      "maintenance",
+      "shell",
+      "ui-dependencies",
+      "ui-build",
+      "generate",
+      "build-contracts",
+      "evals",
+      "compatibility-freshness",
+      "assemble",
+      "prepare",
+      "mcp-dependencies",
+      "runtime",
+      "community",
+      "host-compatibility",
+      "built-runtime",
+      "cli-package",
+      "wrapper-package",
+      "transactions",
+      "delivery-map",
+      "mcp-package",
+      "archives",
+      "cli-smoke",
+      "wrapper-smoke",
+      "pages-install",
+      "pages"
+    ],
+    "all_stages_passed": true,
+    "log": "agdf-cockpit-repair-verify-ci-20261017.log"
+  },
+  "focused_results": {
+    "core_cockpit": {
+      "passed": 61,
+      "failed": 0
+    },
+    "ui_http": {
+      "passed": 8,
+      "failed": 0
+    },
+    "ui_components": {
+      "passed": 236,
+      "failed": 0
+    },
+    "browser": {
+      "startTime": "2026-10-17T07:02:20.616Z",
+      "duration": 248815.405,
+      "expected": 44,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "locale_validation": "pass",
+    "cockpit_stdio": "pass",
+    "scoped_reader_stdio": "pass"
+  },
+  "canonical_performance": {
+    "result": {
+      "node": "v22.22.3",
+      "platform": "darwin-x64",
+      "runs": 20,
+      "cold_tools_list_ms": [
+        909.609,
+        1026.894,
+        850.016,
+        820.967,
+        824.061,
+        812.735,
+        828.541,
+        849.987,
+        818.817,
+        824.752,
+        837.46,
+        852.939,
+        838.246,
+        796.63,
+        818.262,
+        1267.707,
+        889.413,
+        807.738,
+        803.93,
+        797.193
+      ],
+      "cold_p95_ms": 1026.894,
+      "warm_dispatch_ms": [
+        713.567,
+        676.371,
+        693.401,
+        666.07,
+        673.127,
+        731.12,
+        674.695,
+        682.624,
+        667.079,
+        678.611,
+        704.917,
+        716.705,
+        671.324,
+        669.526,
+        656.294,
+        670.784,
+        673.292,
+        723.289,
+        724.733,
+        654.715
+      ],
+      "warm_p95_ms": 724.733
+    },
+    "limits_ms": {
+      "cold": 1500,
+      "warm": 1000
+    },
+    "test_source": "packages/mcp-server/test/performance.test.js",
+    "test_sha256": "2f606993e96db8adac6a2022005a65d57b07e508805bab1a573745cf84f57eb0",
+    "test_unchanged_from_baseline": true,
+    "canonical_repository_lane": true,
+    "passed": true
+  },
+  "compatibility": {
+    "status": "pass",
+    "evaluated": 56,
+    "failed": 0,
+    "source_fingerprint": "6590756d05f858dcff08ba18c7f4cdb83d47ed595d37abb53de07059f1edd47e"
+  },
+  "source_files": 56,
+  "all_final_source_files_match_test_snapshot": true,
+  "native_visible_ui": {
+    "executed": false,
+    "cli_transport_is_substitute": false,
+    "real_legacy_retirement_performed": false,
+    "active_desktop_candidate_installed": false
+  },
+  "current_config_digests": {
+    ".codex/config.toml": "20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8",
+    "user_config": "8d679c4eb79ea0cd8bc999ed9d955c387176481e63ed4d5dfa554ed5b34d0601"
+  },
+  "vcs": {
+    "head": "16d088885fc2d0383f3850a4bbd20789a8b8ff0f",
+    "commit_created": false,
+    "push": false,
+    "public_release": false
+  }
+}

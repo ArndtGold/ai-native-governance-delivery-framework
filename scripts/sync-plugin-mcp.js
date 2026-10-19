@@ -96,17 +96,20 @@ function copyText(source, destination, expected, root) {
 
 // Writes the runtime plugin's mcp/ directory: the shared launcher and server copy plus one declaration per
 // host whose plugin starts the server itself (Claude Code, and Codex as an installer-completed template).
-// `cockpitUi` (a verified build from cockpit-ui-build.mjs) selects the Claude cockpit variant.
-export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi, decisionUi } = {}) {
+// UI bytes and host declarations are selected together; shipping Codex UI does not enable Claude.
+export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi, decisionUi, surface } = {}) {
   if (!pluginRoot || resolve(pluginRoot) !== pluginRoot) throw new Error("Plugin MCP sync requires an absolute pluginRoot.");
   if (!["shared", "copilot"].includes(profile)) throw new Error("Plugin MCP sync requires a supported profile.");
   if (cockpitUi && profile !== "shared") throw new Error("Plugin MCP cockpit variant requires the shared profile.");
   if (decisionUi && profile !== 'shared') throw new Error('Decision UI requires the shared profile.');
+  if (surface !== undefined && !['all', 'codex', 'claude', 'copilot', 'opencode'].includes(surface)) throw new Error('Plugin MCP surface invalid.');
+  const codexCockpit = Boolean(cockpitUi) && ['all', 'codex'].includes(surface);
+  const claudeCockpit = Boolean(cockpitUi) && (surface === undefined || surface === 'claude');
   const mcpRoot = join(pluginRoot, "mcp");
   mkdirSync(mcpRoot, { recursive: true });
   const expected = new Set(["agdf-mcp-launch.js"]);
   if (profile === "shared") {
-    writeFileSync(join(mcpRoot, "claude.mcp.json"), `${JSON.stringify(claudePluginMcpConfig({ cockpit: Boolean(cockpitUi) }), null, 2)}\n`, "utf8");
+    writeFileSync(join(mcpRoot, "claude.mcp.json"), `${JSON.stringify(claudePluginMcpConfig({ cockpit: claudeCockpit }), null, 2)}\n`, "utf8");
     expected.add("claude.mcp.json");
   }
   writeFileSync(join(mcpRoot, "agdf-mcp-launch.js"), LAUNCHER, "utf8");
@@ -116,7 +119,7 @@ export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi, decis
     expected.add(`sdk/${name}`);
   }
   writeFileSync(join(pluginRoot, CODEX_PLUGIN_MCP_FILE),
-    profile === "shared" ? renderCodexPluginMcpConfig() : renderCopilotPluginMcpConfig(), "utf8");
+    profile === "shared" ? renderCodexPluginMcpConfig({ cockpit: codexCockpit }) : renderCopilotPluginMcpConfig(), "utf8");
   for (const entry of SERVER_ENTRIES) {
     copyText(join(serverSourceRoot, entry), join(mcpRoot, "server", entry), expected, mcpRoot);
   }

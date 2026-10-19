@@ -217,6 +217,8 @@ function createHandlers({
         surface: options.surface,
         scope: options.scope ?? "project",
         target: options.dir,
+        ...(options.retireCockpit || options.restoreCockpit ? { retireCockpit: options.retireCockpit,
+          restoreCockpit: options.restoreCockpit, cockpitEvidence: options.stepFields.evidence } : {}),
         env,
         exec,
       });
@@ -356,7 +358,7 @@ function installPluginPayload(surface, options, consent, pluginConfiguration, de
     return installOpenCodePluginPayload(pluginConfiguration, consent, dependencies);
   }
   const installed = surface === "codex"
-    ? installCodexGlobalPlugin(dependencies.installerAdapters)
+    ? installCodexGlobalPlugin({ ...dependencies.installerAdapters, target: options.dir })
     : surface === "claude"
       ? installClaudeGlobalPlugin(dependencies.installerAdapters)
       : installCopilotGlobalPlugin(dependencies.installerAdapters);
@@ -506,7 +508,7 @@ function installNextAction(surface, runtimeChecks, fallback) {
 function installResult(installed, { restartRequired, nextAction, runtimeChecks, consentFailure }) {
   return createLifecycleResult({
     operation: installed.operation ?? "install",
-    result: consentFailure ? "partial" : "success",
+    result: consentFailure || installed.cockpitTransition?.state === 'qualification_pending' ? "partial" : "success",
     surface: installed.surface,
     scope: "global",
     version: { expected: installed.expectedVersion, installed: installed.installedVersion, status: installed.installedVersion ? "verified" : "unknown" },

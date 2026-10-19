@@ -26,12 +26,12 @@ process.on('message', async input => {
     if (input.kind === 'qualify') {
       if (runtime || starting || closing) throw Error('generation_already_initialized');
       starting = true;
-      const { surface, commandGroups, cockpitDir } = input.payload;
+      const { surface, commandGroups, cockpitDir, cockpitMode } = input.payload;
       const inspected = inspectMcpDispatcherRuntime();
       if (inspected.provenanceStatus !== 'matched') throw Error('runtime_provenance_invalid');
-      runtime = cockpitDir ? await createMcpCockpitRuntime({ surface, cockpitDir, inspected })
+      runtime = cockpitDir || cockpitMode ? await createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected })
         : createMcpDispatchRuntime({ surface, commandGroups, inspected });
-      if (!cockpitDir && surface === 'codex') {
+      if (!cockpitDir && !cockpitMode && surface === 'codex') {
         const ui = { uri: DECISION_UI_URI, mimeType: 'text/html;profile=mcp-app', limit: 4 * 1024 ** 2, kind: 'decision' };
         ui.digest = loadCockpitResource(ui).digest;
         runtime = await createMcpDecisionRuntime({ runtime, ui });

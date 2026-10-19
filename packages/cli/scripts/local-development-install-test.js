@@ -510,10 +510,12 @@ try {
   const codexLifecycleOutput = [];
   assert.equal(await runCli(["codex", "--json"], {
     parser: { cwd: fixtureRoot },
+    env: { ...process.env, CODEX_HOME: join(fixtureRoot, 'codex-home'), AGDF_DATA_DIR: marketplaceDataRoot },
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log(value) { codexLifecycleOutput.push(value); }, error(value) { codexLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: marketplaceDataRoot, builtPluginRoot, codexInstallVersion: localVersion }),
     exec(executable, args) {
+      if (args.join(' ') === 'mcp list --json') return '[]';
       if (args.join(" ") === "plugin marketplace list --json") {
         return JSON.stringify({ marketplaces: [{ name: "agdf", marketplaceSource: { sourceType: "local", source: projected.root } }] });
       }

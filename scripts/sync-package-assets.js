@@ -622,9 +622,9 @@ export function syncPackageAssets({
   // The runtime plugin root is shared by Codex and Claude Code; it always carries the plugin-local
   // MCP launcher so `claude plugin uninstall` removes the MCP registration and its runtime.
   syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, mcpRuntime: true });
-  // Only the Claude build carries the cockpit app; it needs the verified control-ui MCP build first.
-  syncPluginMcp({ pluginRoot: generatedCodexPluginRoot, decisionUi: readDecisionUiBuild(), cockpitUi: surface === "claude"
-    ? readCockpitUiBuild({ failure: `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the Claude build.` })
+  // Codex and Claude use explicit declaration profiles with the same verified UI build.
+  syncPluginMcp({ pluginRoot: generatedCodexPluginRoot, surface, decisionUi: readDecisionUiBuild(), cockpitUi: ['all', 'codex', 'claude'].includes(surface)
+    ? readCockpitUiBuild({ failure: `AGDF_COCKPIT_UI_BUILD_REQUIRED: run ${COCKPIT_UI_BUILD_COMMAND}, then retry the ${surface} build.` })
     : undefined });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
   write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));

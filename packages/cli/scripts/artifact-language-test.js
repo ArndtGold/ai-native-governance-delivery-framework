@@ -48,17 +48,32 @@ try {
     assert.equal(r.error, undefined);
     return JSON.parse(r.stdout);
   };
-  const germanUr = (root) => readFileSync(join(root, ".agdf/control/templates/artefacts/UR.md"), "utf8")
-    .replace("# UR: <Title>", "# UR: subtract ergänzen")
-    .replace("Requirements clarification: open", "Requirements clarification: complete")
-    .replace("Which people or roles experience the problem and benefit from the outcome?", "Aufrufer der bestehenden Rechenbibliothek benötigen Subtraktion.")
-    .replace("What is explicitly not part of this UR?", "Keine Änderung an add und keine weiteren Rechenfunktionen.")
-    .replace("How will we know the need is clear enough for PRD?", "Subtraktion ist als eigene Funktion mit einem passenden Test beschrieben.")
-    .replace("Which existing repository artefacts, docs, code paths or decisions must be respected?", "Die bestehende add-Funktion und die Testkonvention bleiben maßgeblich.")
-    .replace("Which questions must Brownfield Review, PRD, SD or later implementation-preparation Brownfield Analysis clarify?", "Keine materielle Bedarfsfrage ist offen; technische Eigentümer werden im Brownfield Review geprüft.")
-    .replace(/(## 1\. Problem\n\n)[^\n]+/u, "$1Die Bibliothek bietet nur add und keine Subtraktion.")
-    .replace(/(## 2\. Goal\n\n)[^\n]+/u, "$1Die Bibliothek exportiert zusätzlich subtract mit einem Test.")
-    .replace(/(## 3\. Scope\n\n)[^\n]+/u, "$1Eine neue Funktion und ein Test, sonst keine Änderungen.");
+  const germanUr = (root) => {
+    const bodies = new Map([
+      ["Problem", "Die Bibliothek bietet nur add und keine Subtraktion."],
+      ["Goal", "Die Bibliothek exportiert zusätzlich subtract mit einem Test."],
+      ["Affected Users", "Aufrufer der bestehenden Rechenbibliothek benötigen Subtraktion."],
+      ["Scope", "Eine neue Funktion und ein Test, sonst keine Änderungen."],
+      ["Non-Goals", "Keine Änderung an add und keine weiteren Rechenfunktionen."],
+      ["Acceptance Signals", "Subtraktion ist als eigene Funktion mit einem passenden Test beschrieben."],
+      ["Existing Source Of Truth", "Die bestehende add-Funktion und die Testkonvention bleiben maßgeblich."],
+      ["Risks And Unknowns", "Keine materielle Bedarfsfrage ist offen; technische Eigentümer werden im Brownfield Review geprüft."],
+      ["Next Step", "Den konkreten Bedarf prüfen, danach die bestehenden Eigentümer im Brownfield Review klären."],
+    ]);
+    // Author complete section bodies: template guidance and example paths are
+    // not requirements, including when the template gains another paragraph.
+    return readFileSync(join(root, ".agdf/control/templates/artefacts/UR.md"), "utf8")
+      .replace("# UR: <Title>", "# UR: subtract ergänzen")
+      .replace("Requirements clarification: open", "Requirements clarification: complete")
+      .split(/^##[ \t]+/mu)
+      .map((block, index) => {
+        if (!index) return block;
+        const heading = block.split("\n", 1)[0];
+        const key = heading.replace(/^\d+\.[ \t]*/u, "").trim();
+        assert.ok(bodies.has(key), `UR fixture must author the ${key} section`);
+        return `## ${heading}\n\n${bodies.get(key)}\n\n`;
+      }).join("");
+  };
 
   const prepare = (name, language, content) => {
     const root = join(temporary, name);

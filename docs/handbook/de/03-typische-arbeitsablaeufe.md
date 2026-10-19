@@ -141,14 +141,34 @@ sein.
 Wenn sich ein Bedienablauf anhand von Text schwer beurteilen lässt, hilft eine gezielte UI-Vorschau
 im Gespräch. Spiele eine konkrete Aufgabe durch, etwa: „Finde heraus, was geprüft wurde, erkenne das
 offene Risiko und entscheide, ob du freigeben kannst.“ Zeige Ausgangszustand, Aktion, Ergebnis und
-relevante Wege nach einem Fehler. Nutze bei Bedarf ein verfügbares Visualisierungswerkzeug; eine
-Skizze oder ein beschriebener Szenariodurchlauf erfüllt denselben Zweck.
+relevante Wege nach einem Fehler. Nutze bei Bedarf ein verfügbares Visualisierungswerkzeug.
+
+Ist eine Vorschau ausdrücklich beauftragt, hält bereits das UR ihren Zweck, die Szenarien, die
+benötigte Interaktion und den Zeitpunkt der Abstimmung fest. Die UX-Klärung erstellt sie später und
+legt eine dauerhaft öffnungsfähige Version unter
+`.agdf/control/artefacts/<run_id>/previews/<name>-v1/index.html` ab. Der Bereich
+`runs/<run_id>/` bleibt dem Steuerungszustand vorbehalten. Eine neue Vorschauversion erhält einen
+neuen Pfad; UX-Analyse und PRD verweisen auf dieselbe geprüfte Version mit Dateiprüfsummen und
+Beobachtungsgrenzen. Eine Anzeige nur im Chat erfüllt diesen Run-Auftrag nicht.
+
+Bei einem frei gewählten Hilfsmittel kann auch eine Skizze oder ein beschriebener Durchlauf genügen.
+Eine ausdrücklich verlangte interaktive Vorschau darf dadurch nicht stillschweigend ersetzt werden.
+Ist sie nicht möglich, bleibt der Auftrag offen, bis ein konkreter Lösungsweg oder eine ausdrücklich
+vereinbarte Änderung des Umfangs vorliegt.
 
 Halte Szenario, tatsächliche Rückmeldungen und ungeprüfte Annahmen in der UX-Analyse fest. Überführe
 bestätigtes Verhalten bei der PRD-Abstimmung in Akzeptanzkriterien und dokumentiere wesentliche
 Entscheidungen in Approval Decisions. Das PRD muss ohne die Vorschau verständlich bleiben.
 Interaktionen im Prototyp bleiben lokal; Zustimmung zum Entwurf erteilt keine Freigabe und belegt
 keine funktionierende Implementierung oder Host-Integration. Es entsteht kein zusätzliches Gate.
+
+Bei der PRD-Freigabe gehört die beauftragte Vorschau zur Prüfgrundlage: Die Vorlage nennt die
+Prüfaufgabe, ermöglicht den Zugriff auf die passende Version und erläutert, welche Kriterien damit
+bestätigt werden. Die Freigabe bedeutet „So soll es funktionieren“ und erlaubt den anschließenden
+Lösungsentwurf. Sie bestätigt keine bereits fertige Implementierung. Änderungen erfordern eine
+aktuelle Vorlage; offene Produktentscheidungen bleiben vor der Freigabe zu klären. Die dedizierte
+Einbindung und Versionsprüfung durch Core und Host sind noch umzusetzen und praktisch nachzuweisen;
+ein Vorschau-Link im Dokument allein erfüllt diese technische Integration nicht.
 
 ## Fünf typische Fehlentwicklungen
 

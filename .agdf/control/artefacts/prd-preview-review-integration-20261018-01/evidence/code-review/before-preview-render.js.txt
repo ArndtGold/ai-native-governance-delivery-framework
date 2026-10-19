@@ -1,0 +1,106 @@
+import { parse, serialize } from 'parse5';
+import postcss from 'postcss';
+import { posix } from 'node:path';
+
+export const PREVIEW_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; worker-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+const fail = reason => { throw Error(`preview_${reason}`); };
+const decode = bytes => { try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch { fail('encoding_invalid'); } };
+const dataUrl = file => `data:${file.media_type};base64,${file.data.toString('base64')}`;
+const attr = (node, name) => node.attrs?.find(a => a.name === name)?.value;
+const set = (node, name, value) => { const a = node.attrs?.find(a => a.name === name); if (a) a.value = value; else (node.attrs ??= []).push({ name, value }); };
+const children = node => node.childNodes ?? [];
+const walk = (node, fn) => { fn(node); for (const child of children(node)) walk(child, fn); if (node.content) walk(node.content, fn); };
+const replace = (node, tag, content) => {
+  node.tagName = node.nodeName = tag; node.attrs = (node.attrs ?? []).filter(a => ['id', 'media'].includes(a.name));
+  node.childNodes = [{ nodeName: '#text', value: content, parentNode: node }];
+};
+
+// One deliberately bounded resource grammar. Ambiguous/unsupported syntax fails,
+// rather than silently omitting a resource needed for the user's review.
+export function renderPreview(descriptor, files) {
+  const resources = new Map(files.map(file => [file.path, file]));
+  const local = (url, from, types) => {
+    if (typeof url !== 'string' || !url || /[%\\\s?#<>"']/u.test(url) || url.startsWith('/') || /^[a-z][a-z0-9+.-]*:/iu.test(url)) fail('resource_unsupported');
+    const path = posix.join(posix.dirname(from), url), prefix = posix.dirname(descriptor.entry) + '/';
+    const file = resources.get(path);
+    if (!path.startsWith(prefix) || !file || !types.includes(file.media_type)) fail('resource_undeclared');
+    return file;
+  };
+  const css = (source, from, stack = []) => {
+    if (stack.includes(from) || stack.length > 32) fail('resource_cycle');
+    let tree;
+    try { tree = postcss.parse(source, { from: undefined }); } catch { fail('css_invalid'); }
+    tree.walkAtRules(rule => {
+      if (rule.name.toLowerCase() === 'import') {
+        const match = rule.params.match(/^(?:["']([^"']+)["']|url\(\s*["']?([^"'()\s]+)["']?\s*\))$/iu);
+        if (!match) fail('resource_unsupported');
+        const file = local(match[1] ?? match[2], from, ['text/css']);
+        rule.replaceWith(postcss.parse(css(decode(file.data), file.path, [...stack, from])).nodes);
+      } else if (/url\s*\(|\\/iu.test(rule.params)) fail('resource_unsupported');
+    });
+    tree.walkDecls(decl => {
+      if (/\\|\/\*/u.test(decl.value)) fail('resource_unsupported');
+      decl.value = decl.value.replace(/url\(\s*(?:"([^"]*)"|'([^']*)'|([^\s()"']+))\s*\)/giu, (all, a, b, c) => {
+        const url = a ?? b ?? c;
+        if (/^#[A-Za-z][\w.-]*$/u.test(url)) return `url("${url}")`;
+        return `url("${dataUrl(local(url, from, ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']))}")`;
+      });
+      // Every surviving url must be one of the generated data URLs or local SVG fragments.
+      if (/url\s*\(/iu.test(decl.value.replace(/url\("(?:data:image\/[\w+.-]+;base64,[A-Za-z0-9+/=]+|#[\w.-]+)"\)/gu, ''))) fail('resource_unsupported');
+    });
+    return tree.toString();
+  };
+  const doc = parse(decode(resources.get(descriptor.entry).data));
+  walk(doc, node => {
+    if (!node.tagName) return;
+    const tag = node.tagName.toLowerCase();
+    if (['base', 'iframe', 'frame', 'frameset', 'object', 'embed', 'form', 'portal', 'foreignobject', 'template'].includes(tag)) fail('markup_unsupported');
+    for (const a of node.attrs ?? []) {
+      if (['srcset', 'srcdoc', 'action', 'formaction', 'ping', 'target', 'download', 'manifest', 'poster', 'background'].includes(a.name)
+        || a.name.startsWith('on') || a.name.includes(':') || a.name === 'xmlns') fail('markup_unsupported');
+    }
+    if (tag === 'meta' && attr(node, 'http-equiv') !== undefined) fail('markup_unsupported');
+    if (tag === 'script') {
+      if (attr(node, 'type') && !['text/javascript', 'application/javascript'].includes(attr(node, 'type').toLowerCase())
+        || ['async', 'defer', 'nomodule', 'integrity', 'crossorigin'].some(name=>attr(node,name)!==undefined)) fail('script_unsupported');
+      const src = attr(node, 'src');
+      const code = src ? decode(local(src, descriptor.entry, ['text/javascript']).data) : children(node).map(c => c.value ?? '').join('');
+      // Raw script closing tags cannot be safely embedded from separate files.
+      if (/<\/script/iu.test(code)) fail('script_unsupported');
+      replace(node, 'script', code);
+    } else if (tag === 'link') {
+      if (attr(node, 'rel')?.toLowerCase() !== 'stylesheet' || !attr(node, 'href')) fail('resource_unsupported');
+      const file = local(attr(node, 'href'), descriptor.entry, ['text/css']);
+      const code = css(decode(file.data), file.path);
+      if (/<\/style/iu.test(code)) fail('markup_unsupported');
+      replace(node, 'style', code);
+    } else if (tag === 'style') {
+      const code = css(children(node).map(c => c.value ?? '').join(''), descriptor.entry);
+      if (/<\/style/iu.test(code)) fail('markup_unsupported');
+      replace(node, 'style', code);
+    } else {
+      if (attr(node, 'src') !== undefined) {
+        if (tag !== 'img') fail('resource_unsupported');
+        set(node, 'src', dataUrl(local(attr(node, 'src'), descriptor.entry, ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'])));
+      }
+      if (attr(node, 'href') !== undefined && !/^#[A-Za-z][\w.-]*$/u.test(attr(node, 'href'))) fail('navigation_unsupported');
+    }
+    if (attr(node, 'style') !== undefined) set(node, 'style', css(attr(node, 'style'), descriptor.entry));
+  });
+  // Extra declared source files still bind exact bytes. They cannot be resolved by
+  // authored dynamic paths; the CSP grants no file/network access.
+  const head = children(children(doc).find(n => n.tagName === 'html')).find(n => n.tagName === 'head');
+  const meta = { nodeName: 'meta', tagName: 'meta', namespaceURI: 'http://www.w3.org/1999/xhtml', attrs: [
+    { name: 'http-equiv', value: 'Content-Security-Policy' }, { name: 'content', value: PREVIEW_CSP },
+  ], childNodes: [], parentNode: head };
+  head.childNodes.unshift(meta);
+  const body = children(children(doc).find(n => n.tagName === 'html')).find(n => n.tagName === 'body');
+  const ready = { nodeName: 'script', tagName: 'script', namespaceURI: 'http://www.w3.org/1999/xhtml', attrs: [], parentNode: body,
+    childNodes: [{ nodeName: '#text', value: 'addEventListener("message",e=>{if(e.source===parent&&e.data?.type==="agdf-preview-ping")parent.postMessage({type:"agdf-preview-content-ready"},"*")});parent.postMessage({type:"agdf-preview-content-ready"},"*")' }] };
+  ready.childNodes[0].parentNode = ready;
+  body.childNodes.push(ready);
+  const source = serialize(doc).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+  // The standalone snapshot carries its own opaque-origin frame too. Opening the
+  // retained view in a browser never gives authored scripts file-page authority.
+  return '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; frame-src about:; img-src data:; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0}iframe{display:block;width:100%;height:96vh;border:0}</style></head><body><iframe title="Illustrative preview" sandbox="allow-scripts" referrerpolicy="no-referrer" srcdoc="' + source + '"></iframe><script>const f=document.querySelector("iframe");let timer;f.addEventListener("load",()=>{clearTimeout(timer);timer=setTimeout(()=>parent.postMessage({type:"agdf-preview-unavailable"},"*"),300);f.contentWindow.postMessage({type:"agdf-preview-ping"},"*")});addEventListener("message",e=>{if(e.source===f.contentWindow&&e.data?.type==="agdf-preview-content-ready"){clearTimeout(timer);parent.postMessage({type:"agdf-preview-ready"},"*")}})</script></body></html>';
+}

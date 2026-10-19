@@ -1,0 +1,83 @@
+{
+  "schema_version": "1",
+  "outcome": "rejected",
+  "reason": "gate_not_ready",
+  "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+  "request_digest": "sha256:3c775522033c33b9132c78d479cbdb43bdcf04207c4805a2cf9186934695d7fc",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+    "kind": "approval.record"
+  },
+  "effect": null,
+  "receipt": null,
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 22,
+    "revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+    "lifecycle": "active",
+    "gate": "UAT",
+    "status": "open",
+    "missing_approval": "Approval: UAT",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "human_gate_decision",
+      "operation_key": "approval.record",
+      "actor": "human",
+      "effect": "decision",
+      "gate": "UAT"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "rejected",
+    "reason": "gate_not_ready",
+    "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+    "request_digest": "sha256:bc4977c5c09c63bc2da828c100e8e27fd412e3e58d2ad80f0bb6dbb39379624b",
+    "binding": {
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "prd-preview-review-integration-20261018-01",
+      "gate": "UAT",
+      "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+      "presentation_id": "bc4f4624-3d44-4e02-bce5-79b4f8c39023"
+    },
+    "effect": null,
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "current": {
+      "available": true,
+      "revision": 22,
+      "revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+      "approval_status": "missing",
+      "lifecycle": "active",
+      "gate": "UAT",
+      "status": "blocked",
+      "missing_approval": "Approval: UAT",
+      "next_allowed_action": "Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.",
+      "blocking_reason": "AGDF_DECISION_CONTENT_INCOMPLETE"
+    },
+    "observations": {
+      "commit": "no_receipt_acknowledged",
+      "durability": "unconfirmed",
+      "independent_human_proof": "unavailable"
+    },
+    "recovery": "Follow current.next_allowed_action. For a changed binding, prepare the current presentation and obtain a NEW deliberate reply; never rebind an earlier reply."
+  }
+}

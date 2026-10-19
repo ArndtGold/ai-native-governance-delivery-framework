@@ -3,6 +3,7 @@ import { resolvedArtefactFile } from "./run-state.js";
 import { evaluatePrdCriteriaReadiness } from "./traceability-readiness.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from "../control-state/run-presentation-render.js";
+import { previewForState } from '../control-state/preview-review.js';
 
 export const PRD_DECISION_FORMAT = Object.freeze({ section: "Approval Decisions", columns: Object.freeze(["Decision", "Timing", "Status", "Resolution", "Owner"]),
   timings: Object.freeze(["before_prd", "later_sd", "later_tp"]), statuses: Object.freeze(["resolved", "open", "deferred"]), owner_field: "Owner:" });
@@ -21,6 +22,7 @@ export function evaluatePrdReadiness(targetDir, runState, { presentationLanguage
     return { ready: false, open_decisions: ["Approval Decisions table is empty or malformed"] };
   }
   const open = [];
+  try { previewForState(targetDir, runState); } catch (error) { open.push(error.message); }
   const seen = new Set();
   const incomplete = (value) => !value || /^(?:<|tbd\b|to confirm\b)/iu.test(value);
   for (const [decision, timing, status, resolution, owner, ...extra] of rows.slice(2)) {

@@ -1,0 +1,66 @@
+{
+  "environment": {
+    "node": "22.22.3",
+    "os": "darwin",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "command": "node packages/core/test/preview-material-test.js && node packages/core/test/preview-render-test.js && node packages/core/test/preview-presentation-test.js && node packages/core/test/preview-session-test.js",
+      "exit_code": 0,
+      "log": "preview-final.log"
+    },
+    {
+      "command": "node packages/core/test/presentation-document-test.js && node packages/core/test/presentation-decision-test.js && node packages/core/test/decision-action-test.js && node packages/core/test/qa-deviation-acceptance-test.js",
+      "exit_code": 0,
+      "log": "core-regressions.log"
+    },
+    {
+      "command": "vitest run && npm run typecheck (packages/control-ui)",
+      "exit_code": 0,
+      "log": "components-final.log",
+      "tests": 269
+    },
+    {
+      "command": "npm --prefix packages/control-ui run test:browser -- preview-review.spec.mjs decision-card.spec.mjs decision-close-integration.spec.mjs",
+      "exit_code": 0,
+      "log": "browser-final.log",
+      "tests": 19
+    },
+    {
+      "command": "vitest run test/preview-review.test.tsx && npm run typecheck && npm run build:mcp (packages/control-ui)",
+      "exit_code": 0,
+      "log": "ui-final-build.log"
+    },
+    {
+      "command": "node scripts/check-package-boundaries.mjs && npm --prefix packages/cli run test:interaction-catalog && npm --prefix packages/cli run test:agent-skills-conformance && npm --prefix packages/mcp-server run test:contract",
+      "exit_code": 0,
+      "log": "contracts-boundary.log"
+    },
+    {
+      "command": "node /private/tmp/agdf-review-final-pack.mjs",
+      "retained_harness": "packed-smoke.mjs",
+      "exit_code": 0,
+      "log": "packed-final.log"
+    },
+    {
+      "command": "npm run compatibility:record",
+      "exit_code": 0,
+      "log": "compatibility-final.log",
+      "evaluated": 56,
+      "failed": 0
+    },
+    {
+      "command": "node scripts/test-clean-checkout.mjs",
+      "exit_code": 0,
+      "log": "clean-final.log"
+    },
+    {
+      "command": "npm --prefix packages/mcp-server run test:package && npm run compatibility:check && node scripts/check-community-health.mjs && AGDF_RUNTIME_INTEGRITY_ROOT=<repository>/packages/cli/generated/plugins/agdf node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs && git diff --check",
+      "exit_code": 0,
+      "log": "final-contracts.log"
+    }
+  ],
+  "first_attempts": "The original red regression output is retained. An initial concurrent fixture route assertion did not expose its child output; diagnostics were strengthened, and both an isolated presentation rerun and the complete final four-program chain passed. No unobserved environmental cause is asserted. Frame signal ordering was also corrected rather than weakening its assertions.",
+  "server_tests": "The first full UI command passed all eight server tests before stopping at its then-failing component regression. Server source was unchanged by the later listener-timing correction; final component and browser suites passed."
+}

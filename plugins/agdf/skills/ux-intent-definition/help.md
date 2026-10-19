@@ -11,8 +11,9 @@
 Produces structured `ready | blocked | not_applicable` PRD input for user intent, success, working
 modes, effective state, visible ownership, activation, blockers, recovery and transitions. It is an
 internal non-authorizing analysis and fails closed when product semantics or evidence are unresolved.
-Uses focused UI previews or scenario walkthroughs when they help clarify a user task; preserves
-findings as proposed PRD criteria without adding a gate or requiring a visualization tool.
+Preserves explicit preview commitments from UR scope, stores versioned reopenable previews in the
+bound run's artefact directory and maps observed findings to proposed PRD criteria. Optional aids
+can use a scenario walkthrough; a required interactive preview cannot silently become text.
 
 ## SEE ALSO
 

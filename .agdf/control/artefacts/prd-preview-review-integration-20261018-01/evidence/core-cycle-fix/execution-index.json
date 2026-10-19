@@ -1,0 +1,101 @@
+{
+  "recorded_at": "2026-10-19T06:34:35.112897+00:00",
+  "environment": {
+    "node": "22.22.3",
+    "os": "darwin",
+    "arch": "x64"
+  },
+  "checks": [
+    {
+      "name": "final-boundary",
+      "command": "node scripts/check-package-boundaries.mjs",
+      "exit_code": 0,
+      "evidence": "final-boundary.log"
+    },
+    {
+      "name": "clean-strict",
+      "command": "node scripts/test-clean-checkout.mjs",
+      "exit_code": 0,
+      "evidence": "clean-strict.log"
+    },
+    {
+      "name": "run-flow",
+      "command": "npm --prefix packages/cli run test:run-command-flow",
+      "exit_code": 0,
+      "evidence": "run-flow.log"
+    },
+    {
+      "name": "package",
+      "command": "npm --prefix packages/cli run test:control-command-package",
+      "exit_code": 0,
+      "evidence": "package.log"
+    },
+    {
+      "name": "revision",
+      "command": "node packages/core/test/expanded-source-revision-test.js && node packages/core/test/expanded-revision-recovery-test.js && node packages/core/test/early-ur-revision-test.js && node packages/core/test/run-source-revisions-test.js",
+      "exit_code": 0,
+      "evidence": "revision.log",
+      "log_scope": "Fourth entrypoint only; first three streamed to host, tail retained separately; complete chain exit 0 observed"
+    },
+    {
+      "name": "policy-history",
+      "command": "node packages/core/test/control-state-test.js && node packages/core/test/next-action-test.js && node packages/core/test/parent-reconciliation-test.js && node packages/core/test/history-read-bounds-test.js && node packages/core/test/large-run-revision-test.js",
+      "exit_code": 0,
+      "evidence": "policy-history.log"
+    },
+    {
+      "name": "document-final",
+      "command": "node packages/core/test/presentation-document-test.js",
+      "exit_code": 0,
+      "evidence": "document-final.log"
+    },
+    {
+      "name": "verification",
+      "command": "npm run test:verification",
+      "exit_code": 0,
+      "evidence": "verification.log"
+    },
+    {
+      "name": "community",
+      "command": "node scripts/community-health-test.mjs",
+      "exit_code": 0,
+      "evidence": "community.log"
+    },
+    {
+      "name": "mcp-package",
+      "command": "npm --prefix packages/mcp-server run test:package",
+      "exit_code": 0,
+      "evidence": "mcp-package.log"
+    },
+    {
+      "name": "integrity-final",
+      "command": "node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs with explicit AGDF_RUNTIME_INTEGRITY_ROOT",
+      "exit_code": 0,
+      "evidence": "integrity-final.log"
+    },
+    {
+      "name": "compatibility-record",
+      "command": "npm run compatibility:record",
+      "exit_code": 0,
+      "evidence": "compatibility-record.log"
+    },
+    {
+      "name": "community-final",
+      "command": "npm run compatibility:check && node scripts/check-community-health.mjs && git diff --check",
+      "exit_code": 0,
+      "evidence": "community-final.log"
+    },
+    {
+      "name": "final-packed",
+      "command": "node /private/tmp/agdf-cycle-final-pack.mjs",
+      "exit_code": 0,
+      "evidence": "final-packed.log",
+      "retained_harness": "final-pack-smoke.mjs"
+    }
+  ],
+  "earlier_failures_superseded": [
+    "clean-first-failure.log",
+    "compatibility-stale-initial.log"
+  ],
+  "noncanonical_clean_result": "Not accepted as final evidence; executable path-alias gap corrected and rerun"
+}

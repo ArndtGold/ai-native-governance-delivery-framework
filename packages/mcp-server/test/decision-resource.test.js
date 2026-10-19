@@ -12,6 +12,8 @@ import { COCKPIT_MIME } from '../../core/lib/control-inspect/cockpit-contract.js
 import { MCP_APP_UI_EXTENSION } from '../src/ui-capability.js';
 import { readDecisionUiBuild } from '../../../scripts/cockpit-ui-build.mjs';
 import { DECISION_APP_OBSERVATIONS } from '../../core/lib/runtime/plugin-provenance.js';
+import { createPrdDefinitionTestRun } from '../../cli/scripts/fixtures/prd-definition.js';
+import { previewFixture } from '../../core/test/fixtures/preview-review.js';
 const fixture = createOwnedRuntimeFixture(), root = fixture.governanceTarget, cli = join(fixture.dispatcherRoot, 'bin/create-agdf.js');
 try {
   const f = createSdDefinitionTestRun(root, cli, 'actual-package-decision', process.env, { typedApprovals: true });
@@ -78,6 +80,29 @@ try {
     assert.equal(names.includes('agdf_decision_action'), false);
   });
   assert.equal(readFileSync(f.state, 'utf8'), before, 'Preparation, capability advertisement, read, non-qualified choices and teardown cannot decide.');
+  const prd=createPrdDefinitionTestRun(root,cli,'packaged-preview',process.env,{typedApprovals:true,previewRequirement:true});
+  const preview=previewFixture(root,prd.runId,readFileSync(prd.file('UR.md'),'utf8'));
+  writeFileSync(prd.file('PRD.md'),preview.prd());assert.equal(prd.record().value.outcome,'recorded');
+  const previewState=readFileSync(prd.state,'utf8');
+  for(const capabilities of [ui,{}]) await withStdioClient({...fixture,capabilities},async client=>{
+    const input={schema_version:'1',presentation_language:'en',working_directory:root,target_source:'explicit_target',primary_target:root,
+      target_id:resolveControlCommandTarget(root).target_id,run_id:prd.runId,expected_revision_id:prd.revision(),operation_id:randomUUID(),assurance:'cooperative_local',
+      command:{kind:'presentation.prepare',payload:{gate:'PRD'}}};
+    const prepared=await client.callTool({name:'agdf_prepare',arguments:input});
+    assert.equal(prepared.structuredContent.outcome,'accepted',JSON.stringify(prepared));
+    const access=prepared.structuredContent.presentation_delivery.preview_review;
+    assert.equal(access.version,'review-v1');assert.equal(access.operation,'presentation-preview');assert.equal(access.access_state,'not_observed');
+    assert.ok(prepared.structuredContent.presentation_delivery.instruction.includes('review remains open'));
+    const inspected=await client.callTool({name:'agdf_inspect',arguments:{operation:access.operation,presentation_language:'en',working_directory:root,primary_target:root,target_source:'explicit_target',
+      target_id:access.target_id,run_id:access.run_id,gate:access.gate,expected_revision_id:access.expected_revision_id,presentation_id:access.presentation_id}});
+    assert.equal(inspected.structuredContent.report.available,true,JSON.stringify(inspected));assert.equal(inspected.structuredContent.report.content_digest,access.content_digest);
+    if(prepared._meta?.agdf_decision){const view=prepared._meta.agdf_decision;
+      const read=await client.callTool({name:'agdf_cockpit_read',arguments:{operation:'preview',session_id:view.read_session_id,snapshot_id:view.snapshot_id,resource_id:view.preview.resource_id,run_id:prd.runId}});
+      assert.equal(read.structuredContent.state,'available',JSON.stringify(read));assert.equal(read.structuredContent.data.preview.content_digest,access.content_digest);
+    }
+    assert.equal(readFileSync(prd.state,'utf8'),previewState);
+  });
+  console.log('Packaged preview: actual STDIO Core preparation/session/stateless reads and honest unsupported Chat access passed without approval.');
   // Positive loader contract on an explicitly synthetic host/evidence tuple.
   // This does not qualify the real Codex app, its mediation or human decisions.
   const markerPath = join(fixture.root, '.agdf-mcp-owned.json'), marker = JSON.parse(readFileSync(markerPath, 'utf8'));

@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "a62db699-1450-448b-a8f3-88f82be7570a",
+  "request_digest": "sha256:ce9c1ffef71538b01962a94128675ac4fb8fe321e384d8721cc3b90dbd8bd5be",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "expected_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+    "kind": "step.record"
+  },
+  "effect": {
+    "previous_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+    "resulting_revision_id": "d26297fd-0b94-436d-b526-c9d2270c02c0",
+    "revision": 16,
+    "record": {
+      "step": "evidence",
+      "source": {
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_REVIEW_FIXES_EVIDENCE.md",
+        "digest": "sha256:8f4b282261ab5f48270396054a76adb374489e56ce7f71272b7b6dc19b8dcf81"
+      },
+      "status": "done",
+      "covers": "Five corrected preview implementation findings; fresh Core, UI, browser, exact package, adapter, integrity and clean-source checks.",
+      "source_set_digest": "sha256:56752a30cc5139cf16cbc287d068edbe8b77e5d4a667012fb507078a954af6f5"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "step.record",
+    "operation_id": "a62db699-1450-448b-a8f3-88f82be7570a",
+    "request_digest": "sha256:ce9c1ffef71538b01962a94128675ac4fb8fe321e384d8721cc3b90dbd8bd5be",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "expected_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+    "created_at": "2026-10-19T07:03:49.370Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+      "resulting_revision_id": "d26297fd-0b94-436d-b526-c9d2270c02c0",
+      "revision": 16,
+      "record": {
+        "step": "evidence",
+        "source": {
+          "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_REVIEW_FIXES_EVIDENCE.md",
+          "digest": "sha256:8f4b282261ab5f48270396054a76adb374489e56ce7f71272b7b6dc19b8dcf81"
+        },
+        "status": "done",
+        "covers": "Five corrected preview implementation findings; fresh Core, UI, browser, exact package, adapter, integrity and clean-source checks.",
+        "source_set_digest": "sha256:56752a30cc5139cf16cbc287d068edbe8b77e5d4a667012fb507078a954af6f5"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 16,
+    "revision_id": "d26297fd-0b94-436d-b526-c9d2270c02c0",
+    "lifecycle": "active",
+    "gate": "CR",
+    "status": "open",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": {
+      "type": "review_implementation",
+      "skill_id": "code-review",
+      "operation_key": "review.code",
+      "actor": "agent",
+      "effect": "preparation",
+      "gate": "CR"
+    },
+    "completion": {
+      "status": "pending",
+      "gate": "OR",
+      "fulfilled": false
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "prd-preview-review-integration-20261018-01",
+    "step": "evidence",
+    "previous_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+    "revision": "16",
+    "revision_id": "d26297fd-0b94-436d-b526-c9d2270c02c0",
+    "current_gate": "CR",
+    "next_allowed_action": "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+    "backlog": "updated",
+    "operation_id": "a62db699-1450-448b-a8f3-88f82be7570a",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "step.record",
+      "operation_id": "a62db699-1450-448b-a8f3-88f82be7570a",
+      "request_digest": "sha256:ce9c1ffef71538b01962a94128675ac4fb8fe321e384d8721cc3b90dbd8bd5be",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "prd-preview-review-integration-20261018-01",
+      "expected_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+      "created_at": "2026-10-19T07:03:49.370Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "b8533f68-7c56-48fc-aca2-11d443b3956b",
+        "resulting_revision_id": "d26297fd-0b94-436d-b526-c9d2270c02c0",
+        "revision": 16,
+        "record": {
+          "step": "evidence",
+          "source": {
+            "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_REVIEW_FIXES_EVIDENCE.md",
+            "digest": "sha256:8f4b282261ab5f48270396054a76adb374489e56ce7f71272b7b6dc19b8dcf81"
+          },
+          "status": "done",
+          "covers": "Five corrected preview implementation findings; fresh Core, UI, browser, exact package, adapter, integrity and clean-source checks.",
+          "source_set_digest": "sha256:56752a30cc5139cf16cbc287d068edbe8b77e5d4a667012fb507078a954af6f5"
+        }
+      }
+    }
+  }
+}

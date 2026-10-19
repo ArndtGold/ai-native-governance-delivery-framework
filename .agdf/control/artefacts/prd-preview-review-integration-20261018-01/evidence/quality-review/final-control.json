@@ -1,0 +1,28 @@
+{
+  "status": "open",
+  "current_gate": "QA",
+  "gate_route": {
+    "gate": "QA",
+    "skills": [
+      "qa-gate"
+    ]
+  },
+  "blocking_reason": "none",
+  "missing_approval": "Approval: QA",
+  "next_operation": {
+    "type": "human_gate_decision",
+    "operation_key": "approval.record",
+    "actor": "human",
+    "effect": "decision",
+    "gate": "QA"
+  },
+  "completion": {
+    "status": "pending",
+    "gate": "OR",
+    "fulfilled": false
+  },
+  "next_allowed_action": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+  "run_id": "prd-preview-review-integration-20261018-01",
+  "revision_id": "b1ec1aac-45d0-4f3b-ba21-2fdce0cd2aac",
+  "doctor_status": "pass"
+}

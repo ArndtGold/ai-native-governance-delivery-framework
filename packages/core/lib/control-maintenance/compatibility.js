@@ -7,7 +7,7 @@ import { inspectRunRecovery } from "../control-state/run-recovery.js";
 import { doctorRequiredFiles } from "../control-evaluation/required-files.js";
 import { inspectControlConfiguration } from "../control-state/control-configuration.js";
 import { hasSymlinkComponent } from "../control-state/contained-file.js";
-import { APPROVAL_GATES } from "../control-state/run-seal.js";
+import { APPROVAL_GATES } from "../control-state/run-seal-compute.js";
 
 function entryExists(path) {
   try { lstatSync(path); return true; } catch (error) {

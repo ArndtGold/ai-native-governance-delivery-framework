@@ -6,6 +6,7 @@ export interface DecisionBootstrap {
     presentation_digest: string; material_version: string; material_sources: { type: string; path: string; digest: string }[]; presentation_language: string };
   summary: string; snapshot_id: string; resource_id: string | null; document_digest: string | null;
   decision_brief?: string | null; gate_title?: string; decision_heading?: string; approval_effect?: string; approval_effect_label?: string;
+  preview?: { resource_id: string; version: string; task: string; scenarios: string[]; criterion_ids: string[]; open_questions?: string[]; content_digest: string };
   enabled_actions: ('approve' | 'request_change' | 'reject')[]; capability: 'available' | 'not_qualified'; comparison:
     { state: 'unavailable'; reason: string } | { state: 'available'; previous_revision_id: string; previous_digest: string; current_digest: string; unchanged: boolean; previous_text: string };
 }
@@ -16,6 +17,16 @@ export function readDecisionBootstrap(result: unknown): DecisionBootstrap | null
   if (!object(result) || !object(result._meta) || !object(result._meta.agdf_decision)) return null;
   const row = result._meta.agdf_decision, b = row.binding, target = row.target;
   if (!object(b) || !object(target) || !object(row.labels) || !object(row.comparison)) return null;
+  if (row.preview !== undefined) {
+    const p = row.preview;
+    if (b.gate !== 'PRD' || !object(p) || !uuid(p.resource_id) || !hash(p.content_digest)
+      || typeof p.version !== 'string' || !/^[a-z][a-z0-9-]{0,63}-v[1-9][0-9]{0,5}$/.test(p.version)
+      || typeof p.task !== 'string' || !p.task.trim() || p.task.length > 1200
+      || !Array.isArray(p.scenarios) || !p.scenarios.length || p.scenarios.length > 16 || !p.scenarios.every(v => typeof v === 'string' && v.length > 0 && v.length <= 240)
+      || p.open_questions !== undefined && (!Array.isArray(p.open_questions) || p.open_questions.length > 16
+        || !p.open_questions.every(v => typeof v === 'string' && v.trim().length > 0 && v.length <= 1200))
+      || !Array.isArray(p.criterion_ids) || !p.criterion_ids.length || p.criterion_ids.length > 64 || !p.criterion_ids.every(v => typeof v === 'string' && /^[A-Z][A-Z0-9-]*$/.test(v))) return null;
+  }
   if (row.schema_version !== '1' || !['session_id', 'read_session_id', 'owner_epoch', 'snapshot_id'].every(key => uuid(row[key]))
     || !Number.isSafeInteger(row.generation) || Number(row.generation) < 1 || typeof row.expires_at !== 'number' || !Number.isFinite(row.expires_at)
     || typeof row.summary !== 'string' || !row.summary.trim() || new TextEncoder().encode(row.summary).length > 262144

@@ -5,7 +5,7 @@ import { extractField } from './verified-change.js';
 import { declaredRoutes, validNormalizedGap } from './normalized-gaps.js';
 import { cleanStatusCell } from './shared.js';
 import { isGateSatisfied } from './gate-policy.js';
-import { isInternalStepSatisfied } from './run-state.js';
+import { isInternalStepSatisfied } from './run-state-policy.js';
 import { createHash } from 'node:crypto';
 import { readReportDecision } from './report-decision.js';
 

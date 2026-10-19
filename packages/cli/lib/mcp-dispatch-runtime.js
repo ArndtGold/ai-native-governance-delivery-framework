@@ -291,7 +291,11 @@ export async function createMcpDecisionRuntime({ runtime, ui, appOnlyMediationQu
       return { ...delivered, presentation_delivery: { mode: displayed ? 'native_plus_chat' : 'full_chat', display: displayed ? 'confirmed' : 'unconfirmed',
         text, presentation_id: prepared.presentation_id, revision_id: prepared.revision_id,
         document_digest: prepared.document_digest ?? prepared.artefact_digest, document_language: prepared.document_language ?? null,
-        instruction: 'Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.',
+        ...(prepared.preview_review ? { preview_review: { operation: 'presentation-preview', version: prepared.preview_review.descriptor.version,
+          content_digest: prepared.preview_review.rendered_digest, access_state: displayed ? 'native_bound' : 'not_observed',
+          target_id: input.target_id, run_id: input.run_id, gate: 'PRD', expected_revision_id: input.expected_revision_id, presentation_id: prepared.presentation_id } } : {}),
+        instruction: 'Forward this exact Chat text once. Do not append a second decision request. On a human request to read the document, use presentation-document with this exact binding and every returned cursor; deliver all ordered chunks in the same Chat before requesting a decision. A local file link is not remote access proof.'
+          + (prepared.preview_review ? ' The required preview uses presentation-preview with the supplied exact selectors and every cursor. Offer only supported isolated rendering of those exact bytes. If this surface cannot show it, state that access is unavailable and the review remains open; never call raw HTML, a local link or an unopened resource a viewed preview.' : ''),
         authorizes: false } };
     },
     failure(code, name, input, dispatch) {

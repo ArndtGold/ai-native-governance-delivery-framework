@@ -1,0 +1,184 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/preview-review.test.tsx (6 tests | 2 failed) 1560ms
+   × keeps approval disabled while retrying unavailable preview access 77ms
+   × shows explicitly unanswered preview questions on the decision surface 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/preview-review.test.tsx > keeps approval disabled while retrying unavailable preview access
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/preview-review.test.tsx:61:28
+     59|   fireEvent.click(screen.getByRole('button', { name: /Vorschau.*review…
+     60|   const approve = screen.getByRole('button', { name: view.labels.appro…
+     61|   expect(approve.disabled).toBe(true);
+       |                            ^
+     62|   fireEvent.click(approve); expect(port.submit).not.toHaveBeenCalled();
+     63|   await act(async () => finish('<p>retry material</p>'));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/preview-review.test.tsx > shows explicitly unanswered preview questions on the decision surface
+TestingLibraryElementError: Unable to find an element with the text: Darf ein wichtiger Nachweis fehlen?. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Prüfen und entscheiden"[39m
+      [33mclass[39m=[32m"decision-card agdf-surface mcp-entry"[39m
+    [36m>[39m
+      [36m<h1>[39m
+        [0mPrüfen und entscheiden[0m
+      [36m</h1>[39m
+      [36m<p>[39m
+        [0mSynthetic decision fixture[0m
+      [36m</p>[39m
+      [36m<article[39m
+        [33mclass[39m=[32m"decision-summary document"[39m
+      [36m>[39m
+        [36m<h1>[39m
+          [0mPresented summary[0m
+        [36m</h1>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mFull intended change.[0m
+        [36m</p>[39m
+        [0m
+[0m
+        [36m<h2>[39m
+          [0mOpen points[0m
+        [36m</h2>[39m
+        [0m
+[0m
+        [36m<p>[39m
+          [0mNo applicable open issue.[0m
+        [36m</p>[39m
+        [0m
+[0m
+      [36m</article>[39m
+      [36m<p>[39m
+        [0mFür einen Vergleich liegt keine bestätigte vorherige anwendbare Fassung vor.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mEine Entscheidung gilt nur für dieses genaue Material. Nach dem Speichern bestätigt der Core den erlaubten nächsten Schritt.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mDie Quellsprache steht in der Vorlage.[0m
+      [36m</p>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0mVorgelegtes Dokument lesen[0m
+      [36m</button>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0mVorschau ansehen[0m
+        [0m · [0m
+        [0mreview-v1[0m
+      [36m</button>[39m
+      [36m<p>[39m
+        [36m<strong>[39m
+          [0mPrüfaufgabe[0m
+          [0m: [0m
+        [36m</strong>[39m
+        [0mFreigabe und fehlenden Nachweis prüfen[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mSzenarien[0m
+        [0m: [0m
+        [0mVollständig · Nachweis fehlt[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mZugehörige Kriterien[0m
+        [0m: [0m
+        [0mAC-001[0m
+      [36m</p>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mDetails und Nachweise[0m
+        [36m</summary>[39m
+        [36m<dl>[39m
+          [36m<dt>[39m
+            [0mRun[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0msynthetic-run[0m
+          [36m</dd>[39m
+          [36m<dt>[39m
+            [0mVorgelegte Revision[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [36m<code>[39m
+              [0m11111111-1111-4111-8111-111111111111[0m
+            [36m</code>[39m
+          [36m</dd>[39m
+          [36m<div>[39m
+            [36m<dt>[39m
+              [0mSD[0m
+            [36m</dt>[39m
+            [36m<dd>[39m
+              [36m<code>[39m
+                [0m.agdf/control/artefacts/synthetic-run/SD.md[0m
+              [36m</code>[39m
+              [36m<br />[39m
+              [36m<code>[39m
+                [0msha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[0m
+              [36m</code>[39m
+            [36m</dd>[39m
+          [36m</div>[39m
+        [36m</dl>[39m
+      [36m</details>[39m
+      [36m<p>[39m
+        [0mFragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung hier oder im Chat mit Approval: PRD.[0m
+      [36m</p>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"decision-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mFreigeben[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mTechnische Toolerlaubnis und diese Entscheidung sind getrennt. Der Host kann zusätzlich nachfragen.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mEine Speicherung ist nicht bestätigt. Lesen und Diskussion entscheiden nichts.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ test/preview-review.test.tsx:69:17
+     67|   Object.assign(view.preview!, { open_questions: ['Darf ein wichtiger …
+     68|   render(<DecisionCard view={view} port={port}/>);
+     69|   expect(screen.getByText('Darf ein wichtiger Nachweis fehlen?')).toBe…
+       |                 ^
+     70| });
+     71|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  08:43:31
+   Duration  11.83s (environment 56%, import 20%, tests 17%, transform 6%)
+

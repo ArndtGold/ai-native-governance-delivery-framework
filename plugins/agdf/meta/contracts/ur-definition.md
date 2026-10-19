@@ -25,6 +25,32 @@ Keep user intent distinct from assumptions. Cite known repository owners where a
 record unknown ownership without inventing facts. Do not invent users, scope, requirements,
 acceptance promises, approvals or downstream product/design decisions.
 
+### Preserve requested clarification deliverables
+
+For a user-facing change, capture what the user needs to see or try to judge the proposed behavior.
+When a preview, mockup or prototype is explicitly requested, preserve it as an actual deliverable
+in Scope: its purpose, user task, relevant states/scenarios, required interaction or format and
+when it is needed (for example before PRD approval). Record observable review success in Acceptance
+Signals and unresolved product questions in Risks And Unknowns. Use answered context; ask only if
+an ambiguity materially changes the requested deliverable. Do not turn an illustrative example into
+a requirement. Without an explicit preview commitment, do not impose one on unrelated or already
+clear requests.
+
+Distinguish a required preview from an optional clarification aid. An explicitly requested
+interactive preview cannot silently become a screenshot, static wireframe or written walkthrough.
+Preserve the requirement and name a concrete recovery or obtain an explicit scope change if it
+cannot be delivered. Record the responsible later UX/PRD step in Next Step; UR authoring still
+writes only its assigned UR, not a preview or product implementation. A requested before-PRD preview
+is created through UX intent clarification under the existing post-UR routing owner. Its durable
+output belongs to `.agdf/control/artefacts/<run_id>/previews/` for the bound run; the UX skill owns
+creation, versioning, evidence and references. An inline chat rendering alone does not fulfill that
+run deliverable. In a new UR, set exactly one initial metadata line before the first section:
+`Preview requirement: before_prd_interactive` for a required interactive before-PRD preview,
+otherwise `Preview requirement: none`. Preserve the task/scenarios in Scope and Acceptance
+Signals; the field cannot replace them. Missing markers in existing URs retain legacy semantics;
+do not retrofit an approved source or infer a requirement from prose/examples. Unknown or duplicate
+values require correction through the existing UR owner. This adds no gate or separate approval.
+
 When a missing fact materially changes the problem, intended users, scope or success signal,
 ask one bundled semantic clarification covering the actual gap. Do not ask for technical run
 identifiers or repeat answered questions. Preserve a useful draft with

@@ -1,0 +1,30 @@
+SCN-023: descriptor bytes, file count, per-file and total raw-byte exact boundaries passed.
+SCN-001/006/007: real preview requirement/descriptor/source/file and containment checks passed.
+CR-001/002: bounded acyclic CSS expansion, imported relative images and distinct inline styles passed.
+SCN-019/023: isolated shipped parser closure and exact 2 MiB safe-output boundary passed.
+SCN-003/008/023: static resources, binary embedding, CSP, unsupported syntax, cycles and encoding checks passed.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- 'recorded'
+
+    at createPrdDefinitionTestRun (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/scripts/fixtures/prd-definition.js:46:12)
+    at createPreviewPresentationFixture (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/preview-presentation-test.js:26:13)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/test/preview-presentation-test.js:37:48
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 'recorded',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

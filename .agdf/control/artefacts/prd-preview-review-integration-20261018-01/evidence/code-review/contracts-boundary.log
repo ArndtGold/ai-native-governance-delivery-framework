@@ -1,0 +1,13 @@
+isolated Core: immutable resources, contracts, locale and version bounds passed
+negative definition/module/locale/package-version fixtures reject before service creation
+missing resource stays unavailable without checkout or environment fallback
+Core boundary and cycle checks passed (142 modules).
+npm notice run create-agdf@0.14.5 test:interaction-catalog
+npm notice run node scripts/interaction-catalog-test.js
+Interaction catalog: complete locales, recovery rendering, negative and immutable-state checks passed.
+npm notice run create-agdf@0.14.5 test:agent-skills-conformance
+npm notice run node scripts/agent-skills-conformance-test.js
+Agent Skills conformance tests passed (source, policy, metadata, resources, symlinks and 4 generated surfaces)
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.

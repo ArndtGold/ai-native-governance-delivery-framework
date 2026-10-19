@@ -1,0 +1,17 @@
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/check-package-boundaries.mjs:34
+function visit(file) { if (visiting.has(file)) throw new Error(`Core cycle ${file}`); if (visited.has(file)) return; visiting.add(file); (graph.get(file) ?? []).forEach(visit); visiting.delete(file); visited.add(file); }
+                                                     ^
+
+Error: Core cycle /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-state/run-seal.js
+    at visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/check-package-boundaries.mjs:34:54)
+    at Array.forEach (<anonymous>)
+    at visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/check-package-boundaries.mjs:34:162)
+    at Array.forEach (<anonymous>)
+    at visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/check-package-boundaries.mjs:34:162)
+    at Array.forEach (<anonymous>)
+    at visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/check-package-boundaries.mjs:34:162)
+    at Array.forEach (<anonymous>)
+    at visit (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/scripts/check-package-boundaries.mjs:34:162)
+    at Array.forEach (<anonymous>)
+
+Node.js v22.22.3

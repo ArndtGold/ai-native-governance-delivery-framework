@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:9956c0ed377b3ef822483e0a12717dcd40200166ace61916a253b160f77822ca
+source_revision: sha256:721b4a478e296ed7c1804006ee99e6bf9d3576cad8841aa40cc79a6bb2851c0e
 translation_status: reviewed
 ---
 
@@ -147,12 +147,30 @@ change can explicitly record that this clarification is not required.
 When a user flow is hard to assess from text, a focused UI preview in the conversation can help.
 Try a concrete task, for example: “Find what was checked, identify the open risk and decide whether
 you can approve.” Include the relevant starting state, action, outcome and recovery behavior.
-Use an available visualization tool when useful; a wireframe or written walkthrough also works.
+Use an available visualization tool when useful.
+
+When a preview is explicitly requested, the UR already captures its purpose, scenarios, required
+interaction and review timing. UX clarification later creates a reopenable version under
+`.agdf/control/artefacts/<run_id>/previews/<name>-v1/index.html`. Keep `runs/<run_id>/` for control
+state. A revised preview gets a new path; the UX analysis and PRD reference the same inspected
+version with file digests and observation limits. A chat rendering alone does not fulfill this
+run deliverable.
+
+An optional aid may use a wireframe or written walkthrough. An explicitly requested interactive
+preview cannot silently be replaced that way. If unavailable, keep the obligation open until a
+concrete recovery or an explicitly agreed scope change resolves it.
 
 Record the scenario, actual feedback and untested assumptions in the UX analysis. During PRD
 alignment, turn confirmed behavior into acceptance criteria and record material choices in Approval
 Decisions. The PRD must remain understandable without the preview. Prototype interactions stay local;
 liking a preview grants no approval and proves no implemented or host behavior. This adds no gate.
+
+At PRD approval, a required preview belongs to the review basis: the presentation gives a concrete
+review task, access to the applicable version and the criteria being adopted. Approval confirms the
+specified behavior and permits the existing solution-design stage; it proves no delivered feature.
+Changes require a current presentation, and material product decisions remain to be resolved before
+approval. Dedicated Core/host projection and version revalidation still need implementation and
+practical evidence; a preview link in a document alone does not establish that integration.
 
 ## Five common delivery failures
 

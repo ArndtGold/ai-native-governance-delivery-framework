@@ -59,6 +59,7 @@ and approved as PRD content. Technical storage, derivation and component ownersh
 ## Inputs
 
 - approved UR and its intent, success signal, primary action and persona/context;
+- requested clarification deliverables, preview scenarios, interaction needs and timing in UR scope;
 - post-UR `delivery_context`, `ui_ux_impact`, reason and required flag;
 - existing behavior/ownership evidence for Brownfield work;
 - known working modes, state semantics, activation, blockers, recovery and transitions.
@@ -84,26 +85,61 @@ starting state, primary action, visible outcome and, where relevant, a blocker o
 For example: can the user find what was checked, identify an open risk and decide whether to approve?
 Match known product context; identify illustrative data and unconfirmed assumptions explicitly.
 
-Use an available in-conversation visualization capability such as `visualize` when suitable. Its
-availability is optional: a wireframe or written scenario walkthrough can answer the same question.
-Do not require a preview for already clear semantics, add a preview gate or install a dependency.
+First preserve any preview explicitly required by approved UR scope, including its interaction,
+format and timing. Use an available visualization capability such as `visualize` when suitable.
+For an optional aid, a wireframe or written scenario walkthrough may answer the same question.
+For an explicitly requested interactive preview, unavailable tooling requires concrete recovery or
+an explicit scope revision; do not silently downgrade it or report the obligation fulfilled.
+Do not invent a preview requirement for already clear semantics, add a gate or install a dependency.
 Keep prototype interactions local; they cannot submit real approvals, modify delivery state or start
 implementation. A requested change to the actual product still follows its existing delivery path.
+
+#### Retain a run-bound preview
+
+For a preview used in this bound analysis, save a durable, reopenable copy under
+`.agdf/control/artefacts/<run_id>/previews/<short-name>-v<N>/index.html`, relative to the supplied
+governance target. Derive the run from the valid assignment, not cwd, recency or another run.
+Resolve containment and reject symlink escapes before writing; never put preview content in
+`runs/<run_id>/RUN_STATE.md`. Use a new unused version for revisions and preserve reviewed versions.
+Store a standalone document, preferably self-contained; bundle any local assets with relative
+references. For an inline visualization, keep its editable source in the host's permitted location
+and export a standalone copy to the run directory using that capability's supported flow. Remove
+host-only dependencies from the durable copy. Reopen it from its saved location and exercise the
+relevant interaction before claiming portability; an export or screenshot alone is insufficient.
+For required interactive PRD review, make that durable copy offline with local classic scripts,
+styles and images, without modules, remote resources or host calls. The PRD author owns the
+`Preview Review` descriptor and final criterion mapping; UX supplies the exact files and findings.
+
+Record the target run, source UR revision/digest, preview version, relative entry path, SHA-256 of
+the saved file (and local assets), covered scenarios and actual validation limits in the existing
+analysis `evidence` field. Keep observations tied to that version; a changed preview needs fresh
+inspection and affected user feedback. The UX report and PRD link the same evidence, not divergent
+copies. Use existing canonical recording/revision owners for their updates; preview bytes are
+supporting evidence, not a new approval authority or an automatically sealed artefact type.
+An unbound conversation preview remains advisory; do not create or select a run just to attach it.
+
+For PRD alignment, hand off a concise user review task, the readable versioned preview reference,
+covered scenarios and proposed criterion IDs alongside the observations. The existing presentation
+owner uses this material under interaction.md PRD Preview Review At Approval. Distinguish the
+proposed experience from delivered functionality and record any unavailable review access explicitly.
 
 Walk through the concrete task with the user and record observed behavior, feedback, unresolved
 assumptions and resulting proposed criteria in the existing `evidence`, `open_product_questions`
 and `proposed_prd_acceptance_criteria` fields. Distinguish agent inspection from user observation;
 check rendering and the relevant interaction before claiming they work. If no inspection or user
-observation occurred, say so. Retain the scenario and findings in the analysis even when the inline
-preview is ephemeral; reference a durable preview only if one exists. Preview feedback is analytical
+observation occurred, say so. Retain the scenario and findings as well as the durable preview
+reference; chat-only or missing preview evidence cannot fulfill an explicit preview requirement.
+Preview feedback is analytical
 input, not PRD approval, implementation evidence or host qualification. Layout and component choices
 remain illustrative; only explicitly adopted product behavior becomes approved PRD content.
 
 ## Decision Rules
 
-- `ready`: every required output is reliable enough for PRD drafting.
+- `ready`: every required output is reliable enough for PRD drafting, including a requested preview
+  at the agreed fidelity, its durable evidence and resolution of material product questions.
 - `blocked`: user intent, modes, effective state, authority, activation, blockers, recovery, transitions
-  or Brownfield evidence is missing, contradictory or materially ambiguous.
+  or Brownfield evidence is missing, contradictory or materially ambiguous; or an explicitly required
+  preview, requested interaction, durable copy or decision-relevant observation remains missing.
 - `not_applicable`: routing proves that no relevant user-facing intent, state or recovery behavior changes.
 
 A conflict with approved UR routes to UR revision. A material product change discovered after PRD
@@ -139,7 +175,7 @@ Populate each field or use an explicit, justified `not_applicable`:
 
 For `blocked`, `blocking_reason`, `open_product_questions`, `affected_outputs`, `evidence`,
 `missing_evidence` and `required_next_step` are mandatory. When durable control state exists, write
-the result to `.agdf/control/artefacts/<key>/UX_INTENT_DEFINITION.md` without a Gate or approval field.
+the result to `.agdf/control/artefacts/<run_id>/UX_INTENT_DEFINITION.md` without a Gate or approval field.
 
 ## Forbidden
 

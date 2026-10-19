@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, existsSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { copySourceFixture, copyFixtureDependencies } from './support/source-fixture.js';
-const root = mkdtempSync(join(tmpdir(), 'agdf-clean-source-'));
+// Canonical paths keep direct-entry guards active on macOS /var -> /private/var.
+const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-clean-source-')));
 try {
   copySourceFixture(root, { dependencies: false });
   for (const path of ['node_modules', 'dist', 'packages/cli/generated', 'packages/core/generated', 'packages/cli/runtime']) assert.equal(existsSync(join(root, path)), false, path);
@@ -16,10 +17,10 @@ try {
   for (const path of ['packages/cli/generated', 'packages/core/generated', 'packages/cli/runtime']) assert.equal(existsSync(join(root, path)), false, `generator import must not write ${path}`);
   invoke('scripts/sync-package-assets.js'); invoke('scripts/assemble-npm.mjs');
   assert.equal(JSON.parse(readFileSync(join(root, 'dist/npm/assembly.json'))).version, JSON.parse(readFileSync(join(root, 'packages/core/package.json'))).version);
-  invoke('scripts/check-package-boundaries.mjs');
+  assert.match(invoke('scripts/check-package-boundaries.mjs'), /Core boundary and cycle checks passed/u);
   invoke('packages/cli/scripts/release-workflow-contract-test.js');
   invoke('scripts/community-health-test.mjs');
-  invoke('scripts/check-community-health.mjs');
+  assert.match(invoke('scripts/check-community-health.mjs'), /^community-health: pass/mu);
   invoke('packages/cli/scripts/repository-control-startup-test.js');
   invoke('packages/cli/scripts/test-routing.js');
   console.log('Fresh current source: no initial generated/dist/node_modules; exact bundled dependencies; complete profile/assembly build, isolated Core, npm entrypoints, community and startup checks passed.');

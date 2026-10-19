@@ -35,7 +35,8 @@ export async function runMcpServer({ surface, cockpitDir, runtime, executor, own
     runtime = await createOwnedGenerationFacade({ runtime, publisher, surface, cockpitDir,
       createControlRuntime: runtimeControl => dispatcherRuntime.createMcpDispatchRuntime({ surface, runtimeControl }) });
   }
-  const dispatchExecutor = executor ?? (runtime.mode === 'cockpit' ? undefined : createAgdfWorkerExecutor(runtime));
+  const dispatchExecutor = executor ?? (runtime.mode === 'cockpit' ? undefined
+    : createAgdfWorkerExecutor(runtime, { releaseOwnedLock: dispatcherRuntime?.releaseAbandonedOwnedLock ?? null }));
   const handle = serveAgdfStdio({
     runtime,
     executor: dispatchExecutor,

@@ -1,7 +1,7 @@
 import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
-import { evaluateApprovalSummaryReadiness } from "../control-state/run-presentation-render.js";
+import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from "../control-state/run-presentation-render.js";
 
 export const UR_AUTHORING_FORMAT = Object.freeze({
   sections: Object.freeze(["Problem", "Goal", "Affected Users", "Scope", "Non-Goals", "Acceptance Signals", "Existing Source Of Truth", "Risks And Unknowns", "Next Step"]),
@@ -32,8 +32,12 @@ export function evaluateUrReadiness(targetDir, runState, { presentationLanguage 
     const body = matches[0]?.body ?? "";
     if (matches.length !== 1 || !body || templatePrompts.has(body) || /<[^>]+>|^(?:tbd|todo|to confirm)[ \t]*$/imu.test(body)) open.push(section);
   }
-  const summary = evaluateApprovalSummaryReadiness("UR", content,
-    resolveArtifactPresentationLanguages(targetDir, presentationLanguage));
+  const languages = resolveArtifactPresentationLanguages(targetDir, presentationLanguage);
+  const summary = evaluateApprovalSummaryReadiness("UR", content, languages);
   if (!summary.ready) open.push(summary.required_heading);
+  // Name the unreadable field and its expected line, not only the section heading.
+  if (summary.reason === "approval_summary_field_unreadable") open.push(renderApprovalSummaryIssue(summary, {
+    path, presentationLanguage: languages.presentation_language,
+  }));
   return { ready: open.length === 0, legacy: false, open_items: open, approval_summary: summary };
 }

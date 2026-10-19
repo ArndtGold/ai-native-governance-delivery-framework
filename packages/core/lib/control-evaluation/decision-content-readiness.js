@@ -29,6 +29,33 @@ function deliveredContent(value, title, path) {
   return !/^(?:(?:UR|PRD|SD|TP|QA(?:_REPORT)?|T-\d+|(?:[a-z0-9_.-]+\/)*[a-z0-9_.-]+\.(?:md|json|js|mjs|log)|\[[^\]\n]+\]\([^\)\n]+\))(?:[\s,;·|`]+|\s+(?:and|und)\s+|$))+$/iu.test(value.replace(/`/gu, ''));
 }
 
+// Fields that UAT reads from a localized approval summary, per gate and locale.
+const LOCALIZED_DECISION_FIELDS = Object.freeze({
+  UR: { de: [['ziel', 'goal', 'Ziel']], en: [['goal', 'goal', 'Goal']] },
+  QA: {
+    de: [['ergebnis', 'result', 'Ergebnis'], ['grenzen', 'limits', 'Grenzen'], ['risiken', 'risks', 'Risiken']],
+    en: [['delivered result', 'result', 'Delivered result'], ['qualification limits', 'limits', 'Qualification limits'], ['risks', 'risks', 'Risks']],
+  },
+});
+
+// One owner for the localized fields a later gate reads: UAT observation and the
+// earlier summary readiness/presentation call it, so they cannot disagree.
+export function localizedDecisionFields(gate, text, { locale, sourceLanguage, path } = {}) {
+  const spec = LOCALIZED_DECISION_FIELDS[gate]?.[locale];
+  if (!spec || locale === sourceLanguage) return { fields: {}, gaps: [] };
+  const summary = readAuthoredContent(text, 'localized', { locale, sourceLanguage });
+  const title = gate === 'QA' ? readAuthoredContent(text, 'title') : null;
+  const fields = {}, gaps = [];
+  for (const [field, key, label] of spec) {
+    const value = summary?.[field];
+    const concrete = gate === 'UR' ? concreteDecisionContent(value)
+      : key === 'result' ? deliveredContent(value, title, path) : concreteDecisionContent(value, { allowNone: true });
+    if (concrete) fields[key] = value;
+    else gaps.push({ field, key, expected: `- ${label}:` });
+  }
+  return { fields, gaps };
+}
+
 // Reads only captured contained sources. This pure observation neither decides
 // QA nor repairs, persists or approves any content. Historical proof stays owned
 // by the stored document/receipt readers, outside current preparation.
@@ -64,16 +91,9 @@ export function observeDecisionContent(root, state, { gate, locale = 'en', sourc
     }
     groups.qa = readReportDecision(qa.text);
     if (!groups.qa) gap('QA Decision', qa.path, 'qa-gate', 'technical_result_unconfirmed');
-    if (locale !== sourceLanguage) {
-      const summary = readAuthoredContent(qa.text, 'localized', { locale, sourceLanguage });
-      const translatedFields = locale === 'de' ? [['ergebnis', 'result'], ['grenzen', 'limits'], ['risiken', 'risks']]
-        : [['delivered result', 'result'], ['qualification limits', 'limits'], ['risks', 'risks']];
-      for (const [field, key] of translatedFields) {
-        const value = summary?.[field];
-        if (!(key === 'result' ? deliveredContent(value, readAuthoredContent(qa.text, 'title'), qa.path) : concreteDecisionContent(value, { allowNone: true }))) gap(field, qa.path, 'qa-gate', 'localized_content_missing');
-        else groups[key] = value;
-      }
-    }
+    const localized = localizedDecisionFields('QA', qa.text, { locale, sourceLanguage, path: qa.path });
+    for (const missing of localized.gaps) gap(missing.field, qa.path, 'qa-gate', 'localized_content_missing');
+    Object.assign(groups, localized.fields);
   }
   if (gate === 'UAT') {
     const intent = source('UR');
@@ -81,12 +101,9 @@ export function observeDecisionContent(root, state, { gate, locale = 'en', sourc
       const goal = authoredGoal(intent.text);
       if (!goal) gap('Goal', intent.path, 'ur-definition');
       else groups.goal = goal;
-      if (locale !== sourceLanguage) {
-        const key = locale === 'de' ? 'ziel' : 'goal';
-        const value = readAuthoredContent(intent.text, 'localized', { locale, sourceLanguage })?.[key];
-        if (!concreteDecisionContent(value)) gap(key, intent.path, 'ur-definition', 'localized_content_missing');
-        else groups.goal = value;
-      }
+      const localized = localizedDecisionFields('UR', intent.text, { locale, sourceLanguage, path: intent.path });
+      for (const missing of localized.gaps) gap(missing.field, intent.path, 'ur-definition', 'localized_content_missing');
+      Object.assign(groups, localized.fields);
     }
   }
   return result();

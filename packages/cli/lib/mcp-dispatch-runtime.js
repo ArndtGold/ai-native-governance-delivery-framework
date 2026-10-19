@@ -102,6 +102,8 @@ export {
   serializeSkillDispatchResult,
 };
 export { DECISION_UI_URI } from '#agdf-core/mcp-resource-contract.js';
+// The worker executor releases locks of a thread it has seen exit (packages/mcp-server).
+export { OWNED_LOCK_CHANNEL, releaseAbandonedOwnedLock } from '#agdf-core/control-state/run-state-writer.js';
 
 const FAILURE_ACTIONS = Object.freeze({
   dispatch_busy: "Wait for the active AGDF dispatch to finish and retry once.",

@@ -266,7 +266,8 @@ function statusFromReviewArtefact(artefact) {
   for (const status of ["block", "revise", "warn", "pass"]) {
     if (new RegExp(`\\b${status}(?:ed)?\\b`).test(text)) return status;
   }
-  return "unknown";
+  // The canonical writer records a confirmed pass result as `done` (run-steps.js).
+  return /^`?done`?$/iu.test(String(artefact.status ?? "").trim()) ? "pass" : "unknown";
 }
 
 export function qualityReadinessForRunState(runState, nextAction) {

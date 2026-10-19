@@ -1,9 +1,15 @@
+import { subscribe } from "node:diagnostics_channel";
 import { parentPort, workerData } from "node:worker_threads";
-import { createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { OWNED_LOCK_CHANNEL, createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
+import { ownedLockForwarder } from "./worker.js";
 
 function send(message) {
   parentPort?.postMessage(message);
 }
+
+// Forward lock ownership synchronously. If this thread is terminated while it holds
+// a run lock, the executor releases exactly that lock after the thread has exited.
+subscribe(OWNED_LOCK_CHANNEL, ownedLockForwarder(send));
 
 try {
   send({ type: 'phase', phase: 'runtime_provenance' });

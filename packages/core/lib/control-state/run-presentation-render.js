@@ -9,7 +9,7 @@ import { localePack, resolvePresentationLocale, resolveHumanRunTitle } from "../
 import { readSourceRevisions, SOURCE_GATES } from './run-source-revisions.js';
 import { readRunOperations } from './run-operations.js';
 import { qaDeviationPresentation } from './qa-deviation-acceptance.js';
-import { observeDecisionContent, decisionContentRecovery } from '../control-evaluation/decision-content-readiness.js';
+import { observeDecisionContent, decisionContentRecovery, localizedDecisionFields } from '../control-evaluation/decision-content-readiness.js';
 import { readReportDecision } from '../control-evaluation/report-decision.js';
 import { readValidatedRevisionArchive, validateRevisionHistory, validateEarlyPrdHistory, earlyPrdHistoryReference, byteDigest } from './run-revision-history.js';
 
@@ -167,19 +167,24 @@ function validateLocalizedSummaryBlock(gate, block, sourceMarkdown, sourceLangua
   }
 }
 
-function requiredLocalizedSummary(gate, markdown, languages) {
+function requiredLocalizedSummary(gate, markdown, languages, { path } = {}) {
   if (!languages.approval_summary_required) return null;
   const blocks = localizedSummaryBlocks(markdown).filter(block => block.locale === languages.presentation_language);
   if (blocks.length !== 1) throw new Error(blocks.length ? "approval_summary_locale_duplicate" : "approval_summary_locale_missing");
   const block = blocks[0];
   validateLocalizedSummaryBlock(gate, block, substantiveMarkdown(markdown), languages.artifact_language);
+  // UAT reads these fields later with the same owner and the same locale choice.
+  const locale = String(languages.presentation_language ?? "").toLowerCase().startsWith("de") ? "de" : "en";
+  const { gaps } = localizedDecisionFields(gate, markdown, { locale, sourceLanguage: languages.artifact_language, path });
+  if (gaps.length) throw Object.assign(new Error("approval_summary_field_unreadable"),
+    { diagnostics: gaps.map(({ field, expected }) => ({ field, expected })) });
   return block;
 }
 
 // Reuse the presentation validator before authoring is considered complete.
-export function evaluateApprovalSummaryReadiness(gate, markdown, languages) {
+export function evaluateApprovalSummaryReadiness(gate, markdown, languages, { path } = {}) {
   try {
-    requiredLocalizedSummary(gate, markdown, languages);
+    requiredLocalizedSummary(gate, markdown, languages, { path });
     return Object.freeze({ ready: true, required_heading: languages.approval_summary_heading, reason: null });
   } catch (error) {
     if (!String(error.message).startsWith("approval_summary_")) throw error;
@@ -195,6 +200,7 @@ export function renderApprovalSummaryIssue(summary, { path, presentationLanguage
     approval_summary_user_goal_missing: german ? "- Ziel:" : "- Goal:",
     approval_summary_scope_missing: german ? "- Umfang:" : "- Scope:",
     approval_summary_decisions_missing: german ? "- Entscheidungen:" : "- Decisions:",
+    approval_summary_field_unreadable: summary.diagnostics?.map(row => row.expected).join("` · `") || undefined,
   }[summary.reason] ?? summary.required_heading;
   return [
     `${pack.statusCard.summaryRecovery}: \`${path}\``,
@@ -236,7 +242,7 @@ function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
   return [];
 }
 
-function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLanguage }) {
+function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLanguage, artefactPath }) {
   const locale = resolvePresentationLocale(interactionLocales, language);
   const pack = localePack(interactionLocales, locale);
   const german = locale.split("-")[0] === "de";
@@ -249,7 +255,7 @@ function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLa
   if (sourceLanguage !== presentationLanguage) {
     const block = requiredLocalizedSummary(gate, markdown, {
       approval_summary_required: true, presentation_language: locale, artifact_language: sourceLanguage,
-    });
+    }, { path: artefactPath });
     const summary = [sourceLanguageNote, block.body].filter(Boolean).join("\n");
     return { markdown: summary, digest: hash(summary) };
   }
@@ -372,7 +378,8 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
     const sourceLanguage = languages.artifact_language;
     documentLanguage = sourceLanguage;
     try {
-      summary = artifactSummary(gate, contentText, { runId, revisionId, language: p.presentation_language, sourceLanguage });
+      summary = artifactSummary(gate, contentText, { runId, revisionId, language: p.presentation_language, sourceLanguage,
+        artefactPath: String(artefact?.path ?? "").replace(/^`|`$/gu, "") });
     } catch (error) {
       if (String(error?.message ?? "").startsWith("approval_summary_")) {
         const locale = resolvePresentationLocale(interactionLocales, p.presentation_language);
@@ -383,7 +390,7 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
         error.recovery = [
           `## ${pack.statusCard.summaryRecovery}`,
           `Run: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\``,
-          renderApprovalSummaryIssue({ reason: error.message, required_heading: requiredHeading }, {
+          renderApprovalSummaryIssue({ reason: error.message, required_heading: requiredHeading, diagnostics: error.diagnostics }, {
             path, presentationLanguage: p.presentation_language,
           }),
           pack.operationalValues.approvalSummaryRecovery.replace("{language}", languageName),

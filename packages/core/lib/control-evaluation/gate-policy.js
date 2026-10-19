@@ -1,6 +1,7 @@
 import { extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
+import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "./closeout-readiness.js";
 
 // Compatible display text. Execution consumes the semantic operation, never this sentence.
 export const CD_TESTS_NEXT_ALLOWED_ACTION = "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.";
@@ -299,6 +300,38 @@ function gateDecisionForRunState(runState, verifiedChange = null) {
       next_allowed_action: blocked
         ? "Resolve or route the blocking QA findings via their authoritative owner, then rerun the required steps. Do not request Approval: QA from a block report."
         : "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+    };
+  }
+
+  // The qa-gate forbids a QA pass without review evidence and closeout requires both
+  // reviews. Until they are recorded the QA approval request is withheld.
+  const acceptedPlanDeviation = runState.qa_acceptance?.eligible || runState.qa_acceptance?.accepted;
+  const structuredBeforeQaApproval = ["structured_slice", "structured_delivery"].includes(modeSliceDecision(runState))
+    && gateApprovalStatus(runState, "QA") !== "approved";
+  if (structuredBeforeQaApproval && STRUCTURED_REQUIRED_REVIEWS.some(step => !isInternalStepSatisfied(runState, reviewArtefactType(runState, step))
+        && !(step === "TP Review" && acceptedPlanDeviation && runState.artefacts.get(step)?.status === "revise"))) {
+    return {
+      status: "open",
+      current_gate: "QA",
+      blocking_reason: "none",
+      missing_approval: "none",
+      allowed: ["record TP Review and Clean Implementation Review", "run QA gate"],
+      forbidden: ["request QA approval", "request UAT approval", "release", "claim delivery readiness"],
+      next_allowed_action: "Record TP Review and Clean Implementation Review before requesting Approval: QA.",
+    };
+  }
+  // A QA report recorded before current evidence (for example reviews recorded after it)
+  // would stay stale through closeout; QA is rerun before its approval request.
+  const qaAssociation = runState.evidence_applicability?.by_step.get("QA");
+  if (structuredBeforeQaApproval && runState.artefacts.get("QA")?.path && qaAssociation && qaAssociation.applicability !== "current") {
+    return {
+      status: "open",
+      current_gate: "QA",
+      blocking_reason: "none",
+      missing_approval: "none",
+      allowed: ["run QA gate", "persist or refine the QA report"],
+      forbidden: ["request QA approval", "request UAT approval", "release", "claim delivery readiness"],
+      next_allowed_action: "Rerun QA against the current evidence before requesting Approval: QA.",
     };
   }
 

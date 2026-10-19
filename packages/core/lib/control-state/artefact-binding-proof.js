@@ -7,6 +7,7 @@ import { readArtefactBindings } from "./artefact-bindings.js";
 import { readSourceRevisions } from "./run-source-revisions.js";
 import { validateRunPresentationEnvelope } from './run-presentation.js';
 import { REVIEW_PROOF_FIELDS } from './recording-formats.js';
+import { reviewCorrections } from './presentation-decision.js';
 
 export function readContainedJson(root, path) {
   const file = containedRegularFile(root, path);
@@ -48,7 +49,10 @@ export function inspectApprovedArtefact(root, control, gate, { fileDigest = path
     if (receipt.length === 1) {
       if (receipt[0].binding.run_id !== control.meta.run_id
           || receipt[0].effect.artefact_digest !== actual || receipt[0].effect.presentation_digest !== presentation[2]) return unconfirmed();
-      if (['2', '3'].includes(receipt[0].schema_version) && receipt[0].effect.material_sources.some(source => fileDigest(source.path) !== source.digest)) return unconfirmed();
+      // A review corrected at OR (receipt-proven, presentation-decision.js) counts as the version the approval saw.
+      const corrections = reviewCorrections(control), seen = source => fileDigest(source.path) === source.digest
+        || corrections.get(source.type)?.seen_digest === source.digest && fileDigest(source.path) === corrections.get(source.type).current_digest;
+      if (['2', '3'].includes(receipt[0].schema_version) && !receipt[0].effect.material_sources.every(seen)) return unconfirmed();
       // The row identifies the exact prepared record, not a historical superseded approval.
     }
     let observedRaw;

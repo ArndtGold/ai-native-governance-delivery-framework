@@ -1,0 +1,350 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "initiating_phase": "CD+Tests",
+  "target_id": "sha256:576b08a6b06a094d8ff6d723da764807869b3b5a2fe9a481316a4ad038b7a6ba",
+  "run_id": "core-approval-lock-defects-20261017-01",
+  "expected_revision_id": "bf92c4d7-035d-4a3b-a1e7-a13f46c14080",
+  "operation_id": "16da48f8-58e3-4f21-a8d3-cfecab369a28",
+  "source_gate": "TP",
+  "reason": "The implemented fixes grow the Copilot runtime payload by 13089 bytes (2256982 to 2270071 bytes, 260 files unchanged) against a baseline with zero headroom; sync-package-assets fails with AGDF_COPILOT_PAYLOAD_GROWTH. Owner decision 2026-10-17: add a TP task that re-pins the baseline to the exact measured final payload, as earlier runs did (BUDGET-001).",
+  "intended_change": "Add task T-010 and scenario SCN-015 (AC-007, SDD-009): after all code tasks, re-pin plugins/agdf/meta/copilot-payload-baseline.json with the existing scripts/payload-budget.js --accept to the exact measured final file count and bytes with a rationale, then rerun sync-package-assets; plus one TP planning decision. UR, PRD, SD and tasks T-001 to T-009 stay unchanged.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+      "digest": "sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD.md",
+      "digest": "sha256:9c3afe531a890c1608301a6898e844dd273589f36fa034b265f6ac1e662e27b6"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/SD.md",
+      "digest": "sha256:f03a06c78d48cd2b57f41d79f8084cef41d63c833bd75a07f49c7e6f635f84b3"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP.md",
+      "digest": "sha256:77c4faeb8f709124b10a53206d97ecaf912d38cc7f6751482bd2c2e6d3738a28"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude Code agent (claude-opus-5-5), cooperative impact review for Arndt Gold",
+    "earliest_source": "TP",
+    "upstream": [
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+        "digest": "sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3",
+        "rationale": "The requirement is unchanged; the payload budget is a delivery constraint of the existing build, not a new need."
+      },
+      {
+        "type": "PRD",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD.md",
+        "digest": "sha256:9c3afe531a890c1608301a6898e844dd273589f36fa034b265f6ac1e662e27b6",
+        "rationale": "Acceptance criteria are unchanged; AC-007 already requires the normal build and suites to pass."
+      },
+      {
+        "type": "SD",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/SD.md",
+        "digest": "sha256:f03a06c78d48cd2b57f41d79f8084cef41d63c833bd75a07f49c7e6f635f84b3",
+        "rationale": "Design decisions are unchanged; SDD-009 already scopes verification to the existing suites and build stages."
+      }
+    ],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:43a308db1c1d49da01df71991de36df0312116ad92b19d477e855bced2b53433",
+        "disposition": "reassess",
+        "reason": "Its association is unknown, so it is reassessed; the post-UR routing (structured_slice, owners, boundaries) is expected to stay unchanged by adding a payload-budget task to the TP."
+      }
+    ],
+    "implementation_evidence": "Code and test files are retained; no CD+Tests, CR or QA result is recorded yet.",
+    "unresolved": []
+  },
+  "changed_statements": [
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP.md",
+      "digest": "sha256:77c4faeb8f709124b10a53206d97ecaf912d38cc7f6751482bd2c2e6d3738a28",
+      "statement": "| T-009 | Regenerate runtime copies through the existing build stages, run the named suites and record CD+Tests evidence | Implementing agent (Claude Code) | T-001 to T-008 |",
+      "intended_change": "Keep T-009 and add T-010 (re-pin the Copilot payload baseline to the exact measured final payload), scenario SCN-015 and a TP planning decision.",
+      "reason": "The implemented fixes grow the Copilot runtime payload by 13089 bytes (2256982 to 2270071 bytes, 260 files unchanged) against a baseline with zero headroom; sync-package-assets fails with AGDF_COPILOT_PAYLOAD_GROWTH. Owner decision 2026-10-17: add a TP task that re-pins the baseline to the exact measured final payload, as earlier runs did (BUDGET-001)."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:43a308db1c1d49da01df71991de36df0312116ad92b19d477e855bced2b53433",
+        "status": "done"
+      },
+      "record_digest": "sha256:86ec11b4a8b539ea2b4e36c8c8562cfd36892fceb82b24888016b6398888724a",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:afe1fd4941fdc078d8005e95a8b0b1451ece0565f4efe5e2bb74af2786fe0af9",
+        "status": "done"
+      },
+      "record_digest": "sha256:a7a8bc7aaba353f726ec8ea5132ead9aa9396aad84b96d8a02a33a7a5f79ace8",
+      "operation_id": "5d8ab3e8-ddbd-4545-86a6-e1f9bb3a9597",
+      "source_set_digest": "sha256:dcac0933f45d5fbeffe41f82b868e7a01e7520e353a0148daca3ff711d6e65ed",
+      "sources": [
+        {
+          "digest": "sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9c3afe531a890c1608301a6898e844dd273589f36fa034b265f6ac1e662e27b6",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:f03a06c78d48cd2b57f41d79f8084cef41d63c833bd75a07f49c7e6f635f84b3",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:77c4faeb8f709124b10a53206d97ecaf912d38cc7f6751482bd2c2e6d3738a28",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:43a308db1c1d49da01df71991de36df0312116ad92b19d477e855bced2b53433",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Its source set binds the TP; the TP revision requires a renewed Brownfield Analysis record for the same unchanged code path."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+        "digest": "sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3",
+        "status": "documented"
+      },
+      "record_digest": "sha256:d9fd224eefd3ff40b5f1f166d46ccdb6fd4437fcd1b507ca946221cef2b5066b",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:43a308db1c1d49da01df71991de36df0312116ad92b19d477e855bced2b53433",
+        "status": "documented"
+      },
+      "record_digest": "sha256:02d76ea027e120888d7b01758dc6a9900f4c4ce4b54da54c41de51d87939c21d",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:c59fcf3c2a7ad920d69a760df6549e3b94defc14c40fad0b06bc28131bbc2382",
+        "status": "documented"
+      },
+      "record_digest": "sha256:2e0fdcf03f0c4e1243f1b26a785900c04b034deeb12ef30554d8ba5c0ddede6c",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:41ee1f06380fa207febfb2d9c14518a23af7d1a9fd1b091dd0d6bc4b1f5b4ee8",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+        "digest": "sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3",
+        "status": "documented"
+      },
+      "record_digest": "sha256:d9fd224eefd3ff40b5f1f166d46ccdb6fd4437fcd1b507ca946221cef2b5066b",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:43a308db1c1d49da01df71991de36df0312116ad92b19d477e855bced2b53433",
+        "status": "documented"
+      },
+      "record_digest": "sha256:02d76ea027e120888d7b01758dc6a9900f4c4ce4b54da54c41de51d87939c21d",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-02.json",
+        "digest": "sha256:9a41e0fbe666fa65198e9d5bdf6a5786a7bda7c15ca8de9efc0b4c10fd62d5e7",
+        "status": "documented"
+      },
+      "record_digest": "sha256:409818bbeaf89f67a5610cde6c5251d9ab23359380fbf969cdccf9d2b1b857f9",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/SD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:52d350e6164b8d9991e8b200eda61fa33f0d02f4c1bc2857788051aecca2538e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:41f66ef5a7f24f50a814c2034333180b94c370c2ae66ac2f3ca8e2221464f8b3",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:d6977960bbdc850337d81cbc34761adcea6119a6c1b49b4dddcc10df02332699",
+        "status": "documented"
+      },
+      "record_digest": "sha256:c541e81b68d03089615b0c3e4b8b2831d681683d96bdfc93ae6cc9c825656b59",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:afe1fd4941fdc078d8005e95a8b0b1451ece0565f4efe5e2bb74af2786fe0af9",
+        "status": "documented"
+      },
+      "record_digest": "sha256:4b224b23b671a6b3f68e0be0d21be35e6e3ca4a5cdbbebfed8bf73ae22cdad68",
+      "operation_id": "5d8ab3e8-ddbd-4545-86a6-e1f9bb3a9597",
+      "source_set_digest": "sha256:dcac0933f45d5fbeffe41f82b868e7a01e7520e353a0148daca3ff711d6e65ed",
+      "sources": [
+        {
+          "digest": "sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:9c3afe531a890c1608301a6898e844dd273589f36fa034b265f6ac1e662e27b6",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:f03a06c78d48cd2b57f41d79f8084cef41d63c833bd75a07f49c7e6f635f84b3",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:77c4faeb8f709124b10a53206d97ecaf912d38cc7f6751482bd2c2e6d3738a28",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:43a308db1c1d49da01df71991de36df0312116ad92b19d477e855bced2b53433",
+          "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Association unknown; reassessed against the revised TP."
+    }
+  ]
+}

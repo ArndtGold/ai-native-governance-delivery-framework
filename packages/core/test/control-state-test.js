@@ -350,7 +350,7 @@ try {
       "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n## AGDF Approval Summary (de; source=en)\n- Aufgaben: T1 Zusammenfassung rendern (PRD-01, Unit-Test).\n- Risiken: Host-spezifische Pfaddarstellung.\n",
       "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: pass\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n## AGDF Approval Summary (de; source=en)\n- Entscheidung: pass für die abgegrenzte Quell-/Paketprüfung; native Prüfung bleibt unbeobachtet.\n- Nachweise: Quell- und Paket-Runtime-Tests bestanden.\n- Lücken: Frische Host-Interaktion fehlt.\n",
     };
-    for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md", "CD_TESTS.md", "CODE_REVIEW.md"]) {
+    for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md", "CD_TESTS.md", "TP_REVIEW.md", "CLEAN_IMPLEMENTATION_REVIEW.md", "CODE_REVIEW.md"]) {
       writeFileSync(join(artefactDir, name), name === "QA_REPORT.md" ? withSyntheticQaContent(approvalDocs[name], { risks: "Paths vary by host; native qualification remains unobserved." }) : approvalDocs[name] ?? `# ${name}\n`);
     }
     const gateIndex = ["UR", "PRD", "SD", "TP", "QA", "UAT"].indexOf(gate);
@@ -392,6 +392,8 @@ ${approvals}
 | TP | .agdf/control/artefacts/${runId}/TP.md | approved | ready |
 | Brownfield Analysis | .agdf/control/artefacts/${runId}/BROWNFIELD_ANALYSIS.md | done | ready |
 | CD+Tests | .agdf/control/artefacts/${runId}/CD_TESTS.md | done | ready |
+| TP Review | .agdf/control/artefacts/${runId}/TP_REVIEW.md | done | ready |
+| Clean Implementation Review | .agdf/control/artefacts/${runId}/CLEAN_IMPLEMENTATION_REVIEW.md | done | ready |
 | CR | .agdf/control/artefacts/${runId}/CODE_REVIEW.md | done | ready |
 | QA | .agdf/control/artefacts/${runId}/QA_REPORT.md | pass | ready |
 

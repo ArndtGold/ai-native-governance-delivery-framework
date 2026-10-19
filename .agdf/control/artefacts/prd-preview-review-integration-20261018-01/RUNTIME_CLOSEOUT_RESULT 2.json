@@ -1,0 +1,354 @@
+{
+  "observed_at": "2026-10-19T12:26:05.000Z",
+  "lane": "actual_installed_plugin_stdio",
+  "native_ui_qualification": false,
+  "results": [
+    {
+      "call": {
+        "name": "agdf_closeout",
+        "arguments": {
+          "presentation_language": "en",
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "schema_version": "1",
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "expected_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "operation_id": "dd7610c8-5b03-4c48-bae2-d69edb74b2b1",
+          "assurance": "cooperative_local",
+          "command": {
+            "kind": "closeout.record",
+            "payload": {
+              "or": {
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/OR_INPUT.md",
+                "digest": "sha256:bccd8b8f109abcc8ad6bd2027bdd9568a6543d7d5652f75954dc24878db6f259"
+              },
+              "confirmation": "Close Run: prd-preview-review-integration-20261018-01 376867b8-956f-481f-824b-ddd775462514 dd7610c8-5b03-4c48-bae2-d69edb74b2b1 sha256:bccd8b8f109abcc8ad6bd2027bdd9568a6543d7d5652f75954dc24878db6f259"
+            }
+          }
+        }
+      },
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "dd7610c8-5b03-4c48-bae2-d69edb74b2b1",
+        "request_digest": "sha256:b4d6e4db21350af374abf7be01f50bfd1d8be7c5aa5526c144f7713a71f4e6a0",
+        "binding": {
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "expected_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "kind": "closeout.record"
+        },
+        "effect": {
+          "previous_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "resulting_revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+          "revision": 24,
+          "record": {
+            "or": {
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/OR.md",
+              "digest": "sha256:bccd8b8f109abcc8ad6bd2027bdd9568a6543d7d5652f75954dc24878db6f259"
+            },
+            "lifecycle": "completed",
+            "context_evidence_digest": "sha256:93851cb9059c0494dd4265a7b0483d049ae7415d35397270b8469da8e0a948e2",
+            "confirmation_digest": "sha256:9dbfe3da3934d94eca06075a26410c0d974f9dcc35e0a3cd3916ab53bb614b57"
+          }
+        },
+        "receipt": {
+          "schema_version": "1",
+          "kind": "closeout.record",
+          "operation_id": "dd7610c8-5b03-4c48-bae2-d69edb74b2b1",
+          "request_digest": "sha256:b4d6e4db21350af374abf7be01f50bfd1d8be7c5aa5526c144f7713a71f4e6a0",
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "expected_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "created_at": "2026-10-19T12:25:57.616Z",
+          "producer": {
+            "contract": "run-command/1",
+            "package_version": "0.14.5"
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "effect": {
+            "previous_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+            "resulting_revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+            "revision": 24,
+            "record": {
+              "or": {
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/OR.md",
+                "digest": "sha256:bccd8b8f109abcc8ad6bd2027bdd9568a6543d7d5652f75954dc24878db6f259"
+              },
+              "lifecycle": "completed",
+              "context_evidence_digest": "sha256:93851cb9059c0494dd4265a7b0483d049ae7415d35397270b8469da8e0a948e2",
+              "confirmation_digest": "sha256:9dbfe3da3934d94eca06075a26410c0d974f9dcc35e0a3cd3916ab53bb614b57"
+            }
+          }
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 24,
+          "revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+          "lifecycle": "completed",
+          "gate": "OR",
+          "status": "pass",
+          "missing_approval": "none",
+          "blocking_reason": "none",
+          "next_operation": null,
+          "completion": {
+            "status": "completed",
+            "gate": "OR",
+            "fulfilled": true,
+            "vcs_handoff": "explicit_request_required"
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "authorizes": false,
+        "recovery": null,
+        "family_result": {
+          "schema_version": "1",
+          "outcome": "recorded",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "step": "closeout",
+          "previous_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "revision": "24",
+          "revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+          "current_gate": "OR",
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "backlog": "updated",
+          "operation_id": "dd7610c8-5b03-4c48-bae2-d69edb74b2b1",
+          "receipt": {
+            "schema_version": "1",
+            "kind": "closeout.record",
+            "operation_id": "dd7610c8-5b03-4c48-bae2-d69edb74b2b1",
+            "request_digest": "sha256:b4d6e4db21350af374abf7be01f50bfd1d8be7c5aa5526c144f7713a71f4e6a0",
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "run_id": "prd-preview-review-integration-20261018-01",
+            "expected_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+            "created_at": "2026-10-19T12:25:57.616Z",
+            "producer": {
+              "contract": "run-command/1",
+              "package_version": "0.14.5"
+            },
+            "assurance": {
+              "lane": "cooperative_local",
+              "reply_provenance": "caller_forwarded_deliberate_reply",
+              "independent_human_proof": "unavailable"
+            },
+            "effect": {
+              "previous_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+              "resulting_revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+              "revision": 24,
+              "record": {
+                "or": {
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/OR.md",
+                  "digest": "sha256:bccd8b8f109abcc8ad6bd2027bdd9568a6543d7d5652f75954dc24878db6f259"
+                },
+                "lifecycle": "completed",
+                "context_evidence_digest": "sha256:93851cb9059c0494dd4265a7b0483d049ae7415d35397270b8469da8e0a948e2",
+                "confirmation_digest": "sha256:9dbfe3da3934d94eca06075a26410c0d974f9dcc35e0a3cd3916ab53bb614b57"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "call": {
+        "name": "agdf_inspect",
+        "arguments": {
+          "presentation_language": "en",
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "operation": "doctor"
+        }
+      },
+      "result": {
+        "schema_version": "1",
+        "contract_version": 1,
+        "outcome": "inspect_result",
+        "terminal": false,
+        "authorizes": false,
+        "operation": "doctor",
+        "runtime": {
+          "machine_validation": "local_exact_version_digest",
+          "expected_version": "0.14.5",
+          "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/21c68356f4b93142590114fbbd527c4d47be84db4df31433af4eaf7332c48dd5/0.14.5/node_modules/create-agdf/",
+          "runtime_digest": "8c53a9b06d021233c62c565f135fd5b4312db3fca2898abe7e3410fb0ee41b54",
+          "provenance_status": "matched"
+        },
+        "target": {
+          "schema_version": "1",
+          "resolution_state": "resolved",
+          "reason_code": "continued_target",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "evidence_sources": [],
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "target_changed": false,
+          "next_action": "",
+          "authorizes": false
+        },
+        "report": {
+          "schema_version": "1",
+          "status": "pass",
+          "checked_at": "2026-10-19T12:26:00.986Z",
+          "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "summary": {
+            "findings": 0,
+            "block": 0,
+            "revise": 0,
+            "warn": 0
+          },
+          "parent_reconciliation": {
+            "outcome": "not_applicable",
+            "target_run_id": "",
+            "disposition": "not_applicable",
+            "evidence": "",
+            "missing_evidence": "none",
+            "next_action": "none"
+          },
+          "programme_aggregation": {
+            "applicable": false,
+            "startable": false,
+            "final_ready": false,
+            "acceptance_ref": "",
+            "evidence": [],
+            "missing_evidence": [],
+            "next_action": "none"
+          },
+          "findings": []
+        },
+        "presentation": null,
+        "recovery": null,
+        "host_action": {
+          "mode": "consume_report_and_continue",
+          "source": "report",
+          "allow_surrounding_text": true,
+          "may_request_run_or_evidence": false
+        },
+        "timing": {
+          "wrapper_ms": 0,
+          "input_ms": 138.757,
+          "target_ms": 1.763,
+          "control_ms": 1204.587,
+          "render_ms": 0,
+          "total_ms": 1345.285
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "call": {
+        "name": "agdf_dispatch",
+        "arguments": {
+          "skill_id": "gate-check",
+          "presentation_language": "de",
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "continue_delivery": true
+        }
+      },
+      "result": {
+        "schema_version": "1",
+        "contract_version": 1,
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "skill": {
+          "skill_id": "gate-check",
+          "dispatch_mode": "deterministic_control",
+          "deterministic_command": "gate-check",
+          "requires_control_snapshot": true,
+          "contract_version": 1
+        },
+        "runtime": {
+          "machine_validation": "local_exact_version_digest",
+          "expected_version": "0.14.5",
+          "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/21c68356f4b93142590114fbbd527c4d47be84db4df31433af4eaf7332c48dd5/0.14.5/node_modules/create-agdf/",
+          "runtime_digest": "8c53a9b06d021233c62c565f135fd5b4312db3fca2898abe7e3410fb0ee41b54",
+          "provenance_status": "matched"
+        },
+        "target": {
+          "schema_version": "1",
+          "resolution_state": "resolved",
+          "reason_code": "continued_target",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "evidence_sources": [],
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "target_changed": false,
+          "next_action": "",
+          "authorizes": false
+        },
+        "control": {
+          "status": "pass",
+          "current_gate": "OR",
+          "gate_route": {
+            "gate": "OR",
+            "skills": [
+              "release-or"
+            ]
+          },
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_operation": null,
+          "completion": {
+            "status": "completed",
+            "gate": "OR",
+            "fulfilled": true,
+            "vcs_handoff": "explicit_request_required"
+          },
+          "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+          "doctor_status": "pass",
+          "candidate_runs": []
+        },
+        "presentation": {
+          "schema_version": "1",
+          "semantic_block": "run_status_card",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "revision_id": "6bde5c5b-3559-4c2d-8cf5-eecd4e4f6d69",
+          "current_gate": "OR",
+          "presentation_language": "de",
+          "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Bound PRD preview review and restored UAT execution · `prd-preview-review-integration-20261018-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen<br>VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |",
+          "authorizes": false
+        },
+        "continuation": null,
+        "recovery": null,
+        "host_action": {
+          "mode": "transmit_presentation_verbatim_and_stop",
+          "source": "presentation.markdown",
+          "text": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | OR: Bound PRD preview review and restored UAT execution · `prd-preview-review-integration-20261018-01` |\n| Pfad | ✓ UR · ✓ PRD · ✓ SD · ✓ TP · ✓ QA · ✓ UAT · ✓ OR |\n| Status | bestanden |\n| Aktuelles Gate | Lieferbericht (`OR`) |\n| Jetzt erlaubt | einen ausdrücklich angeforderten VCS-Abschluss vorbereiten |\n| Aktuell verboten | abgeschlossene Run-Arbeit wiederholen<br>VCS- oder Release-Aktionen automatisch ausführen |\n| Nächster erlaubter Agentenschritt | Run abgeschlossen; einen VCS-Abschluss nur auf ausdrückliche Anforderung vorbereiten. |\n| Fehlende Freigabe | keine |",
+          "allow_surrounding_text": false,
+          "may_request_run_or_evidence": false
+        },
+        "timing": {
+          "wrapper_ms": 0,
+          "input_ms": 25.747,
+          "target_ms": 1.627,
+          "control_ms": 2614.393,
+          "render_ms": 1.456,
+          "total_ms": 2645.054
+        },
+        "diagnostics": []
+      }
+    }
+  ],
+  "stderr": ""
+}

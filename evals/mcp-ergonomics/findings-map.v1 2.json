@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "map_version": "v1",
+  "source": "AGDF MCP interface review of 2026-10-16 (twelve findings)",
+  "findings": [
+    { "id": "F01", "finding": "AGDF domain failures are returned without isError", "metrics": ["protocol.summary.classes.failure_without_isError", "native.agdf_failure_results"] },
+    { "id": "F02", "finding": "Worker maps every exception to dispatch_worker_failed (repair runtime / effect_unknown before dispatch)", "metrics": [],
+      "not_measurable": "Call matrix v1 has no input that fails inside the worker after SDK validation (for example the 64 KB command budget); add such a call in a later matrix version." },
+    { "id": "F03", "finding": "invalid_input is terminal and sends agent-directed text to the human", "metrics": ["protocol.calls.D-SEM-RELATIVE-DIRECTORY", "native.T5.success", "native.invalid_argument_calls"] },
+    { "id": "F04", "finding": "agdf_inspect and the command tools leave parameters undocumented", "metrics": ["protocol.tools.documented_share", "native.mcp_only.success", "native.invalid_argument_calls"] },
+    { "id": "F05", "finding": "Command rejections return codes without recovery guidance; cockpit errors are undifferentiated", "metrics": ["protocol.calls.semantic_failure.outcome", "native.T6.success"] },
+    { "id": "F06", "finding": "Behavioral instructions live in descriptions and results", "metrics": ["native.with_skills_vs_mcp_only.success", "protocol.calls.D-VALID-STATUS.text_bytes"],
+      "partial": "Indirect only: the share of instruction payload is not separated from data in v1." },
+    { "id": "F07", "finding": "Tools mix effect classes (preview with apply, runtime replacement with recording)", "metrics": ["protocol.tools.annotations"],
+      "partial": "Static annotations only; host permission prompts per call are not measured in v1." },
+    { "id": "F08", "finding": "Large responses and a 1 MB cap far above host limits", "metrics": ["protocol.calls.text_bytes", "protocol.calls.est_tokens", "native.response_tokens"] },
+    { "id": "F09", "finding": "Per-call worker and provenance hashing cause high latency", "metrics": ["protocol.calls.latency_ms", "native.wall_time_ms"] },
+    { "id": "F10", "finding": "Command tools lack outputSchema; dispatch fields are loosely typed", "metrics": ["protocol.tools.has_output_schema"] },
+    { "id": "F11", "finding": "No MCP-specific evaluations exist", "metrics": ["baseline.exists"], "partial": "Closed by this baseline itself." },
+    { "id": "F12", "finding": "Metadata inconsistencies (capability manifest, idempotentHint, missing titles, handle lifetimes)", "metrics": ["protocol.tools.has_title", "protocol.tools.annotations"],
+      "partial": "The capability manifest and handle-lifetime texts are not compared in v1." }
+  ]
+}

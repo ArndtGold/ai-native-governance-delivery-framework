@@ -1,0 +1,58 @@
+## Kurzfassung · UAT
+
+Run: `mcp-ergonomics-baseline-20261016-01` · Gate: `UAT` · Revision: `4aa5341c-6df1-4053-8caa-0866341af591`
+
+- Ziel: Es gibt eine wiederholbare MCP-Ergonomie-Messung und einen committeten Ausgangswert für die heutigen AGDF-MCP-Schnittstellen. Spätere Phasen führen dieselbe Messung unverändert erneut aus und vergleichen ihre Ergebnisse damit.
+- Geliefertes Ergebnis: Messkomponente unter evals/mcp-ergonomics mit Protokoll-Schicht (32 Aufrufe) und nativer Claude-Code-Schicht (Opus 5.5 und Sonnet 5.5, mit Skills und nur MCP, sechs Aufgaben, zwei Runden); Baseline 2026-10-16-win32-x64 mit 48 von 48 gemessenen Sessions für 9,48 USD; Schnittstellen unverändert; alle 13 TP-Aufgaben erledigt, Code Review mit 16 behobenen Befunden bestanden, alle Tests grün.
+- Technische QA: pass
+- Nachweisgrenzen: Nur Claude Code 2.1.296 unter Windows; zwei Wiederholungen zeigen eine Spanne; T6 aus den aufgezeichneten Transkripten neu bewertet; Signal-Aufräumen und unbekannte Kosten nur per Unit-Test geprüft; Skripte im Arbeitsbaum, nicht aus frischem Klon ausgeführt, weil noch nichts committet ist.
+- Risiken und offene Punkte: Bestehender Performance-Testfehler im MCP-Server (F09) unverändert; Verbindungs-Timeouts aus Lauf 2 ungeklärt, werden künftig diagnostiziert; Arbeit liegt uncommittet im main-Arbeitsbaum.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 26
+
+- QA: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_REPORT.md · sha256:ece687568c43fdfc521dada86493d08b242202690a20496d9245c04c62e8ccd2
+- UR: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md · sha256:f41c736bff1696ff0122c467a37652959a65ef0f79f8fd43f4a2e740c49d6711
+
+## Vorliegende UAT-Evidenz
+
+- ur · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md · Deckt ab:  · Stärke: exact cooperative association
+- route · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_REVIEW.md · Deckt ab: UR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/SPIKE_T003_FINDINGS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/IMPLEMENTATION_STATUS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/BASELINE_COMPARE.json · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/CR_FIX_VERIFICATION.json · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- review · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- evidence · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/CR13_NATIVE_SMOKE.md · Deckt ab: source_version_superseded · Stärke: ersetzt
+- CR · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/CODE_REVIEW.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/SPIKE_T003_FINDINGS.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/IMPLEMENTATION_STATUS.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/BASELINE_COMPARE.json · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/CR_FIX_VERIFICATION.json · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/evidence/CR13_NATIVE_SMOKE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/PRD_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/SD_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/QA_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

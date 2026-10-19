@@ -31,6 +31,8 @@ test('full plan preserves dependency ordering and mandatory package consumers in
     assert.equal(ids.includes('host-compatibility'), lane === 'repository');
     assert.equal(ids.includes('compatibility-freshness'), lane === 'repository');
     assert.equal(ids.includes('pages'), lane === 'repository');
+    assert.equal(ids.includes('mcp-ergonomics'), lane === 'repository');
+    if (lane === 'repository') assert.ok(ids.indexOf('mcp-dependencies') < ids.indexOf('mcp-ergonomics'), 'evaluation tests import the MCP client');
   }
   assert.throws(() => verificationPlan({ lane: 'skip-tests' }), /Unknown/);
   assert.throws(() => verificationPlan({ stage: 'missing' }), /Unknown/);

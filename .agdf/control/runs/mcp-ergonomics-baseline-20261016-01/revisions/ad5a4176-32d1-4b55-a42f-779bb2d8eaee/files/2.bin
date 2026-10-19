@@ -1,0 +1,70 @@
+# CD+Tests: MCP ergonomics baseline evaluation
+
+Gate: CD+Tests
+Type: CD+Tests
+Status: done
+Decision: pass
+
+## Run
+
+- run_id: mcp-ergonomics-baseline-20261016-01
+- related_tp: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/TP.md (approved)
+- reviewer: Claude Code (claude-opus-5-5)
+- reviewed_at: 2026-10-16
+- code_state: `main` `16d08888` plus this run's uncommitted changes
+- supporting_evidence: `evidence/IMPLEMENTATION_STATUS.md` (T-001 to T-010, T-013 partial), `evidence/BASELINE_COMPARE.json`
+
+## CD+Tests
+
+- decision: pass
+- scope: T-001 to T-013 of the approved TP.
+- exception: the pre-existing `packages/mcp-server` `test:performance` failure (F09) is unchanged by this run and outside its scope; see Open.
+
+## Result
+
+| task_id | Result |
+|---|---|
+| T-011 | Native run 3 (owner, external terminal): 48 of 48 sessions measured, 9.48 USD of the 25 USD cap, `complete: true`, isolation manifests unchanged, credential copy removed. Every pre-session MCP check was connected at the first attempt (3.3 to 5.6 s); no MCP server besides `plugin:agdf:agdf`; built-in tools per session exactly as in the variant definition below. |
+| T-012 | Baseline promoted to `evals/mcp-ergonomics/baselines/2026-10-16-win32-x64/` (`baseline.json`, `REPORT.md`) from protocol run C and native run 3; redaction check passed. Compare against the promoted baseline: protocol run C and run B `unchanged` (0 differences), native run 3 `unchanged` (240 metrics, 0 changed, 0 not comparable). |
+| T-013 | Post-change `tools/list` at `16d08888` byte-identical to the T-002 capture. Diff scope: every changed and new path lies within the SDD-014 allowed paths, none under `packages/`. Passing: `npm run build`, `test:mcp-ergonomics` (31 tests), `test:verification`, `test:host-compatibility`, `compatibility:check`, mcp-server `test:package` and `test:sdk-digest`. |
+
+## Code state
+
+After T-001, PR #17 and PR #18 were merged into `main`; the working tree is now on `main` `16d08888`. Between `5ff1b512` and `16d08888` only tests and scripts changed under `packages/`, no runtime code. Protocol run C at `16d08888` equals protocol run A at `5ff1b512` in every non-timing metric with identical server, dispatcher and SDK digests. The baseline therefore uses protocol run C and native run 3, both at `16d08888`.
+
+## Native run history
+
+| Run | Sessions measured | Cost (USD) | Disposition |
+|---|---|---|---|
+| Run 1 | 48 of 48 | 11.89 | Superseded: the runner's tool allowlist deviated from SDD-007 (`Bash(node:*)` and no PowerShell for `with_skills`; `Glob`, `Grep`, `Write`, `Edit` for `mcp_only`). |
+| Run 2 | 19 of 48 | 9.69 | Superseded: 29 consecutive sessions saw the AGDF MCP server time out on connect (`CONNECT_TIMEOUT` after 60,000 ms), then it recovered. The transcripts also showed that `--allowedTools` only pre-approves: `mcp_only` sessions used `Glob`, `Grep` and read-only shell commands, and 15 claude.ai connectors were loaded in every session (none used). |
+| Smoke | 4 of 4 | 0.69 | T1, one round, verified the corrected variant isolation. |
+| Run 3 | 48 of 48 | 9.48 | Baseline run. |
+
+Total native spend including the T-003 spike and earlier smoke runs: about 33.9 USD; each run stayed under its 25 USD cap.
+
+## Runner corrections and owner decisions (SDD-007)
+
+All corrections are host configuration in `evals/` and `scripts/native-probes/`; no product change.
+
+- Allowed tools aligned with SDD-007. Owner decision 2026-10-16: `with_skills` = AGDF MCP tools, `Skill`, `Read`, `Bash` and `PowerShell` (Claude Code's shell on Windows); `mcp_only` = AGDF MCP tools and `Read`.
+- `--tools` limits the built-in tool set, because `--allowedTools` does not restrict tools. Owner decision 2026-10-16: `ToolSearch` stays in both variants so that Claude Code loads MCP tools on demand as in normal use.
+- claude.ai connectors are disabled for the isolated home (`ENABLE_CLAUDEAI_MCP_SERVERS=false`). Discovery stops before the first paid session if any other MCP server is present.
+- A free MCP check (`claude mcp list`) runs before each session, with one retry after 30 s. A cell whose check fails is `aborted` with `mcp_unavailable` and launcher diagnostics, at no cost.
+- Variant verification additionally rejects other MCP servers and built-in tools outside the variant.
+- Cleaned per-session transcripts are written to gitignored `probe-results` for checking the predicates and are never promoted. Cleaning covers local roots in every escaping depth, Git Bash and Claude project-directory forms, the user name, the git identity and non-AGDF server names.
+
+## Observations for the later phases
+
+- Success, run 3 (with_skills / mcp_only, 4 sessions each): T1 0/4 vs 4/4, T2 4/4 vs 0/4, T3 4/4 vs 1/4, T4 0/4 vs 0/4, T5 2/4 vs 0/4, T6 4/4 vs 4/4.
+- T2 `mcp_only`: the intake can only continue through the CLI `run-create`, and no MCP tool creates a run. MCP-only agents cannot start a delivery run.
+- T4: no session completed `agdf_inspect` `presentation-document`; every attempt failed SDK validation on required fields the schema does not describe (F04).
+- T5: the failures are `target_unresolved` because `target_source` was omitted (F03, F05).
+- T1 `with_skills`: the agents read the control files through the shell instead of calling AGDF.
+- T6 passes when the agent writes nothing; the transcripts show that the agents recognized the stale revision and asked. This limitation is stated in `REPORT.md`.
+- The run 2 connect timeouts are unexplained; the isolated home was already removed and no processes remained. The pre-session check now records launcher diagnostics if they recur (F09).
+
+## Open
+
+- Pre-existing failure, unchanged by this run: `packages/mcp-server` `test:performance` reports warm dispatch p95 2,477.8 ms against its 1,000 ms budget on this Windows machine (F09). No file under `packages/` changed.
+- Nothing is committed yet; the owner commits, on a feature branch, the evaluation, the baseline and this run's control files.

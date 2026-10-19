@@ -1,0 +1,166 @@
+# Brownfield Review: MCP ergonomics baseline evaluation
+
+Gate: Brownfield Review
+Type: Brownfield Review
+Mode: `post_ur_review`
+Status: `done`
+
+## Run
+
+- run_id: mcp-ergonomics-baseline-20261016-01
+- related_ur: .agdf/control/artefacts/mcp-ergonomics-baseline-20261016-01/UR.md (approved, revision 515f6244-5caf-4a56-a90c-63307f8e7dc1)
+- supersedes: the review archived by source revision 835fbe03-7a34-4676-92b8-6616c355e6d5 (UR narrowed to Claude Code only)
+- current_gate: Brownfield Review
+- reviewer: Claude Code agent (cooperative review, non-authorizing)
+- reviewed_at: 2026-10-16
+
+## Objective
+
+Size and route the approved, revised UR scope: a repeatable MCP ergonomics evaluation (deterministic
+protocol layer plus a native agent layer on Claude Code only, on this Windows machine, with the models
+Opus 5.5 and Sonnet 5.5, in with-skills and MCP-only variants) and a committed baseline for the current
+AGDF MCP interfaces, without changing any interface. Native Codex measurement is a non-goal and a
+follow-up slice.
+
+## UI / UX Impact Routing
+
+- delivery_context: `brownfield`
+- ui_ux_impact: `none`
+- ui_ux_impact_reason: The slice adds maintainer-facing evaluation tooling, data and a report. No AGDF
+  user-facing capability, decision, state, feedback, activation or recovery behavior changes; the MCP
+  tools, skills, cards and CLI output stay byte-identical.
+- ux_intent_definition_required: `no`
+- ux_intent_definition_result: `not_applicable`
+
+## Existing-System View
+
+| Area | Existing owner or artefact | Evidence | Impact |
+|---|---|---|---|
+| Product semantics | MCP tool contracts: `packages/core/lib/skill-dispatch/contract.js`, `packages/core/lib/control-inspect/contract.js`, `packages/core/lib/control-state/run-command-contract.js`, `packages/core/lib/control-inspect/cockpit-contract.js` | Read in the 2026-10-16 interface review; the eval only consumes them | `none` |
+| Source of truth | Tool definitions and result shapes above; server adapter `packages/mcp-server/src/server.js`, `worker.js`, `worker-entry.js`; runtime composition `packages/cli/lib/mcp-dispatch-runtime.js` | Eval reads `tools/list` and `tools/call` results; no second definition of tools or metrics semantics outside the new eval owner | `low` |
+| Runtime path | Owned MCP runtime and stdio client harness: `packages/mcp-server/test/helpers.js` (`withStdioClient`, 2026-07-28 pinning), `owned-runtime.js` (`createOwnedRuntimeFixture`), `stdio-entry.js`, `performance.test.js` (cold/warm latency, 20 runs) | Existing harness already starts the provenance-matched server against a disposable fixture and records latency | `low` |
+| UI / UX | none | No UI surface in scope | `none` |
+| Persistence / data | New committed baseline data and report; `probe-results/` is gitignored (`.gitignore:43`) | Native probes write to `probe-results/`; a committed baseline therefore needs a tracked location (to be fixed in SD) | `low` |
+| Tests / QA | Native host probe `scripts/native-probes/claude-host-e2e.mjs` (stream-json `parseSession`, `redact`, isolated `CLAUDE_CONFIG_DIR`/`AGDF_DATA_DIR`, credential copy deleted afterwards, `--model` option); Claude Code 2.1.268 is installed on this machine; eval layout `evals/` (`lib/`, `scripts/run-*`/`record-*`, `observations/`, `manifest.json`); mutation proof `evals/lib/skill-evals/workspace.js` (`snapshotWorkspace`, `changedPaths`, `mutationViolations`); live executor `packages/cli/lib/live-agent/read-only-structured.js` | Reusable for host isolation, transcript parsing, redaction and fixture-isolation proof | `medium` |
+| Release / operations | Root `package.json` is `private: true` (`agdf-repository`); compatibility evidence `docs/compatibility/evidence/snapshot.json` binds runtime sources (`packages/mcp-server/src` referenced), not native probes or MCP tests | New dev scripts do not touch published payloads; whether new eval files fall into a recorded source set must be checked once in SD | `low` |
+
+Current coverage: `partially_done`. Latency for one `agdf_dispatch` call shape exists
+(`performance.test.js`), native probes prove one dispatch and one failure case per host, and
+proportionality/skill evals measure routing and cost. No owner measures per-tool response size, error
+signalling, invalid-argument rate, calls per task or MCP-only self-descriptiveness.
+
+Reuse strategy: `extend`. Build one new MCP ergonomics owner under the existing `evals/` layout that
+imports the existing MCP test client/fixture and the native-probe host isolation, parsing and
+redaction mechanisms instead of copying them.
+
+## Architecture Impact
+
+- architecture_relevance: `architecture-not-applicable`
+- architecture_impact: `none`
+- architecture_reason: The slice adds evaluation tooling that observes the MCP interface through the
+  existing stdio client and the hosts' own CLIs. No module or owner boundary of the product changes, no
+  externally consumed interface (MCP tools, CLI, file formats) changes, no data/SoT ownership or
+  migration is introduced, no runtime/host contract changes and no security or policy authority
+  changes. Host isolation and credential handling reuse the existing native-probe pattern unchanged.
+- architecture_evidence: `packages/mcp-server/test/helpers.js`, `packages/mcp-server/test/owned-runtime.js`,
+  `scripts/native-probes/claude-host-e2e.mjs`,
+  `evals/lib/skill-evals/workspace.js`, root `package.json` (`private: true`).
+- architecture_missing_evidence: `none` for routing. Feasibility facts for the native layer are open
+  PRD/SD questions below; if satisfying them would require a product CLI, installer, plugin or MCP
+  change, scope has grown and this review must be re-evaluated before continuing.
+- architecture_next_owner_and_action: PRD (prd-definition) fixes metrics, task set and variants; SD
+  (sd-definition) fixes harness reuse, data location and per-host metric sources.
+
+## Reuse And Parallel-Structure Risk
+
+| Finding | Evidence | Risk | Required action |
+|---|---|---|---|
+| Duplicate host-session parsing and redaction | `parseSession` and `redact` are local functions inside `scripts/native-probes/claude-host-e2e.mjs` | `warn` | SD decides reuse by extraction into a shared module consumed by the probe and the new eval, or by import; no copy-paste of parsing/redaction logic. The Codex follow-up slice reuses the same seam |
+| Second MCP client harness | `withStdioClient` and `createOwnedRuntimeFixture` already start the provenance-matched server | `warn` | Protocol layer must import the existing harness; no new server bootstrap |
+| Parallel eval framework | `evals/` already has `lib/`, `scripts/run-*`/`record-*`, observations and manifest conventions; proportionality has a live recorder | `warn` | Place the new suite in the existing layout and naming convention; do not add a second runner convention |
+| Second metric semantics for errors | AGDF failure outcomes live in result `outcome` fields; SDK validation errors use `isError` | `none` | PRD defines the counting rule once in the eval owner; contracts stay the source of outcome values |
+| Fixture isolation versus real control state | Native probes create disposable target repos; `workspace.js` proves mutation boundaries | `none` | Reuse snapshot/mutation proof for every fixture; the eval must never target this repository's `.agdf/control` |
+
+## Mode / Slice Decision
+
+- decision: `structured_slice`
+- required_next_gate: `PRD`
+- scope_reason: `bounded_structured_slice`. A new, repeatable evaluation capability with
+  nondeterministic native runs, several existing owners to reuse (MCP test harness, native probes, eval
+  layout) and metric/task definitions that need durable PRD acceptance criteria. No full-depth trigger is
+  evidenced. Rejected alternatives: `quick_task` and `verified_change` (new evaluation capability, not a
+  narrow fix; more than one canonical owner; native layer not deterministically verifiable);
+  `structured_delivery` (no authority, runtime, persistence, external-contract, release/cross-host
+  activation or unbounded coordination effect).
+- evidence: this review, including Structured Depth Evidence below.
+- transparency_note: PRD, SD and TP stay at slice depth: metrics, tasks, variants, harness reuse, data
+  location and test plan for this evaluation only. Interface changes remain Phases 1–3 in later runs.
+  Implementation-preparation Brownfield Analysis after TP approval remains required.
+
+## Structured Depth Evidence
+
+- depth_policy_version: `1`
+- depth_facts_status: `complete`
+- primary_reason_code: `bounded_structured_slice`
+- decisive_full_depth_triggers: none
+- rejected_alternative: `structured_delivery` (no evidenced trigger); `quick_task`/`verified_change`
+  (ineligible: new capability, multiple owners, nondeterministic native layer)
+- missing_or_conflicting_facts: none decisive for depth; native-layer feasibility facts are PRD/SD
+  questions with a re-evaluation condition (see Architecture Impact)
+- depth_evidence_refs: `packages/mcp-server/test/helpers.js`; `packages/mcp-server/test/owned-runtime.js`;
+  `packages/mcp-server/test/performance.test.js`; `scripts/native-probes/claude-host-e2e.mjs`;
+  `evals/manifest.json`; `evals/lib/skill-evals/workspace.js`;
+  `.gitignore:43`; root `package.json`
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | `pass` | One outcome with a clear acceptance boundary: repeatable evaluation plus committed baseline (UR Goal and Acceptance Signals) |
+| authority_boundary | `pass` | SoT for tools and outcomes stays in the Core contracts; no new trust, policy, permission or security boundary; host isolation and credential copy reuse the existing native-probe pattern |
+| owner_consumer_coordination | `pass` | Owner: AGDF maintainer; consumers: later phases of the same MCP plan; no shared external cutover |
+| full_depth_impacts_absent | `pass` | No product architecture, runtime, persistence, external API, public CLI, release or cross-host activation change; root package is private |
+| migration_propagation_bounded | `pass` | Additive new files and dev scripts only; any compatibility-evidence re-recording uses the existing deterministic `compatibility:record`/`check` commands |
+| failure_recovery_local | `pass` | Runs use disposable fixtures and isolated host homes; reverting removes the eval files without product effect |
+| independently_acceptable | `pass` | UR acceptance signals are self-contained; no later phase is a prerequisite |
+
+## PRD / SD Open Questions
+
+| Question | Required gate | Impact |
+|---|---|---|
+| Exact metric definitions and counting rules, including AGDF failure outcomes while `isError` is unset and token estimation method | `PRD` | `revise` |
+| Task set, expected outcomes, repetitions and cost cap (user decisions of 2026-10-16 to be recorded in the PRD) | `PRD` | `revise` |
+| How the MCP-only variant loads the AGDF MCP server in Claude Code 2.1.268 without AGDF skills and hooks, using only host configuration (no product change) | `SD` | `revise` |
+| Reliable Claude Code source for tokens and cost per session and per tool result, and whether `isError`/structured content reach the model | `SD` | `warn` |
+| Session order and cost accounting so that a reached cost cap still leaves every model/variant/task cell measured at least once | `SD` | `warn` |
+| Tracked location and format of baseline data and report (outside gitignored `probe-results/`); whether new files enter any recorded compatibility source set | `SD` | `warn` |
+| Shared extraction versus import of native-probe parsing/redaction | `SD` | `warn` |
+
+## Context Graph Impact
+
+- context_graph_impact: `none`
+- context_graph_refs: none
+- context_graph_required_action: `none`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: The review produced run-specific routing evidence only. A reusable fact (the
+  existence and location of the MCP ergonomics baseline) arises only after implementation; OR decides
+  then whether to link it from the existing MCP/evaluation nodes in `.agdf/control/CONTEXT_GRAPH.md`.
+
+## Next Permissible Step
+
+- next_allowed_action: Draft the PRD for this structured slice through prd-definition and request
+  `Approval: PRD`.
+- forbidden_until_then: SD, TP, implementation-preparation Brownfield Analysis, implementation, native
+  evaluation runs, QA and release.
+
+## Quality Outlook
+
+- quality_outlook: Good basis: the reuse path is concrete and the slice is bounded. Main quality risks
+  are native-run cost (Opus) and variance with two repetitions, and the MCP-only variant's feasibility in
+  Claude Code; PRD and SD must close them before TP.
+
+## Reassessment After UR Summary Revision
+
+- reviewed_at: 2026-10-16
+- reviewer: Claude Code (claude-opus-5-5)
+- trigger: UR source revision `ad5a4176-32d1-4b55-a42f-779bb2d8eaee`, which changed only the UR's localized AGDF Approval Summary into valid summary fields; the English UR sections, scope, goal, non-goals and acceptance signals are byte-identical.
+- result: the post-UR review above still holds. Owners, source-of-truth artefacts, reuse strategy, UI/UX impact `none` and the Mode/Slice Decision `structured_slice` are unchanged; the implementation that now exists confirms the reuse path (shared MCP test harness, owned-runtime fixture, extracted Claude session module, no file under `packages/` changed).
+- decision: `structured_slice`, required next gate `PRD`.

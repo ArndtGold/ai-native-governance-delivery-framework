@@ -44,7 +44,7 @@ Two UR source revisions renewed the chain: `835fbe03-7a34-4676-92b8-6616c355e6d5
 | Allowed now | Record exact OR and prepare the operational handoff |
 | Blocked by | none |
 | Missing approval | none |
-| Next step | The owner commits the change set on `feat/mcp-ergonomics-baseline-20261016-01` |
+| Next step | The owner commits the closeout on `feat/mcp-ergonomics-baseline-20261016-01` and merges PR #21 |
 | Quality outlook | Phase 1 (MCP error contract) can start against this baseline; the native Codex measurement is a separate follow-up slice |
 
 ## Delivered
@@ -56,7 +56,7 @@ Two UR source revisions renewed the chain: `835fbe03-7a34-4676-92b8-6616c355e6d5
 | Native Claude Code layer: Opus 5.5 and Sonnet 5.5, `with_skills` and `mcp_only`, two rounds, 25 USD cap, isolation proof, cleaned transcripts | `evals/scripts/run-mcp-ergonomics-native.js`; native run 3: 48 of 48 sessions, 9.48 USD, `complete` |
 | Shared Claude session module, also used by the existing host E2E probe | `scripts/native-probes/lib/claude-session.mjs`, `scripts/native-probes/claude-host-e2e.mjs` |
 | Promoted baseline and report | `evals/mcp-ergonomics/baselines/2026-10-16-win32-x64/baseline.json`, `REPORT.md` |
-| Unit tests in the repository CI lane and root scripts | `test:mcp-ergonomics` (37 tests), verify-ci stage `mcp-ergonomics`, `eval:mcp-ergonomics:protocol`, `:native`, `:compare` |
+| Unit tests in the repository CI lane and root scripts | `test:mcp-ergonomics` (37 tests), verify-ci stage `mcp-ergonomics` (owned by the CI check area `compatibility`), `eval:mcp-ergonomics:protocol`, `:native`, `:compare` |
 | Unchanged AGDF MCP interfaces | `evidence/TOOLS_LIST_BEFORE.json` and `TOOLS_LIST_AFTER.json` byte-identical; nothing under `packages/` changed |
 | Technical reviews, QA and human acceptance | `TP_REVIEW.md`, `CLEAN_IMPLEMENTATION_REVIEW.md`, `CODE_REVIEW.md`, `QA_REPORT.md` and the QA/UAT approval receipts |
 | Context Graph link | `CG-MCP-DISPATCH-ADAPTER` entry `mcp_ergonomics_baseline_20261017` |
@@ -83,6 +83,7 @@ Baseline results for the later phases: every one of the 9 AGDF failure results i
 | Clean Implementation Review | CLEAN_IMPLEMENTATION_REVIEW.md | Reuse of harness, fixtures and Core reads; bounded, visible guards; no normalized finding | direct |
 | QA and UAT | QA_REPORT.md; QA and UAT approval receipts in RUN_STATE.md | Sole QA decision `pass`; deliberate human acceptance on exact material | direct |
 | Baseline reproducibility | `evidence/CLEAN_CHECKOUT_VERIFICATION.md` | Protocol run from a fresh clone compares `unchanged` against the baseline | direct |
+| Integration with main for PR #21 | TP_REVIEW.md, Integration With main | After merging `origin/main` (#19, #20, `1ff067c7`): build, unit, verification, CI-plan and compatibility checks pass; protocol compare `unchanged`; `tools/list` identical to the T-002 capture | direct |
 
 TP Review and Clean Implementation Review were recorded after UAT approval. The run reached OR without them, and AGDF 0.14.5 accepted both steps only at CR or QA while closeout required them; that dead end was fixed in AGDF before closeout. The TP Review ran SCN-019 from a clean checkout for the first time and found that the README omitted the MCP server dependency install (TPR-01). With the owner's consent the README gained a Setup section after UAT; no code, test or metric changed, and the re-run from a fresh clone passed.
 
@@ -105,7 +106,7 @@ No mandatory evidence for the accepted slice is missing. These are disclosed qua
 | `packages/mcp-server` `test:performance` fails on this Windows machine (warm dispatch p95 about 2.5 s against 1 s, F09); pre-existing and unchanged | warn | Phase 3 (response budget and warm worker) |
 | Native run 2 lost 29 sessions to unexplained AGDF MCP connect timeouts | warn | The pre-session check records launcher diagnostics if they recur |
 | `--credentials-copy` can still copy the real login into the isolated home | warn | Opt-in only; the default is `CLAUDE_CODE_OAUTH_TOKEN` (CR-16) |
-| Nothing is committed yet | warn | Owner commits the change set on the feature branch |
+| One line in `scripts/ci-plan.mjs` lies outside the SDD-014 path list: main's CI owner table (#20) requires an owner for the approved `mcp-ergonomics` stage | warn | Disclosed in the TP Review; registration in the existing `compatibility` area, no product code; an SD revision is needed only if the owner wants the path list amended |
 | The UAT approval was recorded through the CLI after an AGDF MCP worker held the run lock; the run summary format was validated only at UAT; the quality projection showed missing evidence; closeout required steps it could not record | warn | AGDF defects handed to the fix run `core-approval-lock-defects-20261017-01`; no effect on this delivery's evidence |
 
 No blocking finding remains. No guard, cap, timeout or approval rule was weakened to pass a check.
@@ -142,7 +143,7 @@ The values above are copied from the selected-run Delivery Map projection. No Pa
 
 ## Next Permissible Step
 
-- next_allowed_action: The owner commits the change set on `feat/mcp-ergonomics-baseline-20261016-01`; delivery-closeout may prepare the commit handoff.
+- next_allowed_action: The owner commits the closeout on `feat/mcp-ergonomics-baseline-20261016-01` and merges PR #21 after green CI; delivery-closeout may prepare the commit handoff.
 - required_approval: none
 - forbidden_until_then: commit, push, pull request, installation or publication without a separate explicit user instruction.
 

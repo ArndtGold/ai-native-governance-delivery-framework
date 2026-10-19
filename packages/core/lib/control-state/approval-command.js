@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { prepareGateApproval } from "./run-recording.js";
+import { validateRunPresentationRecord } from './run-presentation.js';
 import { readRun } from "./run-state-edits.js";
 import { parseControlState, parseRunState } from "./run-state-parser.js";
 import { runSealState } from "./run-seal.js";
@@ -21,7 +22,12 @@ function observe(root, command, evaluateGateCheck) {
   const run = readRun(root, command.run_id);
   if (run.rejection || !sealIsValid(root, run.content)) return { available: false, reason: run.rejection?.reason ?? "seal_invalid" };
   let report;
-  try { report = evaluateGateCheck(root, { runId: command.run_id }); } catch { return { available: false, reason: "evaluation_unavailable" }; }
+  try {
+    const presented = validateRunPresentationRecord(root, { runId: command.run_id, gate: command.gate,
+      revisionId: command.expected_revision_id, presentationId: command.presentation_id });
+    const language = presented.reason ? undefined : presented.record.presentation_language;
+    report = evaluateGateCheck(root, { runId: command.run_id, ...(typeof language === 'string' ? { presentationLanguage: language } : {}) });
+  } catch { return { available: false, reason: "evaluation_unavailable" }; }
   return { available: true, revision: Number(run.meta.revision), revision_id: run.meta.revision_id,
     approval_status: parseControlState(run.content, { userGates: [command.gate] }).approvals.get(command.gate)?.status ?? "missing",
     lifecycle: run.meta.lifecycle, gate: report.current_gate, status: report.status,

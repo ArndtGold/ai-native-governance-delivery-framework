@@ -46,10 +46,55 @@ no redundant question, and Run IDs are not product questions. Genuine later_sd/l
 remain owner-bound deferrals, never hidden product decisions. Conflicting approved UR intent routes
 to its existing revision owner before a changed product draft can be presented.
 
+When a visible flow or decision remains hard to assess in prose, use a focused UI preview or scenario
+walkthrough following `ux-intent-definition`'s UI preview guidance. Reuse existing UX findings rather
+than creating a parallel specification or requiring another preview. Carry the scenario, observed
+feedback and qualification limits into the existing UX Intent And Success and Evidence Requirements
+sections; translate adopted behavior into stable acceptance criterion IDs. Record material product
+choices in the same Approval Decisions table, preserving unresolved `before_prd` rows. A positive
+reaction to a mockup resolves only the product questions actually answered; it is not `Approval: PRD`.
+For an optional aid, an unavailable visualization capability alone is not a readiness blocker when
+semantics can be clarified otherwise. Preserve an explicitly required preview from approved UR scope:
+read the UX report's exact run-local preview version, relative path, digests and observation limits.
+Confirm that the referenced durable copy exists and matches before relying on its findings; a
+chat-only preview, stale version or missing requested interaction leaves the obligation open.
+Use the existing UX analytical recovery route for missing required preview evidence; do not invent
+a product answer, repeat UR intake or bypass the required UX result. If PRD clarification creates or
+changes a preview, apply the UX skill's same retention and versioning rules. Keep material choices
+open until actually answered. Scope changes return to the earliest affected owner. Preview fidelity
+does not prescribe SD choices or prove working implementation.
+
 Gate-check alone evaluates readiness. Permission to finish clarification under
 AGDF_PRD_DECISIONS_OPEN does not remove the blocker or permit approval. Missing required UX input
 and unrelated integrity/source blockers are not PRD clarification permission. Use the interaction
 contract Bounded internal recovery route for eligible UX preparation; do not author PRD first.
+
+## Prepare the preview review handoff
+
+For a required UI preview, put a concise review task and versioned preview access in UX Intent And
+Success, relate the scenarios to stable criterion IDs, and retain the observations and limitations
+in Evidence Requirements. Keep material answers in Approval Decisions. Explain that PRD approval
+adopts the specified behavior and criteria; implementation, visual-design acceptance and delivery
+evidence require their own applicable sources. Do not label a proposed flow as already delivered.
+Follow interaction.md PRD Preview Review At Approval for the single canonical presentation owner,
+viewing/approval distinction, host availability and required revalidation. Prepare source material;
+never hand-build an extra approval card or claim missing runtime integration is implemented.
+
+The PRD owns exactly one `## Preview Review` section containing only one fenced `json` object.
+Use `schema_version: "1"`, a short lowercase `version` ending in `-vN`, the canonical approved
+`source_ur_digest`, and `entry: ".agdf/control/artefacts/<run_id>/previews/<version>/index.html"`.
+Provide `files` sorted by path, each with `path`, raw-byte SHA-256 `digest`, exact `bytes` and
+`media_type`; also provide `review_task`, nonempty `scenarios`, valid PRD `criterion_ids`, and
+`open_questions` (an array, possibly empty). No other keys or separate manifest are accepted.
+The whole descriptor is at most 16 KiB; at most 32 files, 128 KiB each and 1 MiB combined.
+Supported media are text/html, text/css, text/javascript and PNG/JPEG/WebP/GIF/SVG images.
+Keep classic scripts, styles, CSS imports and images local and declared; no network, modules,
+forms, embedded frames or host calls. Unsupported resource syntax fails explicitly. Bundle or
+simplify the example within the existing unapproved source owner; never substitute a blank view.
+The prepared PRD presentation snapshots exact source files and the isolated rendered view. It
+offers versioned access beside the document; opening it is not approval or proof of human review.
+A changed or unavailable required file requires repair/revision and a fresh presentation before
+an approval reply. Existing unmarked URs need no descriptor; an authored descriptor always binds.
 
 ## Explicit revision and recording
 

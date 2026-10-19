@@ -1,0 +1,47 @@
+TAP version 13
+# Artifact authoring readiness: validator parity, incomplete input, revision, source and read-only checks passed.
+# Subtest: packages/core/test/artifact-readiness-test.js
+ok 1 - packages/core/test/artifact-readiness-test.js
+  ---
+  duration_ms: 13471.141227
+  type: 'test'
+  ...
+# Closed authored-content contexts, field-local placeholder boundaries, current source/localization and historical/read-only limits passed.
+# Actual UR registration/replacement writer projection, custom preservation and read-only missing-content recovery passed (synthetic only).
+# Subtest: packages/core/test/decision-content-test.js
+ok 2 - packages/core/test/decision-content-test.js
+  ---
+  duration_ms: 5523.419564
+  type: 'test'
+  ...
+# Bound immutable document chunks, UTF-8 boundaries, exact-byte digest, shared Inspect projection and tamper/symlink approval denial passed (synthetic only).
+# Subtest: packages/core/test/presentation-document-test.js
+ok 3 - packages/core/test/presentation-document-test.js
+  ---
+  duration_ms: 18670.498643
+  type: 'test'
+  ...
+# SCN-012/027: actual early PRD revision archives v5 files/chunks, ignores later live history changes, renews presentation and rejects old replies; native facade approval/replay passed.
+# SCN-009/010/011/015/018/021/025/030: exact preview preparation, interruption, actual approval denial/race, receipt and current proof passed (synthetic runs).
+# Subtest: packages/core/test/preview-presentation-test.js
+ok 4 - packages/core/test/preview-presentation-test.js
+  ---
+  duration_ms: 17320.799055
+  type: 'test'
+  ...
+# SCN-004/013/020/026: exact selectors, actual session/Inspect UTF-8 chunk assembly, source denial, retirement and expiry passed (synthetic session).
+# Subtest: packages/core/test/preview-session-test.js
+ok 5 - packages/core/test/preview-session-test.js
+  ---
+  duration_ms: 12940.456001
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 37406.59205

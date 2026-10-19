@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { PassiveMarkdown } from '../DocumentView';
 import type { DecisionBootstrap, DecisionSubmission } from './decision-bootstrap';
 import { matchedDecisionReceipt } from './decision-bootstrap';
@@ -19,6 +19,7 @@ export function readDecisionNext(value: unknown): DecisionNext | null {
 export interface DecisionPort {
   submit: (input: DecisionSubmission) => Promise<Reply>;
   document: () => Promise<string>;
+  preview?: () => Promise<string>;
   inspect: (operation: string) => Promise<Reply>;
   expand: () => Promise<void>;
   next?: (current: DecisionNext, approval: DecisionSubmission) => Promise<void>;
@@ -30,11 +31,27 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
   const continuationStarted = useRef(false);
   const alive = useRef(true), pending = useRef<DecisionSubmission | null>(null), inflight = useRef(false), openButton = useRef<HTMLButtonElement>(null);
   const documentHeading = useRef<HTMLHeadingElement>(null), restoreFocus = useRef(false);
+  const [preview, setPreview] = useState<string | null>(null), [previewReading, setPreviewReading] = useState(false), [previewReady, setPreviewReady] = useState(false);
+  const [previewProblem, setPreviewProblem] = useState(view.preview && !port.preview ? l.previewUnsupported : '');
+  const [previewAttempt, setPreviewAttempt] = useState(0);
+  const previewFrame = useRef<HTMLIFrameElement>(null), previewButton = useRef<HTMLButtonElement>(null), previewBack = useRef<HTMLButtonElement>(null);
   const current = () => alive.current && Date.now() < view.expires_at;
   useEffect(() => {
     if (document !== null) documentHeading.current?.focus();
     else if (restoreFocus.current) { restoreFocus.current = false; openButton.current?.focus(); }
   }, [document]);
+  useLayoutEffect(() => {
+    if (preview === null) return;
+    previewBack.current?.focus();
+    const listener = (event: MessageEvent) => {
+      // Render readiness only. No preview message is an action or host request.
+      if (event.source === previewFrame.current?.contentWindow && event.data?.type === 'agdf-preview-ready') { clearTimeout(timer); setPreviewReady(true); setPreviewProblem(''); }
+      if (event.source === previewFrame.current?.contentWindow && event.data?.type === 'agdf-preview-unavailable') { clearTimeout(timer); setPreviewReady(false); setPreviewProblem(l.previewUnsupported); }
+    };
+    window.addEventListener('message', listener);
+    const timer = setTimeout(() => setPreviewProblem(l.previewUnsupported), 10000);
+    return () => { window.removeEventListener('message', listener); clearTimeout(timer); };
+  }, [preview, previewAttempt, l.previewUnsupported]);
   useEffect(() => {
     alive.current = true;
     if (status === 'saved') return () => { alive.current = false; };
@@ -69,7 +86,7 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
   };
   const decide = () => {
     const action = 'approve';
-    if (!current() || status !== 'undecided' || view.capability !== 'available' || !view.enabled_actions.includes(action)) return;
+    if (!current() || status !== 'undecided' || previewReading || previewProblem || view.capability !== 'available' || !view.enabled_actions.includes(action)) return;
     void send({ session_id: view.session_id, operation_id: crypto.randomUUID(), presentation_id: view.binding.presentation_id,
       expected_revision_id: view.binding.expected_revision_id, action });
   };
@@ -98,8 +115,20 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
     } catch { if (alive.current) setMessage(l.docUnavailable); }
     finally { if (alive.current) setReading(false); }
   };
+  const openPreview = async () => {
+    if (previewReading || !view.preview || !port.preview || !current()) return;
+    setPreviewReading(true); setPreviewReady(false);
+    try { const html = await port.preview(); if (alive.current && current()) { setPreviewAttempt(v => v + 1); setPreview(html); void port.expand().catch(() => {}); } }
+    catch (error) {
+      if (alive.current) {
+        const stale = /changed|stale/.test(String(error));
+        if (stale) setStatus('stale');
+        setPreviewProblem(stale ? l.previewChanged : l.previewUnavailable);
+      }
+    } finally { if (alive.current) setPreviewReading(false); }
+  };
   const nativeApprovalAvailable = view.capability === 'available' && view.enabled_actions.includes('approve');
-  const disabled = status !== 'undecided';
+  const disabled = status !== 'undecided' || previewReading || Boolean(previewProblem);
   const gateTitles = (registry.locales as Record<string, { gateTitles: Record<string, string> }>)[view.binding.presentation_language]?.gateTitles;
   useEffect(() => {
     // Only a locally submitted, receipt-confirmed approval can resume work.
@@ -111,6 +140,15 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
       .catch(() => { if (alive.current) setContinuationMessage(l.nextUnavailable); });
     // Do not resend on a lost host acknowledgement or an ordinary rerender.
   }, [status, next, port, l.nextWaiting, l.nextRequested, l.nextUnavailable]);
+  if (preview !== null) return <section className="decision-card agdf-surface mcp-entry">
+    <button type="button" ref={previewBack} onClick={() => { setPreview(null); setTimeout(() => previewButton.current?.focus(), 0); }}>{l.back}</button>
+    <h1>{l.previewTitle} · {view.preview?.version}</h1><p>{l.previewIllustrative}</p>
+    {!previewReady && !previewProblem && <p role="status">{l.previewLoading}</p>}
+    {previewProblem && <p role="status">{previewProblem}</p>}
+    {previewProblem && <button type="button" onClick={() => { setPreview(null); void openPreview(); }}>{l.retryPreview}</button>}
+    <iframe key={previewAttempt} ref={previewFrame} title={l.previewTitle} sandbox="allow-scripts" referrerPolicy="no-referrer" srcDoc={preview}
+      style={{ width: '100%', height: 600, border: 0 }} />
+  </section>;
   if (document !== null) return <section className="decision-card agdf-surface mcp-entry">
     <button type="button" onClick={() => { restoreFocus.current = true; setDocument(null); }}>{l.back}</button>
     <h1 ref={documentHeading} tabIndex={-1}>{l.documentTitle} · {view.gate_title ?? view.binding.gate}</h1><p>{view.title}</p>
@@ -127,6 +165,14 @@ export function DecisionCard({ view, port, closeWarning = false }: { view: Decis
       ? <><strong>{view.approval_effect_label} </strong>{view.approval_effect}</> : l.consequence}</p>}
     <p>{l.sourceLanguage}</p>
     <button type="button" ref={openButton} disabled={!view.resource_id || reading} onClick={() => void open()}>{l.openDocument}</button>
+    {view.preview && <>
+      <button type="button" ref={previewButton} disabled={!port.preview || previewReading || status === 'stale' || status === 'expired'} onClick={() => void openPreview()}>{l.openPreview} · {view.preview.version}</button>
+      <p><strong>{l.previewTask}: </strong>{view.preview.task}</p>
+      <p>{l.previewScenarios}: {view.preview.scenarios.join(' · ')}</p><p>{l.previewCriteria}: {view.preview.criterion_ids.join(', ')}</p>
+      {Boolean(view.preview.open_questions?.length) && <><p><strong>{l.previewQuestions}:</strong></p>
+        <ul>{view.preview.open_questions!.map((question, index) => <li key={index}>{question}</li>)}</ul></>}
+      {previewProblem && <p role="status">{previewProblem}</p>}
+    </>}
     {!view.resource_id && <p>{l.docUnavailable}</p>}
     <details><summary>{l.sources}</summary>
       {view.decision_brief && <article className="document"><PassiveMarkdown content={view.summary} links={{}} onOpen={() => {}}/></article>}<dl>

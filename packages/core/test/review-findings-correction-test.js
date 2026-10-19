@@ -121,7 +121,8 @@ const reviewText = (title, decision, rows) => `# ${title}\nStatus: ${decision}\n
 // Emulates a runtime from before D4 and D5: no review requirement before QA, no late or OR
 // correction eligibility, and no early check of normalized finding rows at recording.
 const legacyCore = async () => {
-  const base = mkdtempSync(join(tmpdir(), 'agdf-pre-d5-core-')), core = resolve(import.meta.dirname, '..');
+  // The copy lives below the repository's node_modules, so its package imports resolve like the original's.
+  const core = resolve(import.meta.dirname, '..'), base = mkdtempSync(join(core, '../../node_modules', '.agdf-pre-d5-core-'));
   for (const part of ['lib', 'generated', 'package.json']) cpSync(join(core, part), join(base, 'packages/core', part), { recursive: true });
   cpSync(resolve(core, '../../plugins/agdf/control/templates'), join(base, 'plugins/agdf/control/templates'), { recursive: true });
   const strip = (relative, from, to, expected = 1) => {

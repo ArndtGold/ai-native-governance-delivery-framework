@@ -1,0 +1,922 @@
+{
+  "observed_at": "2026-10-19T12:21:04.928Z",
+  "lane": "actual_installed_plugin_stdio",
+  "native_ui_qualification": false,
+  "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+  "events": [
+    {
+      "name": "agdf_inspect",
+      "args": {
+        "presentation_language": "en",
+        "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "target_source": "continued_target",
+        "run_id": "prd-preview-review-integration-20261018-01",
+        "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+        "operation": "operation-status",
+        "module": "cb439773-af6b-4602-9020-be27381b3f44"
+      },
+      "result": {
+        "schema_version": "1",
+        "contract_version": 1,
+        "outcome": "inspect_result",
+        "terminal": false,
+        "authorizes": false,
+        "operation": "operation-status",
+        "runtime": {
+          "machine_validation": "local_exact_version_digest",
+          "expected_version": "0.14.5",
+          "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/21c68356f4b93142590114fbbd527c4d47be84db4df31433af4eaf7332c48dd5/0.14.5/node_modules/create-agdf/",
+          "runtime_digest": "8c53a9b06d021233c62c565f135fd5b4312db3fca2898abe7e3410fb0ee41b54",
+          "provenance_status": "matched"
+        },
+        "target": {
+          "schema_version": "1",
+          "resolution_state": "resolved",
+          "reason_code": "continued_target",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "evidence_sources": [],
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "target_changed": false,
+          "next_action": "",
+          "authorizes": false
+        },
+        "report": {
+          "schema_version": "1",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+          "authorizes": false,
+          "status": "absent",
+          "reason": "absence_is_not_proof_of_non_execution",
+          "current_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+          "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908"
+        },
+        "presentation": null,
+        "recovery": null,
+        "host_action": {
+          "mode": "consume_report_and_continue",
+          "source": "report",
+          "allow_surrounding_text": true,
+          "may_request_run_or_evidence": false
+        },
+        "timing": {
+          "wrapper_ms": 0,
+          "input_ms": 15.708,
+          "target_ms": 1.179,
+          "control_ms": 298.738,
+          "render_ms": 0,
+          "total_ms": 315.845
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "name": "agdf_inspect",
+      "args": {
+        "presentation_language": "en",
+        "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "target_source": "continued_target",
+        "run_id": "prd-preview-review-integration-20261018-01",
+        "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+        "operation": "operation-contract",
+        "module": "agdf_approve/approval.record"
+      },
+      "result": {
+        "schema_version": "1",
+        "contract_version": 1,
+        "outcome": "inspect_result",
+        "terminal": false,
+        "authorizes": false,
+        "operation": "operation-contract",
+        "runtime": {
+          "machine_validation": "local_exact_version_digest",
+          "expected_version": "0.14.5",
+          "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/21c68356f4b93142590114fbbd527c4d47be84db4df31433af4eaf7332c48dd5/0.14.5/node_modules/create-agdf/",
+          "runtime_digest": "8c53a9b06d021233c62c565f135fd5b4312db3fca2898abe7e3410fb0ee41b54",
+          "provenance_status": "matched"
+        },
+        "target": {
+          "schema_version": "1",
+          "resolution_state": "resolved",
+          "reason_code": "continued_target",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "evidence_sources": [],
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "target_changed": false,
+          "next_action": "",
+          "authorizes": false
+        },
+        "report": {
+          "schema_version": "1",
+          "available": true,
+          "group": "agdf_approve",
+          "kind": "approval.record",
+          "payload_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gate": {
+                "enum": [
+                  "UR",
+                  "PRD",
+                  "SD",
+                  "TP",
+                  "QA",
+                  "UAT"
+                ]
+              },
+              "presentation_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "response": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "gate",
+              "presentation_id",
+              "response"
+            ]
+          },
+          "owner": "approval-command.executeApprovalCommand",
+          "effects": [
+            "record one exact deliberate gate reply"
+          ],
+          "confirmation": "new_deliberate_exact_reply",
+          "schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "schema_version": {
+                "const": "1"
+              },
+              "presentation_language": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+              },
+              "working_directory": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "target_source": {
+                "enum": [
+                  "explicit_target",
+                  "continued_target",
+                  "current_repository"
+                ]
+              },
+              "primary_target": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "target_id": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "run_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+              },
+              "expected_revision_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "operation_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "assurance": {
+                "const": "cooperative_local"
+              },
+              "command": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "approval.record"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "gate": {
+                        "enum": [
+                          "UR",
+                          "PRD",
+                          "SD",
+                          "TP",
+                          "QA",
+                          "UAT"
+                        ]
+                      },
+                      "presentation_id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                      },
+                      "response": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8192
+                      }
+                    },
+                    "required": [
+                      "gate",
+                      "presentation_id",
+                      "response"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "payload"
+                ]
+              }
+            },
+            "required": [
+              "schema_version",
+              "presentation_language",
+              "working_directory",
+              "target_source",
+              "primary_target",
+              "target_id",
+              "run_id",
+              "expected_revision_id",
+              "operation_id",
+              "assurance",
+              "command"
+            ]
+          },
+          "retry_class": "inspect_original_operation_after_dispatch",
+          "assurance": "cooperative_local",
+          "reference_limits": {
+            "input_bytes": 65536,
+            "source_file_bytes": 131072,
+            "result_bytes": 1048576
+          },
+          "authorizes": false,
+          "confirmation_boundary": "host permission, concrete human intent and Core eligibility are separate",
+          "binding": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "run_id": "prd-preview-review-integration-20261018-01",
+            "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908"
+          },
+          "current": {
+            "current_gate": "UAT",
+            "lifecycle": "active",
+            "status": "blocked",
+            "missing_approval": "Approval: UAT",
+            "next_operation": {
+              "type": "resolve_control_blocker",
+              "operation_key": "control.resolve",
+              "actor": "agent",
+              "effect": "none",
+              "gate": "UAT",
+              "reason": "AGDF_DECISION_CONTENT_INCOMPLETE"
+            },
+            "completion": {
+              "status": "pending",
+              "gate": "OR",
+              "fulfilled": false
+            },
+            "artefacts": [
+              {
+                "type": "UR",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+                "status": "approved",
+                "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e",
+                "association": "applicability_unknown"
+              },
+              {
+                "type": "Brownfield Review",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_REVIEW.md",
+                "status": "done",
+                "digest": "sha256:050cd7011f66d326a5b0daccece5a0bb5b2a4db9d576a40696b003b419885a13",
+                "association": "applicability_unknown"
+              },
+              {
+                "type": "PRD",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD.md",
+                "status": "approved",
+                "digest": "sha256:e0ebc5711d585392e58765453498ae2679d886ac358f09e841a5faf34aa58a99",
+                "association": "applicability_unknown"
+              },
+              {
+                "type": "SD",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD.md",
+                "status": "approved",
+                "digest": "sha256:4b6eac0a3f58ad1c17ad7dfa65d2a299a60f198e4a7e09a9fa3fd5f32f520564",
+                "association": "applicability_unknown"
+              },
+              {
+                "type": "TP",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+                "status": "approved",
+                "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5",
+                "association": "applicability_unknown"
+              },
+              {
+                "type": "Brownfield Analysis",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_ANALYSIS.md",
+                "status": "done",
+                "digest": "sha256:4416540f4246a8d1d0bdb9e8cb49de573afda4fac570b4653fae020825db05c8",
+                "association": "current"
+              },
+              {
+                "type": "CD+Tests",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_TESTS.md",
+                "status": "done",
+                "digest": "sha256:abfd55bb9da97745c4b9f5d7305f4d20d0381b8418e727b8c3516ee2b0182e0e",
+                "association": "current"
+              },
+              {
+                "type": "CR",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CODE_REVIEW.md",
+                "status": "done",
+                "digest": "sha256:62d191f8dced9389386bbead61cf8f0c8bf2fa3e4609986fcc88f18d00702916",
+                "association": "applicability_unknown"
+              },
+              {
+                "type": "QA",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+                "status": "pass",
+                "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94",
+                "association": "current"
+              },
+              {
+                "type": "UX Intent Definition",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UX_INTENT_DEFINITION.md",
+                "status": "done",
+                "digest": "sha256:bd84f02c01bcb287edcf5fa15457b317fc40ed3f491f722ed5613be4fe5baf35",
+                "association": "current"
+              },
+              {
+                "type": "TP Review",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP_REVIEW.md",
+                "status": "done",
+                "digest": "sha256:0ef956a81d299d97020d21ce9db2d65c7fde878e3f577488f10bb78a63bbf0b7",
+                "association": "current"
+              },
+              {
+                "type": "Clean Implementation Review",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+                "status": "done",
+                "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a",
+                "association": "current"
+              }
+            ],
+            "source_bindings": [
+              {
+                "binding_id": "0e171b69-f1c3-4fd8-b02b-d2fa5f2c48a7",
+                "source": {
+                  "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+                  "type": "UR"
+                },
+                "destination": {
+                  "digest": "sha256:e0ebc5711d585392e58765453498ae2679d886ac358f09e841a5faf34aa58a99",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD.md",
+                  "status": "draft",
+                  "type": "PRD"
+                },
+                "relationship": {
+                  "from": "PRD",
+                  "relationship": "derived_from",
+                  "to": "UR"
+                }
+              },
+              {
+                "binding_id": "b6c64a1c-f0c9-479f-942e-202912f660de",
+                "source": {
+                  "digest": "sha256:e0ebc5711d585392e58765453498ae2679d886ac358f09e841a5faf34aa58a99",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD.md",
+                  "type": "PRD"
+                },
+                "destination": {
+                  "digest": "sha256:4b6eac0a3f58ad1c17ad7dfa65d2a299a60f198e4a7e09a9fa3fd5f32f520564",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD.md",
+                  "status": "draft",
+                  "type": "SD"
+                },
+                "relationship": {
+                  "from": "SD",
+                  "relationship": "derived_from",
+                  "to": "PRD"
+                }
+              },
+              {
+                "binding_id": "29217b49-838b-4098-9b23-9ebdba6714b7",
+                "source": {
+                  "digest": "sha256:4b6eac0a3f58ad1c17ad7dfa65d2a299a60f198e4a7e09a9fa3fd5f32f520564",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD.md",
+                  "type": "SD"
+                },
+                "destination": {
+                  "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+                  "status": "draft",
+                  "type": "TP"
+                },
+                "relationship": {
+                  "from": "TP",
+                  "relationship": "derived_from",
+                  "to": "SD"
+                }
+              },
+              {
+                "binding_id": "7e1e543b-1e93-47a2-be30-6143f1f5cbbf",
+                "source": {
+                  "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+                  "type": "TP"
+                },
+                "destination": {
+                  "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94",
+                  "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+                  "status": "pass",
+                  "type": "QA_REPORT"
+                },
+                "relationship": {
+                  "from": "QA_REPORT",
+                  "relationship": "tests",
+                  "to": "TP"
+                }
+              }
+            ]
+          }
+        },
+        "presentation": null,
+        "recovery": null,
+        "host_action": {
+          "mode": "consume_report_and_continue",
+          "source": "report",
+          "allow_surrounding_text": true,
+          "may_request_run_or_evidence": false
+        },
+        "timing": {
+          "wrapper_ms": 0,
+          "input_ms": 14.234,
+          "target_ms": 1.262,
+          "control_ms": 692.796,
+          "render_ms": 0,
+          "total_ms": 708.434
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "name": "agdf_approve",
+      "args": {
+        "presentation_language": "en",
+        "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "target_source": "continued_target",
+        "run_id": "prd-preview-review-integration-20261018-01",
+        "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+        "schema_version": "1",
+        "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+        "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+        "assurance": "cooperative_local",
+        "command": {
+          "kind": "approval.record",
+          "payload": {
+            "gate": "UAT",
+            "presentation_id": "bc4f4624-3d44-4e02-bce5-79b4f8c39023",
+            "response": "Approval: UAT"
+          }
+        }
+      },
+      "result": {
+        "schema_version": "1",
+        "outcome": "accepted",
+        "reason": null,
+        "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+        "request_digest": "sha256:3c775522033c33b9132c78d479cbdb43bdcf04207c4805a2cf9186934695d7fc",
+        "binding": {
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+          "kind": "approval.record"
+        },
+        "effect": {
+          "allowed_after_approval": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+          "approval": "Approval: UAT",
+          "artefact_digest": null,
+          "gate": "UAT",
+          "material_sources": [
+            {
+              "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+              "type": "UR"
+            },
+            {
+              "digest": "sha256:e0ebc5711d585392e58765453498ae2679d886ac358f09e841a5faf34aa58a99",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD.md",
+              "type": "PRD"
+            },
+            {
+              "digest": "sha256:4b6eac0a3f58ad1c17ad7dfa65d2a299a60f198e4a7e09a9fa3fd5f32f520564",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD.md",
+              "type": "SD"
+            },
+            {
+              "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+              "type": "TP"
+            },
+            {
+              "digest": "sha256:4416540f4246a8d1d0bdb9e8cb49de573afda4fac570b4653fae020825db05c8",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_ANALYSIS.md",
+              "type": "Brownfield Analysis"
+            },
+            {
+              "digest": "sha256:abfd55bb9da97745c4b9f5d7305f4d20d0381b8418e727b8c3516ee2b0182e0e",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_TESTS.md",
+              "type": "CD+Tests"
+            },
+            {
+              "digest": "sha256:0ef956a81d299d97020d21ce9db2d65c7fde878e3f577488f10bb78a63bbf0b7",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP_REVIEW.md",
+              "type": "TP Review"
+            },
+            {
+              "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+              "type": "Clean Implementation Review"
+            },
+            {
+              "digest": "sha256:62d191f8dced9389386bbead61cf8f0c8bf2fa3e4609986fcc88f18d00702916",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CODE_REVIEW.md",
+              "type": "CR"
+            },
+            {
+              "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94",
+              "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+              "type": "QA"
+            }
+          ],
+          "material_version": "sha256:f98b487e4f63475aeb4672a1886361c4af04034fa3cbab918ee0a0e140a0ff42",
+          "next_gate_after_approval": "OR",
+          "presentation_digest": "sha256:edd93ce92f0facc4f37334972c973f563ca90c4e273aa8f3115159717e6c4f7a",
+          "previous_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+          "resulting_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "revision": 23
+        },
+        "receipt": {
+          "action": "record_gate_approval",
+          "assurance": {
+            "independent_human_proof": "unavailable",
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply"
+          },
+          "binding": {
+            "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+            "gate": "UAT",
+            "presentation_id": "bc4f4624-3d44-4e02-bce5-79b4f8c39023",
+            "run_id": "prd-preview-review-integration-20261018-01",
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19"
+          },
+          "command_digest": "sha256:3c775522033c33b9132c78d479cbdb43bdcf04207c4805a2cf9186934695d7fc",
+          "created_at": "2026-10-19T12:21:12.686Z",
+          "effect": {
+            "allowed_after_approval": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+            "approval": "Approval: UAT",
+            "artefact_digest": null,
+            "gate": "UAT",
+            "material_sources": [
+              {
+                "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+                "type": "UR"
+              },
+              {
+                "digest": "sha256:e0ebc5711d585392e58765453498ae2679d886ac358f09e841a5faf34aa58a99",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD.md",
+                "type": "PRD"
+              },
+              {
+                "digest": "sha256:4b6eac0a3f58ad1c17ad7dfa65d2a299a60f198e4a7e09a9fa3fd5f32f520564",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD.md",
+                "type": "SD"
+              },
+              {
+                "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+                "type": "TP"
+              },
+              {
+                "digest": "sha256:4416540f4246a8d1d0bdb9e8cb49de573afda4fac570b4653fae020825db05c8",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_ANALYSIS.md",
+                "type": "Brownfield Analysis"
+              },
+              {
+                "digest": "sha256:abfd55bb9da97745c4b9f5d7305f4d20d0381b8418e727b8c3516ee2b0182e0e",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_TESTS.md",
+                "type": "CD+Tests"
+              },
+              {
+                "digest": "sha256:0ef956a81d299d97020d21ce9db2d65c7fde878e3f577488f10bb78a63bbf0b7",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP_REVIEW.md",
+                "type": "TP Review"
+              },
+              {
+                "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+                "type": "Clean Implementation Review"
+              },
+              {
+                "digest": "sha256:62d191f8dced9389386bbead61cf8f0c8bf2fa3e4609986fcc88f18d00702916",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CODE_REVIEW.md",
+                "type": "CR"
+              },
+              {
+                "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+                "type": "QA"
+              }
+            ],
+            "material_version": "sha256:f98b487e4f63475aeb4672a1886361c4af04034fa3cbab918ee0a0e140a0ff42",
+            "next_gate_after_approval": "OR",
+            "presentation_digest": "sha256:edd93ce92f0facc4f37334972c973f563ca90c4e273aa8f3115159717e6c4f7a",
+            "previous_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+            "resulting_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+            "revision": 23
+          },
+          "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+          "producer": {
+            "contract": "approval-service/1",
+            "package_version": "0.14.5"
+          },
+          "request_digest": "sha256:bc4977c5c09c63bc2da828c100e8e27fd412e3e58d2ad80f0bb6dbb39379624b",
+          "schema_version": "2"
+        },
+        "historical_effect": false,
+        "current": {
+          "available": true,
+          "revision": 23,
+          "revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "lifecycle": "active",
+          "gate": "OR",
+          "status": "open",
+          "missing_approval": "none",
+          "blocking_reason": "none",
+          "next_operation": {
+            "type": "record_closeout",
+            "skill_id": "release-or",
+            "operation_key": "closeout.record",
+            "actor": "agent",
+            "effect": "closeout",
+            "gate": "OR"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          }
+        },
+        "assurance": {
+          "lane": "cooperative_local",
+          "reply_provenance": "caller_forwarded_deliberate_reply",
+          "independent_human_proof": "unavailable"
+        },
+        "authorizes": false,
+        "recovery": null,
+        "family_result": {
+          "schema_version": "1",
+          "outcome": "accepted",
+          "reason": null,
+          "operation_id": "cb439773-af6b-4602-9020-be27381b3f44",
+          "request_digest": "sha256:bc4977c5c09c63bc2da828c100e8e27fd412e3e58d2ad80f0bb6dbb39379624b",
+          "binding": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "run_id": "prd-preview-review-integration-20261018-01",
+            "gate": "UAT",
+            "expected_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+            "presentation_id": "bc4f4624-3d44-4e02-bce5-79b4f8c39023"
+          },
+          "effect": {
+            "previous_revision_id": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+            "resulting_revision_id": "376867b8-956f-481f-824b-ddd775462514",
+            "revision": 23,
+            "gate": "UAT",
+            "approval": "Approval: UAT",
+            "material_version": "sha256:f98b487e4f63475aeb4672a1886361c4af04034fa3cbab918ee0a0e140a0ff42",
+            "material_sources": [
+              {
+                "type": "UR",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+                "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e"
+              },
+              {
+                "type": "PRD",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD.md",
+                "digest": "sha256:e0ebc5711d585392e58765453498ae2679d886ac358f09e841a5faf34aa58a99"
+              },
+              {
+                "type": "SD",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD.md",
+                "digest": "sha256:4b6eac0a3f58ad1c17ad7dfa65d2a299a60f198e4a7e09a9fa3fd5f32f520564"
+              },
+              {
+                "type": "TP",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP.md",
+                "digest": "sha256:150cea2ce16e423488ae6ec411388943f0849f82d2a0193e9c0e36d27bc859c5"
+              },
+              {
+                "type": "Brownfield Analysis",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_ANALYSIS.md",
+                "digest": "sha256:4416540f4246a8d1d0bdb9e8cb49de573afda4fac570b4653fae020825db05c8"
+              },
+              {
+                "type": "CD+Tests",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_TESTS.md",
+                "digest": "sha256:abfd55bb9da97745c4b9f5d7305f4d20d0381b8418e727b8c3516ee2b0182e0e"
+              },
+              {
+                "type": "TP Review",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP_REVIEW.md",
+                "digest": "sha256:0ef956a81d299d97020d21ce9db2d65c7fde878e3f577488f10bb78a63bbf0b7"
+              },
+              {
+                "type": "Clean Implementation Review",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+                "digest": "sha256:7d42326719a040f66c9f521e32a007a878a7dba07a6b4406cbf143f48fc2a89a"
+              },
+              {
+                "type": "CR",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/CODE_REVIEW.md",
+                "digest": "sha256:62d191f8dced9389386bbead61cf8f0c8bf2fa3e4609986fcc88f18d00702916"
+              },
+              {
+                "type": "QA",
+                "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+                "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94"
+              }
+            ],
+            "artefact_digest": null,
+            "presentation_digest": "sha256:edd93ce92f0facc4f37334972c973f563ca90c4e273aa8f3115159717e6c4f7a",
+            "next_gate_after_approval": "OR",
+            "allowed_after_approval": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically."
+          },
+          "assurance": {
+            "lane": "cooperative_local",
+            "reply_provenance": "caller_forwarded_deliberate_reply",
+            "independent_human_proof": "unavailable"
+          },
+          "current": {
+            "available": true,
+            "revision": 23,
+            "revision_id": "376867b8-956f-481f-824b-ddd775462514",
+            "approval_status": "approved",
+            "lifecycle": "active",
+            "gate": "OR",
+            "status": "open",
+            "missing_approval": "none",
+            "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+            "blocking_reason": "none"
+          },
+          "observations": {
+            "commit": "canonical_receipt_observed",
+            "durability": "file_and_directory_sync_completed",
+            "independent_human_proof": "unavailable"
+          },
+          "recovery": null
+        }
+      }
+    },
+    {
+      "name": "agdf_dispatch",
+      "args": {
+        "skill_id": "gate-check",
+        "presentation_language": "en",
+        "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+        "target_source": "continued_target",
+        "run_id": "prd-preview-review-integration-20261018-01",
+        "continue_delivery": true
+      },
+      "result": {
+        "schema_version": "1",
+        "contract_version": 1,
+        "outcome": "skill_continuation",
+        "terminal": false,
+        "authorizes": false,
+        "skill": {
+          "skill_id": "gate-check",
+          "dispatch_mode": "deterministic_control",
+          "deterministic_command": "gate-check",
+          "requires_control_snapshot": true,
+          "contract_version": 1
+        },
+        "runtime": {
+          "machine_validation": "local_exact_version_digest",
+          "expected_version": "0.14.5",
+          "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/21c68356f4b93142590114fbbd527c4d47be84db4df31433af4eaf7332c48dd5/0.14.5/node_modules/create-agdf/",
+          "runtime_digest": "8c53a9b06d021233c62c565f135fd5b4312db3fca2898abe7e3410fb0ee41b54",
+          "provenance_status": "matched"
+        },
+        "target": {
+          "schema_version": "1",
+          "resolution_state": "resolved",
+          "reason_code": "continued_target",
+          "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "evidence_sources": [],
+          "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "target_source": "continued_target",
+          "target_changed": false,
+          "next_action": "",
+          "authorizes": false
+        },
+        "control": {
+          "status": "open",
+          "current_gate": "OR",
+          "gate_route": {
+            "gate": "OR",
+            "skills": [
+              "release-or"
+            ]
+          },
+          "blocking_reason": "none",
+          "missing_approval": "none",
+          "next_operation": {
+            "type": "record_closeout",
+            "skill_id": "release-or",
+            "operation_key": "closeout.record",
+            "actor": "agent",
+            "effect": "closeout",
+            "gate": "OR"
+          },
+          "completion": {
+            "status": "pending",
+            "gate": "OR",
+            "fulfilled": false
+          },
+          "next_allowed_action": "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "doctor_status": "pass"
+        },
+        "presentation": null,
+        "continuation": {
+          "instruction": "Produce and persist the Orchestration Report for this bound run using its recorded approvals, artefacts, Task Plan, implementation and test evidence, QA result, and UAT approval. Preserve any missing evidence and risks explicitly; do not perform commit, push, PR, release or other VCS actions. After the OR is recorded, dispatch again with the same run and target.",
+          "phase": "post_uat_closeout",
+          "skill_id": "release-or",
+          "governance_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+          "run_id": "prd-preview-review-integration-20261018-01",
+          "revision_id": "376867b8-956f-481f-824b-ddd775462514",
+          "presentation_language": "en",
+          "template_path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/control/templates/artefacts/OR.md",
+          "runtime_contracts": [
+            {
+              "module": "closeout",
+              "content": "# AGDF Runtime Contract — Closeout\n\n## Support Answer Bridge\n\nWhen the user asks about a concrete ticket, issue, incident or support question, end with exactly one smallest useful next step.\nDo not treat that next step as approval.\nWhen the next step is gated, name the required approval or AGDF skill instead of implying work may proceed.\n\n\n## Relevant Run\n\nWhen `release-or` authors the Orchestration Report, it uses only the bound absolute plugin-owned\n`template_path` for `OR.md`. Repository scaffold copies never override it. Missing or unsafe plugin\ncontent blocks OR authoring without mutation or fallback and remains an explicit closeout gap.\n\nA relevant run is any run that changes durable state, creates or updates an AGDF artefact, changes code or runtime behaviour, performs a gate decision, blocks on a governance condition, produces QA/UAT/release evidence, or closes a delivery slice.\n\nOR is not mandatory for a pure explanation, read-only inspection, small review, or local debugging step that produces no durable state change and no gate consequence.\nWhen in doubt, use a short OR-lite only if it clarifies gate state, evidence, risk, or the next permissible step.\n\nA `quick_task` fully inside the Non-Normative Trivial Change Boundary above stays exempt from the full\nselected-run ceremony even when it is otherwise a relevant run. If a selected canonical\n`RUN_STATE.md` currently reflects another scope, append exactly one line to that run's\n`Prior Run Pointers` section noting what changed and that it is unrelated; do not edit any other\nsection or any other existing line.\n\n\n## Parent Reconciliation Handoff\n\nParent reconciliation is an optional closeout coordination projection. It never grants, revokes or\nblocks Child gates, QA, UAT, OR completion or an otherwise valid delivery handoff.\n\nIt activates only when the Child `Artefact Chain` contains exactly one evidenced row with:\n\n- `From`: `OR`\n- `Relationship`: `reconciles_with`\n- `To`: `parent_run:<run_id>` using the canonical run-id grammar\n\nNames, directories, branches, backlog proximity, chat history and evidence prose do not establish\nParentage. Delivery Map is the single deterministic evaluator. It compares the Child row with one\nevidenced reciprocal Parent row `Aggregate | includes | child_run:<run_id>` and returns exactly one\noutcome:\n\n- `resolved`: the named Parent has exactly one evidenced reciprocal Child relationship;\n- `not_applicable`: the Child declares no qualifying Parent relationship; or\n- `open`: the explicit relationship is invalid, ambiguous, unavailable, stale or lacks reciprocal\n  evidence.\n\nAn open outcome contains concrete evidence or missing evidence and exactly one next action. Optional\nChild handling input is limited to `action_required | accepted_open`. `accepted_open` keeps the\noutcome open and visible while allowing independently valid Child delivery to continue; it never\nasserts Parent reconciliation. Evaluation is read-only and must never mutate a Parent.\n\n`release-or` reports the evaluated result in the Child OR. `delivery-closeout` consumes that OR\nprojection only; it must not search sibling runs, infer a relationship, reevaluate evidence or repair\na Parent. Unresolved explicit reconciliation is warning-level coordination evidence, not a Child\ngate failure. Legacy runs without the optional relationship remain unchanged and add no routine\nvisible ceremony.\n\n\n## Programme Aggregation Readiness\n\nAn explicit Parent/programme run may project two independent evidence values:\n\n- `startable: true` requires at least one evidenced `Aggregate | includes | child_run:<run_id>` row\n  whose Child has a completed OR;\n- `final_ready: true` additionally requires one valid declared acceptance artefact beneath\n  `.agdf/control/artefacts/`, concrete aggregation evidence and\n  `programme_aggregation_missing_evidence: none`.\n\n`final_ready: true` always implies `startable: true`. Failed prerequisites stay false with explicit\nmissing evidence and one next action; they are never silently promoted. These values are evidence\nprojections only. They do not approve QA/UAT, create a gate or define the programme-specific\nacceptance criteria, which remain owned by the referenced programme artefact.\n\n\n## Do Not Duplicate\n\nThe explanatory framework lives in `docs/`.\nThe operating philosophy lives in `plugins/agdf/meta/agdf-constitution.md`.\nThe principles live in `plugins/agdf/meta/agdf-tenets.md`.\nThis contract is only the compact runtime interface for skills.\n",
+              "sha256": "ee976c8a6dcfbbaa39861c10c08762b4239eb36ea6e85d314278569bbafd8a60"
+            },
+            {
+              "module": "quality",
+              "content": "# AGDF Runtime Contract — Quality\n\n## Quality Readiness Projection\n\nWhen `qa-gate` authors or refines `QA_REPORT.md`, it uses only the bound absolute plugin-owned\n`template_path`. Repository scaffold copies are derived review references, not an authoring source.\nAn unavailable or unsafe template blocks QA report authoring without mutation or success-shaped\nfallback; it does not turn missing evidence into a QA decision.\n\nAfter CD+Tests, when any of the four review/QA artefacts exists, surfaces may show one compact\nderived `Quality Readiness` projection. It answers the user-facing question \"what is the current\nquality outcome and what should happen next?\" without replacing evidence or creating another\ndecision authority.\n\n- It contains exactly four rows, in this order: `Plan coverage` from `task-plan-review`,\n  `Solution integrity` from `clean-implementation-review`, `Code quality` from `code-review`,\n  and `QA decision` from `qa-gate`.\n- `qa-gate` is always labeled as the sole decision owner. The other three rows are evidence\n  dimensions, not competing pass/revise/block decisions.\n- Overall status reuses canonical severity ordering. Missing or conflicting required evidence\n  must not render `pass`; surface `revise` or `block` with the decisive reason and one permitted\n  next action instead.\n- The projection is derived, non-persistent and non-authorizing. It cannot accept an approval,\n  advance a gate, suppress a report or replace the Run Status Card, Gate Transition Card, JSON\n  projection or durable review artefacts.\n- Show compact rows on `pass`. On `revise` or `block`, expand only the decisive row with its\n  canonical report reference; do not paste complete reports into chat.\n\n\n## Chat Output Discipline\n\nDurable artefacts are for the repository, not for flooding the chat.\nWhen a skill creates or updates `.agdf/control/` files, gate artefacts, reviews, QA reports or OR reports, the chat response must stay compact:\n\n- name the artefact path and status\n- summarize the decision or content in a few lines\n- state the current gate, forbidden work and next permissible step\n- mention validation evidence when available\n\nDo not paste full control files, full artefact bodies, full templates or full generated reports into the chat unless the user explicitly asks to see the full content.\nFor larger or more formal work, create or update the durable artefacts fully, then reference them by path and summarize what changed.\n\n### Chat and Tool-Call Discipline\n\nChat output shows decisions and outcomes. Files show evidence and detail. The agent\nuses the sole Routine Continuation And Visible Events policy in interaction.md; every required\ncheckpoint and review still executes. It minimises tool calls and accompanying chat text. This\nis surface-agnostic: it changes agent behaviour and framework text, not host rendering.\nWhether a host renders a tool-call block visibly is a host concern; the framework ensures\nthe agent makes fewer calls and produces less text around them.\n\nSkill output compaction:\n\n- QA, Code Review, TP Review and Clean Implementation Review output is 1 line at `pass`:\n  `<skill>: pass — <one-line summary>`.\n- At `revise`/`block`: the decisive dimension, reason and next action. The Quality\n  Readiness projection is shown only at `revise`/`block`, not at `pass`.\n- Full reports remain in durable files; the chat references the path.\n\nTool-call batching:\n\n- `RUN_STATE.md` is written once per user gate approval, not once per field change. The\n  agent keeps intermediate state in memory between gate approvals and writes the complete\n  updated state in one operation, then records it with `run-update` before the next `gate-check`.\n- The agent does not `read` existing artefacts for format reference. Skill instructions\n  carry the format/structure inline. If a specific existing artefact must be inspected\n  for content (not format), the read has no accompanying commentary.\n- Artefact writes are silent: the agent names the path and a 1-line summary only when an\n  artefact is first created or significantly changed — not on every state update.\n- Validation commands (tests, integrity, diff) show pass/fail only. Full output appears\n  only on failure.\n\nAlways visible:\n\n- Gate decisions (Run Status Card, Gate Transition Card, approval question).\n- Post-acceptance narration (1 line per gate transition).\n- Delivery summary (UAT/OR compact summary).\n- Errors, blockers and evidence at `revise`/`block`.\n\n\n## Quality Contract Output\n\nCurrent structured QA preparation requires concrete authored fields in the first scalar block\nof existing QA sections: `delivered_result` under TP Coverage, `qualification_limits` under\nMissing Evidence and `delivery_risks` under Risks (canonical numbered headings supported).\nOnly limits/risks permit explicit `none`. Initial Run drafts stay authorable; current decisions\nrequire concrete orienting Objective. The shared bounded context observer excludes examples,\nquotes/code/HTML and whole template values; diagnosis and preparation never repair sources.\nUAT derives Goal from approved UR, actual result/limits from current QA, original QA/accepted\ndeviation disposition and the existing approval effect. It stores no second result authority.\nWhen source and display languages differ, existing source-authored Approval Summary uses\nGoal/Ziel and Delivered result/Ergebnis, Qualification limits/Grenzen, Risks/Risiken. Complete\ncurrent fields before new QA approval; missing approved legacy content stays protected and\nneeds its existing renewal assessment, never silent backfill. Historical accepted documents\nand completed Runs retain original proof. No content check grants approval or proves truth.\n\nCore reads reported technical results through one shared observer. `Decision`/`decision` and\ntechnical `Status` declarations may repeat the same supported result; `passed` normalizes to\n`pass`. Lifecycle metadata such as `Status: draft` or `Status: done` is not a QA result.\nOnly initial result metadata (optionally after the report H1) and the first scalar field block\nunder a column-zero H2 `Decision` or `QA Decision` heading are authored result contexts. Numeric\nsection prefixes and closing heading hashes are supported; canonical `## 1. QA Decision` remains\nvalid. Prose, unrelated/nested headings and non-metadata fields close the field block; a blank\nline never reopens it. Metadata names are the existing Decision, Status, Gate, Gate approval,\nBased on, Date, Owner, Type, Mode, Reviewer, reviewed_at, run_id, source_revision and Traceability\ncontract. Fenced/indented code, lists, blockquotes (including lazy continuations), HTML containers,\ncomments and raw blocks never supply results or conflicts. Only a clearly terminated container\nallows a following genuine decision section; uncertain/unclosed markup keeps its remainder excluded.\nThis is a conservative bounded report grammar, not general Markdown parsing or prose-intent inference.\nBound Quick review and non-UX internal registration reuse the observer. Only the internal analysis\ndomain opts into `not_applicable`; its existing eligibility/reason checks remain authoritative.\nConflicting supported values, an unknown or empty explicit Decision, or a missing supported\nresult remain unconfirmed. This observes authored evidence only: it grants no QA decision,\napproval, source replacement or closeout permission. Exact approved bytes and current bindings\nremain separately enforced.\n\nStructured Delivery skills use this shape when relevant:\n\n- `decision`: `pass | revise | block | not_applicable`\n- `evidence`: concrete artefacts, files, tests, logs, diffs, or observations\n- `missing_evidence`: missing proof needed for a stronger claim\n- `risks`: remaining risks, assumptions, fallbacks, drift, or blockers\n- `required_next_step`: exactly the next clean step\n- `impact_codes`: affected Quality Contract codes, if the target repo has a registry\n\n\n## Normalized Review Gaps\n\nThis section is the sole normative owner for review-gap classification and routing. An applicable\nfinding from Task Plan Review, Clean Implementation Review or Code Review carries exactly one\nnormalized gap type and one routing target:\n\n| gap_type | meaning | routing_target |\n|---|---|---|\n| `requirements_gap` | approved product behavior or an acceptance criterion is missing or contradictory | `PRD`; use `UR` only when user intent or scope changed |\n| `design_gap` | technical ownership, architecture, fallback policy, exit criterion or a prohibited parallel structure was not decided | `SD` |\n| `plan_gap` | an approved requirement or design obligation lacks an executable task, test or evidence mapping | `TP` |\n| `implementation_gap` | code or a surface does not fulfil an approved requirement, design or task | `CD+Tests` |\n| `evidence_gap` | required test, runtime or visible evidence is absent or insufficient | `evidence_obligation` |\n| `emergent_risk` | implementation exposes a concrete risk not reasonably decidable from approved artefacts | earliest affected `UR | PRD | SD | TP | CD+Tests | evidence_obligation` target after explicit assessment |\n\nNormalized finding rows use these fields in order:\n\n`finding_id | gap_type | routing_target | gap_status | evidence | required_next_step`\n\n- `finding_id` is stable within the durable review report.\n- `gap_type` is exactly one type from the table above.\n- `routing_target` is exactly `UR | PRD | SD | TP | CD+Tests | evidence_obligation` and must agree\n  with the fixed route above. `requirements_gap` may use `UR` only with evidence of changed user\n  intent or scope. `emergent_risk` requires an explicit earliest-owner assessment.\n- `gap_status` is exactly `open | resolved`.\n- `evidence` names concrete source, diff, test, observation or missing proof.\n- `required_next_step` is exactly one executable action consistent with the routing target.\n\nMissing, unknown or contradictory fields fail closed as an open gap. Consumers must not silently\nreclassify a finding. Classification is non-authorizing: it cannot edit or approve UR, PRD, SD or TP,\nadvance a gate or replace a review decision. `qa-gate` consumes the normalized findings and cannot\nreturn `pass` while any applicable finding is open or invalid.\n\n`none` is permitted only as a presentation sentinel on a fulfilled UX Intent Fidelity row.\nIt is not a seventh normalized finding type and must not appear in a normalized finding row.\n\nA consumer may repeat the field order and allowed scalar values needed to emit valid output. It must\nreference this section for meanings and routes instead of maintaining a second complete mapping.\n\n## Human QA Acceptance With Deviations\n\nThe technical QA decision remains exactly `pass | revise | block`. An explicit human acceptance\nof deviations is a separate disposition; it never changes `revise` to `pass`, resolves a finding,\nmarks a missing test passed, or grants native production qualification.\n\nThe existing unapproved QA report may contain one `QA Deviation Acceptance` JSON section,\nspecified in `docs/qa-deviation-acceptance.md`. Core evaluates it through the normalized finding\nowner above. Only complete, current low/medium evidence-only findings may be proposed; every\nopen finding must be covered exactly. Upstream or implementation gaps, malformed/conflicting\nfindings, `block`, non-passing protected Code/Clean reviews, stale associations and hard Run\nblockers prevent this route. Existing required obligations are not silently waived.\n\nBefore requesting a decision, show the bounded usage scope and each finding's risk, consequence,\nfollow-up and owner. The sole contextual action is `Approve with deviations` (German:\n`Mit Abweichungen freigeben`); Chat uses the existing exact `Approval: QA` against that newly\npresented version. A previously rejected response is never transferred. The existing approval\ntransaction, receipt and exact-material owner record one effect for both routes. UAT follows\nonly after that deliberate acceptance; the original report and open findings remain intact.\nUAT and OR must carry the accepted deviations forward explicitly.\n\n## UX Intent Fidelity\n\nWhen an approved PRD contains applicable UX criteria, `task-plan-review` produces an additional\nevidence matrix with these columns in order:\n\n`prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type`\n\n`fidelity_status` is exactly `fulfilled | partial | missing | not_verifiable`. A fulfilled row uses\nthe `none` sentinel. Any non-fulfilled row uses the applicable normalized type from `Normalized\nReview Gaps`; it may also emit the normalized finding shape when routing detail is required.\n\nThis matrix verifies PRD-to-TP coverage and TP-to-code/surface fulfilment. It does not create product\nrequirements and does not decide QA. A missing implementation-relevant PRD requirement is a\n`requirements_gap` and routes to PRD revision. `qa-gate` consumes this evidence and cannot return\n`pass` while an applicable row is `partial`, `missing` or `not_verifiable`, or while a visible-behavior\nclaim has code evidence without visible evidence. The four-row Quality Readiness projection and\n`qa-gate` sole decision ownership remain unchanged.\n\nA skill may briefly remind this shape, but must not duplicate a complete code or rule matrix.\n\n\n## Skill Output\n\nEvery skill output should be as short as possible and as concrete as needed.\nIt must distinguish:\n\n- facts\n- evidence\n- assumptions\n- interpretations\n- missing evidence\n- the next permissible step\n",
+              "sha256": "485836016a90eb258ba8ecd97ee37fb6025dfdbd1a3202c00daded90a9917f3e"
+            },
+            {
+              "module": "context-graph",
+              "content": "# AGDF Runtime Contract — Context Graph\n\n## Knowledge Persistence Decision\n\nEvery relevant run should decide what happens to new durable knowledge.\nThe decision is not a memory dump; it routes only reusable, evidenced information to the right owner.\n\nUse:\n\n- `memory_target: context_graph | sot_registry | scope_artifact | open_questions | none`\n- `memory_reason`: short reason for the target\n- `memory_refs`: paths or nodes affected\n\nGuidance:\n\n- Use `context_graph` for reusable Brownfield findings, decisions, risks, invariants and exit criteria.\n- Use `sot_registry` when source-of-truth ownership changes or drift is found.\n- Use `scope_artifact` for run-specific evidence, ticket details, screenshots, logs or local reproduction data.\n- Use `open_questions` when a durable question should survive the run but no answer is evidenced yet.\n- Use `none` for one-off observations without future decision value.\n\n\n## Context Graph Output\n\nWhen a run affects project memory or a Context Graph, use:\n\n- `Situation:` short plain-language summary when the impact is non-trivial\n- `context_graph_impact`: `none | link_only | update_existing_node | new_node_required | sot_drift`\n- `context_graph_refs`\n- `context_graph_reconciliation`: `resolved | not_applicable | open_gap`\n- `context_graph_required_action`: `none | link | update | create | resolve_drift`\n- `context_graph_gate_effect`: `none | warning | revise | block`\n- `context_graph_evidence`\n\nDo not create a new node for a mere version, a general chat summary, or a local observation without a concrete next clean step.\n`sot_drift` must not pass silently as a warning.\n\n### Context Graph Reconciliation\n\nRelevant-run closeout must reconcile Context Graph impact before presenting a clean delivery handoff.\n\n- Use `not_applicable` only when `context_graph_impact: none` and no durable graph knowledge is claimed.\n- Use `resolved` when required graph work is complete and concrete refs are present.\n- Use `open_gap` when graph work remains pending, refs are missing, or a node/update must still be curated.\n- `link`, `update`, `create` and `resolve_drift` require either `resolved` evidence or an explicit `open_gap`.\n- Resolved `link_only`, `update_existing_node` and `new_node_required` states require concrete `context_graph_refs`; `none`, empty refs or vague future-action language are not enough.\n- OR and delivery-closeout must not present commit-ready, release-ready or otherwise clean handoff while `context_graph_reconciliation: open_gap` remains.\n\n",
+              "sha256": "220e67591445eab6d23c9041ee9d755175bcf0f89f46960b73ae22c060a83e65"
+            },
+            {
+              "module": "control-scaffold",
+              "content": "# AGDF Runtime Contract — Control Scaffold\n\n## Delivery Path Search\n\nDelivery Path Search is an optional read-only planning step for high-impact decisions with several materially different next actions.\n\n- It consumes the canonical selected-run `gate-check` evaluation for run, revision, current gate and\n  legal actions. Persisted presentation Markdown such as the Run Status Card is never policy input.\n- It binds the selected `scope_key`, `scope_revision` and objective to one control snapshot. A stale\n  or incomplete snapshot fails before candidate generation or evaluation.\n- It reports the phase that actually ran: `input | candidate | evaluation | search`. A phase that\n  did not run cannot produce a later-phase conclusion.\n- Terminal status is `input_unavailable | no_legal_candidates | evaluator_unavailable |\n  evaluator_error | recommendation | no_safe_recommendation`. Recommendation-facing statuses\n  require at least one contract-valid evaluation. `candidate_queue_exhausted` is a stopping reason,\n  not recommendation evidence.\n- It reports baseline/generated/legal/rejected candidate counts and attempted/valid/invalid\n  evaluation counts. Zero valid evaluations must never be presented or persisted as an evaluated\n  recommendation conclusion.\n- It must report budgets, stopping reason and `full | tool_enforced | instruction_only` enforcement.\n- Model scores are judgements, not measurements.\n- Search output is evidence only. Canonical `gate-check` independently decides what may proceed.\n- Search applies only to the selected run objective. An unrelated decision needs the correct\n  governed scope; Delivery Path Search is not a second task-target resolver.\n- The bounded first-release algorithm must not be labelled MCTS.\n- Surface adapters may translate transport and presentation, but must not fork scoring, search or gate semantics.\n- Optional AI-native candidate generation supplements the deterministic candidate baseline; it never replaces it.\n- Generated proposals are untrusted. The core must validate schema, exact canonical gate action, scope, duplicates and material diversity before evaluation.\n- Generation is opt-in and bounded to one call, five proposals, 30 seconds and five abstract cost units by default, within whole-run budgets.\n- External generation receives only bounded normalized control summaries and references, never secrets, full artefacts, raw prompts, hidden reasoning or source snapshots.\n- Generator status, provenance, accepted/rejected counts, separate budget use and typed failure must remain visible. Failure retains the deterministic baseline; automatic provider fallback is forbidden.\n- Codex and Claude Code may provide tool-enforced generator transports. Copilot, OpenCode and generic surfaces remain instruction-only without conforming evidence.\n- OpenCode may provide a tool-enforced evaluator only for an invocation whose capability preflight proves `opencode run --pure --agent`, the owned evaluator agent and effective executable-tool denies. Preflight or transport failure must return `evaluator_unavailable` with `instruction_only` enforcement and point to the existing instruction-only workflow; it must not continue through a weaker subprocess.\n- OpenCode candidate generation remains unavailable.\n- Persistence accepts only contract-valid `recommendation` or `no_safe_recommendation` results with\n  at least one valid evaluation. Input, candidate and evaluator failure results remain transient.\n\nThe field names above are the stable machine-readable contract used by JSON\nreports and automation. Human-facing Markdown must present the same projection\nwith readable labels such as `Current gate`, `Allowed now`, `Blocked by`,\n`Next step` and `Quality outlook`; do not expose snake_case keys as the visible\nRun Status Card. Keep that card compact: show `Status`, `Current gate`,\n`Allowed now`, `Blocked by`, `Missing approval`, `Next gate after approval`\nand `Allowed after approval` when a missing approval exists, `Next step` and\n`Quality outlook`. Keep mode, forbidden actions, evidence and next-skill detail\nin the surrounding control artefact when they are relevant.\n\n\n## Control Scaffold\n\n### Run-Scoped Control State\n\nCanonical mutable run state lives at `.agdf/control/runs/<run_id>/RUN_STATE.md`, one file per run.\nRepository-level discovery is derived; do not maintain a writable active-run dashboard. Select with\n`--run`, then `AGDF_RUN_ID`, or automatically only when exactly one run is active. Ambiguity fails\nclosed. Legacy `AGDF_RUN.md` is migration input or an explicitly rendered non-authoritative projection,\nnever a second writable owner. Read-only commands must not migrate state.\n\n`run-create` writes a sealed run. The seal covers the run state and every file listed under\nArtefacts; an unrecorded edit blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH`. After\nchanging either, call `run-update --run <run_id> --revision <revision_id>` before `gate-check`; it\nadvances the revision and refuses Approvals changes. Only `run-approve` records an approval. Both run\non the surface-local validator. The seal detects unrecorded edits; it is not a signature.\nKeep one `Artefacts` row per type: update the existing placeholder row instead of appending another.\n`run-update` and all run writers reject duplicate rows without advancing the revision. Remove the\nextra row and retry `run-update` to record the correction. Duplicate rows in older sealed runs also\nblock `doctor` and gate presentation.\n\nWhen a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.\n\n- `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts. `chat_language` is the direct-command presentation default; dispatcher calls supply `presentation_language` under their current-request language contract. This presentation override never changes `artifact_language`. Runtime rules remain English. Authoring continuations supply the resolved languages and any required localized approval-summary heading before drafting.\n- `.agdf/control/runs/<run_id>/RUN_STATE.md` is the canonical current-run dashboard; legacy `AGDF_RUN.md` is migration input or an explicit non-authoritative projection.\n- `MASTER_BACKLOG.md` is the living pointer for active delivery work.\n- `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.\n- `SOT_REGISTRY.md` prevents parallel sources of truth.\n- `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.\n- `AGENT_QUALITY_CONTRACTS.json` stores reusable block, revise and warning conditions.\n- `memory_target`, `multi_scope_state` and branch/workspace evidence fields make ambiguity and persistence decisions visible without turning chat history into the source of truth.\n- OR reports live under `.agdf/control/artefacts/<key>/OR.md` when a run closeout is steering-relevant or should be auditable beyond the chat.\n\n### Human-readable Master Backlog\n\nThe Markdown backlog is a human steering view; CLI reports are its normalized\nmachine projection.\n\n- Use readable status labels such as `In progress`, `Awaiting UAT` and\n  `Completed` in Markdown.\n- Use links relative to `MASTER_BACKLOG.md`, such as\n  `[UR](artefacts/<key>/UR.md)`, instead of exposing long raw paths.\n- Keep `Priority`, `Key`, `Work item`, `Status`, `Artefacts`, `Current spec`\n  and `Next step` visible for active and planned work.\n- Keep one canonical template. Generated surface copies remain derived output.\n- Normalize human labels and link targets only at the CLI parser boundary.\n- Existing wide rows, raw paths and snake_case statuses remain supported for\n  backward compatibility.\n\nThe scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.\n\n## Agent-Native Runtime And CLI Verification\n\nAGDF is agent-native first and CLI-verifiable by design.\n\nThe primary operating path is the active skill plus the live `.agdf/control/` artefacts.\nAgents should read the repository state, apply this Runtime Contract, create or update only the currently allowed artefact, and make the next permissible step explicit.\nWhen control state is missing, follow the existing setup/link boundary before run creation.\nAfter a concrete run is bound, dispatch delegates requirement drafting to `ur-definition`.\nOnly fresh canonical readiness and a run-present binding may request `Approval: UR`.\nThis branch is unreachable for `target_unresolved`.\nInitialize a control scaffold only when durable AGDF control state is explicitly requested, already used by the repository, or required by a deterministic CLI/CI setup path.\n\nHelper commands are deterministic proof and automation interfaces, not the normal-work ritual:\n\n- `init` creates the machine-readable control scaffold.\n- `doctor --json` checks whether `.agdf/control/` is consistent and actionable; it is not the reviewer. On a host that lists the AGDF MCP server, the read-only tool `agdf_inspect` (`operation: doctor | gate-check | delivery-map | contract`) returns the same `--json` object and canonical Markdown without a shell; the shell binding stays the fallback. It never writes control state or prepares an approval binding.\n- `gate-check --json` reports reproducible gate state; it does not replace the gate-check skill judgement.\n- `gate-check --approval-envelope` prints a read-only summary and link to the current artefact. The agent uses `run-present` before asking for an exact gate approval.\n- `delivery-map --json` reports the delivery picture for CI, PRs, regression checks and audit trails.\n\nMachine-readable outputs should stay agent-friendly: stable decisions, blocking gate or current gate, missing approval, allowed outputs, forbidden outputs, next step, evidence and findings.\nThey make the repository state checkable, but they do not replace the native skill workflow or the durable control artefacts.\n\n### Repository Activation Diagnosis Boundary\n\n`doctor --json` on the resolved surface-local validator is the sole canonical, code-owned, tool-shell-safe activation probe. Plugin `AGDF_*` environment variables set by the OpenCode `shell.env` hook are an internal plugin status channel consumed by `opencode-status`, not an agent-facing diagnosis proof; host shell-env propagation to spawned tool shells is not guaranteed and is OpenCode-owned. A relative glob or `grep` for `.agdf/control/config.json` must not be used as proof of presence or absence of `.agdf/control/config.json`; an absolute `read` or the canonical CLI probe is required.\n\n## Delivery Map\n\n`delivery-map --json` is the machine-readable delivery picture for the selected canonical control state.\nIt derives, but does not replace, the selected `RUN_STATE.md` and `MASTER_BACKLOG.md` state.\n\nIt must expose:\n\n- approved or active artefacts and approvals\n- `UR -> PRD -> SD -> TP -> QA_REPORT` relationships\n- evidence refs, missing evidence and declared risks\n- multi-scope ambiguity and branch/workspace evidence limits when present\n- memory persistence target, reason and references when present\n- Context Graph impact and gate effect\n- optional evaluated Parent reconciliation and programme aggregation readiness from the Closeout\n  Contract, without changing Child gate authority\n- the Run Status Card as a compact projection of current gate, next step and quality outlook\n- findings that explain why the delivery picture is `pass | warn | revise | block`\n\nMissing relationship evidence in the Artefact Chain is at least `revise` once the related gate artefact is approved or passed.\nDeclared missing evidence, declared risk or Context Graph gate effect may escalate the delivery map to `warn`, `revise` or `block`.\n",
+              "sha256": "b14a97bceda4b299ddac503645fbe90c373bb219640170b818747abf973bd8b4"
+            }
+          ]
+        },
+        "recovery": null,
+        "host_action": {
+          "mode": "continue_named_skill",
+          "source": "continuation",
+          "bound_to_target": true
+        },
+        "timing": {
+          "wrapper_ms": 0,
+          "input_ms": 22.284,
+          "target_ms": 1.784,
+          "control_ms": 1134.992,
+          "render_ms": 0.991,
+          "total_ms": 1169.487
+        },
+        "diagnostics": []
+      }
+    }
+  ],
+  "stderr": ""
+}

@@ -15,7 +15,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { runPath } from "./run-state-reader.js";
 import { parseControlState } from "./run-state-parser.js";
-import { APPROVAL_GATES, canonicalRunText } from "./run-seal.js";
+import { APPROVAL_GATES, canonicalRunText } from "./run-seal-compute.js";
 import {
   firstSection,
   projectUrObjective,

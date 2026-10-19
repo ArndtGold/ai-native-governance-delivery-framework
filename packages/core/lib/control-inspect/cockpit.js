@@ -15,7 +15,7 @@ import { runWorkSummary } from '../control-evaluation/run-work-summary.js';
 import { runSealState } from '../control-state/run-seal.js';
 import { canonicalJson } from '../control-state/approval-command-contract.js';
 import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactReadiness } from './artifact-readiness.js';
-import { artefactFileDigest } from '../control-state/run-seal.js';
+import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 
 const CONTROL = '.agdf/control/';

@@ -46,5 +46,9 @@ or help retries. Dispatch never authorizes.
 ## Workflow
 
 Follow the focused UR contract using the original request and answered conversation context.
+Preserve explicitly requested previews and other clarification deliverables, their purpose and
+review timing in the UR; creation belongs to the later bound analytical step.
+Set the initial `Preview requirement` metadata according to the UR contract; a required
+interactive before-PRD preview uses `before_prd_interactive`, otherwise `none`.
 Write only the supplied unapproved UR, preserving uncertainty and explicit human approval.
 After canonical recording, redispatch gate-check; use its fresh presentation and wait.

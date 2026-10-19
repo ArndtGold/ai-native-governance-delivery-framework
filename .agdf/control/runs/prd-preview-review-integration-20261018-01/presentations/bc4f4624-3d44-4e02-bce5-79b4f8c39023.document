@@ -1,0 +1,46 @@
+## Review summary · UAT
+
+Run: `prd-preview-review-integration-20261018-01` · Gate: `UAT` · Revision: `4e3d6140-b170-477e-bf9c-8627b8b34908`
+
+- Intended outcome: A reviewer can judge the proposed user interaction before implementation, open the retained preview alongside the PRD review task, and deliberately approve the same verified product basis. Core prevents approval when a required preview is missing, belongs to another run or has changed since presentation. PRD approval continues to approve intended behavior, scope and acceptance criteria and permits the existing next step, Solution Design.
+- Delivered result: Required PRD previews can now be retained as exact Run-local versions, validated before presentation and actual approval, read through the existing bound decision/Inspect owners, and explored in an isolated review surface while one existing deliberate PRD approval remains authoritative. Missing, unsafe, foreign or changed evidence cannot approve the old basis.
+- Technical QA: pass
+- Qualification limits: Installed Codex/Claude/other native-host preview rendering, supported interaction and teardown, native Windows/Linux execution, assistive-technology testing and independent human comprehension were not observed. The qualified scope is local macOS Node 22 Core/API/package/STDIO and synthetic Chromium/SDK verification; these results do not qualify any installed host.
+- Risks and open issues: The new executable preview path requires the tested CSP/opaque sandbox and supported static-resource grammar; unsupported content stays unavailable. File/lock validation provides cooperative filesystem assurance, not malicious-process atomicity. The measured payload has zero spare headroom, so future payload growth requires the existing explicit budget review. Installation and native-host qualification remain separate work.
+- Approval effect: Prepare the delivery report; version-control and release actions still require explicit instruction.
+
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Superseded or unassociated evidence: 12
+
+- QA: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md · sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94
+- UR: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md · sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e
+
+## Available UAT evidence
+
+- UX Intent Definition · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- evidence · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_REVIEW_FIXES_EVIDENCE.md · Deckt ab: UR, PRD, SD, TP · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: superseded
+- QA · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: superseded
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- UR draft · Quelle: `.agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Brownfield Review · Quelle: `.agdf/control/artefacts/prd-preview-review-integration-20261018-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Artefact source binding · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/PRD_MAPPING_V1.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Artefact source binding · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/SD_MAPPING_V1.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Artefact source binding · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/TP_MAPPING_V1.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- .agdf/control/artefacts/prd-preview-review-integration-20261018-01/CD_REVIEW_FIXES_EVIDENCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Artefact source binding · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_MAPPING_V1.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown
+- Artefact source binding · Quelle: .agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_MAPPING_V2.json · Deckt ab: no_writer_owned_association · Stärke: applicability unknown

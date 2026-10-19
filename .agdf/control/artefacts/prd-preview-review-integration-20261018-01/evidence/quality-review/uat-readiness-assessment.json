@@ -1,0 +1,60 @@
+{
+  "revision": "4e3d6140-b170-477e-bf9c-8627b8b34908",
+  "qa": "approved",
+  "approved_ur": "unchanged",
+  "seal": "valid",
+  "de": {
+    "ready": false,
+    "groups": {
+      "result": "Erforderliche PRD-Vorschauen sind als genaue Fassung beim Run ablegbar und aus der bestehenden Entscheidung zugänglich. Core prüft Quellen, Dateien und Prüfsummen vor Präsentation und tatsächlicher Freigabe. Fehlende, unsichere, fremde oder veränderte Nachweise können die alte Grundlage nicht freigeben. Die isolierte Vorschau verändert nur Beispielzustände; eine bestehende bewusste PRD-Freigabe bleibt maßgeblich.",
+      "limits": "Keine neue Qualifikation eines installierten Codex-/Claude- oder anderen nativen Hosts, keine native Windows-/Linux-Ausführung, keine assistive Prüfung und keine unabhängige menschliche Verständlichkeitsprüfung. Agenten- und synthetische Browserbeobachtung werden ausdrücklich getrennt. Die offene Nachweisregel des Beispielprodukts bleibt unbeantwortet.",
+      "risks": "Isolation und die begrenzte unterstützte Ressourcengrammatik sind erforderlich. Die Dateiprüfung setzt kooperative Schreibzugriffe voraus. Das gemessene Paketbudget hat keinen freien Spielraum. Installation, zusätzliche Plattformen und native Host-Zusagen brauchen eigene Nachweise.",
+      "qa": "pass",
+      "goal": "A reviewer can judge the proposed user interaction before implementation, open the retained preview alongside the PRD review task, and deliberately approve the same verified product basis. Core prevents approval when a required preview is missing, belongs to another run or has changed since presentation. PRD approval continues to approve intended behavior, scope and acceptance criteria and permits the existing next step, Solution Design."
+    },
+    "sources": [
+      {
+        "type": "QA",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+        "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94"
+      },
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+        "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e"
+      }
+    ],
+    "gaps": [
+      {
+        "field": "ziel",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+        "owner": "ur-definition",
+        "reason": "localized_content_missing"
+      }
+    ]
+  },
+  "en": {
+    "ready": true,
+    "groups": {
+      "result": "Required PRD previews can now be retained as exact Run-local versions, validated before presentation and actual approval, read through the existing bound decision/Inspect owners, and explored in an isolated review surface while one existing deliberate PRD approval remains authoritative. Missing, unsafe, foreign or changed evidence cannot approve the old basis.",
+      "limits": "Installed Codex/Claude/other native-host preview rendering, supported interaction and teardown, native Windows/Linux execution, assistive-technology testing and independent human comprehension were not observed. The qualified scope is local macOS Node 22 Core/API/package/STDIO and synthetic Chromium/SDK verification; these results do not qualify any installed host.",
+      "risks": "The new executable preview path requires the tested CSP/opaque sandbox and supported static-resource grammar; unsupported content stays unavailable. File/lock validation provides cooperative filesystem assurance, not malicious-process atomicity. The measured payload has zero spare headroom, so future payload growth requires the existing explicit budget review. Installation and native-host qualification remain separate work.",
+      "qa": "pass",
+      "goal": "A reviewer can judge the proposed user interaction before implementation, open the retained preview alongside the PRD review task, and deliberately approve the same verified product basis. Core prevents approval when a required preview is missing, belongs to another run or has changed since presentation. PRD approval continues to approve intended behavior, scope and acceptance criteria and permits the existing next step, Solution Design."
+    },
+    "sources": [
+      {
+        "type": "QA",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/QA_REPORT.md",
+        "digest": "sha256:30f311c3a339885fbf05e432f19e5cd16ff9569dd4774d8385383006269e1d94"
+      },
+      {
+        "type": "UR",
+        "path": ".agdf/control/artefacts/prd-preview-review-integration-20261018-01/UR.md",
+        "digest": "sha256:9e0c79153e17b818574aa127ffa8b7e2e1616b6826870481a50627acfab72e1e"
+      }
+    ],
+    "gaps": []
+  },
+  "policy": "Read-only renewal assessment; no approved-source change, no presentation-language override, no UAT approval. English is viable only if explicitly requested by the user."
+}

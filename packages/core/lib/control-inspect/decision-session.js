@@ -2,7 +2,8 @@ import { randomUUID, createHash } from 'node:crypto';
 import { createCockpitSessionService } from './cockpit-session.js';
 import { COCKPIT_LIMITS, parseCockpitArguments } from './cockpit-contract.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
-import { validateRunPresentationRecord, readPresentationDocument } from '../control-state/run-presentation.js';
+import { validateRunPresentationRecord, readPresentationDocument, readPresentationPreview } from '../control-state/run-presentation.js';
+import { validateCurrentPreviewRecord } from '../control-state/preview-snapshot.js';
 import { prepareRunContentState } from '../control-evaluation/run-state.js';
 import { readRun } from '../control-state/run-state-edits.js';
 import { decisionMaterial } from '../control-state/presentation-decision.js';
@@ -64,7 +65,7 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       const state = prepareRunContentState(root, run.content, run.path);
       const material = decisionMaterial(root, state, input.command.payload.gate);
       if (!material.available) return { ...result, app_capability: 'unavailable', app_reason: material.reason };
-      if ([3, 4].includes(presentation.record.schema_version) && (typeof prepared.summary !== 'string'
+      if ([3, 4, 5].includes(presentation.record.schema_version) && (typeof prepared.summary !== 'string'
         || 'sha256:' + createHash('sha256').update(prepared.summary).digest('hex') !== presentation.record.summary_digest)) {
         return { ...result, app_capability: 'unavailable', app_reason: 'presentation_binding_changed' };
       }
@@ -79,7 +80,9 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       row.presentationDocument = binding.gate === 'UAT' ? Object.freeze({ resource_id: randomUUID(),
         run_id: binding.run_id, type: 'UAT', status: 'registered', path: null,
         registered_reference: `presentation:${binding.presentation_id}` }) : null;
-      row.hasSnapshot = [3, 4].includes(presentation.record.schema_version);
+      row.hasSnapshot = [3, 4, 5].includes(presentation.record.schema_version);
+      row.previewRecord = presentation.record.schema_version === 5 ? presentation.record : null;
+      row.previewResourceId = row.previewRecord ? randomUUID() : null;
       row.presentationText = row.presentationDocument ? prepared.text : null;
       row.presentedContentSeal = presentation.record.content_digest;
       row.documentDigest = row.hasSnapshot ? presentation.record.document_digest
@@ -125,6 +128,13 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
               ?? interactionLocales.locales.en.primary.afterApproval[binding.gate]),
             snapshot_id: snapshot.snapshot_id, resource_id: resource?.resource_id ?? null,
             document_digest: row.documentDigest,
+            ...(row.previewRecord ? { preview: { resource_id: row.previewResourceId,
+              version: row.previewRecord.preview_review.descriptor.version,
+              task: row.previewRecord.preview_review.descriptor.review_task,
+              scenarios: row.previewRecord.preview_review.descriptor.scenarios,
+              criterion_ids: row.previewRecord.preview_review.descriptor.criterion_ids,
+              open_questions: row.previewRecord.preview_review.descriptor.open_questions,
+              content_digest: row.previewRecord.preview_review.rendered_digest } } : {}),
             enabled_actions: row.qualified ? enabledDecisionActions(groups).filter(action => action === 'approve') : [],
             capability: row.qualified ? 'available' : 'not_qualified',
             comparison: presentationVersionComparison(root, state, binding.gate, row.documentDigest) } } };
@@ -156,7 +166,34 @@ export function createDecisionSessionService({ groups = Object.keys(RUN_COMMAND_
       const row = readers.get(input.session_id);
       if (!row || active(row.id) !== row) return failure('session_expired');
       if (input.operation === 'close') { await retire(row); return { schema_version: '1', state: 'available', data: { closed: true }, authorizes: false }; }
-      if (!['snapshot', 'document', 'freshness', 'changes'].includes(input.operation) || input.run_id && input.run_id !== row.binding.run_id) return failure('resource_denied');
+      if (!['snapshot', 'document', 'preview', 'freshness', 'changes'].includes(input.operation) || input.run_id && input.run_id !== row.binding.run_id) return failure('resource_denied');
+      if (input.operation === 'preview') {
+        if (signal?.aborted) return failure('cancelled');
+        if (!row.previewRecord || input.resource_id !== row.previewResourceId
+          || ![row.presentedRead.snapshot_id, row.currentRead.snapshot_id].includes(input.snapshot_id)) return failure('resource_denied');
+        if (row.readPending) return failure('busy');
+        touch(row); const captured = row.generation; row.readPending = true;
+        try {
+          const run = readRun(row.root, row.binding.run_id);
+          if (run.rejection || run.meta.revision_id !== row.binding.expected_revision_id || runSealState(row.root, run.content).status !== 'valid') return failure('decision_binding_changed');
+          validateCurrentPreviewRecord(row.root, row.previewRecord);
+          let content = '', cursor;
+          do {
+            const chunk = readPresentationPreview(row.root, { runId: row.binding.run_id, gate: row.binding.gate,
+              revisionId: row.binding.expected_revision_id, presentationId: row.binding.presentation_id, targetId: row.binding.target_id, cursor });
+            if (signal?.aborted) return failure('cancelled');
+            if (!chunk.available) return failure(chunk.reason);
+            if (chunk.applicability !== 'current') return failure('decision_binding_changed');
+            content += chunk.content; cursor = chunk.next_cursor ?? undefined;
+          } while (cursor);
+          if (active(row.id) !== row || row.generation !== captured) return failure('session_expired');
+          const result = { schema_version: '1', state: 'available', data: { preview: { resource_id: row.previewResourceId,
+            content, content_digest: row.previewRecord.preview_review.rendered_digest, version: row.previewRecord.preview_review.descriptor.version } }, authorizes: false };
+          if (Buffer.byteLength(JSON.stringify(result), 'utf8') > READ_LIMITS.response) return failure('resource_limit');
+          return result;
+        } catch (error) { return failure(error.message.startsWith('preview_') ? error.message : 'preview_unavailable'); }
+        finally { row.readPending = false; }
+      }
       const presented = input.snapshot_id === row.presentedRead.snapshot_id
         && (input.operation !== 'document' || input.resource_id === row.presentedRead.resource_id);
       const current = input.snapshot_id === row.currentRead.snapshot_id

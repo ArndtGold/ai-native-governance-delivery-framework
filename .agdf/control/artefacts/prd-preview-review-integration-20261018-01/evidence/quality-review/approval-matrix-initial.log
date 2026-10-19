@@ -1,0 +1,22 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"schema_version":"1","outcome":"recovery_required","reason":"seal_invalid","operation_id":"a1bcd6cd-28a8-4bdc-b6d8-79885f33f4b8","request_digest":"sha256:2f4b9cf080161cf362b9fe913d953eee3e10eb8404a94fe8b48b57697429c615","binding":{"target_id":"sha256:8f5fb37908aa545cdc960b619804f8a157c523959ec421c7508a2e7747c9e696","run_id":"qa-preview-matrix","expected_revision_id":"41d85f8d-035c-4f0a-8b0c-d72bf73621f4","kind":"approval.record"},"effect":null,"receipt":null,"historical_effect":false,"current":{"available":false,"reason":"seal_invalid"},"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"authorizes":false,"recovery":"Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer absence or create another decision.","family_result":{"schema_version":"1","outcome":"recovery_required","reason":"seal_invalid","operation_id":"a1bcd6cd-28a8-4bdc-b6d8-79885f33f4b8","request_digest":"sha256:0b1b1294a4668533ae6f8a5f76b20077149479901d0d24e943031451c7150da1","binding":{"target_id":"sha256:8f5fb37908aa545cdc960b619804f8a157c523959ec421c7508a2e7747c9e696","run_id":"qa-preview-matrix","gate":"PRD","expected_revision_id":"41d85f8d-035c-4f0a-8b0c-d72bf73621f4","presentation_id":"093ea0e5-38a4-4bf3-b7fa-b43e645f26ae"},"effect":null,"assurance":{"lane":"cooperative_local","reply_provenance":"caller_forwarded_deliberate_reply","independent_human_proof":"unavailable"},"current":{"available":false,"reason":"seal_invalid"},"observations":{"commit":"no_receipt_acknowledged","durability":"unconfirmed","independent_human_proof":"unavailable"},"recovery":"Inspect the canonical run and pending transaction or lock owner before retrying; preserve the original command and do not infer approval."}}
++ actual - expected
+
++ 'recovery_required'
+- 'rejected'
+     ^
+
+    at deny (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/prd-preview-review-integration-20261018-01/evidence/quality-review/approval-matrix.mjs:27:48)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/prd-preview-review-integration-20261018-01/evidence/quality-review/approval-matrix.mjs:45:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'recovery_required',
+  expected: 'rejected',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

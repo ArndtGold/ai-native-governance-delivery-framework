@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {parse} from '/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/node_modules/acorn/dist/acorn.mjs';
+const base='packages/core/lib/';
+function declarations(text){const map=new Map();for(let node of parse(text,{ecmaVersion:'latest',sourceType:'module'}).body){if(node.type==='ExportNamedDeclaration')node=node.declaration;if(!node)continue;if(node.id)map.set(node.id.name,text.slice(node.start,node.end));for(const d of node.declarations??[])map.set(d.id.name,text.slice(d.start,d.end))}return map}
+const owners=[['control-state/run-state-parser.js','control-state/run-state-document.js'],['control-state/presentation-decision.js','control-state/decision-material-contract.js'],['control-state/run-seal.js','control-state/run-seal-compute.js'],['control-evaluation/run-state.js','control-evaluation/run-state-policy.js']];
+const results=[];for(const[oldPath,newPath]of owners){const old=declarations(execFileSync('git',['show','HEAD:'+base+oldPath],{encoding:'utf8'}));const current=declarations(readFileSync(base+newPath,'utf8'));for(const[name,body]of current){if(!old.has(name))continue;assert.equal(body,old.get(name),name+' moved without changing its implementation');results.push({name,from:oldPath,to:newPath,implementation:'byte_identical'})}}
+assert.ok(results.length>=30);const result={reference:'e1ab24407e1e936f2bc0f5d9d4434abb0754789b',compared:results.length,scope:'Pre-existing moved declarations only. Envelope v5 is feature code covered by lifecycle/preview regressions.',results};writeFileSync('.agdf/control/artefacts/prd-preview-review-integration-20261018-01/evidence/core-cycle-fix/movement-audit.json',JSON.stringify(result,null,2)+'\n');console.log('PASS unchanged moved declarations:',results.length);

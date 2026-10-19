@@ -1,0 +1,93 @@
+{
+  "environment": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "arch": "x64"
+  },
+  "assurance": "actual Core command and session, disposable synthetic Run; no native host or human approval",
+  "rows": [
+    {
+      "scenario": "SCN-002",
+      "result": "pass",
+      "assertion": "Text and actual decision-session metadata agree on task/version/scenarios/criteria/open questions"
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "missing entry",
+      "result": "pass",
+      "outcome": "rejected",
+      "reason": "gate_not_ready",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "missing asset",
+      "result": "pass",
+      "outcome": "rejected",
+      "reason": "gate_not_ready",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "changed asset",
+      "result": "pass",
+      "outcome": "rejected",
+      "reason": "gate_not_ready",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "symlinked asset",
+      "result": "pass",
+      "outcome": "rejected",
+      "reason": "gate_not_ready",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "symlinked version ancestor",
+      "result": "pass",
+      "outcome": "rejected",
+      "reason": "gate_not_ready",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "wrong run",
+      "result": "pass",
+      "outcome": "recovery_required",
+      "reason": "seal_invalid",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "unsafe path",
+      "result": "pass",
+      "outcome": "recovery_required",
+      "reason": "seal_invalid",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "UR-source mismatch",
+      "result": "pass",
+      "outcome": "recovery_required",
+      "reason": "seal_invalid",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "incomplete asset manifest",
+      "result": "pass",
+      "outcome": "recovery_required",
+      "reason": "seal_invalid",
+      "run_unchanged": true
+    },
+    {
+      "scenario": "SCN-010/021",
+      "case": "unchanged valid basis",
+      "result": "pass",
+      "receipt_schema": "2"
+    }
+  ]
+}

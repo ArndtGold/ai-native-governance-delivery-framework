@@ -154,7 +154,8 @@ assert.equal(approvalMaterialTypes({ approvals: new Map([['QA', { status: 'appro
 const legacyCore = async () => {
   // Emulates a runtime from before this fix: the same Core without the QA review branch,
   // so a run can be approved past QA without TP Review and Clean Implementation Review.
-  const base = mkdtempSync(join(tmpdir(), 'agdf-pre-fix-core-')), core = resolve(import.meta.dirname, '..');
+  // The copy lives below the repository's node_modules, so its package imports resolve like the original's.
+  const core = resolve(import.meta.dirname, '..'), base = mkdtempSync(join(core, '../../node_modules', '.agdf-pre-fix-core-'));
   for (const part of ['lib', 'generated', 'package.json']) cpSync(join(core, part), join(base, 'packages/core', part), { recursive: true });
   cpSync(resolve(core, '../../plugins/agdf/control/templates'), join(base, 'plugins/agdf/control/templates'), { recursive: true });
   const policy = join(base, 'packages/core/lib/control-evaluation/gate-policy.js'), source = readFileSync(policy, 'utf8');

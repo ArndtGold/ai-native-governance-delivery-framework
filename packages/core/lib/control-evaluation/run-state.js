@@ -1,7 +1,9 @@
+import { userGateOrder, durableGateArtefacts, internalStepArtefacts, closeoutArtefacts, gateApprovalStatus, gateArtefactStatus, expectedDurableArtefactStatuses, describeDurableArtefactStatuses, modeSliceDecision } from "./run-state-policy.js";
+export { userGateOrder, durableGateArtefacts, internalStepArtefacts, closeoutArtefacts, gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, expectedDurableArtefactStatuses, describeDurableArtefactStatuses, isInternalStepSatisfied, modeSliceDecision } from "./run-state-policy.js";
 import { presentationDecisionState, approvedMaterialFindings, approvalMaterialTypes, reviewCorrections } from '../control-state/presentation-decision.js';
 import { inspectQaDeviationAcceptance } from '../control-state/qa-deviation-acceptance.js';
 import { createHash } from "node:crypto";
-import { canonicalRunText } from "../control-state/run-seal.js";
+import { canonicalRunText } from "../control-state/run-seal-compute.js";
 import { existsSync, readFileSync } from "../control-read/fs.js";
 import { join } from "node:path";
 import process from "node:process";
@@ -16,11 +18,6 @@ import { readSourceRevisions } from "../control-state/run-source-revisions.js";
 import { evidenceApplicability, STRUCTURED_REQUIRED_REVIEWS } from '../control-state/evidence-bindings.js';
 import { evaluateCloseoutReadiness } from './closeout-readiness.js';
 import { evaluateReconciliationState } from './parent-reconciliation.js';
-
-export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
-export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
-export const internalStepArtefacts = new Set(["Brownfield Review", "UX Intent Definition", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
-export const closeoutArtefacts = new Set(["OR"]);
 
 export function resolvedArtefactFile(targetDir, rawPath) {
   const normalizedPath = String(rawPath ?? "").replace(/^`|`$/g, "").trim();
@@ -181,32 +178,6 @@ export function sourceRevisionUxRequired(targetDir, state, { readArtefact } = {}
   return Boolean(file && extractField(readFileSync(file, "utf8"), "ux_intent_definition_required") === "yes");
 }
 
-export function gateApprovalStatus(runState, gate) {
-  if (!userGateOrder.includes(gate)) return "not_applicable";
-  return runState.approvals.get(gate)?.status ?? "";
-}
-
-export function gateArtefactStatus(runState, gate) {
-  if (!userGateOrder.includes(gate)) return { status: "not_applicable", path: "" };
-  return runState.artefacts.get(gate) ?? { status: "", path: "" };
-}
-
-export function isDurableGateArtefactSatisfied(runState, gate) {
-  if (!durableGateArtefacts.has(gate)) return true;
-  const artefact = gateArtefactStatus(runState, gate);
-  if (!artefact.path || isPlaceholderValue(artefact.path)) return false;
-  if (gate === "QA") return artefact.status === "pass" || artefact.status === "passed" || runState.qa_acceptance?.accepted === true;
-  return artefact.status === "approved";
-}
-
-export function expectedDurableArtefactStatuses(gate) {
-  return gate === "QA" ? ["pass", "passed"] : ["approved"];
-}
-
-export function describeDurableArtefactStatuses(gate) {
-  return expectedDurableArtefactStatuses(gate).map((status) => `\`${status}\``).join(" or ");
-}
-
 export function analyzeDurableGateArtefactConsistency(runState) {
   const findings = [];
 
@@ -283,22 +254,4 @@ export function analyzeArtefactRoleConsistency(targetDir, runState) {
     if (roles.includes("OR") && runState.artefacts.get("OR")?.status === "done" && (recordStatus !== "executed" || !miniCloseoutComplete)) findings.push({ severity: "block", code: "AGDF_VERIFIED_CHANGE_OR_ROLE_INVALID", message: "Consolidated OR is complete before execution and Mini-Closeout evidence are complete.", path, next_step: "Complete execution and Mini-Closeout evidence before marking OR done." });
   }
   return findings;
-}
-
-export function isInternalStepSatisfied(runState, step) {
-  const artefact = runState.artefacts.get(step);
-  if (!artefact) return false;
-  const associated = runState.evidence_applicability?.by_step.get(step);
-  if (associated && associated.applicability !== 'current') return false;
-  if (artefact.status === "done") return true;
-  return artefact.status === "not_applicable"
-    && (step === "Brownfield Review" || step === "Brownfield Analysis");
-}
-
-export function modeSliceDecision(runState) {
-  const decision = runState.mode_slice_decision?.decision ?? "";
-  const scopeReason = runState.mode_slice_decision?.scope_reason ?? "";
-  const evidence = runState.mode_slice_decision?.evidence ?? "";
-  if (!decision || isPlaceholderValue(decision) || !filled(scopeReason) || !filled(evidence)) return "undecided";
-  return decision;
 }

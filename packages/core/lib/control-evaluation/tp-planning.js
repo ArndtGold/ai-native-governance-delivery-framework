@@ -2,7 +2,7 @@ import { readFileSync } from '../control-read/fs.js';
 import { section } from './markdown-table.js';
 import { readSdDecisionRows } from './sd-readiness.js';
 import { declaredRoutes, validNormalizedGap, NORMALIZED_GAP_COLUMNS } from './normalized-gaps.js';
-import { artefactFileDigest } from '../control-state/run-seal.js';
+import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { readEvidenceBindings } from '../control-state/evidence-bindings.js';
 

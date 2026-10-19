@@ -2,10 +2,13 @@ import { readFileSync } from "../control-read/fs.js";
 import { resolvedArtefactFile } from "./run-state.js";
 import { resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { evaluateApprovalSummaryReadiness, renderApprovalSummaryIssue } from "../control-state/run-presentation-render.js";
+import { previewRequirement } from '../control-state/preview-review.js';
 
 export const UR_AUTHORING_FORMAT = Object.freeze({
   sections: Object.freeze(["Problem", "Goal", "Affected Users", "Scope", "Non-Goals", "Acceptance Signals", "Existing Source Of Truth", "Risks And Unknowns", "Next Step"]),
   readiness_contract: "Requirements clarification: complete", legacy: "legacy documents remain subject to their existing readiness rules",
+  preview_requirement: Object.freeze({ field: 'Preview requirement', placement: 'initial metadata before first section',
+    values: Object.freeze(['none', 'before_prd_interactive']), legacy: 'unmarked existing URs remain unchanged' }),
 });
 const sections = UR_AUTHORING_FORMAT.sections;
 const templatePrompts = new Set([
@@ -20,6 +23,7 @@ export function evaluateUrReadiness(targetDir, runState, { presentationLanguage 
   const path = resolvedArtefactFile(targetDir, runState.artefacts.get("UR")?.path);
   if (!path) return null;
   const content = readFileSync(path, "utf8");
+  try { previewRequirement(content); } catch (error) { return { ready: false, legacy: false, open_items: [error.message] }; }
   const markers = content.match(/^Requirements clarification:[^\r\n]*$/gmu) ?? [];
   if (!markers.length) return { ready: true, legacy: true, open_items: [] };
   const open = markers.length === 1 && markers[0].trim() === UR_AUTHORING_FORMAT.readiness_contract ? [] : ["Requirements clarification"];

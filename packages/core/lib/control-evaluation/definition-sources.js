@@ -1,7 +1,8 @@
 import { readFileSync } from '../control-read/fs.js';
 import { hasSymlinkComponent, containedRegularFile } from '../control-state/contained-file.js';
-import { artefactFileDigest } from '../control-state/run-seal.js';
+import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { extractField } from './verified-change.js';
+import { previewRequirement } from '../control-state/preview-review.js';
 
 export const UX_DECISION_FORMAT = Object.freeze({ declaration: '- decision: ready | blocked | not_applicable', values: Object.freeze(['ready', 'blocked', 'not_applicable']), readiness_value: 'ready' });
 export function inspectUxIntentDecision(content) {
@@ -20,6 +21,10 @@ export function inspectDefinitionSources(root, state, runId, gate, sourceTypes) 
     const file = containedRegularFile(root, path);
     if (hasSymlinkComponent(root, path) || file.status !== 'valid') return issue('source_unavailable', path, type, file.status);
     sources.push({ type, path, digest: artefactFileDigest(root, path) });
+    if (type === 'UR') {
+      try { previewRequirement(readFileSync(file.path, 'utf8')); }
+      catch (error) { return issue('source_unavailable', path, 'valid Preview requirement declaration', error.message); }
+    }
   }
   const reviewSource = sources.find(source => source.type === 'Brownfield Review');
   const review = reviewSource ? readFileSync(containedRegularFile(root, reviewSource.path).path, 'utf8') : '';

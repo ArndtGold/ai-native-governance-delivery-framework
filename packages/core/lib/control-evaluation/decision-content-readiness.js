@@ -1,6 +1,6 @@
 import { readFileSync, statSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
-import { artefactFileDigest } from '../control-state/run-seal.js';
+import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { readAuthoredContent, readReportDecision } from './report-decision.js';
 
 const prompts = new Set(['describe the trustworthy outcome.', 'what outcome should become possible?',

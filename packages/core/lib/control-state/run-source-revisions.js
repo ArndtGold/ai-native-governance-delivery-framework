@@ -2,7 +2,7 @@ import { TextDecoder } from "node:util";
 import { canonicalJson, digest, DIGEST_PATTERN, exactObject, COOPERATIVE_ASSURANCE } from "./approval-command-contract.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 import { isSafeControlRelativePath } from "./contained-file.js";
-import { parseControlState } from "./run-state-parser.js";
+import { parseControlState } from "./run-state-document.js";
 import { APPROVAL_GATES } from "./run-identity.js";
 import { evidenceApplicability } from './evidence-bindings.js';
 import { REVISION_STATEMENT_FIELDS, REVISION_QUALITY_FIELDS, REVISION_IMPACT_FIELDS, REVISION_UPSTREAM_FIELDS, REVISION_ANALYSIS_FIELDS } from './recording-formats.js';

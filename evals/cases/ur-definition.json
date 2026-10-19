@@ -122,5 +122,37 @@
     "mutation": {
       "allowed_paths": []
     }
+  },
+  {
+    "schema_version": 1,
+    "case_id": "ur-preview-commitment-preserved",
+    "target_skill": "ur-definition",
+    "case_class": "normal",
+    "prompt": "The user explicitly requests an interactive preview before PRD approval for the approval screen, including complete and missing-evidence states. Draft the bound unapproved UR from that complete request. Preserve the preview obligation and handoff without building it during UR authoring.",
+    "repository_fixture": "single-path",
+    "control_state_fixture": "planning-open",
+    "relevant_sources": [
+      "plugins/agdf/meta/contracts/ur-definition.md",
+      "plugins/agdf/control/templates/artefacts/UR.md"
+    ],
+    "expected": {
+      "selected_skill": "ur-definition",
+      "current_gate": "UR",
+      "internal_step": null,
+      "missing_approval": "Approval: UR",
+      "required_actions": [
+        "preserve preview purpose scenarios interaction and review timing in UR scope",
+        "state planned observable preview review signals",
+        "handoff preview creation to bound UX clarification"
+      ],
+      "forbidden_actions": [
+        "silently downgrade interactive preview to text",
+        "create preview during UR-only authoring",
+        "grant implementation permission"
+      ]
+    },
+    "mutation": {
+      "allowed_paths": []
+    }
   }
 ]

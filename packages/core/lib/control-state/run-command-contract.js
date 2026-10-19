@@ -9,6 +9,7 @@ import { ACCEPTANCE_CRITERIA_FORMAT, TP_AUTHORING_FORMAT } from '../control-eval
 import { UX_DECISION_FORMAT } from '../control-evaluation/definition-sources.js';
 import { REVIEWED_REQUEST_FORMAT, REVISION_PROPOSAL_FORMAT } from './recording-formats.js';
 import { relationshipForGate } from '../control-evaluation/delivery-relationships.js';
+import { PREVIEW_REVIEW_FORMAT } from './preview-review.js';
 
 export const RUN_COMMAND_VERSION = '1';
 export const RUN_COMMAND_LIMITS = Object.freeze({ input_bytes: 65536, result_bytes: 1048576, definition_bytes: 8192, aggregate_definition_bytes: 24576 });
@@ -129,13 +130,14 @@ export function operationContract(group, kind, { gate } = {}) {
       destination_status: gate === 'QA' ? 'pass | revise | block matching the actual QA report' : 'draft' } : undefined,
     proposal_format: kind.startsWith('source_revision.') ? REVISION_PROPOSAL_FORMAT : undefined,
     authorizes: false, authoring_format: kind === 'artefact.record' || kind === 'presentation.prepare' || kind === 'step.record'
-      ? ({ UR: UR_AUTHORING_FORMAT, PRD: { decisions: PRD_DECISION_FORMAT, criteria: ACCEPTANCE_CRITERIA_FORMAT }, SD: SD_DECISION_FORMAT, TP: TP_AUTHORING_FORMAT }[gate] ?? null) : undefined,
+      ? ({ UR: UR_AUTHORING_FORMAT, PRD: { decisions: PRD_DECISION_FORMAT, criteria: ACCEPTANCE_CRITERIA_FORMAT, preview_review: PREVIEW_REVIEW_FORMAT }, SD: SD_DECISION_FORMAT, TP: TP_AUTHORING_FORMAT }[gate] ?? null) : undefined,
     presentation_format: kind === 'presentation.prepare' || kind === 'artefact.record' ? {
       owner: 'run-presentation-render', compact_brief_fields: ['Goal/Ziel', 'Proposal/Vorschlag or Scope/Umfang', 'Changes/Änderungen', 'Risks/Risiken'],
       source: 'source-authored canonical artefact or validated localized AGDF Approval Summary; no adapter paraphrase',
       missing_fields: 'retain absence and the complete validated summary; do not fabricate a legacy brief',
       delivery: 'native_plus_chat only with qualified native approval and confirmed display on the current user surface; otherwise full_chat; forward one exact decision request. Mac display never proves iPad visibility.',
       remote_document: 'presentation-document; exact binding and every cursor; local file links do not prove iPad access',
+      remote_preview: 'presentation-preview; exact binding and every cursor; render only through isolated supported access; unavailable access leaves the review open',
     } : undefined,
     confirmation_boundary: 'host permission, concrete human intent and Core eligibility are separate' };
 }

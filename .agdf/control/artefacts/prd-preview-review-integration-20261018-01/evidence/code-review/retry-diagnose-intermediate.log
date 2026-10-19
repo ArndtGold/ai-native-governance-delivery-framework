@@ -1,0 +1,65 @@
+
+ RUN  v5.0.3 /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui
+
+ ❯ test/preview-review.test.tsx (6 tests | 1 failed) 622ms
+   × shows an unavailable rendering path and keeps approval open when the preview port is absent or the frame fails 89ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/preview-review.test.tsx > shows an unavailable rendering path and keeps approval open when the preview port is absent or the frame fails
+TestingLibraryElementError: Unable to find an element with the text: Dieser Host konnte die isolierte Vorschau nicht anzeigen. Unterstützten Zugang zu derselben geprüften Version verwenden.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"decision-card agdf-surface mcp-entry"[39m
+    [36m>[39m
+      [36m<button[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0mZur Entscheidung zurück[0m
+      [36m</button>[39m
+      [36m<h1>[39m
+        [0mIllustrative Vorschau[0m
+        [0m · [0m
+        [0mreview-v1[0m
+      [36m</h1>[39m
+      [36m<p>[39m
+        [0mBeispielaktionen geben kein PRD frei und versenden keine Nachrichten.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mDie isolierte Vorschau wird geöffnet…[0m
+      [36m</p>[39m
+      [36m<iframe[39m
+        [33mreferrerpolicy[39m=[32m"no-referrer"[39m
+        [33msandbox[39m=[32m"allow-scripts"[39m
+        [33msrcdoc[39m=[32m"<p>Illustrative interaction</p>"[39m
+        [33mstyle[39m=[32m"width: 100%; height: 600px; border: 0px;"[39m
+        [33mtitle[39m=[32m"Illustrative Vorschau"[39m
+      [36m/>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ test/preview-review.test.tsx:47:17
+     45|   const frame=await screen.findByTitle(view.labels.previewTitle) as HT…
+     46|   await act(async()=>window.dispatchEvent(new MessageEvent('message',{…
+     47|   expect(screen.getByText(view.labels.previewUnsupported)).toBeTruthy(…
+       |                 ^
+     48|   fireEvent.click(screen.getByRole('button',{name:view.labels.back}));…
+     49|   expect(port.submit).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  08:51:38
+   Duration  3.84s (environment 39%, import 28%, tests 20%, transform 12%)
+

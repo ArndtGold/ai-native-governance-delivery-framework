@@ -373,6 +373,27 @@ Produkt-Mocks zeigen die jeweils passende fachliche Komponente:
 | `QA` | Sind Qualität und Nachweise ausreichend? | Technische QA-Entscheidung, Test- und Reviewstand, Befunde, Restgrenzen und gegebenenfalls exakt vorgelegte Abweichung | UAT bei technischem Pass oder ausdrücklich zulässiger gebundener Abweichungsannahme | Behandlung eines `revise` als Pass, Release und automatische VCS-Aktionen |
 | `UAT` | Erfüllt das Ergebnis deinen vereinbarten Wunsch? | Geliefert, bewusst nicht geliefert, Akzeptanzkriterien, Restrisiken und übernommene QA-Abweichungen | OR und Closeout | Automatischer Commit, Push, PR oder Release |
 
+**Vorschau als Prüfgrundlage der PRD-Freigabe.**
+
+Bei einem Run mit beauftragter UI-Vorschau führt die PRD-Karte die Frage „Soll das Ergebnis so
+funktionieren?“. Sie zeigt eine konkrete Prüfaufgabe, einen nachrangigen Zugang „Vorschau ansehen ·
+Version 1“, den PRD-Dokumentzugang und die relevanten Kriterien mit Beobachtungsgrenzen. Der Nutzer
+kann beispielsweise Normalfall und fehlenden Nachweis durchspielen und danach im Gespräch Änderungen
+besprechen oder das PRD über den vorhandenen Freigabeweg bestätigen. Öffnen und Zurückkehren erhalten
+Vorhaben und Entscheidungsbezug; es gibt keine zusätzliche Vorschau-Bestätigung.
+
+Die Freigabe bestätigt beschriebenes Verhalten, Umfang und Kriterien. Der visuelle Entwurf erläutert
+das gewünschte Ergebnis; konkrete Gestaltungsdetails werden nur durch ausdrücklich übernommene
+Anforderungen verbindlich. Die Vorschau ist kein Beleg bereits gelieferter Funktionalität.
+
+Der zentrale [Präsentationsvertrag](../../plugins/agdf/meta/contracts/interaction.md#prd-preview-review-at-approval)
+legt Bindung, erneute Prüfung und Sichtbarkeit fest. Die bestehende Core-Präsentation muss die genaue
+Vorschauversion beim Vorlegen und beim Speichern der Entscheidung prüfen. Fehlende oder veränderte
+Pflichtmaterialien und offene Produktentscheidungen verhindern eine freigabefähige Vorlage. Für
+native Darstellung und Chat gilt dieselbe Grundlage; ein lokaler Pfad allein belegt keinen Zugriff
+auf einem anderen Host. Diese dedizierte Vorschau-Einbindung ist Zielverhalten und benötigt noch
+Core-/Host-Implementierung und praktische Prüfung; die neuen Skill-Texte belegen sie nicht.
+
 Die positive native Aktion benennt ihren Gegenstand: „Anforderung bestätigen“, „Verhalten
 bestätigen“, „Lösungsentwurf bestätigen“, „Umsetzungsplan bestätigen“, „Qualität freigeben“
 für einen entscheidungsreifen QA-Pass und „Ergebnis abnehmen“ für UAT. Die kanonische

@@ -6,6 +6,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from "node:os";
 import nodePath, { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { builtinModules, createRequire } from 'node:module';
 import { npmInvocation } from "../lib/npm-invocation.js";
 import { approvalArgs, commandFixture, invoke, json } from "../../../scripts/support/control-command-fixture.js";
 
@@ -35,17 +36,25 @@ console.log("PASS package containment accepts POSIX/Windows dependencies and rej
 
 function checkDependencyClosure(entry, root) {
   const seen = new Set();
+  const builtins=new Set(builtinModules.flatMap(name=>[name,'node:'+name]));
+  const parsers=new Set(['parse5','postcss']), production=new Set([...parsers,'entities','nanoid','picocolors','source-map-js']);
   function visit(path) {
     if (seen.has(path)) return;
     const rel = packageRelativePath(root, path);
     assert.doesNotMatch(rel, /^(?:lib\/cli\/|lib\/installers\/|lib\/install-setup\/|lib\/mcp-lifecycle\/|bin\/)/u, `public command dependency ${rel}`);
     seen.add(path);
     const source = readFileSync(path, "utf8");
-    for (const match of source.matchAll(/^\s*(?:import|export)\s+(?:\{[^}]*\}|\*[^;\n]*|[\w$]+(?:,\s*\{[^}]*\})?)\s+from\s*["']([^"']+)["']/gmu)) {
-      const specifier = match[1];
-      if (specifier.startsWith(".")) visit(resolve(dirname(path), specifier));
+    const imports=[...source.matchAll(/^\s*(?:import|export)\s+(?:\{[^}]*\}|\*[^;\n]*|[\w$]+(?:,\s*\{[^}]*\})?)\s+from\s*["']([^"']+)["']/gmu)].map(match=>match[1]);
+    if(rel.includes('/node_modules/')) imports.push(...[...source.matchAll(/\brequire\(["']([^"']+)["']\)/gu)].map(match=>match[1]));
+    for (const specifier of imports) {
+      if (builtins.has(specifier)) continue;
+      if (specifier.startsWith(".")) visit(createRequire(path).resolve(specifier));
       else if (specifier.startsWith("#agdf-core/")) visit(resolve(root, "runtime/core/lib", specifier.slice("#agdf-core/".length)));
-      else assert.ok(specifier.startsWith("node:"), `unexpected external dependency: ${specifier}`);
+      else {
+        const allowed=rel.includes('/node_modules/')?production:parsers;
+        assert.ok(rel.startsWith('runtime/core/')&&allowed.has(specifier.split('/')[0]),`unexpected external dependency: ${specifier}`);
+        const resolved=createRequire(path).resolve(specifier);packageRelativePath(join(root,'runtime/core/node_modules'),resolved);visit(resolved);
+      }
     }
   }
   visit(entry);

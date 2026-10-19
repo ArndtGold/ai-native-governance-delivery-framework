@@ -1,0 +1,89 @@
+{
+  "observed_at": "2026-10-19T12:24:04.976Z",
+  "result": "success",
+  "plugin": {
+    "schema_version": 1,
+    "operation": "update",
+    "result": "partial",
+    "surface": "codex",
+    "scope": "global",
+    "version": {
+      "expected": "0.14.5+codex.local-ccfd429cc96e",
+      "installed": "0.14.5+codex.local-ccfd429cc96e",
+      "previous": null,
+      "status": "verified",
+      "transition": null
+    },
+    "verification": {
+      "status": "configured_pending_restart",
+      "evidence": [
+        "durable_local_marketplace",
+        "marketplace:owned_local_current",
+        "codex plugin list",
+        "staged_plugin_root:/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf",
+        "staged_installation_provenance:matched",
+        "source_digest:ccfd429cc96ebd8501ee6ae7d9ab59b97ff687a275e1510670843ea6d9407f70",
+        "plugin_digest:01f73dc58e2b2f9d2f789fb8ad218a1ea9994da199e01ca3c1c457275c1fa54f",
+        "canonical_version:0.14.5",
+        "local_install_version:0.14.5+codex.local-ccfd429cc96e",
+        "codex_plugin_mcp:prepared",
+        "cockpit_configuration_admission:passed",
+        "cockpit_native_provider:unobserved",
+        "cockpit_transition:qualification_pending",
+        "cockpit_legacy:retained"
+      ]
+    },
+    "installation": {
+      "status": "configured_pending_restart"
+    },
+    "activation": {
+      "status": "pending_restart"
+    },
+    "delivery": {
+      "status": "not_evaluated"
+    },
+    "runtime_checks": {
+      "requested": "unknown",
+      "effective": "unknown",
+      "reason": "not_evaluated",
+      "capability_identity": null,
+      "verification": "not_evaluated",
+      "mutation": "none",
+      "rollback": "none"
+    },
+    "restart": {
+      "required": true,
+      "reason": "host_reload"
+    },
+    "next_action": {
+      "kind": "restart",
+      "text": "Fully restart Codex, then start a fresh session. Restoring the previous session can retain stale AGDF skills."
+    },
+    "changes": [],
+    "retained": [],
+    "failure": null,
+    "operation_status": {
+      "operation_id": "lifecycle.plugin.install.codex",
+      "outcome": "partial",
+      "target_scope": "global",
+      "target": null,
+      "planned_effect": "install_or_update_global_plugin",
+      "excluded_authority": [
+        "target_inference",
+        "run_creation",
+        "ur_persistence",
+        "gate_approval",
+        "implementation",
+        "qa",
+        "release"
+      ],
+      "authorizes": false
+    }
+  },
+  "restart": {
+    "required": true,
+    "reasons": [
+      "plugin_reload"
+    ]
+  }
+}

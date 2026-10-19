@@ -3,13 +3,12 @@ import * as fs from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { startControlServer, evidencePath } from './server-fixture.mjs';
-import { fixture as canonicalFixture } from '../../../core/test/control-cockpit-fixtures.js';
+import { approvalFixture, fixture as canonicalFixture } from '../../../core/test/control-cockpit-fixtures.js';
 import { sealRunState } from '../../../core/lib/control-state/run-seal.js';
 import { READ_LIMITS } from '../../../core/lib/control-read/snapshot.js';
 
 // Stored pointers are explicit fixture inputs; Run creation does not populate the backlog.
-function fixture(){
- const f=canonicalFixture();
+function fixture(f=canonicalFixture()){
  fs.writeFileSync(join(f.root,'.agdf/control/MASTER_BACKLOG.md'),'# Master Backlog\n\n## Active Backlog\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n| 1 | fixture-a | Fixture document | In progress | [UR](artefacts/fixture-a/UR.md) | UR | Stored next step |\n\n## Planned / Parking Lot\n| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |\n|---|---|---|---|---|---|---|\n\n## Completed / Superseded Pointers\n| Key | Work item | Final status | Historical record | Outcome |\n|---|---|---|---|---|\n| fixture-completed | Completed fixture | Completed | none | Stored outcome |\n');
  return f;
 }
@@ -331,7 +330,7 @@ test('sticky card and document headers, sliding view selector and narrow summary
 });
 
 test('summary leads with the work step and stale reads never claim a missing Run or current control',async({page})=>{
-  const f=fixture(),service=await startControlServer({dir:f.root});
+  const f=fixture(await approvalFixture()),service=await startControlServer({dir:f.root});
   try {
     await page.setViewportSize({width:800,height:900});
     await openSession(page,service,'/card.html');
@@ -341,6 +340,7 @@ test('summary leads with the work step and stale reads never claim a missing Run
     await expect(page.locator('.run-goal')).not.toHaveAttribute('open');
     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+    await expect(page.locator('.work-step-prerequisites')).toHaveAttribute('data-assessment','blocked');
     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
     await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');
     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
@@ -509,7 +509,7 @@ test('Pages action and type hierarchy retains the Cockpit neutral light palette'
 
 
 test('work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation',async({page})=>{
-  const f=fixture(),before=hashes(f.root),service=await startControlServer({dir:f.root});
+  const f=fixture(await approvalFixture()),before=hashes(f.root),service=await startControlServer({dir:f.root});
   const observations=[];
   try{
     // Compare the rendered work unit with the existing production read DTO, not new UI rules.
@@ -517,6 +517,9 @@ test('work action leads, qualifications stay honest and evidence access survives
     const snapshot=await(await page.request.get(service.origin+'/api/snapshot',{headers})).json();
     const detail=await(await page.request.get(service.origin+'/api/runs/fixture-a?snapshot='+snapshot.snapshot_id,{headers})).json();
     const e=detail.data.run.evaluation;
+    expect(e.control_assessment.state).toBe('blocked');
+    expect(detail.data.run.persisted.current_gate).toBe(e.current_gate);
+    expect(detail.data.run.persisted.next_allowed_action).toBe(e.next_allowed_action);
     await page.setViewportSize({width:800,height:900});await openSession(page,service,'/card.html');
     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();

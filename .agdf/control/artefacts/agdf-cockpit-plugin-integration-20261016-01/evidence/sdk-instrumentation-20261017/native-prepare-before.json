@@ -1,0 +1,52 @@
+{
+  "authorizes": false,
+  "captured_at": "2026-10-17T14:04:52.523954+00:00",
+  "records": [
+    {
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+      "sha256": "20b1eec99e1540fdf118b046c6a132507f9ab5c4cfa6dafc2e0851a8149b89a8",
+      "bytes": 522,
+      "backup": "before-0-config.toml"
+    },
+    {
+      "path": "/Users/arndtgold/.codex/config.toml",
+      "sha256": "0155a9c155fecdba26b1c9a5e595832c3ee0175fdfbb7aed569182d5c5d52b17",
+      "bytes": 6569,
+      "backup": "before-1-config.toml"
+    },
+    {
+      "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf.transaction.json",
+      "sha256": "099b1dc3be3288467c7649a6cfcbdf8deaac6daca28d735949d051897d3fccea",
+      "bytes": 559,
+      "backup": "before-2-agdf.transaction.json"
+    },
+    {
+      "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp.json",
+      "sha256": "7b4e47d91c331a27572db2a920da2e6cb82c58e818aebc11f37f89257005fb65",
+      "bytes": 808,
+      "backup": "before-3-mcp.json"
+    },
+    {
+      "command": [
+        "codex",
+        "plugin",
+        "list"
+      ],
+      "exit_code": 0,
+      "stdout_file": "plugin-list-before.stdout",
+      "stderr_file": "plugin-list-before.stderr"
+    },
+    {
+      "command": [
+        "codex",
+        "plugin",
+        "marketplace",
+        "list",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout_file": "marketplace-list-before.stdout",
+      "stderr_file": "marketplace-list-before.stderr"
+    }
+  ]
+}

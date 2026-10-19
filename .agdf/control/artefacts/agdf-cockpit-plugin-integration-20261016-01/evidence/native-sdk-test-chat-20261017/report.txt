@@ -1,0 +1,86 @@
+Nativer Codex-Desktop-Lesenachweis – AGDF Cockpit
+Prüfzeit: 17.10.2026, 16:46:12–16:49:59 Europe/Berlin (Snapshot-Zeitfenster).
+
+Ergebnis: NATIV NICHT QUALIFIZIERT – fehlender unterstützter Zugriff auf die App-Ansicht.
+Zwei native Cockpit-Aufrufe waren erfolgreich. Kein MCP-App-Tab war für diesen Chat erreichbar, auch nach gemeldeter Navigation des Hauptfensters zum Chat und erneutem Öffnungsversuch. Daraus folgt kein Nachweis, ob eine Inline-Karte tatsächlich gerendert wurde. Kein Produktfehler allein aus dem leeren Inventar abgeleitet.
+
+Kontext und Bindung
+Host: lokaler Codex-Chat „AGDF Cockpit: nativer Lesetest“, kind=codex, hostId=local.
+Chat-ID und CUA codexSessionId: 01a14a53-1091-7fa1-9145-287353b8dac1.
+Arbeitsverzeichnis: /Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017.
+Projektloser Kontext: geladener Host-Kontext repo_less; eigenes read_thread bestätigt ID, Host und Arbeitsverzeichnis. Eine Browser-codexSessionId ist keine MCP-App-Session-ID.
+primary_target: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework
+target_source: explicit_target
+run_id: agdf-cockpit-plugin-integration-20261016-01
+Beide Aufrufe bestätigen target_id=sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19 und authorizes=false. Der öffentliche Rückgabeteil bestätigt das Target, enthält aber selbst weder Run noch Read-Session.
+
+Native Beobachtungen
+- Verfügbar: mcp__agdf_cockpit__agdf_cockpit und mcp__agdf_cockpit__agdf_cockpit_read. agdf_cockpit_local fehlt im für diesen Chat angebotenen Toolkatalog.
+- CUA zeigt Browser „Codex MCP Apps“ (id=1, type=mcpapps) und „ChatGPT in-app browser“ (id=2, type=iab), beide ohne Tabs; apps=[].
+- resources/list des tatsächlichen Providers agdf-cockpit bietet ui://agdf/cockpit/v1.html mit text/html;profile=mcp-app an.
+- resources/read gelingt, aber die Werkzeugausgabe enthält eine ausdrückliche Kürzung („300545 tokens truncated“). Die erhaltenen 47.732 HTML-Textbytes sind kein vollständiges HTML und kein DOM-Nachweis.
+- Öffentlicher Chat-Verlauf bestätigt beide agdf-cockpit/agdf_cockpit-Aufrufe mit Argumenten und completed-Status; er exportiert hier keine Tool-Ergebnis-Metadaten.
+- Host-Binärversion nicht beobachtet. Ein angenommener /Applications/Codex.app-Pfad existiert nicht; ps-Abfrage ist in dieser Umgebung gesperrt. Keine Versionsbehauptung daraus abgeleitet.
+
+Installiertes Tupel: frisch und ausschließlich lesend geprüft
+Plugin-Version: 0.14.5+codex.local-dc02ea9eae18; kanonische Version 0.14.5.
+Marketplace: /Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf
+Cache: /Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-dc02ea9eae18
+Beide Provenienzprüfungen: matched.
+Source-Digest: dc02ea9eae188c0af7f20d331a581523ce246f17474f1e5654b9101b4fc18a89
+MCP-Server-Digest: 3b9588378c4078bea7781f6cac6c55b5382b5455b730c7c35973019f7fee3bea
+Dispatcher-Digest: 41c93fd4a43388e873187c6f5364e7b570503b03921b4cd30352e82e5c090edc
+SDK-Digest: b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb
+Runtime: matched; SDK verification=verified; @modelcontextprotocol/server und core jeweils 2.0.0.
+Runtime-Root: /Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/511e28ab67dc4d925b967a272ce4fe4cf79a14d72ebbdb8aaeede5b880f361a2/0.14.5
+Node laut verifiziertem Runtime-Marker: /usr/local/Cellar/node@22/22.22.3/bin/node
+Erwartetes server_module: /Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/511e28ab67dc4d925b967a272ce4fe4cf79a14d72ebbdb8aaeede5b880f361a2/0.14.5/node_modules/@agdf/mcp-server/src/server.js
+Tatsächliches Provider-Tupel: NICHT BEOBACHTET. connection_id, server_module, Version aus agdf/provider sowie client_info/capabilities aus agdf/peer sind in den zugänglichen Antworten nicht enthalten. Die Übereinstimmung dieses Moduls mit dem tatsächlich verwendeten Server bleibt offen.
+Die Installer-Referenz meldet pending_restart. Paketkonsistenz belegt keine Aktivierung der neuen Fassung im Host.
+
+UI auf Dateiebene – kein geladener DOM
+Marketplace, Cache und verifizierte Runtime enthalten identische vollständige cockpit.html-Dateien (1.238.897 Bytes):
+HTML SHA-256: 706955ccb5e1f8fd988ab5939c696beb1ab20fb93beddeea2f2a45dda1a9bf68
+Modulskript: 848.527 Bytes; SHA-256 6c936527c4eaf515dce8dbc21f0d4b8306d516e29117fd98fb0c689a890d5a96
+Style: 390.110 Bytes; SHA-256 c5b0bb8802acf706c84e6a765e22bc0902ae8ff31a66c0d4896646c8a3289167
+Alle Werte stimmen mit expected-ui-dom.json überein. Kein locator.textContent()-Vergleich möglich, weil kein App-Tab/DOM zugänglich ist. Weder gekürztes Resource-HTML noch lokale Dateien ersetzen diesen Nachweis.
+TP-Datei auf Dateiebene: 39.600 Bytes; SHA-256 f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d, exakt passend. Dies ist kein Lesen im Cockpit.
+
+Offene native Prüfungen und konkrete fehlende Fähigkeit
+1. Rendering/Screenshot, App-Tab-/App-Session-ID: unbeobachtet. Es fehlt eine unterstützte API, die die Inline-MCP-Karte dieses Chats expandiert oder ihren DOM erreichbar macht. Das mcpapps-Backend kontrolliert vorhandene Sidepanel-Tabs; es kann solche Tabs nicht erzeugen oder navigieren. Native App-Steuerung ist deaktiviert.
+2. „SDK-Nachweis aufzeichnen“: nicht betätigbar. Kein sichtbares pre „SDK-Nachrichten dieser Ansicht“, keine trace_id, kein vollständiger Ereignispuffer.
+3. ui/initialize, io.modelcontextprotocol/ui, Hostfähigkeiten, ui/notifications/initialized: nicht erfasst.
+4. TP im Cockpit und tatsächliche ui-/tools-Aufrufe/Antworten: nicht geprüft. agdf_cockpit_read ist angeboten, wurde aber nicht aufgerufen: die erforderliche echte session_id und dokumentbezogenen Snapshot-/Resource-Selektoren sind nicht zugänglich. Keine IDs erfunden.
+5. Kontextübergabe, Hostbestätigung, Invalidierung/Leerung und Dokument-Wiederöffnen: nicht ausführbar.
+6. Teardown: kein unterstützter Weg zum Beenden von Panel UND Chat-Karte zugänglich. Keine ui/resource-teardown-Anfrage/-Antwort und keine Core-Sitzungsbeendigung beobachtet. Kein registration_removed als Ersatz verwendet.
+7. Frischer Öffnungsversuch: zweiter Tool-Aufruf erfolgreich, aber keine neue erreichbare Ansicht oder erneute SDK-Initialisierung belegt.
+8. Dauerhafter Host-Logexport: nicht geprüft. Keine tatsächliche trace_id oder eigene MCP-App-Session-ID beobachtet; deshalb keine Host-Logs durchsucht und den vorbereiteten ID-gebundenen Sammler nicht mit erfundenen IDs ausgeführt. „Nicht gesammelt“ bedeutet nicht „keine Logzeilen vorhanden“.
+
+Vorher/Nachher und Eingriffsgrenze
+Snapshots vor dem ersten Cockpit-Aufruf und nach dem letzten Öffnungsversuch vergleichen SHA-256/Bytezahlen bzw. Symlink-Ziele. Alle 8.602 ursprünglich erfassten Einträge bleiben identisch; keine Löschung und keine Änderung vorhandener Dateien.
+Erfasst sind .agdf/control vollständig (einschließlich Run-State, Artefakte, Kontrollkonfiguration), Repository-.codex sowie ~/.codex/config.toml und explizit dokumentierte weitere Pfade. Fehlende Pfade sind als fehlend erfasst und werden nicht als geprüfte existierende Konfiguration ausgegeben. Das tatsächliche Plugin-mcp.json wurde durch die Paketprüfung gelesen und entspricht der Installationsreferenz; ein separater Vorher-Snapshot dieser Datei fehlt.
+Während des Fensters erscheinen 32 neue Dateien ausschließlich unter dem evidence/-Verzeichnis dieses Runs. Der gesamte Kontrollbaum ist daher NICHT unverändert; die 8.602 vorher vorhandenen Einträge sind unverändert. Urheberschaft der neuen Dateien hier nicht nachgewiesen. Dieser Agent schrieb ausschließlich in das eigene /private/tmp-Verzeichnis.
+Keine Installation, Konfigurationsänderung, Freigabe, QA, Legacy-Umstellung, Commit, Nachricht an einen anderen Chat oder qualified-Transition ausgeführt. Kein CLI-/Browser-Simulationsnachweis. Shell wurde nur für Dateiverifikation und Nachweissicherung genutzt.
+
+Absolute Nachweisdateien
+/private/tmp/agdf-sdk-native-proof-20261017-144607/started.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/cockpit-open-request.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/cockpit-open.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/cockpit-open-visible-chat.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/tool-inventory.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/native-tool-history.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/cua-inventory.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/cua-visible-chat-retry.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/resource-list.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/resource-read-return.txt
+/private/tmp/agdf-sdk-native-proof-20261017-144607/resource-read-analysis.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/verified-package.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/verified-ui-files.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/tp-reference-check.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/before.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/after-final.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/final-change-classification.json
+/private/tmp/agdf-sdk-native-proof-20261017-144607/failed-lookups.json
+
+Fehlversuche und Korrekturen bleiben in failed-lookups.json und native-tool-history.json erhalten. Die öffentliche Verlaufsausgabe exportiert Aufrufmetadaten, nicht rohe STDIO-Bytes.
+Die ergänzend gelesene offizielle Dokumentation https://developers.openai.com/api/docs/guides/tools-connectors-mcp behandelt API-MCP und wird nicht als Beleg nativer Desktop-Render-/Teardown-Fähigkeiten verwendet. Frühere Memory-Hinweise wurden nur zur Trennung der Evidenzarten verwendet; keine frühere Erfolgsqualifikation übernommen.

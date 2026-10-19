@@ -12,6 +12,7 @@ import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { policyForRunContent } from '../lib/control-evaluation/run-step-policy.js';
 import { readAuthoredContent, readReportDecision } from '../lib/control-evaluation/report-decision.js';
 import { authoredGoal, concreteDecisionContent, observeDecisionContent } from '../lib/control-evaluation/decision-content-readiness.js';
+import { READ_LIMITS } from '../lib/control-read/snapshot.js';
 
 const field = '- delivered_result: The approved source bug is corrected.';
 const cases = [
@@ -47,6 +48,25 @@ assert.equal(concreteDecisionContent('none',{allowNone:true}),true);
 assert.equal(concreteDecisionContent('x'.repeat(1201)),false);
 assert.equal(readReportDecision('## 1. QA Decision\nDecision: pass\n## 2. TP Coverage\n- delivered_result: Decision: block'),'pass');
 assert.equal(readAuthoredContent('```\n# Misleading example title\n```\n# Actual report title','title'),'Actual report title');
+const objective = 'Inspect a concrete fixed result.';
+const largeRun = '## Objective\n' + objective + '\n\n## Revision History\n' + 'Historical record.\n'.repeat(12000);
+assert.ok(Buffer.byteLength(largeRun) > 131072);
+assert.equal(readAuthoredContent(largeRun, 'objective'), objective, 'Run history is not subject to the report source limit');
+assert.equal(readAuthoredContent('## History\n' + 'Record.\n'.repeat(20000) + '\n## Objective\n' + objective, 'objective'), objective, 'Objective is observed beyond the report-size boundary without truncation');
+assert.equal(readAuthoredContent(largeRun + '\n## Objective\nA conflicting goal.\n', 'objective'), null, 'A duplicate after large history remains ambiguous');
+assert.equal(readAuthoredContent('```\n## Objective\nA fabricated goal.\n```\n' + largeRun, 'objective'), objective, 'Large Runs retain markup exclusion');
+assert.equal(readAuthoredContent('## Objective\n' + 'é'.repeat(READ_LIMITS.file / 2), 'objective'), null, 'Run capture bound is in UTF-8 bytes');
+for (const [profile, text] of [
+  ['goal', '## Goal\n' + objective], ['result', '## TP Coverage\n' + field],
+  ['limits', '## Missing Evidence\n- qualification_limits: Native checks remain open.'],
+  ['risks', '## Risks\n- delivery_risks: Host caching remains possible.'], ['title', '# Authored report'],
+  ['localized', '## AGDF Approval Summary (de; source=en)\n- Ergebnis: Das Ergebnis ist geprüft.'],
+  ['localized_goal', '## AGDF Approval Summary (de; source=en)\nDas konkrete Ergebnis prüfen.'],
+]) {
+  const options = { locale: 'de', sourceLanguage: 'en' };
+  assert.notEqual(readAuthoredContent(text, profile, options), null, profile + ' fixture authors content');
+  assert.equal(readAuthoredContent(text + '\n\n' + largeRun, profile, options), null, profile + ' retains its report bound');
+}
 
 const root=mkdtempSync(join(tmpdir(),'agdf-content-'));
 try {
@@ -56,7 +76,40 @@ try {
   writeFileSync(join(files,'UR.md'),ur);writeFileSync(join(files,'QA_REPORT.md'),qa);
   const state={run_id:'content',path:'.agdf/control/runs/content/RUN_STATE.md',meta:{lifecycle:'active'},content:'## Objective\nInspect a concrete fixed result.\n',mode_slice_decision:{decision:'structured_slice'},artefacts:new Map([['UR',{path:prefix+'UR.md'}],['QA',{path:prefix+'QA_REPORT.md'}]])};
   const out=observeDecisionContent(root,state,{gate:'UAT'});assert.equal(out.ready,true,JSON.stringify(out));assert.equal(out.groups.goal,'Inspect a concrete fixed result.');assert.equal(out.groups.result,'The approved source bug is corrected.');assert.equal(out.sources.length,2);
+  assert.equal(observeDecisionContent(root,{...state,content:largeRun},{gate:'QA',locale:'de'}).ready,true,'Current QA stays eligible when append-only Run history exceeds the report limit');
+  assert.equal(observeDecisionContent(root,{...state,content:largeRun+'\n## Objective\nA conflicting goal.\n'},{gate:'QA',locale:'de'}).ready,false,'Readiness still rejects a duplicate after large history');
   assert.equal(observeDecisionContent(root,state,{gate:'UAT',locale:'de'}).groups.result,'Der konkrete Quellfehler ist korrigiert.');
+  const summaryHeading = '## AGDF Approval Summary (de; source=en)\n';
+  const proseGoal = 'Das vorhandene Cockpit gehört zur normalen Plugin-Installation.\nEs lässt sich ohne zusätzliche Einrichtung öffnen.';
+  const legacyUr = ur.slice(0,ur.indexOf(summaryHeading)) + summaryHeading + proseGoal + '\n\nWeitere Angaben zum Umfang bleiben unverändert.';
+  writeFileSync(join(files,'UR.md'),legacyUr);
+  const legacyResult = observeDecisionContent(root,state,{gate:'UAT',locale:'de'});
+  assert.equal(legacyResult.ready,true,JSON.stringify(legacyResult));
+  assert.equal(legacyResult.groups.goal,proseGoal.replace('\n',' '),'Use the entire authored first paragraph, without selecting or translating sentences');
+  assert.equal(readFileSync(join(files,'UR.md'),'utf8'),legacyUr,'Approved prose summary is never rewritten');
+  for (const [name,summary] of [
+    ['wrong locale', summaryHeading.replace('(de;','(en;') + proseGoal],
+    ['wrong source', summaryHeading.replace('source=en','source=de') + proseGoal],
+    ['nested heading', '#' + summaryHeading + proseGoal],
+    ['quoted', summaryHeading + '> Beispiel:\n' + proseGoal],
+    ['fenced', summaryHeading + '```\n' + proseGoal + '\n```'],
+    ['HTML', summaryHeading + '<div>\n' + proseGoal + '\n</div>'],
+    ['duplicate summary', summaryHeading + proseGoal + '\n\n' + summaryHeading + proseGoal],
+    ['empty field', summaryHeading + '- Ziel:\n' + proseGoal],
+    ['duplicate field', summaryHeading + '- Ziel: Erstes Ziel.\n- Ziel: Anderes Ziel.'],
+    ['mixed prose and field', summaryHeading + proseGoal + '\n\n- Ziel: Ein anderes Ziel.'],
+    ['unrelated field', summaryHeading + '- Umfang: Eine begrenzte Änderung.'],
+    ['unbulleted unrelated field', summaryHeading + 'Problem: Die Einrichtung erfordert Zusatzaufwand.'],
+    ['mixed prose and scope field', summaryHeading + proseGoal + '\n\nUmfang: Eine begrenzte Änderung.'],
+    ['placeholder', summaryHeading + 'TODO'],
+    ['overlong paragraph', summaryHeading + 'x'.repeat(1201)],
+  ]) {
+    writeFileSync(join(files,'UR.md'),ur.slice(0,ur.indexOf(summaryHeading)) + summary);
+    const observed = observeDecisionContent(root,state,{gate:'UAT',locale:'de'});
+    assert.ok(observed.gaps.some(g=>g.field==='ziel'),name + ': ' + JSON.stringify(observed));
+  }
+  writeFileSync(join(files,'UR.md'),ur);
+  assert.equal(observeDecisionContent(root,state,{gate:'UAT',locale:'de'}).groups.goal,'Das konkrete Ergebnis prüfen.','Structured summaries still use the explicit goal field');
   writeFileSync(join(files,'QA_REPORT.md'),qa.replace('- Risiken: keine','- Entscheidung: pass\n- TP-Abdeckung: Der begrenzte Plan ist erfüllt.\n- Lücken: Native Prüfung bleibt außerhalb des Scopes.\n- Risiken: keine'));
   assert.equal(observeDecisionContent(root,state,{gate:'QA',locale:'de'}).ready,true,'Existing authored QA summary labels retain the same contiguous scalar context.');
   writeFileSync(join(files,'QA_REPORT.md'),qa);

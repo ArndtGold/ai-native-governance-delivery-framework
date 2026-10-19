@@ -117,6 +117,36 @@ it('SCN-070/072: only explicit scoped replacements accept new snapshots, and inc
   expect(() => validateData('/api/snapshot?run_id=run-a', { ...meta, state: 'invalid', code: 'invalid_run', data: { kind: 'run', run: invalid } })).not.toThrow();
 });
 
+for (const graphState of ['empty', 'partial', 'blocked'] as const) it(`context ${graphState} preserves the freshly read document and parent availability`, async () => {
+  const source = { resource_id: 'source', run_id: 'run-a', type: 'UR', path: '.agdf/control/UR.md', registered_reference: '.agdf/control/UR.md', status: 'registered' };
+  const fresh = { ...source, resource_id: 'context-source' };
+  const parent = { ...run, resources: [source] };
+  const read = vi.fn(async (path: string) => {
+    if (path.startsWith('/api/documents/')) return { ...meta, snapshot_id: 'document', data: { kind: 'document', run: parent,
+      document: { resource: source, content: '# Before context', format: 'markdown', content_digest: 'old', links: {} } } };
+    if (path.startsWith('/api/context/')) return { ...meta, state: graphState, code: graphState === 'blocked' ? 'context_unavailable' : null, snapshot_id: 'context', data: { kind: 'context',
+      run: { ...parent, resources: [fresh] }, document: { resource: fresh, content: '# Fresh context document', format: 'markdown', content_digest: 'fresh', links: {} },
+      context: { run_id: 'run-a', references: graphState !== 'partial' ? [] : [{ resource_id: 'missing-node', run_id: 'run-a', origin: 'graph.md#node', path: 'graph.md', node_id: 'node', graph_digest: null, content_digest: null, content: null, state: 'missing', code: 'node_missing' }] } } };
+    return { ...meta, data: { kind: 'run', run: parent } };
+  }) as unknown as ReadTransport;
+  render(<App transport={read} initialRunId="run-a"/>);
+  await screen.findByRole('heading', { name: run.title, level: 1 });
+  fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+  fireEvent.click(screen.getByRole('button', { name: /^Anforderungen Beschreibt/ }));
+  await screen.findByRole('heading', { name: 'Anforderungen', level: 1 });
+  fireEvent.click(screen.getByRole('button', { name: 'Verknüpfter Kontext ansehen' }));
+  await screen.findByText(graphState === 'partial' ? 'Knoten fehlt.' : 'Für dieses Vorhaben sind keine Knoten referenziert.');
+  if (graphState === 'blocked') {
+    expect(screen.queryByText('Originaldokument lesen')).toBeNull();
+    expect(screen.queryByText('Weiterarbeit offen')).toBeNull();
+    return;
+  }
+  expect(screen.getByText('Originaldokument lesen')).toBeTruthy();
+  expect(screen.getByText('Fresh context document', { selector: 'h1' })).toBeTruthy();
+  expect(screen.queryByText('Before context', { selector: 'h1' })).toBeNull();
+  expect(screen.getByText('Weiterarbeit offen')).toBeTruthy();
+});
+
 it('SCN-062/071: a partial backlog announces its limitation once', async () => {
   const partial = { ...meta, state: 'partial' as const, code: 'backlog_partial', data: { ...backlog, diagnostics: [{ code: 'malformed_pointer', message: 'Stored row is incomplete.' }] } };
   render(<App transport={vi.fn(async () => partial) as unknown as ReadTransport}/>);
@@ -131,4 +161,43 @@ for (const removed of [undefined, 'run-a']) it(`SCN-071: an initial named reques
   await screen.findByText(/Die Antwort des Dienstes passt nicht/);
   expect(screen.getByText('run-a', { selector: 'code' })).toBeTruthy();
   expect(screen.queryByRole('searchbox')).toBeNull();
+});
+
+it('context capture cancels preceding freshness and pauses polling until its replacement is committed', async () => {
+  const source = { resource_id: 'source', run_id: 'run-a', type: 'UR', path: '.agdf/control/UR.md', registered_reference: '.agdf/control/UR.md', status: 'registered' };
+  const parent = { ...run, resources: [source] };
+  let freshnessSignal: AbortSignal | undefined;
+  let finishFreshness: ((value: unknown) => void) | undefined;
+  let finishContext: ((value: unknown) => void) | undefined;
+  const read = vi.fn((path: string, signal: AbortSignal) => {
+    if (path.startsWith('/api/freshness')) {
+      freshnessSignal = signal;
+      return new Promise(resolve => { finishFreshness = resolve; });
+    }
+    if (path.startsWith('/api/context/')) return new Promise(resolve => { finishContext = resolve; });
+    return Promise.resolve({ ...meta, data: { kind: 'run', run: parent } });
+  }) as unknown as ReadTransport;
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+  render(<App transport={read} initialRunId="run-a"/>);
+  await screen.findByRole('heading', { name: run.title, level: 1 });
+  try {
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+    expect(freshnessSignal).toBeDefined();
+    const oldSignal = freshnessSignal!;
+    fireEvent.click(screen.getByRole('button', { name: 'Verknüpfter Kontext ansehen' }));
+    expect(oldSignal.aborted).toBe(true);
+    const before = vi.mocked(read).mock.calls.filter(c => c[0].startsWith('/api/freshness')).length;
+    await act(async () => {
+      finishFreshness!({ ...meta, state: 'blocked', code: 'session_expired', data: null });
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+    expect(vi.mocked(read).mock.calls.filter(c => c[0].startsWith('/api/freshness'))).toHaveLength(before);
+    expect(screen.queryByText('Sitzung abgelaufen', { selector: 'strong' })).toBeNull();
+    await act(async () => { finishContext!({ ...meta, snapshot_id: 'new-context', state: 'empty', data: {
+      kind: 'context', run: parent, document: null, context: { run_id: 'run-a', references: [] },
+    } }); });
+    expect(screen.getByText('Für dieses Vorhaben sind keine Knoten referenziert.')).toBeTruthy();
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+    expect(vi.mocked(read).mock.calls.filter(c => c[0].startsWith('/api/freshness')).at(-1)?.[0]).toContain('new-context');
+  } finally { vi.useRealTimers(); }
 });

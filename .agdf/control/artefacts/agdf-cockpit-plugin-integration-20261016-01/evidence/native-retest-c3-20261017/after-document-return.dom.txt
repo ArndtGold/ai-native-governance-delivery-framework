@@ -1,0 +1,88 @@
+- banner:
+  - strong: AGDF Cockpit
+  - paragraph: Deliver Cockpit through the AGDF plugin
+  - generic: Nur Lesen
+  - button "Neu laden":
+  - status
+- main:
+  - navigation "Vorhaben-Pfad":
+    - list:
+      - button "Alle Vorhaben"
+      - text: ›
+      - generic: Deliver Cockpit through the AGDF plugin
+  - heading "Deliver Cockpit through the AGDF plugin" [active] [level=1]
+  - generic "Stand 17.10.2026, 12:51:09 · Datenstand und Herkunft"
+  - region "So geht dein Vorhaben weiter":
+    - generic: Gespeicherter Arbeitsstand
+    - heading "Umsetzung und Prüfung" [level=2]
+    - paragraph: Zuletzt als „In Arbeit“ gespeichert.
+    - heading "Weiterarbeit offen" [level=3]
+    - paragraph: Laut aktueller Kontrollauswertung. Die Weiterarbeit bleibt auf den freigegebenen Umfang begrenzt.
+    - paragraph: Den freigegebenen TP-Umfang implementieren, seine Tests ausführen und die CD+Tests-Nachweise vor dem Code Review erfassen.
+    - button "Umsetzungs- und Prüfnachweise öffnen"
+    - group "Nachweislücken im Run-Dokument · 0":
+      - generic "Nachweislücken im Run-Dokument · 0"
+    - region "Dokumente":
+      - heading "Dokumente · 4" [level=3]
+      - list:
+        - strong: Anforderungen
+        - generic: ✓ Freigegeben
+        - 'button "Freigegebene Anforderungen ansehen: Anforderungen"': Freigegebene Anforderungen ansehen
+        - strong: Produktanforderungen
+        - generic: ✓ Freigegeben
+        - 'button "Freigegebene Produktanforderungen ansehen: Produktanforderungen"': Freigegebene Produktanforderungen ansehen
+        - strong: Lösungskonzept
+        - generic: ✓ Freigegeben
+        - 'button "Freigegebenes Lösungskonzept ansehen: Lösungskonzept"': Freigegebenes Lösungskonzept ansehen
+        - strong: Umsetzungs- und Prüfplan
+        - generic: ✓ Freigegeben
+        - 'button "Freigegebenen Taskplan ansehen: Umsetzungs- und Prüfplan"': Freigegebenen Taskplan ansehen
+  - region "Entwurfsprüfung":
+    - heading "Entwurfsprüfung" [level=2]
+    - status:
+      - strong: Prüfung nicht verfügbar
+    - paragraph: Prüft die vorhandenen Autorenregeln. Freigabe, semantische Prüfung und QA erfolgen im bestehenden Ablauf.
+    - paragraph: Für diesen Stand ist keine unterstützte Entwurfsprüfung verfügbar. Folge dem angezeigten nächsten Schritt des Vorhabens.
+    - generic "Prüfquelle und Originalbefunde"
+  - region "Nachweise zu dieser Fassung":
+    - heading "Nachweise zu dieser Fassung" [level=2]
+    - paragraph:
+      - text: "Nächster Schritt laut Core: Der Assistent arbeitet weiter ·"
+      - code: implementation.execute
+    - heading "Aktuell anwendbare Nachweise · 3" [level=3]
+    - paragraph: Nur eindeutig zugeordnete Berichte gehören zur aktuellen Quellenfassung. Frühere oder unbestätigte Nachweise bestätigen keine aktuellen Voraussetzungen.
+    - list:
+      - strong: Nutzungsziel
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md
+      - paragraph:
+        - code: current_exact_association
+      - button "Registrierte Quelle lesen"
+      - strong: Bestandsanalyse
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md
+      - paragraph:
+        - code: current_exact_association
+      - button "Registrierte Quelle lesen"
+      - strong: Umsetzungs- und Prüfnachweise
+      - paragraph:
+        - code: .agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md
+      - paragraph:
+        - code: current_exact_association
+      - button "Registrierte Quelle lesen"
+    - generic "Frühere Nachweise · 1"
+    - generic "Anwendbarkeit nicht bestätigt · 7"
+  - region "Offene Aufgabe":
+    - heading "CD+Tests · Offene Aufgabe und nächster Schritt" [level=2]
+    - paragraph: Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.
+  - status: Backlog-Beobachtung stimmt mit dieser Run-Revision und ihren Quellen überein.
+  - generic "Ziel und Run-ID · Originalangaben"
+  - region "Verknüpfter Kontext":
+    - button "Verknüpfter Kontext ausblenden" [expanded]
+    - paragraph: Explizit im Vorhaben gepflegte Zusammenhänge. Quellen werden als Text gelesen.
+    - paragraph: Für dieses Vorhaben sind keine Knoten referenziert.
+    - paragraph: Öffne ein Dokument, um seine Quelle mit ausgewählten Knoten an Codex zu übergeben.
+  - generic: Lokale Beobachtung · Keine Einträge · Das Cockpit verändert keine Kontrolldateien.
+- generic "Host-Verbindung prüfen"
+- generic: "{ \"host\": { \"name\": \"chatgpt\", \"version\": \"26.1013.40934\" }, \"capabilities\": { \"experimental\": { \"openai/modelContext\": {}, \"openai/find\": {}, \"openai/message\": { \"draft\": {} }, \"openai/skillsDeepLinks\": {}, \"openai/files\": {} }, \"openLinks\": {}, \"serverTools\": {}, \"serverResources\": {}, \"logging\": {}, \"sandbox\": { \"csp\": { \"connectDomains\": [], \"resourceDomains\": [], \"frameDomains\": [], \"baseUriDomains\": [] } }, \"updateModelContext\": { \"text\": {}, \"image\": {}, \"resource\": {}, \"resourceLink\": {}, \"structuredContent\": {} }, \"message\": { \"text\": {}, \"image\": {}, \"resource\": {}, \"resourceLink\": {} } }, \"display\": \"fullscreen\" }"
+- paragraph: Gemeldete Host-Fähigkeiten. Eine erfolgreiche Kontextübergabe wird erst nach ihrer tatsächlichen Bestätigung angezeigt.

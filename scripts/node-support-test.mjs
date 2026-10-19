@@ -35,7 +35,6 @@ assert.equal(guardrails.jobs.verify.uses, './.github/workflows/verify-agdf.yml')
 const shared = parse(readFileSync(new URL('.github/workflows/verify-agdf.yml', root), 'utf8'));
 assert.deepEqual([...new Set(ciJobs().map(row => row.os + '/' + row.node))],
   ['ubuntu-latest/22', 'windows-latest/22', 'ubuntu-latest/24']);
-assert.equal(shared.jobs.verify['timeout-minutes'], 10);
 
 function assertWindowsCheckoutPreconditions(steps) {
   const checkout = steps.findIndex(step => step.uses?.startsWith("actions/checkout@"));
@@ -43,8 +42,13 @@ function assertWindowsCheckoutPreconditions(steps) {
     && step.if === "runner.os == 'Windows'");
   assert.ok(longPaths >= 0 && longPaths < checkout, "Windows Git long paths must be enabled before checkout");
 }
-const guardrailSteps = shared.jobs.verify.steps;
-assertWindowsCheckoutPreconditions(guardrailSteps);
+const partitions = Object.entries(shared.jobs).filter(([id]) => id !== 'plan');
+assert.ok(partitions.length > 0);
+for (const [, job] of partitions) {
+  assert.equal(job['timeout-minutes'], 10);
+  assertWindowsCheckoutPreconditions(job.steps);
+}
+const guardrailSteps = partitions[0][1].steps;
 const nativeRelease = parse(readFileSync(new URL(".github/workflows/codex-release-e2e.yml", root), "utf8"));
 assertWindowsCheckoutPreconditions(nativeRelease.jobs.native.steps);
 const prerequisite = guardrailSteps.find(step => step.name === "Enable Windows Git long paths");

@@ -83,6 +83,7 @@ export function parseArgs(argv, dependencies = {}) {
   let runtimeChecksAction;
   let mcpAction;
   let mcpScope;
+  let retireCockpit, restoreCockpit;
   let setupRequest;
   let controlDir;
   let controlMigration;
@@ -170,6 +171,12 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (arg === '--retire-cockpit' || arg === '--restore-cockpit') {
+      const value = requiredValue(args, i, arg);
+      if (retireCockpit !== undefined || restoreCockpit !== undefined) throw new CliUsageError('Cockpit transition selector may not repeat');
+      if (arg === '--retire-cockpit') retireCockpit = value; else restoreCockpit = value;
+      i += 1; continue;
+    }
     if (STEP_FIELD_FLAGS.has(arg)) {
       stepFields[STEP_FIELD_FLAGS.get(arg)] = requiredValue(args, i, arg);
       i += 1;
@@ -333,6 +340,10 @@ export function parseArgs(argv, dependencies = {}) {
   if (revisionMode && ["--dir", "--run", "--revision", "--operation", "--source-gate", "--evidence", "--preview-digest"].some(flag => flagCounts.get(flag) > 1)) {
     throw new CliUsageError("Source revision identity and evidence flags may not repeat");
   }
+  if ((retireCockpit !== undefined || restoreCockpit !== undefined)
+    && ['--dir', '--surface', '--scope', '--evidence'].some(flag => flagCounts.get(flag) > 1)) {
+    throw new CliUsageError('Cockpit transition identity and evidence flags may not repeat');
+  }
 
   if (Object.hasOwn(commandGroupRoutes, target) && [...flagCounts.keys()].some(flag => !['--command-file', '--json'].includes(flag))) throw new CliUsageError('Bound command routes accept only --command-file and --json; no overriding envelope fields.');
   return {
@@ -392,6 +403,8 @@ export function parseArgs(argv, dependencies = {}) {
       runtimeChecksAction: runtimeChecksAction ?? "status",
       mcpAction,
       mcpScope,
+      ...(retireCockpit !== undefined ? { retireCockpit } : {}),
+      ...(restoreCockpit !== undefined ? { restoreCockpit } : {}),
       setupRequest,
       controlDir,
       controlMigration,

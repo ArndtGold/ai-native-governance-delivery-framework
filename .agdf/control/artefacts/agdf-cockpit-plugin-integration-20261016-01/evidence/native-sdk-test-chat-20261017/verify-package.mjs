@@ -1,0 +1,14 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {pathToFileURL} from 'node:url';
+const out="/private/tmp/agdf-sdk-native-proof-20261017-144607";
+const expected=JSON.parse(readFileSync(out+'/installed-tuple.json','utf8'));
+const base=expected.records[0].pluginRoot+'/runtime/create-agdf';
+const {inspectInstallationProvenance}=await import(pathToFileURL(base+'/runtime/core/lib/runtime/plugin-provenance.js').href);
+const {pluginMcpRuntimeIdentity}=await import(pathToFileURL(base+'/lib/mcp-lifecycle/plugin-runtime.js').href);
+const {inspectMcpExecutableRoot}=await import(pathToFileURL(base+'/lib/mcp-lifecycle/package.js').href);
+const json=p=>JSON.parse(readFileSync(p,'utf8'));
+const records=expected.records.map(({pluginRoot})=>({pluginRoot,provenance:inspectInstallationProvenance(pluginRoot,{definition:json(pluginRoot+'/meta/agdf-plugin.definition.json'),runtimeManifest:json(pluginRoot+'/runtime/runtime-manifest.json'),pluginVersion:json(pluginRoot+'/.codex-plugin/plugin.json').version}),identity:pluginMcpRuntimeIdentity(pluginRoot),declaration:json(pluginRoot+'/mcp.json')}));
+const runtime=inspectMcpExecutableRoot({root:expected.runtime.root,expectedVersion:'0.14.5'});
+const result={captured_at:new Date().toISOString(),kind:'read_only_installed_package_check',native_observation:false,authorizes:false,records,runtime};
+writeFileSync(out+'/verified-package.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({records:records.map(x=>({pluginRoot:x.pluginRoot,status:x.provenance.status,source_digest:x.provenance.observedSourceDigest,identity:x.identity})),runtime}));

@@ -8,6 +8,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -16,7 +17,12 @@ import { dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from 
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
-import { atomicWrite } from "#agdf-core/control-state/run-state-writer.js";
+import { atomicWrite, withOwnedFileLock } from "#agdf-core/control-state/run-state-writer.js";
+import { validateCockpitTransitionEvidence } from "../mcp-lifecycle/evidence.js";
+import { inspectMcpExecutableRoot } from '../mcp-lifecycle/package.js';
+import { pluginMcpRuntimeIdentity } from '../mcp-lifecycle/plugin-runtime.js';
+import { createHash } from "node:crypto";
+import { resolveControlCommandTarget } from "#agdf-core/control-state/approval-command-contract.js";
 import { buildCopilotMarketplaceTransport, copilotMarketplaceSpec, COPILOT_TRANSPORT_REVISION, verifyCopilotMarketplaceTransport } from "./copilot-marketplace-transport.js";
 import { classifyHistoricalDistributionProfile } from "#agdf-core/runtime/distribution-profile-history.js";
 import {
@@ -441,11 +447,16 @@ function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failed
   const transaction = existsSync(transactionPath)
     ? readOptionalJson(transactionPath) : null;
   if (existsSync(transactionPath) && (transaction?.schema_version !== 1
-      || transaction.owner !== "create-agdf" || !["prepared", "committed"].includes(transaction.phase)
+      || transaction.owner !== "create-agdf" || !["prepared", "committed", "cockpit_qualification_pending"].includes(transaction.phase)
       || typeof transaction.plugin_digest !== "string" || typeof transaction.version !== "string"
       || typeof transaction.profile_id !== "string"
       || (transaction.previous_root_identity !== null && typeof transaction.previous_root_identity !== "string"))) {
     throw new Error(`Invalid AGDF marketplace transaction marker: ${transactionPath}`);
+  }
+  if (transaction?.phase === 'cockpit_qualification_pending') {
+    assertTransactionStablePayload(stableRoot, transaction);
+    if (transaction.previous_root_identity !== null) assertTransactionBackupIdentity(backupRoot, transaction);
+    throw new Error('AGDF_COCKPIT_QUALIFICATION_PENDING: finish or roll back the recorded Cockpit transition before another installation.');
   }
   if (transaction?.phase === "committed") {
     assertTransactionStablePayload(stableRoot, transaction);
@@ -580,6 +591,7 @@ function prepareLocalMarketplaceFromSource({
       writeFileSync(codexMcpPath, renderCodexPluginMcpConfig({
         pluginRoot: join(stableRoot, "plugins", MARKETPLACE_ID),
         dataRoot: join(dataRoot, "mcp", "codex-plugin"),
+        cockpit: Object.hasOwn(readJson(codexMcpPath, 'built MCP declaration').mcpServers, 'agdf-cockpit'),
       }), "utf8");
     }
     sourceStaged();
@@ -696,8 +708,17 @@ function prepareLocalMarketplaceFromSource({
       changed: true,
       // The committed marker is the commit point. A host that already serves the new root may opt in to
       // report a failed backup cleanup instead of throwing; the marker stays for the next run's recovery.
-      commit({ tolerateCleanupFailure = false } = {}) {
+      commit({ tolerateCleanupFailure = false, retainCockpitRollbackFor } = {}) {
         if (closed) return Object.freeze({ cleanup: "none" });
+        if (retainCockpitRollbackFor !== undefined) {
+          if (profileId !== 'runtime-plugin' || !isAbsolute(retainCockpitRollbackFor)
+            || realpathSync(retainCockpitRollbackFor) !== retainCockpitRollbackFor) throw Error('AGDF_COCKPIT_ROLLBACK_TARGET_INVALID');
+          atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: 'cockpit_qualification_pending',
+            cockpit_target: retainCockpitRollbackFor, source_digest: sourceDigest,
+            previous_source_digest: existing?.source_digest ?? null, previous_version: existing?.version ?? null })}\n`);
+          closed = true;
+          return Object.freeze({ cleanup: 'retained_for_cockpit', transactionPath });
+        }
         atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: "committed" })}\n`);
         closed = true;
         try {
@@ -888,3 +909,84 @@ export const localMarketplaceConstants = Object.freeze({
   legacyLocalInstallFile: LEGACY_LOCAL_INSTALL_FILE,
   legacyRepository: LEGACY_REPOSITORY,
 });
+
+// Existing marketplace journal/backup remains the single publication owner. Native observers
+// call this only after qualification or to compensate a failed Cockpit cutover.
+export function settleCodexCockpitPublication({ pluginRoot, target, sourceDigest, previousSourceDigest, action, finalEvidence } = {}) {
+  if (!['commit', 'rollback'].includes(action) || !isAbsolute(pluginRoot ?? '') || !isAbsolute(target ?? ''))
+    throw Error('AGDF_COCKPIT_SETTLEMENT_INPUT_INVALID');
+  const stableRoot = dirname(dirname(pluginRoot)), parent = dirname(stableRoot);
+  if (join(stableRoot, 'plugins', MARKETPLACE_ID) !== pluginRoot || realpathSync(target) !== target)
+    throw Error('AGDF_COCKPIT_SETTLEMENT_INPUT_INVALID');
+  const transactionPath = `${stableRoot}.transaction.json`, backupRoot = `${stableRoot}.backup`, failedRoot = `${stableRoot}.failed`;
+  return withOwnedFileLock(`${stableRoot}.cockpit-settle`, () => {
+  const transaction = readOptionalJson(transactionPath);
+  if (transaction?.schema_version !== 1 || transaction.owner !== 'create-agdf' || transaction.profile_id !== 'runtime-plugin'
+    || transaction.phase !== 'cockpit_qualification_pending' || transaction.cockpit_target !== target
+    || transaction.source_digest !== sourceDigest) throw Error('AGDF_COCKPIT_SETTLEMENT_CONFLICT');
+  if (action === 'rollback' && transaction.previous_source_digest !== previousSourceDigest
+    || transaction.previous_root_identity === null && existsSync(backupRoot)) throw Error('AGDF_COCKPIT_SETTLEMENT_CONFLICT');
+  assertTransactionStablePayload(stableRoot, transaction);
+  if (transaction.previous_root_identity !== null) {
+    assertTransactionBackupIdentity(backupRoot, transaction);
+    const previous = ownership(backupRoot);
+    if (previous.source_digest !== transaction.previous_source_digest
+      || digestDirectory(join(backupRoot, 'plugins', MARKETPLACE_ID)) !== previous.plugin_digest)
+      throw Error('AGDF_COCKPIT_SETTLEMENT_CONFLICT');
+  }
+  if (action === 'commit') {
+    const checked = validateCockpitTransitionEvidence(finalEvidence, { expected: { plugin_root: pluginRoot,
+      target_id: resolveControlCommandTarget(target).target_id, version: transaction.version,
+      previous_plugin_digest: transaction.previous_source_digest ? `sha256:${transaction.previous_source_digest}` : null,
+      previous_plugin_version: transaction.previous_version } });
+    const digest = path => {
+      if (realpathSync(path) !== path || !lstatSync(path).isFile() || lstatSync(path).size > 4 * 1024 ** 2)
+        throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+      return 'sha256:' + createHash('sha256').update(readFileSync(path)).digest('hex');
+    };
+    if (!checked.valid || finalEvidence.config_path !== join(target, '.codex/config.toml')
+      || digest(finalEvidence.config_path) !== finalEvidence.config_digest) throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+    for (const origin of finalEvidence.inventory.origins) {
+      if (!isAbsolute(origin.path) || (existsSync(origin.path) ? digest(origin.path)
+        : 'sha256:' + createHash('sha256').update('').digest('hex')) !== origin.digest)
+        throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+    }
+    if (![finalEvidence.config_path, join(pluginRoot, 'mcp.json')]
+      .every(path => finalEvidence.inventory.origins.some(origin => origin.path === path)))
+      throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+    for (const ref of finalEvidence.evidence) {
+      const path = resolve(target, ref.path);
+      if (!pathInside(join(target, '.agdf/control/artefacts'), path) || digest(path) !== ref.digest)
+        throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+    }
+    const runtime = inspectMcpExecutableRoot({ root: finalEvidence.runtime_root, expectedVersion: transaction.version });
+    const shipped = pluginMcpRuntimeIdentity(pluginRoot);
+    if (runtime.status !== 'matched' || `sha256:${runtime.digest}` !== finalEvidence.server_digest
+      || `sha256:${runtime.dispatcherDigest}` !== finalEvidence.dispatcher_digest
+      || `sha256:${runtime.sdkDigest}` !== finalEvidence.sdk_digest
+      || digest(join(runtime.packageRoot, 'ui/cockpit.html')) !== finalEvidence.ui_digest
+      || runtime.version !== shipped.version || runtime.digest !== shipped.digest
+      || runtime.dispatcherDigest !== shipped.dispatcherDigest || runtime.sdkDigest !== shipped.sdkDigest
+      || finalEvidence.host.os !== process.platform || finalEvidence.host.arch !== process.arch
+      || finalEvidence.providers.some(provider => provider.origin !== pluginRoot
+        && [finalEvidence.legacy_id, 'agdf-cockpit'].some(id => id.replaceAll('-', '_').toLowerCase()
+          === provider.server_id.replaceAll('-', '_').toLowerCase())))
+      throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+    if (finalEvidence?.authorizes !== false || finalEvidence?.kind !== 'cockpit_transition'
+      || finalEvidence.plugin_digest !== `sha256:${sourceDigest}`
+      || finalEvidence.result !== 'qualified' || finalEvidence.native_final !== true
+      || !['normal_context', 'legacy_absent', 'render', 'interaction', 'legacy_views_closed', 'legacy_context_clear']
+        .every(key => finalEvidence.observations?.includes(key)))
+      throw Error('AGDF_COCKPIT_FINAL_EVIDENCE_REQUIRED');
+    atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: 'committed' })}\n`);
+    recoverInterruptedTransaction(stableRoot, `${stableRoot}.stage`, backupRoot, failedRoot, transactionPath);
+    return { status: 'committed', source_digest: sourceDigest };
+  }
+  if (existsSync(failedRoot)) throw Error('AGDF_COCKPIT_SETTLEMENT_CONFLICT');
+  // Persist explicit rollback intent before filesystem changes; the existing recovery owner
+  // can resume every interrupted rename/cleanup without inventing another journal.
+  atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: 'prepared' })}\n`);
+  recoverInterruptedTransaction(stableRoot, `${stableRoot}.stage`, backupRoot, failedRoot, transactionPath);
+  return { status: 'restored', source_digest: transaction.previous_source_digest };
+  });
+}

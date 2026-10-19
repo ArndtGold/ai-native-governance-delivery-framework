@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "contract_version": 1,
+  "operation": "install_setup",
+  "result": "failed",
+  "setup_request": "plugin_only",
+  "effective_state": "failed",
+  "surface": "codex",
+  "target": null,
+  "target_source": "none",
+  "invocation_directory_source": "none",
+  "requested_scope": null,
+  "effective_scope": null,
+  "plugin": {
+    "schema_version": 1,
+    "operation": "install",
+    "result": "failed",
+    "surface": "codex",
+    "scope": "global",
+    "version": {
+      "expected": null,
+      "installed": null,
+      "previous": null,
+      "status": "unknown",
+      "transition": null
+    },
+    "verification": {
+      "status": "degraded",
+      "evidence": [
+        "admitted:false",
+        "conflicts:[{\"path\":\"/private/tmp/agdf-cockpit-cli-instance/project/.codex/config.toml\",\"server_id\":\"agdf-cockpit\",\"reason\":\"same_key_or_possible_alias\"},{\"server_id\":\"agdf-cockpit\",\"reason\":\"host_same_key_or_possible_alias\"}]",
+        "checked_sources:[{\"path\":\"/private/tmp/agdf-cockpit-cli-instance/project/.codex/config.toml\",\"digest\":\"sha256:3ca5189ea7c1f38aed0317e03d1b12a29cef69145b5f7c7a737062e61770d3a8\"},{\"path\":\"/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml\",\"digest\":\"sha256:fd45f7cb109acae7e5d38c815d086e820a7c734dbe55b58db5428cda13921753\"}]",
+        "native_provider_status:configuration_readback",
+        "authorizes:false"
+      ]
+    },
+    "installation": {
+      "status": "degraded"
+    },
+    "activation": {
+      "status": "active"
+    },
+    "delivery": {
+      "status": "not_evaluated"
+    },
+    "runtime_checks": {
+      "requested": "unknown",
+      "effective": "unknown",
+      "reason": "not_evaluated",
+      "capability_identity": null,
+      "verification": "not_evaluated",
+      "mutation": "none",
+      "rollback": "none"
+    },
+    "restart": {
+      "required": false,
+      "reason": "none"
+    },
+    "next_action": {
+      "kind": "recovery",
+      "text": "Resolve the cockpit_conflict failure and retry the same installation command."
+    },
+    "changes": [],
+    "retained": [],
+    "failure": {
+      "phase": "cockpit_conflict",
+      "message": "Cockpit server identity is already occupied or configuration coverage is unresolved. Preserve the existing route; qualify the same-key candidate in an isolated native context before a guarded transition."
+    },
+    "operation_status": {
+      "operation_id": "lifecycle.plugin.install.codex",
+      "outcome": "failed",
+      "target_scope": "global",
+      "target": null,
+      "planned_effect": "install_or_update_global_plugin",
+      "excluded_authority": [
+        "target_inference",
+        "run_creation",
+        "ur_persistence",
+        "gate_approval",
+        "implementation",
+        "qa",
+        "release"
+      ],
+      "authorizes": false
+    }
+  },
+  "runtime_checks": {
+    "requested": "manual",
+    "effective": "manual"
+  },
+  "mcp": {
+    "status": "plugin_managed"
+  },
+  "discovery": {
+    "status": "not_checked"
+  },
+  "restart": {
+    "required": false,
+    "reasons": []
+  },
+  "failure": {
+    "phase": "plugin_operation",
+    "code": "plugin_operation_failed",
+    "message": "Cockpit server identity is already occupied or configuration coverage is unresolved. Preserve the existing route; qualify the same-key candidate in an isolated native context before a guarded transition.",
+    "evidence": [
+      "admitted:false",
+      "conflicts:[{\"path\":\"/private/tmp/agdf-cockpit-cli-instance/project/.codex/config.toml\",\"server_id\":\"agdf-cockpit\",\"reason\":\"same_key_or_possible_alias\"},{\"server_id\":\"agdf-cockpit\",\"reason\":\"host_same_key_or_possible_alias\"}]",
+      "checked_sources:[{\"path\":\"/private/tmp/agdf-cockpit-cli-instance/project/.codex/config.toml\",\"digest\":\"sha256:3ca5189ea7c1f38aed0317e03d1b12a29cef69145b5f7c7a737062e61770d3a8\"},{\"path\":\"/private/tmp/agdf-cockpit-cli-instance/codex-home/config.toml\",\"digest\":\"sha256:fd45f7cb109acae7e5d38c815d086e820a7c734dbe55b58db5428cda13921753\"}]",
+      "native_provider_status:configuration_readback",
+      "authorizes:false"
+    ]
+  },
+  "next_action": {
+    "code": "retry_plugin",
+    "parameters": {},
+    "text": "Resolve the plugin failure, then rerun the same installation command with --verbose."
+  },
+  "control": {
+    "schema_version": 1,
+    "supported_control_state_version": 2,
+    "target": "/private/tmp/agdf-cockpit-cli-instance/project",
+    "status": "absent",
+    "runs": [],
+    "diagnostics": [],
+    "changes": [],
+    "authorizes": false
+  },
+  "authorizes": false
+}

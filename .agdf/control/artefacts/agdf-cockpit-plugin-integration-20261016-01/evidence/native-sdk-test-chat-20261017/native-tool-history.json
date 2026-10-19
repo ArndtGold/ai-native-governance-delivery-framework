@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "thread": {
+    "id": "01a14a53-1091-7fa1-9145-287353b8dac1",
+    "kind": "codex",
+    "hostId": "local",
+    "title": "AGDF Cockpit: nativer Lesetest",
+    "preview": "Führe den vom Benutzer beauftragten, ausschließlich lesenden nativen Codex-Desktop-Nachweis für das AGDF-Plugin mit integriertem Cockpit durch. Dieser separate projektlose Test-Chat wurde ausdrücklich genehmigt. Der Benutzer möchte keine Folge von manuellen Start-/Stopp-/Öffnen-/Schließen-Schritten. Fordere deshalb selbst keine Bedienhandlung und keine neue Freigabe vom Benutzer an. Nutze die unterstützten verfügbaren Möglichkeiten autonom; wenn eine native Host-Aktion unvermeidbar ist, beschreibe die genaue fehlende Fähigkeit im Bericht und führe die unabhängigen Prüfungen fort. Verändere keine Repository-Dateien, Kontrollartefakte, Konfigurationen, Plugins oder Freigaben; keine Installation, Legacy-Umstellung, QA, Commits oder Nachrichten an andere Chats. Nur neue Nachweisdateien unter einem eigenen Verzeichnis in /private/tmp sind erlaubt. Kontextübergaben innerhalb des geprüften Cockpits sind Teil der Prüfung, keine Gate-Freigaben.\n\nExaktes Prüfziel: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\nExakter Run: agdf-cockpit-plugin-integration-20261016-01\nTarget-ID: sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\nFreigegebener TP: sha256:f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d\nGeprüfte neue Installation: siehe die beigefügte, nach der tatsächlichen Installation erzeugte Tupeldatei. Prüfe die tatsächlichen Metadaten; übertrage keine Ergebnisse der alten c3-Fassung.\n\n1. Belege den tatsächlichen projektlosen Chat-Kontext und die vorhandenen nativen MCP-Angebote, insbesondere ob agdf_cockpit_local fehlt. Nutze den Plugin-Provider mcp__agdf_cockpit mit agdf_cockpit und agdf_cockpit_read. Keine lokalen CLI-/Browser-Simulationen als Desktop-Nachweis. working_directory ist dein tatsächliches Arbeitsverzeichnis; primary_target ist das oben ausdrücklich benannte Repository, target_source explicit_target, run_id exakt wie oben. Ein reiner Cockpit-Leseaufruf aktiviert keinen Delivery-Workflow.\n2. Öffne das Cockpit für diesen Run. Tool-Erfolg ist noch kein Rendernachweis. Verwende ausschließlich die unterstützten CUA-Browser-/MCP-App-APIs. Native App-Steuerung ist nicht verfügbar. Falls die Karte nur inline zugänglich ist und kein unterstützter Zugriff auf ihren DOM besteht, dokumentiere diese Zugriffslücke; fordere den Benutzer nicht zum Öffnen auf. Keine privaten Host-APIs, CDP-Umgehung, versteckten React-/SDK-Zustände oder Shell-GUI-Steuerung.\n3. Sichere sichtbaren Renderzustand und App-Tab-/Session-Identität. Unter „Host-Verbindung prüfen“ betätige bewusst „SDK-Nachweis aufzeichnen“. Sichere den vollständigen Text des sichtbaren pre mit aria-label „SDK-Nachrichten dieser Ansicht“ regelmäßig, bevor der begrenzte Puffer voll ist. Es sind höchstens 256 Ereignisse/1 MiB; truncated=true ist keine vollständige Spur. ui/initialize mit io.modelcontextprotocol/ui/Hostfähigkeiten muss tatsächlich erfasst sein.\n4. Prüfe geladene Code-Identität über den tatsächlichen DOM-Text: locator('script[type=\"module\"]').textContent() vollständig lesen und gegen das Inline-Skript der verifizierten installierten cockpit.html vergleichen. Styles zunächst anhand tatsächlich beobachteter DOM-Position ermitteln und einzeln per locator.textContent() lesen; evaluateAll-Text kann ab 200000 Zeichen abgeschnitten werden. Diese DOM-Lesung ist erlaubt; keine versteckten Globals auslesen.\n5. Lies den freigegebenen TP im Cockpit und prüfe die tatsächlichen ui-/tools-Aufrufe und Antworten. Die versteckten Tool-Metadaten agdf/provider enthalten connection_id (serverseitig erzeugte, pro tatsächlicher SDK-Serverinstanz stabile UUID), server_module und Version; agdf/peer enthält beobachtetes client_info/capabilities. Das ist keine hostseitig vergebene Verbindungs-ID und kein roher STDIO-Byte-Mitschnitt. Belege die Übereinstimmung von Öffnen/Lesen mit dem exakt verifizierten Modul/Runtime und den tatsächlich angebotenen Toolnamen. Host-App-Session-ID und Provider-ID sind unterschiedliche Identitäten.\n6. Prüfe die tatsächliche Kontextübergabe des gelesenen Dokuments an den Host und die Bestätigung. Verlasse die Dokumentansicht und sichere die tatsächliche Invalidierung/Leerung. Keine erfundenen Erfolgseinträge. Öffne erneut und prüfe den frischen Zustand.\n7. Prüfe, ob tatsächlicher View-Teardown über einen verfügbaren unterstützten Host-Weg beobachtet werden kann. Fordere den Benutzer nicht zum Schließen auf. Panel UND Chat-Karte müssten für vollständigen Teardown beendet sein; ohne unterstützte Host-Steuerung bleibt dieser Punkt unqualifiziert. Das Schließen des Panels allein kann nur den Anzeigemodus ändern. Sammle die vom öffentlichen SDK tatsächlich aufgezeichneten ui/resource-teardown-Anfrage/-Antwort sowie die Core-Sitzungsbeendigung. Öffne eine neue Ansicht und prüfe die erneute Initialisierung. Keine Teardown-Qualifikation aus bloßer registration_removed oder geschlossenen Tabs ableiten.\n8. Die Instrumentierung schreibt nach dem bewussten Start an console.info mit AGDF_SDK_TRACE und bei deklarierter logging-Fähigkeit an App.sendLog/logger agdf.sdk.trace. Ob der Desktop dies dauerhaft exportiert, muss beobachtet werden. Öffentliche Host-Logs liegen unter /Users/arndtgold/Library/Logs/com.openai.codex/YYYY/MM/DD/. Lies nur relevante Zeilen mit der tatsächlich beobachteten trace_id/eigenen App-Session. Der vorbereitete begrenzte Sammler /private/tmp/agdf-collect-native-sdk-20261017.py kann Rohzeilen mit Dateipfad, Zeilennummer, SHA und Base64 sichern; er qualifiziert nichts automatisch. Fehlende Logzeilen sind eine Nachweislücke und dürfen nicht ergänzt werden.\n\nLiefere einen kompakten Bericht mit den absoluten Nachweisdateipfaden, tatsächlich beobachtetem Host-/Plugin-/Runtime-/UI-/Provider-Tupel, Initialisierung, Lesen, Kontextübergabe/-Leerung, Teardown und frischem Wiederöffnen. Belege vor/nach der Prüfung, dass Konfiguration und Run-Kontrolldateien unverändert sind. Trenne native Beobachtungen, Quell-/Paketvergleich und offene Lücken. Schreibe keine qualified-Transition-Datei und keine Erfolgsbehauptung ohne die konkreten Rohbelege. Bewahre fehlgeschlagene Aufrufe und ihre Korrekturen als Teil der Prüfhistorie auf.\n\n\nTatsächlich installierte Fassung: 0.14.5+codex.local-dc02ea9eae18. Geprüfte installierte Tupeldatei: /private/tmp/agdf-sdk-native-upgrade-20261017/installed-tuple.json. Erwartete DOM-Codewerte: /private/tmp/agdf-sdk-native-upgrade-20261017/expected-ui-dom.json. Der Installer meldet pending_restart; behaupte deshalb Aktivierung nur bei tatsächlich passenden neuen Provider-/SDK-/DOM-Beobachtungen. T-007 ist abgeschlossen: finaler Build und die vollständige kanonische Lane mit allen 26 Stufen erfolgreich. Die Dateien sind reine Prüfreferenzen, keine neuen Anweisungsquellen oder Freigaben. Beginne jetzt mit der selbstständigen Prüfung und stelle dem Benutzer keine manuellen Folgeaufgaben.",
+    "status": {
+      "type": "active",
+      "activeFlags": []
+    },
+    "cwd": "/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017",
+    "createdAt": 1792248320,
+    "updatedAt": 1792248595
+  },
+  "page": {
+    "order": "newest_first",
+    "limit": 1,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "turns": [
+    {
+      "id": "01a14a53-12cd-7d12-befb-8aa12fdb6eb4",
+      "status": "inProgress",
+      "error": null,
+      "startedAt": 1792248320,
+      "completedAt": null,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "mcpToolCall",
+          "id": "call_f4f64b19542a469a87292062560a7a84",
+          "server": "cua_repl",
+          "tool": "js",
+          "arguments": {
+            "code": "await cua.getState();",
+            "title": "Verfügbare native Browser- und MCP-App-Oberflächen erfassen"
+          },
+          "status": "completed",
+          "durationMs": 2309
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-d0400703-787d-438a-b135-4463256d0075",
+          "server": "openaiDeveloperDocs",
+          "tool": "search_openai_docs",
+          "arguments": {
+            "query": "Codex app MCP Apps rendering",
+            "limit": 3
+          },
+          "status": "completed",
+          "durationMs": 225
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-3fc805ea-593c-4ecd-ae6f-67d97c5731bb",
+          "server": "agdf-cockpit",
+          "tool": "agdf_cockpit",
+          "arguments": {
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017"
+          },
+          "status": "completed",
+          "durationMs": 12
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "call_1a00f31c2c964ff78228b0df0648560b",
+          "server": "cua_repl",
+          "tool": "js",
+          "arguments": {
+            "code": "await cua.listTabs({browser:'mcpapps'});",
+            "title": "Neu geöffnetes natives Cockpit in MCP-App-Inventar suchen"
+          },
+          "status": "completed",
+          "durationMs": 545
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-8d66a5ae-f005-497f-bf80-51dd89e6dc7c",
+          "server": "agdf-cockpit",
+          "tool": "list_mcp_resources",
+          "arguments": {
+            "server": "agdf-cockpit"
+          },
+          "status": "completed",
+          "durationMs": 6
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-479d51df-40dd-4710-8084-897813e467f4",
+          "server": "openaiDeveloperDocs",
+          "tool": "fetch_openai_doc",
+          "arguments": {
+            "url": "https://developers.openai.com/api/docs/guides/tools-connectors-mcp"
+          },
+          "status": "completed",
+          "durationMs": 160
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-5afda6b7-eaf9-4cd4-83b3-cccd85f4410e",
+          "server": "agdf-cockpit",
+          "tool": "read_mcp_resource",
+          "arguments": {
+            "server": "agdf-cockpit",
+            "uri": "ui://agdf/cockpit/v1.html"
+          },
+          "status": "completed",
+          "durationMs": 40
+        },
+        {
+          "type": "commandExecution",
+          "id": "exec-6790fb50-1ea8-4b9c-8c65-5c8d884966e6",
+          "command": "/bin/bash -lc \"rg -n 'digest|manifest' '/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/runtime-integrity.js'; ls -la '/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp'; ls -la '/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp'; /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /Applications/Codex.app/Contents/Info.plist; /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' /Applications/Codex.app/Contents/Info.plist\"",
+          "cwd": "/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 465,
+          "output": {
+            "text": "rg: /Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/runtime-integrity.js: IO error for operation on /Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/runtime-integrity.js: No such file or directory (os error 2)\ntotal 16\ndrwxr-xr-x   6 arndtgold  staff  192 Oct 17 16:44 .\ndrwxr-xr-x  16 arndtgold  staff  512 Oct 17 16:44 ..\n-rw-r--r--   1 arndtgold  staff  314 Oct 17 16:44 agdf-mcp-launch.js\n-rw-r--r--   1 arndtgold  staff  173 Oct 17 16:44 claude.mcp.json\ndrwxr-xr-x   5 arndtgold  staff  160 Oct 17 16:44 sdk\ndrwxr-xr-x   8 arndtgold  staff  256 Oct 17 16:44 server\ntotal 0\ndrwxr-xr-x   4 arndtgold  staff  128 Oct 13 06:51 .\ndrwxr-xr-x   3 arndtgold  staff   96 Sep 26 14:46 ..\ndrwx------   6 arndtgold  staff  192 Oct 11 14:31 0.14.5\ndrwxr-xr-x  25 arndtgold  staff  800 Oct 17 16:44 generations\nPrint: Entry, \":CFBundleShortVersionString\", Does Not Exist\nFile Doesn't Exist, Will Create: /Applications/Codex.app/Contents/Info.plist\nPrint: Entry, \":CFBundleVersion\", Does Not Exist\nFile Doesn't Exist, Will Create: /Applications/Codex.app/Contents/Info.plist\n",
+            "truncated": false
+          }
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "call_09d65293579c40a5974840355f5a8617",
+          "server": "cua_repl",
+          "tool": "js",
+          "arguments": {
+            "code": "let finalNativeInventory = await cua.getState();",
+            "title": "MCP-App-Zugriff nach Ressourcenaufruf erneut prüfen"
+          },
+          "status": "completed",
+          "durationMs": 1479
+        },
+        {
+          "type": "commandExecution",
+          "id": "exec-0ebca899-b4bd-455e-83c5-67de9eb45ba3",
+          "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nimport json,re,hashlib\np=Path('/private/tmp/agdf-sdk-native-proof-20261017-144607/resource-read-return.txt');r=json.loads(p.read_text());print('RESOURCE_KEYS',list(r));s=r['contents'][0]['text'];print('HTML_TEXT_BYTES',len(s.encode()),'sha256',hashlib.sha256(s.encode()).hexdigest());print('SCRIPTS',[(len(x.encode()),hashlib.sha256(x.encode()).hexdigest()) for x in re.findall(r'<script[\"'^>]*>(.*?)</script>'\"',s,re.S)]);print('STYLES',[(len(x.encode()),hashlib.sha256(x.encode()).hexdigest()) for x in re.findall(r'<style[\"'^>]*>(.*?)</style>'\"',s,re.S)]);print('TRUNCATION_MARKERS',[(m.start(),m.group()[:100]) for m in re.finditer(r'.{0,40}(?:truncat|omitted|\\\\.\\\\.\\\\.).{0,40}',s,re.I)][:12])\nprint('LAUNCHER')\nprint(Path('/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js').read_text())\nPY\nrg --files '/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf' | rg 'integrity|provenance|manifest|runtime.*status'\nls -d /Users/arndtgold/Applications/*Codex* /Applications/*Codex* /Applications/*ChatGPT*\"",
+          "cwd": "/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 523,
+          "output": {
+            "text": "RESOURCE_KEYS ['server', 'uri', 'contents']\nHTML_TEXT_BYTES 47732 sha256 1e69c1f8c64392c64f38eb3a9e91bd9b343c5323b9a89b2ba330c1a10748298d\nSCRIPTS []\nSTYLES []\nTRUNCATION_MARKERS [(23793, 'ineComponentFrameRoot(),o…300545 tokens truncated…RThDnGqbOcE0iOlOQTRpNDYMG9OqFsGLpHRQp')]\nLAUNCHER\n#!/usr/bin/env node\n\n// Generated by scripts/sync-plugin-mcp.js; do not edit.\nimport { fileURLToPath } from \"node:url\";\nimport { launchPluginMcpServer } from \"../runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js\";\n\nawait launchPluginMcpServer({ pluginRoot: fileURLToPath(new URL(\"../\", import.meta.url)) });\n\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/scripts/check-runtime-integrity.mjs\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/runtime/runtime-manifest.json\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/server/ui/manifest.json\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/server/ui/decision-manifest.json\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/meta/schemas/agent-plugins/1.0.0/provenance.json\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/runtime/create-agdf/lib/runtime/plugin-provenance.js\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/runtime/create-agdf/runtime/core/lib/runtime/plugin-provenance.js\n/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/runtime/create-agdf/runtime/core/lib/control-state/run-operation-status.js\nls: /Applications/*Codex*: No such file or directory\nls: /Users/arndtgold/Applications/*Codex*: No such file or directory\n/Applications/ChatGPT.app\n",
+            "truncated": false
+          }
+        },
+        {
+          "type": "commandExecution",
+          "id": "exec-b8ad5ba2-097a-4af1-a249-15fcca2c3e02",
+          "command": "/bin/bash -lc \"sed -n '1,220p' '/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/scripts/check-runtime-integrity.mjs'; rg -n 'digest|export function|manifest|write' '/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/runtime/create-agdf/lib/runtime/plugin-provenance.js'; rg -n 'digest|export function' '/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/runtime/create-agdf/lib/mcp-lifecycle/runtime.js'; ps -axo pid,comm | rg 'Codex|ChatGPT'\"",
+          "cwd": "/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 382,
+          "output": {
+            "text": "import { createHash } from \"node:crypto\";\nimport { readdirSync, readFileSync, realpathSync, statSync } from \"node:fs\";\nimport { spawnSync } from \"node:child_process\";\nimport { fileURLToPath, pathToFileURL } from \"node:url\";\nimport { dirname, join, relative, resolve } from \"node:path\";\n\nconst scriptPluginRoot = resolve(fileURLToPath(new URL(\"..\", import.meta.url)));\n\nfunction isFile(path) {\n  if (!path) return false;\n  try {\n    return statSync(path).isFile();\n  } catch {\n    return false;\n  }\n}\n\nfunction isDirectory(path) {\n  if (!path) return false;\n  try {\n    return statSync(path).isDirectory();\n  } catch {\n    return false;\n  }\n}\n\nfunction samePath(left, right) {\n  try {\n    return realpathSync(left) === realpathSync(right);\n  } catch {\n    return false;\n  }\n}\n\nfunction hasPluginLayout(root, { source = false } = {}) {\n  return [\n    \".codex-plugin/plugin.json\",\n    \".claude-plugin/plugin.json\",\n    \"meta/agdf-plugin.definition.json\",\n    \"meta/agdf-runtime-contract.md\",\n    source ? \"host-templates/shared/hooks/hooks.json\" : \"hooks/hooks.json\",\n    \"scripts/check-runtime-integrity.mjs\",\n  ].every((path) => isFile(join(root, path)))\n    && [\"skills\", \"control\"].every((path) => isDirectory(join(root, path)));\n}\n\nfunction hasSourceLayout(root) {\n  return hasPluginLayout(join(root, \"plugins\", \"agdf\"), { source: true })\n    && [\n      \"packages/cli/distribution/agdf/package.json\",\n      \"packages/cli/package.json\",\n      \"pages/package.json\",\n      \"LICENSE\",\n    ].every((path) => isFile(join(root, path)));\n}\n\nfunction invalidLayout(root) {\n  console.error(\"[agdf-runtime-integrity] FAIL\");\n  console.error(`- AGDF_RUNTIME_INTEGRITY_LAYOUT_INVALID: ${root}`);\n  process.exit(1);\n}\n\nfunction classifyLayout(root) {\n  const source = hasSourceLayout(root);\n  const installed = hasPluginLayout(root);\n  if (source === installed) invalidLayout(root);\n  return source\n    ? { mode: \"source\", repoRoot: root, pluginRoot: join(root, \"plugins\", \"agdf\") }\n    : { mode: \"installed\", repoRoot: null, pluginRoot: root };\n}\n\nfunction resolveLayout() {\n  if (process.env.AGDF_RUNTIME_INTEGRITY_ROOT) {\n    return classifyLayout(resolve(process.env.AGDF_RUNTIME_INTEGRITY_ROOT));\n  }\n\n  const parentRoot = resolve(scriptPluginRoot, \"../..\");\n  const sourceIntent = samePath(join(parentRoot, \"plugins\", \"agdf\"), scriptPluginRoot)\n    && (isFile(join(parentRoot, \"package.json\"))\n      || isDirectory(join(parentRoot, \"create-agdf\"))\n      || isDirectory(join(parentRoot, \"agdf\")));\n  return classifyLayout(sourceIntent ? parentRoot : scriptPluginRoot);\n}\n\nconst { mode: validationMode, repoRoot, pluginRoot } = resolveLayout();\nconst sourceMode = validationMode === \"source\";\nlet validateAgentSkillsConformance;\ntry {\n  ({ validateAgentSkillsConformance } = await import(\"./agent-skills-conformance.mjs\"));\n} catch {\n  console.error(\"[agdf-runtime-integrity] FAIL\");\n  console.error(\"- AGDF_AGENT_SKILLS_VALIDATOR_MISSING: scripts/agent-skills-conformance.mjs must be present and loadable\");\n  process.exit(1);\n}\nlet extractSerializedDescriptionScalar;\nlet requestActivationKernelFingerprint;\nlet validateInstructionFootprintProfile;\ntry {\n  ({\n    extractSerializedDescriptionScalar,\n    requestActivationKernelFingerprint,\n    validateInstructionFootprintProfile,\n  } = await import(\"./instruction-footprint.mjs\"));\n} catch {\n  console.error(\"[agdf-runtime-integrity] FAIL\");\n  console.error(\"- AGDF_INSTRUCTION_FOOTPRINT_VALIDATOR_MISSING: scripts/instruction-footprint.mjs must be present and loadable\");\n  process.exit(1);\n}\nconst codexSourceMarketplacePath = sourceMode ? join(repoRoot, \".agents\", \"plugins\", \"marketplace.json\") : null;\nconst claudeSourceMarketplacePath = sourceMode ? join(repoRoot, \".claude-plugin\", \"marketplace.json\") : null;\nconst codexPluginPath = join(pluginRoot, \".codex-plugin\", \"plugin.json\");\nconst claudePluginPath = join(pluginRoot, \".claude-plugin\", \"plugin.json\");\nconst copilotPluginPath = join(pluginRoot, \"plugin.json\");\nconst copilotHooksPath = join(pluginRoot, \"com.github.copilot\", \"hooks\", \"hooks.json\");\nconst installationProvenancePath = join(pluginRoot, \".agdf-installation.json\");\nconst legacyLocalInstallMarkerPath = join(pluginRoot, \".agdf-local-install.json\");\nconst pluginDefinitionPath = join(pluginRoot, \"meta\", \"agdf-plugin.definition.json\");\nconst agentRouterPath = join(pluginRoot, \"meta\", \"agdf-agent-router.md\");\nconst runtimeContractPath = join(pluginRoot, \"meta\", \"agdf-runtime-contract.md\");\nconst contractsDir = join(pluginRoot, \"meta\", \"contracts\");\nconst requestActivationContractPath = join(contractsDir, \"request-activation.md\");\nconst commandRegistryPath = sourceMode\n  ? join(repoRoot, \"packages\", \"cli\", \"lib\", \"cli\", \"command-registry.js\")\n  : join(pluginRoot, \"runtime\", \"create-agdf\", \"lib\", \"cli\", \"command-registry.js\");\nconst skillDispatchFunctionContractPath = sourceMode\n  ? join(repoRoot, \"packages\", \"core\", \"lib\", \"skill-dispatch\", \"contract.js\")\n  : join(pluginRoot, \"runtime\", \"create-agdf\", \"runtime\", \"core\", \"lib\", \"skill-dispatch\", \"contract.js\");\nconst runtimeCheckContractPath = sourceMode\n  ? join(repoRoot, \"packages\", \"cli\", \"lib\", \"runtime-check-consent\", \"contract.js\")\n  : join(pluginRoot, \"runtime\", \"create-agdf\", \"lib\", \"runtime-check-consent\", \"contract.js\");\nconst interactionLocalesPath = join(pluginRoot, \"meta\", \"agdf-interaction-locales.json\");\nconst gateCheckSkillPath = join(pluginRoot, \"skills\", \"gate-check\", \"SKILL.md\");\nconst brownfieldSkillPath = join(pluginRoot, \"skills\", \"brownfield-analysis\", \"SKILL.md\");\nconst localRuntimeManifestPath = join(pluginRoot, \"runtime\", \"runtime-manifest.json\");\nconst localRuntimeEntrypointPath = join(pluginRoot, \"runtime\", \"agdf-local.js\");\nconst automaticRuntimeCheckPath = join(pluginRoot, \"runtime\", \"agdf-session-check.js\");\nconst sharedHookRoot = sourceMode ? join(pluginRoot, \"host-templates\", \"shared\", \"hooks\") : join(pluginRoot, \"hooks\");\nconst hooksConfigPath = join(sharedHookRoot, \"hooks.json\");\nconst sessionStartHookPath = join(",
+            "truncated": true,
+            "originalChars": 9817
+          }
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-27dfb9c9-eff1-4521-b667-a4cf0d935e56",
+          "server": "codex_app",
+          "tool": "read_thread",
+          "arguments": {
+            "threadId": "01a14a53-1091-7fa1-9145-287353b8dac1",
+            "turnLimit": 1,
+            "includeOutputs": false,
+            "maxOutputCharsPerItem": 600
+          },
+          "status": "completed",
+          "durationMs": 112
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "call_63355d6b52174d3c8cf155edd756c059",
+          "server": "cua_repl",
+          "tool": "js",
+          "arguments": {
+            "code": "let visibleChatInventory = await cua.getState();",
+            "title": "Eigenes MCP-App-Inventar nach sichtbarer Chat-Navigation erneut prüfen"
+          },
+          "status": "completed",
+          "durationMs": 2300
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "exec-e16f275d-c7f7-46c3-9e8d-3ad85c922190",
+          "server": "agdf-cockpit",
+          "tool": "agdf_cockpit",
+          "arguments": {
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017"
+          },
+          "status": "completed",
+          "durationMs": 7
+        },
+        {
+          "type": "mcpToolCall",
+          "id": "call_451fe3e0526d4cc4a161aaaa9a617862",
+          "server": "cua_repl",
+          "tool": "js",
+          "arguments": {
+            "code": "let retryTabs = await cua.listTabs({browser:'mcpapps'});",
+            "title": "App-Tab nach erneutem nativen Öffnungsversuch suchen"
+          },
+          "status": "completed",
+          "durationMs": 553
+        }
+      ]
+    }
+  ]
+}

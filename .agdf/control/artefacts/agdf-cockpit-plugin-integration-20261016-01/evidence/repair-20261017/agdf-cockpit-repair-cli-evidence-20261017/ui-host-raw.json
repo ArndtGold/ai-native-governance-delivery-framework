@@ -1,0 +1,1284 @@
+[
+  {
+    "id": 1,
+    "result": {
+      "userAgent": "Codex Desktop/0.163.0 (Mac OS 15.7.7; x86_64) dumb (agdf_cli_ui_protocol_probe; 1)",
+      "codexHome": "/private/tmp/agdf-cockpit-cli-instance/codex-home",
+      "platformFamily": "unix",
+      "platformOs": "macos"
+    }
+  },
+  {
+    "method": "remoteControl/status/changed",
+    "params": {
+      "status": "disabled",
+      "serverName": "Arndts-iMac.Goldstar",
+      "installationId": "9f63a131-7ba1-4b35-9118-cbc6dc1487ae",
+      "environmentId": null
+    },
+    "emittedAtMs": 1792220612331
+  },
+  {
+    "id": 2,
+    "result": {
+      "thread": {
+        "id": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+        "environments": [
+          {
+            "environmentId": "local",
+            "cwd": "/private/tmp/agdf-cockpit-cli-instance/project",
+            "runtimeWorkspaceRoots": [
+              "/private/tmp/agdf-cockpit-cli-instance/project"
+            ]
+          }
+        ],
+        "extra": null,
+        "sessionId": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "",
+        "ephemeral": true,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "openai",
+        "model": "gpt-6.1-sol",
+        "reasoningEffort": null,
+        "createdAt": 1792220612,
+        "updatedAt": 1792220612,
+        "recencyAt": 1792220612,
+        "status": {
+          "type": "idle"
+        },
+        "path": null,
+        "cwd": "/private/tmp/agdf-cockpit-cli-instance/project",
+        "cliVersion": "0.163.0",
+        "originator": "Codex Desktop",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "daybreakEnabled": null,
+        "turns": []
+      },
+      "model": "gpt-6.1-sol",
+      "modelProvider": "openai",
+      "serviceTier": null,
+      "disabledPluginIds": [],
+      "cwd": "/private/tmp/agdf-cockpit-cli-instance/project",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/agdf-cockpit-cli-instance/project"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "on-request",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly"
+    }
+  },
+  {
+    "method": "thread/started",
+    "params": {
+      "thread": {
+        "id": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+        "environments": [
+          {
+            "environmentId": "local",
+            "cwd": "/private/tmp/agdf-cockpit-cli-instance/project",
+            "runtimeWorkspaceRoots": [
+              "/private/tmp/agdf-cockpit-cli-instance/project"
+            ]
+          }
+        ],
+        "extra": null,
+        "sessionId": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "",
+        "ephemeral": true,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "openai",
+        "model": "gpt-6.1-sol",
+        "reasoningEffort": null,
+        "createdAt": 1792220612,
+        "updatedAt": 1792220612,
+        "recencyAt": 1792220612,
+        "status": {
+          "type": "idle"
+        },
+        "path": null,
+        "cwd": "/private/tmp/agdf-cockpit-cli-instance/project",
+        "cliVersion": "0.163.0",
+        "originator": "Codex Desktop",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "daybreakEnabled": null,
+        "turns": []
+      }
+    },
+    "emittedAtMs": 1792220612557
+  },
+  {
+    "method": "mcpServer/startupStatus/updated",
+    "params": {
+      "threadId": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+      "name": "agdf-cockpit",
+      "status": "starting",
+      "error": null,
+      "failureReason": null
+    },
+    "emittedAtMs": 1792220612563
+  },
+  {
+    "method": "mcpServer/startupStatus/updated",
+    "params": {
+      "threadId": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+      "name": "agdf",
+      "status": "starting",
+      "error": null,
+      "failureReason": null
+    },
+    "emittedAtMs": 1792220612564
+  },
+  {
+    "method": "mcpServer/startupStatus/updated",
+    "params": {
+      "threadId": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+      "name": "agdf-cockpit",
+      "status": "ready",
+      "error": null,
+      "failureReason": null
+    },
+    "emittedAtMs": 1792220620051
+  },
+  {
+    "id": 3,
+    "result": {
+      "data": [
+        {
+          "name": "agdf-cockpit",
+          "runtimeStatus": "connected",
+          "pluginId": "agdf@agdf",
+          "httpOrigin": null,
+          "serverInfo": {
+            "name": "agdf-mcp",
+            "title": null,
+            "version": "0.14.5",
+            "description": null,
+            "icons": null,
+            "websiteUrl": null
+          },
+          "serverCapabilities": {
+            "resources": {
+              "listChanged": true
+            },
+            "tools": {
+              "listChanged": true
+            }
+          },
+          "tools": {
+            "agdf_cockpit": {
+              "name": "agdf_cockpit",
+              "description": "Open the local read-only AGDF cockpit. When the user opens the cockpit for a Run explicitly identified in the request or already unambiguously established with the user in this conversation, you must pass its run_id, even if the latest request only says to open the cockpit. Omit run_id only when the user explicitly requests the overall overview or no unambiguous conversation Run exists. If several Runs could be intended, ask which to view. Never infer a Run from directory, recency or inventory. The optional schema preserves overview access; it does not make passing an established conversation Run optional. Selection and context never approve or authorize delivery. For the plugin, supply the confirmed absolute primary_target, its target_source and an accessible absolute working_directory. Never infer a project from the plugin location or directory alone. This tool is part of plugin `AI Governance & Delivery Framework`.",
+              "inputSchema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "run_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                  },
+                  "working_directory": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "primary_target": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "target_source": {
+                    "type": "string",
+                    "enum": [
+                      "explicit_target",
+                      "continued_target",
+                      "current_repository"
+                    ]
+                  }
+                },
+                "required": [
+                  "working_directory",
+                  "primary_target",
+                  "target_source"
+                ]
+              },
+              "annotations": {
+                "readOnlyHint": true,
+                "destructiveHint": false,
+                "idempotentHint": false,
+                "openWorldHint": false
+              },
+              "_meta": {
+                "ui": {
+                  "resourceUri": "ui://agdf/cockpit/v1.html",
+                  "visibility": [
+                    "model",
+                    "app"
+                  ]
+                }
+              }
+            },
+            "agdf_cockpit_read": {
+              "name": "agdf_cockpit_read",
+              "description": "Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Draft checks are read-only authoring checks and never approve or authorize delivery. This tool is part of plugin `AI Governance & Delivery Framework`.",
+              "inputSchema": {
+                "type": "object",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "snapshot"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "backlog_titles"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "row_ids": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id",
+                      "row_ids"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "run"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id",
+                      "run_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "artifact_readiness"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                      },
+                      "gate": {
+                        "type": "string",
+                        "enum": [
+                          "UR",
+                          "PRD",
+                          "SD",
+                          "TP"
+                        ]
+                      },
+                      "expected_revision_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id",
+                      "run_id",
+                      "gate",
+                      "expected_revision_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "document"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                      },
+                      "resource_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id",
+                      "run_id",
+                      "resource_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "freshness"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "changes"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "context"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id",
+                      "run_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "prepare_context"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "snapshot_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "run_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                      },
+                      "revision_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "resource_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "graph_ids": {
+                        "type": "array",
+                        "maxItems": 16,
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "excluded_ids": {
+                        "type": "array",
+                        "maxItems": 64,
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "generation": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "snapshot_id",
+                      "run_id",
+                      "revision_id",
+                      "resource_id",
+                      "graph_ids",
+                      "excluded_ids",
+                      "generation"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "validate_context"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "context_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "generation": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "context_id",
+                      "generation"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "invalidate_context"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "complete_context_invalidation"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "invalidation_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id",
+                      "invalidation_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "operation": {
+                        "const": "close"
+                      },
+                      "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "session_id"
+                    ]
+                  }
+                ]
+              },
+              "annotations": {
+                "readOnlyHint": true,
+                "destructiveHint": false,
+                "idempotentHint": false,
+                "openWorldHint": false
+              },
+              "_meta": {
+                "ui": {
+                  "visibility": [
+                    "model",
+                    "app"
+                  ]
+                }
+              }
+            }
+          },
+          "toolsError": null,
+          "resources": [
+            {
+              "mimeType": "text/html;profile=mcp-app",
+              "name": "Cockpit",
+              "uri": "ui://agdf/cockpit/v1.html",
+              "_meta": {
+                "ui": {
+                  "csp": {
+                    "connectDomains": [],
+                    "resourceDomains": [],
+                    "frameDomains": [],
+                    "baseUriDomains": []
+                  }
+                }
+              }
+            }
+          ],
+          "resourceTemplates": [],
+          "authStatus": "unsupported"
+        }
+      ],
+      "nextCursor": null
+    }
+  },
+  {
+    "id": 4,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schema_version\":\"1\",\"authorizes\":false,\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"}}"
+        }
+      ],
+      "structuredContent": {
+        "schema_version": "1",
+        "authorizes": false,
+        "target": {
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+        }
+      },
+      "_meta": {
+        "agdf_cockpit": {
+          "session_id": "92cf080f-16a1-40b6-b111-210bb7e08193",
+          "target": {
+            "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+            "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "render_generation": 1,
+          "initial_run_id": "agdf-cockpit-plugin-integration-20261016-01",
+          "idle_timeout_ms": 1800000,
+          "lifetime_ms": 28800000
+        }
+      }
+    }
+  },
+  {
+    "method": "mcpServer/startupStatus/updated",
+    "params": {
+      "threadId": "01a148ac-4703-7b63-b60f-e7dcee4fb4c4",
+      "name": "agdf",
+      "status": "ready",
+      "error": null,
+      "failureReason": null
+    },
+    "emittedAtMs": 1792220620182
+  },
+  {
+    "id": 5,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":\"2cdaa07c-9780-4a5e-bff3-7e6e4b4d8aca\",\"observed_as_of\":\"2026-10-17T07:03:42.081Z\",\"source_digest\":\"7f68025d87f86fbf005f4bbbae17bf80f3a238d30d371ff1889c820f8fdaa9b1\",\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"kind\":\"run\",\"run\":{\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"lifecycle\":\"active\",\"work_summary\":{\"kind\":\"work_pending\",\"phase\":\"CD+Tests\",\"qa_outcome\":\"not_applicable\",\"lifecycle\":\"active\",\"recorded_approvals\":[\"UR\",\"PRD\",\"SD\",\"TP\"],\"decisive_obligation\":null,\"open_obligation_count\":0,\"display_action\":\"Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.\",\"sources\":[],\"limitations\":[],\"authorizes\":false,\"evidence_applicability\":{\"current\":[{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md\",\"step\":\"UX Intent Definition\",\"reason\":\"current_exact_association\",\"available\":true},{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md\",\"step\":\"Brownfield Analysis\",\"reason\":\"current_exact_association\",\"available\":true},{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md\",\"step\":\"CD+Tests\",\"reason\":\"current_exact_association\",\"available\":true}],\"superseded\":[],\"applicability_unknown\":[{\"path\":\"run-create\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\"`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md`\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\"`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md`\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD_SOURCE_MAPPING-01.json\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-01.json\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-02.json\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null},{\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP_SOURCE_MAPPING-01.json\",\"step\":null,\"reason\":\"no_writer_owned_association\",\"available\":null}]},\"status_label\":\"Work pending\"},\"backlog_comparison\":{\"state\":\"matching\",\"reason\":\"same_revision_and_sources\",\"saved_revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"authorizes\":false},\"objective\":\"Installing or updating the AGDF plugin for Codex also supplies the existing Cockpit with compatible runtime and UI assets. The user can open it without building or registering a separate local MCP server. Plugin lifecycle operations own the integrated components. Use the user-facing name **Cockpit**, the recommended spelling of the user's tentative suggestion \\\"cockbit\\\"; technical identifiers are a design concern.\",\"title\":\"Deliver Cockpit through the AGDF plugin\",\"evaluation\":{\"status\":\"open\",\"current_gate\":\"CD+Tests\",\"blocking_reason\":\"none\",\"missing_approval\":\"none\",\"next_allowed_action\":\"Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.\",\"next_action_de\":\"Den freigegebenen TP-Umfang implementieren, seine Tests ausführen und die CD+Tests-Nachweise vor dem Code Review erfassen.\",\"allowed\":[\"implement the approved TP tasks\",\"run the approved test plan\",\"record implementation and test evidence\"],\"forbidden\":[\"claim QA pass\",\"request UAT approval\",\"release\"],\"control_assessment\":{\"state\":\"open\",\"authorizes\":false},\"doctor_status\":\"pass\",\"quality_outlook\":\"No additional quality follow-up identified from the current control state.\",\"diagnostics\":[],\"approvals\":[{\"gate\":\"UR\",\"status\":\"approved\",\"evidence\":\"`Approval: UR` · 2026-10-16 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md` sha256:312e32382d3aaabb · presentation 97083a1f-5d46-47a3-a9f1-e756f55bfafb sha256:8ee4b5c8f4b463226672d8d64845798a4b280a8907e8c98a7c8ab55e79bb6896\"},{\"gate\":\"PRD\",\"status\":\"approved\",\"evidence\":\"`Approval: PRD` · 2026-10-16 · revision 6 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md` sha256:d2d0257b7f2e7d3e · presentation 66bf0e88-fa4f-4340-9931-025334031c34 sha256:4b9d22cbdd526f72ef47f5d4ea24c0e279d17664deea628bc601fe91255d17d4\"},{\"gate\":\"SD\",\"status\":\"approved\",\"evidence\":\"`Approval: SD` · 2026-10-16 · revision 9 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md` sha256:4f8e7c5ce8f7a3e7 · presentation 83b7d59a-b28b-44ce-b384-8cb78545ff63 sha256:3dbc5a604f12bc39a5047e56994f1c84efae2827dab4adca6755a2105467c827\"},{\"gate\":\"TP\",\"status\":\"approved\",\"evidence\":\"`Approval: TP` · 2026-10-16 · revision 11 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md` sha256:f9c6449def46da1b · presentation 91deef6c-5ae1-4992-b2f5-a3f5de80674b sha256:97f4b0acc8a43339c8f1de84f3362e0cdf0e6d7454d286e6b9dd6d6ceb2e01ac\"},{\"gate\":\"QA\",\"status\":\"missing\",\"evidence\":\"\"},{\"gate\":\"UAT\",\"status\":\"missing\",\"evidence\":\"\"}],\"missing_evidence\":[],\"next_operation\":{\"type\":\"implement_approved_plan\",\"skill_id\":\"gate-check\",\"operation_key\":\"implementation.execute\",\"actor\":\"agent\",\"effect\":\"implementation\",\"gate\":\"CD+Tests\"},\"completion\":{\"status\":\"pending\",\"gate\":\"OR\",\"fulfilled\":false},\"git_evidence\":\"unavailable\"},\"persisted\":{\"current_gate\":\"CD+Tests\",\"next_allowed_action\":\"Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.\",\"decision\":\"in_progress\",\"artefacts\":[{\"type\":\"UR\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md\",\"status\":\"approved\",\"notes\":\"\",\"raw_path\":\"`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md`\",\"path_format\":\"code_span\",\"path_reason\":\"none\"},{\"type\":\"Brownfield Review\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md\",\"status\":\"done\",\"notes\":\"\",\"raw_path\":\"`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md`\",\"path_format\":\"code_span\",\"path_reason\":\"none\"},{\"type\":\"Verified Change\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"PRD\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md\",\"status\":\"approved\",\"notes\":\"Reviewed source binding recorded atomically\",\"raw_path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"SD\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md\",\"status\":\"approved\",\"notes\":\"Reviewed source binding recorded atomically\",\"raw_path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"TP\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md\",\"status\":\"approved\",\"notes\":\"Reviewed source binding recorded atomically\",\"raw_path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"Brownfield Analysis\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md\",\"status\":\"done\",\"notes\":\"Recorded exact internal result; operation 1bf0d249-0900-4010-8f74-0c24638ddac1\",\"raw_path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"CD+Tests\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md\",\"status\":\"revise\",\"notes\":\"Recorded exact internal result; operation c7a2994f-5b0c-48e5-9d55-f8bc8e966ff6\",\"raw_path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"},{\"type\":\"CR\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"QA\",\"path\":\"\",\"status\":\"missing\",\"notes\":\"\",\"raw_path\":\"\",\"path_format\":\"plain\",\"path_reason\":\"empty\"},{\"type\":\"UX Intent Definition\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md\",\"status\":\"done\",\"notes\":\"Recorded exact internal result; operation 5df7c8fb-4ef2-44a7-8fdd-3f14d1e62630\",\"raw_path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md\",\"path_format\":\"plain\",\"path_reason\":\"none\"}]},\"context_graph\":{\"refs\":\"\"},\"resources\":[{\"resource_id\":\"1caa97b5-fe50-46a9-82c2-51ed150bce11\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"Run State\",\"path\":\".agdf/control/runs/agdf-cockpit-plugin-integration-20261016-01/RUN_STATE.md\",\"registered_reference\":\".agdf/control/runs/agdf-cockpit-plugin-integration-20261016-01/RUN_STATE.md\",\"status\":\"registered\"},{\"resource_id\":\"8dd656ef-83b5-4a7d-a34f-2a89b50dd12b\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"UR\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md\",\"status\":\"registered\"},{\"resource_id\":\"11245cba-d906-468d-bb58-00ef32963140\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"Brownfield Review\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md\",\"status\":\"registered\"},{\"resource_id\":\"1edae4bd-d3be-4c35-96d5-b61a51c84d4e\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"PRD\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md\",\"status\":\"registered\"},{\"resource_id\":\"6a7cb7a3-4a68-4350-941e-8360dfc8be7f\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"SD\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md\",\"status\":\"registered\"},{\"resource_id\":\"6134c45a-5123-423b-a537-443469098f2f\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"TP\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md\",\"status\":\"registered\"},{\"resource_id\":\"5305da5a-d0d2-4901-8629-9191ce968cb7\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"Brownfield Analysis\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md\",\"status\":\"registered\"},{\"resource_id\":\"042ee7c1-f4d3-4d45-82a4-689dcb906c46\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"CD+Tests\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md\",\"status\":\"registered\"},{\"resource_id\":\"685714f2-8146-4748-ba8d-71ffbb773ba9\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"type\":\"UX Intent Definition\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md\",\"status\":\"registered\"}],\"draft_check\":{\"source\":{\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"gate\":\"CD+Tests\",\"revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"artifact_path\":null,\"artifact_digest\":null,\"available\":false,\"reason\":\"artifact_gate_invalid\"},\"result\":null,\"display\":{\"state\":\"unavailable\",\"reason\":\"artifact_gate_invalid\",\"recovery\":\"authoring\"}},\"document_states\":[{\"schema_version\":\"1\",\"resource_id\":\"8dd656ef-83b5-4a7d-a34f-2a89b50dd12b\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"type\":\"UR\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md\",\"source_state\":\"available\",\"content_digest\":\"312e32382d3aaabb71c9fb5f928d1ac82cd25a2d223fbc1e2382169f6f16363e\",\"state\":\"approved\",\"version_kind\":\"approved\",\"reason\":null,\"recorded_approval\":{\"status\":\"approved\",\"evidence\":\"`Approval: UR` · 2026-10-16 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md` sha256:312e32382d3aaabb · presentation 97083a1f-5d46-47a3-a9f1-e756f55bfafb sha256:8ee4b5c8f4b463226672d8d64845798a4b280a8907e8c98a7c8ab55e79bb6896\"},\"check\":null,\"authorizes\":false},{\"schema_version\":\"1\",\"resource_id\":\"1edae4bd-d3be-4c35-96d5-b61a51c84d4e\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"type\":\"PRD\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md\",\"source_state\":\"available\",\"content_digest\":\"d2d0257b7f2e7d3eb4dc869a16af33b01be23d29a9885286c16b509a8b0035c4\",\"state\":\"approved\",\"version_kind\":\"approved\",\"reason\":null,\"recorded_approval\":{\"status\":\"approved\",\"evidence\":\"`Approval: PRD` · 2026-10-16 · revision 6 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md` sha256:d2d0257b7f2e7d3e · presentation 66bf0e88-fa4f-4340-9931-025334031c34 sha256:4b9d22cbdd526f72ef47f5d4ea24c0e279d17664deea628bc601fe91255d17d4\"},\"check\":null,\"authorizes\":false},{\"schema_version\":\"1\",\"resource_id\":\"6a7cb7a3-4a68-4350-941e-8360dfc8be7f\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"type\":\"SD\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md\",\"source_state\":\"available\",\"content_digest\":\"4f8e7c5ce8f7a3e700cf14f04e276c12d3f569a98f669f3952a26de39435f64a\",\"state\":\"approved\",\"version_kind\":\"approved\",\"reason\":null,\"recorded_approval\":{\"status\":\"approved\",\"evidence\":\"`Approval: SD` · 2026-10-16 · revision 9 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md` sha256:4f8e7c5ce8f7a3e7 · presentation 83b7d59a-b28b-44ce-b384-8cb78545ff63 sha256:3dbc5a604f12bc39a5047e56994f1c84efae2827dab4adca6755a2105467c827\"},\"check\":null,\"authorizes\":false},{\"schema_version\":\"1\",\"resource_id\":\"6134c45a-5123-423b-a537-443469098f2f\",\"run_id\":\"agdf-cockpit-plugin-integration-20261016-01\",\"revision_id\":\"2c0ff5a5-c472-4d5b-af90-4358c580964f\",\"type\":\"TP\",\"registered_reference\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md\",\"source_state\":\"available\",\"content_digest\":\"f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d\",\"state\":\"approved\",\"version_kind\":\"approved\",\"reason\":null,\"recorded_approval\":{\"status\":\"approved\",\"evidence\":\"`Approval: TP` · 2026-10-16 · revision 11 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md` sha256:f9c6449def46da1b · presentation 91deef6c-5ae1-4992-b2f5-a3f5de80674b sha256:97f4b0acc8a43339c8f1de84f3362e0cdf0e6d7454d286e6b9dd6d6ceb2e01ac\"},\"check\":null,\"authorizes\":false}],\"evidence_applicability\":{\"current\":[{\"step\":\"UX Intent Definition\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md\",\"reason\":\"current_exact_association\",\"available\":true},{\"step\":\"Brownfield Analysis\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md\",\"reason\":\"current_exact_association\",\"available\":true},{\"step\":\"CD+Tests\",\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md\",\"reason\":\"current_exact_association\",\"available\":true}],\"superseded\":[],\"applicability_unknown\":[{\"step\":null,\"path\":\"run-create\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\"`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md`\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\"`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md`\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD_SOURCE_MAPPING-01.json\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-01.json\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-02.json\",\"reason\":\"no_writer_owned_association\",\"available\":null},{\"step\":null,\"path\":\".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP_SOURCE_MAPPING-01.json\",\"reason\":\"no_writer_owned_association\",\"available\":null}]}}},\"authorizes\":false}"
+        }
+      ],
+      "structuredContent": {
+        "schema_version": "1",
+        "target": {
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+        },
+        "snapshot_id": "2cdaa07c-9780-4a5e-bff3-7e6e4b4d8aca",
+        "observed_as_of": "2026-10-17T07:03:42.081Z",
+        "source_digest": "7f68025d87f86fbf005f4bbbae17bf80f3a238d30d371ff1889c820f8fdaa9b1",
+        "state": "available",
+        "code": null,
+        "retryable": false,
+        "data": {
+          "kind": "run",
+          "run": {
+            "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+            "revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+            "lifecycle": "active",
+            "work_summary": {
+              "kind": "work_pending",
+              "phase": "CD+Tests",
+              "qa_outcome": "not_applicable",
+              "lifecycle": "active",
+              "recorded_approvals": [
+                "UR",
+                "PRD",
+                "SD",
+                "TP"
+              ],
+              "decisive_obligation": null,
+              "open_obligation_count": 0,
+              "display_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+              "sources": [],
+              "limitations": [],
+              "authorizes": false,
+              "evidence_applicability": {
+                "current": [
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+                    "step": "UX Intent Definition",
+                    "reason": "current_exact_association",
+                    "available": true
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+                    "step": "Brownfield Analysis",
+                    "reason": "current_exact_association",
+                    "available": true
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+                    "step": "CD+Tests",
+                    "reason": "current_exact_association",
+                    "available": true
+                  }
+                ],
+                "superseded": [],
+                "applicability_unknown": [
+                  {
+                    "path": "run-create",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": "`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md`",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": "`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md`",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD_SOURCE_MAPPING-01.json",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-01.json",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-02.json",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  },
+                  {
+                    "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP_SOURCE_MAPPING-01.json",
+                    "step": null,
+                    "reason": "no_writer_owned_association",
+                    "available": null
+                  }
+                ]
+              },
+              "status_label": "Work pending"
+            },
+            "backlog_comparison": {
+              "state": "matching",
+              "reason": "same_revision_and_sources",
+              "saved_revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+              "authorizes": false
+            },
+            "objective": "Installing or updating the AGDF plugin for Codex also supplies the existing Cockpit with compatible runtime and UI assets. The user can open it without building or registering a separate local MCP server. Plugin lifecycle operations own the integrated components. Use the user-facing name **Cockpit**, the recommended spelling of the user's tentative suggestion \"cockbit\"; technical identifiers are a design concern.",
+            "title": "Deliver Cockpit through the AGDF plugin",
+            "evaluation": {
+              "status": "open",
+              "current_gate": "CD+Tests",
+              "blocking_reason": "none",
+              "missing_approval": "none",
+              "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+              "next_action_de": "Den freigegebenen TP-Umfang implementieren, seine Tests ausführen und die CD+Tests-Nachweise vor dem Code Review erfassen.",
+              "allowed": [
+                "implement the approved TP tasks",
+                "run the approved test plan",
+                "record implementation and test evidence"
+              ],
+              "forbidden": [
+                "claim QA pass",
+                "request UAT approval",
+                "release"
+              ],
+              "control_assessment": {
+                "state": "open",
+                "authorizes": false
+              },
+              "doctor_status": "pass",
+              "quality_outlook": "No additional quality follow-up identified from the current control state.",
+              "diagnostics": [],
+              "approvals": [
+                {
+                  "gate": "UR",
+                  "status": "approved",
+                  "evidence": "`Approval: UR` · 2026-10-16 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md` sha256:312e32382d3aaabb · presentation 97083a1f-5d46-47a3-a9f1-e756f55bfafb sha256:8ee4b5c8f4b463226672d8d64845798a4b280a8907e8c98a7c8ab55e79bb6896"
+                },
+                {
+                  "gate": "PRD",
+                  "status": "approved",
+                  "evidence": "`Approval: PRD` · 2026-10-16 · revision 6 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md` sha256:d2d0257b7f2e7d3e · presentation 66bf0e88-fa4f-4340-9931-025334031c34 sha256:4b9d22cbdd526f72ef47f5d4ea24c0e279d17664deea628bc601fe91255d17d4"
+                },
+                {
+                  "gate": "SD",
+                  "status": "approved",
+                  "evidence": "`Approval: SD` · 2026-10-16 · revision 9 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md` sha256:4f8e7c5ce8f7a3e7 · presentation 83b7d59a-b28b-44ce-b384-8cb78545ff63 sha256:3dbc5a604f12bc39a5047e56994f1c84efae2827dab4adca6755a2105467c827"
+                },
+                {
+                  "gate": "TP",
+                  "status": "approved",
+                  "evidence": "`Approval: TP` · 2026-10-16 · revision 11 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md` sha256:f9c6449def46da1b · presentation 91deef6c-5ae1-4992-b2f5-a3f5de80674b sha256:97f4b0acc8a43339c8f1de84f3362e0cdf0e6d7454d286e6b9dd6d6ceb2e01ac"
+                },
+                {
+                  "gate": "QA",
+                  "status": "missing",
+                  "evidence": ""
+                },
+                {
+                  "gate": "UAT",
+                  "status": "missing",
+                  "evidence": ""
+                }
+              ],
+              "missing_evidence": [],
+              "next_operation": {
+                "type": "implement_approved_plan",
+                "skill_id": "gate-check",
+                "operation_key": "implementation.execute",
+                "actor": "agent",
+                "effect": "implementation",
+                "gate": "CD+Tests"
+              },
+              "completion": {
+                "status": "pending",
+                "gate": "OR",
+                "fulfilled": false
+              },
+              "git_evidence": "unavailable"
+            },
+            "persisted": {
+              "current_gate": "CD+Tests",
+              "next_allowed_action": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+              "decision": "in_progress",
+              "artefacts": [
+                {
+                  "type": "UR",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md",
+                  "status": "approved",
+                  "notes": "",
+                  "raw_path": "`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md`",
+                  "path_format": "code_span",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "Brownfield Review",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md",
+                  "status": "done",
+                  "notes": "",
+                  "raw_path": "`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md`",
+                  "path_format": "code_span",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "Verified Change",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "PRD",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+                  "status": "approved",
+                  "notes": "Reviewed source binding recorded atomically",
+                  "raw_path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "SD",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+                  "status": "approved",
+                  "notes": "Reviewed source binding recorded atomically",
+                  "raw_path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "TP",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+                  "status": "approved",
+                  "notes": "Reviewed source binding recorded atomically",
+                  "raw_path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "Brownfield Analysis",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+                  "status": "done",
+                  "notes": "Recorded exact internal result; operation 1bf0d249-0900-4010-8f74-0c24638ddac1",
+                  "raw_path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "CD+Tests",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+                  "status": "revise",
+                  "notes": "Recorded exact internal result; operation c7a2994f-5b0c-48e5-9d55-f8bc8e966ff6",
+                  "raw_path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                },
+                {
+                  "type": "CR",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "QA",
+                  "path": "",
+                  "status": "missing",
+                  "notes": "",
+                  "raw_path": "",
+                  "path_format": "plain",
+                  "path_reason": "empty"
+                },
+                {
+                  "type": "UX Intent Definition",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+                  "status": "done",
+                  "notes": "Recorded exact internal result; operation 5df7c8fb-4ef2-44a7-8fdd-3f14d1e62630",
+                  "raw_path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+                  "path_format": "plain",
+                  "path_reason": "none"
+                }
+              ]
+            },
+            "context_graph": {
+              "refs": ""
+            },
+            "resources": [
+              {
+                "resource_id": "1caa97b5-fe50-46a9-82c2-51ed150bce11",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "Run State",
+                "path": ".agdf/control/runs/agdf-cockpit-plugin-integration-20261016-01/RUN_STATE.md",
+                "registered_reference": ".agdf/control/runs/agdf-cockpit-plugin-integration-20261016-01/RUN_STATE.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "8dd656ef-83b5-4a7d-a34f-2a89b50dd12b",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "UR",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "11245cba-d906-468d-bb58-00ef32963140",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "Brownfield Review",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "1edae4bd-d3be-4c35-96d5-b61a51c84d4e",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "PRD",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "6a7cb7a3-4a68-4350-941e-8360dfc8be7f",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "SD",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "6134c45a-5123-423b-a537-443469098f2f",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "TP",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "5305da5a-d0d2-4901-8629-9191ce968cb7",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "Brownfield Analysis",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "042ee7c1-f4d3-4d45-82a4-689dcb906c46",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "CD+Tests",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+                "status": "registered"
+              },
+              {
+                "resource_id": "685714f2-8146-4748-ba8d-71ffbb773ba9",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "type": "UX Intent Definition",
+                "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+                "status": "registered"
+              }
+            ],
+            "draft_check": {
+              "source": {
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "gate": "CD+Tests",
+                "revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+                "artifact_path": null,
+                "artifact_digest": null,
+                "available": false,
+                "reason": "artifact_gate_invalid"
+              },
+              "result": null,
+              "display": {
+                "state": "unavailable",
+                "reason": "artifact_gate_invalid",
+                "recovery": "authoring"
+              }
+            },
+            "document_states": [
+              {
+                "schema_version": "1",
+                "resource_id": "8dd656ef-83b5-4a7d-a34f-2a89b50dd12b",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+                "type": "UR",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md",
+                "source_state": "available",
+                "content_digest": "312e32382d3aaabb71c9fb5f928d1ac82cd25a2d223fbc1e2382169f6f16363e",
+                "state": "approved",
+                "version_kind": "approved",
+                "reason": null,
+                "recorded_approval": {
+                  "status": "approved",
+                  "evidence": "`Approval: UR` · 2026-10-16 · revision 2 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md` sha256:312e32382d3aaabb · presentation 97083a1f-5d46-47a3-a9f1-e756f55bfafb sha256:8ee4b5c8f4b463226672d8d64845798a4b280a8907e8c98a7c8ab55e79bb6896"
+                },
+                "check": null,
+                "authorizes": false
+              },
+              {
+                "schema_version": "1",
+                "resource_id": "1edae4bd-d3be-4c35-96d5-b61a51c84d4e",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+                "type": "PRD",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md",
+                "source_state": "available",
+                "content_digest": "d2d0257b7f2e7d3eb4dc869a16af33b01be23d29a9885286c16b509a8b0035c4",
+                "state": "approved",
+                "version_kind": "approved",
+                "reason": null,
+                "recorded_approval": {
+                  "status": "approved",
+                  "evidence": "`Approval: PRD` · 2026-10-16 · revision 6 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD.md` sha256:d2d0257b7f2e7d3e · presentation 66bf0e88-fa4f-4340-9931-025334031c34 sha256:4b9d22cbdd526f72ef47f5d4ea24c0e279d17664deea628bc601fe91255d17d4"
+                },
+                "check": null,
+                "authorizes": false
+              },
+              {
+                "schema_version": "1",
+                "resource_id": "6a7cb7a3-4a68-4350-941e-8360dfc8be7f",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+                "type": "SD",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md",
+                "source_state": "available",
+                "content_digest": "4f8e7c5ce8f7a3e700cf14f04e276c12d3f569a98f669f3952a26de39435f64a",
+                "state": "approved",
+                "version_kind": "approved",
+                "reason": null,
+                "recorded_approval": {
+                  "status": "approved",
+                  "evidence": "`Approval: SD` · 2026-10-16 · revision 9 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD.md` sha256:4f8e7c5ce8f7a3e7 · presentation 83b7d59a-b28b-44ce-b384-8cb78545ff63 sha256:3dbc5a604f12bc39a5047e56994f1c84efae2827dab4adca6755a2105467c827"
+                },
+                "check": null,
+                "authorizes": false
+              },
+              {
+                "schema_version": "1",
+                "resource_id": "6134c45a-5123-423b-a537-443469098f2f",
+                "run_id": "agdf-cockpit-plugin-integration-20261016-01",
+                "revision_id": "2c0ff5a5-c472-4d5b-af90-4358c580964f",
+                "type": "TP",
+                "registered_reference": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md",
+                "source_state": "available",
+                "content_digest": "f9c6449def46da1b2dd05b46dad738e19718c47fb40edf7baa484c9c39b2166d",
+                "state": "approved",
+                "version_kind": "approved",
+                "reason": null,
+                "recorded_approval": {
+                  "status": "approved",
+                  "evidence": "`Approval: TP` · 2026-10-16 · revision 11 · `.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP.md` sha256:f9c6449def46da1b · presentation 91deef6c-5ae1-4992-b2f5-a3f5de80674b sha256:97f4b0acc8a43339c8f1de84f3362e0cdf0e6d7454d286e6b9dd6d6ceb2e01ac"
+                },
+                "check": null,
+                "authorizes": false
+              }
+            ],
+            "evidence_applicability": {
+              "current": [
+                {
+                  "step": "UX Intent Definition",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UX_INTENT_DEFINITION.md",
+                  "reason": "current_exact_association",
+                  "available": true
+                },
+                {
+                  "step": "Brownfield Analysis",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_ANALYSIS.md",
+                  "reason": "current_exact_association",
+                  "available": true
+                },
+                {
+                  "step": "CD+Tests",
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/CD_TESTS.md",
+                  "reason": "current_exact_association",
+                  "available": true
+                }
+              ],
+              "superseded": [],
+              "applicability_unknown": [
+                {
+                  "step": null,
+                  "path": "run-create",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": "`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/UR.md`",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": "`.agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/BROWNFIELD_REVIEW.md`",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/PRD_SOURCE_MAPPING-01.json",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-01.json",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/SD_SOURCE_MAPPING-02.json",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                },
+                {
+                  "step": null,
+                  "path": ".agdf/control/artefacts/agdf-cockpit-plugin-integration-20261016-01/TP_SOURCE_MAPPING-01.json",
+                  "reason": "no_writer_owned_association",
+                  "available": null
+                }
+              ]
+            }
+          }
+        },
+        "authorizes": false
+      }
+    }
+  },
+  {
+    "id": 6,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schema_version\":\"1\",\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"},\"snapshot_id\":null,\"observed_as_of\":null,\"source_digest\":null,\"state\":\"available\",\"code\":null,\"retryable\":false,\"data\":{\"closed\":true},\"authorizes\":false}"
+        }
+      ],
+      "structuredContent": {
+        "schema_version": "1",
+        "target": {
+          "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+          "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+        },
+        "snapshot_id": null,
+        "observed_as_of": null,
+        "source_digest": null,
+        "state": "available",
+        "code": null,
+        "retryable": false,
+        "data": {
+          "closed": true
+        },
+        "authorizes": false
+      }
+    }
+  }
+]

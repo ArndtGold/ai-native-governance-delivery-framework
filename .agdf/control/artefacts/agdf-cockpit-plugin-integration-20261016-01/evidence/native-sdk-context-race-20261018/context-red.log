@@ -1,0 +1,33 @@
+
+ RUN  v5.0.3 /private/tmp/agdf-cockpit-integration-work/packages/control-ui
+
+ ❯ test/scoped-reading.test.tsx (15 tests | 1 failed) 1899ms
+   × context capture cancels preceding freshness and pauses polling until its replacement is committed 55ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  11:39:34
+   Duration  3.83s (tests 56%, environment 21%, import 12%, transform 11%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/scoped-reading.test.tsx > context capture cancels preceding freshness and pauses polling until its replacement is committed
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/scoped-reading.test.tsx:188:31
+    186|     const oldSignal = freshnessSignal!;
+    187|     fireEvent.click(screen.getByRole('button', { name: 'Verknüpfter Ko…
+    188|     expect(oldSignal.aborted).toBe(true);
+       |                               ^
+    189|     const before = vi.mocked(read).mock.calls.filter(c => c[0].startsW…
+    190|     await act(async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

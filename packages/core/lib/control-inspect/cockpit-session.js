@@ -1,20 +1,23 @@
 import { randomUUID } from 'node:crypto';
+import { relative, sep } from 'node:path';
 import { ReadWorkerPool } from '../control-read/cockpit-pool.js';
 import { READ_LIMITS, ControlReadError } from '../control-read/snapshot.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
-import { COCKPIT_LIMITS, parseCockpitArguments } from './cockpit-contract.js';
+import { resolveTaskTarget } from '../task-target-resolution.js';
+import { runPath } from '../control-state/run-state-reader.js';
+import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
+import { COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments } from './cockpit-contract.js';
 
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
-  poolFactory = () => new ReadWorkerPool(root, { limits: { total: COCKPIT_LIMITS.capture },
-    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration }), now = Date.now,
+  poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
+    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration }), now = Date.now, pluginMode = false,
 } = {}) {
-  const target = { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
+  const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const sessions = new Map();
   let closed = false, renderGeneration = 0, publication = null;
-  const failure = code => ({ schema_version: '1', target, snapshot_id: null, observed_as_of: null,
+  const failure = (code, viewTarget = target) => ({ schema_version: '1', target: viewTarget, snapshot_id: null, observed_as_of: null,
     source_digest: null, state: 'blocked', code, retryable: code !== 'session_expired', data: null, authorizes: false });
-  const accepted = data => ({ ...failure(null), state: 'available', retryable: false, data });
   function losePublication(session) {
     if (publication?.session_id !== session.id) return;
     // A reservation which never returned a packet could not be published. All
@@ -61,25 +64,48 @@ export function createCockpitSessionService(root, {
         uncertain: publication?.phase === 'uncertain' ? 1 : 0 };
     },
     async render(input = {}) {
-      input = parseCockpitArguments(input, true);
+      input = pluginMode ? parsePluginCockpitArguments(input) : parseCockpitArguments(input, true);
+      let viewRoot = root, viewTarget = target;
+      if (pluginMode) {
+        const resolved = resolveTaskTarget({ workingDirectory: input.working_directory,
+          primaryTarget: input.primary_target, targetSource: input.target_source });
+        if (resolved.resolution_state !== 'resolved') return { ...failure('resource_denied'),
+          target_resolution: resolved, next_action: resolved.next_action };
+        viewRoot = resolved.governance_target;
+        viewTarget = { target_id: resolveControlCommandTarget(viewRoot).target_id, display_path: viewRoot };
+        if (input.run_id) {
+          // Admission only: the worker still captures and evaluates fresh canonical bytes.
+          let path;
+          try { path = relative(viewRoot, runPath(viewRoot, input.run_id)).split(sep).join('/'); }
+          catch { return failure('invalid_run', viewTarget); }
+          const file = containedRegularFile(viewRoot, path);
+          if (hasSymlinkComponent(viewRoot, path) || file.status !== 'valid') return {
+            ...failure(file.status === 'missing' ? 'run_missing' : 'resource_denied', viewTarget),
+            data: { kind: 'run', requested_run_id: input.run_id, run: null },
+            next_action: 'Select an existing Run in the confirmed project; no alternative Run was selected.' };
+        }
+      }
       if (closed) return failure('session_expired');
       for (const session of sessions.values()) {
         if (!session.retired && (now() - session.touched >= COCKPIT_LIMITS.idle
           || now() - session.created >= COCKPIT_LIMITS.lifetime)) void retire(session);
       }
-      if (sessions.size >= COCKPIT_LIMITS.sessions) return failure('resource_limit');
+      if (sessions.size >= COCKPIT_LIMITS.sessions) return failure('resource_limit', viewTarget);
       // No await between capacity check and ownership publication.
-      const session = { id: randomUUID(), created: now(), touched: now(), pool: poolFactory(),
+      const session = { id: randomUUID(), root: viewRoot, target: viewTarget,
+        created: now(), touched: now(), pool: poolFactory(viewRoot),
         documents: new Map(), rows: new Set(), snapshot: null, run_id: null, draft: null, generation: 0, retired: false, retirement: null, timer: null,
         completion: null };
       sessions.set(session.id, session); schedule(session);
-      return { schema_version: '1', authorizes: false, target,
-        _meta: { agdf_cockpit: { session_id: session.id, target, render_generation: ++renderGeneration,
+      return { schema_version: '1', authorizes: false, target: viewTarget,
+        _meta: { agdf_cockpit: { session_id: session.id, target: viewTarget, render_generation: ++renderGeneration,
           ...(input.run_id ? { initial_run_id: input.run_id } : {}),
           idle_timeout_ms: COCKPIT_LIMITS.idle, lifetime_ms: COCKPIT_LIMITS.lifetime } } };
     },
     async read(input, signal) {
       let session, generation, reservation;
+      const fail = code => failure(code, session?.target ?? target);
+      const accepted = data => ({ ...fail(null), state: 'available', retryable: false, data });
       try {
         input = parseCockpitArguments(input);
         session = active(input.session_id);
@@ -91,7 +117,7 @@ export function createCockpitSessionService(root, {
           if (session.completion === input.invalidation_id) {
             touch(session); return accepted({ completed: true, invalidation_id: input.invalidation_id });
           }
-          if (publication?.session_id !== session.id || publication.invalidation_id !== input.invalidation_id) return failure('resource_denied');
+          if (publication?.session_id !== session.id || publication.invalidation_id !== input.invalidation_id) return fail('resource_denied');
           session.completion = input.invalidation_id; publication = null;
           touch(session); return accepted({ completed: true, invalidation_id: input.invalidation_id });
         }
@@ -103,7 +129,7 @@ export function createCockpitSessionService(root, {
             publication = null; touch(session);
             return accepted({ invalidated: true, host_publication_required: false });
           }
-          if (publication.phase === 'uncertain' && !publication.invalidation_id) return failure('context_cleanup_uncertain');
+          if (publication.phase === 'uncertain' && !publication.invalidation_id) return fail('context_cleanup_uncertain');
           if (!publication.invalidation_id) {
             publication.packet = null; publication.phase = 'invalidating'; publication.invalidation_id = randomUUID();
             publication.begin = session.pool.request({ operation: 'invalidate_context', input }, signal);
@@ -116,35 +142,35 @@ export function createCockpitSessionService(root, {
             const request = pending.begin;
             try { await request; } finally { if (pending.begin === request) pending.begin = null; }
           }
-          if (active(session.id) !== session || publication !== pending) return failure('session_expired');
+          if (active(session.id) !== session || publication !== pending) return fail('session_expired');
           touch(session);
           return accepted({ invalidated: true, host_publication_required: true, invalidation_id: pending.invalidation_id });
         }
         if (input.operation === 'snapshot') { discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null; }
-        else if (input.snapshot_id && session.snapshot !== input.snapshot_id) return failure('resource_denied');
+        else if (input.snapshot_id && session.snapshot !== input.snapshot_id) return fail('resource_denied');
         if (input.operation === 'changes') {
           const result = await session.pool.waitForChange(input.snapshot_id, signal);
-          if (active(session.id) !== session || generation !== session.generation) return failure('session_expired');
+          if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
           touch(session); return result;
         }
-        if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return failure('resource_denied');
+        if (input.operation === 'backlog_titles' && input.row_ids.some(id => !session.rows.has(id))) return fail('resource_denied');
         if (['document', 'prepare_context'].includes(input.operation)
-          && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return failure('resource_denied');
-        if (['context', 'artifact_readiness'].includes(input.operation) && input.run_id !== session.run_id) return failure('resource_denied');
+          && session.documents.get(input.resource_id) !== `${input.snapshot_id}:${input.run_id}`) return fail('resource_denied');
+        if (['context', 'artifact_readiness'].includes(input.operation) && input.run_id !== session.run_id) return fail('resource_denied');
         if (input.operation === 'artifact_readiness' && (!session.draft?.available || session.draft.gate !== input.gate
-          || session.draft.revision_id !== input.expected_revision_id)) return failure('resource_denied');
+          || session.draft.revision_id !== input.expected_revision_id)) return fail('resource_denied');
         if (input.operation === 'prepare_context') {
-          if (publication) return failure(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
+          if (publication) return fail(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
           reservation = { session_id: session.id, phase: 'preparing', packet: null, invalidation_id: null, begin: null };
           publication = reservation;
         }
         if (input.operation === 'validate_context') {
-          if (publication?.session_id !== session.id) return failure(publication ? 'resource_denied' : 'context_superseded');
-          if (!publication.packet) return failure('context_superseded');
-          if (publication.packet.context_id !== input.context_id || publication.packet.generation !== input.generation) return failure('resource_denied');
-          if (publication.phase !== 'prepared') return failure('context_superseded');
+          if (publication?.session_id !== session.id) return fail(publication ? 'resource_denied' : 'context_superseded');
+          if (!publication.packet) return fail('context_superseded');
+          if (publication.packet.context_id !== input.context_id || publication.packet.generation !== input.generation) return fail('resource_denied');
+          if (publication.phase !== 'prepared') return fail('context_superseded');
         }
-        if (input.operation === 'artifact_readiness' && publication) return failure(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
+        if (input.operation === 'artifact_readiness' && publication) return fail(publication.phase === 'uncertain' ? 'context_cleanup_uncertain' : 'busy');
         const replacement = ['snapshot', 'backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation);
         if (['backlog_titles', 'run', 'document', 'context', 'artifact_readiness'].includes(input.operation)) {
           discardPacket(session); ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null;
@@ -153,11 +179,11 @@ export function createCockpitSessionService(root, {
         if (replacement) session.rows.clear();
         const result = await session.pool.request({ operation: input.operation, snapshot: input.snapshot_id,
           selector: ['run', 'context'].includes(input.operation) ? input.run_id : input.resource_id, input }, signal);
-        if (active(session.id) !== session || generation !== session.generation) return failure('session_expired');
+        if (active(session.id) !== session || generation !== session.generation) return fail('session_expired');
         const response = { ...result, authorizes: false };
         if (Buffer.byteLength(JSON.stringify(response), 'utf8') > READ_LIMITS.response) throw new ControlReadError('resource_limit');
         if (reservation) {
-          if (publication !== reservation) return failure('context_superseded');
+          if (publication !== reservation) return fail('context_superseded');
           if (result.state === 'available' && result.data?.packet) {
             reservation.phase = 'prepared'; reservation.packet = { context_id: result.data.packet.context_id, generation: result.data.packet.generation };
           } else publication = null;
@@ -179,7 +205,7 @@ export function createCockpitSessionService(root, {
           && ['timeout', 'read_failed', 'source_changed'].includes(code)) {
           ++session.generation; session.documents.clear(); session.snapshot = null; session.draft = null;
         }
-        return failure(code);
+        return fail(code);
       }
     },
     async close() {

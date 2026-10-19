@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "kind": "agdf_sdk_trace",
+  "authorizes": false,
+  "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+  "capture_scope": "opening_and_explicit_recording",
+  "logging": true,
+  "truncated": false,
+  "events": [
+    {
+      "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+      "sequence": 1,
+      "observed_at": "2026-10-18T06:53:55.555Z",
+      "direction": "out",
+      "message": {
+        "method": "ui/initialize",
+        "params": {
+          "appCapabilities": {},
+          "appInfo": {
+            "name": "AGDF Cockpit",
+            "version": "1.0.0"
+          },
+          "protocolVersion": "2026-01-26"
+        },
+        "jsonrpc": "2.0",
+        "id": 0
+      }
+    },
+    {
+      "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+      "sequence": 2,
+      "observed_at": "2026-10-18T06:53:55.755Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+          "protocolVersion": "2026-01-26",
+          "hostCapabilities": {
+            "experimental": {
+              "openai/modelContext": {},
+              "openai/find": {},
+              "openai/message": {
+                "draft": {}
+              },
+              "openai/skillsDeepLinks": {},
+              "openai/files": {}
+            },
+            "logging": {},
+            "openLinks": {},
+            "serverResources": {},
+            "serverTools": {},
+            "message": {
+              "text": {},
+              "image": {},
+              "resourceLink": {},
+              "resource": {}
+            },
+            "updateModelContext": {
+              "resource": {},
+              "resourceLink": {},
+              "image": {},
+              "structuredContent": {},
+              "text": {}
+            },
+            "sandbox": {
+              "csp": {
+                "baseUriDomains": [],
+                "connectDomains": [],
+                "frameDomains": [],
+                "resourceDomains": []
+              }
+            }
+          },
+          "hostInfo": {
+            "name": "chatgpt",
+            "version": "26.1013.40934"
+          },
+          "hostContext": {
+            "openai/viewer-header": false,
+            "openai/interactionCursor": "default",
+            "openai/modelContext": null,
+            "availableDisplayModes": [
+              "inline",
+              "fullscreen"
+            ],
+            "containerDimensions": {
+              "maxWidth": 736
+            },
+            "deviceCapabilities": {
+              "hover": true,
+              "touch": false
+            },
+            "displayMode": "inline",
+            "locale": "de-DE",
+            "platform": "desktop",
+            "safeAreaInsets": {
+              "bottom": 0,
+              "left": 0,
+              "right": 0,
+              "top": 0
+            },
+            "styles": {
+              "variables": {
+                "--color-background-primary": "rgb(255, 255, 255)",
+                "--color-background-secondary": "rgba(255, 255, 255, 0.96)",
+                "--color-background-tertiary": "rgb(246, 246, 246)",
+                "--color-background-inverse": "rgb(26, 28, 31)",
+                "--color-background-ghost": "transparent",
+                "--color-background-info": "rgb(232, 243, 254)",
+                "--color-background-danger": "rgb(255, 240, 240)",
+                "--color-background-success": "color-mix(in srgb, rgb(0, 162, 64) 12%, rgb(255, 255, 255))",
+                "--color-background-warning": "color-mix(in srgb, rgb(226, 85, 7) 12%, rgb(255, 255, 255))",
+                "--color-background-disabled": "rgba(26, 28, 31, 0.047)",
+                "--color-text-primary": "rgb(26, 28, 31)",
+                "--color-text-secondary": "rgba(26, 28, 31, 0.494)",
+                "--color-text-tertiary": "rgba(26, 28, 31, 0.494)",
+                "--color-text-inverse": "rgb(255, 255, 255)",
+                "--color-text-ghost": "rgba(26, 28, 31, 0.494)",
+                "--color-text-info": "rgb(44, 103, 197)",
+                "--color-text-danger": "rgb(224, 46, 42)",
+                "--color-text-success": "rgb(0, 162, 64)",
+                "--color-text-warning": "rgb(226, 85, 7)",
+                "--color-text-disabled": "rgba(26, 28, 31, 0.494)",
+                "--color-border-primary": "rgba(26, 28, 31, 0.118)",
+                "--color-border-secondary": "rgba(26, 28, 31, 0.08)",
+                "--color-border-tertiary": "rgba(26, 28, 31, 0.08)",
+                "--color-border-inverse": "rgb(26, 28, 31)",
+                "--color-border-ghost": "transparent",
+                "--color-border-info": "rgb(58, 131, 247)",
+                "--color-border-danger": "rgb(224, 46, 42)",
+                "--color-border-success": "rgb(0, 162, 64)",
+                "--color-border-warning": "rgb(226, 85, 7)",
+                "--color-border-disabled": "rgba(26, 28, 31, 0.118)",
+                "--color-ring-primary": "rgb(58, 131, 247)",
+                "--color-ring-secondary": "rgb(58, 131, 247)",
+                "--color-ring-inverse": "rgb(58, 131, 247)",
+                "--color-ring-info": "rgb(58, 131, 247)",
+                "--color-ring-danger": "rgb(224, 46, 42)",
+                "--color-ring-success": "rgb(0, 162, 64)",
+                "--color-ring-warning": "rgb(226, 85, 7)",
+                "--font-sans": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+                "--font-mono": "ui-monospace, SFMono-Regular, \"SF Mono\", menlo, consolas, \"Liberation Mono\", monospace",
+                "--font-weight-normal": "430",
+                "--font-weight-medium": "500",
+                "--font-weight-semibold": "600",
+                "--font-weight-bold": "700",
+                "--font-text-xs-size": "12px",
+                "--font-text-sm-size": "13px",
+                "--font-text-md-size": "14px",
+                "--font-text-lg-size": "16px",
+                "--font-heading-xs-size": "18px",
+                "--font-heading-sm-size": "20px",
+                "--font-heading-md-size": "24px",
+                "--font-heading-lg-size": "28px",
+                "--font-heading-xl-size": "36px",
+                "--font-heading-2xl-size": "48px",
+                "--font-heading-3xl-size": "72px",
+                "--font-text-xs-line-height": "calc(1 / .75)",
+                "--font-text-sm-line-height": "calc(1.25 / .875)",
+                "--font-text-md-line-height": "calc(1.5 / 1)",
+                "--font-text-lg-line-height": "calc(1.75 / 1.125)",
+                "--font-heading-xs-line-height": "1.33",
+                "--font-heading-sm-line-height": "1.33",
+                "--font-heading-md-line-height": "1.2",
+                "--font-heading-lg-line-height": "1.2",
+                "--font-heading-xl-line-height": "1",
+                "--font-heading-2xl-line-height": "1",
+                "--font-heading-3xl-line-height": "1",
+                "--border-radius-xs": "5px",
+                "--border-radius-sm": "7.5px",
+                "--border-radius-md": "10px",
+                "--border-radius-lg": "12.5px",
+                "--border-radius-xl": "15px",
+                "--border-radius-full": "9999px",
+                "--border-width-regular": "1px",
+                "--shadow-hairline": "rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px",
+                "--shadow-sm": "rgba(0, 0, 0, 0.08) 0px 1px 2px -1px",
+                "--shadow-md": "rgba(0, 0, 0, 0.08) 0px 2px 4px -1px",
+                "--shadow-lg": "rgba(0, 0, 0, 0.1) 0px 4px 8px -2px"
+              }
+            },
+            "theme": "light",
+            "timeZone": "Europe/Berlin",
+            "userAgent": "chatgpt"
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+      "sequence": 3,
+      "observed_at": "2026-10-18T06:53:55.760Z",
+      "direction": "out",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/initialized"
+      }
+    },
+    {
+      "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+      "sequence": 4,
+      "observed_at": "2026-10-18T06:53:55.765Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/tool-input",
+        "params": {
+          "arguments": {
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "target_source": "continued_target",
+            "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cockpit-plugin-integration-20261016-01"
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+      "sequence": 5,
+      "observed_at": "2026-10-18T06:53:55.766Z",
+      "direction": "in",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/tool-result",
+        "params": {
+          "_meta": {
+            "agdf_cockpit": {
+              "session_id": "c7cebf2b-4331-41b3-9c52-c7f03d224787",
+              "target": {
+                "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+                "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+              },
+              "render_generation": 2,
+              "initial_run_id": "agdf-cockpit-plugin-integration-20261016-01",
+              "idle_timeout_ms": 1800000,
+              "lifetime_ms": 28800000
+            },
+            "agdf/provider": {
+              "schema_version": 1,
+              "authorizes": false,
+              "identity_scope": "sdk_server_instance",
+              "connection_id": "57360ba7-af0f-4266-a923-fd8bd40316c8",
+              "server_module": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/generations/511e28ab67dc4d925b967a272ce4fe4cf79a14d72ebbdb8aaeede5b880f361a2/0.14.5/node_modules/@agdf/mcp-server/src/server.js",
+              "version": "0.14.5"
+            },
+            "agdf/peer": {
+              "client_info": {
+                "name": "codex-mcp-client",
+                "title": "Codex",
+                "version": "0.163.0-alpha.10.2"
+              },
+              "capabilities": {
+                "experimental": {
+                  "codex/auth-change": {}
+                },
+                "elicitation": {
+                  "form": {},
+                  "url": {}
+                },
+                "extensions": {
+                  "io.modelcontextprotocol/ui": {
+                    "mimeTypes": [
+                      "text/html;profile=mcp-app",
+                      "text/html+skybridge"
+                    ]
+                  },
+                  "openai/elicitation": {
+                    "form": {}
+                  },
+                  "openai/form": {}
+                }
+              }
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"schema_version\":\"1\",\"authorizes\":false,\"target\":{\"target_id\":\"sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19\",\"display_path\":\"/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework\"}}"
+            }
+          ],
+          "structuredContent": {
+            "schema_version": "1",
+            "authorizes": false,
+            "target": {
+              "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+              "display_path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+            }
+          }
+        }
+      }
+    },
+    {
+      "trace_id": "65cd33aa-8d77-4912-a879-85d50685d669",
+      "sequence": 6,
+      "observed_at": "2026-10-18T06:54:29.120Z",
+      "direction": "out",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "ui/notifications/size-changed",
+        "params": {
+          "width": 518,
+          "height": 4644
+        }
+      }
+    }
+  ]
+}

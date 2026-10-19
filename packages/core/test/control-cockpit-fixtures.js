@@ -66,6 +66,7 @@ export async function approvalFixture() {
     }
     const presentation = prepareRunPresentation(f.root, {runId:'fixture-a',gate:'UR',revisionId:revision()}, {evaluateGateCheck});
     if (presentation.outcome !== 'prepared') throw Error(JSON.stringify(presentation));
-    return {...f, revision, approve:() => approveRunGate(f.root, {runId:'fixture-a',gate:'UR',revisionId:revision(),response:'Approval: UR',presentationId:presentation.presentation_id}, {evaluateGateCheck})};
+    return {...f, revision, presentationId: presentation.presentation_id,
+      approve:() => approveRunGate(f.root, {runId:'fixture-a',gate:'UR',revisionId:revision(),response:'Approval: UR',presentationId:presentation.presentation_id}, {evaluateGateCheck})};
   } catch (error) { f.close(); throw error; }
 }

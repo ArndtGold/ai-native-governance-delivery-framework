@@ -38,6 +38,27 @@ export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read'
   annotations, inputSchema: COCKPIT_READ_SCHEMA,
   _meta: { ui: { visibility: ['model', 'app'] } } });
 
+// Plugin opening has an explicit project; the directory-bound contract is unchanged.
+export const COCKPIT_PLUGIN_RENDER_DEFINITION = Object.freeze({ ...COCKPIT_RENDER_DEFINITION,
+  description: `${COCKPIT_RENDER_DEFINITION.description} For the plugin, supply the confirmed absolute primary_target, its target_source and an accessible absolute working_directory. Never infer a project from the plugin location or directory alone.`,
+  inputSchema: { type: 'object', additionalProperties: false,
+    properties: { run_id: run, working_directory: { type: 'string', minLength: 1, maxLength: 4096 },
+      primary_target: { type: 'string', minLength: 1, maxLength: 4096 },
+      target_source: { type: 'string', enum: ['explicit_target', 'continued_target', 'current_repository'] } },
+    required: ['working_directory', 'primary_target', 'target_source'] } });
+
+export function parsePluginCockpitArguments(value) {
+  const fields = COCKPIT_PLUGIN_RENDER_DEFINITION.inputSchema;
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || Object.keys(value).some(key => !Object.hasOwn(fields.properties, key))
+    || fields.required.some(key => typeof value[key] !== 'string' || !value[key] || value[key].length > 4096)
+    || !fields.properties.target_source.enum.includes(value.target_source)) {
+    throw Object.assign(new TypeError('resource_denied'), { code: 'resource_denied' });
+  }
+  const runInput = parseCockpitArguments(Object.hasOwn(value, 'run_id') ? { run_id: value.run_id } : {}, true);
+  return { ...value, ...runInput };
+}
+
 export function parseCockpitArguments(value, render = false) {
   const reject = () => { throw Object.assign(new TypeError('resource_denied'), { code: 'resource_denied' }); };
   if (!value || typeof value !== 'object' || Array.isArray(value)) return reject();

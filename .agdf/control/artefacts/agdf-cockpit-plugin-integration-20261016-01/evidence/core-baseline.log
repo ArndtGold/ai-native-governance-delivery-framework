@@ -1,0 +1,177 @@
+TAP version 13
+# Subtest: SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+ok 1 - SCN-001/009/014: actual gate registrations, bounded unavailable sources, no phantom entries or writes
+  ---
+  duration_ms: 1124.452219
+  type: 'test'
+  ...
+# Subtest: SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+ok 2 - SCN-003/004/014: actual canonical approval binds raw returned bytes; normalization-equivalent edits cannot inherit it
+  ---
+  duration_ms: 2524.363679
+  type: 'test'
+  ...
+# Subtest: SCN-004: missing or foreign/malformed approval presentation never confirms current version
+not ok 3 - SCN-004: missing or foreign/malformed approval presentation never confirms current version
+  ---
+  duration_ms: 7193.476962
+  type: 'test'
+  location: '/private/tmp/agdf-cockpit-browser-baseline/packages/core/test/cockpit-document-state-test.js:56:1'
+  failureType: 'testCodeFailure'
+  error: `Unexpected token '#', "# UR: Appr"... is not valid JSON`
+  code: 'ERR_TEST_FAILURE'
+  name: 'SyntaxError'
+  stack: |-
+    JSON.parse (<anonymous>)
+    TestContext.<anonymous> (file:///private/tmp/agdf-cockpit-browser-baseline/packages/core/test/cockpit-document-state-test.js:63:29)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+ok 4 - SCN-005/007/008/014: real passed/correction reports survive fresh same-Run navigation only; reload, changes and other views clear
+  ---
+  duration_ms: 3988.146753
+  type: 'test'
+  ...
+# Subtest: SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+ok 5 - SCN-006: explicit structured current authoring findings versus unsupported/prerequisite/technical failures
+  ---
+  duration_ms: 0.409842
+  type: 'test'
+  ...
+# Subtest: SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+ok 6 - SCN-005/006: actual registered UR/PRD/SD/TP early authoring blockers preserve the original report and findings
+  ---
+  duration_ms: 3384.523686
+  type: 'test'
+  ...
+# Subtest: SCN-006: actual current SD traceability findings are shown without changing the original report
+ok 7 - SCN-006: actual current SD traceability findings are shown without changing the original report
+  ---
+  duration_ms: 812.035531
+  type: 'test'
+  ...
+# Subtest: SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+ok 8 - SCN-008: another existing Run and observed missing draft invalidate an already passed slot
+  ---
+  duration_ms: 1686.54598
+  type: 'test'
+  ...
+# Subtest: SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+ok 9 - SCN-008: failed publication, overview and observed lifecycle/gate/revision changes clear the slot
+  ---
+  duration_ms: 4285.020507
+  type: 'test'
+  ...
+# Subtest: SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+ok 10 - SCN-009: real large authoring findings hit the slot/description bound without truncation or retained success
+  ---
+  duration_ms: 1080.362317
+  type: 'test'
+  ...
+# Subtest: SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+ok 11 - SCN-009: actual unregistered authoring slot below, exactly at and above 256 KiB
+  ---
+  duration_ms: 2978.686666
+  type: 'test'
+  ...
+# Subtest: SCN-009: Core document description array enforces its exact serialized limit
+ok 12 - SCN-009: Core document description array enforces its exact serialized limit
+  ---
+  duration_ms: 5246.102331
+  type: 'test'
+  ...
+# Subtest: SCN-061/063/080: production overview reads only backlog even with >64 MiB unrelated history, and keeps original pointer facts
+ok 13 - SCN-061/063/080: production overview reads only backlog even with >64 MiB unrelated history, and keeps original pointer facts
+  ---
+  duration_ms: 1338.894363
+  type: 'test'
+  ...
+# Subtest: SCN-062/083: duplicate/malformed pointers stay identifiable and nonselectable; missing/unsupported backlog never discovers Runs or writes
+ok 14 - SCN-062/083: duplicate/malformed pointers stay identifiable and nonselectable; missing/unsupported backlog never discovers Runs or writes
+  ---
+  duration_ms: 866.503047
+  type: 'test'
+  ...
+# Subtest: SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation
+ok 15 - SCN-064: direct named Run needs no backlog membership and matches unchanged Core evaluation
+  ---
+  duration_ms: 1021.580679
+  type: 'test'
+  ...
+# Subtest: SCN-067/068/069/074: production transitions reissue matching parents/resources and old or foreign selectors cannot discard a valid view
+ok 16 - SCN-067/068/069/074: production transitions reissue matching parents/resources and old or foreign selectors cannot discard a valid view
+  ---
+  duration_ms: 841.582061
+  type: 'test'
+  ...
+# Subtest: SCN-067/072: strict optional named snapshot and independent production workers retain only latest scoped selectors
+ok 17 - SCN-067/072: strict optional named snapshot and independent production workers retain only latest scoped selectors
+  ---
+  duration_ms: 1410.850874
+  type: 'test'
+  ...
+# Subtest: SCN-079/080/083: canonical approval without backlog membership leaves stored pointers unchanged; direct reading checks the new Run
+ok 18 - SCN-079/080/083: canonical approval without backlog membership leaves stored pointers unchanged; direct reading checks the new Run
+  ---
+  duration_ms: 3370.453293
+  type: 'test'
+  ...
+# Subtest: SCN-080/082/083: linked canonical approval changes the stored pointer; both scoped readers invalidate the old backlog without repairing it
+ok 19 - SCN-080/082/083: linked canonical approval changes the stored pointer; both scoped readers invalidate the old backlog without repairing it
+  ---
+  duration_ms: 2169.50887
+  type: 'test'
+  ...
+# Subtest: UR readiness follows the configured project language exactly like the canonical gate-check
+ok 20 - UR readiness follows the configured project language exactly like the canonical gate-check
+  ---
+  duration_ms: 1005.841583
+  type: 'test'
+  ...
+# Subtest: canonical Run State is a registered resource on every platform
+ok 21 - canonical Run State is a registered resource on every platform
+  ---
+  duration_ms: 858.789459
+  type: 'test'
+  ...
+# Subtest: an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed
+ok 22 - an artefact registered outside .agdf/control blocks only that resource and leaves the evaluation unconfirmed
+  ---
+  duration_ms: 1963.013822
+  type: 'test'
+  ...
+# Subtest: a generated next step from an earlier gate is replaced; custom text and backward moves keep the stored values
+not ok 23 - a generated next step from an earlier gate is replaced; custom text and backward moves keep the stored values
+  ---
+  duration_ms: 2630.249458
+  type: 'test'
+  location: '/private/tmp/agdf-cockpit-browser-baseline/packages/core/test/cockpit-scoped-read-test.js:205:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    a backward move keeps the stored next step
+    + actual - expected
+    
+    + 'Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.'
+    - 'Draft the PRD slice before anything else.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Draft the PRD slice before anything else.'
+  actual: 'Complete the current decision content through its existing owner, record it canonically, then recheck this exact Run.'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/agdf-cockpit-browser-baseline/packages/core/test/cockpit-scoped-read-test.js:241:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 21
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 34898.68636

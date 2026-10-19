@@ -1,0 +1,84 @@
+Removed plugin `agdf` from marketplace `agdf`.
+{
+  "schema_version": 1,
+  "operation": "uninstall",
+  "result": "success",
+  "surface": "codex",
+  "scope": "global",
+  "version": {
+    "expected": null,
+    "installed": null,
+    "previous": null,
+    "status": "unknown",
+    "transition": null
+  },
+  "verification": {
+    "status": "healthy",
+    "evidence": [
+      "codex",
+      "codex plugin list",
+      "codex_tool_policy:absent"
+    ]
+  },
+  "installation": {
+    "status": "healthy"
+  },
+  "activation": {
+    "status": "pending_restart"
+  },
+  "delivery": {
+    "status": "not_evaluated"
+  },
+  "runtime_checks": {
+    "requested": "unknown",
+    "effective": "unknown",
+    "reason": "not_evaluated",
+    "capability_identity": null,
+    "verification": "not_evaluated",
+    "mutation": "none",
+    "rollback": "none"
+  },
+  "restart": {
+    "required": true,
+    "reason": "host_reload"
+  },
+  "next_action": {
+    "kind": "restart",
+    "text": "Restart the host; the uninstall postcondition has already been verified."
+  },
+  "changes": [
+    {
+      "kind": "command",
+      "executable": "codex",
+      "args": [
+        "plugin",
+        "remove",
+        "agdf@agdf"
+      ]
+    }
+  ],
+  "retained": [
+    "repository AGDF files",
+    ".agdf/control",
+    "ambiguous configuration",
+    "Codex plugin MCP runtime retained for active, legacy or unconfirmed executable use: /private/tmp/agdf-cockpit-cli-instance/agdf-data/mcp/codex-plugin"
+  ],
+  "failure": null,
+  "operation_status": {
+    "operation_id": "lifecycle.plugin.uninstall",
+    "outcome": "succeeded",
+    "target_scope": "global",
+    "target": null,
+    "planned_effect": "uninstall_global_plugin",
+    "excluded_authority": [
+      "target_inference",
+      "run_creation",
+      "ur_persistence",
+      "gate_approval",
+      "implementation",
+      "qa",
+      "release"
+    ],
+    "authorizes": false
+  }
+}

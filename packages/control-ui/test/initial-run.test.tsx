@@ -13,6 +13,16 @@ const transport=()=>vi.fn(async(path:string)=>path.startsWith('/api/snapshot?run
 const sessionA='00000000-0000-4000-8000-000000000001',sessionB='00000000-0000-4000-8000-000000000002';
 const bootstrap=(session_id=sessionA,render_generation=1,initial_run_id:string|undefined='run-a')=>({structuredContent:{schema_version:'1',authorizes:false,target},_meta:{agdf_cockpit:{session_id,render_generation,initial_run_id,target}}});
 afterEach(()=>{cleanup();vi.restoreAllMocks();});
+it('retires the correct session when native teardown arrives before its first React render', async () => {
+  const read = transport();
+  const app = { setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}), connect: vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
+    ontoolresult:(_:unknown)=>{}, onhostcontextchanged:()=>{}, onteardown:async()=>({}) };
+  const operation = vi.fn(async()=>({...fixtureMeta, data:{closed:true}}));
+  const bridge = { app, readForSession:()=>read, operation, session:'' } as unknown as CockpitBridge;
+  render(<EmbeddedEntry bridge={bridge}/>);
+  await act(async()=>{ app.ontoolresult(bootstrap()); await app.onteardown(); });
+  expect(operation).toHaveBeenCalledExactlyOnceWith({operation:'close'}, undefined, sessionA);
+});
 for (const compact of [true, false]) for (const stage of ['snapshot-throw', 'snapshot-envelope', 'snapshot-blocked', 'snapshot-limit']) {
   it(`initial Run survives a transient ${stage} failure and retry in ${compact ? 'compact' : 'expanded'} view`, async () => {
     let failed = false;
@@ -123,7 +133,7 @@ it('a fresh host render reopens an expired session with the same explicit Run an
   let expired = true;
   const read = vi.fn(async (path:string) => expired ? { ...inventory, snapshot_id:null, state:'blocked', code:'session_expired', retryable:false, data:null }
     : path.startsWith('/api/snapshot?run_id=') ? detail('run-a') : inventory) as unknown as ReadTransport;
-  const app = { getHostVersion:()=>({name:'test-host',version:'fixture'}), connect:vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
+  const app = { setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}), getHostVersion:()=>({name:'test-host',version:'fixture'}), connect:vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
     updateModelContext:vi.fn(), sendMessage:vi.fn(), ontoolresult:(_:unknown)=>{}, onhostcontextchanged:()=>{} };
   const bridge = { app, read, readForSession:()=>read, operation:vi.fn(async()=>({})), session:'' } as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
@@ -143,7 +153,7 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
   const evaluatedB=detail('run-b');
   const read=vi.fn(async(path:string)=>path==='/api/snapshot?run_id=run-a'?new Promise<ReturnType<typeof detail>>(resolve=>{finish=resolve;}):evaluatedB) as unknown as ReadTransport;
   let mode='inline';
-  const app={getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:mode,availableDisplayModes:['fullscreen']}),requestDisplayMode:vi.fn(async()=>({mode:'fullscreen'})),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult: (_:unknown)=>{},onhostcontextchanged:()=>{}};
+  const app={setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}),getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:mode,availableDisplayModes:['fullscreen']}),requestDisplayMode:vi.fn(async()=>({mode:'fullscreen'})),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult: (_:unknown)=>{},onhostcontextchanged:()=>{}};
   const bridge={app,read,readForSession:()=>read,operation:vi.fn(async()=>({})),session:''} as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>{app.ontoolresult(bootstrap());});
@@ -195,7 +205,7 @@ it('SCN-042/057: immutable reading and old cleanup still use their own session a
 it('SCN-047: capacity feedback preserves the current requested Run and never sends context',async()=>{
   const read=transport();
   const operation=vi.fn(async()=>({}));
-  const app={getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:'inline'}),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult:(_:unknown)=>{},onhostcontextchanged:()=>{}};
+  const app={setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}),getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),getHostContext:()=>({displayMode:'inline'}),updateModelContext:vi.fn(),sendMessage:vi.fn(),ontoolresult:(_:unknown)=>{},onhostcontextchanged:()=>{}};
   const bridge={app,read,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>app.ontoolresult(bootstrap()));
@@ -205,4 +215,45 @@ it('SCN-047: capacity feedback preserves the current requested Run and never sen
   expect(screen.getByRole('heading',{name:'run-a',level:2})).toBeTruthy();
   expect(bridge.session).toBe(sessionA);expect(operation).not.toHaveBeenCalled();
   expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
+});
+
+for (const accepted of [true, false]) it(`closed card settles public inline mode before size/teardown; accepted=${accepted}`, async () => {
+  const read=transport(); let mode='fullscreen'; const order:string[]=[];
+  vi.spyOn(HTMLElement.prototype,'getBoundingClientRect').mockImplementation(function(this:HTMLElement){
+    const width=mode==='inline'?736:518;
+    const height=this.classList.contains('mcp-terminal')?112:1987;
+    return {x:0,y:0,top:0,left:0,right:width,bottom:height,width,height,toJSON:()=>({})};
+  });
+  const app={setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{order.push('size');}),
+    getHostVersion:()=>({name:'test-host',version:'fixture'}),connect:vi.fn(async()=>{}),getHostCapabilities:()=>({serverTools:{}}),
+    getHostContext:()=>({displayMode:mode,availableDisplayModes:['inline','fullscreen']}),
+    requestDisplayMode:vi.fn(async()=>{
+      expect(screen.getByText('Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.')).toBeTruthy();
+      expect(app.sendSizeChanged).not.toHaveBeenCalled();
+      order.push('inline'); mode=accepted?'inline':'fullscreen';return {mode};
+    }),requestTeardown:vi.fn(async()=>{order.push('teardown');}),ontoolresult:(_:unknown)=>{},onhostcontextchanged:()=>{}};
+  const operation=vi.fn(async()=>{order.push('close');return {...fixtureMeta,state:'available',code:null,data:{closed:true}};});
+  const bridge={app,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
+  render(<EmbeddedEntry bridge={bridge}/>);
+  await act(async()=>app.ontoolresult(bootstrap()));
+  await screen.findByRole('button',{name:'SDK-Nachweis aufzeichnen'});
+  fireEvent.click(screen.getByRole('button',{name:'SDK-Nachweis aufzeichnen'}));
+  fireEvent.click(screen.getByRole('button',{name:'Sitzung beenden und Host schließen lassen'}));
+  await waitFor(()=>expect(app.requestDisplayMode).toHaveBeenCalledTimes(1));
+  if (accepted) await waitFor(()=>expect(app.requestTeardown).toHaveBeenCalledTimes(1));
+  else await screen.findByRole('alert');
+  expect(order).toEqual(accepted?['close','inline','size','teardown']:['close','inline']);
+  if(accepted)expect(app.sendSizeChanged).toHaveBeenCalledWith({width:736,height:112});
+  expect(screen.queryByText('Host-Verbindung prüfen')).toBeNull();
+  expect(document.querySelector('.shell, .compact-cockpit, .host-probe')).toBeNull();
+  const starts=app.setupSizeChangedNotifications.mock.calls.length;
+  const observer=app.setupSizeChangedNotifications.mock.results[0].value;
+  expect(observer).toHaveBeenCalledTimes(1);
+  const reads=vi.mocked(read).mock.calls.length;
+  for(const next of ['inline','fullscreen','inline']) await act(async()=>{mode=next;app.onhostcontextchanged();});
+  expect(app.setupSizeChangedNotifications).toHaveBeenCalledTimes(starts);
+  expect(app.sendSizeChanged).toHaveBeenCalledTimes(accepted?1:0);
+  expect(vi.mocked(read).mock.calls).toHaveLength(reads);
+  expect(operation).toHaveBeenCalledTimes(1);
+  expect(app.requestTeardown).toHaveBeenCalledTimes(accepted?1:0);
 });

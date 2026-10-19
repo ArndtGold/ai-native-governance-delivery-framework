@@ -1,0 +1,78 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test --grep summary leads|work action leads
+
+
+Running 2 tests using 1 worker
+
+(node:94390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94458) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/journeys.spec.mjs:333:1 › summary leads with the work step and stale reads never claim a missing Run or current control (10.1s)
+(node:94606) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94606) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 test/browser/journeys.spec.mjs:511:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation (9.3s)
+
+
+  1) test/browser/journeys.spec.mjs:333:1 › summary leads with the work step and stale reads never claim a missing Run or current control 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.work-step-prerequisites')
+    Expected substring: "Vor der Weiterarbeit klären"
+    Received string:    "Aktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffnen"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.work-step-prerequisites') with timeout 5000ms
+      - waiting for locator('.work-step-prerequisites')
+        14 × locator resolved to <div data-assessment="unconfirmed" class="work-step-prerequisites">…</div>
+           - unexpected value "Aktuelle Voraussetzungen nicht bestätigtAus diesem Stand lässt sich nicht bestätigen, dass der Schritt jetzt begonnen oder fortgesetzt werden darf.Stand des Vorhabens öffnen"
+
+
+      342 |     await expect(page.locator('.work-step-evidence[open]')).toHaveCount(0);
+      343 |     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+    > 344 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
+          |                                                            ^
+      345 |     await expect(page.locator('.work-step-evidence')).toContainText('Nachweis');
+      346 |     await expect(page.getByRole('button',{name:'Stand des Vorhabens öffnen',exact:true})).toBeVisible();
+      347 |     const order=await page.evaluate(()=>{const work=document.querySelector('.work-step'),goal=document.querySelector('.run-goal');return !!(work.compareDocumentPosition(goal)&Node.DOCUMENT_POSITION_FOLLOWING);});
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:344:60
+
+    Error Context: test-results/journeys-summary-leads-wit-adc11-sing-Run-or-current-control/error-context.md
+
+  2) test/browser/journeys.spec.mjs:511:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.work-step-action')
+    Expected: "Ergänze den aktuellen Entscheidungsinhalt über den zuständigen Owner, erfasse ihn kanonisch und prüfe denselben Run erneut."
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('.work-step-action') with timeout 5000ms
+      - waiting for locator('.work-step-action')
+
+
+      521 |     await page.locator('.run-link[data-focus-id=\"fixture-a\"]').click();
+      522 |     await page.getByRole('button',{name:'Run ansehen',exact:true}).click();
+    > 523 |     await expect(page.locator('.work-step-action')).toHaveText(e.next_action_de??e.next_allowed_action);
+          |                                                     ^
+      524 |     await expect(page.locator('.run-documents')).toBeVisible(); await expect(page.locator('.run-documents details')).toHaveCount(0);
+      525 |     await expect(page.locator('.work-step-prerequisites')).toContainText('Vor der Weiterarbeit klären');
+      526 |     await page.getByText('Nachweislücken im Run-Dokument · '+e.missing_evidence.length,{exact:true}).click();
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/journeys.spec.mjs:523:53
+
+    Error Context: test-results/journeys-work-action-leads-58151-ponsive-keyboard-navigation/error-context.md
+
+  2 failed
+    test/browser/journeys.spec.mjs:333:1 › summary leads with the work step and stale reads never claim a missing Run or current control 
+    test/browser/journeys.spec.mjs:511:1 › work action leads, qualifications stay honest and evidence access survives responsive keyboard navigation 

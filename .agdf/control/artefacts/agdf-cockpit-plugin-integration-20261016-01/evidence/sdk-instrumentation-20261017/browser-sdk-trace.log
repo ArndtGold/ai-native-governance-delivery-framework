@@ -1,0 +1,36 @@
+
+> agdf-control-ui@0.0.0 test:browser
+> playwright test sdk-trace.spec.mjs
+
+
+Running 1 test using 1 worker
+
+(node:18550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/sdk-trace.spec.mjs:16:1 › built Cockpit exports actual SDK packets, preserves provider correlation and closes Core (synthetic host) (3.8s)
+
+
+  1) test/browser/sdk-trace.spec.mjs:16:1 › built Cockpit exports actual SDK packets, preserves provider correlation and closes Core (synthetic host) 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "session_expired"
+    Received: undefined
+
+      66 |     expect(replies.some(row => row.message.result.structuredContent?.data?.closed === true)).toBe(true);
+      67 |     const closed = await client.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: prepared._meta.agdf_cockpit.session_id } });
+    > 68 |     expect(closed.structuredContent.reason).toBe('session_expired');
+         |                                             ^
+      69 |     expect(await page.evaluate(() => window.sdkTraceHarness.logs.length)).toBeGreaterThan(0);
+      70 |     expect(treeBytes(f.root)).toEqual(before);
+      71 |     writeFileSync(evidencePath('cockpit-sdk-trace-browser.json'), JSON.stringify({ evidence_class: 'built_ui_real_sdk_core_synthetic_host', native_qualified: false,
+        at /private/tmp/agdf-cockpit-integration-work/packages/control-ui/test/browser/sdk-trace.spec.mjs:68:45
+
+    Error Context: test-results/sdk-trace-built-Cockpit-ex-51303-closes-Core-synthetic-host-/error-context.md
+
+  1 failed
+    test/browser/sdk-trace.spec.mjs:16:1 › built Cockpit exports actual SDK packets, preserves provider correlation and closes Core (synthetic host) 

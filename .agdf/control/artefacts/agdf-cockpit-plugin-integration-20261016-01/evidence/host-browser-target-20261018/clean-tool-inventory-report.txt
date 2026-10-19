@@ -1,0 +1,33 @@
+AGDF – projektloses natives MCP-Inventar, 18.10.2026
+Chat 01a14a53-1091-7fa1-9145-287353b8dac1; cwd=/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017; Kontext repo_less.
+
+Beim ersten Werkzeug-Snapshot (08:01:16 UTC / 10:01:16 Berlin) waren keine AGDF-Tools im geladenen Katalog vorhanden. Nach einem tatsächlichen Tool-Update (08:01:26 UTC) waren mcp__agdf_cockpit__agdf_cockpit und mcp__agdf_cockpit__agdf_cockpit_read vorhanden. agdf_cockpit_local fehlt in beiden Snapshots. Das Update und beide Zustände sind getrennt erhalten.
+
+Der native Provider agdf-cockpit bietet ui://agdf/cockpit/v1.html als text/html;profile=mcp-app an. resources/read war hier erfolgreich; kein resource_denied zurückgegeben. Der zugängliche HTML-Text wurde vom Werkzeug ausdrücklich gekürzt. Er ist kein vollständiger UI-Code- oder DOM-Nachweis.
+
+Einmaliger nativer Öffnungsaufruf:
+working_directory=/Users/arndtgold/Documents/Codex/2026-10-17/agdf-sdk-native-proof-20261017
+primary_target=/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework
+target_source=explicit_target
+run_id=agdf-cockpit-plugin-integration-20261016-01
+Ergebnis: erfolgreich; authorizes=false; target_id=sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19.
+Die zugängliche Antwort enthält content und structuredContent, aber keine agdf/provider- oder agdf/peer-Metadaten. Sie bestätigt das Target, exportiert im öffentlichen Antwortteil jedoch weder den Run noch eine Read-Session. agdf_cockpit_read wurde in diesem engen Inventartest nicht aufgerufen.
+
+Referenz: /private/tmp/agdf-view-close-fix-20261018/installed-tuple.json nennt 0.14.5+codex.local-a861cbf8a2a8 und pending_restart. Kopie als Prüfreferenz gespeichert; keine erneute Paketvalidierung und keine Übernahme früherer Paketbefunde als nativer Nachweis. Aktive Provider-/Runtime-/DOM-Identität damit nicht belegt. Rendering, Kontextübergabe, SDK-Initialisierung und Teardown wurden in diesem begrenzten Auftrag nicht geprüft. Kein erfolgreicher Tool-Aufruf wird als Render- oder Teardown-Beleg gewertet.
+
+Vorher-/Nachher-Vergleich der sieben explizit aufgeführten Konfigurations-/Run-/TP-Pfade: keine Änderung. Kein vollständiger Repository-Snapshot behauptet. Nur neue Nachweisdateien im eigenen /private/tmp-Verzeichnis geschrieben; keine Plugin-, Konfigurations-, Repository- oder Control-Änderung, keine Legacy-Umstellung, keine Fremdchat-Nachricht, keine qualifizierte Transition.
+
+Nachweisdateien:
+/private/tmp/agdf-native-inventory-20261018-080116/context.json
+/private/tmp/agdf-native-inventory-20261018-080116/tools-initial.json
+/private/tmp/agdf-native-inventory-20261018-080116/tools-after-update.json
+/private/tmp/agdf-native-inventory-20261018-080116/resources-initial.json
+/private/tmp/agdf-native-inventory-20261018-080116/resources-plugin.json
+/private/tmp/agdf-native-inventory-20261018-080116/cockpit-open.json
+/private/tmp/agdf-native-inventory-20261018-080116/response-metadata-summary.json
+/private/tmp/agdf-native-inventory-20261018-080116/resource-read-return.txt
+/private/tmp/agdf-native-inventory-20261018-080116/resource-read-summary.json
+/private/tmp/agdf-native-inventory-20261018-080116/installed-tuple-reference.json
+/private/tmp/agdf-native-inventory-20261018-080116/before-selected.json
+/private/tmp/agdf-native-inventory-20261018-080116/after-selected.json
+/private/tmp/agdf-native-inventory-20261018-080116/unchanged-selected.json

@@ -1,0 +1,37 @@
+[
+  {
+    "args": [
+      "plugin",
+      "marketplace",
+      "remove",
+      "agdf",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"marketplaceName\": \"agdf\",\n  \"installedRoot\": null\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "plugin",
+      "marketplace",
+      "add",
+      "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"marketplaceName\": \"agdf\",\n  \"installedRoot\": \"/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf\",\n  \"alreadyAdded\": false\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "plugin",
+      "add",
+      "agdf@agdf",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"agdf@agdf\",\n  \"name\": \"agdf\",\n  \"marketplaceName\": \"agdf\",\n  \"version\": \"0.14.5+codex.local-fb1def114314\",\n  \"installedPath\": \"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-fb1def114314\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  }
+]

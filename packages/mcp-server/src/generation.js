@@ -7,7 +7,7 @@ import { DispatchExecutionError } from './worker.js';
 
 // One live facade, three directly owned children, no process registry or PID
 // discovery. Capacity includes startup and unconfirmed cleanup, not just current.
-export async function createOwnedGenerationFacade({ runtime, publisher, createControlRuntime, surface, cockpitDir,
+export async function createOwnedGenerationFacade({ runtime, publisher, createControlRuntime, surface, cockpitDir, cockpitMode,
   Fork = fork, qualifyMs = L.qualify, closeMs = L.close, invokeMs = L.qualify, onEvent = () => {} } = {}) {
   if (![qualifyMs, closeMs, invokeMs].every(value => Number.isSafeInteger(value) && value > 0)
     || qualifyMs > L.qualify || closeMs > L.close || invokeMs > L.qualify) throw Error('generation_deadline_invalid');
@@ -91,7 +91,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
       row.child.once('error', () => { row.state = 'close_unconfirmed'; event(row, 'spawn_failed'); });
       row.state = 'qualifying'; event(row, 'qualifying');
       const qualified = (await request(row, 'qualify', { surface, commandGroups: [...(runtime.trustedContext.commandGroups ?? [])],
-        ...(cockpitDir ? { cockpitDir } : {}) }, context)).payload;
+        ...(cockpitDir ? { cockpitDir } : {}), ...(cockpitMode ? { cockpitMode } : {}) }, context)).payload;
       if (manifestDigest(qualified.manifest) !== expected || qualified.producer.server_digest !== packageInfo.digest
         || qualified.producer.dispatcher_digest !== packageInfo.dispatcherDigest || qualified.producer.sdk_digest !== packageInfo.sdkDigest
         || nativeRequired && !qualified.support.app_mediation) throw Error('generation_manifest_incompatible');

@@ -75,6 +75,9 @@ const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlin
   "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync"];
 // Bound continuation composes the existing writer; the MCP adapter adds no write owner.
 const continuationWriteOwners = new Map([
+  // Existing immutable preview publication owner; no new writer is introduced
+  // by the error projector. Reads use its bounded read/validation functions.
+  ["runtime/core/lib/control-state/preview-snapshot.js", ["writeFileSync", "openSync", "fsyncSync"]],
   ["runtime/core/lib/control-state/run-state-writer.js", ["writeFileSync", "renameSync", "unlinkSync", "openSync", "fsyncSync", "linkSync"]],
   ["runtime/core/lib/fs-swap.js", ["renameSync"]],
   ["runtime/core/lib/control-read/snapshot.js", ["openSync"]],
@@ -268,5 +271,29 @@ try {
 } finally {
   rmSync(fakeRepository, { recursive: true, force: true });
 }
+
+// Typed worker facts retain only known causes/fields. An exit after handoff
+// cannot prove rollback, while a constructor failure never handed off work.
+class ParseRejectedWorker extends EventEmitter {
+  constructor() { super(); queueMicrotask(() => this.emit('message', { type: 'failure', code: 'dispatch_input_invalid', dispatch: 'not_dispatched', field: 'run_id' })); }
+  async terminate() {}
+}
+const parseRejected = createWorkerDispatchExecutor({ WorkerClass: ParseRejectedWorker });
+await assert.rejects(parseRejected.execute({}), error => {
+  assert.deepEqual(runtime.normalizeFailure(error), { code: 'dispatch_input_invalid', dispatch: 'not_dispatched', field: 'run_id' }); return true;
+});
+class UnexpectedExitWorker extends EventEmitter {
+  constructor() { super(); queueMicrotask(() => this.emit('exit', 1)); }
+  async terminate() {}
+}
+await assert.rejects(createWorkerDispatchExecutor({ WorkerClass: UnexpectedExitWorker }).execute({}), error => {
+  assert.deepEqual(runtime.normalizeFailure(error), { code: 'dispatch_worker_failed', dispatch: 'unknown' }); return true;
+});
+class SetupRejectedWorker { constructor() { throw Error('PRIVATE_SETUP_DETAIL'); } }
+await assert.rejects(createWorkerDispatchExecutor({ WorkerClass: SetupRejectedWorker }).execute({}), error => {
+  assert.deepEqual(runtime.normalizeFailure(error), { code: 'dispatch_worker_failed', dispatch: 'not_dispatched' });
+  assert.ok(!JSON.stringify(error).includes('PRIVATE_SETUP')); return true;
+});
+assert.deepEqual(runtime.normalizeFailure({ code: 'resource_denied', message: 'PRIVATE_EXCEPTION' }), { code: 'dispatch_worker_failed', dispatch: 'unknown' });
 
 console.log("AGDF MCP isolation, timeout, cancellation and static safety tests passed.");

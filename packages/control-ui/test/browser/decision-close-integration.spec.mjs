@@ -128,7 +128,15 @@ await runMcpServer({surface:'codex',runtime,executor:{execute(input,{toolName,si
       await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
       await page.goto('http://127.0.0.1:' + server.address().port);
       const frame = page.frameLocator('iframe');
+      // The App already bounds server-tool calls at 10 seconds. Observe that
+      // actual reply before asserting the subsequent render; the default
+      // locator wait must not truncate the permitted RPC to five seconds.
+      const decisionResponse = page.waitForResponse(response => response.url().endsWith('/tool')
+        && response.request().postDataJSON()?.name === 'agdf_decision_action', { timeout: 10_000 });
       await frame.getByRole('button', { name: view.labels.approve, exact: true }).click();
+      const decisionReply = await (await decisionResponse).json();
+      expect(decisionReply.structuredContent.outcome, JSON.stringify(decisionReply.structuredContent)).toBe('accepted');
+      expect(decisionReply.isError).toBeUndefined(); expect(decisionReply.content).toHaveLength(1);
       await expect(frame.getByText(view.labels.confirmed, { exact: true })).toBeVisible();
       await expect(frame.getByText(view.labels.nextRequested, { exact: true })).toBeVisible();
       expect(await page.evaluate(() => window.coreHandoffs.length)).toBe(2);

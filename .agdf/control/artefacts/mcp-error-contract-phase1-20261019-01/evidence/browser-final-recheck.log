@@ -1,0 +1,40 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/sdk-trace.spec.mjs test/browser/mcp-errors.spec.mjs
+
+Running 15 tests using 1 worker
+
+(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/stale_revision (1.4s)
+  ✓   2 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/session_expired (938ms)
+  ✓   3 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/permission_denied (828ms)
+  ✓   4 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/uncertain (893ms)
+  ✓   5 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: en/accepted (980ms)
+  ✓   6 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/stale_revision (907ms)
+  ✓   7 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/session_expired (968ms)
+  ✓   8 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/permission_denied (822ms)
+  ✓   9 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/uncertain (907ms)
+  ✓  10 test/browser/mcp-errors.spec.mjs:27:4 › MCP error channel retains safe decision feedback: de/accepted (896ms)
+  ✓  11 test/browser/mcp-errors.spec.mjs:40:1 › late MCP error cannot attach to a replacement decision (synthetic SDK host) (860ms)
+(node:39809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: accepted (synthetic host) (3.7s)
+(node:39855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: ignored (synthetic host) (3.3s)
+(node:39896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 test/browser/sdk-trace.spec.mjs:17:66 › built Cockpit close: deny-release (synthetic host) (3.3s)
+(node:39928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 test/browser/sdk-trace.spec.mjs:113:1 › MCP negative read retains correction; blocked run remains a successful view (synthetic SDK host) (3.6s)
+
+  15 passed (31.2s)

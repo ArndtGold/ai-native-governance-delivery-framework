@@ -1,0 +1,104 @@
+npm notice run test:verification
+npm notice run node --test scripts/verification-test.mjs
+TAP version 13
+# [verify-ci] prepare
+# [verify-commit] Isolated Git index; Node 22.22.3, darwin.
+# Subtest: every OS/Node lane covers the entire canonical inventory and required checks
+ok 1 - every OS/Node lane covers the entire canonical inventory and required checks
+  ---
+  duration_ms: 102.522784
+  type: 'test'
+  ...
+# Subtest: the workflow matrix exposes functional labels for repository, release and published MCP callers
+ok 2 - the workflow matrix exposes functional labels for repository, release and published MCP callers
+  ---
+  duration_ms: 1558.027594
+  type: 'test'
+  ...
+# Subtest: compact graph names retain purpose, platform, partition and revision scenario
+ok 3 - compact graph names retain purpose, platform, partition and revision scenario
+  ---
+  duration_ms: 28.456648
+  type: 'test'
+  ...
+# Subtest: measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+ok 4 - measured Windows MCP lifecycle and whole-flow costs prevent the exhausted partition from recurring
+  ---
+  duration_ms: 13.830487
+  type: 'test'
+  ...
+# Subtest: graph matrices route every existing partition exactly once for every caller
+ok 5 - graph matrices route every existing partition exactly once for every caller
+  ---
+  duration_ms: 1405.935745
+  type: 'test'
+  ...
+# Subtest: new nested tests are assigned automatically; unsupported or unsafe inventories fail
+ok 6 - new nested tests are assigned automatically; unsupported or unsafe inventories fail
+  ---
+  duration_ms: 8.404068
+  type: 'test'
+  ...
+# Subtest: over-budget tests fail planning instead of being omitted; selectors reject invalid work
+ok 7 - over-budget tests fail planning instead of being omitted; selectors reject invalid work
+  ---
+  duration_ms: 3238.325583
+  type: 'test'
+  ...
+# Subtest: all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+ok 8 - all executable workflow jobs have a ten-minute ceiling and callers share the tested plan
+  ---
+  duration_ms: 38.795249
+  type: 'test'
+  ...
+# Subtest: full plan preserves dependency ordering and mandatory package consumers in both lanes
+ok 9 - full plan preserves dependency ordering and mandatory package consumers in both lanes
+  ---
+  duration_ms: 0.869857
+  type: 'test'
+  ...
+# Subtest: build shares CI checks without recursive builds; evidence preparation remains possible
+ok 10 - build shares CI checks without recursive builds; evidence preparation remains possible
+  ---
+  duration_ms: 1.374474
+  type: 'test'
+  ...
+# Subtest: real npm build failures prevent assembly and preserve stored evidence
+ok 11 - real npm build failures prevent assembly and preserve stored evidence
+  ---
+  duration_ms: 20446.174028
+  type: 'test'
+  ...
+# Subtest: a failed command stops before later commands and stages
+ok 12 - a failed command stops before later commands and stages
+  ---
+  duration_ms: 3.943532
+  type: 'test'
+  ...
+# Subtest: the real CLI executes under temporary path aliases and rejects an invalid stage
+ok 13 - the real CLI executes under temporary path aliases and rejects an invalid stage
+  ---
+  duration_ms: 267.66881
+  type: 'test'
+  ...
+# Subtest: snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+ok 14 - snapshot uses staged blobs, excludes unstaged/untracked fixes and preserves source index
+  ---
+  duration_ms: 10145.912767
+  type: 'test'
+  ...
+# Subtest: both snapshot modes export an index larger than the default subprocess output buffer
+ok 15 - both snapshot modes export an index larger than the default subprocess output buffer
+  ---
+  duration_ms: 18474.786619
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56213.061403

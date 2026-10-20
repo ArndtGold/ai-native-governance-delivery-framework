@@ -92,3 +92,26 @@ directly, so rebuilding it cannot leave those tests using an older same-version 
 Other package-consumer tests create their own isolated runtimes from the same assembly. Installing
 SDK dependencies is a separate preparation step; these tests neither update a host installation
 nor qualify a native session. A direct `node test/...` invocation also requires the preparation.
+
+Business failures use MCP `isError: true`, preserve the public domain result in
+`structuredContent` and the first text block, and append one bounded EN/DE
+explanation with the cause, known effect limit and supported correction. Success
+keeps its existing single block, including exact decision presentation text.
+Successful doctor, readiness, operation-status and freshness observations remain
+successful when they report blocked, not-ready or unknown state. SDK input errors
+and protocol errors retain their SDK-owned behavior.
+
+The producing runtime owns the pure `agdf-tool-result/1` projection. Its checked
+private descriptor travels with an old generation's result and is consumed before
+public serialization; generation qualification includes that contract version.
+Error-domain invariants are checked even though SDK 2 skips output validation for
+error results. Existing response limits include the explanation and fallback.
+Known parse rejection means not dispatched; timeout, cancellation after handoff or
+a lost connection cannot establish rollback. For an uncertain command, inspect
+`operation-status` with the original UUID and retain its exact payload. Recovery,
+receipts, approval eligibility and any permitted replay remain Core-owned.
+
+This follows the [MCP tool error contract](https://modelcontextprotocol.io/specification/2026-07-28/server/tools#error-handling)
+and [SDK error behavior](https://ts.sdk.modelcontextprotocol.io/v2/servers/errors).
+Local protocol, package and browser tests do not establish native host or agent
+performance; the unchanged ergonomics comparison records that evidence separately.

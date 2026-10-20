@@ -14,7 +14,7 @@ const object = (value: unknown): value is Record<string, unknown> => !!value && 
 const uuid = (value: unknown) => typeof value === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(value);
 const hash = (value: unknown) => typeof value === 'string' && /^sha256:[a-f0-9]{64}$/.test(value);
 export function readDecisionBootstrap(result: unknown): DecisionBootstrap | null {
-  if (!object(result) || !object(result._meta) || !object(result._meta.agdf_decision)) return null;
+  if (!object(result) || result.isError === true || !object(result._meta) || !object(result._meta.agdf_decision)) return null;
   const row = result._meta.agdf_decision, b = row.binding, target = row.target;
   if (!object(b) || !object(target) || !object(row.labels) || !object(row.comparison)) return null;
   if (row.preview !== undefined) {

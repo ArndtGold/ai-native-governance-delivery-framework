@@ -1,0 +1,125 @@
+{
+  "schema_version": "1",
+  "date": "2026-10-19",
+  "scope": "Direct repository repair explicitly requested without AGDF workflow; no new gates or human approvals inferred.",
+  "head": "a8a867a3578a2d8b16853860276c401ddd04db28",
+  "sources": {
+    "packages/core/lib/control-evaluation/normalized-gaps.js": "sha256:4876ef2b63d3de2237dc1a429a85d9373036886e11f17798f71ff0a348ebcefe",
+    "packages/core/lib/control-evaluation/decision-content-readiness.js": "sha256:ea0e6e115ec40da40a94a92578d7a7e16834b62683449d408d838c869b162620",
+    "packages/core/lib/control-evaluation/closeout-readiness.js": "sha256:c77bda8909a2f11c478a83905f8ceeb7ef57e9829ae5e8400ff351181b1877e9",
+    "packages/core/lib/control-evaluation/run-work-summary.js": "sha256:42add204b2ce9e73d1cfa08a0cdcc5f967527c67aa8d9bc2900e76df8d4b0691",
+    "packages/core/test/decision-content-test.js": "sha256:55f900be01bc563cbe7d83e08a96cd11a90a8af1767a44e4a593264e78f8ca54",
+    "packages/core/test/run-closeout-command-test.js": "sha256:25d087358878995acf5976dd54d3e3b28af8029c41585c706f0004afba5b772c",
+    "packages/mcp-server/test/structured-flow.test.js": "sha256:03edf927000858d7b7416d79da4bd4498880757eaa9f003936f44025681b9bd5",
+    "packages/cli/scripts/build-contract-checks.js": "sha256:fab9ff9651e067e7d9fd6964b483ff859a0d73fb89151af4eda1f38057fac16a",
+    "plugins/agdf/meta/contracts/quality.md": "sha256:92522ec24f9fa96ae2258c3c5e2e0ea786a2c79a9cd07b2a9cc51c5a0d249bf8",
+    "plugins/agdf/meta/copilot-payload-baseline.json": "sha256:e86c740e0d59d539a77fe44c7985f47aae3d8b036c48c12863c569a4fdf59876",
+    "evals/manifest.json": "sha256:9ec21c882beba5a4956997c95d31aee34a945ec554232155b7f23d858708480d",
+    "evals/observations/deterministic-replay.json": "sha256:ab3e6abda004f2a1fbfd1334162dd3d0c02921ceb570c8fc8deab52c4b1889a5"
+  },
+  "protected_sources": {
+    "QA_REPORT.md": "sha256:b916c3c4e4d049e8e96ffbc2c6ec323ba3e5a3950684ba2e1d428b7107e5daa1",
+    "CODE_REVIEW.md": "sha256:bf2f2599d6c704dea15ff8ceab6ee1f2f4025edcb5360c80b968f29e63b312d2",
+    "TP_REVIEW.md": "sha256:4a345511a38ba95d76ece2067106b05cfa89415981fdf544196dba021647e226",
+    "CLEAN_IMPLEMENTATION_REVIEW.md": "sha256:b80fa01c86f5e09f57d900c70cd45927b1092391296d8e731d8e7839c5cfcbd4"
+  },
+  "checks": {
+    "canonical_build": "pass",
+    "command_flow": {
+      "test_groups": 18,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "preview_followups": "pass"
+    },
+    "mcp_structured_flow": {
+      "passed": 4,
+      "protocol_eras": 2,
+      "structured_modes": 2,
+      "resolved_finding_in_actual_qa": true
+    },
+    "mcp_semantic_contract": "pass",
+    "cli_gate_scenarios": "pass",
+    "backlog_work_summary": {
+      "passed": 11
+    },
+    "qa_deviation_acceptance": "pass",
+    "package_boundaries": {
+      "modules": 143,
+      "status": "pass"
+    },
+    "deterministic_skill_evaluations": {
+      "passed": 113,
+      "cases": 113,
+      "kind": "offline expected-disposition replay; reviewed source bindings only; all expectations, actions and 100% thresholds unchanged"
+    },
+    "compatibility": {
+      "passed": 56,
+      "failed": 0,
+      "kind": "structured local fixtures; no new native-host proof"
+    },
+    "performance": {
+      "node": "v22.22.3",
+      "platform": "darwin-x64",
+      "runs": 20,
+      "cold_tools_list_ms": [
+        729.398,
+        712.995,
+        937.244,
+        734.444,
+        726.131,
+        711.742,
+        714.962,
+        717.34,
+        712.852,
+        698.61,
+        753.382,
+        714.771,
+        741.249,
+        702.196,
+        709.584,
+        739.63,
+        712.836,
+        767.832,
+        728.607,
+        717.093
+      ],
+      "cold_p95_ms": 767.832,
+      "warm_dispatch_ms": [
+        820.807,
+        648.42,
+        748.228,
+        675.315,
+        640.409,
+        761.664,
+        601.535,
+        597.903,
+        605.274,
+        605.257,
+        604.805,
+        607.358,
+        644.963,
+        595.996,
+        593.211,
+        592.599,
+        600.15,
+        643.128,
+        606.737,
+        611.669
+      ],
+      "warm_p95_ms": 761.664
+    }
+  },
+  "payload": {
+    "files": 395,
+    "bytes": 3442564,
+    "increase_bytes_for_this_repair": 2957,
+    "headroom_files": 0,
+    "headroom_bytes": 0
+  },
+  "limits": [
+    "No fresh native Codex/Claude or Windows qualification.",
+    "No installed plugin modification, publication or VCS effect.",
+    "The original Phase 1 evaluation/report identities remain historical approved evidence; no current execution of its entire 28-scenario inventory is inferred from this repair."
+  ]
+}

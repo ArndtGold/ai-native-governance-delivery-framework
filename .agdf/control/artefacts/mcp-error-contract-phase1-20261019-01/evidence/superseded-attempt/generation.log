@@ -1,0 +1,12 @@
+npm notice run @agdf/mcp-server@0.14.5 test:generation
+npm notice run node ./test/generation.test.js
+Retained diagnostic fixture after unconfirmed cleanup: /var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-owned-generation-9gNDkq
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/generation.test.js:101
+  assert.equal(closed.data.closed, true);
+                           ^
+
+TypeError: Cannot read properties of undefined (reading 'closed')
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/generation.test.js:101:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.22.3

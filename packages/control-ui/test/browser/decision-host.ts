@@ -33,7 +33,7 @@ bridge.oncalltool = async params => {
     : { outcome: 'inspect_result', report: { status: 'absent', reason: 'absence_is_not_proof_of_non_execution' } };
   else if (params.name === 'agdf_decision_action') {
     const input = params.arguments as unknown as DecisionSubmission;
-    const selected = mode;
+    const selected = mode.startsWith('error_') ? mode.slice(6) : mode;
     if (selected === 'pending') await new Promise<void>(resolve => { release = resolve; });
     result = selected === 'uncertain' ? { outcome: 'effect_unknown' }
       : ['stale_revision', 'session_expired', 'presentation_version_decided', 'permission_denied'].includes(selected)
@@ -42,7 +42,10 @@ bridge.oncalltool = async params => {
           ? { available: true, status: 'open', revision_id: approvedRevision, next_operation: nextOperation() }
           : { available: true } };
   } else throw Error('Unsupported fixture tool');
-  return { content: [{ type: 'text', text: JSON.stringify(result) }], structuredContent: result };
+  if (mode.startsWith('error_') && params.name === 'agdf_decision_action') result = { schema_version: '1', authorizes: false,
+    ...result, reason: result.reason ?? 'decision_result_unknown', operation_id: params.arguments?.operation_id };
+  return { ...(mode.startsWith('error_') && params.name === 'agdf_decision_action' ? { isError: true } : {}),
+    content: [{ type: 'text', text: JSON.stringify(result) }], structuredContent: result };
 };
 bridge.onupdatemodelcontext = async params => { contexts.push(params); return {}; };
 bridge.onmessage = async params => {

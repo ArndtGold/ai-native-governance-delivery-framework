@@ -1,0 +1,18 @@
+{
+  "evidence_class": "actual_sdk_protocol_composite_disposition",
+  "recorded_at": "2026-10-19T18:33:04.474115+00:00",
+  "original_command_log": "fix2-mcp-protocol.log",
+  "original_exit_code": 1,
+  "reason": "New fault test pinned modern negotiation on a hand-connected in-memory SDK instance, which does not advertise the modern era. This was a test transport setup failure, not a product failure.",
+  "unchanged_files_passed": [
+    "packages/mcp-server/test/protocol.test.js",
+    "packages/mcp-server/test/skill-names.test.js"
+  ],
+  "corrected_file": "packages/mcp-server/test/tool-errors.test.js",
+  "corrected_file_log": "fix2-first-call-validation.log",
+  "corrected_file_exit_code": 0,
+  "correction": "Run the new first-input/first-output/repeated-input fault assertions through the real serveStdio/runMcpServer entry for both pinned eras; preserve assertions and execution-count evidence. Existing in-memory fault cases retain their original legacy transport.",
+  "all_effective_files_passed": true,
+  "schemas_limits_timeouts_or_assertions_weakened": false,
+  "native_qualified": false
+}

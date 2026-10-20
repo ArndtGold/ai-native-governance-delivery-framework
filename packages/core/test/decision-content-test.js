@@ -13,6 +13,25 @@ import { policyForRunContent } from '../lib/control-evaluation/run-step-policy.j
 import { readAuthoredContent, readReportDecision } from '../lib/control-evaluation/report-decision.js';
 import { authoredGoal, concreteDecisionContent, observeDecisionContent } from '../lib/control-evaluation/decision-content-readiness.js';
 import { READ_LIMITS } from '../lib/control-read/snapshot.js';
+import { validNormalizedGap } from '../lib/control-evaluation/normalized-gaps.js';
+
+const resolvedRisk = ['CD-PERF-001', 'emergent_risk', 'CD+Tests', 'resolved',
+  'PERFORMANCE_FIX.md; both unchanged performance qualifications pass.', 'None for this finding; proceed to the current lifecycle owner.'];
+for (const action of ['none', resolvedRisk[5], 'Retain the existing evidence and continue to QA.']) {
+  assert.equal(validNormalizedGap([...resolvedRisk.slice(0, 5), action]), true, 'A resolved finding does not invent corrective work');
+}
+for (const [name, change] of [
+  ['open risk without owner assessment', { 3: 'open', 5: 'Correct the affected code.' }],
+  ['open risk without action', { 3: 'open', 4: 'Earliest-owner assessment: CD+Tests owns the observed code defect.', 5: 'none' }],
+  ['resolved without evidence', { 4: 'none' }], ['resolved without action field', { 5: '' }],
+  ['resolved placeholder action', { 5: 'TODO' }], ['invalid status', { 3: 'closed' }],
+  ['unknown gap type', { 1: 'none' }], ['contradictory route', { 1: 'implementation_gap', 2: 'SD' }],
+  ['changed-intent proof still required', { 1: 'requirements_gap', 2: 'UR' }],
+]) {
+  assert.equal(validNormalizedGap(Object.assign([...resolvedRisk], change)), false, name);
+}
+assert.equal(validNormalizedGap(Object.assign([...resolvedRisk], { 3: 'open',
+  4: 'Earliest-owner assessment: CD+Tests owns the failing check.', 5: 'Correct the code and rerun the check.' })), true);
 
 const field = '- delivered_result: The approved source bug is corrected.';
 const cases = [
@@ -112,6 +131,35 @@ try {
   assert.equal(observeDecisionContent(root,state,{gate:'UAT',locale:'de'}).groups.goal,'Das konkrete Ergebnis prüfen.','Structured summaries still use the explicit goal field');
   writeFileSync(join(files,'QA_REPORT.md'),qa.replace('- Risiken: keine','- Entscheidung: pass\n- TP-Abdeckung: Der begrenzte Plan ist erfüllt.\n- Lücken: Native Prüfung bleibt außerhalb des Scopes.\n- Risiken: keine'));
   assert.equal(observeDecisionContent(root,state,{gate:'QA',locale:'de'}).ready,true,'Existing authored QA summary labels retain the same contiguous scalar context.');
+  writeFileSync(join(files,'QA_REPORT.md'),qa);
+  const findingTable = '\n\n## Normalized Findings\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n';
+  const findingRow = cells => '| ' + cells.join(' | ') + ' |\n';
+  const reviewPath = prefix + 'CODE_REVIEW.md';
+  for (const gate of ['QA', 'UAT']) {
+    for (const inReview of [false, true]) {
+      const candidateState = { ...state, artefacts: new Map(state.artefacts) };
+      if (inReview) candidateState.artefacts.set('CR', { path: reviewPath, status: 'done' });
+      for (const [name, rows, ready] of [
+        ['resolved risk with no new repair', [resolvedRisk], true],
+        ['invalid resolved route', [Object.assign([...resolvedRisk], { 1: 'implementation_gap', 2: 'SD' })], false],
+        ['missing resolution evidence', [Object.assign([...resolvedRisk], { 4: 'none' })], false],
+        ['unassessed open risk', [Object.assign([...resolvedRisk], { 3: 'open', 5: 'Repair the defect.' })], false],
+        ['open finding contradicts pass', [Object.assign([...resolvedRisk], { 1: 'implementation_gap', 3: 'open', 5: 'Repair the defect.' })], false],
+        ['duplicate finding', [resolvedRisk, resolvedRisk], false],
+      ]) {
+        const normalized = findingTable + rows.map(findingRow).join('');
+        const report = qa + (inReview ? '' : normalized);
+        writeFileSync(join(files, 'QA_REPORT.md'), report);
+        writeFileSync(join(root, reviewPath), '# Code Review\nDecision: pass\n' + (inReview ? normalized : ''));
+        const observed = observeDecisionContent(root, candidateState, { gate });
+        assert.equal(observed.ready, ready, gate + '/' + inReview + '/' + name + ': ' + JSON.stringify(observed));
+        if (!ready) assert.ok(observed.gaps.some(g => g.field === 'Normalized Findings'));
+        if (inReview) assert.ok(observed.sources.some(s => s.path === reviewPath), 'Referenced review participates in current decision freshness');
+        assert.equal(readFileSync(join(files, 'QA_REPORT.md'), 'utf8'), report, 'Observation never rewrites the report');
+      }
+    }
+  }
+  rmSync(join(root, reviewPath));
   writeFileSync(join(files,'QA_REPORT.md'),qa);
   assert.equal(observeDecisionContent(root,{...state,content:'## Objective\nDescribe the trustworthy outcome.\n'},{gate:'UAT'}).ready,false);
   assert.equal(observeDecisionContent(root,{...state,meta:{lifecycle:'completed'},content:'## Objective\nDescribe the trustworthy outcome.\n'},{gate:'UAT'}).ready,true,'completed history not regraded');

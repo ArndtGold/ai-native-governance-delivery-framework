@@ -60,19 +60,21 @@ process.on('message', async input => {
       const { name, arguments: args } = input.payload, tool = runtime.tool?.(name) ?? runtime.tools.find(t => t.name === name);
       if (!tool || tool.requiresUi && input.context.uiSupported !== true) throw Error('resource_denied');
       ++inflight;
-      let result;
+      let result, phase = tool.parentOwned || !executor ? 'parse' : 'execute';
       try {
-        result = tool.parentOwned || !executor ? await tool.execute(tool.parse(args), undefined, input.context)
-          : await executor.execute(args, { toolName: name });
+        if (tool.parentOwned || !executor) {
+          const parsed = tool.parse(args); phase = 'execute';
+          result = await tool.execute(parsed, undefined, input.context);
+        } else result = await executor.execute(args, { toolName: name });
         if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, args, result, input.context);
         if (input.original_operation_id && result.outcome === 'effect_unknown') unknown.add(input.original_operation_id);
         if (name === 'agdf_inspect' && args.operation === 'operation-status' && result.report?.status === 'recorded'
           && result.report.receipt?.operation_id === args.module) unknown.delete(args.module);
-        send(input, 'result', result);
+        send(input, 'result', runtime.projectToolResult(name, args, result));
       } catch (error) {
-        if (input.original_operation_id && error.dispatch !== 'not_dispatched') unknown.add(input.original_operation_id);
-        send(input, 'result', runtime.failure(error.code ?? error.message ?? 'dispatch_worker_failed', name, args,
-          { dispatch: error.dispatch ?? 'unknown' }));
+        const facts = runtime.normalizeFailure(error, { phase });
+        if (input.original_operation_id && facts.dispatch !== 'not_dispatched') unknown.add(input.original_operation_id);
+        send(input, 'result', runtime.projectToolResult(name, args, runtime.failure(facts.code, name, args, facts), facts));
       } finally { --inflight; }
     }
   } catch (error) { if (input.kind === 'qualify') starting = false; send(input, 'failure', { reason: generationFailureReason(error) }); }

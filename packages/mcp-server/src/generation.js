@@ -148,12 +148,12 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
     if (name === 'agdf_record' && args.command?.kind === 'runtime_generation.replace'
       || name === 'agdf_inspect' && args.operation === 'runtime-generations') {
       const result = await controlRuntime.tool(name).execute(controlRuntime.tool(name).parse(args));
-      return name === 'agdf_inspect' && result.report?.available ? { ...result, report: await control.refresh() } : result;
+      return controlRuntime.projectToolResult(name, args, name === 'agdf_inspect' && result.report?.available ? { ...result, report: await control.refresh() } : result);
     }
     if (name === 'agdf_inspect' && args.operation === 'operation-status' && receipts.has(args.module)) {
       const validated = await controlRuntime.tool(name).execute(controlRuntime.tool(name).parse(args));
-      if (validated.report?.status === 'unknown' || validated.report?.status === 'absent') return { ...validated, report: control.inspect(args.module, args) };
-      return validated;
+      return controlRuntime.projectToolResult(name, args, validated.report?.status === 'unknown' || validated.report?.status === 'absent'
+        ? { ...validated, report: control.inspect(args.module, args) } : validated);
     }
     const knownSession = args.session_id && routes.get(args.session_id);
     if (args.session_id && !knownSession) throw new DispatchExecutionError('session_expired', 'not_dispatched');
@@ -198,7 +198,7 @@ export async function createOwnedGenerationFacade({ runtime, publisher, createCo
   // The server supplies actual initialize/request context only at this seam.
   for (const tool of tools) tool.execute = (input, signal, host) => invoke(tool.name, input, host, signal);
   return Object.freeze({ ...runtime, tools, tool: name => tools.find(tool => tool.name === name),
-    postprocessToolResult: undefined, inspectOwnership: status, runtimeControl: control,
+    requiresProjectedResult: true, postprocessToolResult: undefined, inspectOwnership: status, runtimeControl: control,
     async close() {
       if (closed) return; closed = true;
       const previous = current; current = null; if (previous && !previous.exited) previous.state = 'draining';

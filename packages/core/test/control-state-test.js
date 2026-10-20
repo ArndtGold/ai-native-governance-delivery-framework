@@ -36,7 +36,7 @@ import { parseControlState, RUN_ID_PATTERN } from "../lib/control-state/run-stat
 import { sealRunState } from "../lib/control-state/run-seal.js";
 import { validateRunIdentity, RUN_ID_PATTERN as identityRunIdPattern } from "../lib/control-state/run-identity.js";
 import { evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
-import { evaluateDoctor } from "../lib/control-evaluation/doctor.js";
+import { evaluateDoctor, evaluateDoctorWithRunState } from "../lib/control-evaluation/doctor.js";
 import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
 import { recordRunStep } from "../lib/control-state/run-steps.js";
 import { initializeCanonicalControl } from "../../cli/lib/scaffold/canonical-init.js";
@@ -114,6 +114,34 @@ try {
   );
   const parsed = parseRunState(readFileSync(a, "utf8"), "run-a");
   assert.equal(parsed.valid, true);
+  {
+    const observationRoot = mkdtempSync(join(tmpdir(), "agdf-gate-observation-"));
+    try {
+      initializeCanonicalControl(observationRoot, generatedFilesForTarget("init", observationRoot, false, "en"));
+      const path = createRun(observationRoot, "observation", "## Objective\n\nFirst observation.\n");
+      const selection = { runId: "observation" };
+      const first = evaluateDoctorWithRunState(observationRoot, selection);
+      assert.match(first.runState.content, /First observation\./u);
+      assert.deepEqual(first.report.findings, evaluateDoctor(observationRoot, selection).findings);
+      const previous = parseRunState(readFileSync(path, "utf8"), "observation").meta.revision_id;
+      writeFileSync(path, readFileSync(path, "utf8").replace("First observation.", "Second observation."));
+      assert.equal(recordRunRevision(observationRoot, { runId: "observation", revisionId: previous }).outcome, "updated");
+      const second = evaluateDoctorWithRunState(observationRoot, selection);
+      assert.match(second.runState.content, /Second observation\./u);
+      assert.notEqual(second.runState.meta.revision_id, first.runState.meta.revision_id);
+      assert.equal(evaluateGateCheck(observationRoot, selection).status_card.run_id, "observation");
+      assert.match(first.runState.content, /First observation\./u, "later evaluations cannot mutate a retained observation");
+      const all = evaluateDoctorWithRunState(observationRoot, { allActive: true });
+      assert.equal(all.runState, undefined, "an aggregate doctor report cannot become a selected Run");
+      assert.equal(all.report.runs.length, 1);
+      writeFileSync(path, readFileSync(path, "utf8").replace("Second observation.", "Unsealed change."));
+      assert.ok(evaluateGateCheck(observationRoot, selection).doctor_report.findings.some(finding => finding.code === "AGDF_RUN_SEAL_MISMATCH"),
+        "a later call must validate current bytes rather than reuse an earlier successful observation");
+      const missing = evaluateDoctorWithRunState(join(observationRoot, "missing"), selection);
+      assert.equal(missing.runState, undefined);
+      assert.equal(missing.report.status, "block");
+    } finally { rmSync(observationRoot, { recursive: true, force: true }); }
+  }
   const controlStateFixture = `# AGDF Run State
 
 ## Approvals

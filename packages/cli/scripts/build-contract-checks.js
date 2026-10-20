@@ -121,9 +121,13 @@ export function checkLateGateTransitions() {
         mkdirSync(join(tempDir, prefix), { recursive: true });
         writeFileSync(join(tempDir, prefix, 'UR.md'), '# UR: Personal filter\n\n## Goal\nSave and restore the user-owned personal filter through the existing storage owner.\n');
         writeFileSync(join(tempDir, prefix, 'QA_REPORT.md'), '# QA: Personal filter\nDecision: pass\n\n## TP Coverage\n- delivered_result: The user-owned filter is saved and restored through the existing storage owner, verified in the disposable transition test.\n\n## Missing Evidence\n- qualification_limits: none\n\n## Risks\n- delivery_risks: none\n');
+        for (const step of ['Brownfield Analysis', 'CD+Tests', 'CR']) {
+          writeFileSync(join(tempDir, prefix, step.replace(/[^A-Za-z]+/g, '_').toUpperCase() + '.md'),
+            `# ${step}\nDecision: pass\n\nThe disposable late-gate fixture records its completed scoped verification.\n`);
+        }
       }
       const internalRows = ["Brownfield Analysis", "CD+Tests", "CR", "TP Review", "Clean Implementation Review"]
-        .map((step) => `| ${step} | ${testCase.steps[step] ? `${step.replace(/[^A-Za-z]+/g, "_").toUpperCase()}.md` : ""} | ${testCase.steps[step] ?? "missing"} | |`)
+        .map((step) => `| ${step} | ${testCase.steps[step] ? `${concreteUat ? prefix : ''}${step.replace(/[^A-Za-z]+/g, "_").toUpperCase()}.md` : ""} | ${testCase.steps[step] ?? "missing"} | |`)
         .join("\n");
       writeFileSync(runPath, `# AGDF Run State
 

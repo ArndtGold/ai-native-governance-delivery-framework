@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
+import { createTestRuntime } from '../../../mcp-server/test/runtime-fixture.js';
 import { buildAgdfServer } from '../../../mcp-server/src/server.js';
 import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.js';
 import { createCockpitSessionService } from '../../../core/lib/control-inspect/cockpit-session.js';
@@ -18,7 +19,7 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
   const ui = readCockpitUiBuild(), session = createCockpitSessionService(f.root);
   const tools = [COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION].map((definition, i) => ({ name: definition.name, definition,
     parse: value => parseCockpitArguments(value, i === 0), execute: (value, signal) => i === 0 ? session.render(value) : session.read(value, signal) }));
-  const runtime = { mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools, uiCapabilityRequired: true, responseLimit: 8 * 1024 ** 2,
+  const runtime = { ...createTestRuntime(), mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools, uiCapabilityRequired: true, responseLimit: 8 * 1024 ** 2,
     ui: { uri: ui.manifest.uri, mimeType: ui.manifest.mime_type, limit: 4 * 1024 ** 2, directory: pathToFileURL(ui.root + '/') },
     trustedContext: { surface: 'codex', expectedVersion: 'synthetic-test', provenanceStatus: 'matched' },
     serialize: JSON.stringify, failure: session.failure, close: session.close };
@@ -103,6 +104,65 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
   } finally {
     // The rejected-close case intentionally leaves its Core session open.
     // End the fixture before awaiting HTTP shutdown so long polls can finish.
+    await sdkServer.closeAgdfRuntime();
+    if (server) await new Promise(resolve => server.close(resolve));
+    await client.close(); await sdkServer.close(); f.close(); rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('MCP negative read retains correction; blocked run remains a successful view (synthetic SDK host)', async ({ page }) => {
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf-mcp-error-browser-')), f = fixture(), before = treeBytes(f.root);
+  f.register('PRD', '.agdf/control/artefacts/fixture-a/MISSING.md');
+  const protectedBefore = treeBytes(f.root);
+  const ui = readCockpitUiBuild(), session = createCockpitSessionService(f.root);
+  let deny = false, server;
+  const replies = [];
+  const tools = [COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION].map((definition, i) => ({ name: definition.name, definition,
+    parse: value => parseCockpitArguments(value, i === 0), execute: (value, signal) => deny && value.operation === 'document'
+      ? session.failure('source_changed') : i === 0 ? session.render(value) : session.read(value, signal) }));
+  const runtime = { ...createTestRuntime(), mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools, uiCapabilityRequired: true, responseLimit: 8 * 1024 ** 2,
+    ui: { uri: ui.manifest.uri, mimeType: ui.manifest.mime_type, limit: 4 * 1024 ** 2, directory: pathToFileURL(ui.root + '/') },
+    serialize: JSON.stringify, failure: session.failure, close: session.close };
+  const sdkServer = buildAgdfServer({ runtime }), client = new Client({ name: 'synthetic-errors', version: '1' }, {
+    capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: [ui.manifest.mime_type] } } },
+  });
+  const [a, b] = InMemoryTransport.createLinkedPair();
+  try {
+    await sdkServer.connect(b); await client.connect(a);
+    const prepared = await client.callTool({ name: 'agdf_cockpit', arguments: { run_id: 'fixture-a' } });
+    expect(prepared.isError).toBeUndefined(); expect(prepared._meta.agdf_cockpit.session_id).toBeTruthy();
+    await build({ configFile: false, logLevel: 'error', build: { outDir: temporary, emptyOutDir: false,
+      lib: { entry: new URL('./sdk-trace-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' }, target: 'es2022', minify: false } });
+    server = createServer(async (req, res) => {
+      if (req.url === '/tool') {
+        const buffers = []; for await (const bytes of req) buffers.push(bytes);
+        const input = JSON.parse(Buffer.concat(buffers).toString()), result = await client.callTool(input); replies.push({ input, result });
+        res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
+      }
+      if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
+      res.setHeader('content-type', req.url === '/host.js' ? 'text/javascript' : 'text/html');
+      res.end(req.url === '/cockpit.html' ? ui.files['cockpit.html'] : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
+        : '<!doctype html><iframe title="Synthetic Cockpit" style="width:100%;height:1400px"></iframe><script type="module" src="/host.js"></script>');
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    await page.goto('http://127.0.0.1:' + server.address().port);
+    const frame = page.frameLocator('iframe');
+    await expect(frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true })).toBeVisible();
+    const run = replies.find(row => row.input.arguments.operation === 'snapshot').result;
+    expect(run.isError).toBeUndefined(); expect(run.structuredContent.data.run.evaluation.blocking_reason).not.toBe('none');
+    expect(run.structuredContent.data.run.document_states.some(row => row.source_state === 'missing')).toBe(true);
+    await expect(frame.getByText('Dokument nicht verfügbar.', { exact: true })).toBeVisible();
+    await page.screenshot({ path: evidencePath('mcp-cockpit-blocked-run.png'), fullPage: true });
+    deny = true;
+    await frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
+    await expect(frame.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.', { exact: true })).toBeVisible();
+    const negative = replies.findLast(row => row.input.arguments.operation === 'document').result;
+    expect(negative.isError).toBe(true); expect(negative.content).toHaveLength(2); expect(negative.structuredContent.code).toBe('source_changed');
+    await page.screenshot({ path: evidencePath('mcp-cockpit-read-error.png'), fullPage: true });
+    expect(treeBytes(f.root)).toEqual(protectedBefore);
+  } finally {
+    // Finish session long polls before closing their SDK connection, as in the
+    // adjacent close scenarios; a read still in flight must be able to settle.
     await sdkServer.closeAgdfRuntime();
     if (server) await new Promise(resolve => server.close(resolve));
     await client.close(); await sdkServer.close(); f.close(); rmSync(temporary, { recursive: true, force: true });

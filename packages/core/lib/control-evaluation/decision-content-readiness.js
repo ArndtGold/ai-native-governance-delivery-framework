@@ -2,6 +2,7 @@ import { readFileSync, statSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { readAuthoredContent, readReportDecision } from './report-decision.js';
+import { inspectQaReports } from './qa-follow-up.js';
 
 const prompts = new Set(['describe the trustworthy outcome.', 'what outcome should become possible?',
   'which tp tasks are fully done, partially done or not done?', 'what remains unverified?', 'which risks remain and what is their impact?']);
@@ -92,6 +93,15 @@ export function observeDecisionContent(root, state, { gate, locale = 'en', sourc
     }
     groups.qa = readReportDecision(qa.text);
     if (!groups.qa) gap('QA Decision', qa.path, 'qa-gate', 'technical_result_unconfirmed');
+    if (groups.qa === 'pass') {
+      const quality = inspectQaReports(root, state, state.run_id, 'pass', 64, true, { readArtefact });
+      if (quality.kind !== 'none' || quality.findings.length) {
+        gap('Normalized Findings', qa.path, 'qa-gate', quality.reason || 'open_review_findings_contradict_pass');
+      }
+      for (const observed of quality.sources) if (!sources.some(item => item.path === observed.path)) {
+        sources.push({ type: 'Review', path: observed.path, digest: observed.digest });
+      }
+    }
     const localized = localizedDecisionFields('QA', qa.text, { locale, sourceLanguage, path: qa.path });
     for (const missing of localized.gaps) gap(missing.field, qa.path, 'qa-gate', 'localized_content_missing');
     Object.assign(groups, localized.fields);

@@ -3,6 +3,7 @@ import { cleanStatusCell, filled, isPlaceholderValue, markdownSection, tableRows
 import { canonicalJson, digest } from '../control-state/approval-command-contract.js';
 import { readReportDecision } from './report-decision.js';
 import { STRUCTURED_REQUIRED_REVIEWS } from '../control-state/evidence-bindings.js';
+import { inspectQaReports } from './qa-follow-up.js';
 
 export { STRUCTURED_REQUIRED_REVIEWS };
 // `Clean Review` is the supported legacy name of the Clean Implementation Review row.
@@ -60,6 +61,10 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
       || value(report, 'accepted_qa_deviations_digest') !== state.qa_acceptance.digest)) fail('closeout_qa_deviations_not_disclosed');
     const qaAssociation = state.evidence_applicability?.by_step.get('QA');
     if (qaAssociation && qaAssociation.applicability !== 'current') fail('closeout_qa_association_not_current');
+    if (prepared && !state.qa_acceptance?.accepted) {
+      const quality = inspectQaReports('', state, state.run_id, 'pass', 64, true, { readArtefact });
+      if (quality.kind !== 'none' || quality.findings.length) fail('closeout_quality_unconfirmed');
+    }
     const context = closeoutContext(report);
     if (!['resolved', 'not_applicable'].includes(context.context_graph_reconciliation)
       || !['none', 'warning'].includes(context.context_graph_gate_effect) || context.context_graph_required_action !== 'none'

@@ -147,18 +147,28 @@ Normalized finding rows use these fields in order:
 - `gap_type` is exactly one type from the table above.
 - `routing_target` is exactly `UR | PRD | SD | TP | CD+Tests | evidence_obligation` and must agree
   with the fixed route above. `requirements_gap` may use `UR` only with evidence of changed user
-  intent or scope. `emergent_risk` requires an explicit earliest-owner assessment.
+  intent or scope. An open `emergent_risk` requires an explicit earliest-owner assessment
+  before routing corrective work; a resolved row retains its original route and resolution evidence.
 - `gap_status` is exactly `open | resolved`.
 - `evidence` names concrete source, diff, test, observation or missing proof.
-- `required_next_step` is exactly one executable action consistent with the routing target.
+- `required_next_step` for an open finding is exactly one executable action consistent with
+  the routing target. A resolved finding may state `none`, explain that no further corrective
+  action remains, or name its subsequent review/lifecycle step. Its evidence must remain concrete;
+  resolution never makes a missing field, invalid type/route or placeholder evidence valid.
 
 Missing, unknown or contradictory fields fail closed as an open gap. Consumers must not silently
 reclassify a finding. Classification is non-authorizing: it cannot edit or approve UR, PRD, SD or TP,
 advance a gate or replace a review decision. `qa-gate` consumes the normalized findings and cannot
 return `pass` while any applicable finding is open or invalid.
 
-`none` is permitted only as a presentation sentinel on a fulfilled UX Intent Fidelity row.
-It is not a seventh normalized finding type and must not appear in a normalized finding row.
+`none` is not a seventh normalized finding type. It is permitted as a presentation sentinel on a
+fulfilled UX Intent Fidelity row and as `required_next_step` on a resolved finding, never as
+`gap_type`, `routing_target` or resolution evidence. Open findings still require executable action.
+
+Current QA/UAT decision preparation and prepared closeout use the same normalized-finding
+observer. A technical pass cannot present a human approval while a registered review contains
+an open or invalid finding. Historical approved reports are observed without rewriting their
+bytes, decisions or receipts; a resolved finding does not require a new repair or a new approval.
 
 A consumer may repeat the field order and allowed scalar values needed to emit valid output. It must
 reference this section for meanings and routes instead of maintaining a second complete mapping.

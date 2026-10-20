@@ -68,6 +68,9 @@ for (const modern of [false, true]) {
       }
       const staleDescription = await client.callTool({ name: 'agdf_inspect', arguments: { ...inspectBinding, expected_revision_id: randomUUID(), operation: 'operation-contract', module: 'agdf_record/step.record' } });
       assert.equal(staleDescription.structuredContent.report.available, false);
+      assert.equal(staleDescription.isError, true); assert.equal(staleDescription.content.length, 2);
+      assert.match(staleDescription.content[1].text, /operation_binding_stale_or_invalid/);
+      assert.match(staleDescription.content[1].text, /current state|binding/);
       assert.equal(staleDescription.structuredContent.report.reason, 'operation_binding_stale_or_invalid');
       for (const module of ['prepare/presentation.prepare', 'agdf_record/approval.record', 'agdf_approve/unknown', 'shell/execute']) {
         const invalid = await client.callTool({ name: 'agdf_inspect', arguments: { ...inspectBinding, operation: 'operation-contract', module } });
@@ -86,8 +89,12 @@ for (const modern of [false, true]) {
         assert.equal(rejected.isError, true);
       }
       assert.equal(readFileSync(f.state, 'utf8'), before);
+      const staleWrite = await client.callTool({ name: 'agdf_record', arguments: { ...input, expected_revision_id: randomUUID(), operation_id: randomUUID() } });
+      assert.equal(staleWrite.isError, true); assert.equal(staleWrite.structuredContent.reason, 'stale_revision');
+      assert.equal(staleWrite.content.length, 2); assert.equal(readFileSync(f.state, 'utf8'), before);
       const result = await client.callTool({ name: 'agdf_record', arguments: input });
       assert.equal(result.structuredContent.outcome, 'accepted', JSON.stringify(result));
+      assert.equal(result.isError, undefined); assert.equal(result.content.length, 1);
       assert.equal(result.structuredContent.receipt.operation_id, input.operation_id);
       assert.equal(result.structuredContent.authorizes, false);
       const recorded = readFileSync(f.state, 'utf8');

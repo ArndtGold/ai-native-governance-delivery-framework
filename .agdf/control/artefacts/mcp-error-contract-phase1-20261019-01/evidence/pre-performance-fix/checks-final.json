@@ -1,0 +1,721 @@
+{
+  "schema_version": "1",
+  "checks": [
+    {
+      "group": "build",
+      "name": "ui-dependencies",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "ci",
+        "--ignore-scripts"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:24:12.531992+00:00",
+      "completed_at": "2026-10-19T16:24:19.502972+00:00",
+      "exit_code": 0,
+      "log": "ui-dependencies.log"
+    },
+    {
+      "group": "build",
+      "name": "ui-mcp-build",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "build:mcp"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:24:19.503944+00:00",
+      "completed_at": "2026-10-19T16:24:22.368071+00:00",
+      "exit_code": 0,
+      "log": "ui-mcp-build.log"
+    },
+    {
+      "group": "build",
+      "name": "generate",
+      "command": [
+        "node",
+        "scripts/sync-package-assets.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:24:22.368664+00:00",
+      "completed_at": "2026-10-19T16:24:25.339598+00:00",
+      "exit_code": 1,
+      "log": "generate.log"
+    },
+    {
+      "group": "build",
+      "name": "payload-budget",
+      "command": [
+        "node",
+        "scripts/payload-budget.js",
+        "--accept",
+        "--files",
+        "395",
+        "--bytes",
+        "3438545",
+        "--reason",
+        "Measured MCP error-contract payload: one pure Core projector plus existing runtime and EN/DE locale changes. Exact generated inventory without spare headroom; response caps and evaluation baselines stay unchanged."
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:24:25.342425+00:00",
+      "completed_at": "2026-10-19T16:24:25.703618+00:00",
+      "exit_code": 0,
+      "log": "payload-budget.log"
+    },
+    {
+      "group": "build",
+      "name": "build-prepare",
+      "command": [
+        "npm",
+        "run",
+        "build:prepare"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:24:25.704336+00:00",
+      "completed_at": "2026-10-19T16:25:45.864403+00:00",
+      "exit_code": 0,
+      "log": "build-prepare.log"
+    },
+    {
+      "group": "build",
+      "name": "compatibility-record",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:record"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:25:45.865825+00:00",
+      "completed_at": "2026-10-19T16:27:57.952613+00:00",
+      "exit_code": 0,
+      "log": "compatibility-record.log"
+    },
+    {
+      "group": "build",
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:27:57.956111+00:00",
+      "completed_at": "2026-10-19T16:29:52.797640+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "group": "build",
+      "name": "mcp-dependencies",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "ci",
+        "--ignore-scripts",
+        "--cache",
+        "/private/tmp/agdf-mcp-contract-npm-cache",
+        "--offline"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:29:52.799085+00:00",
+      "completed_at": "2026-10-19T16:30:07.567995+00:00",
+      "exit_code": 0,
+      "log": "mcp-dependencies.log"
+    },
+    {
+      "group": "mcp",
+      "name": "worker-safety",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:safety"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:31:02.314245+00:00",
+      "completed_at": "2026-10-19T16:31:03.718301+00:00",
+      "exit_code": 0,
+      "log": "worker-safety.log"
+    },
+    {
+      "group": "mcp",
+      "name": "generation",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:generation"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:31:03.719141+00:00",
+      "completed_at": "2026-10-19T16:32:17.961245+00:00",
+      "exit_code": 0,
+      "log": "generation.log"
+    },
+    {
+      "group": "mcp",
+      "name": "protocol",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:protocol"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:32:17.977351+00:00",
+      "completed_at": "2026-10-19T16:36:22.021789+00:00",
+      "exit_code": 0,
+      "log": "protocol.log"
+    },
+    {
+      "group": "mcp",
+      "name": "cockpit-gating",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:cockpit-gating"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:36:22.024127+00:00",
+      "completed_at": "2026-10-19T16:36:46.076816+00:00",
+      "exit_code": 0,
+      "log": "cockpit-gating.log"
+    },
+    {
+      "group": "mcp",
+      "name": "command-recovery",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:run-command-flow"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:36:46.079871+00:00",
+      "completed_at": "2026-10-19T16:46:07.444761+00:00",
+      "exit_code": 1,
+      "log": "command-recovery.log"
+    },
+    {
+      "group": "mcp",
+      "name": "package",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:package"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:46:07.451596+00:00",
+      "completed_at": "2026-10-19T16:47:00.296485+00:00",
+      "exit_code": 0,
+      "log": "package.log"
+    },
+    {
+      "group": "mcp",
+      "name": "provenance",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:provenance"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:47:00.342528+00:00",
+      "completed_at": "2026-10-19T16:48:07.718341+00:00",
+      "exit_code": 0,
+      "log": "provenance.log"
+    },
+    {
+      "group": "mcp",
+      "name": "sdk-digest",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:sdk-digest"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:48:07.724387+00:00",
+      "completed_at": "2026-10-19T16:48:10.134417+00:00",
+      "exit_code": 0,
+      "log": "sdk-digest.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-contract",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:contract"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:48:10.506616+00:00",
+      "completed_at": "2026-10-19T16:48:15.472846+00:00",
+      "exit_code": 0,
+      "log": "mcp-contract.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-continuation",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:continuation"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:48:15.473629+00:00",
+      "completed_at": "2026-10-19T16:49:16.471941+00:00",
+      "exit_code": 0,
+      "log": "mcp-continuation.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-late-source-revision",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:late-source-revision"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:49:16.472796+00:00",
+      "completed_at": "2026-10-19T16:55:08.242577+00:00",
+      "exit_code": 0,
+      "log": "mcp-late-source-revision.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-performance",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:performance"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:55:08.281436+00:00",
+      "completed_at": "2026-10-19T16:56:34.207109+00:00",
+      "exit_code": 1,
+      "log": "mcp-performance.log"
+    },
+    {
+      "group": "cli",
+      "name": "core-command-recovery",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:run-command-flow"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:56:34.208151+00:00",
+      "completed_at": "2026-10-19T17:08:18.088979+00:00",
+      "exit_code": 0,
+      "log": "core-command-recovery.log"
+    },
+    {
+      "group": "cli",
+      "name": "interaction-presentation",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:interaction-presentation"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:08:18.092524+00:00",
+      "completed_at": "2026-10-19T17:08:25.546645+00:00",
+      "exit_code": 0,
+      "log": "interaction-presentation.log"
+    },
+    {
+      "group": "cli",
+      "name": "operational-localization",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:operational-localization"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:08:25.549628+00:00",
+      "completed_at": "2026-10-19T17:08:51.597863+00:00",
+      "exit_code": 0,
+      "log": "operational-localization.log"
+    },
+    {
+      "group": "cli",
+      "name": "packed-runtime",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:plugin-mcp-runtime"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:08:51.599914+00:00",
+      "completed_at": "2026-10-19T17:09:54.672004+00:00",
+      "exit_code": 0,
+      "log": "packed-runtime.log"
+    },
+    {
+      "group": "cli",
+      "name": "cockpit-variant",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/cli",
+        "run",
+        "test:plugin-mcp-cockpit-variant"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:09:54.678118+00:00",
+      "completed_at": "2026-10-19T17:09:56.462481+00:00",
+      "exit_code": 0,
+      "log": "cockpit-variant.log"
+    },
+    {
+      "group": "cli",
+      "name": "host-compatibility-tests",
+      "command": [
+        "npm",
+        "run",
+        "test:host-compatibility"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:09:56.463424+00:00",
+      "completed_at": "2026-10-19T17:12:23.070763+00:00",
+      "exit_code": 0,
+      "log": "host-compatibility-tests.log"
+    },
+    {
+      "group": "cli",
+      "name": "compatibility-check",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:check"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:12:23.074927+00:00",
+      "completed_at": "2026-10-19T17:12:25.884780+00:00",
+      "exit_code": 0,
+      "log": "compatibility-check.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-structured-flow-recheck",
+      "command": [
+        "node",
+        "packages/mcp-server/test/structured-flow.test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:12:25.885689+00:00",
+      "completed_at": "2026-10-19T17:16:34.892213+00:00",
+      "exit_code": 0,
+      "log": "mcp-structured-flow-recheck.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-revision-command-recheck",
+      "command": [
+        "node",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:16:34.895245+00:00",
+      "completed_at": "2026-10-19T17:18:56.924903+00:00",
+      "exit_code": 0,
+      "log": "mcp-revision-command-recheck.log"
+    },
+    {
+      "group": "cli",
+      "name": "mcp-expanded-source-revision-recheck",
+      "command": [
+        "node",
+        "packages/mcp-server/test/expanded-source-revision.test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:18:56.935935+00:00",
+      "completed_at": "2026-10-19T17:27:25.128933+00:00",
+      "exit_code": 0,
+      "log": "mcp-expanded-source-revision-recheck.log"
+    },
+    {
+      "group": "static",
+      "name": "package-boundaries",
+      "command": [
+        "node",
+        "scripts/check-package-boundaries.mjs"
+      ],
+      "started_at": "2026-10-19T16:31:16.324721+00:00",
+      "completed_at": "2026-10-19T16:31:21.841925+00:00",
+      "exit_code": 0,
+      "log": "package-boundaries.log"
+    },
+    {
+      "group": "static",
+      "name": "verification",
+      "command": [
+        "npm",
+        "run",
+        "test:verification"
+      ],
+      "started_at": "2026-10-19T16:31:21.841986+00:00",
+      "completed_at": "2026-10-19T16:32:19.051606+00:00",
+      "exit_code": 0,
+      "log": "verification.log"
+    },
+    {
+      "group": "static",
+      "name": "inventory",
+      "command": [
+        "node",
+        "scripts/ci-plan-test.mjs"
+      ],
+      "started_at": "2026-10-19T16:32:19.051711+00:00",
+      "completed_at": "2026-10-19T16:32:28.932669+00:00",
+      "exit_code": 0,
+      "log": "inventory.log"
+    },
+    {
+      "group": "ui",
+      "name": "ui-components",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "test"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:01:38.437995+00:00",
+      "completed_at": "2026-10-19T16:03:14.426393+00:00",
+      "exit_code": 0,
+      "log": "ui-components.log"
+    },
+    {
+      "group": "ui",
+      "name": "ui-typecheck",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:03:14.430224+00:00",
+      "completed_at": "2026-10-19T16:03:16.871425+00:00",
+      "exit_code": 0,
+      "log": "ui-typecheck.log"
+    },
+    {
+      "group": "ui",
+      "name": "browser-build",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:03:16.872256+00:00",
+      "completed_at": "2026-10-19T16:03:20.529962+00:00",
+      "exit_code": 0,
+      "log": "browser-build.log"
+    },
+    {
+      "group": "ui",
+      "name": "browser",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "test:browser"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T16:03:20.530725+00:00",
+      "completed_at": "2026-10-19T16:10:00.892470+00:00",
+      "exit_code": 1,
+      "log": "browser.log"
+    },
+    {
+      "group": "evaluation",
+      "name": "protocol-after",
+      "command": [
+        "npm",
+        "run",
+        "eval:mcp-ergonomics:protocol",
+        "--",
+        "--out",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/protocol-after.json"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:30:40.548164+00:00",
+      "completed_at": "2026-10-19T17:32:30.759292+00:00",
+      "exit_code": 0,
+      "log": "protocol-after.log"
+    },
+    {
+      "group": "evaluation",
+      "name": "tools-after",
+      "command": [
+        "npm",
+        "run",
+        "eval:mcp-ergonomics:protocol",
+        "--",
+        "--capture-tools",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/tools-after.json"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:32:30.760051+00:00",
+      "completed_at": "2026-10-19T17:32:49.467498+00:00",
+      "exit_code": 0,
+      "log": "tools-after.log"
+    },
+    {
+      "group": "evaluation",
+      "name": "compare-historical",
+      "command": [
+        "node",
+        "evals/scripts/compare-mcp-ergonomics.js",
+        "--baseline",
+        "evals/mcp-ergonomics/baselines/2026-10-16-win32-x64",
+        "--protocol",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/protocol-after.json"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:32:49.468243+00:00",
+      "completed_at": "2026-10-19T17:32:49.989051+00:00",
+      "exit_code": 1,
+      "log": "compare-historical.log"
+    },
+    {
+      "group": "evaluation",
+      "name": "compare-tools",
+      "command": [
+        "node",
+        "evals/scripts/compare-mcp-ergonomics.js",
+        "--tools-before",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/tools-before.json",
+        "--tools-after",
+        "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/tools-after.json"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:32:49.989749+00:00",
+      "completed_at": "2026-10-19T17:32:50.457537+00:00",
+      "exit_code": 0,
+      "log": "compare-tools.log"
+    },
+    {
+      "group": "evaluation",
+      "name": "compare-current",
+      "command": [
+        "node",
+        "--input-type=module",
+        "--eval",
+        "import {readFileSync,writeFileSync} from 'node:fs';import {compareProtocol} from './evals/mcp-ergonomics/lib/aggregate.js';const e='.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/';const r=compareProtocol(JSON.parse(readFileSync(e+'protocol-before.json')),JSON.parse(readFileSync(e+'protocol-after.json')));writeFileSync(e+'compare-current.json',JSON.stringify(r,null,2)+'\\n');process.stdout.write(JSON.stringify({status:r.status,differences:r.differences.length})+'\\n');process.exitCode=r.status==='unchanged'?0:1;"
+      ],
+      "exit_code": 1,
+      "log": "compare-current.log"
+    },
+    {
+      "group": "followups",
+      "name": "mcp-performance-recheck",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:performance"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:28:34.440172+00:00",
+      "completed_at": "2026-10-19T17:30:06.903219+00:00",
+      "exit_code": 1,
+      "log": "mcp-performance-recheck.log"
+    },
+    {
+      "group": "followups",
+      "name": "browser-final-recheck",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/control-ui",
+        "run",
+        "test:browser",
+        "--",
+        "test/browser/sdk-trace.spec.mjs",
+        "test/browser/mcp-errors.spec.mjs"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:30:06.905306+00:00",
+      "completed_at": "2026-10-19T17:30:40.307105+00:00",
+      "exit_code": 0,
+      "log": "browser-final-recheck.log"
+    },
+    {
+      "group": "followups",
+      "name": "evaluation",
+      "command": [
+        "python3",
+        "/private/tmp/agdf-mcp-contract-eval.py"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:30:40.309558+00:00",
+      "completed_at": "2026-10-19T17:32:53.143600+00:00",
+      "exit_code": 0,
+      "log": "evaluation.log"
+    }
+  ],
+  "browser_disposition": {
+    "full_suite": "browser-report-first.json",
+    "full_suite_passed": 61,
+    "full_suite_failed": 1,
+    "failure": "new fixture closed SDK before pending long poll; production assertions completed",
+    "correction": "same session/HTTP/SDK teardown ordering as adjacent existing cases",
+    "recheck": "browser-report.json",
+    "recheck_expected": 4,
+    "recheck_unexpected": 0,
+    "unchanged_other_browser_cases_passed": 58,
+    "effective_inventory_cases": 62,
+    "all_effective_cases_passed": true,
+    "production_build_unchanged": true,
+    "final_candidate_recheck": "browser-report-final.json",
+    "final_candidate_expected": 15,
+    "final_candidate_unexpected": 0,
+    "ui_artifacts_identical_to_final_build": true
+  },
+  "approved_sources_unchanged": true,
+  "source_digests_verified": true,
+  "native_qualified": false,
+  "cd_tests_decision": "revise",
+  "open_finding": "CD-PERF-001; SCN-023 remains partial; failed performance checks retained"
+}

@@ -1,0 +1,122 @@
+{
+  "evidence_class": "isolated_same_fixture_source_timing_diagnostic",
+  "native_qualified": false,
+  "work_directory": "/private/tmp/agdf-mcp-timing-pair-ejrklazg",
+  "head": "a8a867a3578a2d8b16853860276c401ddd04db28",
+  "performance_test_unchanged": true,
+  "ui_archives_verified": 213,
+  "unavailable_optional_or_unused_archives": 43,
+  "common_control": {
+    "files": 9560,
+    "digest": "sha256:dfcbbccf1de6308c0e175b7e033635385c735dba81e0c1a1c027c867b63ad9cb"
+  },
+  "history_repair": "Copied immutable objects/refs/HEAD into temporary source only; minimal local config, no project Git writes.",
+  "head_artifacts": {
+    "dispatcher_digest": "1d4c3c05a1894b4b6fb191dd82bdab7ecb76dc0accc47a4e75845df470defd54",
+    "server_digest": "30796f9c2bc7a3b8b768296bf75ce2b8418ee39e4c60759a3788d662c58749b7",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+  },
+  "head_test_sha256": "2f606993e96db8adac6a2022005a65d57b07e508805bab1a573745cf84f57eb0",
+  "candidate_artifacts": {
+    "dispatcher_digest": "ddf2910d75f839172af54d3aa023780b2ec1a4699db18795b758bfb594920192",
+    "server_digest": "ca72a43315e082d83ad8fde2fa08b8ba972468d2854a302c3a8bf2e8a1fbd307",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb"
+  },
+  "candidate_test_sha256": "2f606993e96db8adac6a2022005a65d57b07e508805bab1a573745cf84f57eb0",
+  "commands": [
+    {
+      "name": "head-prepare",
+      "command": [
+        "npm",
+        "run",
+        "build:prepare"
+      ],
+      "started_at": "2026-10-19T17:35:06.869395+00:00",
+      "completed_at": "2026-10-19T17:35:27.403333+00:00",
+      "exit_code": 1,
+      "log": "timing-head-prepare.log"
+    },
+    {
+      "name": "head-prepare-recheck",
+      "command": [
+        "npm",
+        "run",
+        "build:prepare"
+      ],
+      "started_at": "2026-10-19T17:37:00.833989+00:00",
+      "completed_at": "2026-10-19T17:37:55.141775+00:00",
+      "exit_code": 0,
+      "log": "timing-head-prepare-recheck.log"
+    },
+    {
+      "name": "head-dependencies",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "ci",
+        "--ignore-scripts",
+        "--offline"
+      ],
+      "started_at": "2026-10-19T17:37:55.143205+00:00",
+      "completed_at": "2026-10-19T17:38:01.791811+00:00",
+      "exit_code": 0,
+      "log": "timing-head-dependencies.log"
+    },
+    {
+      "name": "head-performance",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:performance"
+      ],
+      "started_at": "2026-10-19T17:38:11.606108+00:00",
+      "completed_at": "2026-10-19T17:38:56.450067+00:00",
+      "exit_code": 0,
+      "log": "timing-head-performance.log"
+    },
+    {
+      "name": "candidate-prepare-recheck",
+      "command": [
+        "npm",
+        "run",
+        "build:prepare"
+      ],
+      "started_at": "2026-10-19T17:38:56.508147+00:00",
+      "completed_at": "2026-10-19T17:39:52.512329+00:00",
+      "exit_code": 0,
+      "log": "timing-candidate-prepare-recheck.log"
+    },
+    {
+      "name": "candidate-dependencies",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "ci",
+        "--ignore-scripts",
+        "--offline"
+      ],
+      "started_at": "2026-10-19T17:39:52.513284+00:00",
+      "completed_at": "2026-10-19T17:39:59.188912+00:00",
+      "exit_code": 0,
+      "log": "timing-candidate-dependencies.log"
+    },
+    {
+      "name": "candidate-performance",
+      "command": [
+        "npm",
+        "--prefix",
+        "packages/mcp-server",
+        "run",
+        "test:performance"
+      ],
+      "started_at": "2026-10-19T17:40:08.869620+00:00",
+      "completed_at": "2026-10-19T17:40:58.887977+00:00",
+      "exit_code": 1,
+      "log": "timing-candidate-performance.log"
+    }
+  ]
+}

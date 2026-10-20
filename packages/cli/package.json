@@ -97,7 +97,7 @@
     "test:control-inspect": "node scripts/control-inspect-test.js && node scripts/active-run-inventory-test.js && node ../core/test/artifact-readiness-test.js",
     "test:host-command": "node scripts/host-command-test.js && node scripts/codex-plugin-list-budget-test.js",
     "test:mcp-lifecycle": "node scripts/mcp-lifecycle-test.js",
-    "test:plugin-mcp-runtime": "node scripts/plugin-mcp-runtime-test.js && node scripts/mcp-runtime-retention-test.js",
+    "test:plugin-mcp-runtime": "node scripts/plugin-mcp-runtime-test.js && node scripts/mcp-runtime-retention-test.js && node ../core/test/mcp-tool-errors-test.js",
     "test:plugin-mcp-cockpit-variant": "node scripts/plugin-mcp-cockpit-variant-test.js",
     "test:claude-plugin-mcp": "node scripts/claude-plugin-mcp-test.js",
     "test:codex-plugin-mcp": "node scripts/codex-plugin-mcp-test.js",

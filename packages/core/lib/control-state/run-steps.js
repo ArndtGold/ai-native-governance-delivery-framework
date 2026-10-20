@@ -359,7 +359,12 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       operationSource = readOperationSource(root, runId, input.sourceBinding);
       const report = operationSource.content;
       const readiness = evaluateCloseoutReadiness(control, report, path => readRunArtefact(root, runId, path), { prepared: true });
-      if (!readiness.ready) return rejected(runId, 'closeout_obligations_unfulfilled', { findings: readiness.findings });
+      if (!readiness.ready) {
+        // The quality obligation still names the decisive finding and, where available, its correction path.
+        const qa = readiness.findings.includes('closeout_quality_unconfirmed') ? inspectQaReports(root, control, runId, 'pass', 64, true) : null;
+        return rejected(runId, 'closeout_obligations_unfulfilled', { findings: readiness.findings,
+          ...(qa?.reason ? { reason_detail: closeoutQualityDetail(qa, control) } : {}) });
+      }
       if (!exactApprovedArtefacts(root, control)) return rejected(runId, 'approved_source_proof_invalid');
       // The current exact acceptance projection already validates every remaining
       // evidence finding against its receipt. Do not reinterpret its retained
@@ -444,7 +449,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     if (failed) return failed;
   }
 
-  const summary = runWorkSummary(root, text, run.path, after);
+  // Owned outputs are published before the precommit source check, so the summary reads them as proposed.
+  const summary = runWorkSummary(root, text, run.path, after, { proposed: new Map([...proposedArtefacts].map(([path, row]) => [path, row.content])) });
   const statusLabel = backlogStatusForSummary(summary, after);
   let backlogPlan = backlog
     ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })

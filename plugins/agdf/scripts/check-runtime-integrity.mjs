@@ -2263,7 +2263,7 @@ if (isFile(qualityContractPath)) {
     "emergent_risk",
     "UR | PRD | SD | TP | CD+Tests | evidence_obligation",
     "gap_status` is exactly `open | resolved",
-    "It is not a seventh normalized finding type",
+    "`none` is not a seventh normalized finding type",
   ]) {
     if (!contract.includes(required)) failures.push(`quality contract missing normalized review-gap invariant: ${required}`);
   }

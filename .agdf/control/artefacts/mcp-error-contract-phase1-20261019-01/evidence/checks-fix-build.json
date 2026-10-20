@@ -1,0 +1,95 @@
+[
+  {
+    "name": "fix-control-state",
+    "command": [
+      "node",
+      "packages/core/test/control-state-test.js"
+    ],
+    "started_at": "2026-10-19T18:07:14.324786+00:00",
+    "completed_at": "2026-10-19T18:08:03.790146+00:00",
+    "exit_code": 0,
+    "log": "fix-control-state.log"
+  },
+  {
+    "name": "fix-generate",
+    "command": [
+      "node",
+      "scripts/sync-package-assets.js"
+    ],
+    "started_at": "2026-10-19T18:08:03.791554+00:00",
+    "completed_at": "2026-10-19T18:08:08.136394+00:00",
+    "exit_code": 1,
+    "log": "fix-generate.log"
+  },
+  {
+    "name": "fix-payload",
+    "command": [
+      "node",
+      "scripts/payload-budget.js",
+      "--accept",
+      "--files",
+      "395",
+      "--bytes",
+      "3439032",
+      "--reason",
+      "Exact measured Phase 1 payload after removing duplicate Run validation within one gate evaluation; unchanged response and timing limits."
+    ],
+    "started_at": "2026-10-19T18:08:08.139215+00:00",
+    "completed_at": "2026-10-19T18:08:08.604071+00:00",
+    "exit_code": 0,
+    "log": "fix-payload.log"
+  },
+  {
+    "name": "fix-prepare",
+    "command": [
+      "npm",
+      "run",
+      "build:prepare"
+    ],
+    "started_at": "2026-10-19T18:08:08.604693+00:00",
+    "completed_at": "2026-10-19T18:10:21.432374+00:00",
+    "exit_code": 0,
+    "log": "fix-prepare.log"
+  },
+  {
+    "name": "fix-compatibility-record",
+    "command": [
+      "npm",
+      "run",
+      "compatibility:record"
+    ],
+    "started_at": "2026-10-19T18:10:21.433143+00:00",
+    "completed_at": "2026-10-19T18:11:36.789340+00:00",
+    "exit_code": 0,
+    "log": "fix-compatibility-record.log"
+  },
+  {
+    "name": "fix-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "started_at": "2026-10-19T18:11:36.790102+00:00",
+    "completed_at": "2026-10-19T18:12:42.444499+00:00",
+    "exit_code": 0,
+    "log": "fix-build.log"
+  },
+  {
+    "name": "fix-mcp-dependencies",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "ci",
+      "--ignore-scripts",
+      "--cache",
+      "/private/tmp/agdf-mcp-contract-npm-cache",
+      "--offline"
+    ],
+    "started_at": "2026-10-19T18:12:42.445265+00:00",
+    "completed_at": "2026-10-19T18:12:53.709251+00:00",
+    "exit_code": 0,
+    "log": "fix-mcp-dependencies.log"
+  }
+]

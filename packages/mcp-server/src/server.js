@@ -1,5 +1,6 @@
 import { McpServer, ProtocolError, ProtocolErrorCode, fromJsonSchema } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
+import { AjvJsonSchemaValidator } from '@modelcontextprotocol/server/validators/ajv';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.js";
@@ -8,17 +9,31 @@ import { requestDeclaresMcpAppUi, requestMcpClientInfo, requestMcpClientCapabili
 
 export const SERVER_NAME = "agdf-mcp";
 
-function toolResult(runtime, result, serialize = runtime.serialize, provider, peer) {
-  const { _meta, ...publicResult } = result;
-  const text = serialize(_meta ? publicResult : result);
-  const response = {
-    content: [{ type: "text", text: result.presentation_delivery?.text ?? text }],
-    structuredContent: JSON.parse(text),
-    ...(_meta || provider ? { _meta: { ..._meta, ...(provider ? { 'agdf/provider': provider, 'agdf/peer': peer } : {}) } } : {}),
+function toolResult(runtime, name, input, result, serialize = runtime.serialize, provider, peer, facts) {
+  // A generation must supply its own descriptor. Never reinterpret old results
+  // with the facade's current runtime. Local owners project after postprocessing.
+  const emit = value => {
+    const projected = Object.hasOwn(value._meta ?? {}, 'agdf/tool-result') || runtime.requiresProjectedResult ? value
+      : runtime.projectToolResult(name, input, value, facts);
+    const { domain, metadata, descriptor } = runtime.consumeToolResult(name, projected);
+    const text = serialize(domain);
+    const response = {
+      content: [{ type: 'text', text: domain.presentation_delivery?.text ?? text },
+        ...(descriptor.failed ? [{ type: 'text', text: descriptor.message }] : [])],
+      structuredContent: JSON.parse(text),
+      ...(descriptor.failed ? { isError: true } : {}),
+      ...(Object.keys(metadata).length || provider ? { _meta: { ...metadata,
+        ...(provider ? { 'agdf/provider': provider, 'agdf/peer': peer } : {}) } } : {}),
+    };
+    return response;
   };
-  if (runtime.mode === 'cockpit' && Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) {
-    const failure = runtime.failure('resource_limit');
-    return { content: [{ type: 'text', text: runtime.serialize(failure) }], structuredContent: failure };
+  let response = emit(result);
+  if (runtime.responseLimit && Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) {
+    // The fallback itself is projected, checked and measured; no recursive call.
+    const limitFacts = { code: 'resource_limit', dispatch: 'unknown' };
+    const failure = runtime.projectToolResult(name, input, runtime.failure('resource_limit', name, input, limitFacts), limitFacts);
+    response = emit(failure);
+    if (Buffer.byteLength(JSON.stringify(response), 'utf8') > runtime.responseLimit) throw Error('tool_result_invalid');
   }
   return response;
 }
@@ -35,7 +50,10 @@ export function buildAgdfServer({ runtime, executor } = {}) {
     execute: async (argumentsValue, { toolName, signal } = {}) => {
       const tool = tools.find((entry) => entry.name === (toolName ?? runtime.definition.name));
       if (!tool) throw new DispatchExecutionError("dispatch_worker_failed");
-      return tool.execute(tool.parse(argumentsValue), signal);
+      let parsed;
+      try { parsed = tool.parse(argumentsValue); }
+      catch (error) { const facts = runtime.normalizeFailure(error, { phase: 'parse' }); throw new DispatchExecutionError(facts.code, facts.dispatch, facts.field); }
+      return tool.execute(parsed, signal);
     },
     close: async () => runtime.close?.(),
   };
@@ -54,11 +72,19 @@ export function buildAgdfServer({ runtime, executor } = {}) {
     connection_id: randomUUID(), server_module: fileURLToPath(import.meta.url),
     version: runtime.trustedContext.expectedVersion,
   }) : undefined;
-  const respond = (result, serialize, context) => toolResult(runtime, result, serialize, provider, provider ? {
+  const respond = (name, input, result, serialize, context, facts) => toolResult(runtime, name, input, result, serialize, provider, provider ? {
     client_info: requestMcpClientInfo(server.server, context), capabilities: requestMcpClientCapabilities(server.server, context),
-  } : undefined);
+  } : undefined, facts);
   const uiAllowed = (context) => !gated || requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
   const supportsUi = context => !!runtime.ui && requestDeclaresMcpAppUi(server.server, context, runtime.ui.mimeType);
+  // Discovery needs the exact schemas, but does not execute any tool. Compile
+  // each validator on its first validation, using the same SDK provider/options.
+  // Input validation still precedes execution; successful output is still checked.
+  const schemaProvider = new AjvJsonSchemaValidator();
+  const deferredSchemas = { getValidator(schema) {
+    let validate;
+    return value => (validate ??= schemaProvider.getValidator(schema))(value);
+  } };
   for (const tool of tools) {
     const { name, definition, serialize } = tool;
     server.registerTool(
@@ -66,23 +92,36 @@ export function buildAgdfServer({ runtime, executor } = {}) {
       {
         description: definition.description,
         annotations: definition.annotations,
-        inputSchema: fromJsonSchema(definition.inputSchema),
-        ...(definition.outputSchema ? { outputSchema: fromJsonSchema(definition.outputSchema) } : {}),
+        inputSchema: fromJsonSchema(definition.inputSchema, deferredSchemas),
+        ...(definition.outputSchema ? { outputSchema: fromJsonSchema(definition.outputSchema, deferredSchemas) } : {}),
         ...(definition._meta ? { _meta: definition._meta } : {}),
       },
       async (argumentsValue, context) => {
-        if (!uiAllowed(context)) return respond(runtime.failure(runtime.unsupportedUiCode ?? "resource_denied", name), serialize ?? runtime.serialize, context);
-        if (tool.requiresUi && !supportsUi(context)) return respond(runtime.failure('host_ui_unsupported', name, argumentsValue, { dispatch: 'not_dispatched' }), serialize ?? runtime.serialize, context);
+        const denied = !uiAllowed(context) ? runtime.unsupportedUiCode ?? 'resource_denied'
+          : tool.requiresUi && !supportsUi(context) ? 'host_ui_unsupported' : null;
+        if (denied) {
+          const facts = { code: denied, dispatch: 'not_dispatched' };
+          const failure = runtime.projectToolResult(name, argumentsValue, runtime.failure(denied, name, argumentsValue, facts), facts);
+          return respond(name, argumentsValue, failure, serialize ?? runtime.serialize, context, facts);
+        }
+        let phase = tool.parentOwned ? 'parse' : 'execute';
         try {
-          let result = tool.parentOwned ? await tool.execute(tool.parse(argumentsValue), context.signal,
-            { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) })
-            : await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
+          let result;
+          if (tool.parentOwned) {
+            const parsed = tool.parse(argumentsValue); phase = 'execute';
+            result = await tool.execute(parsed, context.signal,
+              { client: requestMcpClientInfo(server.server, context), uiSupported: supportsUi(context) });
+          } else result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
           if (runtime.postprocessToolResult) result = await runtime.postprocessToolResult(name, argumentsValue, result,
             { uiSupported: supportsUi(context), client: requestMcpClientInfo(server.server, context) });
-          return respond(result, serialize ?? runtime.serialize, context);
+          return respond(name, argumentsValue, result, serialize ?? runtime.serialize, context);
         } catch (error) {
-          const code = error instanceof DispatchExecutionError ? error.code : "dispatch_worker_failed";
-          return respond(runtime.failure(code, name, argumentsValue, { dispatch: error.dispatch ?? 'unknown' }), serialize ?? runtime.serialize, context);
+          const facts = runtime.normalizeFailure(error, { phase });
+          const failure = runtime.failure(facts.code, name, argumentsValue, facts);
+          // A local execution/delivery failure is owned here, including malformed
+          // producer output. It never causes re-execution or a second write.
+          const projected = runtime.projectToolResult(name, argumentsValue, failure, facts);
+          return respond(name, argumentsValue, projected, serialize ?? runtime.serialize, context, facts);
         }
       },
     );

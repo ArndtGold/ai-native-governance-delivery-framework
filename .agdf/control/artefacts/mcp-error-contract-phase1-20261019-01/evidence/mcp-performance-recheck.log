@@ -1,0 +1,18 @@
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[1622.154,1056.271,1418.397,1588.595,2417.758,1848.482,1847.707,2035.7,1596.151,1443.813,1436.154,1342.346,3012.227,2739.149,1475.842,2103.852,1738.103,4135.718,3496.844,4259.708],"cold_p95_ms":4135.718,"warm_dispatch_ms":[3060.423,994.315,1235.791,2556.385,1569.25,1388.369,773.615,756.336,767.848,1122.401,895.832,808.199,849.467,879.243,1017.942,1056.754,2334.675,1779.84,2315.418,2648.552],"warm_p95_ms":2648.552}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 4135.717797
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/performance.test.js:49:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

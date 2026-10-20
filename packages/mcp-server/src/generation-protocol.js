@@ -16,9 +16,12 @@ export function generationMessage(epoch, generation, kind, payload, context = {}
     kind, original_operation_id: original, payload, context };
 }
 export function generationManifest(runtime, uiDigest, sdkDigest) {
+  if (typeof runtime.toolErrorContract !== 'string' || !runtime.toolErrorContract
+    || typeof runtime.projectToolResult !== 'function' || typeof runtime.consumeToolResult !== 'function'
+    || typeof runtime.normalizeFailure !== 'function') throw Error('generation_manifest_incompatible');
   // Stable transport shape, never business eligibility or a human-origin proof.
   return { schema_version: '1', mode: runtime.mode ?? 'headless', sdk_digest: sdkDigest,
-    protocol: 'mcp-sdk/2:stdio-legacy-and-modern',
+    protocol: 'mcp-sdk/2:stdio-legacy-and-modern', tool_error_contract: runtime.toolErrorContract,
     tools: runtime.tools.map(tool => ({ name: tool.name, definition: tool.definition })),
     resource: runtime.ui ? { uri: runtime.ui.uri, mimeType: runtime.ui.mimeType, digest: uiDigest } : null,
     command_groups: [...(runtime.trustedContext.commandGroups ?? [])] };

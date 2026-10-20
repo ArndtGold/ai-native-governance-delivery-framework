@@ -1,0 +1,32 @@
+{
+  "evidence_class": "actual_browser_sdk_qualification",
+  "recorded_at": "2026-10-19T18:42:55.265626+00:00",
+  "original_log": "fix2-browser-sdk-trace.log",
+  "original_exit_code": 1,
+  "original_behavior_cases_executed": 0,
+  "failure": "Sandbox denied Chromium MachPortRendezvous bootstrap; four launch failures, no product assertions executed.",
+  "supported_recheck_log": "fix2-browser-sdk-trace-authorized.log",
+  "supported_recheck_command": [
+    "npm",
+    "--prefix",
+    "packages/control-ui",
+    "run",
+    "test:browser",
+    "--",
+    "test/browser/sdk-trace.spec.mjs",
+    "--reporter=json"
+  ],
+  "supported_recheck_exit_code": 0,
+  "process_permission": "approved execution outside the restrictive process sandbox for the existing local browser/loopback fixture",
+  "stats": {
+    "startTime": "2026-10-19T18:42:06.885Z",
+    "duration": 15071.398000000001,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "all_effective_cases_passed": true,
+  "test_source_assertions_timeouts_or_launch_flags_changed": false,
+  "native_qualified": false
+}

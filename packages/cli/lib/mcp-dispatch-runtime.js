@@ -4,10 +4,16 @@ import {
   SKILL_DISPATCH_CONTRACT_VERSION,
   SKILL_DISPATCH_FUNCTION_DEFINITION,
   SKILL_DISPATCH_SCHEMA_VERSION,
+  SKILL_DISPATCH_MAX_OUTPUT_BYTES,
   emptySkillDispatchTiming,
   parseSkillDispatchFunctionArguments,
   serializeSkillDispatchResult,
+  SkillDispatchInputError,
 } from "#agdf-core/skill-dispatch/contract.js";
+import { TaskTargetInputError } from '#agdf-core/task-target-resolution.js';
+import { ReadSelectionError } from '#agdf-core/control-inspect/selection.js';
+import { localePack } from '#agdf-core/interaction-presentation.js';
+import { TOOL_ERROR_CONTRACT, TOOL_RESULT_META, describeToolResult, projectToolResult, consumeToolResult, executionFacts, validExecutionFacts } from '#agdf-core/mcp-tool-errors.js';
 import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArguments, serializeControlInspectResult } from "#agdf-core/control-inspect/contract.js";
@@ -23,6 +29,36 @@ import {
 } from "#agdf-core/runtime/plugin-provenance.js";
 
 const MCP_RUNTIME_OWNER = "create-agdf:mcp-runtime";
+
+function errorSupport(cockpit = false) {
+  return {
+    toolErrorContract: TOOL_ERROR_CONTRACT, responseLimit: SKILL_DISPATCH_MAX_OUTPUT_BYTES,
+    projectToolResult(name, input = {}, result, facts) {
+      const pack = localePack(interactionLocales, input.presentation_language ?? (cockpit ? 'de' : 'en'));
+      const { _meta, ...domain } = result;
+      const serialize = name === 'agdf_dispatch' ? serializeSkillDispatchResult : name === 'agdf_inspect' ? serializeControlInspectResult : JSON.stringify;
+      const checked = JSON.parse(serialize(domain));
+      const projected = projectToolResult(name, input, { ...checked, ...(_meta ? { _meta } : {}) }, pack, facts);
+      // Existing serializers can replace oversized output before projection.
+      // Their terminal instruction must agree with the same bounded guidance.
+      if (checked.outcome === 'evaluator_error' && checked.diagnostics?.some(d => ['dispatch_output_too_large', 'inspect_output_too_large'].includes(d.code))) {
+        const message = projected._meta[TOOL_RESULT_META].message;
+        return { ...projected, recovery: { action: message }, host_action: { ...projected.host_action, text: message } };
+      }
+      return projected;
+    },
+    consumeToolResult,
+    normalizeFailure(error, { phase = 'execute' } = {}) {
+      if (phase === 'parse' && (error instanceof SkillDispatchInputError || error instanceof TaskTargetInputError || error instanceof ReadSelectionError)) {
+        const facts = { code: error instanceof ReadSelectionError ? 'inspect_input_invalid' : 'dispatch_input_invalid', dispatch: 'not_dispatched', ...(error.field ? { field: error.field } : {}) };
+        return validExecutionFacts(facts) ? facts : { code: 'dispatch_input_invalid', dispatch: 'not_dispatched' };
+      }
+      if (phase === 'parse' && ['command_schema_invalid', 'resource_denied', 'decision_schema_invalid'].includes(error?.code ?? error?.message))
+        return { code: error.code ?? error.message, dispatch: 'not_dispatched' };
+      return executionFacts(error, { phase });
+    },
+  };
+}
 
 export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime() } = {}) {
   const pluginMode = cockpitMode === 'plugin';
@@ -46,7 +82,7 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
       parse: parseCockpitArguments, execute: (value, signal) => session.read(value, signal) },
   ];
   // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
-  return Object.freeze({ mode: 'cockpit', definition: renderDefinition, tools,
+  return Object.freeze({ ...errorSupport(true), mode: 'cockpit', definition: renderDefinition, tools,
     uiCapabilityRequired: pluginMode || surface === 'claude', responseLimit: READ_LIMITS.response,
     ...(pluginMode ? { unsupportedUiCode: 'host_ui_unsupported' } : {}),
     ui: Object.freeze({ uri: COCKPIT_UI_URI, mimeType: COCKPIT_MIME, limit: COCKPIT_LIMITS.html,
@@ -221,6 +257,7 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   ]);
   if (tools.filter(tool => Object.hasOwn(RUN_COMMAND_GROUPS, tool.name)).reduce((bytes, tool) => bytes + Buffer.byteLength(JSON.stringify(tool.definition)), 0) > RUN_COMMAND_LIMITS.aggregate_definition_bytes) throw Error('command_aggregate_definition_budget_exceeded');
   return Object.freeze({
+    ...errorSupport(),
     definition: SKILL_DISPATCH_FUNCTION_DEFINITION,
     parse,
     execute,
@@ -229,20 +266,27 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
       return tools.find((entry) => entry.name === name) ?? null;
     },
     serialize: serializeSkillDispatchResult,
-    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown' } = {}) {
+    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name, argumentsValue, { dispatch = 'unknown', field } = {}) {
+      const facts = { code, dispatch, ...(field ? { field } : {}) };
+      const finish = value => {
+        if (validExecutionFacts(facts) && facts.field && value.diagnostics?.length) value = { ...value, diagnostics: value.diagnostics.map((d, i) => i === 0 ? { ...d, field: facts.field } : d) };
+        const message = describeToolResult(toolName, argumentsValue ?? {}, value,
+          localePack(interactionLocales, argumentsValue?.presentation_language ?? 'en'), facts).message;
+        return value.terminal ? { ...value, recovery: { action: message }, host_action: { ...value.host_action, text: message } } : value;
+      };
       if (Object.hasOwn(RUN_COMMAND_GROUPS, toolName)) {
         const valid = argumentsValue && validateRunCommand(toolName, argumentsValue).length === 0;
-        return { schema_version: '1', outcome: dispatch === 'not_dispatched' ? 'rejected' : 'effect_unknown', reason: code,
+        return finish({ schema_version: '1', outcome: dispatch === 'not_dispatched' ? 'rejected' : 'effect_unknown', reason: code,
           operation_id: valid ? argumentsValue.operation_id : null, request_digest: valid ? runCommandRequestDigest(argumentsValue) : null,
           binding: valid ? { target_id: argumentsValue.target_id, run_id: argumentsValue.run_id, expected_revision_id: argumentsValue.expected_revision_id, kind: argumentsValue.command.kind } : null,
           dispatch, authorizes: false, recovery: dispatch === 'not_dispatched' ? 'No command was dispatched by this attempt.'
-            : 'Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer non-execution or create another decision.' };
+            : 'Inspect operation-status with the original UUID and preserve the exact original payload. Do not infer non-execution or create another decision.' });
       }
       if (toolName === CONTROL_INSPECT_FUNCTION_DEFINITION.name) {
         const action = FAILURE_ACTIONS[code] ?? FAILURE_ACTIONS.dispatch_worker_failed;
-        return createInspectFailureResult(code, failureEvidence, action);
+        return finish(createInspectFailureResult(code, failureEvidence, action));
       }
-      return createFailureResult(code, failureEvidence);
+      return finish(createFailureResult(code, failureEvidence));
     },
     trustedContext,
   });

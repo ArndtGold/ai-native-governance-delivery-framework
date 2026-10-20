@@ -18,12 +18,15 @@ export function declaredRoutes() {
 }
 
 export const NORMALIZED_GAP_COLUMNS = Object.freeze(['finding_id', 'gap_type', 'routing_target', 'gap_status', 'evidence', 'required_next_step']);
-const PLACEHOLDER = /^(?:none|tbd|todo|<)/iu;
+const PLACEHOLDER = /^(?:none|tbd|todo|<)/iu, ACTION_PLACEHOLDER = /^(?:tbd|todo|<)/iu;
 
 // Field-level form of the contract rules, each with a stable rule id; an empty list is a valid row.
 export function normalizedGapProblems(row, routes = declaredRoutes()) {
   if (row.length !== NORMALIZED_GAP_COLUMNS.length) return [{ field: 'row', expected: `the columns ${NORMALIZED_GAP_COLUMNS.join(' | ')}`, rule: 'row_cells' }];
   const [id, gap, target, status, evidence, action] = row, problems = [];
+  // Resolved rows retain their classification and concrete resolution evidence, but do not
+  // route new corrective work: action and assessment obligations apply to open findings.
+  const open = status === 'open';
   const add = (field, expected, rule = field) => problems.push({ field, expected, rule });
   if (routes.size !== 6) add('gap_type', 'the Normalized Review Gaps contract to be readable', 'contract');
   if (!id || id.length > 128) add('finding_id', 'a stable id of at most 128 characters');
@@ -31,9 +34,9 @@ export function normalizedGapProblems(row, routes = declaredRoutes()) {
   else if (!routes.get(gap).includes(target)) add('routing_target', `one of ${routes.get(gap).join(', ')} for ${gap}`);
   if (!['open', 'resolved'].includes(status)) add('gap_status', 'open or resolved');
   if (!evidence || evidence.length > 4096 || PLACEHOLDER.test(evidence)) add('evidence', 'concrete source, test, observation or missing proof, not none, tbd, todo or a placeholder');
-  if (!action || action.length > 2048 || PLACEHOLDER.test(action)) add('required_next_step', 'exactly one executable action, not none, tbd, todo or a placeholder, also for a resolved finding');
+  if (!action || action.length > 2048 || ACTION_PLACEHOLDER.test(action) || open && /^none(?:\b|$)/iu.test(action)) add('required_next_step', 'exactly one executable action for an open finding (a resolved finding may state none), not tbd, todo or a placeholder');
   if (gap === 'requirements_gap' && target === 'UR' && !/changed (?:user )?(?:intent|scope)/iu.test(evidence)) add('evidence', 'evidence of changed user intent or scope for a requirements_gap routed to UR', 'requirements_gap_ur');
-  if (gap === 'emergent_risk' && !/earliest[- ]owner assessment/iu.test(evidence)) add('evidence', 'an explicit earliest-owner assessment for an emergent_risk', 'emergent_risk_assessment');
+  if (open && gap === 'emergent_risk' && !/earliest[- ]owner assessment/iu.test(evidence)) add('evidence', 'an explicit earliest-owner assessment for an open emergent_risk', 'emergent_risk_assessment');
   return problems;
 }
 
@@ -99,5 +102,4 @@ export function maskFindingCells(content, ids) {
       return line;
     }
     return active && row.length === NORMALIZED_GAP_COLUMNS.length && ids.has(row[0]) ? `| ${row.slice(0, 5).join(' | ')} | * |` : line;
-  }).join('\n');
-}
+  }).join('\n');}

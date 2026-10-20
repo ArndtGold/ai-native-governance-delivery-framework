@@ -1,0 +1,46 @@
+## Kurzfassung · UAT
+
+Run: `mcp-error-contract-phase1-20261019-01` · Gate: `UAT` · Revision: `56747678-a1f8-44dd-8c47-e0b161b726b0`
+
+- Ziel: Phase 1 macht tatsächliche MCP-Fehler eindeutig erkennbar und liefert konkrete Korrekturhinweise. Betroffen sind Coding-Agenten, die verantwortlichen Nutzer und Maintainer.
+- Geliefertes Ergebnis: Die unveränderte Protokollmessung zeigt 9 auf 0 fachliche Fehlerfälle ohne isError. Alle 28 Pflichtszenarien sind belegt. Code Review, TP Review und Clean Review stehen auf pass; qa-gate entscheidet technisch pass.
+- Technische QA: pass
+- Nachweisgrenzen: Nachweis für den lokalen Quellstand und synthetische Browser-/Host-Fixtures. Neue native Agentenerholung, Windows-Nativverhalten, Remote-CI oder Ausrollung sind nicht qualifiziert; diese Aussagen sind nicht Teil der freigegebenen Phase-1-Abnahme.
+- Risiken und offene Punkte: Keine offenen Fehler oder fehlenden Pflichtnachweise im freigegebenen Umfang. Unbekannte Wirkungen verlangen weiterhin die Prüfung der ursprünglichen Operation; lokale Laufzeiten können je nach Systemlast schwanken.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- evidence · UR, PRD, SD, TP (exact cooperative association)
+- review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 12
+
+- QA: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/QA_REPORT.md · sha256:b916c3c4e4d049e8e96ffbc2c6ec323ba3e5a3950684ba2e1d428b7107e5daa1
+- UR: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/UR.md · sha256:ff970aa070047b04a0d2174a2759bed996dd62336d1dec51c31848042ecea9af
+
+## Vorliegende UAT-Evidenz
+
+- UX Intent Definition · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/UX_INTENT_DEFINITION.md · Deckt ab: UR, Brownfield Review · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- evidence · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/CD_RECORDING_PROVENANCE.md · Deckt ab: UR, PRD, SD, TP · Stärke: exact cooperative association
+- review · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/CD_TESTS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- QA · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/QA_REPORT.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/PRD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/SD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/TP_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/CD_RECORDING_PROVENANCE.md · Quelle: agent · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Code Review · Quelle: code-review · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/QA_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/QA_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

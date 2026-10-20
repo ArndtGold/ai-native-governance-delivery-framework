@@ -1,0 +1,401 @@
+{
+  "scenario_id": "SCN-023",
+  "status": "pass",
+  "candidate": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf",
+  "observations": [
+    {
+      "gate": "UR",
+      "dispatch": {
+        "status": "open",
+        "current_gate": "UR",
+        "gate_route": {
+          "gate": "UR",
+          "skills": [
+            "gate-check"
+          ]
+        },
+        "blocking_reason": "none",
+        "missing_approval": "Approval: UR",
+        "next_operation": {
+          "type": "author_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "UR"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "next_allowed_action": "formulate and persist UR",
+        "run_id": "late-source-mcp-test",
+        "revision_id": "699f959f-22db-4ba6-ade9-50982716de5c",
+        "doctor_status": "pass",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "425e2e2c-08e2-4dbe-a48e-a5500a0c57dc",
+              "source_gate": "UR",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "699f959f-22db-4ba6-ade9-50982716de5c",
+              "archive": {
+                "digest": "sha256:7008a079514837e04fe5b8ef4085f5639db36a291de89ea83eb4893f58983e1b",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/425e2e2c-08e2-4dbe-a48e-a5500a0c57dc/manifest.json"
+              },
+              "superseded_sources": [
+                "UR",
+                "PRD",
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        },
+        "candidate_runs": []
+      },
+      "inspect": {
+        "current_gate": "UR",
+        "missing_approval": "Approval: UR",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "425e2e2c-08e2-4dbe-a48e-a5500a0c57dc",
+              "source_gate": "UR",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "699f959f-22db-4ba6-ade9-50982716de5c",
+              "archive": {
+                "digest": "sha256:7008a079514837e04fe5b8ef4085f5639db36a291de89ea83eb4893f58983e1b",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/425e2e2c-08e2-4dbe-a48e-a5500a0c57dc/manifest.json"
+              },
+              "superseded_sources": [
+                "UR",
+                "PRD",
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        }
+      },
+      "authorizes": false
+    },
+    {
+      "gate": "PRD",
+      "dispatch": {
+        "status": "open",
+        "current_gate": "PRD",
+        "gate_route": {
+          "gate": "PRD",
+          "skills": [
+            "gate-check"
+          ]
+        },
+        "blocking_reason": "none",
+        "missing_approval": "Approval: PRD",
+        "next_operation": {
+          "type": "prepare_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "PRD",
+          "skill_id": "gate-check",
+          "artifact_path": ".agdf/control/artefacts/late-source-mcp-test/PRD.md",
+          "source_artifacts": [
+            ".agdf/control/artefacts/late-source-mcp-test/UR.md",
+            ".agdf/control/artefacts/late-source-mcp-test/BROWNFIELD_REVIEW.md"
+          ]
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "next_allowed_action": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "run_id": "late-source-mcp-test",
+        "revision_id": "35bfaded-fcb5-46a9-add3-67b14fc6354a",
+        "doctor_status": "pass",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "5ce05045-0d94-46fa-b01f-aa593fe4c801",
+              "source_gate": "PRD",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "35bfaded-fcb5-46a9-add3-67b14fc6354a",
+              "archive": {
+                "digest": "sha256:18899cba863c7a8d8b65e05848e2ac608078c1dc1ce8b020b82b333b1df29676",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/5ce05045-0d94-46fa-b01f-aa593fe4c801/manifest.json"
+              },
+              "superseded_sources": [
+                "PRD",
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        },
+        "candidate_runs": []
+      },
+      "inspect": {
+        "current_gate": "PRD",
+        "missing_approval": "Approval: PRD",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "5ce05045-0d94-46fa-b01f-aa593fe4c801",
+              "source_gate": "PRD",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "35bfaded-fcb5-46a9-add3-67b14fc6354a",
+              "archive": {
+                "digest": "sha256:18899cba863c7a8d8b65e05848e2ac608078c1dc1ce8b020b82b333b1df29676",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/5ce05045-0d94-46fa-b01f-aa593fe4c801/manifest.json"
+              },
+              "superseded_sources": [
+                "PRD",
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        }
+      },
+      "authorizes": false
+    },
+    {
+      "gate": "SD",
+      "dispatch": {
+        "status": "open",
+        "current_gate": "SD",
+        "gate_route": {
+          "gate": "SD",
+          "skills": [
+            "gate-check"
+          ]
+        },
+        "blocking_reason": "none",
+        "missing_approval": "Approval: SD",
+        "next_operation": {
+          "type": "prepare_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "SD",
+          "skill_id": "sd-definition",
+          "artifact_path": ".agdf/control/artefacts/late-source-mcp-test/SD.md",
+          "source_artifacts": [
+            ".agdf/control/artefacts/late-source-mcp-test/PRD.md"
+          ]
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "next_allowed_action": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+        "run_id": "late-source-mcp-test",
+        "revision_id": "9a6e0443-0b77-48e0-ac7e-aa79631c559a",
+        "doctor_status": "pass",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "f5d62449-aca9-441b-914c-0cf15f3659da",
+              "source_gate": "SD",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "9a6e0443-0b77-48e0-ac7e-aa79631c559a",
+              "archive": {
+                "digest": "sha256:6b3f9dfeed86f9a6e39179bf6f07b574c2f438e8f797392674cc72218b4675b5",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/f5d62449-aca9-441b-914c-0cf15f3659da/manifest.json"
+              },
+              "superseded_sources": [
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        },
+        "candidate_runs": []
+      },
+      "inspect": {
+        "current_gate": "SD",
+        "missing_approval": "Approval: SD",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "f5d62449-aca9-441b-914c-0cf15f3659da",
+              "source_gate": "SD",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "9a6e0443-0b77-48e0-ac7e-aa79631c559a",
+              "archive": {
+                "digest": "sha256:6b3f9dfeed86f9a6e39179bf6f07b574c2f438e8f797392674cc72218b4675b5",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/f5d62449-aca9-441b-914c-0cf15f3659da/manifest.json"
+              },
+              "superseded_sources": [
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        }
+      },
+      "authorizes": false
+    },
+    {
+      "gate": "TP",
+      "dispatch": {
+        "status": "open",
+        "current_gate": "TP",
+        "gate_route": {
+          "gate": "TP",
+          "skills": [
+            "gate-check"
+          ]
+        },
+        "blocking_reason": "none",
+        "missing_approval": "Approval: TP",
+        "next_operation": {
+          "type": "prepare_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "TP",
+          "skill_id": "tp-definition",
+          "artifact_path": ".agdf/control/artefacts/late-source-mcp-test/TP.md",
+          "source_artifacts": [
+            ".agdf/control/artefacts/late-source-mcp-test/PRD.md",
+            ".agdf/control/artefacts/late-source-mcp-test/SD.md"
+          ]
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "next_allowed_action": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+        "run_id": "late-source-mcp-test",
+        "revision_id": "43b10d54-1d96-4d45-ba3c-48dd4db0ade9",
+        "doctor_status": "pass",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "3f63d595-9b8c-4aa5-900a-d5973f180adb",
+              "source_gate": "TP",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "43b10d54-1d96-4d45-ba3c-48dd4db0ade9",
+              "archive": {
+                "digest": "sha256:094059d1fff624b92a750202633b155ac109549c9431c4dcd8c92f771ee26c8f",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/3f63d595-9b8c-4aa5-900a-d5973f180adb/manifest.json"
+              },
+              "superseded_sources": [
+                "TP"
+              ]
+            }
+          ]
+        },
+        "candidate_runs": []
+      },
+      "inspect": {
+        "current_gate": "TP",
+        "missing_approval": "Approval: TP",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "3f63d595-9b8c-4aa5-900a-d5973f180adb",
+              "source_gate": "TP",
+              "previous_revision_id": "141c5d2c-8843-4280-bad2-33a4c51240dc",
+              "resulting_revision_id": "43b10d54-1d96-4d45-ba3c-48dd4db0ade9",
+              "archive": {
+                "digest": "sha256:094059d1fff624b92a750202633b155ac109549c9431c4dcd8c92f771ee26c8f",
+                "path": ".agdf/control/runs/late-source-mcp-test/revisions/3f63d595-9b8c-4aa5-900a-d5973f180adb/manifest.json"
+              },
+              "superseded_sources": [
+                "TP"
+              ]
+            }
+          ]
+        }
+      },
+      "authorizes": false
+    },
+    {
+      "boundary": "approved UR/PRD with linked draft SD",
+      "gate": "UR",
+      "dispatch": {
+        "status": "open",
+        "current_gate": "UR",
+        "gate_route": {
+          "gate": "UR",
+          "skills": [
+            "gate-check"
+          ]
+        },
+        "blocking_reason": "none",
+        "missing_approval": "Approval: UR",
+        "next_operation": {
+          "type": "author_gate_artifact",
+          "operation_key": "artefact.author",
+          "actor": "agent",
+          "effect": "preparation",
+          "gate": "UR"
+        },
+        "completion": {
+          "status": "pending",
+          "gate": "OR",
+          "fulfilled": false
+        },
+        "next_allowed_action": "formulate and persist UR",
+        "run_id": "early-ur-mcp-test",
+        "revision_id": "774148e8-ac89-4b59-a53c-dd80db3d1314",
+        "doctor_status": "pass",
+        "source_revisions": {
+          "status": "verified",
+          "archive_authority": "historical_evidence_only",
+          "entries": [
+            {
+              "operation_id": "9f089a38-7144-4fb3-9455-e1ade5126bc4",
+              "source_gate": "UR",
+              "previous_revision_id": "3ff52d70-b415-4e19-8b78-93927231f41b",
+              "resulting_revision_id": "774148e8-ac89-4b59-a53c-dd80db3d1314",
+              "archive": {
+                "digest": "sha256:d1b01a29557cecc0f6eb7d829433eeaee0ba0657b70696f9bdf71d5244bceddc",
+                "path": ".agdf/control/runs/early-ur-mcp-test/revisions/9f089a38-7144-4fb3-9455-e1ade5126bc4/manifest.json"
+              },
+              "superseded_sources": [
+                "UR",
+                "PRD",
+                "SD",
+                "TP"
+              ]
+            }
+          ]
+        },
+        "candidate_runs": []
+      },
+      "inspect": "UR",
+      "authoring": "ur_definition",
+      "authorizes": false
+    },
+    {
+      "state": "pending",
+      "report": "blocked",
+      "observation": "read_only; explicit CLI recovery"
+    }
+  ],
+  "fixture_authority": "synthetic_only",
+  "protocol": "actual stdio MCP server; no native host activation claim"
+}

@@ -248,3 +248,33 @@ it('removes the old lifecycle listener on unmount and closes a newly mounted vie
   expect(first.operation).toHaveBeenCalledTimes(1);
   expect(second.operation).toHaveBeenCalledExactlyOnceWith({ operation: 'close' }, undefined, second.view.read_session_id);
 });
+
+
+for (const reason of ['stale_revision', 'session_expired', 'permission_denied', 'decision_result_unknown']) it(`preserves a checked MCP error: ${reason}`, async () => {
+  const f = fixture();
+  f.app.callServerTool.mockImplementation(async ({ arguments: input }) => ({ isError: true, structuredContent: {
+    schema_version: '1', authorizes: false, outcome: reason === 'decision_result_unknown' ? 'effect_unknown' : 'rejected',
+    operation_id: input.operation_id, reason,
+  } }));
+  render(<DecisionEntry bridge={f.bridge}/>);
+  await act(async () => { f.app.ontoolresult({ _meta: { agdf_decision: f.view } }); });
+  fireEvent.click(screen.getByRole('button', { name: f.view.labels.approve }));
+  await screen.findByText(reason === 'stale_revision' ? f.view.labels.sourceChanged : reason === 'session_expired' ? f.view.labels.expired
+    : reason === 'permission_denied' ? f.view.labels.denied : f.view.labels.uncertain);
+  expect(f.app.callServerTool).toHaveBeenCalledTimes(1);
+  if (reason !== 'permission_denied') expect(screen.queryByRole('button', { name: f.view.labels.approve })?.hasAttribute('disabled') ?? true).toBe(true);
+});
+
+for (const kind of ['accepted', 'wrong_binding', 'malformed']) it(`rejects untrusted error data: ${kind}`, async () => {
+  const f = fixture();
+  f.app.callServerTool.mockImplementation(async ({ arguments: input }) => ({ isError: true, structuredContent: kind === 'accepted'
+    ? { schema_version: '1', authorizes: false, outcome: 'accepted', receipt: decisionReceipt(f.view, input) }
+    : { schema_version: '1', authorizes: false, outcome: 'rejected', reason: kind === 'malformed' ? '/SECRET' : 'stale_revision',
+      operation_id: input.operation_id, ...(kind === 'wrong_binding' ? { binding: { target_id: 'other' } } : {}) } }));
+  render(<DecisionEntry bridge={f.bridge}/>);
+  await act(async () => { f.app.ontoolresult({ _meta: { agdf_decision: f.view } }); });
+  fireEvent.click(screen.getByRole('button', { name: f.view.labels.approve }));
+  await screen.findByText(f.view.labels.uncertain);
+  expect(screen.queryByText(f.view.labels.confirmed)).toBeNull();
+  expect(f.app.callServerTool).toHaveBeenCalledTimes(1);
+});

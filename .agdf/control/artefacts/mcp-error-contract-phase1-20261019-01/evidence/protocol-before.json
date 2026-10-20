@@ -1,0 +1,1186 @@
+{
+  "schema_version": "1",
+  "kind": "agdf_mcp_ergonomics_protocol",
+  "matrix_version": "v1",
+  "executions_per_call": 5,
+  "provenance": {
+    "agdf_version": "0.14.5",
+    "server_digest": "30796f9c2bc7a3b8b768296bf75ce2b8418ee39e4c60759a3788d662c58749b7",
+    "dispatcher_digest": "1d4c3c05a1894b4b6fb191dd82bdab7ecb76dc0accc47a4e75845df470defd54",
+    "sdk_digest": "b863c5d6511cbdf1e29eddaf5e95e052b5f5c0d742d186f6665daaa9189994bb",
+    "git_commit": "a8a867a3578a2d8b16853860276c401ddd04db28",
+    "platform": "darwin-x64",
+    "node": "v22.22.3",
+    "surface": "claude",
+    "protocol": "2026-07-28",
+    "recorded_at": "2026-10-19T14:23:25.967Z"
+  },
+  "tools": {
+    "agdf": {
+      "names": [
+        "agdf_dispatch",
+        "agdf_inspect",
+        "agdf_prepare",
+        "agdf_record",
+        "agdf_approve",
+        "agdf_revise",
+        "agdf_closeout"
+      ],
+      "total_definition_bytes": 32077,
+      "metrics": [
+        {
+          "tool": "agdf_dispatch",
+          "definition_bytes": 10045,
+          "params_total": 14,
+          "params_documented": 14,
+          "documented_share": 1,
+          "description_chars": 1123,
+          "has_output_schema": true,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_inspect",
+          "definition_bytes": 4723,
+          "params_total": 14,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 74,
+          "has_output_schema": true,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "idempotentHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_prepare",
+          "definition_bytes": 1716,
+          "params_total": 11,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 254,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_record",
+          "definition_bytes": 6755,
+          "params_total": 11,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 338,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": true,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_approve",
+          "definition_bytes": 1905,
+          "params_total": 11,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 249,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": true,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_revise",
+          "definition_bytes": 4467,
+          "params_total": 11,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 344,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": true,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_closeout",
+          "definition_bytes": 2466,
+          "params_total": 11,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 269,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": false,
+            "destructiveHint": true,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        }
+      ]
+    },
+    "agdf_cockpit_without_ui": {
+      "names": [],
+      "total_definition_bytes": 0,
+      "metrics": []
+    },
+    "agdf_cockpit_with_ui": {
+      "names": [
+        "agdf_cockpit",
+        "agdf_cockpit_read"
+      ],
+      "total_definition_bytes": 6127,
+      "metrics": [
+        {
+          "tool": "agdf_cockpit",
+          "definition_bytes": 1043,
+          "params_total": 1,
+          "params_documented": 0,
+          "documented_share": 0,
+          "description_chars": 672,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "tool": "agdf_cockpit_read",
+          "definition_bytes": 5084,
+          "params_total": 0,
+          "params_documented": 0,
+          "documented_share": null,
+          "description_chars": 231,
+          "has_output_schema": false,
+          "has_title": false,
+          "annotations": {
+            "readOnlyHint": true,
+            "destructiveHint": false,
+            "idempotentHint": false,
+            "openWorldHint": false
+          }
+        }
+      ]
+    }
+  },
+  "calls": [
+    {
+      "id": "D-VALID-STATUS",
+      "tool": "agdf_dispatch",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "control_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 4168,
+      "text_bytes": 3670,
+      "structured_bytes": 3201,
+      "est_tokens": 918,
+      "latency_ms": {
+        "median": 501.719,
+        "p95": 1393.323,
+        "samples": [
+          1393.323,
+          501.267,
+          491.55,
+          501.719,
+          540.543
+        ]
+      }
+    },
+    {
+      "id": "D-SCHEMA-UNKNOWN-PROPERTY",
+      "tool": "agdf_dispatch",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 106,
+      "text_bytes": 106,
+      "structured_bytes": 0,
+      "est_tokens": 27,
+      "latency_ms": {
+        "median": 2.147,
+        "p95": 2.392,
+        "samples": [
+          2.147,
+          1.655,
+          2.392,
+          2.314,
+          1.562
+        ]
+      }
+    },
+    {
+      "id": "D-SEM-RELATIVE-DIRECTORY",
+      "tool": "agdf_dispatch",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "invalid_input",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 1276,
+      "text_bytes": 1201,
+      "structured_bytes": 997,
+      "est_tokens": 301,
+      "latency_ms": {
+        "median": 469.149,
+        "p95": 857.089,
+        "samples": [
+          472.731,
+          463.506,
+          447.999,
+          469.149,
+          857.089
+        ]
+      }
+    },
+    {
+      "id": "D-SEM-UNRESOLVED-TARGET",
+      "tool": "agdf_dispatch",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "target_unresolved",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 3077,
+      "text_bytes": 2750,
+      "structured_bytes": 2428,
+      "est_tokens": 688,
+      "latency_ms": {
+        "median": 433.291,
+        "p95": 573.4,
+        "samples": [
+          573.4,
+          452.273,
+          424.463,
+          427.109,
+          433.291
+        ]
+      }
+    },
+    {
+      "id": "I-VALID-DOCTOR",
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "inspect_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 2628,
+      "text_bytes": 2217,
+      "structured_bytes": 1721,
+      "est_tokens": 555,
+      "latency_ms": {
+        "median": 475.95,
+        "p95": 505.02,
+        "samples": [
+          457.544,
+          481.782,
+          450.083,
+          505.02,
+          475.95
+        ]
+      }
+    },
+    {
+      "id": "I-VALID-STATUS-CARD",
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "inspect_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 22011,
+      "text_bytes": 21354,
+      "structured_bytes": 17689,
+      "est_tokens": 5339,
+      "latency_ms": {
+        "median": 511.471,
+        "p95": 538.759,
+        "samples": [
+          493.667,
+          510.068,
+          538.759,
+          536.659,
+          511.471
+        ]
+      }
+    },
+    {
+      "id": "I-VALID-DOCUMENT-PAGES",
+      "page": 1,
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F4",
+      "class": "ok",
+      "outcome": "inspect_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 35327,
+      "text_bytes": 35000,
+      "structured_bytes": 34664,
+      "est_tokens": 8750,
+      "latency_ms": {
+        "median": 453.738,
+        "p95": 587.434,
+        "samples": [
+          453.738,
+          444.593,
+          434.665,
+          587.434,
+          499.309
+        ]
+      }
+    },
+    {
+      "id": "I-VALID-DOCUMENT-PAGES",
+      "page": 2,
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F4",
+      "class": "ok",
+      "outcome": "inspect_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 35321,
+      "text_bytes": 34991,
+      "structured_bytes": 34655,
+      "est_tokens": 8748,
+      "latency_ms": {
+        "median": 495.229,
+        "p95": 527.591,
+        "samples": [
+          427.425,
+          495.229,
+          468.789,
+          497.435,
+          527.591
+        ]
+      }
+    },
+    {
+      "id": "I-VALID-DOCUMENT-PAGES",
+      "page": 3,
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F4",
+      "class": "ok",
+      "outcome": "inspect_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 14623,
+      "text_bytes": 14296,
+      "structured_bytes": 13960,
+      "est_tokens": 3574,
+      "latency_ms": {
+        "median": 479.256,
+        "p95": 630.373,
+        "samples": [
+          417.677,
+          424.524,
+          494.194,
+          479.256,
+          630.373
+        ]
+      }
+    },
+    {
+      "id": "I-SCHEMA-UNKNOWN-OPERATION",
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 122,
+      "text_bytes": 122,
+      "structured_bytes": 0,
+      "est_tokens": 31,
+      "latency_ms": {
+        "median": 1.358,
+        "p95": 1.827,
+        "samples": [
+          1.358,
+          1.017,
+          1.597,
+          1.827,
+          1.135
+        ]
+      }
+    },
+    {
+      "id": "I-SEM-UNKNOWN-RUN",
+      "tool": "agdf_inspect",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "inspect_result",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 10423,
+      "text_bytes": 10013,
+      "structured_bytes": 7891,
+      "est_tokens": 2504,
+      "latency_ms": {
+        "median": 546.025,
+        "p95": 958.538,
+        "samples": [
+          587.904,
+          534.199,
+          532.864,
+          546.025,
+          958.538
+        ]
+      }
+    },
+    {
+      "id": "P-VALID-PREPARE-PRD",
+      "tool": "agdf_prepare",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "accepted",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 6195,
+      "text_bytes": 6195,
+      "structured_bytes": 6195,
+      "est_tokens": 1549,
+      "latency_ms": {
+        "median": 723.047,
+        "p95": 751.834,
+        "samples": [
+          723.047,
+          748.862,
+          622.232,
+          628.256,
+          751.834
+        ]
+      }
+    },
+    {
+      "id": "P-SCHEMA-MISSING-OPERATION-ID",
+      "tool": "agdf_prepare",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 112,
+      "text_bytes": 112,
+      "structured_bytes": 0,
+      "est_tokens": 28,
+      "latency_ms": {
+        "median": 0.994,
+        "p95": 1.243,
+        "samples": [
+          1.243,
+          1.032,
+          0.973,
+          0.994,
+          0.906
+        ]
+      }
+    },
+    {
+      "id": "P-SEM-STALE-REVISION",
+      "tool": "agdf_prepare",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "rejected",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 1344,
+      "text_bytes": 1344,
+      "structured_bytes": 1344,
+      "est_tokens": 336,
+      "latency_ms": {
+        "median": 939.591,
+        "p95": 1441.504,
+        "samples": [
+          528.643,
+          642.33,
+          1441.504,
+          939.591,
+          1113.627
+        ]
+      }
+    },
+    {
+      "id": "R-VALID-EVIDENCE",
+      "tool": "agdf_record",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "accepted",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 4096,
+      "text_bytes": 4096,
+      "structured_bytes": 4096,
+      "est_tokens": 1024,
+      "latency_ms": {
+        "median": 837.905,
+        "p95": 1197.772,
+        "samples": [
+          1197.772,
+          779.762,
+          939.545,
+          837.905,
+          816.98
+        ]
+      }
+    },
+    {
+      "id": "R-SCHEMA-MISSING-COVERS",
+      "tool": "agdf_record",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 2687,
+      "text_bytes": 2687,
+      "structured_bytes": 0,
+      "est_tokens": 672,
+      "latency_ms": {
+        "median": 1.241,
+        "p95": 2.62,
+        "samples": [
+          2.62,
+          1.234,
+          1.495,
+          1.241,
+          1.019
+        ]
+      }
+    },
+    {
+      "id": "R-SEM-TARGET-MISMATCH",
+      "tool": "agdf_record",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "rejected",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 1100,
+      "text_bytes": 1100,
+      "structured_bytes": 1100,
+      "est_tokens": 275,
+      "latency_ms": {
+        "median": 608.422,
+        "p95": 704.53,
+        "samples": [
+          608.422,
+          556.839,
+          611.153,
+          704.53,
+          480.145
+        ]
+      }
+    },
+    {
+      "id": "A-VALID-APPROVE-UR",
+      "tool": "agdf_approve",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F3",
+      "class": "ok",
+      "outcome": "accepted",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 5481,
+      "text_bytes": 5481,
+      "structured_bytes": 5481,
+      "est_tokens": 1371,
+      "latency_ms": {
+        "median": 661.835,
+        "p95": 739.507,
+        "samples": [
+          653.455,
+          661.835,
+          631.437,
+          689.838,
+          739.507
+        ]
+      }
+    },
+    {
+      "id": "A-SCHEMA-MISSING-RESPONSE",
+      "tool": "agdf_approve",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F3",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 177,
+      "text_bytes": 177,
+      "structured_bytes": 0,
+      "est_tokens": 45,
+      "latency_ms": {
+        "median": 1.184,
+        "p95": 1.634,
+        "samples": [
+          1.347,
+          1.098,
+          1.634,
+          0.975,
+          1.184
+        ]
+      }
+    },
+    {
+      "id": "A-SEM-UNKNOWN-PRESENTATION",
+      "tool": "agdf_approve",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F3",
+      "class": "agdf_failure",
+      "outcome": "rejected",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 2345,
+      "text_bytes": 2345,
+      "structured_bytes": 2345,
+      "est_tokens": 587,
+      "latency_ms": {
+        "median": 519.769,
+        "p95": 598.813,
+        "samples": [
+          512.707,
+          484.553,
+          598.813,
+          519.769,
+          522.371
+        ]
+      }
+    },
+    {
+      "id": "V-VALID-PREVIEW-UR",
+      "tool": "agdf_revise",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": "accepted",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 8461,
+      "text_bytes": 8461,
+      "structured_bytes": 8461,
+      "est_tokens": 2116,
+      "latency_ms": {
+        "median": 632.961,
+        "p95": 1099.093,
+        "samples": [
+          646.762,
+          632.961,
+          1099.093,
+          539.402,
+          542.739
+        ]
+      }
+    },
+    {
+      "id": "V-SCHEMA-UNKNOWN-GATE",
+      "tool": "agdf_revise",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 1357,
+      "text_bytes": 1357,
+      "structured_bytes": 0,
+      "est_tokens": 340,
+      "latency_ms": {
+        "median": 1.2,
+        "p95": 1.812,
+        "samples": [
+          1.812,
+          1.326,
+          0.998,
+          1.2,
+          0.953
+        ]
+      }
+    },
+    {
+      "id": "V-SEM-PROPOSAL-DIGEST",
+      "tool": "agdf_revise",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "rejected",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 1204,
+      "text_bytes": 1204,
+      "structured_bytes": 1204,
+      "est_tokens": 301,
+      "latency_ms": {
+        "median": 600.434,
+        "p95": 859.316,
+        "samples": [
+          483.942,
+          859.316,
+          536.57,
+          600.434,
+          613.888
+        ]
+      }
+    },
+    {
+      "id": "C-VALID-CLOSEOUT",
+      "tool": "agdf_closeout",
+      "server": "agdf",
+      "call_class": "valid",
+      "fixture": "F5",
+      "class": "ok",
+      "outcome": "accepted",
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 4196,
+      "text_bytes": 4196,
+      "structured_bytes": 4196,
+      "est_tokens": 1049,
+      "latency_ms": {
+        "median": 1059.899,
+        "p95": 1217.818,
+        "samples": [
+          1059.899,
+          1089.73,
+          1051.447,
+          1217.818,
+          1009.86
+        ]
+      }
+    },
+    {
+      "id": "C-SCHEMA-MISSING-CONFIRMATION",
+      "tool": "agdf_closeout",
+      "server": "agdf",
+      "call_class": "schema_invalid",
+      "fixture": "F5",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 491,
+      "text_bytes": 491,
+      "structured_bytes": 0,
+      "est_tokens": 123,
+      "latency_ms": {
+        "median": 0.984,
+        "p95": 1.434,
+        "samples": [
+          1.434,
+          0.978,
+          1.125,
+          0.984,
+          0.976
+        ]
+      }
+    },
+    {
+      "id": "C-SEM-NOT-AT-OR",
+      "tool": "agdf_closeout",
+      "server": "agdf",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "rejected",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 1165,
+      "text_bytes": 1165,
+      "structured_bytes": 1165,
+      "est_tokens": 292,
+      "latency_ms": {
+        "median": 562.105,
+        "p95": 946.351,
+        "samples": [
+          749.757,
+          946.351,
+          500.842,
+          562.105,
+          547.838
+        ]
+      }
+    },
+    {
+      "id": "K-NOUI-RENDER",
+      "tool": "agdf_cockpit",
+      "server": "cockpit_without_ui",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "blocked:resource_denied",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 376,
+      "text_bytes": 294,
+      "structured_bytes": 294,
+      "est_tokens": 74,
+      "latency_ms": {
+        "median": 5.408,
+        "p95": 881.084,
+        "samples": [
+          881.084,
+          5.696,
+          5.408,
+          1.483,
+          3.398
+        ]
+      }
+    },
+    {
+      "id": "K-NOUI-SNAPSHOT",
+      "tool": "agdf_cockpit_read",
+      "server": "cockpit_without_ui",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "agdf_failure",
+      "outcome": "blocked:resource_denied",
+      "is_error": false,
+      "failure_without_isError": true,
+      "text_bytes_raw": 376,
+      "text_bytes": 294,
+      "structured_bytes": 294,
+      "est_tokens": 74,
+      "latency_ms": {
+        "median": 2.563,
+        "p95": 10.002,
+        "samples": [
+          10.002,
+          2.919,
+          2.389,
+          2.563,
+          1.525
+        ]
+      }
+    },
+    {
+      "id": "K-NOUI-SEM-UNKNOWN-OPERATION",
+      "tool": "agdf_cockpit_read",
+      "server": "cockpit_without_ui",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 2013,
+      "text_bytes": 2013,
+      "structured_bytes": 0,
+      "est_tokens": 504,
+      "latency_ms": {
+        "median": 1.324,
+        "p95": 4.598,
+        "samples": [
+          4.598,
+          2.476,
+          1.239,
+          1.324,
+          1.229
+        ]
+      }
+    },
+    {
+      "id": "K-VALID-RENDER",
+      "tool": "agdf_cockpit",
+      "server": "cockpit_with_ui",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": null,
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 242,
+      "text_bytes": 160,
+      "structured_bytes": 160,
+      "est_tokens": 40,
+      "latency_ms": {
+        "median": 2.121,
+        "p95": 1266.982,
+        "samples": [
+          1266.982,
+          2.787,
+          1.677,
+          1.515,
+          2.121
+        ]
+      }
+    },
+    {
+      "id": "K-VALID-SNAPSHOT",
+      "tool": "agdf_cockpit_read",
+      "server": "cockpit_with_ui",
+      "call_class": "valid",
+      "fixture": "F2",
+      "class": "ok",
+      "outcome": null,
+      "is_error": false,
+      "failure_without_isError": false,
+      "text_bytes_raw": 8755,
+      "text_bytes": 8673,
+      "structured_bytes": 8673,
+      "est_tokens": 2169,
+      "latency_ms": {
+        "median": 191.582,
+        "p95": 576.024,
+        "samples": [
+          576.024,
+          212.851,
+          112.36,
+          97.209,
+          191.582
+        ]
+      }
+    },
+    {
+      "id": "K-SEM-UNKNOWN-OPERATION",
+      "tool": "agdf_cockpit_read",
+      "server": "cockpit_with_ui",
+      "call_class": "semantic_failure",
+      "fixture": "F2",
+      "class": "sdk_validation",
+      "outcome": null,
+      "is_error": true,
+      "failure_without_isError": false,
+      "text_bytes_raw": 2013,
+      "text_bytes": 2013,
+      "structured_bytes": 0,
+      "est_tokens": 504,
+      "latency_ms": {
+        "median": 1.182,
+        "p95": 1.913,
+        "samples": [
+          1.913,
+          1.08,
+          1.034,
+          1.32,
+          1.182
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "classes": {
+      "ok": 14,
+      "sdk_validation": 9,
+      "tool_error_other": 0,
+      "agdf_failure": 9,
+      "protocol_error": 0,
+      "failure_without_isError": 9,
+      "total": 32
+    },
+    "per_tool": {
+      "agdf_dispatch": {
+        "calls": 4,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 2,
+          "protocol_error": 0,
+          "failure_without_isError": 2,
+          "total": 4
+        },
+        "text_bytes_max": 3670,
+        "text_bytes_median": 1975.5,
+        "est_tokens_max": 918,
+        "latency_median_ms": 451.22
+      },
+      "agdf_inspect": {
+        "calls": 7,
+        "classes": {
+          "ok": 6,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 0,
+          "protocol_error": 0,
+          "failure_without_isError": 0,
+          "total": 7
+        },
+        "text_bytes_max": 35000,
+        "text_bytes_median": 14296,
+        "est_tokens_max": 8750,
+        "latency_median_ms": 479.256
+      },
+      "agdf_prepare": {
+        "calls": 3,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 3
+        },
+        "text_bytes_max": 6195,
+        "text_bytes_median": 1344,
+        "est_tokens_max": 1549,
+        "latency_median_ms": 723.047
+      },
+      "agdf_record": {
+        "calls": 3,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 3
+        },
+        "text_bytes_max": 4096,
+        "text_bytes_median": 2687,
+        "est_tokens_max": 1024,
+        "latency_median_ms": 608.422
+      },
+      "agdf_approve": {
+        "calls": 3,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 3
+        },
+        "text_bytes_max": 5481,
+        "text_bytes_median": 2345,
+        "est_tokens_max": 1371,
+        "latency_median_ms": 519.769
+      },
+      "agdf_revise": {
+        "calls": 3,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 3
+        },
+        "text_bytes_max": 8461,
+        "text_bytes_median": 1357,
+        "est_tokens_max": 2116,
+        "latency_median_ms": 600.434
+      },
+      "agdf_closeout": {
+        "calls": 3,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 1,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 3
+        },
+        "text_bytes_max": 4196,
+        "text_bytes_median": 1165,
+        "est_tokens_max": 1049,
+        "latency_median_ms": 562.105
+      },
+      "agdf_cockpit": {
+        "calls": 2,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 0,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 2
+        },
+        "text_bytes_max": 294,
+        "text_bytes_median": 227,
+        "est_tokens_max": 74,
+        "latency_median_ms": 3.765
+      },
+      "agdf_cockpit_read": {
+        "calls": 4,
+        "classes": {
+          "ok": 1,
+          "sdk_validation": 2,
+          "tool_error_other": 0,
+          "agdf_failure": 1,
+          "protocol_error": 0,
+          "failure_without_isError": 1,
+          "total": 4
+        },
+        "text_bytes_max": 8673,
+        "text_bytes_median": 2013,
+        "est_tokens_max": 2169,
+        "latency_median_ms": 1.944
+      }
+    }
+  }
+}

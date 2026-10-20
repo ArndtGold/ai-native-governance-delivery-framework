@@ -26,7 +26,8 @@ import { withSyntheticQaContent } from './fixtures/decision-content.js';
 const HEADER = '| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n';
 const table = rows => HEADER + rows.map(row => `| ${row.join(' | ')} |`).join('\n') + '\n';
 const fixed = 'Synthetic defect fixed and tested in the disposable fixture';
-const invalidRows = [['F-01', 'implementation_gap', 'CD+Tests', 'resolved', fixed, 'none']];
+// `tbd` is invalid in every row; a resolved finding may state `none` (quality contract).
+const invalidRows = [['F-01', 'implementation_gap', 'CD+Tests', 'resolved', fixed, 'tbd']];
 const validRows = [['F-01', 'implementation_gap', 'CD+Tests', 'resolved', fixed, 'No further action; resolved in CD+Tests']];
 // MCP results carry refusal details in their family result.
 const detail = (result, key) => result.family_result?.[key] ?? result[key];
@@ -37,12 +38,15 @@ const reviewText = (title, decision, rows) => `# ${title}\nStatus: ${decision}\n
   const routes = declaredRoutes();
   const fields = row => normalizedGapProblems(row, routes).map(problem => problem.field);
   assert.deepEqual(fields(validRows[0]), [], 'A complete resolved finding is valid.');
-  assert.deepEqual(fields(invalidRows[0]), ['required_next_step'], '`none` is no executable next step, also when resolved.');
+  assert.deepEqual(fields(invalidRows[0]), ['required_next_step'], '`tbd` is no executable next step, also when resolved.');
+  assert.deepEqual(fields(['F-01', 'implementation_gap', 'CD+Tests', 'resolved', fixed, 'none']), [], 'A resolved finding may state none.');
+  assert.deepEqual(fields(['F-01', 'implementation_gap', 'CD+Tests', 'open', fixed, 'none']), ['required_next_step'], 'An open finding needs an executable action.');
   assert.deepEqual(fields(['F-01', 'implementation_gap', 'CD+Tests', 'resolved', 'none', 'Rerun the tests']), ['evidence']);
   assert.deepEqual(fields(['F-01', 'quality_gap', 'CD+Tests', 'open', fixed, 'Rerun the tests']), ['gap_type']);
   assert.deepEqual(fields(['F-01', 'implementation_gap', 'PRD', 'open', fixed, 'Rerun the tests']), ['routing_target']);
   assert.deepEqual(fields(['F-01', 'implementation_gap', 'CD+Tests', 'closed', fixed, 'Rerun the tests']), ['gap_status']);
-  assert.deepEqual(fields(['F-01', 'emergent_risk', 'CD+Tests', 'resolved', 'A rare race remains', 'Monitor it']), ['evidence']);
+  assert.deepEqual(fields(['F-01', 'emergent_risk', 'CD+Tests', 'open', 'A rare race remains', 'Monitor it']), ['evidence']);
+  assert.deepEqual(fields(['F-01', 'emergent_risk', 'CD+Tests', 'resolved', 'A rare race was fixed in CD+Tests', 'none']), [], 'Only an open emergent risk needs the assessment.');
   assert.deepEqual(fields(['F-01', 'requirements_gap', 'UR', 'open', 'Criterion AC-001 is unclear', 'Clarify it']), ['evidence']);
   assert.deepEqual(fields(['F-01', 'implementation_gap', 'CD+Tests']), ['row']);
   assert.deepEqual(readNormalizedFindings('| finding_id | gap_type | evidence |\n|---|---|---|\n').entries.map(entry => entry.kind), ['malformed_header']);
@@ -53,7 +57,7 @@ const reviewText = (title, decision, rows) => `# ${title}\nStatus: ${decision}\n
     'A revise or block review needs its findings.');
   assert.deepEqual(reviewFindingDiagnostics('CR', '- decision: pass\n', { decision: 'pass' }), [], 'A pass review without findings is valid.');
   assert.deepEqual(reviewFindingDiagnostics('TP Review', table(invalidRows), { decision: 'pass' })[0],
-    { review: 'TP Review', finding_id: 'F-01', field: 'required_next_step', expected: 'exactly one executable action, not none, tbd, todo or a placeholder, also for a resolved finding', rule: 'required_next_step' });
+    { review: 'TP Review', finding_id: 'F-01', field: 'required_next_step', expected: 'exactly one executable action for an open finding (a resolved finding may state none), not tbd, todo or a placeholder', rule: 'required_next_step' });
 }
 
 // SCN-003: inspectQaReports keeps its results and messages; an invalid row also carries its diagnostics.
@@ -118,8 +122,9 @@ const reviewText = (title, decision, rows) => `# ${title}\nStatus: ${decision}\n
   assert.deepEqual(reviewFindingDiagnostics('CR', 'Decision: pass\n## History\n- decision: revise\n', { decision: 'pass' }).map(row => row.field), ['table']);
 }
 
-// Emulates a runtime from before D4 and D5: no review requirement before QA, no late or OR
-// correction eligibility, and no early check of normalized finding rows at recording.
+// Emulates the runtime that produced the stuck runs, from before D4, D5 and the QA decision check of
+// review findings: no review requirement before QA, no late or OR correction eligibility, no early
+// check of normalized finding rows at recording, and QA approvals without that finding check.
 const legacyCore = async () => {
   // The copy lives below the repository's node_modules, so its package imports resolve like the original's.
   const core = resolve(import.meta.dirname, '..'), base = mkdtempSync(join(core, '../../node_modules', '.agdf-pre-d5-core-'));
@@ -139,6 +144,7 @@ const legacyCore = async () => {
   strip('packages/core/lib/control-evaluation/gate-policy.js', '  // The qa-gate forbids a QA pass without review evidence', '  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA"))');
   strip('packages/core/lib/control-state/run-operation-proof.js', '  if (lateRequiredReviewEligible(state, before, input) || reviewCorrectionCandidate(state, before, input)) return true;\n');
   strip('packages/core/lib/control-state/run-steps.js', "      if (diagnostics.length) return findingsRefusal(runId, diagnostics);\n", null, 3);
+  strip('packages/core/lib/control-evaluation/decision-content-readiness.js', "    if (groups.qa === 'pass') {\n      const quality = inspectQaReports(", "    const localized = localizedDecisionFields('QA'");
   return { base, services: (await import(pathToFileURL(join(base, 'packages/core/lib/index.js')).href)).createCoreServices() };
 };
 
@@ -198,7 +204,7 @@ function createRun(name) {
 
 try {
   // Case A, shaped like core-approval-lock-defects-20261017-01: all three reviews recorded with
-  // `none` before the QA report, then QA and UAT approved with them in their material.
+  // an invalid next step (`tbd`; that run had `none`, which resolved rows may now state) before the QA report, then QA and UAT approved with them in their material.
   const a = createRun('review-correction-a');
   for (const step of ['Brownfield Analysis', 'CD+Tests']) assert.equal(a.internal(step).outcome, 'accepted', step);
 
@@ -208,7 +214,7 @@ try {
     const refused = a.internal(step, 'pass', invalidRows);
     assert.equal(refused.reason, 'review_findings_invalid', JSON.stringify(refused));
     assert.deepEqual(detail(refused, 'diagnostics'), [{ review: step, finding_id: 'F-01', field: 'required_next_step',
-      expected: 'exactly one executable action, not none, tbd, todo or a placeholder, also for a resolved finding', rule: 'required_next_step' }]);
+      expected: 'exactly one executable action for an open finding (a resolved finding may state none), not tbd, todo or a placeholder', rule: 'required_next_step' }]);
   }
   const reviewRefused = a.reviewStep('pass', invalidRows);
   assert.equal(reviewRefused.reason, 'review_findings_invalid', 'The quick-task review step applies the same check.');
@@ -223,21 +229,22 @@ try {
   writeFileSync(join(a.root, a.f.prefix + 'EXTRA_REVIEW.md'), reviewText('Extra Review', 'pass', invalidRows));
   const referenced = a.recordQa(null, service, '\n- code_review: EXTRA_REVIEW.md\n');
   assert.deepEqual(detail(referenced, 'diagnostics').map(row => row.review), ['QA reference: code_review'], 'Referenced reviews are checked like closeout does.');
-  const many = a.internal('CR', 'pass', Array.from({ length: 70 }, (_, index) => [`F-${index}`, 'implementation_gap', 'CD+Tests', 'resolved', fixed, 'none']));
+  const many = a.internal('CR', 'pass', Array.from({ length: 70 }, (_, index) => [`F-${index}`, 'implementation_gap', 'CD+Tests', 'resolved', fixed, 'tbd']));
   assert.equal(detail(many, 'diagnostics').length, 64); assert.equal(detail(many, 'diagnostics_truncated'), true);
   // SCN-004: a valid QA report records as before.
   assert.equal(a.recordQa(validRows).outcome, 'accepted');
-  a.approve('QA');
+  a.approve('QA', legacy.services.command);
   // SCN-009 (gate): the correction path exists only at OR.
   const atUat = a.internal('CR', 'pass', validRows);
   assert.equal(atUat.reason, 'internal_step_not_ready', 'At gate UAT a recorded review stays immutable.');
   assert.equal(detail(atUat, 'correction'), undefined);
-  a.approve('UAT');
+  a.approve('UAT', legacy.services.command);
   assert.equal(evaluateGateCheck(a.root, { runId: a.f.runId }).current_gate, 'OR');
 
   // SCN-010: closeout refuses and names finding, field and the correction path.
   const refusedCloseout = a.closeout();
-  assert.equal(refusedCloseout.reason, 'closeout_quality_unconfirmed');
+  assert.equal(refusedCloseout.reason, 'closeout_obligations_unfulfilled');
+  assert.ok(detail(refusedCloseout, 'findings').includes('closeout_quality_unconfirmed'));
   const closeoutDetail = detail(refusedCloseout, 'reason_detail');
   assert.ok(closeoutDetail.startsWith('Invalid or contradictory normalized finding: TP Review/F-01. required_next_step: expected exactly one executable action'), closeoutDetail);
   assert.ok(closeoutDetail.endsWith('Record TP Review again at gate OR from a corrected source that changes only the required_next_step cells, then record closeout.'), closeoutDetail);
@@ -286,7 +293,7 @@ try {
   const closedA = a.closeout();
   assert.equal(closedA.outcome, 'accepted', JSON.stringify(closedA));
 
-  // Case B, shaped like mcp-ergonomics-baseline-20261016-01: CR recorded with `none` and seen by
+  // Case B, shaped like mcp-ergonomics-baseline-20261016-01: CR recorded with an invalid next step and seen by
   // the QA approval, TP Review and Clean Implementation Review never recorded before QA and UAT.
   const b = createRun('review-correction-b');
   for (const step of ['Brownfield Analysis', 'CD+Tests']) assert.equal(b.internal(step).outcome, 'accepted', step);
@@ -298,7 +305,8 @@ try {
   assert.equal(b.internal('TP Review', 'pass', validRows).outcome, 'accepted');
   assert.equal(b.internal('Clean Implementation Review', 'pass', validRows).outcome, 'accepted');
   const refusedB = b.closeout();
-  assert.equal(refusedB.reason, 'closeout_quality_unconfirmed', 'The invalid CR still blocks closeout.');
+  assert.equal(refusedB.reason, 'closeout_obligations_unfulfilled', 'The invalid CR still blocks closeout.');
+  assert.ok(detail(refusedB, 'findings').includes('closeout_quality_unconfirmed'));
   assert.ok(detail(refusedB, 'reason_detail').endsWith('Record CR again at gate OR from a corrected source that changes only the required_next_step cells, then record closeout.'));
   assert.equal(b.internal('CR', 'pass', validRows).outcome, 'accepted');
   // SCN-015: the CR correction is proven; both reviews are unseen late recordings, not corrections.

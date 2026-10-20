@@ -1,0 +1,15 @@
+npm notice run create-agdf@0.14.5 test:interaction-presentation
+npm notice run node ../core/test/interaction-presentation-test.js
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/interaction-presentation.js:146
+  if (!validation.valid) throw new Error(`Invalid AGDF interaction locale registry: ${validation.errors.join(",")}`);
+                               ^
+
+Error: Invalid AGDF interaction locale registry: length_budget:en:mcpErrors.causes.operation_source_invalid,length_budget:en:mcpErrors.causes.presentation_missing,length_budget:en:mcpErrors.causes.closeout_not_ready,length_budget:de:mcpErrors.causes.operation_source_invalid,length_budget:de:mcpErrors.causes.presentation_missing,length_budget:de:mcpErrors.causes.closeout_not_ready
+    at resolvePresentationLocale (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/interaction-presentation.js:146:32)
+    at localePack (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/interaction-presentation.js:165:27)
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/core/lib/control-evaluation/next-action.js:12:47
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

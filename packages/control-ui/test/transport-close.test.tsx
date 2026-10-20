@@ -67,3 +67,30 @@ it('never retargets a late explicit close or treats an unconfirmed reply as clos
   await expect(bridge.operation({ operation: 'close', run_id: 'foreign' }, undefined, session(2))).rejects.toThrow('resource_denied');
   expect(callServerTool).toHaveBeenCalledTimes(2);
 });
+
+
+it('preserves only checked negative DTOs under isError and retains binding/session validation', async () => {
+  const bridge = new CockpitBridge(); bridge.session = session(1);
+  const value = { schema_version: '1', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: null,
+    observed_as_of: null, source_digest: null, state: 'blocked', code: 'source_changed', retryable: true, data: null };
+  callServerTool.mockResolvedValue({ isError: true, structuredContent: value });
+  await expect(bridge.read('/api/snapshot', new AbortController().signal)).resolves.toEqual(value);
+  callServerTool.mockResolvedValue({ isError: true, structuredContent: { ...value, state: 'available', data: { closed: true } } });
+  await expect(bridge.operation({ operation: 'close' })).rejects.toThrow('read_failed');
+  callServerTool.mockResolvedValue({ isError: true, structuredContent: { ...value, schema_version: 'forged' } });
+  await expect(bridge.operation({ operation: 'snapshot' })).rejects.toThrow('dto_invalid');
+  callServerTool.mockResolvedValue({ isError: true, structuredContent: value });
+  await expect(bridge.read('/api/snapshot', new AbortController().signal, { target: 'other', snapshot: 'old' })).rejects.toThrow('dto_invalid');
+  let release!: () => void;
+  callServerTool.mockImplementation(() => new Promise(resolve => { release = () => resolve({ isError: true, structuredContent: value }); }));
+  const old = bridge.operation({ operation: 'snapshot' }); bridge.session = session(2); release();
+  await expect(old).rejects.toThrow('session_invalid');
+});
+
+it('retains the existing expired-session close acknowledgement without accepting error-flagged success', async () => {
+  const bridge = new CockpitBridge(); bridge.session = session(1);
+  const negative = { schema_version: '1', outcome: 'rejected', reason: 'session_expired', authorizes: false };
+  callServerTool.mockResolvedValue({ isError: true, structuredContent: negative });
+  await expect(bridge.operation({ operation: 'close' })).resolves.toEqual(negative);
+  await expect(bridge.operation({ operation: 'snapshot' })).rejects.toThrow('session_expired');
+});

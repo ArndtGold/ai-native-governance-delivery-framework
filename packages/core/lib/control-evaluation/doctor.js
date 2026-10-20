@@ -36,6 +36,12 @@ const RUN_SEAL_FINDINGS = Object.freeze({
 });
 
 export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
+  return evaluateDoctorWithRunState(targetDir, selection, dependencies).report;
+}
+
+// A gate evaluation consumes the exact state already read by its doctor check.
+// This observation lives only for that evaluation; later calls and writes read afresh.
+export function evaluateDoctorWithRunState(targetDir, selection = {}, dependencies = {}) {
   if (selection.allActive) {
     const selected = resolveRuns(targetDir, { allActive: true });
     const runs = selected.runs.map((run) => ({
@@ -57,7 +63,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
       })),
       ...runs.flatMap((item) => item.report.findings.map((finding) => ({ ...finding, run_id: item.run_id }))),
     ];
-    return {
+    return { report: {
       schema_version: "1",
       status,
       checked_at: new Date().toISOString(),
@@ -75,7 +81,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
       },
       findings,
       runs,
-    };
+    } };
   }
   const findings = [];
   for (const pendingId of pendingRunStepIds(targetDir)) {
@@ -88,7 +94,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
       "Retry the exact run-step for the pending run to recover it, or inspect conflicting bytes before manual repair.",
     );
   }
-  let reconciliation;
+  let reconciliation, selectedRunState;
   const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
   if (hasCanonicalRuns) {
     const projection = verifyLegacyProjection(targetDir);
@@ -123,7 +129,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
   }
 
   if (missing.length === 0) {
-    const selectedRunState = readRunState(targetDir, selection);
+    selectedRunState = readRunState(targetDir, selection);
     const runPath = selectedRunState.path;
     const run = selectedRunState.content;
 
@@ -310,7 +316,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
   const maxSeverity = findings.reduce((max, finding) => Math.max(max, severityRank[finding.severity] ?? 0), 0);
   const status = maxSeverity >= 3 ? "block" : maxSeverity === 2 ? "revise" : maxSeverity === 1 ? "warn" : "pass";
 
-  return {
+  return { runState: selectedRunState, report: {
     schema_version: "1",
     status,
     checked_at: new Date().toISOString(),
@@ -324,7 +330,7 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
     parent_reconciliation: reconciliation?.parent_reconciliation,
     programme_aggregation: reconciliation?.programme_aggregation,
     findings,
-  };
+  } };
 }
 
 export function printDoctorReport(report, json, io = console) {

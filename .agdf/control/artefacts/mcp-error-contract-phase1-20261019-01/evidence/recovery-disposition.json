@@ -1,0 +1,49 @@
+{
+  "original_command": "npm --prefix packages/mcp-server run test:run-command-flow",
+  "original_exit_code": 1,
+  "original_log": "command-recovery.log",
+  "cause": "unchanged worker deadline; effect_unknown/dispatch_worker_termination_unconfirmed",
+  "first_three_test_files_passed": true,
+  "rechecks": [
+    {
+      "name": "mcp-structured-flow-recheck",
+      "command": [
+        "node",
+        "packages/mcp-server/test/structured-flow.test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:12:25.885689+00:00",
+      "completed_at": "2026-10-19T17:16:34.892213+00:00",
+      "exit_code": 0,
+      "log": "mcp-structured-flow-recheck.log"
+    },
+    {
+      "name": "mcp-revision-command-recheck",
+      "command": [
+        "node",
+        "packages/mcp-server/test/revision-command.test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:16:34.895245+00:00",
+      "completed_at": "2026-10-19T17:18:56.924903+00:00",
+      "exit_code": 0,
+      "log": "mcp-revision-command-recheck.log"
+    },
+    {
+      "name": "mcp-expanded-source-revision-recheck",
+      "command": [
+        "node",
+        "packages/mcp-server/test/expanded-source-revision.test.js"
+      ],
+      "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+      "started_at": "2026-10-19T17:18:56.935935+00:00",
+      "completed_at": "2026-10-19T17:27:25.128933+00:00",
+      "exit_code": 0,
+      "log": "mcp-expanded-source-revision-recheck.log"
+    }
+  ],
+  "effective_node_test_files": 6,
+  "all_effective_files_passed": true,
+  "production_sources_unchanged": true,
+  "original_effect_not_inferred": "Fresh disposable fixture is a test rerun, not proof of rollback or recovery of the discarded original fixture."
+}

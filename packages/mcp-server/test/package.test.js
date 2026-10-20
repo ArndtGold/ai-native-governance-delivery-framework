@@ -77,3 +77,41 @@ assert.equal(node18Probe.stdout, "");
 assert.equal(node18Probe.stderr, "AGDF_MCP_NODE_UNSUPPORTED\n");
 
 console.log("AGDF MCP package boundary tests passed.");
+
+// Execute the exact npm archives, not a source-only projection. The existing
+// fixture supplies only the pinned SDK dependency and ownership marker.
+const { mkdirSync } = await import('node:fs');
+const { createOwnedRuntimeFixture } = await import('./owned-runtime.js');
+const { withStdioClient, unresolvedArguments } = await import('./helpers.js');
+const packedRoot = mkdtempSync(join(tmpdir(), 'agdf-error-packed-'));
+try {
+  const unpacked = [];
+  for (const name of ['create-agdf', 'agdf-mcp-server']) {
+    const invocation = npmInvocation(['pack', '--json', '--ignore-scripts', '--pack-destination', packedRoot]);
+    const reports = JSON.parse(execFileSync(invocation.executable, invocation.args, {
+      cwd: fileURLToPath(new URL(`../../../dist/npm/${name}/`, import.meta.url)), encoding: 'utf8',
+      env: { ...process.env, npm_config_cache: join(packedRoot, 'cache') }, stdio: ['ignore', 'pipe', 'pipe'],
+    }));
+    const destination = join(packedRoot, name); mkdirSync(destination);
+    const report = Array.isArray(reports) ? reports[0] : reports[name === 'create-agdf' ? 'create-agdf' : '@agdf/mcp-server'];
+    assert.equal(typeof report?.filename, 'string', 'npm pack must report its archive filename');
+    execFileSync('tar', ['-xzf', report.filename, '--strip-components=1', '-C', name], { cwd: packedRoot });
+    unpacked.push(destination);
+  }
+  const owned = createOwnedRuntimeFixture({ dispatcherSourceRoot: unpacked[0], candidateServerRoot: unpacked[1] });
+  try {
+    assert.ok(readFileSync(join(owned.dispatcherRoot, 'runtime/core/lib/mcp-tool-errors.js'), 'utf8').includes('agdf-tool-result/1'));
+    await withStdioClient(owned, async client => {
+      const error = await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments });
+      assert.equal(error.isError, true); assert.equal(error.content.length, 2);
+      assert.equal(error.structuredContent.runtime.provenance_status, 'matched');
+      assert.equal(error.structuredContent.outcome, 'target_unresolved');
+      assert.equal(error._meta?.['agdf/tool-result'], undefined);
+      const ok = await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en',
+        working_directory: owned.governanceTarget, primary_target: owned.governanceTarget, target_source: 'explicit_target' } });
+      assert.equal(ok.isError, undefined); assert.equal(ok.content.length, 1);
+      assert.equal(ok.structuredContent.outcome, 'inspect_result');
+    });
+  } finally { owned.dispose(); }
+  console.log('Exact packed CLI/MCP archives: matched owned SDK/stdio error and success smoke passed.');
+} finally { rmSync(packedRoot, { recursive: true, force: true }); }

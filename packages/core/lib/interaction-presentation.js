@@ -124,7 +124,7 @@ function validateReadLocaleRegistry(registry) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const cardBudget = key.startsWith("decisionCard.") ? DECISION_CARD_COPY_BUDGETS[key.slice("decisionCard.".length)] : null;
       const budget = cardBudget ? budgets[cardBudget]
-        : key.startsWith("sourceRevision.") ? budgets.description
+        : key.startsWith("sourceRevision.") || key.startsWith("mcpErrors.") ? budgets.description
         : key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
         : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("skillDispatch.sourceInput.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description

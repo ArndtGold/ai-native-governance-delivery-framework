@@ -1,0 +1,131 @@
+{
+  "schema_version": "1",
+  "outcome": "accepted",
+  "reason": null,
+  "operation_id": "f4c6ac91-1634-4999-a8f0-8a9281a1da62",
+  "request_digest": "sha256:f42d05e39ab980508fbc1ac3025f1287023d059d58fd572c15eb0a2152cdde63",
+  "binding": {
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-error-contract-phase1-20261019-01",
+    "expected_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+    "kind": "closeout.record"
+  },
+  "effect": {
+    "previous_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+    "resulting_revision_id": "d01d975b-46ae-49e5-b184-62fec2e5a633",
+    "revision": 24,
+    "record": {
+      "or": {
+        "path": ".agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/OR.md",
+        "digest": "sha256:684c41ea66b6ca2a2d58e09dc608b80a7414a2f40354bef2d174a848a2cf6dff"
+      },
+      "lifecycle": "completed",
+      "context_evidence_digest": "sha256:109a8d1bb2a7091d6a7c9271c044c09ec5cd47927446d40d0e1b9d75564b4eb4",
+      "confirmation_digest": "sha256:af9191487343de37092e7a4b2306850a7e7107db0c5ef1865cdbf44fed040d0e"
+    }
+  },
+  "receipt": {
+    "schema_version": "1",
+    "kind": "closeout.record",
+    "operation_id": "f4c6ac91-1634-4999-a8f0-8a9281a1da62",
+    "request_digest": "sha256:f42d05e39ab980508fbc1ac3025f1287023d059d58fd572c15eb0a2152cdde63",
+    "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+    "run_id": "mcp-error-contract-phase1-20261019-01",
+    "expected_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+    "created_at": "2026-10-19T19:48:54.144Z",
+    "producer": {
+      "contract": "run-command/1",
+      "package_version": "0.14.5"
+    },
+    "assurance": {
+      "lane": "cooperative_local",
+      "reply_provenance": "caller_forwarded_deliberate_reply",
+      "independent_human_proof": "unavailable"
+    },
+    "effect": {
+      "previous_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+      "resulting_revision_id": "d01d975b-46ae-49e5-b184-62fec2e5a633",
+      "revision": 24,
+      "record": {
+        "or": {
+          "path": ".agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/OR.md",
+          "digest": "sha256:684c41ea66b6ca2a2d58e09dc608b80a7414a2f40354bef2d174a848a2cf6dff"
+        },
+        "lifecycle": "completed",
+        "context_evidence_digest": "sha256:109a8d1bb2a7091d6a7c9271c044c09ec5cd47927446d40d0e1b9d75564b4eb4",
+        "confirmation_digest": "sha256:af9191487343de37092e7a4b2306850a7e7107db0c5ef1865cdbf44fed040d0e"
+      }
+    }
+  },
+  "historical_effect": false,
+  "current": {
+    "available": true,
+    "revision": 24,
+    "revision_id": "d01d975b-46ae-49e5-b184-62fec2e5a633",
+    "lifecycle": "completed",
+    "gate": "OR",
+    "status": "pass",
+    "missing_approval": "none",
+    "blocking_reason": "none",
+    "next_operation": null,
+    "completion": {
+      "status": "completed",
+      "gate": "OR",
+      "fulfilled": true,
+      "vcs_handoff": "explicit_request_required"
+    }
+  },
+  "assurance": {
+    "lane": "cooperative_local",
+    "reply_provenance": "caller_forwarded_deliberate_reply",
+    "independent_human_proof": "unavailable"
+  },
+  "authorizes": false,
+  "recovery": null,
+  "family_result": {
+    "schema_version": "1",
+    "outcome": "recorded",
+    "run_id": "mcp-error-contract-phase1-20261019-01",
+    "step": "closeout",
+    "previous_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+    "revision": "24",
+    "revision_id": "d01d975b-46ae-49e5-b184-62fec2e5a633",
+    "current_gate": "OR",
+    "next_allowed_action": "Run completed; prepare a VCS handoff only when explicitly requested.",
+    "backlog": "updated",
+    "operation_id": "f4c6ac91-1634-4999-a8f0-8a9281a1da62",
+    "receipt": {
+      "schema_version": "1",
+      "kind": "closeout.record",
+      "operation_id": "f4c6ac91-1634-4999-a8f0-8a9281a1da62",
+      "request_digest": "sha256:f42d05e39ab980508fbc1ac3025f1287023d059d58fd572c15eb0a2152cdde63",
+      "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+      "run_id": "mcp-error-contract-phase1-20261019-01",
+      "expected_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+      "created_at": "2026-10-19T19:48:54.144Z",
+      "producer": {
+        "contract": "run-command/1",
+        "package_version": "0.14.5"
+      },
+      "assurance": {
+        "lane": "cooperative_local",
+        "reply_provenance": "caller_forwarded_deliberate_reply",
+        "independent_human_proof": "unavailable"
+      },
+      "effect": {
+        "previous_revision_id": "7b57d417-7226-49f4-bb91-e8f8af80c206",
+        "resulting_revision_id": "d01d975b-46ae-49e5-b184-62fec2e5a633",
+        "revision": 24,
+        "record": {
+          "or": {
+            "path": ".agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/OR.md",
+            "digest": "sha256:684c41ea66b6ca2a2d58e09dc608b80a7414a2f40354bef2d174a848a2cf6dff"
+          },
+          "lifecycle": "completed",
+          "context_evidence_digest": "sha256:109a8d1bb2a7091d6a7c9271c044c09ec5cd47927446d40d0e1b9d75564b4eb4",
+          "confirmation_digest": "sha256:af9191487343de37092e7a4b2306850a7e7107db0c5ef1865cdbf44fed040d0e"
+        }
+      }
+    }
+  }
+}

@@ -378,6 +378,14 @@ try {
   expectIntegrityFailure(/quality contract missing normalized review-gap invariant: design_gap/);
 
   resetPluginFixture();
+  replaceRequired(
+    qualityContractPath,
+    "`none` is not a seventh normalized finding type",
+    "`none` is a seventh normalized finding type",
+  );
+  expectIntegrityFailure(/quality contract missing normalized review-gap invariant: `none` is not a seventh normalized finding type/);
+
+  resetPluginFixture();
   writeFileSync(
     cleanReviewPath,
     `${readFileSync(cleanReviewPath, "utf8")}\n| gap_type | meaning | routing_target |\n|---|---|---|\n`,

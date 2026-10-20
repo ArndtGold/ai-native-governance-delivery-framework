@@ -25,7 +25,7 @@ for (const modern of [false, true]) {
   try {
     await withStdioClient({ ...fixture, modern }, async client => {
       failed(await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments }), 'no_reliable_target');
-      failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: '/tmp' } }), 'no_reliable_target');
+      failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: tmpdir() } }), 'no_reliable_target');
       const invalid = await client.callTool({ name: 'agdf_dispatch', arguments: { ...unresolvedArguments, skill_id: 'not-a-skill' } });
       failed(invalid, 'dispatch_input_invalid');
       assert.equal(invalid.structuredContent.diagnostics[0].field, 'skill_id');
@@ -59,7 +59,7 @@ for (const modern of [false, true]) {
     const { pathToFileURL } = await import('node:url');
     const { createWorkerDispatchExecutor: ownedExecutor } = await import(pathToFileURL(fixture.serverRoot + '/src/worker.js'));
     const worker = ownedExecutor({ surface: 'codex', expectedVersion: createTestRuntime().trustedContext.expectedVersion });
-    try { await assert.rejects(worker.execute({ presentation_language: 'de', working_directory: '/tmp' }, { toolName: 'agdf_dispatch' }),
+    try { await assert.rejects(worker.execute({ presentation_language: 'de', working_directory: tmpdir() }, { toolName: 'agdf_dispatch' }),
       error => error.code === 'dispatch_input_invalid' && error.dispatch === 'not_dispatched' && error.facts.field === 'skill_id'); }
     finally { await worker.close(); }
   } finally { fixture.dispose(); }
@@ -116,7 +116,7 @@ for (const raw of [
 });
 const malformedInspect = runtime.failure('dispatch_busy', 'agdf_inspect'); delete malformedInspect.operation;
 await injected(runtime, { execute: async () => malformedInspect, close: async () => {} }, async client => {
-  failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: '/tmp' } }), 'tool_result_invalid');
+  failed(await client.callTool({ name: 'agdf_inspect', arguments: { operation: 'doctor', presentation_language: 'en', working_directory: tmpdir() } }), 'tool_result_invalid');
 });
 await injected(runtime, { execute: async () => { throw Error('/private/SECRET'); }, close: async () => {} }, async client => {
   const reply = await client.callTool({ name: 'agdf_dispatch', arguments: unresolvedArguments });

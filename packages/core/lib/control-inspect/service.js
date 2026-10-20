@@ -7,7 +7,7 @@ import { readRuntimeContract } from "../resources/contracts.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation, renderActiveRunInventory } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
-import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput } from "./contract.js";
+import { CONTROL_INSPECT_CONTRACT_VERSION, CONTROL_INSPECT_SCHEMA_VERSION, ReadSelectionError, normalizeControlInspectInput, inspectContractHelp, PRESENTATION_CATALOG_MODULE } from "./contract.js";
 import { operationContract } from '../control-state/run-command-contract.js';
 import { inspectRunOperation } from '../control-state/run-operation-status.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
@@ -17,7 +17,7 @@ import { policyForRunContent } from '../control-evaluation/run-step-policy.js';
 import { parseRunState } from '../control-state/run-state-parser.js';
 import { artefactFileDigest, runSealState } from '../control-state/run-seal.js';
 import { readArtefactBindings } from '../control-state/artefact-bindings.js';
-import { readPresentationDocument, readPresentationPreview } from '../control-state/run-presentation.js';
+import { readPresentationDocument, readPresentationPreview, readPresentationCatalog } from '../control-state/run-presentation.js';
 import { sourceRevisionBoundary } from '../control-state/run-revision-boundary.js';
 import { sourceRevisionQualityFacts } from '../control-state/run-source-revisions.js';
 import { readHistoryBytes } from '../control-state/run-revision-history.js';
@@ -233,6 +233,13 @@ export function createControlInspectService(dependencies = {}) {
             const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
               && runSealState(target.governance_target, state.content).status === 'valid';
             return { report: valid ? { ...operationContract(input.group, input.kind, { gate: input.gate }),
+              ...(input.contract_module === PRESENTATION_CATALOG_MODULE ? {
+                inspect_contract: inspectContractHelp(),
+                presentation_catalog: readPresentationCatalog(target.governance_target, { runId: input.run_id,
+                  revisionId: input.expected_revision_id, targetId, gate: input.gate, cursor: input.cursor,
+                  workingDirectory: input.working_directory, targetSource: input.target_source,
+                  primaryTarget: input.primary_target, language: input.presentation_language }),
+              } : {}),
               ...(input.kind.startsWith('source_revision.') ? { revision_facts: {
                 policy_version: 2, eligible_sources: ['UR', 'PRD', 'SD', 'TP'].filter(gate => sourceRevisionBoundary(state, gate, 2)),
                 initiating_phase: policyForRunContent(target.governance_target, state.content, state.path).current_gate,

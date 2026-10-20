@@ -129,6 +129,35 @@ try {
   }
   writeFileSync(join(files,'UR.md'),ur);
   assert.equal(observeDecisionContent(root,state,{gate:'UAT',locale:'de'}).groups.goal,'Das konkrete Ergebnis prüfen.','Structured summaries still use the explicit goal field');
+  const combinedGoal = 'Coding-Agenten zeigen das vollständige Dokument. Maintainer erhalten nachvollziehbare Nachweise.';
+  const combinedUr = ur.replace('- Ziel: Das konkrete Ergebnis prüfen.', '- Ziel und Betroffene: ' + combinedGoal);
+  writeFileSync(join(files,'UR.md'),combinedUr);
+  const combinedResult = observeDecisionContent(root,state,{gate:'UAT',locale:'de'});
+  assert.equal(combinedResult.ready,true,JSON.stringify(combinedResult));
+  assert.equal(combinedResult.groups.goal,combinedGoal,'The exact existing combined label retains its complete authored value');
+  assert.equal(readFileSync(join(files,'UR.md'),'utf8'),combinedUr,'Observing the legacy label never rewrites approved content');
+  for (const options of [{locale:'en',sourceLanguage:'de'}, {locale:'de',sourceLanguage:'de'}]) {
+    assert.equal(readAuthoredContent(combinedUr,'localized',options),null,'The alias never bypasses locale/source matching');
+  }
+  assert.equal(readAuthoredContent(combinedUr.replace('(de; source=en)','(en; source=de)'),'localized',{locale:'en',sourceLanguage:'de'}),null,'The German alias is restricted to German summaries');
+  for (const [name,summary] of [
+    ['duplicate with canonical field', '- Ziel: Anderes Ziel.\n- Ziel und Betroffene: ' + combinedGoal],
+    ['reverse duplicate with canonical field', '- Ziel und Betroffene: ' + combinedGoal + '\n- Ziel: Anderes Ziel.'],
+    ['same-value canonical duplicate', '- Ziel: ' + combinedGoal + '\n- Ziel und Betroffene: ' + combinedGoal],
+    ['duplicate alias', '- Ziel und Betroffene: ' + combinedGoal + '\n- Ziel und Betroffene: ' + combinedGoal],
+    ['empty alias', '- Ziel und Betroffene:'],
+    ['placeholder alias', '- Ziel und Betroffene: TODO'],
+    ['oversized alias', '- Ziel und Betroffene: ' + 'x'.repeat(1201)],
+    ['unrecognized combined label', '- Ziel und Umfang: ' + combinedGoal],
+    ['quoted alias', '> - Ziel und Betroffene: ' + combinedGoal],
+    ['fenced alias', '```\n- Ziel und Betroffene: ' + combinedGoal + '\n```'],
+    ['HTML alias', '<div>\n- Ziel und Betroffene: ' + combinedGoal + '\n</div>'],
+    ['mixed prose and alias', proseGoal + '\n\n- Ziel und Betroffene: ' + combinedGoal],
+  ]) {
+    writeFileSync(join(files,'UR.md'),ur.slice(0,ur.indexOf(summaryHeading)) + summaryHeading + summary);
+    assert.ok(observeDecisionContent(root,state,{gate:'UAT',locale:'de'}).gaps.some(g=>g.field==='ziel'),name);
+  }
+  writeFileSync(join(files,'UR.md'),ur);
   writeFileSync(join(files,'QA_REPORT.md'),qa.replace('- Risiken: keine','- Entscheidung: pass\n- TP-Abdeckung: Der begrenzte Plan ist erfüllt.\n- Lücken: Native Prüfung bleibt außerhalb des Scopes.\n- Risiken: keine'));
   assert.equal(observeDecisionContent(root,state,{gate:'QA',locale:'de'}).ready,true,'Existing authored QA summary labels retain the same contiguous scalar context.');
   writeFileSync(join(files,'QA_REPORT.md'),qa);

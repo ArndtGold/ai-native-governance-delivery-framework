@@ -31,6 +31,15 @@ try {
   await record({ step: 'route', route: 'quick_task', reason: 'One bounded function and regression; no public policy or contract impact.', source: source('BROWNFIELD_CANDIDATE.md', '# Brownfield Review\nSynthetic disposable single-function scope.\n') });
   const prepared = await service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate: 'UR' } } });
   assert.equal(prepared.outcome, 'accepted', JSON.stringify(prepared));
+  const discovered = await service('agdf_inspect', { operation: 'operation-contract', module: 'agdf_prepare/presentation.prepare',
+    presentation_language: 'en', working_directory: root, target_source: 'explicit_target', primary_target: root,
+    run_id: run, expected_revision_id: revision(), gate: 'UR' });
+  assert.equal(discovered.report.presentation_catalog.state, 'unique', JSON.stringify(discovered));
+  const selected = discovered.report.presentation_catalog.candidates[0];
+  assert.equal(selected.presentation_id, prepared.family_result.presentation_id);
+  const document = await service('agdf_inspect', selected.read_arguments);
+  assert.equal(document.report.complete, true);
+  assert.equal(document.report.content, readFileSync(join(root, `.agdf/control/runs/${run}/presentations/${selected.presentation_id}.document`), 'utf8'));
   const approved = await service('agdf_approve', { ...bound(), command: { kind: 'approval.record', payload: { gate: 'UR', presentation_id: prepared.family_result.presentation_id, response: 'Approval: UR' } } });
   assert.equal(approved.outcome, 'accepted', JSON.stringify(approved));
   const dispatch = async (continue_delivery = true) => service('agdf_dispatch', { skill_id: 'gate-check',

@@ -440,8 +440,8 @@ function syncCopilotPluginContract() {
     component: "runtime_contract", owner: "plugins/agdf/meta/agdf-runtime-contract.md", rule: "copilot_name_projection",
     requirement: "shared gate and output contract", source: "plugins/agdf/meta/agdf-runtime-contract.md",
   });
-  writeCopilot(join(generatedCopilotPluginSkillsRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath), {
-    component: "locale_registry", owner: "plugins/agdf/meta/agdf-interaction-locales.json", rule: "copy",
+  writeCopilot(join(generatedCopilotPluginSkillsRoot, interactionLocaleFileName), JSON.stringify(JSON.parse(read(sourceInteractionLocalesPath))) + "\n", {
+    component: "locale_registry", owner: "plugins/agdf/meta/agdf-interaction-locales.json", rule: "compact_json",
     requirement: "localized interaction presentation", source: "plugins/agdf/meta/agdf-interaction-locales.json",
   });
   for (const moduleName of contractModules) {

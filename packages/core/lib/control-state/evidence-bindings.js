@@ -14,6 +14,9 @@ export const EVIDENCE_PREREQUISITES = Object.freeze({
 // Reviews a structured closeout requires (closeout-readiness.js). Gate order and late
 // recording use the same list, so no route can be approved into an unclosable state.
 export const STRUCTURED_REQUIRED_REVIEWS = Object.freeze(['TP Review', 'Clean Implementation Review']);
+// `Clean Review` is the supported legacy name of the Clean Implementation Review row.
+export const reviewArtefactType = (state, step) => step === 'Clean Implementation Review' && !state.artefacts.get(step)?.path
+  && state.artefacts.get('Clean Review')?.path ? 'Clean Review' : step;
 // Reviews whose normalized findings closeout inspects; at OR they may be recorded again only
 // to correct invalid rows (run-operation-proof.js, presentation-decision.js).
 export const CORRECTABLE_REVIEWS = Object.freeze([...STRUCTURED_REQUIRED_REVIEWS, 'CR']);

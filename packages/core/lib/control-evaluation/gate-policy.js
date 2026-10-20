@@ -1,7 +1,7 @@
 import { extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state-policy.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
-import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "./closeout-readiness.js";
+import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from "../control-state/evidence-bindings.js";
 
 // Compatible display text. Execution consumes the semantic operation, never this sentence.
 export const CD_TESTS_NEXT_ALLOWED_ACTION = "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.";

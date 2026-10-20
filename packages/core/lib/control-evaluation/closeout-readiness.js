@@ -2,13 +2,10 @@ import { extractField } from './verified-change.js';
 import { cleanStatusCell, filled, isPlaceholderValue, markdownSection, tableRows } from './shared.js';
 import { canonicalJson, digest } from '../control-state/approval-command-contract.js';
 import { readReportDecision } from './report-decision.js';
-import { STRUCTURED_REQUIRED_REVIEWS } from '../control-state/evidence-bindings.js';
+import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from '../control-state/evidence-bindings.js';
 import { inspectQaReports } from './qa-follow-up.js';
 
-export { STRUCTURED_REQUIRED_REVIEWS };
-// `Clean Review` is the supported legacy name of the Clean Implementation Review row.
-export const reviewArtefactType = (state, step) => step === 'Clean Implementation Review' && !state.artefacts.get(step)?.path
-  && state.artefacts.get('Clean Review')?.path ? 'Clean Review' : step;
+export { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType };
 
 export const closeoutConfirmation = (runId, revisionId, operationId, orDigest) => `Close Run: ${runId} ${revisionId} ${operationId} ${orDigest}`;
 const value = (text, field, label) => cleanStatusCell(extractField(text, field) || (label ? text.match(new RegExp(`^${label}:[ \\t]*(.*)$`, 'mu'))?.[1] : ''));

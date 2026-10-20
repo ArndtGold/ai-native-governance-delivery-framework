@@ -287,7 +287,7 @@ for (const skill of pluginDefinition.skillSet) {
 console.log("Skill dispatch semantic function contract tests passed");
 
 // agdf_inspect: one read tool with an operation enum, capped definition size, non-authorizing output.
-const { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTES, controlInspectDefinitionBytes } = await import("#agdf-core/control-inspect/contract.js");
+const { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTES, controlInspectDefinitionBytes, inspectContractHelp } = await import("#agdf-core/control-inspect/contract.js");
 assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
 assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, { ...definition.annotations, readOnlyHint: true });
@@ -296,10 +296,25 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
-assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.terminal.type, "boolean");
+const validateInspectOutput = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema);
+for (const outcome of ["inspect_result", "target_unresolved", "invalid_input", "evaluator_error"]) {
+  const terminal = outcome !== "inspect_result";
+  const result = { outcome, terminal, authorizes: false, operation: "doctor", target: null,
+    report: terminal ? null : {}, recovery: terminal ? { action: "Resolve the reported input." } : null,
+    presentation: null, host_action: { mode: "test", source: "report", allow_surrounding_text: true, may_request_run_or_evidence: false } };
+  assert.equal(validateInspectOutput(result), true, `${outcome}: ${JSON.stringify(validateInspectOutput.errors)}`);
+  for (const invalidTerminal of [!terminal, "true", "false", 0, 1, null]) {
+    assert.equal(validateInspectOutput({ ...result, terminal: invalidTerminal }), false, `${outcome}: terminal=${JSON.stringify(invalidTerminal)}`);
+  }
+  const missingTerminal = { ...result }; delete missingTerminal.terminal;
+  assert.equal(validateInspectOutput(missingTerminal), false, `${outcome}: terminal is required`);
+  assert.equal(validateInspectOutput({ ...result, report: terminal ? {} : null }), false, `${outcome}: report follows the terminal branch`);
+  assert.equal(validateInspectOutput({ ...result, recovery: terminal ? null : { action: "Unexpected recovery." } }), false, `${outcome}: recovery follows the terminal branch`);
+}
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Read-only/u);
-assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Contract module=agdf_prepare\/presentation\.prepare; status=UUID/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /gate-check -> operation-contract module=agdf_prepare\/presentation\.prepare -> catalog read_arguments -> presentation-document\/next_cursor/u);
+assert.match(inspectContractHelp().parameters.module.description, /operation-status uses the original operation_id from the saved command receipt/u);
 assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);
 assert.match(definition.outputSchema.properties.presentation.description, /only after its presentation_id exists/u);
 console.log("agdf_inspect function contract pins passed.");

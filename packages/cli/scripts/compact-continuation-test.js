@@ -56,6 +56,15 @@ try {
   quick.artefacts.set('CR', { path: path('CR'), status: 'done' });
   actual = dispatch(report(quick))(input);
   assert.equal(actual.continuation.phase, 'compact_closeout'); assert.equal(actual.skill.skill_id, 'release-or');
+  assert.deepEqual(actual.continuation.source_artifacts.map(source => source.type), ['UR', 'Brownfield Review', 'CR']);
+  // The CLI review step records a done CR without a file; only a registered file is bound and must be valid.
+  quick.artefacts.set('CR', { path: '', status: 'done' });
+  actual = dispatch(report(quick))(input);
+  assert.equal(actual.continuation.phase, 'compact_closeout');
+  assert.deepEqual(actual.continuation.source_artifacts.map(source => source.type), ['UR', 'Brownfield Review']);
+  quick.artefacts.set('CR', { path: path('CR_MISSING'), status: 'done' });
+  assert.equal(dispatch(report(quick))(input).outcome, 'evaluator_error');
+  quick.artefacts.set('CR', { path: path('CR'), status: 'done' });
   for (const applicability of ['superseded', 'unknown']) {
     quick.evidence_applicability = { by_step: new Map([['CR', { applicability }]]) };
     assert.equal(report(quick).next_operation.type, 'implement_compact_scope');

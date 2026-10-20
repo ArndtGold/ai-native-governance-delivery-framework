@@ -64,5 +64,30 @@ try {
   const completed = dispatch();
   assert.equal(completed.terminal, true); assert.equal(completed.control.next_operation, null);
   assert.doesNotMatch(readFileSync(join(root, '.agdf/control/MASTER_BACKLOG.md'), 'utf8').split('## Completed / Superseded Pointers')[0], /\| quick-command \|/);
+
+  // The documented CLI lane records the Code Review without a registered file; closeout must still be reachable.
+  const cliRun = 'quick-cli', cliPrefix = `.agdf/control/artefacts/${cliRun}/`, cliPath = join(root, `.agdf/control/runs/${cliRun}/RUN_STATE.md`);
+  const cliRevision = () => parseRunState(readFileSync(cliPath, 'utf8'), cliRun).meta.revision_id;
+  const runCli = (...args) => JSON.parse(execFileSync(process.execPath, [cli, ...args, '--dir', root, '--run', cliRun, '--json'], { encoding: 'utf8' }));
+  execFileSync(process.execPath, [cli, 'run-create', '--dir', root, '--run', cliRun]);
+  mkdirSync(join(root, cliPrefix), { recursive: true });
+  writeFileSync(join(root, cliPrefix, 'UR.md'), '# UR: Synthetic CLI subtraction\n\n## Problem\nA bounded numeric operation is missing.\n## Goal\nProvide the operation with a regression.\n## Scope\nOne function and its direct test.\n\n## AGDF Approval Summary (en; source=en)\n- Problem: A bounded subtraction operation is missing.\n- Goal: Provide the operation with its regression.\n- Scope: One function and its test.\n');
+  writeFileSync(join(root, cliPrefix, 'BROWNFIELD_REVIEW.md'), '# Brownfield Review\nSynthetic disposable single-function scope.\n');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'ur', '--title', 'Synthetic CLI subtraction').outcome, 'recorded');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'route', '--route', 'quick_task', '--reason', 'One bounded function and regression.', '--evidence', `${cliPrefix}BROWNFIELD_REVIEW.md`).outcome, 'recorded');
+  const presentation = runCli('run-present', '--gate', 'UR', '--revision', cliRevision(), '--language', 'en');
+  assert.equal(runCli('run-approve', '--gate', 'UR', '--revision', cliRevision(), '--presentation', presentation.presentation_id, '--response', 'Approval: UR').outcome, 'approved');
+  writeFileSync(join(root, cliPrefix, 'CODE_REVIEW.md'), '# Code Review\n- decision: pass\n');
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'review', '--decision', 'pass', '--evidence', 'Synthetic diff reviewed', '--source', `${cliPrefix}CODE_REVIEW.md`).outcome, 'recorded');
+  const cliDispatch = () => core.dispatch({ skillId: 'gate-check', presentationLanguage: 'en', workingDirectory: root, primaryTarget: root,
+    targetSource: 'continued_target', runId: cliRun, continueDelivery: true, surface: 'codex', expectedVersion: core.resources.pluginDefinition.version,
+    skillSet: core.resources.pluginDefinition.skillSet, interactionLocales: core.resources.interactionLocales });
+  const cliCloseout = cliDispatch();
+  assert.equal(cliCloseout.continuation?.phase, 'compact_closeout', JSON.stringify(cliCloseout));
+  assert.equal(cliCloseout.continuation.skill_id, 'release-or');
+  assert.deepEqual(cliCloseout.continuation.source_artifacts.map(source => source.type), ['UR', 'Brownfield Review']);
+  assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'closeout', '--result', 'Synthetic subtraction complete.', '--evidence', 'Disposable test result recorded.', '--risk', 'none', '--next', 'Optional VCS handoff.').current_gate, 'OR');
+  assert.equal(evaluateGateCheck(root, { runId: cliRun }).completion.fulfilled, true);
+  assert.equal(cliDispatch().terminal, true);
   console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');
 } finally { rmSync(root, { recursive: true, force: true }); }

@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, realpathSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,8 +14,22 @@ const serverSourceRoot = resolve(fileURLToPath(new URL("../", import.meta.url)))
 const defaultDispatcherSourceRoot = resolve(fileURLToPath(new URL("../../../dist/npm/create-agdf/", import.meta.url)));
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 
+// A hermetic control holds only the named runs and the control root files, so measurements do not
+// grow with the repository's run history. The legacy AGDF_RUN.md projection points at an unrelated
+// run and would report projection drift without it, so it is left out.
+function copyHermeticControl(destination, runIds) {
+  const source = join(repositoryRoot, ".agdf", "control");
+  mkdirSync(destination, { recursive: true });
+  for (const entry of readdirSync(source, { withFileTypes: true })) {
+    if (entry.isFile() && entry.name !== "AGDF_RUN.md") cpSync(join(source, entry.name), join(destination, entry.name));
+  }
+  for (const runId of runIds) {
+    for (const area of ["runs", "artefacts"]) cpSync(join(source, area, runId), join(destination, area, runId), { recursive: true });
+  }
+}
+
 export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.AGDF_TEST_CANDIDATE_CLI_ROOT ?? defaultDispatcherSourceRoot,
-  candidateServerRoot = process.env.AGDF_TEST_CANDIDATE_MCP_ROOT } = {}) {
+  candidateServerRoot = process.env.AGDF_TEST_CANDIDATE_MCP_ROOT, controlRuns } = {}) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), "agdf-mcp-owned-")));
   const nodeModules = join(root, "node_modules");
   mkdirSync(nodeModules, { recursive: true });
@@ -59,7 +73,8 @@ export function createOwnedRuntimeFixture({ dispatcherSourceRoot = process.env.A
   const governanceTarget = join(root, "governance-target");
   mkdirSync(join(governanceTarget, ".git"), { recursive: true });
   writeFileSync(join(governanceTarget, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
-  cpSync(join(repositoryRoot, ".agdf", "control"), join(governanceTarget, ".agdf", "control"), { recursive: true });
+  if (controlRuns) copyHermeticControl(join(governanceTarget, ".agdf", "control"), controlRuns);
+  else cpSync(join(repositoryRoot, ".agdf", "control"), join(governanceTarget, ".agdf", "control"), { recursive: true });
   const manifest = JSON.parse(readFileSync(join(serverRoot, "package.json"), "utf8"));
   writeFileSync(join(root, ".agdf-mcp-owned.json"), `${JSON.stringify({
     schema_version: 1,

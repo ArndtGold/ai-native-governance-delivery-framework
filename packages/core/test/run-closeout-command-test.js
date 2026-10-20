@@ -15,6 +15,7 @@ import { appendTableRow } from '../lib/control-state/run-state-edits.js';
 import { readPendingRunStepJournal } from '../lib/control-state/run-step-transaction.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { runWorkSummary } from '../lib/control-evaluation/run-work-summary.js';
+import { reviewFindingDiagnostics } from '../lib/control-evaluation/normalized-gaps.js';
 import { intentStages, outputStages, commitStages, beforeIntent, beforeRunCommit } from './fixtures/transaction-checkpoints.js';
 
 const root = mkdtempSync(join(tmpdir(), 'agdf-closeout-command-')), seed = mkdtempSync(join(tmpdir(), 'agdf-closeout-seed-'));
@@ -123,7 +124,15 @@ try {
     const candidate = { ...command, expected_revision_id: f.revision(), destination: { ...destination, digest: artefactFileDigest(root, qaPath) } };
     writeFileSync(join(root, proof), JSON.stringify({ schema_version, target_id, run_id, destination: candidate.destination, source, relationship, reviewer: candidate.review.reviewer, reviewed: true }));
     candidate.review = { ...candidate.review, digest: artefactFileDigest(root, proof) }; writeFileSync(join(root, request), JSON.stringify(candidate));
-    assert.equal(service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } }).outcome, 'accepted');
+    const unrecorded = readFileSync(f.state, 'utf8');
+    const recorded = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
+    // An invalid or duplicate finding row is refused already when the QA report is recorded,
+    // so the Run stays unchanged and the report can never reach a decision presentation.
+    if (reviewFindingDiagnostics('QA', report).length) {
+      assert.equal(recorded.outcome, 'rejected', JSON.stringify(recorded)); assert.equal(recorded.reason, 'review_findings_invalid');
+      assert.equal(readFileSync(f.state, 'utf8'), unrecorded); continue;
+    }
+    assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
     const before = readFileSync(f.state, 'utf8'), backlog = readFileSync(join(root,'.agdf/control/MASTER_BACKLOG.md'),'utf8');
     const check = evaluateGateCheck(root,{runId:f.runId});
     assert.equal(check.blocking_reason,'AGDF_DECISION_CONTENT_INCOMPLETE');

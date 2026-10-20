@@ -1,0 +1,102 @@
+# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: core-approval-lock-defects-20261017-01
+- lifecycle: active
+- revision: 6
+- revision_id: 14584006-cf12-4169-8054-fbe7c6b9f4f3
+- content_seal: sha256:dd6137790c4920b11d8ef4451d62044ee090109b82377790273ad0e0d821c258
+- approval_seal: sha256:1b3ff7a209d7783c42c1b5a3a74f3b6141631e2d0f4c373b180664eaa7338788
+- updated_at: 2026-10-17T07:25:05.877Z
+- mode: structured_slice
+- current_gate: PRD
+- decision: in_progress
+- owner: agent
+
+## Objective
+
+Each defect is either detected at the earliest point where it can be corrected cheaply, or it no longer occurs:
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | request_change recorded for current PRD material. |
+| What is approved? | Approval: UR |
+| What is missing? | Changed material and a fresh deliberate decision. |
+| What is the next allowed action? | Revise the decided material through its existing owner, register the changed version and obtain a fresh presentation and deliberate decision. |
+| What is explicitly forbidden right now? | create SD; create TP; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | `Approval: UR` · 2026-10-17 · revision 2 · `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md` sha256:27603420814dc502 · presentation ab57c8fc-aded-4608-bf54-412b6119e70c sha256:3fb242bd0931cd09356d9ea5d5c1beff3eff3e98518807f704970232acaf2a23 |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md` | approved |  |
+| Brownfield Review | `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md` | done |  |
+| Verified Change |  | missing |  |
+| PRD | .agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD.md | draft | Reviewed source binding recorded atomically |
+| SD |  | missing |  |
+| TP |  | missing |  |
+| Brownfield Analysis |  | missing |  |
+| CD+Tests |  | missing |  |
+| CR |  | missing |  |
+| QA |  | missing |  |
+| Binding proof 9983e1c4-8289-451d-8af0-036b21dac3a6 | .agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-01.json | done | Subordinate reviewed mapping evidence |
+
+## Mode/Slice Decision
+
+- decision: structured_slice
+- required_next_gate: PRD
+- scope_reason: bounded_structured_slice: three correctness defects in existing Core evaluation, presentation and lock owners plus the MCP worker adapter; no full-depth trigger (lock record unchanged, no schema, public contract, release or cross-host effect); rejected structured_delivery and quick_task/verified_change
+- evidence: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md (Structured Depth Evidence: all seven bounded-slice checks pass)
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | `Approval: UR` · 2026-10-17 · revision 2 · `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md` sha256:27603420814dc502 · presentation ab57c8fc-aded-4608-bf54-412b6119e70c sha256:3fb242bd0931cd09356d9ea5d5c1beff3eff3e98518807f704970232acaf2a23 |
+| PRD | derived_from | UR | binding 9983e1c4-8289-451d-8af0-036b21dac3a6; reviewed by prd authoring coding agent: derivation from the approved UR reviewed; cooperative attestation; .agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-01.json |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Run creation | run-create | Control initialization | direct |
+| UR draft | `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md` | problem, goal, scope and acceptance signals | direct |
+| Brownfield Review | `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_slice` | direct |
+| Artefact source binding | .agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-01.json | PRD derived_from UR; binding 9983e1c4-8289-451d-8af0-036b21dac3a6; operation 6289a750-9ed4-4f00-a57a-65975fcf535c; a3481b25-8211-40ab-a8a6-8f5fd31417b5 -> a2a7c139-3c07-4555-871f-555dc15fd653 | reviewed cooperative mapping |
+| Gate request_change | presentation d188f114-4dba-4e3f-8b97-5182de2a1812 | Version sha256:d03caf9330389616ecb2d0e7a5111e364dd54586952a456a9349a0a29dede1cd; comment: Überarbeiten: den vierten Fehler (Closeout-Sackgasse ohne TP Review / Clean Implementation Review) per UR-Revision aufnehmen; sonst keine weiteren PRD-Änderungen. | cooperative bound decision |
+
+## Closeout
+
+- next_allowed_action: Revise the decided material through its existing owner, register the changed version and obtain a fresh presentation and deliberate decision.
+- quality_outlook:
+
+## Artefact Bindings
+
+- schema_version: 1
+
+| binding_id | receipt_digest | receipt |
+|---|---|---|
+| 9983e1c4-8289-451d-8af0-036b21dac3a6 | sha256:eed0a692a6ce9248f3d5d4412bb7498a079df59f19253534aa4fb514d5f1a1e9 | eyJiaW5kaW5nX2lkIjoiOTk4M2UxYzQtODI4OS00NTFkLThhZjAtMDM2YjIxZGFjM2E2IiwiZGVzdGluYXRpb24iOnsiZGlnZXN0Ijoic2hhMjU2OjMzY2Q0Mzk2NWM3ZTE2ZDJlM2U2OThjNjRmOWZkMTVhOWM0YmY3YTA2M2U5ZGEwZjZhNDVlY2VmZDIwNmE0N2EiLCJwYXRoIjoiLmFnZGYvY29udHJvbC9hcnRlZmFjdHMvY29yZS1hcHByb3ZhbC1sb2NrLWRlZmVjdHMtMjAyNjEwMTctMDEvUFJELm1kIiwic3RhdHVzIjoiZHJhZnQiLCJ0eXBlIjoiUFJEIn0sIm9wZXJhdGlvbiI6eyJpZCI6IjYyODlhNzUwLTllZDQtNGYwMC1hNTdhLTY1OTc1ZmNmNTM1YyIsInByZXZpb3VzX3JldmlzaW9uX2lkIjoiYTM0ODFiMjUtODIxMS00MGFiLWE4YTYtOGY1ZmQzMTQxN2I1IiwicmVzdWx0aW5nX3JldmlzaW9uX2lkIjoiYTJhN2MxMzktM2MwNy00NTU1LTg3MWYtNTU1ZGMxNWZkNjUzIiwicmV2aXNpb24iOjV9LCJvcmlnaW4iOiJyZXZpZXdlZF9tYXBwaW5nIiwicmVsYXRpb25zaGlwIjp7ImZyb20iOiJQUkQiLCJyZWxhdGlvbnNoaXAiOiJkZXJpdmVkX2Zyb20iLCJ0byI6IlVSIn0sInJldmlldyI6eyJkaWdlc3QiOiJzaGEyNTY6YzU5ZmNmM2MyYTdhZDkyMGQ2OWE3NjBkZjY1NDllM2I5NGRlZmMxNGM0MGZhZDBiMDZiYzI4MTMxYmJjMjM4MiIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb3JlLWFwcHJvdmFsLWxvY2stZGVmZWN0cy0yMDI2MTAxNy0wMS9QUkRfREVSSVZBVElPTl9SRVZJRVctMDEuanNvbiIsInJldmlld2VyIjoicHJkIGF1dGhvcmluZyBjb2RpbmcgYWdlbnQ6IGRlcml2YXRpb24gZnJvbSB0aGUgYXBwcm92ZWQgVVIgcmV2aWV3ZWQ7IGNvb3BlcmF0aXZlIGF0dGVzdGF0aW9uIn0sInJ1bl9pZCI6ImNvcmUtYXBwcm92YWwtbG9jay1kZWZlY3RzLTIwMjYxMDE3LTAxIiwic2NoZW1hX3ZlcnNpb24iOiIxIiwic291cmNlIjp7ImRpZ2VzdCI6InNoYTI1NjoyNzYwMzQyMDgxNGRjNTAyY2FhOGRmZjVhMWU0YTJiOTgzMTI0MzBlMzJlZmUzMmZiY2QwYmIyOTYyYzZmOTI2IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvcmUtYXBwcm92YWwtbG9jay1kZWZlY3RzLTIwMjYxMDE3LTAxL1VSLm1kIiwidHlwZSI6IlVSIn0sInN1cGVyc2VkZXMiOm51bGwsInRhcmdldF9pZCI6InNoYTI1Njo1NzZiMDhhNmIwNmEwOTRkOGZmNmQ3MjNkYTc2NDgwNzg2OWIzYjVhMmZlOWE0ODEzMTZhNGFkMDM4YjdhNmJhIn0 |
+
+## Run Operations
+
+- schema_version: 1
+
+| operation_id | request_digest | receipt |
+|---|---|---|
+| 4f0e2a61-8c3b-4d5e-9a7f-1b2c3d4e5f60 | sha256:2d03a554e10081012d7610d5ddac2313136f902c94222d919de118243dc0a4ee | eyJhc3N1cmFuY2UiOnsiaW5kZXBlbmRlbnRfaHVtYW5fcHJvb2YiOiJ1bmF2YWlsYWJsZSIsImxhbmUiOiJjb29wZXJhdGl2ZV9sb2NhbCIsInJlcGx5X3Byb3ZlbmFuY2UiOiJjYWxsZXJfZm9yd2FyZGVkX2RlbGliZXJhdGVfcmVwbHkifSwiY3JlYXRlZF9hdCI6IjIwMjYtMTAtMTdUMDc6MjU6MDUuODI1WiIsImVmZmVjdCI6eyJwcmV2aW91c19yZXZpc2lvbl9pZCI6ImEyYTdjMTM5LTNjMDctNDU1NS04NzFmLTU1NWRjMTVmZDY1MyIsInJlY29yZCI6eyJhY3Rpb24iOiJyZXF1ZXN0X2NoYW5nZSIsImFydGVmYWN0X2RpZ2VzdCI6InNoYTI1NjozM2NkNDM5NjVjN2UxNmQyZTNlNjk4YzY0ZjlmZDE1YTljNGJmN2EwNjNlOWRhMGY2YTQ1ZWNlZmQyMDZhNDdhIiwiY29tbWVudCI6IsOcYmVyYXJiZWl0ZW46IGRlbiB2aWVydGVuIEZlaGxlciAoQ2xvc2VvdXQtU2Fja2dhc3NlIG9obmUgVFAgUmV2aWV3IC8gQ2xlYW4gSW1wbGVtZW50YXRpb24gUmV2aWV3KSBwZXIgVVItUmV2aXNpb24gYXVmbmVobWVuOyBzb25zdCBrZWluZSB3ZWl0ZXJlbiBQUkQtw4RuZGVydW5nZW4uIiwiZ2F0ZSI6IlBSRCIsIm1hdGVyaWFsX3NvdXJjZXMiOlt7ImRpZ2VzdCI6InNoYTI1NjoyNzYwMzQyMDgxNGRjNTAyY2FhOGRmZjVhMWU0YTJiOTgzMTI0MzBlMzJlZmUzMmZiY2QwYmIyOTYyYzZmOTI2IiwicGF0aCI6Ii5hZ2RmL2NvbnRyb2wvYXJ0ZWZhY3RzL2NvcmUtYXBwcm92YWwtbG9jay1kZWZlY3RzLTIwMjYxMDE3LTAxL1VSLm1kIiwidHlwZSI6IlVSIn0seyJkaWdlc3QiOiJzaGEyNTY6MzNjZDQzOTY1YzdlMTZkMmUzZTY5OGM2NGY5ZmQxNWE5YzRiZjdhMDYzZTlkYTBmNmE0NWVjZWZkMjA2YTQ3YSIsInBhdGgiOiIuYWdkZi9jb250cm9sL2FydGVmYWN0cy9jb3JlLWFwcHJvdmFsLWxvY2stZGVmZWN0cy0yMDI2MTAxNy0wMS9QUkQubWQiLCJ0eXBlIjoiUFJEIn1dLCJtYXRlcmlhbF92ZXJzaW9uIjoic2hhMjU2OmQwM2NhZjkzMzAzODk2MTZlY2IyZDBlN2E1MTExZTM2NGRkNTQ1ODY5NTJhNDU2YTkzNDlhMGEyOWRlZGUxY2QiLCJvd25lciI6InByZC1kZWZpbml0aW9uIiwicHJlc2VudGF0aW9uX2RpZ2VzdCI6InNoYTI1Njo3OGU3YzlhMmY4NWZkY2QzMTViZjM4NDcxMDE3NTcwNjQ3YTkyYTJhOTQwYTMzNmFmN2QxM2YyODc3MDdiMjUwIiwicHJlc2VudGF0aW9uX2lkIjoiZDE4OGYxMTQtNGRiYS00ZTNmLThiOTctNTE4MmRlMmExODEyIn0sInJlc3VsdGluZ19yZXZpc2lvbl9pZCI6IjE0NTg0MDA2LWNmMTItNDE2OS04MDU0LWZiZTdjNmI5ZjRmMyIsInJldmlzaW9uIjo2fSwiZXhwZWN0ZWRfcmV2aXNpb25faWQiOiJhMmE3YzEzOS0zYzA3LTQ1NTUtODcxZi01NTVkYzE1ZmQ2NTMiLCJraW5kIjoicHJlc2VudGF0aW9uX2RlY2lzaW9uLnJlY29yZCIsIm9wZXJhdGlvbl9pZCI6IjRmMGUyYTYxLThjM2ItNGQ1ZS05YTdmLTFiMmMzZDRlNWY2MCIsInByb2R1Y2VyIjp7ImNvbnRyYWN0IjoicnVuLWNvbW1hbmQvMSIsInBhY2thZ2VfdmVyc2lvbiI6IjAuMTQuNSJ9LCJyZXF1ZXN0X2RpZ2VzdCI6InNoYTI1NjoyZDAzYTU1NGUxMDA4MTAxMmQ3NjEwZDVkZGFjMjMxMzEzNmY5MDJjOTQyMjJkOTE5ZGUxMTgyNDNkYzBhNGVlIiwicnVuX2lkIjoiY29yZS1hcHByb3ZhbC1sb2NrLWRlZmVjdHMtMjAyNjEwMTctMDEiLCJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXJnZXRfaWQiOiJzaGEyNTY6NTc2YjA4YTZiMDZhMDk0ZDhmZjZkNzIzZGE3NjQ4MDc4NjliM2I1YTJmZTlhNDgxMzE2YTRhZDAzOGI3YTZiYSJ9 |

@@ -2,14 +2,18 @@ import { readFileSync } from '../control-read/fs.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { posix } from 'node:path';
 import { extractField } from './verified-change.js';
-import { declaredRoutes, validNormalizedGap } from './normalized-gaps.js';
-import { cleanStatusCell } from './shared.js';
+import { declaredRoutes, normalizedGapProblems, readNormalizedFindings } from './normalized-gaps.js';
 import { isGateSatisfied } from './gate-policy.js';
 import { isInternalStepSatisfied } from './run-state-policy.js';
 import { createHash } from 'node:crypto';
 import { readReportDecision } from './report-decision.js';
 
-const columns = ['finding_id', 'gap_type', 'routing_target', 'gap_status', 'evidence', 'required_next_step'];
+// Review reports a QA report references explicitly; they are inspected like recorded reviews.
+export function qaReportReferences(content, qaPath) {
+  const refs = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/gu)].filter(m => /review|\bCR\b/iu.test(m[1] + ' ' + m[2]) && /\.md(?:#.*)?$/iu.test(m[2])).map(m => [m[1], m[2].split('#')[0]]);
+  for (const m of content.matchAll(/^- (tp_review|clean_implementation_review|code_review):[ \t]*`?([^`\r\n]+)`?[ \t]*$/gmu)) refs.push([m[1], m[2].trim()]);
+  return refs.map(([label, ref]) => ({ type: `QA reference: ${label}`, path: ref.startsWith('.agdf/') ? ref : posix.join(posix.dirname(qaPath), ref) }));
+}
 
 export function evaluateQaFollowUp(root, state, runId, maxSources = Infinity, strictUtf8 = false) {
   const stop = reason => ({ kind: 'blocked', reason, findings: [], sources: [] });
@@ -22,7 +26,9 @@ export function evaluateQaFollowUp(root, state, runId, maxSources = Infinity, st
 
 // Shared registered-source and normalized-finding validation. Only the wrapper above routes
 // corrective work; pass/block observations here cannot approve or revoke a gate.
-export function inspectQaReports(root, state, runId, expectedDecision, maxSources = Infinity, strictUtf8 = false, { readArtefact } = {}) {
+// `proposed` maps run artefact paths to the content a pending write publishes, so a projection of
+// the committed state reads it instead of the current file.
+export function inspectQaReports(root, state, runId, expectedDecision, maxSources = Infinity, strictUtf8 = false, { readArtefact, proposed } = {}) {
   const observations = [];
   const stop = reason => ({ kind: 'blocked', reason, findings: [], sources: observations });
   const routes = declaredRoutes();
@@ -33,16 +39,17 @@ export function inspectQaReports(root, state, runId, expectedDecision, maxSource
     const { type } = artefact;
     const path = String(artefact.path ?? '').replace(/^`|`$/gu, '');
     if (!path) { if (type === 'QA') return stop('Current QA report is missing.'); else continue; }
+    const overlay = proposed?.get(path), external = readArtefact || typeof overlay === 'string';
     if (posix.normalize(path) !== path || strictUtf8 && /[%?#]/u.test(path)
-        || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || !readArtefact && hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
-    const file = readArtefact ? null : containedRegularFile(root, path);
+        || !path.startsWith(`.agdf/control/artefacts/${runId}/`) || !external && hasSymlinkComponent(root, path)) return stop(`Unsafe review source: ${type}.`);
+    const file = external ? null : containedRegularFile(root, path);
     if (file && file.status !== 'valid') return stop(`Review source unavailable: ${type}.`);
     if (reports.has(path)) continue;
     if (reports.size >= maxSources) return stop('Review source limit exceeded.');
     reports.add(path);
-    const captured = readArtefact ? readArtefact(path) : null;
-    if (readArtefact && typeof captured !== 'string') return stop(`Review source unavailable: ${type}.`);
-    const bytes = readArtefact ? Buffer.from(captured) : readFileSync(file.path);
+    const captured = typeof overlay === 'string' ? overlay : readArtefact ? readArtefact(path) : null;
+    if (external && typeof captured !== 'string') return stop(`Review source unavailable: ${type}.`);
+    const bytes = external ? Buffer.from(captured) : readFileSync(file.path);
     observations.push({ path, digest: 'sha256:' + createHash('sha256').update(bytes).digest('hex'), state: 'available' });
     if (strictUtf8 && bytes.length > 262144) return stop(`Review source exceeds the bounded input size: ${type}.`);
     let content;
@@ -52,24 +59,16 @@ export function inspectQaReports(root, state, runId, expectedDecision, maxSource
     if (type === 'QA') {
       if (readReportDecision(content) !== expectedDecision) return stop('QA report decision contradicts its current recording.');
       // Explicit QA references are inputs too; missing or unsafe references cannot be ignored.
-      const refs = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/gu)].filter(m => /review|\bCR\b/iu.test(m[1] + ' ' + m[2]) && /\.md(?:#.*)?$/iu.test(m[2])).map(m => [m[1], m[2].split('#')[0]]);
-      for (const m of content.matchAll(/^- (tp_review|clean_implementation_review|code_review):[ \t]*`?([^`\r\n]+)`?[ \t]*$/gmu)) refs.push([m[1], m[2].trim()]);
-      for (const [label, ref] of refs) sources.push({ type: `QA reference: ${label}`, path: ref.startsWith('.agdf/') ? ref : posix.join(posix.dirname(path), ref) });
+      sources.push(...qaReportReferences(content, path));
     }
-    let active = false, headerFound = false;
+    const scan = readNormalizedFindings(content), headerFound = scan.header;
     const seen = new Set();
-    for (const line of content.split('\n')) {
-      if (!line.trim().startsWith('|')) { active = false; continue; }
-      if (/^\|(?:\s*:?-+:?\s*\|)+\s*$/u.test(line.trim())) continue;
-      const row = line.trim().replace(/^\||\|$/gu, '').split('|').map(cleanStatusCell);
-      if (row.includes('finding_id') || row.filter(cell => columns.includes(cell)).length > 1) {
-        if (row.join('|') !== columns.join('|')) return stop(`Malformed normalized finding header: ${type}.`);
-        active = true; headerFound = true; continue;
-      }
-      if (!active) continue;
-      if (row.length !== columns.length) return stop(`Malformed normalized finding row: ${type}.`);
-      const [id, gap, target, status, evidence, action] = row;
-      if (seen.has(id) || !validNormalizedGap(row, routes)) return stop(`Invalid or contradictory normalized finding: ${type}/${id || 'missing id'}.`);
+    for (const entry of scan.entries) {
+      if (entry.kind === 'malformed_header') return stop(`Malformed normalized finding header: ${type}.`);
+      if (entry.kind === 'malformed_row') return stop(`Malformed normalized finding row: ${type}.`);
+      const row = entry.row, [id, , target, status, evidence, action] = row;
+      const problems = seen.has(id) ? [{ field: 'finding_id', expected: 'a finding id used only once', rule: 'duplicate_id' }] : normalizedGapProblems(row, routes);
+      if (problems.length) return { ...stop(`Invalid or contradictory normalized finding: ${type}/${id || 'missing id'}.`), invalid: { review: type, finding_id: id || null, problems } };
       seen.add(id);
       if (status === 'open' && findings.length >= 64) return stop('Too many open findings for a bounded follow-up; consolidate the authoritative review first.');
       if (status === 'open') findings.push({ id, target, evidence, action, path });

@@ -11,6 +11,15 @@ export const EVIDENCE_PREREQUISITES = Object.freeze({
   CR: ['UR', 'PRD', 'SD', 'TP', 'CD+Tests'], review: ['UR', 'PRD', 'SD', 'TP', 'CD+Tests'], evidence: ['UR', 'PRD', 'SD', 'TP'],
   QA: ['UR', 'PRD', 'SD', 'TP', 'CD+Tests', 'TP Review', 'Clean Implementation Review', 'CR'], UAT: ['QA'],
 });
+// Reviews a structured closeout requires (closeout-readiness.js). Gate order and late
+// recording use the same list, so no route can be approved into an unclosable state.
+export const STRUCTURED_REQUIRED_REVIEWS = Object.freeze(['TP Review', 'Clean Implementation Review']);
+// `Clean Review` is the supported legacy name of the Clean Implementation Review row.
+export const reviewArtefactType = (state, step) => step === 'Clean Implementation Review' && !state.artefacts.get(step)?.path
+  && state.artefacts.get('Clean Review')?.path ? 'Clean Review' : step;
+// Reviews whose normalized findings closeout inspects; at OR they may be recorded again only
+// to correct invalid rows (run-operation-proof.js, presentation-decision.js).
+export const CORRECTABLE_REVIEWS = Object.freeze([...STRUCTURED_REQUIRED_REVIEWS, 'CR']);
 export const evidenceSourceSetDigest = sources => digest(`agdf-operation-sources/1\0${canonicalJson(sources)}`);
 export const canonicalEvidenceDigest = text => 'sha256:' + createHash('sha256').update(String(text).replace(/\r\n?/gu, '\n').replace(/^\uFEFF/u, '')).digest('hex');
 const hash = value => typeof value === 'string' && DIGEST_PATTERN.test(value);
@@ -65,9 +74,32 @@ export function assertEvidenceBindingsChange(current, candidate, appended) {
     || canonicalJson(after.bindings) !== canonicalJson(appended ? [...before.bindings, appended] : before.bindings)) throw Error('AGDF_EVIDENCE_BINDINGS_CHANGED');
 }
 
+// Compares the recorded sources of one binding with the current Run. `lateTypes` names
+// dependencies that were recorded as explicitly missing and may since have been recorded
+// (the late required reviews of closeout-readiness.js); every other source must match.
+export function bindingSourceAssociation(row, state, readArtefact, { lateTypes = [], corrections = new Map() } = {}) {
+  for (const source of row.sources) {
+    const now = state.artefacts.get(source.type);
+    // An explicit empty dependency is retained as empty, never presented as a report.
+    if (!source.path && !now?.path && source.status === (now?.status ?? 'missing')) continue;
+    if (lateTypes.includes(source.type) && !source.path && source.digest === null && source.status === 'missing') continue;
+    const text = source.path ? readArtefact(source.path) : undefined;
+    if (source.digest === null || typeof text !== 'string') return { group: 'applicability_unknown', reason: 'source_association_unavailable' };
+    // A proven correction (presentation-decision.js reviewCorrections) of the version this binding saw.
+    const correction = corrections.get(source.type);
+    if (correction && source.digest === correction.seen_digest && now?.path === source.path && now?.status === source.status
+      && canonicalEvidenceDigest(text) === correction.current_digest) continue;
+    if (now?.path !== source.path || now?.status !== source.status || canonicalEvidenceDigest(text) !== source.digest) return { group: 'superseded', reason: 'source_version_superseded' };
+  }
+  return { group: 'current', reason: 'current_exact_association' };
+}
+
 // The read callback is selected by the common Run-state owner (live, immutable archive,
 // or a transaction overlay). Presence and free claims never establish applicability.
-export function evidenceApplicability(state, readArtefact) {
+// `lateReviewTypes` names required reviews that the current QA approval provably never saw and
+// `reviewCorrections` the reviews corrected at OR (run-state.js); a QA association stale only
+// through them stays current.
+export function evidenceApplicability(state, readArtefact, { lateReviewTypes = [], reviewCorrections = new Map() } = {}) {
   const parsed = readEvidenceBindings(state.content), groups = { current: [], superseded: [], applicability_unknown: [] }, byStep = new Map();
   const latest = new Map(parsed.bindings.map(row => [row.step, row.operation_id]));
   if (parsed.valid) for (const row of parsed.bindings) {
@@ -76,12 +108,15 @@ export function evidenceApplicability(state, readArtefact) {
       const current = state.artefacts.get(row.step), bytes = readArtefact(row.report.path);
       if (typeof bytes !== 'string' || canonicalEvidenceDigest(bytes) !== row.report.digest) { group = 'applicability_unknown'; reason = 'recorded_report_unavailable_or_changed'; }
       else if (current && (current.path !== row.report.path || !['done', 'approved', 'not_applicable', 'pass', 'revise', 'block'].includes(current.status))) { group = 'superseded'; reason = 'report_registration_superseded'; }
-      else for (const source of row.sources) {
-        const now = state.artefacts.get(source.type), text = source.path ? readArtefact(source.path) : undefined;
-        // An explicit empty dependency is retained as empty, never presented as a report.
-        if (!source.path && !now?.path && source.status === (now?.status ?? 'missing')) continue;
-        if (source.digest === null || typeof text !== 'string') { group = 'applicability_unknown'; reason = 'source_association_unavailable'; break; }
-        if (now?.path !== source.path || now?.status !== source.status || canonicalEvidenceDigest(text) !== source.digest) { group = 'superseded'; reason = 'source_version_superseded'; break; }
+      else {
+        ({ group, reason } = bindingSourceAssociation(row, state, readArtefact));
+        if (row.step === 'QA' && reason === 'source_association_unavailable' && lateReviewTypes.length
+            && bindingSourceAssociation(row, state, readArtefact, { lateTypes: lateReviewTypes }).group === 'current') {
+          group = 'current'; reason = 'current_with_late_unseen_reviews';
+        } else if (row.step === 'QA' && group !== 'current' && reviewCorrections.size
+            && bindingSourceAssociation(row, state, readArtefact, { lateTypes: lateReviewTypes, corrections: reviewCorrections }).group === 'current') {
+          group = 'current'; reason = 'current_with_corrected_reviews';
+        }
       }
     } catch { group = 'applicability_unknown'; reason = 'source_observation_unavailable'; }
     const available = group !== 'applicability_unknown';

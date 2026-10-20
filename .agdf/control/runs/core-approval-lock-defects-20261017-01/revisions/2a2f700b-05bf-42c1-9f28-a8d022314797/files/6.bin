@@ -1,0 +1,84 @@
+# UR: Fix three AGDF approval-chain defects found in the MCP ergonomics run
+
+Status: draft
+Gate: UR
+Gate approval: open
+Requirements clarification: complete
+Date: 2026-10-17
+Owner: Arndt Gold
+
+## 1. Problem
+
+While closing run `mcp-ergonomics-baseline-20261016-01` on 2026-10-16/17, three AGDF core defects surfaced. That run is completed separately; its artefacts, approvals and receipts remain historical evidence and are not changed here.
+
+D1 — Late failure of the localized approval summary. `readAuthoredContent(text, 'localized', …)` in `packages/core/lib/control-evaluation/report-decision.js` stops reading the `## AGDF Approval Summary (de; source=en)` block at the first line whose key is outside `summaryFields` or does not match its key pattern. The observed line was `Problem (Messlücke): …`; every later field, including `Ziel`, was lost. The UR approval-summary validator in `packages/core/lib/control-state/run-presentation-render.js` does not use this reader, so the UR was presented and approved with that summary. Only UAT preparation (`decision-content-readiness.js`) failed with `localized_content_missing:ziel` and `AGDF_DECISION_CONTENT_INCOMPLETE`. Recovery required a full UR source revision and a renewed approval chain.
+
+D2 — Misleading Quality Readiness. `statusFromReviewArtefact` in `packages/core/lib/control-evaluation/gate-check.js` only recognises the words pass, revise, block and warn in a review row's status and notes. The canonical writer (`run-steps.js`) records a passed internal review result as status `done` with neutral notes. A finished Code Review therefore rendered as `Code-Qualität: Nachweis fehlt`. TP Review and Clean Implementation Review rows recorded the same way are affected identically.
+
+D3 — Run write lock stuck after an abandoned approval worker. An `agdf_approve` call returned `effect_unknown` / `dispatch_worker_termination_unconfirmed`. The MCP server runs dispatch in an in-process worker thread, so the lock records `RUN_STATE.md.lock` and `MASTER_BACKLOG.md.lock` carried the live server PID as owner. Stale-lock recovery only checks whether the owner PID is alive, so every retry got `run_write_locked` until the server process was killed. The CLI `run-approve` then reclaimed the stale lock and succeeded. Related MCP interface review findings: F02 (worker maps exceptions to one failure code) and F09 (per-call worker).
+
+## 2. Goal
+
+Each defect is either detected at the earliest point where it can be corrected cheaply, or it no longer occurs:
+
+- A localized approval summary whose fields a later gate needs cannot be read is rejected during authoring readiness and presentation, before `Approval: UR`, with a recovery message that names the unreadable field and the expected form.
+- Quality Readiness shows the actually recorded decision of every recorded review.
+- A lock left behind by a dispatch worker that the MCP server has abandoned no longer blocks later writes for the lifetime of the server, while a lock held by a live writer stays protected.
+
+## Affected Users
+
+- Users approving AGDF gates, who should not have to renew an approval chain because of a format defect that AGDF could have detected earlier.
+- Coding agents that author approval summaries and recover from uncertain MCP operations.
+- AGDF maintainers who rely on Quality Readiness and on write-lock safety.
+
+## 3. Scope
+
+1. D1: Approval-summary readiness and presentation for the UR gate read the summary with the same reader as the later consumer and reject a summary whose required fields (UR: `Ziel` / `Goal`) cannot be read, with a precise reason and recovery text. The same guard applies to the QA summary fields that UAT reads (`Ergebnis`, `Grenzen`, `Risiken` and their English equivalents), because the identical late failure exists there. The SD decides whether an unknown or qualified key such as `Problem (Messlücke):` ends the block or is only skipped. Tests use the exact failing shape of the observed UR.
+2. D2: Map the canonical recorded review status (`done` for a recorded pass, `revise`, `block`) of CR, TP Review and Clean Implementation Review rows to the correct Quality Readiness value, and test it.
+3. D3: Make the MCP server release or invalidate locks owned by a worker it abandons, or let recovery distinguish a live server from a live writer; the SD chooses. Test the abandoned-worker path, including that a lock held by a live writer is not removed.
+4. Implementation happens on the feature branch `fix/agdf-core-approval-defects-20261017` in its own worktree, not on `main`. The owner commits.
+
+## 4. Non-Goals
+
+- Changing the completed run `mcp-ergonomics-baseline-20261016-01`, its artefacts, receipts or approvals.
+- Changing which fields UAT requires, the approval-summary heading format, or which gates require a localized summary.
+- Implementing F02 (error classification) or F09 (warm worker) themselves; the D3 fix must stay compatible with both.
+- A general lock redesign, cross-process lock leases, or a lock record format that older installed runtimes would misread.
+- Migrating or rewriting existing runs; commits, push, pull request, release, or reinstalling the plugin.
+
+## 5. Acceptance Signals
+
+- The exact failing summary shape (a `Problem (Messlücke):` line before `Ziel:`) can no longer pass UR readiness and presentation and then fail only at UAT. A summary without a readable `Ziel` is always rejected before `Approval: UR`, and the message names the field.
+- A CR, TP Review or Clean Implementation Review row recorded as `done` by the canonical writer renders as passed in Quality Readiness; `revise` and `block` render as such; an absent row still renders as missing evidence.
+- In a test, a lock left behind by an abandoned in-process worker no longer yields `run_write_locked` for later writes in the same server process, while a lock held by a live writer is still respected.
+- `npm run test:verification`, the CLI smoke suite that carries the core tests, and the mcp-server suite pass; the change passes the run's CR and QA.
+
+## 6. Existing Source Of Truth
+
+- `packages/core/lib/control-evaluation/report-decision.js` (`readAuthoredContent`, `summaryFields`) and `decision-content-readiness.js` (UAT consumer).
+- `packages/core/lib/control-state/run-presentation-render.js` (`validateLocalizedSummaryBlock`, `evaluateApprovalSummaryReadiness`, `renderApprovalSummaryIssue`) and the `ur-definition` runtime contract.
+- `packages/core/lib/control-evaluation/gate-check.js` (`statusFromReviewArtefact`, `qualityReadinessForRunState`) and `packages/core/lib/control-state/run-steps.js` (canonical status mapping).
+- `packages/core/lib/control-state/run-state-writer.js` (`withOwnedFileLock`, `ownerState`, `reclaimAbandonedLock`), `approval-command.js` (lock error mapping), `packages/mcp-server/src/worker.js` and `worker-entry.js` (in-process worker lifecycle), `packages/cli/lib/mcp-dispatch-runtime.js` (recovery texts).
+- Existing tests under `packages/core/test` and `packages/mcp-server/test`.
+- Evidence: run `mcp-ergonomics-baseline-20261016-01` (UR revisions, RUN_STATE, CODE_REVIEW.md) in the main checkout.
+
+## 7. Risks And Unknowns
+
+- D1: Skipping unknown keys widens what the reader accepts; it must neither reopen a closed block nor accept duplicate fields. Stricter presentation checks can reject in-flight drafts and existing test fixtures; that is intended, but the recovery must be clear.
+- D3: Removing a lock is safety-critical. Only a lock proven to belong to the dead worker may be removed. Worker termination itself can be unconfirmed; then the writer may still be live. Older installed runtimes read the same lock files, so the lock record must stay compatible. Whether the observed worker exited late or hung is unknown; Brownfield Analysis must clarify the reachable states.
+- The installed plugin runtime 0.14.5 that governs this run does not contain these fixes; this UR's own summary therefore uses only keys the installed reader knows.
+
+## 8. Next Step
+
+Review this UR and approve only with `Approval: UR`. Then the Brownfield Review and Mode/Slice decision follow. Nothing is implemented yet.
+
+## AGDF Approval Summary (de; source=en)
+
+- Problem: Beim Abschluss des Runs mcp-ergonomics-baseline-20261016-01 zeigten sich drei Kernfehler. Erstens liest `readAuthoredContent` die lokalisierte Freigabe-Zusammenfassung nur bis zur ersten unbekannten oder qualifizierten Zeile wie `Problem (Messlücke):`; alle späteren Felder, auch `Ziel`, gehen verloren. Die UR-Vorlage prüft das nicht, deshalb scheiterte erst die UAT-Vorbereitung mit `localized_content_missing:ziel` und erzwang eine neue Freigabekette. Zweitens zeigt die Quality Readiness für ein abgeschlossenes Code Review mit Status `done` „Code-Qualität: Nachweis fehlt“. Drittens behielt nach einer unsicheren Freigabe (`dispatch_worker_termination_unconfirmed`) die Sperre von RUN_STATE.md und MASTER_BACKLOG.md die PID des laufenden MCP-Servers; jeder weitere Versuch endete mit `run_write_locked`, bis der Server beendet wurde.
+- Ziel: Jeder Fehler wird an der frühesten sinnvollen Stelle erkannt oder tritt nicht mehr auf. Eine Zusammenfassung, deren später benötigte Felder nicht lesbar sind, wird vor `Approval: UR` mit einer genauen Meldung abgelehnt. Die Quality Readiness zeigt die tatsächlich erfasste Review-Entscheidung. Die Sperre eines vom Server aufgegebenen Workers blockiert spätere Schreibvorgänge nicht mehr, die Sperre eines lebenden Schreibers bleibt geschützt.
+- Betroffene: Nutzer, die AGDF-Gates freigeben; Coding-Agenten, die Zusammenfassungen schreiben und unsichere MCP-Operationen fortsetzen; Maintainer, die sich auf Quality Readiness und Schreibsperren verlassen.
+- Umfang: Erstens nutzt die Prüfung der Zusammenfassung bei UR, und gleichartig bei QA für die von UAT gelesenen Felder `Ergebnis`, `Grenzen` und `Risiken`, denselben Leser wie die spätere Verwendung und lehnt unlesbare Pflichtfelder mit genauer Wiederherstellungsmeldung ab; das SD entscheidet, ob ein unbekannter Schlüssel den Block beendet oder übersprungen wird; getestet wird mit der exakten fehlerhaften Form. Zweitens werden die erfassten Review-Status `done`, `revise` und `block` für CR, TP Review und Clean Implementation Review korrekt abgebildet und getestet. Drittens gibt der MCP-Server Sperren eines aufgegebenen Workers frei oder macht sie ungültig, oder die Wiederherstellung unterscheidet einen lebenden Server von einem lebenden Schreiber; der Pfad mit aufgegebenem Worker wird getestet. Umsetzung auf dem Branch `fix/agdf-core-approval-defects-20261017`, nicht auf `main`; der Owner committet.
+- Abnahme: Die exakte fehlerhafte Form kann nicht mehr die UR-Vorlage passieren und erst bei UAT scheitern; eine Zusammenfassung ohne lesbares `Ziel` wird immer vor `Approval: UR` abgelehnt, und die Meldung nennt das Feld. Ein mit `done` erfasstes Review erscheint als bestanden, `revise` und `block` entsprechend, ein fehlendes weiterhin als fehlender Nachweis. Im Test blockiert die Sperre eines aufgegebenen Workers spätere Schreibvorgänge im selben Serverprozess nicht mehr, die Sperre eines lebenden Schreibers bleibt bestehen. `npm run test:verification`, die Core- und mcp-server-Suites bestehen, ebenso CR und QA dieses Runs.
+- Quellen und Abgrenzung: Zuständig bleiben `report-decision.js`, `decision-content-readiness.js`, `run-presentation-render.js`, `gate-check.js`, `run-steps.js`, `run-state-writer.js`, `approval-command.js` sowie `packages/mcp-server/src/worker.js` und `worker-entry.js`. Nicht enthalten sind Änderungen am abgeschlossenen Run mcp-ergonomics-baseline-20261016-01, an den von UAT verlangten Feldern oder am Überschriftenformat, die Umsetzung von F02 und F09 selbst, ein neues Sperrformat, Migrationen alter Runs, Git-Aktionen, Release und die Neuinstallation des Plugins.
+- Risiken und Klärung: Das Überspringen unbekannter Schlüssel darf weder geschlossene Blöcke wieder öffnen noch doppelte Felder zulassen. Strengere Prüfungen können laufende Entwürfe und vorhandene Test-Fixtures ablehnen. Das Entfernen einer Sperre ist sicherheitskritisch: Nur eine nachweislich zum beendeten Worker gehörende Sperre darf entfernt werden, und ältere installierte Laufzeiten müssen das Sperrformat weiter lesen können. Ob der beobachtete Worker spät beendet wurde oder hing, klärt die Brownfield-Analyse. Die installierte Laufzeit 0.14.5, die diesen Run steuert, enthält die Korrekturen noch nicht.
+- Nächster Schritt: Diese UR prüfen und nur mit `Approval: UR` freigeben. Danach folgen Brownfield Review und Mode/Slice-Entscheidung; implementiert ist noch nichts.

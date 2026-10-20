@@ -179,7 +179,8 @@ export function readAuthoredContent(text, profile, { locale, sourceLanguage } = 
   }
   const localizedGoal = profile === 'localized_goal';
   const localized = profile === 'localized' || localizedGoal;
-  const spec = localized && ['en', 'de'].includes(locale) && ['en', 'de'].includes(sourceLanguage)
+  // Fields are keyed by the display locale; the source may be any well-formed language tag.
+  const spec = localized && ['en', 'de'].includes(locale) && /^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/u.test(sourceLanguage ?? '')
     ? { heading: new RegExp('^AGDF Approval Summary \\(' + locale + ';[\\t ]*source=' + sourceLanguage + '\\)$', 'iu'), fields: null, paragraph: localizedGoal }
     : contentProfiles[profile];
   if (!spec) return null;
@@ -206,11 +207,18 @@ export function readAuthoredContent(text, profile, { locale, sourceLanguage } = 
       if (/^(?:\s|[-+*>]|\d+[.)][\t ])/u.test(row.line)) { active = false; continue; }
       started = true; lines.push(row.line.trim());
     } else {
-      const scalar = row.line.match(/^(?:- )?([\p{L}][\p{L}\p{N}_ -]*):[\t ]*([^\n]*)$/u);
-      const key = scalar?.[1].toLowerCase();
-      if (!key || !(localized ? summaryFields.has(key) || /^ac-[a-z0-9-]+$/iu.test(key) : spec.fields.includes(key))) { active = false; continue; }
+      // A localized summary may carry labels outside the closed field set, including a
+      // qualified label such as `Problem (Messlücke):`. Such a labelled line is skipped,
+      // so field order never decides readability; any other line still closes the block.
+      const scalar = row.line.match(localized
+        ? /^(?:- )?([\p{L}][\p{L}\p{N}_ -]*?)([\t ]*\([^()\n]*\))?:[\t ]*([^\n]*)$/u
+        : /^(?:- )?([\p{L}][\p{L}\p{N}_ -]*)():[\t ]*([^\n]*)$/u);
+      const key = scalar && (localized ? scalar[1].trimEnd() : scalar[1]).toLowerCase();
+      const known = key && !scalar[2] && (localized ? summaryFields.has(key) || /^ac-[a-z0-9-]+$/iu.test(key) : spec.fields.includes(key));
+      if (localized && key && !known) continue;
+      if (!known) { active = false; continue; }
       if (Object.hasOwn(fields, key)) return null;
-      fields[key] = scalar[2].trim(); started = true;
+      fields[key] = scalar[3].trim(); started = true;
     }
   }
   return sections === 1 && (spec.paragraph ? lines.length : Object.keys(fields).length) ? spec.paragraph ? lines.join(' ') : fields : null;

@@ -4,13 +4,15 @@ import { assertRunOperationIdentity } from "./run-operation-identity.js";
 import { readArtefactBindings } from "./artefact-bindings.js";
 import { pendingRunStepPath } from "./run-step-pending.js";
 import { appendRunOperation, readRunOperations } from "./run-operations.js";
-import { readOperationSource, operationSourceSetDigest, operationSources, operationReceipt, internalStepEligibility } from "./run-operation-proof.js";
-import { appendEvidenceBinding, evidenceSourceSetDigest } from './evidence-bindings.js';
+import { readOperationSource, operationSourceSetDigest, operationSources, operationReceipt, internalStepEligibility, reviewCorrectionRefusal, reviewCorrectionAvailable } from "./run-operation-proof.js";
+import { appendEvidenceBinding, evidenceSourceSetDigest, CORRECTABLE_REVIEWS } from './evidence-bindings.js';
+import { reviewFindingDiagnostics } from '../control-evaluation/normalized-gaps.js';
+import { qaReportReferences } from '../control-evaluation/qa-follow-up.js';
 import { COOPERATIVE_ASSURANCE } from './approval-command-contract.js';
 import { INTERNAL_STEP_FILES, prepareOwnedOutput } from "./run-owned-outputs.js";
 import { canonicalJson, digest } from "./approval-command-contract.js";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, posix } from "node:path";
 import { runPath } from "./run-state-reader.js";
 import { parseControlState } from "./run-state-parser.js";
 import { APPROVAL_GATES, canonicalRunText } from "./run-seal-compute.js";
@@ -70,6 +72,37 @@ const CONTROL_PREFIX = ".agdf/control/";
 const artefactPath = (key, file) => `${CONTROL_PREFIX}artefacts/${key}/${file}`;
 const filled = (value) => typeof value === "string" && value.trim() !== "";
 const oneLine = (value) => String(value ?? "").replace(/\s+/gu, " ").trim();
+// Bounded strict-UTF-8 read of an artefact inside the selected Run; anything else is unavailable.
+function readRunArtefact(root, runId, rawPath, limit = 131072) {
+  const path = String(rawPath ?? '').replace(/^`|`$/gu, '');
+  if (!path.startsWith(`.agdf/control/artefacts/${runId}/`) || posix.normalize(path) !== path || hasSymlinkComponent(root, path)) return undefined;
+  const file = containedRegularFile(root, path);
+  if (file.status !== 'valid' || statSync(file.path).size > limit) return undefined;
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(file.path)); } catch { return undefined; }
+}
+// Review reports are read within the bound of the closeout quality inspection (inspectQaReports).
+const REVIEW_REPORT_LIMIT = 262144;
+// Every recording of a review or QA report applies the closeout quality rules; at most 64 diagnostics are returned.
+const findingsRefusal = (runId, diagnostics) => rejected(runId, 'review_findings_invalid',
+  { diagnostics: diagnostics.slice(0, 64), ...(diagnostics.length > 64 ? { diagnostics_truncated: true } : {}) });
+function qaReportDiagnostics(root, runId, qa, control) {
+  const content = readRunArtefact(root, runId, qa.path, REVIEW_REPORT_LIMIT);
+  if (typeof content !== 'string') return [{ review: 'QA', finding_id: null, field: 'report', expected: 'a readable UTF-8 report of at most 256 KiB inside the Run', rule: 'report_unreadable' }];
+  const references = qaReportReferences(content, qa.path);
+  // Closeout inspects at most 64 distinct reports: the QA report, the recorded reviews and its references.
+  const reports = new Set([qa.path, ...['TP Review', 'Clean Implementation Review', 'Clean Review', 'CR', 'Code Review']
+    .map(type => String(control.artefacts.get(type)?.path ?? '').replace(/^`|`$/gu, '')).filter(Boolean), ...references.map(reference => reference.path)]);
+  const bound = reports.size > 64 ? [{ review: 'QA', finding_id: null, field: 'references', expected: 'at most 64 review reports including the QA report', rule: 'source_limit' }] : [];
+  return [...bound, ...reviewFindingDiagnostics('QA', content, { decision: qa.status }), ...references.flatMap(reference => {
+    const text = /[%?#]/u.test(reference.path) ? undefined : readRunArtefact(root, runId, reference.path, REVIEW_REPORT_LIMIT);
+    return typeof text === 'string' ? reviewFindingDiagnostics(reference.type, text)
+      : [{ review: reference.type, finding_id: null, field: 'reference', expected: `a readable review report inside the Run at ${reference.path}, without %, ? or #`, rule: 'reference_unreadable' }];
+  })];
+}
+// An invalid row names its correction path at OR only where the correction can be taken (closeout only).
+const closeoutQualityDetail = (qa, control) => !qa.invalid ? qa.reason
+  : `${qa.reason} ${qa.invalid.problems.map(problem => `${problem.field}: expected ${problem.expected}`).join('; ')}.${reviewCorrectionAvailable(control, qa.invalid.review, qa.invalid.problems)
+    ? ` Record ${qa.invalid.review} again at gate OR from a corrected source that changes only the required_next_step cells, then record closeout.` : ' A correction at OR is not available for this finding.'}`;
 
 function requireFile(root, runId, path, template) {
   return existsSync(join(root, path)) ? null : rejected(runId, "artefact_missing", { path, template });
@@ -210,6 +243,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
       if (!['CR', 'Quick Task Execution'].includes(before.current_gate)
           || !['pass', 'revise', 'block'].includes(input.decision)) return rejected(runId, "review_step_not_ready");
       if (readReportDecision(operationSource.content) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
+      const diagnostics = reviewFindingDiagnostics('CR', operationSource.content, { decision: input.decision });
+      if (diagnostics.length) return findingsRefusal(runId, diagnostics);
     }
     operationRecord = { step, source: { path: canonicalFile ? artefactPath(key, canonicalFile) : input.sourceBinding.path, digest: input.sourceBinding.digest },
       status: step === "review" && input.decision !== "pass" ? input.decision : "done", covers: oneLine(input.covers) || "selected Run scope",
@@ -228,6 +263,16 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     } else {
       if (readReportDecision(operationSource.content, { allowNotApplicable: true }) !== input.decision) return rejected(runId, "internal_result_unconfirmed");
     }
+    if (CORRECTABLE_REVIEWS.includes(input.internalStep)) {
+      const diagnostics = reviewFindingDiagnostics(input.internalStep, operationSource.content, { decision: input.decision });
+      if (diagnostics.length) return findingsRefusal(runId, diagnostics);
+      // After the QA approval only the OR correction path reaches an already recorded review.
+      const recorded = control.artefacts.get(input.internalStep);
+      if (approved('QA') && recorded?.path) {
+        const correction = reviewCorrectionRefusal(input.internalStep, { ...recorded, content: readRunArtefact(root, runId, recorded.path, REVIEW_REPORT_LIMIT) }, input.decision, operationSource.content);
+        if (correction) return rejected(runId, 'internal_step_not_ready', { correction });
+      }
+    }
     const path = artefactPath(key, INTERNAL_STEP_FILES[input.internalStep]);
     const status = ['pass', 'ready'].includes(input.decision) ? "done" : input.decision === 'blocked' ? 'block' : input.decision;
     ownedOutputs = [prepareOwnedOutput(root, runId, path, operationSource.content)];
@@ -242,6 +287,10 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
   } else if (step === "artefact") {
     if (operationContext) operationSource = readOperationSource(root, runId, input.sourceBinding);
     recording = prepareArtefactRecording(root, run, { ...input, ...(operationContext ? { operationId: operationContext.operation_id, requestDigest: operationContext.request_digest } : {}) }, control, before);
+    if (input.gate === 'QA') {
+      const diagnostics = qaReportDiagnostics(root, runId, recording.receipt.destination, control);
+      if (diagnostics.length) return findingsRefusal(runId, diagnostics);
+    }
     text = recording.text;
     known = `${input.gate} artefact and reviewed source binding recorded together.`;
     backlog = {};
@@ -309,20 +358,20 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
         || !['OR', 'Quick Task Execution'].includes(before.current_gate) || before.status === 'blocked') return rejected(runId, 'closeout_not_ready');
       operationSource = readOperationSource(root, runId, input.sourceBinding);
       const report = operationSource.content;
-      const readiness = evaluateCloseoutReadiness(control, report, path => {
-        if (!path.startsWith(`.agdf/control/artefacts/${runId}/`) || hasSymlinkComponent(root, path)) return undefined;
-        const file = containedRegularFile(root, path);
-        if (file.status !== 'valid' || statSync(file.path).size > 131072) return undefined;
-        return new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(file.path));
-      }, { prepared: true });
-      if (!readiness.ready) return rejected(runId, 'closeout_obligations_unfulfilled', { findings: readiness.findings });
+      const readiness = evaluateCloseoutReadiness(control, report, path => readRunArtefact(root, runId, path), { prepared: true });
+      if (!readiness.ready) {
+        // The quality obligation still names the decisive finding and, where available, its correction path.
+        const qa = readiness.findings.includes('closeout_quality_unconfirmed') ? inspectQaReports(root, control, runId, 'pass', 64, true) : null;
+        return rejected(runId, 'closeout_obligations_unfulfilled', { findings: readiness.findings,
+          ...(qa?.reason ? { reason_detail: closeoutQualityDetail(qa, control) } : {}) });
+      }
       if (!exactApprovedArtefacts(root, control)) return rejected(runId, 'approved_source_proof_invalid');
       // The current exact acceptance projection already validates every remaining
       // evidence finding against its receipt. Do not reinterpret its retained
       // QA revise report as pass; ordinary closeout keeps the existing pass check.
       if (['structured_slice', 'structured_delivery'].includes(route) && !control.qa_acceptance?.accepted) {
         const qa = inspectQaReports(root, control, runId, 'pass', 64, true);
-        if (qa.kind !== 'none' || qa.findings.length) return rejected(runId, 'closeout_quality_unconfirmed', { findings: qa.findings, reason_detail: qa.reason });
+        if (qa.kind !== 'none' || qa.findings.length) return rejected(runId, 'closeout_quality_unconfirmed', { findings: qa.findings, reason_detail: closeoutQualityDetail(qa, control) });
       }
       const confirmation = closeoutConfirmation(runId, revisionId, operationContext.operation_id, input.sourceBinding.digest);
       if (input.confirmation !== confirmation) return rejected(runId, 'closeout_confirmation_required', { confirmation_selector: confirmation });
@@ -400,7 +449,8 @@ function recordRunStepLocked(root, input, { policy, date, afterWrite, operationC
     if (failed) return failed;
   }
 
-  const summary = runWorkSummary(root, text, run.path, after);
+  // Owned outputs are published before the precommit source check, so the summary reads them as proposed.
+  const summary = runWorkSummary(root, text, run.path, after, { proposed: new Map([...proposedArtefacts].map(([path, row]) => [path, row.content])) });
   const statusLabel = backlogStatusForSummary(summary, after);
   let backlogPlan = backlog
     ? prepareBacklog(root, key, { ...backlog, status: statusLabel, links: backlogLinks(text), next: summary.display_action })

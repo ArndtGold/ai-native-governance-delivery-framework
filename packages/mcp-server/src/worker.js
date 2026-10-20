@@ -13,9 +13,16 @@ export class DispatchExecutionError extends Error {
   }
 }
 
+// Forwards Core lock ownership announcements from a dispatch thread to its executor.
+// Used by worker-entry.js; posting is synchronous, and Node drains posted messages
+// before it emits the worker's exit event.
+export function ownedLockForwarder(send) {
+  return ({ phase, lock_path: lockPath, token }) => send({ type: 'lock', phase, lock_path: lockPath, token });
+}
+
 export function createWorkerDispatchExecutor({
   surface, expectedVersion, commandGroups, timeoutMs = 10_000, WorkerClass = Worker,
-  onEvent = () => {},
+  onEvent = () => {}, releaseOwnedLock = null,
 } = {}) {
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 10_000) throw Error('dispatch_deadline_invalid');
   let active = null;
@@ -36,7 +43,20 @@ export function createWorkerDispatchExecutor({
         event('worker_start', started);
         const current = { worker, timer: null, cleanupSignal: null, cancel: () => finish(reject, new DispatchExecutionError("dispatch_cancelled")) };
         active = current;
-        const release = () => { if (active === current) active = null; };
+        // Locks this worker announced and has not reported released. Its thread shares the
+        // server PID, so stale-lock recovery would treat them as live forever.
+        const held = new Map();
+        const releaseHeldLocks = () => {
+          if (!held.size) return;
+          let released = 0;
+          for (const [token, lockPath] of held) {
+            try { if (releaseOwnedLock?.(lockPath, token) === 'released') released++; } catch {}
+          }
+          held.clear();
+          try { onEvent({ phase: 'locks_released', elapsed_ms: performance.now() - started, count: released }); } catch {}
+        };
+        // Called only after actual exit or confirmed termination: the thread no longer runs.
+        const release = () => { releaseHeldLocks(); if (active === current) active = null; };
         const finish = (callback, value) => {
           if (settled) return completion;
           settled = true;
@@ -71,6 +91,14 @@ export function createWorkerDispatchExecutor({
         }
         current.timer = setTimeout(() => finish(reject, new DispatchExecutionError("dispatch_timeout")), timeoutMs);
         worker.on("message", message => {
+          // Lock messages also arrive after settlement while the worker drains.
+          if (message?.type === 'lock') {
+            if (typeof message.token === 'string' && typeof message.lock_path === 'string') {
+              if (message.phase === 'intent') held.set(message.token, message.lock_path);
+              else if (message.phase === 'released') held.delete(message.token);
+            }
+            return;
+          }
           if (settled) return;
           if (message?.type === 'phase') {
             if (PHASES.has(message.phase)) event(message.phase, started);

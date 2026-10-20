@@ -9,8 +9,9 @@ import { extractField } from './verified-change.js';
 import { summaryLabel } from './backlog-vocabulary.js';
 import { readReportDecision } from './report-decision.js';
 
-// Shared projection; never invokes gate-check, changes control or grants permission.
-export function runWorkSummary(root, content, runPath = '', decision = policyForRunContent(root, content, runPath)) {
+// Shared projection; never invokes gate-check, changes control or grants permission. `proposed`
+// maps run artefact paths to the content a pending write publishes before its precommit check.
+export function runWorkSummary(root, content, runPath = '', decision = policyForRunContent(root, content, runPath), { proposed } = {}) {
   const state = prepareRunContentState(root, content, runPath);
   const runId = extractField(content, 'run_id'), lifecycle = extractField(content, 'lifecycle');
   const policyOnly = modeSliceDecision(state) === 'verified_change' || /## Source Revisions\b/u.test(content);
@@ -37,10 +38,10 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
     else if (!isSafeControlRelativePath(path) || /[%?#]/u.test(path) || !path.startsWith(`.agdf/control/artefacts/${runId}/`)
         || hasSymlinkComponent(root, path)) unconfirmed('qa_source_unsafe');
     else {
-      const file = containedRegularFile(root, path);
-      if (file.status !== 'valid') unconfirmed('qa_source_unavailable');
+      const overlay = proposed?.get(path), file = typeof overlay === 'string' ? null : containedRegularFile(root, path);
+      if (file && file.status !== 'valid') unconfirmed('qa_source_unavailable');
       else {
-        const bytes = readFileSync(file.path);
+        const bytes = file ? readFileSync(file.path) : Buffer.from(overlay);
         let text = '';
         try { if (bytes.length > 262144) throw Error(); text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
         catch { unconfirmed('qa_source_unsupported'); }
@@ -79,7 +80,7 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
               summary.display_action = decisive.action + (followUp.kind === 'upstream' ? ' Resolve the source-owner decision before dependent work.' : ' Then rerun QA with refreshed evidence.');
             }
           } else {
-            const observation = inspectQaReports(root, state, runId, normalized(qa.status), 64, true);
+            const observation = inspectQaReports(root, state, runId, normalized(qa.status), 64, true, { proposed });
             summary.sources = observation.sources;
             if (observation.kind === 'blocked' || qa.status !== 'block' && observation.findings.length) unconfirmed(observation.reason || 'open_review_findings_contradict_pass');
             else if (qa.status === 'block') { summary.kind = 'qa_blocked'; summary.display_action = decision.next_allowed_action; }

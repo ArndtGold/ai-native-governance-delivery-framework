@@ -1,6 +1,6 @@
 import { userGateOrder, durableGateArtefacts, internalStepArtefacts, closeoutArtefacts, gateApprovalStatus, gateArtefactStatus, expectedDurableArtefactStatuses, describeDurableArtefactStatuses, modeSliceDecision } from "./run-state-policy.js";
 export { userGateOrder, durableGateArtefacts, internalStepArtefacts, closeoutArtefacts, gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, expectedDurableArtefactStatuses, describeDurableArtefactStatuses, isInternalStepSatisfied, modeSliceDecision } from "./run-state-policy.js";
-import { presentationDecisionState, approvedMaterialFindings } from '../control-state/presentation-decision.js';
+import { presentationDecisionState, approvedMaterialFindings, approvalMaterialTypes, reviewCorrections } from '../control-state/presentation-decision.js';
 import { inspectQaDeviationAcceptance } from '../control-state/qa-deviation-acceptance.js';
 import { createHash } from "node:crypto";
 import { canonicalRunText } from "../control-state/run-seal-compute.js";
@@ -15,7 +15,7 @@ import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./s
 import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
 import { containedRegularFile } from "../control-state/contained-file.js";
 import { readSourceRevisions } from "../control-state/run-source-revisions.js";
-import { evidenceApplicability } from '../control-state/evidence-bindings.js';
+import { evidenceApplicability, STRUCTURED_REQUIRED_REVIEWS } from '../control-state/evidence-bindings.js';
 import { evaluateCloseoutReadiness } from './closeout-readiness.js';
 import { evaluateReconciliationState } from './parent-reconciliation.js';
 
@@ -64,7 +64,11 @@ export function prepareRunContentState(targetDir, content, path = "", { readArte
     return file ? readFileSync(file, 'utf8') : undefined;
   });
   const presentationDecisions = new Map(userGateOrder.map(gate => [gate, presentationDecisionState(targetDir, state, gate, { readArtefact: overlayReader })]));
-  const evidence = evidenceApplicability(state, evidenceReader);
+  // Reviews recorded after a QA approval whose receipt proves it never saw them (late closeout path).
+  const qaMaterial = approvalMaterialTypes(state, 'QA');
+  const lateReviewTypes = qaMaterial.status === 'recorded' ? STRUCTURED_REQUIRED_REVIEWS.filter(type => !qaMaterial.types.has(type)) : [];
+  // Reviews corrected at OR after the UAT approval (receipt-proven, presentation-decision.js).
+  const evidence = evidenceApplicability(state, evidenceReader, { lateReviewTypes, reviewCorrections: reviewCorrections(state) });
   // The reconciliation owner consumes relationship declarations, not another
   // parent's evaluated closeout. Resolve its captured bytes without recursively
   // evaluating a parent/child cycle. Archived reads never borrow live Run bytes.

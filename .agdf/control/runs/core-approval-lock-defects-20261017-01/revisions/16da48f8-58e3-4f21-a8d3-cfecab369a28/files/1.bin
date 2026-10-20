@@ -1,0 +1,112 @@
+# Brownfield Review: Fix four AGDF approval-chain defects found in the MCP ergonomics run
+
+Gate: Brownfield Review
+Type: Brownfield Review
+Mode: `post_ur_review`
+Status: `done`
+
+## Run
+
+- run_id: core-approval-lock-defects-20261017-01
+- related_ur: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md (Approval: UR after source revision 2a2f700b, revision 9)
+- current_gate: Brownfield Review
+- reviewer: Claude Code (agent), cooperative local review
+- reviewed_at: 2026-10-17
+
+## Objective
+
+Size and route the revised UR: D1 late failure of the localized approval summary, D2 review rows recorded as `done` rendering as missing evidence in Quality Readiness, D3 run write locks left behind by an abandoned in-process MCP dispatch worker, D4 closeout dead end when QA and UAT are approved without TP Review and Clean Implementation Review. This reassesses the first Brownfield Review, which the UR source revision invalidated; its D1 to D3 findings are carried over unchanged.
+
+## UI / UX Impact Routing
+
+- delivery_context: `brownfield`
+- ui_ux_impact: `low`
+- ui_ux_impact_reason: Existing, already localized surfaces change content or availability only: Quality Readiness rows show the recorded review decision, the approval-summary recovery names one more precise reason and field, and D4 either withholds an existing QA approval request with an existing recovery block or allows an existing internal recording at a later gate. No new interaction, control, card or wording owner is introduced.
+- ux_intent_definition_required: `no`
+- ux_intent_definition_result: `not_applicable`
+
+## Existing-System View
+
+| Area | Existing owner or artefact | Evidence | Impact |
+|---|---|---|---|
+| Product semantics | Approval-summary contract in the `ur-definition` runtime contract; Quality Readiness dimensions in `packages/core/lib/interaction-presentation.js` (`buildQualityReadiness`); qa-gate skill rule "Without review evidence and TP coverage, `QA pass` is not allowed" (`plugins/agdf/skills/qa-gate/SKILL.md`) | The ur-definition contract prescribes no summary labels, while `summaryFields` lacks natural labels such as `Nicht-Ziele`. The qa-gate rule already requires TP Review and Clean Implementation Review before a QA pass, but no deterministic Core rule enforces it before the QA approval request. | `medium` |
+| Source of truth | `report-decision.js` (`readAuthoredContent`, `summaryFields`); `decision-content-readiness.js` (`observeDecisionContent`); `run-presentation-render.js` (`validateLocalizedSummaryBlock`, `evaluateApprovalSummaryReadiness`, `renderApprovalSummaryIssue`); `run-steps.js` (recorded review status); `closeout-readiness.js` (`evaluateCloseoutReadiness`); `run-operation-proof.js` (`internalStepEligibility`) | `validateLocalizedSummaryBlock` never calls `readAuthoredContent`. `run-steps.js` writes `done` for a confirmed `pass` internal result. `evaluateCloseoutReadiness(..., { prepared: true })` (always used by `closeout.record`, `run-steps.js` line 312) requires `TP Review` and `Clean Implementation Review` rows `done` with a current association and pass decision. `internalStepEligibility` (lines 36-48) returns false once QA or UAT is approved and otherwise allows these reviews only at gate CR or QA. A repository search finds no QA readiness, QA presentation or gate-transition rule that references either review; only closeout, QA deviation acceptance (`qa-deviation-acceptance.js`), evidence-binding source sets and the derived Quality Readiness do. | `medium` |
+| Runtime path | `packages/mcp-server/src/worker.js` (`createWorkerDispatchExecutor`), `worker-entry.js`, `server.js`; `run-state-writer.js` (`withOwnedFileLock`, `ownerState`, `reclaimAbandonedLock`, `lockError`); `approval-command.js` | Production dispatch runs in a `node:worker_threads` Worker sharing the server PID; `ownerState` treats any live PID as `live`; `worker.terminate()` skips `finally`, so the lock stays. The executor allows one active worker and releases capacity only on actual exit; the observed retries reached `run_write_locked`, not `dispatch_busy`, so the abandoned worker had exited and only its lock record remained. Node drains a worker's posted messages before emitting `exit`. | `medium` |
+| UI / UX | Status card Quality Readiness rows; approval-summary recovery text; QA presentation recovery | `buildQualityReadiness` maps any unknown dimension to overall `revise`; the observed run showed `Planabdeckung` and `Lösungsintegrität` as `Nachweis fehlt` while QA and UAT were approved. | `low` |
+| Persistence / data | Lock owner record `{schema_version, pid, token, started_at}`; RUN_STATE artefact rows and evidence bindings | `ownerState` requires exactly these four keys; older runtimes read the same files. D4 recording after QA or UAT approval would append internal-step rows and bindings through the existing writer; no schema change is needed for either D4 option. | `low` |
+| Tests / QA | `run-lock-test.js`, `decision-content-test.js`, `artifact-readiness-test.js`, `interaction-presentation-test.js`, `run-closeout-command-test.js`, `run-closeout-slice-test.js`, `qa-deviation-acceptance-test.js`; CLI `artifact-language-test.js`, `intake-continuation-test.js`; mcp-server `safety.test.js`, `run-command.test.js`, `structured-flow.test.js`, `whole-flow.test.js` | No test covers recorded `done` rows in `qualityReadinessForRunState`, a localized summary with an unknown or qualified key before `Ziel`, lock cleanup after worker exit, or the closeout dead end. No test references `closeout_review_unfulfilled` or `closeout_review_result_unconfirmed`. Structured whole-flow fixtures that reach QA must be checked for whether they record both reviews. The observed run `mcp-ergonomics-baseline-20261016-01` (gate OR, UR to UAT approved, two `internal_step_not_ready` rejections for operations 0a9f1cde and 5524eeb5) is a concrete reproduction. | `medium` |
+| Release / operations | Installed plugin runtime 0.14.5; plugin MCP generations | The installed runtime governing this run lacks the fix; no reinstall or release is in scope. Worker code reaches Core through `create-agdf/mcp-dispatch-runtime`, so verification needs the existing `build:prepare` and `mcp-dependencies` stages. Closing the observed run needs the fix in the runtime that the owner uses later; that is outside this run. | `low` |
+
+## Architecture Impact
+
+- architecture_relevance: `relevant`
+- architecture_impact: `low`
+- architecture_reason: D3 touches the runtime/host boundary between the MCP adapter (worker lifecycle) and the Core lock owner, and the cross-version lock-file compatibility boundary. D4 touches the gate-readiness policy boundary: either the existing qa-gate rule becomes deterministic before the QA approval request, or internal-step eligibility is widened after QA/UAT approval for the two reviews closeout requires. Both stay inside existing Core owners (gate evaluation, run-operation proof, closeout readiness) and existing writers. D1 and D2 are local to Core evaluation/presentation owners.
+- architecture_evidence: `packages/mcp-server/src/worker.js` lines 24-90; `run-state-writer.js` lines 96-232; `closeout-readiness.js` lines 41-50; `run-operation-proof.js` lines 36-48; `plugins/agdf/skills/qa-gate/SKILL.md` (QA pass requires review evidence); CONTEXT_GRAPH `CG-RUN-SCOPED-CONTROL-STATE`, `CG-RUN-STATUS-CARD`, `CG-MCP-DISPATCH-ADAPTER` and `physical_owner_reconciliation_20261001` (Core owns gate, lock and dispatch rules; MCP owns SDK/worker/stdio).
+- architecture_missing_evidence: `none` for routing. The D3 mechanism and the D4 option are SD decisions (owner: SD); the D1 skip-or-end rule likewise.
+- architecture_next_owner_and_action: SD decides D1 reading rule, D3 release mechanism and D4 consistency option inside the existing owners; TP plans the exact-shape, abandoned-worker, live-writer and dead-end regression tests.
+
+## Reuse And Parallel-Structure Risk
+
+| Finding | Evidence | Risk | Required action |
+|---|---|---|---|
+| problem: the presentation validator and the UAT consumer read the same summary with different rules | `validateLocalizedSummaryBlock` vs `readAuthoredContent` in `observeDecisionContent` | `revise` | Reuse one owner: readiness and presentation call the same reader and field predicates as `observeDecisionContent`; no second summary parser. |
+| problem: `statusFromReviewArtefact` ignores the canonical `done` status | `gate-check.js` lines 263-270 vs `run-steps.js` status mapping | `warn` | Extend the existing mapping in place; no new review-status store. |
+| problem: lock owner liveness is per process, while MCP writers are per thread | `ownerState` uses `process.kill(pid, 0)`; worker threads share the PID | `revise` | Release only locks proven to belong to the exited worker (exact token, same PID) through the existing Core lock owner and its reclaim guard; keep the record format. |
+| problem: closeout requires two reviews that no earlier gate requires and that cannot be recorded after QA/UAT approval | `closeout-readiness.js` lines 41-50; `run-operation-proof.js` lines 36-48; no QA readiness reference | `revise` | Make the requirement consistent through existing owners: gate evaluation / QA readiness and/or internal-step eligibility; no second closeout or review authority; a late-recorded result must be the actual recorded decision. |
+| trade-off: a worker that never exits keeps its lock and the executor capacity | `worker.js` keeps `active` until actual exit; `safety.test.js` hung mode | `warn` | Keep it protected as a live writer; the existing `dispatch_worker_termination_unconfirmed` recovery stays. No debt is added; behaviour is unchanged and intended. |
+| risk: a parallel lock registry, a second reclaim path, or a second review-requirement list | none exists today | `warn` | Reuse `reclaimAbandonedLock`'s guard/compare/unlink protocol and one shared list of the reviews closeout requires. |
+
+## Mode / Slice Decision
+
+- decision: `structured_slice`
+- required_next_gate: `PRD`
+- scope_reason: bounded_structured_slice. Four correctness defects in existing Core evaluation, presentation, gate-readiness, closeout and lock owners plus the MCP worker adapter, each with a concrete reproduction from run mcp-ergonomics-baseline-20261016-01. No full-depth trigger: D4 enforces or makes satisfiable an existing normative requirement (qa-gate and closeout already require both reviews) rather than introducing a new policy or authority; no persistence schema or migration; no public CLI/protocol/file-format change (lock record unchanged; additive diagnostic reasons only); no release or cross-host activation. Rejected alternatives: `structured_delivery` (no evidenced full-depth trigger) and `quick_task`/`verified_change` (several owners; the UR requires SD decisions).
+- evidence: this review; UR revision 9; source references in Existing-System View; Structured Depth Evidence below.
+- transparency_note: PRD and SD stay at slice depth: acceptance criteria per defect and the three SD decisions (D1 skip-or-end, D3 mechanism, D4 consistency option). TP covers the exact failing summary, recorded status rows, the abandoned-worker path and the closeout dead end.
+
+## Structured Depth Evidence
+
+- depth_policy_version: `1`
+- depth_facts_status: `complete`
+- primary_reason_code: `bounded_structured_slice`
+- decisive_full_depth_triggers: none
+- rejected_alternative: `structured_delivery` — no new authority or policy (D4 aligns enforcement with the existing qa-gate and closeout requirement), no persistence, external-contract, release or unbounded-coordination effect; `quick_task` — several owners and explicit SD decisions.
+- missing_or_conflicting_facts: none
+- depth_evidence_refs: Existing-System View rows; Architecture Impact evidence; UR sections 3-7.
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | `pass` | One outcome: approval-chain defects surface early or no longer occur; UR acceptance signals per defect. |
+| authority_boundary | `pass` | Existing owners keep authority; D4 enforces an existing requirement and adds no new approval, permission or trust boundary. |
+| owner_consumer_coordination | `pass` | Consumers are in-repository UAT preparation, status card, QA presentation, closeout and the MCP adapter; no shared external cutover. |
+| full_depth_impacts_absent | `pass` | Lock record format and cross-process reclaim unchanged; no schema, external API, public CLI, release or cross-host effect. |
+| migration_propagation_bounded | `pass` | Propagation only through the existing generated runtime copy; no data migration; changes revert by code revert. |
+| failure_recovery_local | `pass` | Stricter checks fail closed into existing recovery; lock release limited to exact-token locks of an exited worker; D4 keeps refusal recoveries inside the run. |
+| independently_acceptable | `pass` | Each defect has its own tests and acceptance signal; nothing depends on F02/F09 work or on the observed run. |
+
+## PRD / SD Open Questions
+
+| Question | Required gate | Impact |
+|---|---|---|
+| Does an unknown or qualified key (e.g. `Problem (Messlücke):`) end the localized block or is it skipped? | `SD` | `revise` |
+| Which mechanism lets the MCP adapter release a lock of an exited worker without changing the lock record format? | `SD` | `revise` |
+| D4: block the QA approval request without both reviews, keep both reviews recordable until closeout after QA/UAT approval, or both; and which decisions a late recording may carry | `SD` | `revise` |
+| Exact acceptance criteria per defect, including the QA summary fields and the dead-end regression | `PRD` | `warn` |
+
+## Context Graph Impact
+
+- context_graph_impact: `link_only`
+- context_graph_refs: CG-RUN-SCOPED-CONTROL-STATE; CG-MCP-DISPATCH-ADAPTER; CG-RUN-STATUS-CARD
+- context_graph_required_action: `link`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: The fixes refine existing owners named by these nodes without changing their decisions; closeout decides whether a short extension line is warranted.
+
+## Next Permissible Step
+
+- next_allowed_action: Revise the PRD at slice depth for the approved revised UR.
+- forbidden_until_then: SD, TP, implementation and code changes before the PRD is approved.
+
+## Quality Outlook
+
+- quality_outlook: Main risks are fixture fallout from the stricter summary and QA checks, the safety of lock release, and keeping late-recorded reviews honest; all are addressed by reusing existing owners and testing the exact reproductions.

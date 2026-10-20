@@ -6,6 +6,7 @@ import { assertArtefactBindingsChange, validArtefactBinding } from "./artefact-b
 import { assertSourceRevisionsChange, validSourceRevision, validSourceRevisionEffect } from "./run-source-revisions.js";
 import { validateRevisionHistory, archivedRunMatches } from "./run-revision-history.js";
 import { randomUUID } from "node:crypto";
+import { channel } from "node:diagnostics_channel";
 import {
   closeSync,
   fchmodSync,
@@ -111,13 +112,19 @@ function lockError(path) {
   return error;
 }
 
+const LOCK_TOKEN = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/iu;
+
+function validOwnerRecord(owner) {
+  return Boolean(owner) && Object.keys(owner).sort().join(',') === 'pid,schema_version,started_at,token'
+    && owner.schema_version === 1 && typeof owner.started_at === 'string'
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(owner.started_at)
+    && Number.isFinite(Date.parse(owner.started_at)) && new Date(owner.started_at).toISOString() === owner.started_at
+    && Number.isSafeInteger(owner.pid) && owner.pid > 0
+    && typeof owner.token === "string" && LOCK_TOKEN.test(owner.token);
+}
+
 function ownerState(owner) {
-  if (!owner || Object.keys(owner).sort().join(',') !== 'pid,schema_version,started_at,token'
-      || owner.schema_version !== 1 || typeof owner.started_at !== 'string'
-      || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(owner.started_at)
-      || !Number.isFinite(Date.parse(owner.started_at)) || new Date(owner.started_at).toISOString() !== owner.started_at
-      || !Number.isSafeInteger(owner.pid) || owner.pid <= 0
-      || typeof owner.token !== "string" || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/iu.test(owner.token)) return "unknown";
+  if (!validOwnerRecord(owner)) return "unknown";
   try {
     process.kill(owner.pid, 0);
     return "live";
@@ -198,22 +205,74 @@ function publishOwnedLock(lockPath, owner, checkpoint) {
   }
 }
 
+// Ownership announcements let a host that runs writers on threads (the MCP worker
+// executor) release a lock whose owning thread was terminated before its finally
+// block ran. Owner records keep their format; without subscribers nothing happens.
+export const OWNED_LOCK_CHANNEL = "agdf:owned-file-lock";
+const ownedLockChannel = channel(OWNED_LOCK_CHANNEL);
+function announceOwnedLock(phase, lockPath, token) {
+  if (ownedLockChannel.hasSubscribers) ownedLockChannel.publish({ phase, lock_path: lockPath, token });
+}
+
+// Releases a lock whose owning thread has actually exited; the caller proves the exit.
+// This function proves the record is that thread's own (exact token, this process,
+// unchanged bytes) under the same guard as reclaimAbandonedLock. It never throws for
+// a foreign, guarded or unknown lock: it reports the outcome and leaves it in place.
+export function releaseAbandonedOwnedLock(lockPath, token) {
+  if (typeof lockPath !== "string" || !lockPath.endsWith(".lock") || typeof token !== "string" || !LOCK_TOKEN.test(token)) return "unknown";
+  try {
+    const staged = `${lockPath}.${token}.pending`, file = lstatSync(staged);
+    if (file.isFile() && !file.isSymbolicLink()) unlinkSync(staged);
+  } catch (error) { if (error?.code !== "ENOENT") return "unknown"; }
+  const guard = `${lockPath}.reclaim`;
+  let descriptor;
+  try { descriptor = openSync(guard, "wx"); } catch (error) { return error?.code === "EEXIST" ? "guarded" : "unknown"; }
+  try {
+    let original;
+    try {
+      const file = lstatSync(lockPath);
+      if (!file.isFile() || file.size > 4096) return "unknown";
+      original = readFileSync(lockPath, "utf8");
+    } catch (error) { return error?.code === "ENOENT" ? "absent" : "unknown"; }
+    let owner;
+    try { owner = JSON.parse(original); } catch { return "unknown"; }
+    if (!validOwnerRecord(owner)) return "unknown";
+    if (owner.token !== token || owner.pid !== process.pid) return "foreign";
+    if (!lstatSync(lockPath).isFile() || readFileSync(lockPath, "utf8") !== original) return "foreign";
+    unlinkSync(lockPath);
+    fsyncDirectory(dirname(lockPath));
+    return "released";
+  } catch { return "unknown"; }
+  finally {
+    closeSync(descriptor);
+    try { unlinkSync(guard); } catch {}
+  }
+}
+
 export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
   const lockPath = `${path}.lock`;
   const owner = { schema_version: 1, pid: process.pid, token: randomUUID(), started_at: new Date().toISOString() };
   let lockDescriptor;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      lockDescriptor = publishOwnedLock(lockPath, owner, checkpoint); break;
-    } catch (error) {
-      if (error.code !== 'EEXIST') throw error;
-      try { reclaimAbandonedLock(lockPath); }
-      catch (locked) {
-        if (attempt < 2 && !existsSync(lockPath)) continue; // Fresh proven absence; no wait/reclaim of an unknown owner.
-        throw locked;
+  // Announce before staging: a thread stopped right after publication is still known.
+  announceOwnedLock("intent", lockPath, owner.token);
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        lockDescriptor = publishOwnedLock(lockPath, owner, checkpoint); break;
+      } catch (error) {
+        if (error.code !== 'EEXIST') throw error;
+        try { reclaimAbandonedLock(lockPath); }
+        catch (locked) {
+          if (attempt < 2 && !existsSync(lockPath)) continue; // Fresh proven absence; no wait/reclaim of an unknown owner.
+          throw locked;
+        }
+        if (attempt === 2) throw lockError(lockPath);
       }
-      if (attempt === 2) throw lockError(lockPath);
     }
+  } catch (error) {
+    // No "released" here: if publishOwnedLock's own cleanup failed, the record may still
+    // exist, and the host must keep the token to release it after the thread exits.
+    throw error;
   }
   const created = fstatSync(lockDescriptor);
   try {
@@ -233,6 +292,7 @@ export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
     } catch (error) {
       if (error?.code !== "ENOENT" && error instanceof SyntaxError === false) throw error;
     }
+    announceOwnedLock("released", lockPath, owner.token);
     checkpoint("after_lock_release");
   }
 }

@@ -399,7 +399,10 @@ try {
     assert.equal(typeof eventCwdContext.facts.automatic_check.status, "string");
     assert.equal(typeof eventCwdContext.facts.automatic_check.findings, "number");
     const { repository_control: repositoryControl, ...originalFacts } = eventCwdContext.facts;
-    const normalizedSupplement = `AGDF runtime facts: ${JSON.stringify(originalFacts)}`.replaceAll(process.cwd(), "<working-directory>");
+    // JSON escapes Windows backslashes, so the checkout path appears in its JSON-escaped form.
+    // Normalize that form; the budget must not depend on how deep the checkout lives.
+    const normalizedSupplement = `AGDF runtime facts: ${JSON.stringify(originalFacts)}`
+      .replaceAll(JSON.stringify(process.cwd()).slice(1, -1), "<working-directory>");
     assert.ok(Buffer.byteLength(normalizedSupplement, "utf8") <= 320);
     assert.equal(repositoryControl.target, realpathSync(resolve(packageRoot, "../..")));
     // This real repository can exhaust the shared startup deadline. Deterministic

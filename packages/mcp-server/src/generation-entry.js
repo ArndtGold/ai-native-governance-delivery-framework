@@ -4,7 +4,7 @@ import { createAgdfWorkerExecutor } from './server.js';
 import { loadCockpitResource } from './cockpit-resource.js';
 import { generationMessage, validGenerationMessage, generationManifest, generationFailureReason } from './generation-protocol.js';
 import { createMcpDispatchRuntime, createMcpDecisionRuntime, createMcpCockpitRuntime, DECISION_UI_URI,
-  inspectMcpDispatcherRuntime } from 'create-agdf/mcp-dispatch-runtime';
+  inspectMcpDispatcherRuntime, releaseAbandonedOwnedLock } from 'create-agdf/mcp-dispatch-runtime';
 const epoch = process.argv[2], generation = Number(process.argv[3]);
 let runtime, executor, starting = false, closing = false, inflight = 0, serverDigest, sdkDigest, uiDigest;
 const observed = new Set(), unknown = new Set();
@@ -39,7 +39,7 @@ process.on('message', async input => {
       if (runtime.ui) uiDigest = loadCockpitResource(runtime.ui).digest;
       // Inspect reports package-owned immutable identities, not caller evidence.
       sdkDigest = inspected.generationIdentity.sdk_digest; serverDigest = inspected.generationIdentity.server_digest;
-      executor = runtime.mode === 'cockpit' ? null : createAgdfWorkerExecutor(runtime);
+      executor = runtime.mode === 'cockpit' ? null : createAgdfWorkerExecutor(runtime, { releaseOwnedLock: releaseAbandonedOwnedLock });
       const support = { ui: Boolean(runtime.ui), app_mediation: runtime.mode === 'decision'
         && runtime.trustedContext.decisionQualification(input.context.client, uiDigest) === true };
       starting = false;

@@ -7,6 +7,7 @@ import { evaluateQaFollowUp, inspectQaReports } from './qa-follow-up.js';
 import { prepareRunContentState, modeSliceDecision } from './run-state.js';
 import { extractField } from './verified-change.js';
 import { summaryLabel } from './backlog-vocabulary.js';
+import { readReportDecision } from './report-decision.js';
 
 // Shared projection; never invokes gate-check, changes control or grants permission.
 export function runWorkSummary(root, content, runPath = '', decision = policyForRunContent(root, content, runPath)) {
@@ -43,10 +44,10 @@ export function runWorkSummary(root, content, runPath = '', decision = policyFor
         let text = '';
         try { if (bytes.length > 262144) throw Error(); text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
         catch { unconfirmed('qa_source_unsupported'); }
-        const decisions = [...text.matchAll(/^(?:- )?(?:decision|Decision|Status):[ \t]*(pass|passed|revise|block)[ \t]*$/gmu)];
+        const authoredDecision = readReportDecision(text);
         summary.sources.push({ path, digest: 'sha256:' + createHash('sha256').update(bytes).digest('hex'), state: 'available' });
         const normalized = value => value === 'passed' ? 'pass' : value;
-        if (bytes.length > 262144 || decisions.length !== 1 || normalized(decisions[0][1]) !== normalized(qa.status)) unconfirmed('qa_decision_unconfirmed');
+        if (bytes.length > 262144 || !authoredDecision || authoredDecision !== normalized(qa.status)) unconfirmed('qa_decision_unconfirmed');
         else {
           summary.qa_outcome = normalized(qa.status);
           const association = state.evidence_applicability.by_step.get('QA');

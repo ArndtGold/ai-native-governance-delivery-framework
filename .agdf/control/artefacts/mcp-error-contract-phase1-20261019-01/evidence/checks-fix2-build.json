@@ -1,0 +1,84 @@
+[
+  {
+    "name": "fix2-generate",
+    "command": [
+      "node",
+      "scripts/sync-package-assets.js"
+    ],
+    "started_at": "2026-10-19T18:20:25.313356+00:00",
+    "completed_at": "2026-10-19T18:20:27.922716+00:00",
+    "exit_code": 1,
+    "log": "fix2-generate.log"
+  },
+  {
+    "name": "fix2-payload",
+    "command": [
+      "node",
+      "scripts/payload-budget.js",
+      "--accept",
+      "--files",
+      "395",
+      "--bytes",
+      "3439607",
+      "--reason",
+      "Exact measured Phase 1 payload after reusing the current Doctor observation and deferring unchanged SDK tool-schema compilation until actual validation; unchanged response and timing limits."
+    ],
+    "started_at": "2026-10-19T18:20:27.925306+00:00",
+    "completed_at": "2026-10-19T18:20:28.251835+00:00",
+    "exit_code": 0,
+    "log": "fix2-payload.log"
+  },
+  {
+    "name": "fix2-prepare",
+    "command": [
+      "npm",
+      "run",
+      "build:prepare"
+    ],
+    "started_at": "2026-10-19T18:20:28.252489+00:00",
+    "completed_at": "2026-10-19T18:21:41.104873+00:00",
+    "exit_code": 0,
+    "log": "fix2-prepare.log"
+  },
+  {
+    "name": "fix2-compatibility-record",
+    "command": [
+      "npm",
+      "run",
+      "compatibility:record"
+    ],
+    "started_at": "2026-10-19T18:21:41.105726+00:00",
+    "completed_at": "2026-10-19T18:22:38.542063+00:00",
+    "exit_code": 0,
+    "log": "fix2-compatibility-record.log"
+  },
+  {
+    "name": "fix2-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "started_at": "2026-10-19T18:22:38.543087+00:00",
+    "completed_at": "2026-10-19T18:23:36.514095+00:00",
+    "exit_code": 0,
+    "log": "fix2-build.log"
+  },
+  {
+    "name": "fix2-mcp-dependencies",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "ci",
+      "--ignore-scripts",
+      "--cache",
+      "/private/tmp/agdf-mcp-contract-npm-cache",
+      "--offline"
+    ],
+    "started_at": "2026-10-19T18:23:36.515003+00:00",
+    "completed_at": "2026-10-19T18:23:47.396738+00:00",
+    "exit_code": 0,
+    "log": "fix2-mcp-dependencies.log"
+  }
+]

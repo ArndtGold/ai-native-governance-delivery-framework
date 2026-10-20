@@ -58,6 +58,10 @@ try {
   const invoke = async (name, input) => {
     const reply = await client.callTool({ name, arguments: input });
     assert.ok(reply.structuredContent, JSON.stringify(reply));
+    assert.equal(reply._meta?.['agdf/tool-result'], undefined);
+    if (['rejected', 'effect_unknown', 'recovery_required'].includes(reply.structuredContent.outcome)) {
+      assert.equal(reply.isError, true, JSON.stringify(reply)); assert.equal(reply.content.length, 2);
+    } else { assert.equal(reply.isError, undefined, JSON.stringify(reply)); assert.equal(reply.content.length, 1); }
     if (reply.structuredContent.presentation_delivery) assert.equal(reply.content[0].text, reply.structuredContent.presentation_delivery.text);
     if (reply.structuredContent.outcome === 'effect_unknown' && reply.structuredContent.reason === 'generation_response_unknown') throw Error('generation_response_unknown');
     return { ...reply.structuredContent, ...(reply._meta ? { _meta: reply._meta } : {}) };
@@ -106,6 +110,30 @@ try {
   assert.equal(facade.runtimeControl.status().occupancy, 3);
   assert.equal(readFileSync(f.state, 'utf8'), saved, 'Inspection and retirement neither replay nor change the lost operation.');
   await facade.close(); assert.equal(facade.runtimeControl.status().occupancy, 0);
+  // Actual Cockpit view bound to generation 1 survives replacement. Its read
+  // rejection must retain the producing descriptor through child IPC and SDK.
+  const boundCockpitRuntime = await dispatcher.createMcpCockpitRuntime({ surface: 'codex', cockpitDir: target });
+  const cockpitTrace = [], cockpit = await createOwnedGenerationFacade({ runtime: boundCockpitRuntime, publisher, surface: 'codex', cockpitDir: target,
+    createControlRuntime: runtimeControl => dispatcher.createMcpDispatchRuntime({ surface: 'codex', runtimeControl }), onEvent: event => cockpitTrace.push(event) });
+  const cockpitServer = buildAgdfServer({ runtime: cockpit }), cockpitClient = new Client({ name: 'synthetic-cockpit-generation', version: '1' },
+    { capabilities: { extensions: { [MCP_APP_UI_EXTENSION]: { mimeTypes: [ui.mimeType] } } } });
+  const [ca, cb] = InMemoryTransport.createLinkedPair();
+  try {
+    await cockpitServer.connect(cb); await cockpitClient.connect(ca);
+    const opened = await cockpitClient.callTool({ name: 'agdf_cockpit', arguments: { run_id: f.runId } });
+    assert.equal(opened.isError, undefined, JSON.stringify(opened));
+    const session = opened._meta.agdf_cockpit.session_id;
+    const replacement = await cockpit.runtimeControl.replace({ input: envelope(), candidate, requestDigest: 'synthetic-cockpit-replacement', revalidate() {} });
+    assert.equal(replacement.outcome, 'accepted', JSON.stringify(replacement));
+    const snapshot = await cockpitClient.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'snapshot', session_id: session, run_id: f.runId } });
+    assert.equal(snapshot.isError, undefined, JSON.stringify(snapshot));
+    const rejected = await cockpitClient.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'document', session_id: session,
+      snapshot_id: snapshot.structuredContent.snapshot_id, run_id: f.runId, resource_id: randomUUID() } });
+    assert.equal(rejected.isError, true, JSON.stringify(rejected)); assert.equal(rejected.content.length, 2);
+    assert.equal(rejected.structuredContent.code, 'resource_denied'); assert.equal(rejected._meta?.['agdf/tool-result'], undefined);
+    assert.equal(cockpitTrace.findLast(e => e.kind === 'invoke').generation_id, 1);
+    await cockpitClient.callTool({ name: 'agdf_cockpit_read', arguments: { operation: 'close', session_id: session } });
+  } finally { await cockpitClient.close(); await cockpitServer.closeAgdfRuntime(); await cockpitServer.close(); }
   // A real child acknowledges orderly shutdown but deliberately keeps its own
   // event loop alive. No forced signal may substitute for actual exit.
   const wrapper = join(root, 'delayed-owned-exit.mjs');
@@ -131,7 +159,8 @@ try {
     child.emit = function(kind, ...values) {
       const reply = values[0];
       if (kind === 'message' && reply?.kind === 'qualified' && reply.generation_id > 1) {
-        if (corruptCandidate) reply.payload.manifest.sdk_digest = '0'.repeat(64);
+        assert.equal(reply.payload.manifest.tool_error_contract, 'agdf-tool-result/1');
+        if (corruptCandidate) reply.payload.manifest.tool_error_contract = 'agdf-tool-result/0';
         else { setTimeout(() => emit.call(this, kind, ...values), 200); return true; }
       }
       return emit.call(this, kind, ...values);

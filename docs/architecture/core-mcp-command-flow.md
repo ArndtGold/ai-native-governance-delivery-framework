@@ -370,3 +370,26 @@ Befehlsaufrufe erläutert die [CLI-Referenz](../../packages/cli/README.md), Serv
 [MCP-Paketdokumentation](../../packages/mcp-server/README.md). Für die Einordnung weiterer
 Ausführungskontrollen und stärkerer Herkunftsnachweise geht der Leseweg zum
 [gemeinsamen Zielbild](03-agentenkontrolle-zielbild.md) zurück.
+
+Fachlich fehlgeschlagene MCP-Operationen tragen `isError: true`. Das fachliche
+Ergebnis und der erste Textblock bleiben erhalten; ein zweiter, begrenzter
+Textblock erklärt Ursache, bekannte Wirkungsgrenze und zulässige Korrektur auf
+Deutsch oder Englisch. Erfolgreiche Statusabfragen bleiben erfolgreich, wenn sie
+fehlende Freigaben, mangelnde Bereitschaft oder unbekannte Operationsbelege melden.
+
+Der reine Core-Projektor `packages/core/lib/mcp-tool-errors.js` beschreibt bereits
+entschiedene Ergebnisse. Die produzierende Laufzeit erzeugt den privaten,
+versionierten Deskriptor nach ihrer Nachverarbeitung. Die Generationenqualifikation
+bindet `agdf-tool-result/1`; der Adapter prüft und entfernt den Deskriptor vor der
+öffentlichen Serialisierung. Cockpit und Decision App übernehmen nur geprüfte
+negative Daten unter dem Fehlerflag, mit unveränderten Sitzungs- und
+Bindungsprüfungen. Ein erfolgreiches Nutzdatum unter einem Fehlerflag bestätigt
+keine Entscheidung.
+
+Parserfehler vor Ausführung können als nicht ausgelöst nachgewiesen werden.
+Abbruch oder Verbindungsverlust nach Übergabe lassen die Wirkung offen. Dann
+bleiben ursprüngliche UUID, Nutzdaten und Core-Belege maßgeblich; zuerst wird der
+Operationsstatus gelesen. Der Fehlertext erteilt keine Wiederholungs- oder
+Freigabeberechtigung. Die bestehenden Antwortgrenzen gelten einschließlich
+Korrekturtext und begrenzter Ersatzantwort. Native Host-Verbesserungen benötigen
+weiterhin eigene Beobachtungen.

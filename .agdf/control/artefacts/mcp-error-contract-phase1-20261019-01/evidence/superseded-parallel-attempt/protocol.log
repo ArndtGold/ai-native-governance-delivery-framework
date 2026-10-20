@@ -1,0 +1,26 @@
+npm notice run @agdf/mcp-server@0.14.5 test:protocol
+npm notice run node ./test/protocol.test.js && node ./test/skill-names.test.js && node ./test/tool-errors.test.js
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'evaluator_error'
+- 'skill_continuation'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/skill-names.test.js:38:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/skill-names.test.js:13:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'evaluator_error',
+  expected: 'skill_continuation',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

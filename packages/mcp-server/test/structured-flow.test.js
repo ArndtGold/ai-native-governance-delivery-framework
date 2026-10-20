@@ -34,6 +34,9 @@ try {
   }
   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
   writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
+  writeFileSync(join(root, qaPath), readFileSync(join(root, qaPath), 'utf8')
+    + '\n\n## Normalized Findings\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n'
+    + '| CD-PERF-001 | emergent_risk | CD+Tests | resolved | PERFORMANCE_FIX.md; both unchanged performance qualifications pass. | None for this finding; proceed to the current lifecycle owner. |\n');
   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };

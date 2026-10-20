@@ -1,0 +1,36 @@
+[
+  {
+    "name": "package-boundaries",
+    "command": [
+      "node",
+      "scripts/check-package-boundaries.mjs"
+    ],
+    "started_at": "2026-10-19T16:31:16.324721+00:00",
+    "completed_at": "2026-10-19T16:31:21.841925+00:00",
+    "exit_code": 0,
+    "log": "package-boundaries.log"
+  },
+  {
+    "name": "verification",
+    "command": [
+      "npm",
+      "run",
+      "test:verification"
+    ],
+    "started_at": "2026-10-19T16:31:21.841986+00:00",
+    "completed_at": "2026-10-19T16:32:19.051606+00:00",
+    "exit_code": 0,
+    "log": "verification.log"
+  },
+  {
+    "name": "inventory",
+    "command": [
+      "node",
+      "scripts/ci-plan-test.mjs"
+    ],
+    "started_at": "2026-10-19T16:32:19.051711+00:00",
+    "completed_at": "2026-10-19T16:32:28.932669+00:00",
+    "exit_code": 0,
+    "log": "inventory.log"
+  }
+]

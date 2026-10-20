@@ -1,0 +1,62 @@
+[
+  {
+    "name": "worker-safety",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "run",
+      "test:safety"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T15:15:49.975294+00:00",
+    "completed_at": "2026-10-19T15:15:55.809425+00:00",
+    "exit_code": 0,
+    "log": "worker-safety.log"
+  },
+  {
+    "name": "generation",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "run",
+      "test:generation"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T15:15:55.813506+00:00",
+    "completed_at": "2026-10-19T15:18:20.526302+00:00",
+    "exit_code": 0,
+    "log": "generation.log"
+  },
+  {
+    "name": "protocol",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "run",
+      "test:protocol"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T15:18:20.528982+00:00",
+    "completed_at": "2026-10-19T15:20:20.299098+00:00",
+    "exit_code": 1,
+    "log": "protocol.log"
+  },
+  {
+    "name": "cockpit-gating",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "run",
+      "test:cockpit-gating"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T15:20:20.306347+00:00",
+    "completed_at": "2026-10-19T15:21:19.380984+00:00",
+    "exit_code": 0,
+    "log": "cockpit-gating.log"
+  }
+]

@@ -1,0 +1,11 @@
+npm notice run @agdf/mcp-server@0.14.5 test:package
+npm notice run node ./test/package.test.js
+AGDF MCP package boundary tests passed.
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/package.test.js:96
+    execFileSync('tar', ['-xzf', reports[0].filename, '--strip-components=1', '-C', name], { cwd: packedRoot });
+                                            ^
+
+TypeError: Cannot read properties of undefined (reading 'filename')
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/package.test.js:96:45
+
+Node.js v22.22.3

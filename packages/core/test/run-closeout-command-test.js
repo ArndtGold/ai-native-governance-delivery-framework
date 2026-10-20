@@ -14,6 +14,7 @@ import { closeoutConfirmation, evaluateCloseoutReadiness } from '../lib/control-
 import { appendTableRow } from '../lib/control-state/run-state-edits.js';
 import { readPendingRunStepJournal } from '../lib/control-state/run-step-transaction.js';
 import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
+import { runWorkSummary } from '../lib/control-evaluation/run-work-summary.js';
 import { intentStages, outputStages, commitStages, beforeIntent, beforeRunCommit } from './fixtures/transaction-checkpoints.js';
 
 const root = mkdtempSync(join(tmpdir(), 'agdf-closeout-command-')), seed = mkdtempSync(join(tmpdir(), 'agdf-closeout-seed-'));
@@ -64,7 +65,9 @@ try {
     assert.equal(recorded.outcome, 'accepted', JSON.stringify(recorded));
   }
   const qaPath = f.prefix + 'QA_REPORT.md', proof = f.prefix + 'QA_MAPPING.json', request = f.prefix + 'QA_RECORD.json';
-  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n'));
+  const resolvedTable = '\n\n## Normalized Findings\n\n| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |\n|---|---|---|---|---|---|\n';
+  const resolvedRow = '| CD-PERF-001 | emergent_risk | CD+Tests | resolved | PERFORMANCE_FIX.md; both unchanged performance qualifications pass. | None for this finding; proceed to the current lifecycle owner. |\n';
+  writeFileSync(join(root, qaPath), withSyntheticQaContent('# QA: Synthetic closeout\nStatus: pass\n\n## 1. QA Decision\nDecision: pass\n\n## Scope\nApproved synthetic task fulfilled.\n\n## Evidence\nExact tests and reviews recorded.\n\n## Examples\n~~~text\nDecision: block\n~~~\n> Example:\nDecision: unknown\n\n## Risks\nNo applicable open required finding.\n') + resolvedTable + resolvedRow);
   const command = { schema_version: '1', target_id: target, run_id: f.runId, expected_revision_id: f.revision(),
     destination: { type: 'QA_REPORT', path: qaPath, digest: artefactFileDigest(root, qaPath), status: 'pass' }, source: { type: 'TP', path: f.prefix + 'TP.md', digest: artefactFileDigest(root, f.prefix + 'TP.md') },
     relationship: { from: 'QA_REPORT', relationship: 'tests', to: 'TP' }, review: { reviewer: 'Synthetic QA mapping reviewer', path: proof, digest: '' }, update_draft: false };
@@ -111,7 +114,10 @@ try {
   for (const report of [passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: pass'),
     passReport.replace(/^- delivered_result:.*$/mu, '> Example:\n- delivered_result: invented'),
     passReport.replace(/^- qualification_limits:.*$/mu, ''),
-    passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: <Concrete result>')]) {
+    passReport.replace(/^- delivered_result:.*$/mu, '- delivered_result: <Concrete result>'),
+    passReport.replace(resolvedRow, resolvedRow.replace(' | resolved | ', ' | open | ')),
+    passReport.replace(resolvedRow, resolvedRow.replace('emergent_risk | CD+Tests', 'implementation_gap | SD')),
+    passReport.replace(resolvedRow, resolvedRow + resolvedRow)]) {
     rmSync(join(root, '.agdf'), { recursive: true, force: true }); cpSync(preQa, join(root, '.agdf'), { recursive: true });
     writeFileSync(join(root, qaPath), report);
     const candidate = { ...command, expected_revision_id: f.revision(), destination: { ...destination, digest: artefactFileDigest(root, qaPath) } };
@@ -134,6 +140,7 @@ try {
   command.review.digest = artefactFileDigest(root, proof); writeFileSync(join(root, request), JSON.stringify(command));
   const qa = service('agdf_record', { ...bound(), command: { kind: 'artefact.record', payload: { gate: 'QA', reviewed_request: { path: request, digest: artefactFileDigest(root, request) } } } });
   assert.equal(qa.outcome, 'accepted', JSON.stringify(qa));
+  assert.equal(runWorkSummary(root, readFileSync(f.state, 'utf8')).kind, 'approval_pending', 'Agreeing initial Status and numbered Decision share the report observer');
   for (const gate of ['QA', 'UAT']) {
     const prepare = service('agdf_prepare', { ...bound(), command: { kind: 'presentation.prepare', payload: { gate } } });
     assert.equal(prepare.outcome, 'accepted', JSON.stringify(prepare));
@@ -147,6 +154,7 @@ try {
     assert.equal(approval.outcome, 'accepted', JSON.stringify(approval));
   }
   const state = readRunState(root, { runId: f.runId });
+  assert.equal(runWorkSummary(root, state.content).kind, 'closeout_pending', 'An evidenced resolved risk does not turn approved QA/UAT into Source unconfirmed');
   const rows = ['UR', 'Brownfield Review', 'PRD', 'SD', 'TP', 'Brownfield Analysis', 'CD+Tests', 'CR', 'QA', 'UAT'].map(type => `| ${type} | ${state.approvals.get(type)?.status ?? state.artefacts.get(type).status} | ${state.artefacts.get(type)?.path || state.approvals.get(type).evidence} |`).join('\n');
   const orPath = f.prefix + 'OR_CANDIDATE.md';
   const report = `# OR: Synthetic closeout
@@ -204,6 +212,12 @@ none
   const readReport = path => readFileSync(join(root, path), 'utf8');
   assert.equal(evaluateCloseoutReadiness(state, report, readReport, { prepared: true }).ready, true,
     'An actually registered and QA/UAT-approved report with agreeing Status/Decision closes without rewriting its bytes.');
+  for (const replacement of [resolvedRow.replace(' | resolved | ', ' | open | '),
+    resolvedRow.replace('emergent_risk | CD+Tests', 'implementation_gap | SD'), resolvedRow + resolvedRow]) {
+    const observed = evaluateCloseoutReadiness(state, report,
+      path => path === qaPath ? passReport.replace(resolvedRow, replacement) : readReport(path), { prepared: true });
+    assert.ok(observed.findings.includes('closeout_quality_unconfirmed'), 'Prepared OR uses the same normalized quality check as QA/UAT');
+  }
   for (const qaContent of ['Status: pass\nDecision: revise\n', 'Status: block\nDecision: pass\n',
     'Status: draft\nDecision: unknown\n', 'No technical decision\n', '~~~\nDecision: pass\n~~~\n', '> Example:\nDecision: pass\n']) {
     const observed = evaluateCloseoutReadiness(state, report,

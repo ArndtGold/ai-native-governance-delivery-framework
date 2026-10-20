@@ -49,7 +49,20 @@ export class CockpitBridge {
     const result = await (isClose ? this.close(session, signal) : this.request(() => this.app.callServerTool({ name: 'agdf_cockpit_read',
       arguments: { ...argumentsValue, session_id: session } }, { timeout: 10_000, signal })));
     if ((boundSession === undefined && session !== this.session) || signal?.aborted) throw Error('session_invalid');
-    if (result.isError || !result.structuredContent) throw Error('read_failed');
+    if (!result.structuredContent) throw Error('read_failed');
+    if (result.isError) {
+      const value = result.structuredContent as Record<string, unknown>;
+      // Decision session reads have a bounded negative envelope, distinct from
+      // Cockpit DTOs. A negative reply can never become closure or read data.
+      if (value.schema_version === '1' && value.outcome === 'rejected' && value.authorizes === false
+        && ['session_expired', 'source_changed', 'resource_denied'].includes(String(value.reason))) {
+        if (isClose && value.reason === 'session_expired') return value;
+        throw Error(String(value.reason));
+      }
+      validateEnvelope(value);
+      if (!['invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error'].includes(value.state)
+        || value.data !== null || typeof value.code !== 'string' || !/^[a-z][a-z0-9_]{0,127}$/.test(value.code)) throw Error('read_failed');
+    }
     return result.structuredContent;
   }
   readForSession(session: string): ReadTransport { return this.reader(new Map(), session); }

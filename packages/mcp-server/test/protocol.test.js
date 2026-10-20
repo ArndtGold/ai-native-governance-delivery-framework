@@ -29,6 +29,9 @@ for (const modern of [false, true]) {
       assert.ok(declared, `${label}: missing MCP tool inventory`);
       assert.deepEqual([...declared[1].matchAll(/`(agdf_[a-z]+)`/g)].map((match) => match[1]), tools.map((tool) => tool.name), `${label}: MCP tool inventory differs from tools/list`);
     }
+    assert.ok(Buffer.byteLength(JSON.stringify(tools[1])) <= 5000, `${protocol}: actual discovered definition budget`);
+    assert.ok(tools[1].outputSchema, 'output validation retained');
+    for (const field of Object.values(tools[1].inputSchema.properties)) assert.ok(field.description?.length > 10);
     assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
     assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
     const draft = artifactReadinessFixture();
@@ -37,6 +40,17 @@ for (const modern of [false, true]) {
       const args = { operation: 'artifact-readiness', presentation_language: 'de', working_directory: draft.root,
         target_source: 'explicit_target', primary_target: draft.root, run_id: draft.runId,
         gate: 'PRD', expected_revision_id: draft.revision };
+      const contractArgs = { ...args, operation: 'operation-contract', module: 'agdf_prepare/presentation.prepare' };
+      const contract = await client.callTool({ name: 'agdf_inspect', arguments: contractArgs });
+      assert.equal(contract.isError, undefined);
+      assert.equal(contract.structuredContent.report.presentation_catalog.state, 'unavailable', 'synthetic legacy approval records cannot establish a readable catalog');
+      assert.equal(contract.structuredContent.report.presentation_catalog.complete_scan, false);
+      assert.match(contract.structuredContent.report.presentation_catalog.next_action, /cannot establish/);
+      assert.equal(contract.structuredContent.report.inspect_contract.examples_are_illustrative, true);
+      for (const changed of [{ expected_revision_id: 'bad' }, { cursor: 'bad' }, { module: 'agdf_record/step.record', cursor: `${'0'.repeat(64)}:16` }]) {
+        const bad = await client.callTool({ name: 'agdf_inspect', arguments: { ...contractArgs, ...changed } });
+        assert.equal(bad.isError, true); assert.equal(bad.structuredContent, undefined, 'real SDK must reject factored schema violations');
+      }
       const before = readFileSync(draft.runPath, 'utf8');
       const checked = await client.callTool({ name: 'agdf_inspect', arguments: args });
       assert.equal(checked.isError, undefined, `${protocol}:artifact-readiness`);

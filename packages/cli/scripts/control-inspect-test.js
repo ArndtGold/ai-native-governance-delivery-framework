@@ -14,6 +14,8 @@ import {
   CONTROL_INSPECT_OUTPUT_TOO_LARGE_RECOVERY,
   OPERATION_CONTRACT_MODULES,
   controlInspectDefinitionBytes,
+  inspectContractHelp,
+  normalizeControlInspectInput,
   parseControlInspectFunctionArguments,
   serializeControlInspectResult,
 } from "#agdf-core/control-inspect/contract.js";
@@ -39,6 +41,19 @@ assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /module=agdf_prepa
 
 // Published operation dependencies agree with the shared runtime policy.
 const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+for (const [name, field] of Object.entries(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties)) {
+  assert.ok(field.description?.length > 10, `Missing meaningful description: ${name}`);
+}
+for (const example of inspectContractHelp().examples) {
+  assert.equal(validateInspectSchema(example), true, JSON.stringify(validateInspectSchema.errors));
+  assert.doesNotThrow(() => normalizeControlInspectInput(parseControlInspectFunctionArguments(example, trustedContext)));
+}
+const catalogExample = inspectContractHelp().examples[1];
+const catalogCursor = `${'0'.repeat(64)}:16`;
+assert.equal(validateInspectSchema({ ...catalogExample, cursor: catalogCursor }), true);
+assert.doesNotThrow(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ ...catalogExample, cursor: catalogCursor }, trustedContext)));
+assert.equal(validateInspectSchema({ ...catalogExample, module: 'agdf_record/step.record', cursor: catalogCursor }), false);
+assert.throws(() => normalizeControlInspectInput(parseControlInspectFunctionArguments({ ...catalogExample, module: 'agdf_record/step.record', cursor: catalogCursor }, trustedContext)));
 for (const operation of CONTROL_INSPECT_OPERATIONS.filter(operation => !["artifact-readiness", "operation-contract", "operation-status", "native-qualification", "presentation-document", "presentation-preview", "runtime-generations"].includes(operation))) {
   for (const allActive of [undefined, false, true]) {
     for (const variant of [undefined, "status-card", "approval-envelope"]) {

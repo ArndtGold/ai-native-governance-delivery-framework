@@ -83,9 +83,14 @@ export function checkGeneratedGateContracts() {
 
   const canonicalLocales = readFileSync(transitionLocalePaths[0], "utf8");
   for (const path of transitionLocalePaths) {
-    if (readFileSync(path, "utf8") !== canonicalLocales) {
-      throw new Error(`Generated interaction locale registry must remain byte-identical: ${path}`);
+    const expected = path === transitionLocalePaths[1] ? JSON.stringify(JSON.parse(canonicalLocales)) + "\n" : canonicalLocales;
+    if (readFileSync(path, "utf8") !== expected) {
+      throw new Error(`Generated locale registry must preserve values and its declared projection: ${path}`);
     }
+  }
+  const inventory = JSON.parse(readFileSync(join(generatedRoot, 'plugins/copilot/agdf/.agdf-payload-inventory.json'), 'utf8'));
+  if (inventory.entries.find(row => row.destination === 'skills/agdf-interaction-locales.json')?.rule !== 'compact_json') {
+    throw Error('Compacted locale projection must declare compact_json in the existing payload inventory');
   }
 }
 

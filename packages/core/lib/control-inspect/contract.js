@@ -25,48 +25,55 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
+// One field model supplies discovery, applicability guards and on-demand help.
+export const PRESENTATION_OPERATIONS = Object.freeze(['presentation-document', 'presentation-preview']);
+export const BOUND_INSPECT_OPERATIONS = Object.freeze(['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', ...PRESENTATION_OPERATIONS, 'runtime-generations']);
+export const PRESENTATION_CATALOG_MODULE = 'agdf_prepare/presentation.prepare';
+const uuidSchema = { type: 'string', pattern: REVISION_ID_PATTERN.source };
+const cursorSchema = { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' };
+const fieldModel = {
+  operation: { help: 'Read-only operation; requirements below. Reads never prepare or approve a gate.', schema: { enum: [...CONTROL_INSPECT_OPERATIONS] }, description: 'Read action.' },
+  presentation_language: { help: 'Required BCP47 tag; valid unsupported languages use the complete English pack.', schema: { type: 'string', maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE }, description: 'Reply BCP47 tag.' },
+  working_directory: { help: 'Absolute execution context; it does not select a target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Absolute context; not target authority.' },
+  target_source: { help: 'explicit_target: directly specified target; continued_target: confirmed continuation; current_repository: unambiguous current repository. Use actual provenance.', schema: { enum: [...TASK_TARGET_SOURCES] }, description: 'Paired target provenance.' },
+  primary_target: { help: 'Confirmed absolute project root, paired with target_source. working_directory never selects the target.', schema: { type: 'string', minLength: 1, maxLength: 4096 }, description: 'Confirmed absolute root.' },
+  run_id: { help: 'Use the named or unambiguously confirmed run; never select by recency.', schema: { type: 'string', pattern: RUN_ID_PATTERN.source }, description: 'Confirmed run.' },
+  gate: { help: 'Use the requested document gate; it is an optional catalog filter, not a selection heuristic. artifact-readiness accepts UR, PRD, SD or TP drafts only.', schema: { enum: [...APPROVAL_GATES] }, description: 'Draft/read gate; catalog filter.', operations: ['artifact-readiness', 'operation-contract', ...PRESENTATION_OPERATIONS] },
+  expected_revision_id: { help: 'For bound current-state inspections use the current gate-check revision. For document/preview reads preserve the selected prepared record original revision from catalog read_arguments or the original conversation binding.', schema: { $ref: '#/$defs/i' }, description: 'gate-check revision; original for reads.', operations: BOUND_INSPECT_OPERATIONS },
+  presentation_id: { help: 'Use the exact prepared ID from a validated catalog candidate or the existing conversation binding. Never guess a UUID, choose by timestamp, or prepare another presentation to pass a read.', schema: { $ref: '#/$defs/i' }, description: 'ID from catalog/conversation.', operations: PRESENTATION_OPERATIONS },
+  target_id: { help: 'Copy binding.target_id from operation-contract or the selected catalog read_arguments; this digest identifies a target and grants no authority.', schema: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' }, description: 'Target hash: operation-contract.', operations: PRESENTATION_OPERATIONS },
+  cursor: { help: 'Omit on the first page, then copy next_cursor unchanged. Catalog cursors are accepted only on operation-contract module=agdf_prepare/presentation.prepare. Never exchange document, preview or catalog cursors.', schema: cursorSchema, description: 'Next cursor; omit initially.', operations: [...PRESENTATION_OPERATIONS, 'operation-contract'] },
+  variant: { help: 'gate-check only: status-card or approval-envelope. Neither variant records an approval.', schema: { enum: [...GATE_CHECK_VARIANTS] }, description: 'gate-check view.', operations: [VARIANT_OPERATION] },
+  module: { help: 'contract uses an advertised runtime module; operation-contract uses group/kind; operation-status uses the original operation_id from the saved command receipt, never a newly generated UUID.', schema: { type: 'string', minLength: 1, maxLength: 64 }, description: 'Contract, group/kind or receipt UUID.', operations: [MODULE_OPERATION, 'operation-contract', 'operation-status'] },
+  all_active: { help: 'Only doctor and delivery-map accept true. False retains the selected-run read behavior.', schema: { type: 'boolean' }, description: 'All runs: doctor/delivery-map.' },
+};
+const moduleOperations = [MODULE_OPERATION, 'operation-contract', 'operation-status'];
+const inputSchema = {
+  type: 'object', additionalProperties: false,
+  required: ['operation', 'presentation_language', 'working_directory'],
+  $defs: { i: uuidSchema, b: { not: { enum: CONTROL_INSPECT_OPERATIONS.filter(op => !BOUND_INSPECT_OPERATIONS.includes(op)) } }, d: { enum: PRESENTATION_OPERATIONS }, m: { enum: moduleOperations } },
+  properties: Object.fromEntries(Object.entries(fieldModel).map(([name, field]) => [name, { ...field.schema, description: field.description }])),
+  dependentRequired: { target_source: ['primary_target'], primary_target: ['target_source'] },
+  dependentSchemas: Object.fromEntries(Object.entries(fieldModel).filter(([, f]) => f.operations).map(([name, field]) => [name,
+    name === 'cursor' ? { anyOf: [ { properties: { operation: { $ref: '#/$defs/d' } } },
+      { properties: { operation: { const: 'operation-contract' }, module: { const: PRESENTATION_CATALOG_MODULE } } } ] }
+      : { properties: { operation: field.operations === BOUND_INSPECT_OPERATIONS ? { $ref: '#/$defs/b' }
+        : field.operations === PRESENTATION_OPERATIONS ? { $ref: '#/$defs/d' } : name === 'module' ? { $ref: '#/$defs/m' } : { enum: field.operations } } },
+  ])),
+  allOf: [
+    { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
+    { if: { properties: { operation: { $ref: '#/$defs/m' } } }, then: { required: ['module'] } },
+    { if: { properties: { operation: { $ref: '#/$defs/b' } } }, then: { required: ['run_id', 'expected_revision_id', 'target_source'] } },
+    { if: { properties: { operation: { const: 'artifact-readiness' } } }, then: { required: ['gate'], properties: { gate: { enum: [...ARTIFACT_READINESS_GATES] } } } },
+    { if: { properties: { operation: { $ref: '#/$defs/d' } } }, then: { required: ['gate', 'presentation_id', 'target_id'] } },
+  ],
+};
+
 const inspectContract = {
   name: "agdf_inspect",
-  description: "Read-only. Contract module=agdf_prepare/presentation.prepare; status=UUID.",
+  description: "Read-only: gate-check -> operation-contract module=agdf_prepare/presentation.prepare -> catalog read_arguments -> presentation-document/next_cursor.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  inputSchema: {
-    type: "object", additionalProperties: false,
-    required: ["operation", "presentation_language", "working_directory"],
-    properties: {
-      operation: { enum: [...CONTROL_INSPECT_OPERATIONS] },
-      presentation_language: { type: "string", maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE },
-      working_directory: { type: "string", minLength: 1, maxLength: 4096 },
-      target_source: { enum: [...TASK_TARGET_SOURCES] },
-      primary_target: { type: "string", minLength: 1, maxLength: 4096 },
-      run_id: { type: "string", pattern: RUN_ID_PATTERN.source },
-      gate: { enum: [...APPROVAL_GATES] },
-      expected_revision_id: { type: "string", pattern: REVISION_ID_PATTERN.source },
-      presentation_id: { type: 'string', pattern: REVISION_ID_PATTERN.source },
-      target_id: { type: 'string', pattern: '^sha256:[0-9a-f]{64}$' },
-      cursor: { type: 'string', maxLength: 80, pattern: '^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$' },
-      variant: { enum: [...GATE_CHECK_VARIANTS] },
-      module: { type: "string", minLength: 1, maxLength: 64 },
-      all_active: { type: "boolean" },
-    },
-    dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
-    dependentSchemas: {
-      variant: { properties: { operation: { const: VARIANT_OPERATION } } },
-      module: { properties: { operation: { enum: [MODULE_OPERATION, 'operation-contract', 'operation-status'] } } },
-      gate: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'presentation-document', 'presentation-preview'] } } },
-      expected_revision_id: { properties: { operation: { enum: ['artifact-readiness', 'operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'presentation-preview', 'runtime-generations'] } } },
-      presentation_id: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } },
-      target_id: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } },
-      cursor: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } },
-    },
-    allOf: [
-      { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
-      { if: { properties: { operation: { const: MODULE_OPERATION } } }, then: { required: ["module"] } },
-      { if: { properties: { operation: { enum: ['artifact-readiness', 'native-qualification', 'presentation-document', 'presentation-preview', 'runtime-generations', 'operation-contract', 'operation-status'] } } }, then: { required: ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] } },
-      { if: { properties: { operation: { const: 'artifact-readiness' } } }, then: { required: ['gate'], properties: { gate: { enum: [...ARTIFACT_READINESS_GATES] } } } },
-      { if: { properties: { operation: { enum: ['presentation-document', 'presentation-preview'] } } }, then: { required: ['gate', 'presentation_id', 'target_id'] } },
-      { if: { properties: { operation: { enum: ['operation-contract', 'operation-status'] } } }, then: { required: ['module'] } },
-    ],
-  },
+  inputSchema,
   outputSchema: {
     type: 'object', required: ['outcome', 'terminal', 'authorizes', 'operation', 'report', 'presentation', 'host_action', 'target', 'recovery'],
     properties: {
@@ -104,15 +111,33 @@ export const CONTROL_INSPECT_OUTPUT_SCHEMA = deepFreeze(inspectContract.outputSc
 export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
   ...inspectContract,
   outputSchema: { type: 'object', required: inspectContract.outputSchema.required,
-    properties: { ...inspectContract.outputSchema.properties,
+    properties: { ...Object.fromEntries(Object.entries(inspectContract.outputSchema.properties).filter(([key]) => key !== 'report').map(([key, value]) => [key, key === 'recovery' ? { required: value.required, properties: value.properties } : value])),
       outcome: { enum: ['inspect_result', 'target_unresolved', 'invalid_input', 'evaluator_error'] },
-      terminal: { type: 'boolean' },
     },
     if: { properties: { outcome: { const: 'inspect_result' } } },
     then: { properties: { terminal: { const: false }, report: { type: 'object' }, recovery: { type: 'null' } } },
     else: { properties: { terminal: { const: true }, report: { type: 'null' }, recovery: { type: 'object' } } },
   },
 });
+
+export function inspectContractHelp() {
+  const base = { presentation_language: 'de', working_directory: '/workspace/project', target_source: 'explicit_target', primary_target: '/workspace/project', run_id: 'demo-run-01' };
+  const revision = '00000000-0000-4000-8000-000000000001';
+  return deepFreeze({ schema_version: '1', authorizes: false,
+    parameters: Object.fromEntries(Object.entries(fieldModel).map(([key, field]) => [key, { description: field.help ?? field.description, operations: field.operations ?? [...CONTROL_INSPECT_OPERATIONS] }])),
+    operations: Object.fromEntries(CONTROL_INSPECT_OPERATIONS.map(operation => [operation, {
+      required: [...inputSchema.required, ...(BOUND_INSPECT_OPERATIONS.includes(operation) ? ['run_id', 'expected_revision_id', 'target_source', 'primary_target'] : []),
+        ...(['contract', 'operation-contract', 'operation-status'].includes(operation) ? ['module'] : []),
+        ...(operation === 'artifact-readiness' ? ['gate'] : PRESENTATION_OPERATIONS.includes(operation) ? ['gate', 'presentation_id', 'target_id'] : [])],
+    }])),
+    examples_are_illustrative: true,
+    examples: [ { ...base, operation: 'gate-check' },
+      { ...base, operation: 'operation-contract', module: PRESENTATION_CATALOG_MODULE, expected_revision_id: revision, gate: 'UR' },
+      { ...base, operation: 'presentation-document', expected_revision_id: revision, gate: 'UR', presentation_id: '00000000-0000-4000-8000-000000000002', target_id: `sha256:${'0'.repeat(64)}` } ],
+    provenance: 'Keep exact conversation bindings. Otherwise use catalog read_arguments only after unique complete discovery or explicit selection. Document revision is original, not current. Prepared is not human-viewed or approved. Other modules reject catalog cursors.',
+    catalog_limits: { page_candidates: 16, record_files: 256, record_bytes: 1048576, directory_entries: 1024 },
+  });
+}
 
 export function controlInspectDefinitionBytes(definition = CONTROL_INSPECT_FUNCTION_DEFINITION) {
   return Buffer.byteLength(JSON.stringify(definition), "utf8");
@@ -189,7 +214,7 @@ export function normalizeControlInspectInput(input) {
     if (!primaryTarget) throw new SkillDispatchInputError("primary_target", "artifact-readiness requires an explicit target binding");
     if (!ARTIFACT_READINESS_GATES.includes(input.gate)) throw new SkillDispatchInputError("gate", "Unsupported draft gate");
     if (!REVISION_ID_PATTERN.test(input.expectedRevisionId ?? "")) throw new SkillDispatchInputError("expected_revision_id", "A valid expected revision is required");
-  } else if (['operation-contract', 'operation-status', 'native-qualification', 'presentation-document', 'presentation-preview', 'runtime-generations'].includes(operation)) {
+  } else if (BOUND_INSPECT_OPERATIONS.includes(operation)) {
     if (!runId || !primaryTarget || !REVISION_ID_PATTERN.test(input.expectedRevisionId ?? '')) throw new SkillDispatchInputError('binding', 'An exact target, Run and expected revision binding is required');
     if (operation === 'operation-contract' && !OPERATION_CONTRACT_MODULES.includes(input.contractModule)) {
       throw new SkillDispatchInputError('module', 'Unsupported command group/operation module', { allowedValues: OPERATION_CONTRACT_MODULES });
@@ -203,7 +228,7 @@ export function normalizeControlInspectInput(input) {
     if (!APPROVAL_GATES.includes(input.gate) || !REVISION_ID_PATTERN.test(input.presentationId ?? '')
       || !/^sha256:[0-9a-f]{64}$/u.test(input.targetId ?? '')
       || input.cursor !== undefined && !/^[0-9a-f]{64}:(?:0|[1-9][0-9]{0,6})$/u.test(input.cursor)) throw new SkillDispatchInputError('presentation', 'An exact presentation binding and bounded cursor are required');
-  } else if (input.presentationId !== undefined || input.targetId !== undefined || input.cursor !== undefined) {
+  } else if (input.presentationId !== undefined || input.targetId !== undefined || input.cursor !== undefined && !(operation === 'operation-contract' && input.contractModule === PRESENTATION_CATALOG_MODULE && new RegExp(cursorSchema.pattern, 'u').test(input.cursor) && typeof input.cursor === 'string' && input.cursor.length <= cursorSchema.maxLength)) {
     throw new SkillDispatchInputError('presentation', 'Document selectors require presentation-document');
   }
   if (input.allActive !== undefined && typeof input.allActive !== "boolean") throw new SkillDispatchInputError("all_active", "all_active is invalid");
@@ -215,6 +240,10 @@ export function normalizeControlInspectInput(input) {
     contractModule: input.contractModule,
     variant: input.variant,
   });
+  const selectorKeys = { gate: 'gate', expected_revision_id: 'expectedRevisionId', presentation_id: 'presentationId', target_id: 'targetId', cursor: 'cursor', variant: 'variant', module: 'contractModule' };
+  for (const [field, key] of Object.entries(selectorKeys)) {
+    if (input[key] !== undefined && !fieldModel[field].operations.includes(operation)) throw new SkillDispatchInputError(field, `Unsupported selector for ${operation}`);
+  }
   return Object.freeze({
     schema_version: CONTROL_INSPECT_SCHEMA_VERSION,
     operation,

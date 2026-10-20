@@ -1,0 +1,807 @@
+{
+  "schema_version": "2",
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "mcp-inspect-contract-phase2-20261020-01",
+  "expected_revision_id": "7ace8f15-a1d7-4adf-84c0-99ad65623883",
+  "operation_id": "707d8ec1-dd34-406b-85a4-28922178e8b0",
+  "source_gate": "UR",
+  "reason": "Pending German UAT preparation rejects the approved UR summary label Ziel und Betroffene because its exact Ziel field is absent. Propose only a label normalization; preserve every goal/scope/acceptance statement and all body text. Preview only; no source, approval or control change is authorized.",
+  "intended_change": "Replace the single localized summary label '- Ziel und Betroffene:' with '- Ziel:' while retaining the full following text byte-for-byte. No changed product goal, behavior, acceptance, task or test; existing approved bytes remain untouched until separately confirmed revision application and fresh approvals.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+      "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+      "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+      "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+      "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex",
+    "earliest_source": "UR",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:cd8eaea636c1cbf63ade71a4c721eb6f5fa58cb32f94a690d32db891a00c96ae",
+        "disposition": "reassess",
+        "reason": "An approved UR byte revision requires renewed analytical applicability even for a label-only correction; no old fulfillment is carried forward."
+      }
+    ],
+    "implementation_evidence": "QA approval ed0751d8-7690-4b4f-8b60-6a3d3435f4f8 is accepted; current UAT diagnostics report only decision_content_localized_content_missing:ziel at approved UR.md. Current English Goal is concrete and all scoped MCP implementation/review/native evidence remains retained. This preview must expose collateral renewal rather than silently rewrite an approved source.",
+    "unresolved": []
+  },
+  "policy_version": 2,
+  "initiating_phase": "UAT",
+  "changed_statements": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+      "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+      "statement": "- Ziel und Betroffene: Coding-Agenten können den MCP-Lesevertrag verstehen und Nutzern das vollständige, richtig gebundene Freigabedokument zeigen. Maintainer erhalten nachvollziehbare Nachweise über Fehlversuche und erfolgreiche Nutzung.",
+      "intended_change": "- Ziel: Coding-Agenten können den MCP-Lesevertrag verstehen und Nutzern das vollständige, richtig gebundene Freigabedokument zeigen. Maintainer erhalten nachvollziehbare Nachweise über Fehlversuche und erfolgreiche Nutzung.",
+      "reason": "Normalize the mandatory German goal-field label without changing its existing approved content."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:cd8eaea636c1cbf63ade71a4c721eb6f5fa58cb32f94a690d32db891a00c96ae",
+        "status": "done"
+      },
+      "record_digest": "sha256:711317a0b5f1a46a23cbdccb6a1f3ba85df85bfae047a37f8078f86805e4c68b",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "Brownfield Analysis",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:2455694dac30bda546e930ac7c83a63d72fa3b00da8a389e42ae1ceca9f967da",
+        "status": "done"
+      },
+      "record_digest": "sha256:0ad4d8857ac9a63a26ab0224f6c14e791ea9de21edb79992516b20c517dd0de4",
+      "operation_id": "bf798726-e5e4-4bb3-8957-8b40036cf599",
+      "source_set_digest": "sha256:555c929f328f32b4395200c0d8907e8aaee9f095511b4cb4a5fec357441179dc",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:cd8eaea636c1cbf63ade71a4c721eb6f5fa58cb32f94a690d32db891a00c96ae",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "CD+Tests",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+        "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+        "status": "done"
+      },
+      "record_digest": "sha256:986dccb77aa1a3702240bca223f3be000d7d378e7a194778392e756ea90b7205",
+      "operation_id": "310d5abd-4165-4103-9e71-9a3d9894edfc",
+      "source_set_digest": "sha256:6cc633893290ee5a716f25976b0f641200334f52054ac96bd6ddeda565eda836",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2455694dac30bda546e930ac7c83a63d72fa3b00da8a389e42ae1ceca9f967da",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "CR",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CODE_REVIEW.md",
+        "digest": "sha256:dee7e32659ecff59a3ba382d493d03251ffff0ab4c5afbe304e706273557fa86",
+        "status": "done"
+      },
+      "record_digest": "sha256:7242a3538a32958cbbe52851ac55d031033a72956c957baf4bf38f8316c0065f",
+      "operation_id": "3ee4b8f0-c8ee-45c7-9ece-d9077ff44203",
+      "source_set_digest": "sha256:26ce420347f2fec3600f6fd12197bea4ffa0fecd03b858a653ef5aedfdfb2360",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "QA",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/QA_REPORT.md",
+        "digest": "sha256:78e9f1212f69aaabc37b88fa8c47acfad874564817384136121949a95b1ceca9",
+        "status": "pass"
+      },
+      "record_digest": "sha256:8ce5e381c2189839c3de75693c9c99751cec93d423f9e664637db0188bbf45f9",
+      "operation_id": "efd7c883-7da0-42ce-b125-587167f6ac77",
+      "source_set_digest": "sha256:45eec8df65e3d521bb78adecc611b13f4a4ac528cc327bd8f2954e8abf7a0be1",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        },
+        {
+          "digest": "sha256:3e40fae33ebcb62d9ca2608f416b326c2975871d9cc78ff41b1b227fa293fdfd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP_REVIEW.md",
+          "status": "done",
+          "type": "TP Review"
+        },
+        {
+          "digest": "sha256:6f063ece146dc42e9b80f20d1163bc283f292aaa9e029d8002cadbeb47527e0e",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+          "status": "done",
+          "type": "Clean Implementation Review"
+        },
+        {
+          "digest": "sha256:dee7e32659ecff59a3ba382d493d03251ffff0ab4c5afbe304e706273557fa86",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CODE_REVIEW.md",
+          "status": "done",
+          "type": "CR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "TP Review",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP_REVIEW.md",
+        "digest": "sha256:3e40fae33ebcb62d9ca2608f416b326c2975871d9cc78ff41b1b227fa293fdfd",
+        "status": "done"
+      },
+      "record_digest": "sha256:541429e3874361f6ce800128edca08b8d06eafd5cf3549b5b97737181e57173a",
+      "operation_id": "94921b2c-fa4b-454f-8f13-8a090d47cd6c",
+      "source_set_digest": "sha256:26ce420347f2fec3600f6fd12197bea4ffa0fecd03b858a653ef5aedfdfb2360",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "Clean Implementation Review",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:6f063ece146dc42e9b80f20d1163bc283f292aaa9e029d8002cadbeb47527e0e",
+        "status": "done"
+      },
+      "record_digest": "sha256:f350b1722a1b5d6d21d855c02fb2cf2635e895b9f158bb3dd1425087a01b4582",
+      "operation_id": "d5331286-c1ae-4d26-8fc1-554bc1d346f5",
+      "source_set_digest": "sha256:26ce420347f2fec3600f6fd12197bea4ffa0fecd03b858a653ef5aedfdfb2360",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+        "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+        "status": "documented"
+      },
+      "record_digest": "sha256:6edb000e8b78bdbce88e2f7447509486f563bf5cdccf34c1f21d39e776415650",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:cd8eaea636c1cbf63ade71a4c721eb6f5fa58cb32f94a690d32db891a00c96ae",
+        "status": "documented"
+      },
+      "record_digest": "sha256:a19d868e6e64e360695f7bf4e073e775c847c11830abe105c25bda06eaaa9135",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:d4520fdef971c7ca1d981cfbd61d13b40b27007b254ad6c67d498ad2645821fd",
+        "status": "documented"
+      },
+      "record_digest": "sha256:06ab90895bf3f1b988da45990063b505f086e750e169759da7c26e7d72aa185d",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:167e90b9bb6e32ce2b3dec68d5d729bed22be22bed8e3e3e8d7d7a536a68a434",
+        "status": "documented"
+      },
+      "record_digest": "sha256:bab8027bd281feb8c50eb4bbad0357a76e005450158b2b5945a39eabb334c592",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:9e7ba3f4f8e152b0d9a51399a3225f85418884c928bdcde1ca09a7fe0ec75120",
+        "status": "documented"
+      },
+      "record_digest": "sha256:1458f8f40014534d6e7457ca1b4f8e09811d0964f1e0ea759699a8660305d855",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:89ebc9c686de7ab5dd596e578601e2d81e67c71edd082908435c4bdd7c8387e7",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP_DERIVATION_REVIEW-02.json",
+        "digest": "sha256:7c0094445df491f2fe071e2f1291ab3705d28e1db09ae778d17e3c37cb37c59b",
+        "status": "documented"
+      },
+      "record_digest": "sha256:8f9a1e9e88ccb94aa950fea0e1720876495c218a03b01fc941114c321903f2c4",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_ANALYSIS.md",
+        "digest": "sha256:2455694dac30bda546e930ac7c83a63d72fa3b00da8a389e42ae1ceca9f967da",
+        "status": "documented"
+      },
+      "record_digest": "sha256:5bfeac3e61df4d31a04c500feeaecfcf09b514a45ba8c1f74d5654da075d2539",
+      "operation_id": "bf798726-e5e4-4bb3-8957-8b40036cf599",
+      "source_set_digest": "sha256:555c929f328f32b4395200c0d8907e8aaee9f095511b4cb4a5fec357441179dc",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:cd8eaea636c1cbf63ade71a4c721eb6f5fa58cb32f94a690d32db891a00c96ae",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        },
+        {
+          "digest": null,
+          "path": "",
+          "status": "missing",
+          "type": "UX Intent Definition"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:fc544f37d4d5969c911a8ed77b275248bb84d5f1935875b9addee6308e04bbcc",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:ca5bbc56726be892e575a61259682ccd1e6676440715db0b241328780b89d258",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:6b30a6cd9a59f92eb335f9b95084c5f20ba3bcc69268d4fc2f429e476e677b82",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:86adf16150a6d18bb10309ff7570d7183e239857a52f98ebf4c4cda21ba1f0c3",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+        "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+        "status": "documented"
+      },
+      "record_digest": "sha256:55e5e015cd1ea2ace5e1866fbe91b35e618fa68bfb5a6bb79465874023b911a4",
+      "operation_id": "310d5abd-4165-4103-9e71-9a3d9894edfc",
+      "source_set_digest": "sha256:6cc633893290ee5a716f25976b0f641200334f52054ac96bd6ddeda565eda836",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:2455694dac30bda546e930ac7c83a63d72fa3b00da8a389e42ae1ceca9f967da",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/BROWNFIELD_ANALYSIS.md",
+          "status": "done",
+          "type": "Brownfield Analysis"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:ab2f8f9d3bd35f1762d5c372b5d7aafbd23d0d9552a2e9bd43ecc1c87272db7e",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:7b8e13840be8af48c0cce9228ced6d638fd1aefa16c97dd787e13dcde8d2bb0f",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP_REVIEW.md",
+        "digest": "sha256:3e40fae33ebcb62d9ca2608f416b326c2975871d9cc78ff41b1b227fa293fdfd",
+        "status": "documented"
+      },
+      "record_digest": "sha256:ef626b66a7942814f6f97458f23a9c63b5a81e91f27b77c4da082ee65916025a",
+      "operation_id": "94921b2c-fa4b-454f-8f13-8a090d47cd6c",
+      "source_set_digest": "sha256:26ce420347f2fec3600f6fd12197bea4ffa0fecd03b858a653ef5aedfdfb2360",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+        "digest": "sha256:6f063ece146dc42e9b80f20d1163bc283f292aaa9e029d8002cadbeb47527e0e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:d959610439b7d2e01912ce8a478dd447e849bd112e3fccc6e43e49367019adb7",
+      "operation_id": "d5331286-c1ae-4d26-8fc1-554bc1d346f5",
+      "source_set_digest": "sha256:26ce420347f2fec3600f6fd12197bea4ffa0fecd03b858a653ef5aedfdfb2360",
+      "sources": [
+        {
+          "digest": "sha256:fcadee95155c635a321d722ade76c2e2acafb5fd5a4c03e37491345b55808307",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:4145fc0cbacc1476bd6902ec22b1dff793fe6a90358f44d2dfa706bd3265ac88",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/PRD.md",
+          "status": "approved",
+          "type": "PRD"
+        },
+        {
+          "digest": "sha256:812066402758fdf6b885f3437cfa4eb53d09267a874d1f02eebe18831d7969bd",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/SD.md",
+          "status": "approved",
+          "type": "SD"
+        },
+        {
+          "digest": "sha256:e6cedc82d181424cdc8e3751f77fbfef3acb0529e5f205b0e12670ed4d176ed6",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/TP.md",
+          "status": "approved",
+          "type": "TP"
+        },
+        {
+          "digest": "sha256:74fc6ae388c2c813ceda146bfe8a008a385dafb0b5984ac35cc73378a1e679a7",
+          "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/CD_TESTS.md",
+          "status": "done",
+          "type": "CD+Tests"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:138c6546d7abc6c5e52bf4a7c3a27c816c4b16adbc1ed709b87e7338e8cbf0f0",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/mcp-inspect-contract-phase2-20261020-01/QA_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:38b2404bc89d05487e2ded2b37e299d0ecd6248367bcf66c26a3b4a817ecf426",
+        "status": "documented"
+      },
+      "record_digest": "sha256:8f090271d433b32a5ce94939b06a0882cdf46543ab757b7ab7d2636464677407",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "Do not carry forward fulfillment after a changed UR source digest; affected and unknown associations are reassessed, original reports and code retained as historical evidence."
+    }
+  ]
+}

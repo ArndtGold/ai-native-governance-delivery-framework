@@ -32,6 +32,17 @@ when available. Core uses a bounded, revalidated read snapshot. The operation ne
 reseals, prepares a presentation or approves anything; semantic derivation and reviewed source
 bindings remain separate. An absent or unsafe source, stale revision or current control blocker
 is unready. QA decisions and UAT are outside this authoring preflight.
+
+To read an existing prepared document, obtain the current run revision with `gate-check`, then
+read `operation-contract` with `module: agdf_prepare/presentation.prepare`. Its derived
+`inspect_contract` explains arguments/examples; `presentation_catalog` supplies validated
+`read_arguments`. A complete unique match is readable; several matches require selection.
+Absence or an unavailable/partial catalog cannot justify guessing or preparing another record.
+Follow every returned `next_cursor` with `presentation-document` to reconstruct the frozen bytes.
+Keep the original document revision, including for historical reads. Catalog pages contain at most
+16 candidates; scans stop at 256 records, 1 MiB of record bytes or 1024 directory entries. Catalog,
+document and preview cursors are not interchangeable. Prepared records prove no human approval.
+
 Dispatch follows the canonical skill-dispatch contract;
 inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
 

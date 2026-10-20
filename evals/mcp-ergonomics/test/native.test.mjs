@@ -225,3 +225,128 @@ test("a native run without token needs the explicit credential-copy opt-in and s
   assert.match(result.stderr, /CLAUDE_CODE_OAUTH_TOKEN is not set/u);
   assert.match(result.stderr, /--credentials-copy/u);
 });
+
+test('strict T4 proof rejects omissions, duplication, substitution, cursor changes and missing user delivery', async () => {
+  const { strictT4DocumentFlow } = await import('../lib/native-run.js');
+  const { createHash } = await import('node:crypto');
+  const expectedBytes = Buffer.from('First page\n🙂\nLast page\n');
+  const digest = `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}`;
+  const binding = { run_id: 'demo-run-01', gate: 'UR', target_id: `sha256:${'1'.repeat(64)}`, expected_revision_id: '00000000-0000-4000-8000-000000000001', presentation_id: '00000000-0000-4000-8000-000000000002' };
+  const discovery = { input: { operation: 'operation-contract', module: 'agdf_prepare/presentation.prepare' }, result: { text: JSON.stringify({ report: { presentation_catalog: { state: 'unique', complete_scan: true, total_candidates: 1, candidates: [{ presentation_id: binding.presentation_id, content_digest: digest, read_arguments: binding }] } } }) } };
+  const page = (start, end, cursor, next) => ({ input: { operation: 'presentation-document', ...binding, ...(cursor ? { cursor } : {}) }, result: { text: JSON.stringify({ report: { available: true, ...binding, revision_id: binding.expected_revision_id, presentation_id: binding.presentation_id, content_digest: digest, content: expectedBytes.subarray(start, end).toString('utf8'), byte_start: start, byte_end: end, total_bytes: expectedBytes.length, complete: end === expectedBytes.length, next_cursor: next ?? null } }) } });
+  const pages = [page(0, 11, undefined, 'token'), page(11, expectedBytes.length, 'token')];
+  const run = (calls = [discovery, ...pages], options = {}) => strictT4DocumentFlow({ parsed: { calls, trace_complete: true, detours: [], ...options }, expectedBytes, binding, finalText: expectedBytes.toString('utf8') });
+  assert.equal(run().success, true);
+  for (const calls of [[...pages], [discovery, pages[1]], [discovery, pages[1], pages[0]], [discovery, pages[0], pages[0], pages[1]]]) assert.equal(run(calls).success, false);
+  const bad = structuredClone(pages[1]); bad.input.cursor = 'foreign'; assert.equal(run([discovery, pages[0], bad]).success, false);
+  const corrupt = structuredClone(pages[1]), result = JSON.parse(corrupt.result.text); result.report.content = result.report.content.replace('Last', 'Lost'); corrupt.result.text = JSON.stringify(result);
+  assert.equal(run([discovery, pages[0], corrupt]).success, false);
+  assert.equal(run(undefined, { detours: ['Read'] }).success, false);
+  assert.equal(run(undefined, { trace_complete: false }).success, false);
+  assert.equal(strictT4DocumentFlow({ parsed: { calls: [discovery, ...pages], trace_complete: true, detours: [] }, expectedBytes, binding, finalText: 'Document retrieved.' }).reason, 'complete_user_delivery_unproven');
+});
+
+test('Codex trace audit includes failed detours and incomplete calls, preserving original task predicate', async () => {
+  const { parseCodexT4Trace } = await import('../lib/native-run.js');
+  const event = { type: 'item.completed', item: { id: 'read-1', type: 'mcp_tool_call', status: 'completed', server: 'agdf', tool: 'agdf_inspect', arguments: { operation: 'presentation-document' }, result: { content: [{ type: 'text', text: '{"report":{"available":false}}' }] } } };
+  const lines = [event, { type: 'turn.completed', usage: { input_tokens: 12, output_tokens: 3 } }].map(v => JSON.stringify(v)).join('\n');
+  const parsed = parseCodexT4Trace(lines);
+  assert.equal(parsed.trace_complete, true); assert.equal(parsed.calls.length, 1);
+  assert.deepEqual(parsed.usage, { input_tokens: 12, output_tokens: 3 });
+  const detour = JSON.stringify({ type: 'response_item', payload: { type: 'function_call', name: 'functions.exec_command', arguments: '{"cmd":"cat .agdf/control/runs/demo-run-01/RUN_STATE.md"}' } });
+  assert.deepEqual(parseCodexT4Trace(lines, [detour]).detours, ['functions.exec_command']);
+  const planning = JSON.stringify({ type: 'response_item', payload: { type: 'function_call', name: 'functions.update_plan', arguments: '{}' } });
+  assert.deepEqual(parseCodexT4Trace(lines, [planning]).detours, [], 'planning is not a filesystem or shell detour');
+  assert.equal(parseCodexT4Trace(lines + '\n{broken').trace_complete, false);
+  const rejected = structuredClone(event); rejected.item.status = 'failed'; rejected.item.result = { isError: true, content: [{ type: 'text', text: 'Input validation error: missing run_id' }] };
+  const recovered = parseCodexT4Trace(JSON.stringify(rejected) + '\n' + JSON.stringify({ type: 'turn.completed' }));
+  assert.equal(recovered.trace_complete, true); assert.equal(recovered.calls[0].result.is_error, true);
+  assert.match(recovered.calls[0].result.text, /missing run_id/);
+  const pending = structuredClone(event); pending.item.status = 'in_progress';
+  assert.equal(parseCodexT4Trace(JSON.stringify(pending) + '\n' + JSON.stringify({ type: 'turn.completed' })).trace_complete, false);
+});
+
+test('single Codex T4 planning cannot enter the default multi-session host probe', () => {
+  const script = new URL('../../../scripts/native-probes/codex-host-e2e.mjs', import.meta.url);
+  const result = spawnSync(process.execPath, [script.pathname, '--model', 'fixture-model', '--task', 'T4', '--single-session', '--dry-run'], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const plan = JSON.parse(result.stdout);
+  assert.equal(plan.sessions, 1); assert.equal(plan.features.code_mode_host, true); assert.equal(plan.features.shell_tool, false); assert.equal(plan.executes, false); assert.equal(plan.additional_api_spend_usd, 0);
+  const invalid = spawnSync(process.execPath, [script.pathname, '--model', 'fixture-model', '--task', 'T3', '--single-session', '--dry-run'], { encoding: 'utf8' });
+  assert.notEqual(invalid.status, 0); assert.match(invalid.stderr, /SINGLE_T4_ARGUMENT_INVALID/);
+});
+
+test('code-mode discovery and inspect wrappers are audited without permitting shell, files or evaluation', async () => {
+  const { pureInspectWrapper, parseCodexT4Trace } = await import('../lib/native-run.js');
+  const discovery = 'const matches = ALL_TOOLS.filter(x => /run|UR|artifact/i.test(x.name + " " + x.description)); text(matches);';
+  assert.equal(pureInspectWrapper(discovery), true);
+  assert.equal(pureInspectWrapper('const r = await tools.mcp__agdf__agdf_inspect({operation:"gate-check"}); text(r);'), true);
+  for (const code of ['text(await tools.exec_command({cmd:"cat .agdf/control/runs/demo-run-01/RUN_STATE.md"}));',
+    'const t=tools; const f=t.exec_command; text(await f({cmd:"cat control"}));',
+    'const f=tools.mcp__agdf__agdf_inspect; text(await f({operation:"doctor"}));',
+    'const k="constructor"; const F=text[k]; const run=F("return process"); text(run().env);',
+    'text(process.env);', 'const f = await import("node:fs"); text(f);', 'text(eval("1"));', 'text(({}).constructor);']) assert.equal(pureInspectWrapper(code), false, code);
+  const rollout = [
+    { type: 'event_msg', payload: { type: 'item_completed', item: { type: 'UserMessage', id: 'user', content: [] } } },
+    { type: 'response_item', payload: { type: 'custom_tool_call', name: 'exec', call_id: 'discovery', input: discovery } },
+    { type: 'event_msg', payload: { type: 'item_completed', item: { type: 'Reasoning', id: 'reasoning' } } },
+    { type: 'event_msg', payload: { type: 'item_completed', item: { type: 'AgentMessage', id: 'answer', content: [] } } },
+  ].map(value => JSON.stringify(value)).join('\n');
+  const stdout = JSON.stringify({ type: 'turn.completed', usage: {} });
+  const audited = parseCodexT4Trace(stdout, [rollout]);
+  assert.equal(audited.trace_complete, true); assert.deepEqual(audited.detours, []); assert.equal(audited.wrappers, 1);
+  const failedHost = JSON.stringify({ type: 'item.completed', item: { id: 'host', type: 'error', message: 'Code Mode is unavailable because code-mode host is disabled.' } });
+  assert.equal(parseCodexT4Trace(failedHost + '\n' + stdout, [rollout]).trace_complete, false);
+});
+
+
+test('single Codex T4 rejects a disabled or unobservable code-mode host before model execution', async () => {
+  const { assertCodexT4HostReady } = await import('../lib/native-run.js');
+  assert.doesNotThrow(() => assertCodexT4HostReady({ status: 0, stdout: 'code_mode_host stable true\n' }));
+  assert.doesNotThrow(() => assertCodexT4HostReady({ status: 0, stdout: 'code_mode_host under development true\n' }));
+  for (const result of [{ status: 1, stdout: 'code_mode_host stable true\n' },
+    { status: 0, stdout: 'code_mode_host stable false\n' }, { status: 0, stdout: 'code_mode stable true\n' },
+    { status: 0, stdout: '' }]) assert.throws(() => assertCodexT4HostReady(result), /CODE_MODE_HOST_UNAVAILABLE/);
+});
+
+test('Codex dual telemetry reconciles invocations without losing repeats, failures or contradictory evidence', async () => {
+  const { parseCodexT4Trace, pureInspectWrapper } = await import('../lib/native-run.js');
+  const item = { id: 'item_1', type: 'mcp_tool_call', server: 'agdf', tool: 'agdf_inspect',
+    arguments: { operation: 'presentation-document', module: 'literal-data-key' }, status: 'completed',
+    result: { content: [{ type: 'text', text: '{"report":{"content":"same bytes"}}' }] } };
+  const stdout = (...items) => [...items.map(item => ({ type: 'item.completed', item })), { type: 'turn.completed' }].map(JSON.stringify).join('\n');
+  const rollout = (...items) => items.map(item => JSON.stringify({ type: 'event_msg', payload: { item } })).join('\n');
+  const mirrored = { ...structuredClone(item), id: 'exec-different-id', type: 'McpToolCall' };
+  const result = parseCodexT4Trace(stdout(item), [rollout(mirrored)]);
+  assert.equal(result.trace_complete, true); assert.equal(result.calls.length, 1);
+  const repeated = parseCodexT4Trace(stdout(item, { ...item, id: 'item_2' }), [rollout(mirrored, { ...mirrored, id: 'exec-repeat' })]);
+  assert.equal(repeated.trace_complete, true); assert.equal(repeated.calls.length, 2, 'real duplicate pages are not deduplicated');
+  assert.equal(parseCodexT4Trace(stdout(item), [rollout()]).trace_complete, false, 'missing mirror is not silently ignored');
+  assert.equal(parseCodexT4Trace(stdout(item), [rollout({ ...mirrored, arguments: { operation: 'doctor' } })]).trace_complete, false);
+  const conflict = structuredClone(mirrored); conflict.result.content[0].text = '{"report":{"content":"changed bytes"}}';
+  assert.equal(parseCodexT4Trace(stdout(item), [rollout(conflict)]).trace_complete, false);
+  const conflictingFlag = structuredClone(mirrored); conflictingFlag.result.isError = true;
+  assert.equal(parseCodexT4Trace(stdout(item), [rollout(conflictingFlag)]).trace_complete, false);
+  const truncated = structuredClone(mirrored); truncated.result.content[0].text = '{"report":';
+  assert.equal(parseCodexT4Trace(stdout(item), [rollout(truncated)]).trace_complete, true, 'complete exec result covers its same ordered invocation');
+  assert.equal(parseCodexT4Trace(stdout({ ...item, result: truncated.result }), [rollout(truncated)]).trace_complete, false);
+  const failed = { ...item, status: 'failed', result: { content: [{ type: 'text', text: 'Input validation error' }] } };
+  const failure = parseCodexT4Trace(stdout(failed), [rollout({ ...failed, id: 'exec-failure', result: { ...failed.result, isError: true } })]);
+  assert.equal(failure.trace_complete, true); assert.equal(failure.calls[0].result.is_error, true);
+  assert.equal(parseCodexT4Trace(stdout(failed), [rollout({ ...failed, id: 'conflict', result: { ...failed.result, isError: false } })]).trace_complete, false);
+  assert.equal(pureInspectWrapper('const r = await tools.mcp__agdf__agdf_inspect({operation:"operation-contract",module:"agdf_prepare/presentation.prepare"}); text(r);'), true);
+  assert.equal(pureInspectWrapper('text(module.exports);'), false);
+});
+
+test('empty host catalog discovery cannot supply bindings or admit resource reads', async () => {
+  const { parseCodexT4Trace, pureInspectWrapper } = await import('../lib/native-run.js');
+  const listing = { id: 'metadata', type: 'mcp_tool_call', server: 'codex', tool: 'list_mcp_resources', arguments: {}, status: 'completed', result: { content: [{ type: 'text', text: '{"resources":[]}' }] } };
+  const parse = item => parseCodexT4Trace([JSON.stringify({type:'item.completed',item}), JSON.stringify({type:'turn.completed'})].join('\n'));
+  assert.deepEqual(parse(listing).detours, []); assert.equal(parse(listing).calls.length, 0); assert.equal(parse(listing).metadata_discovery.length, 1);
+  const supplied = structuredClone(listing); supplied.result.content[0].text = '{"resources":[{"uri":"file:///control","presentation_id":"hidden"}]}';
+  assert.deepEqual(parse(supplied).detours, ['unverified_resource_metadata']);
+  assert.deepEqual(parse({ ...listing, arguments: { server: 'foreign' } }).detours, ['unverified_resource_metadata']);
+  assert.equal(pureInspectWrapper('text(await tools.list_mcp_resources({}));'), true);
+  assert.equal(pureInspectWrapper('text(await tools.read_mcp_resource({uri:"file:///control"}));'), false);
+  assert.deepEqual(parse({ ...listing, tool: 'read_mcp_resource' }).detours, ['read_mcp_resource']);
+});

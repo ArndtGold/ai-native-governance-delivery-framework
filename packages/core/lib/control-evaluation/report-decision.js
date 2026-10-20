@@ -167,10 +167,8 @@ const contentProfiles = Object.freeze({
 
 // Closed internal profiles only; no caller-selected heading/regex or Markdown API.
 export function readAuthoredContent(text, profile, { locale, sourceLanguage } = {}) {
-  // Objective belongs to the captured Run, whose append-only history can exceed
-  // the report limit. Keep the shared capture bound and scan the whole document
-  // so a later duplicate Objective still fails closed. Report profiles retain
-  // their smaller source limit; callers cannot opt arbitrary profiles out.
+  // Run history uses the shared capture bound; reports retain their smaller limit.
+  // Scan the full Run so later duplicate Objectives still fail closed.
   const limit = profile === 'objective' ? READ_LIMITS.file : 131072;
   if (typeof text !== 'string' || Buffer.byteLength(text) > limit) return null;
   if (profile === 'title') {
@@ -184,6 +182,8 @@ export function readAuthoredContent(text, profile, { locale, sourceLanguage } = 
     ? { heading: new RegExp('^AGDF Approval Summary \\(' + locale + ';[\\t ]*source=' + sourceLanguage + '\\)$', 'iu'), fields: null, paragraph: localizedGoal }
     : contentProfiles[profile];
   if (!spec) return null;
+  // Legacy label, unchanged value; normalize before duplicate checks.
+  const summaryKey = key => localized && locale === 'de' && key === 'ziel und betroffene' ? 'ziel' : key;
   let active = false, sectionActive = false, sections = 0, started = false;
   const lines = [], fields = {};
   for (const row of reportLines(text.replace(/\r\n?/gu, '\n'))) {
@@ -193,12 +193,10 @@ export function readAuthoredContent(text, profile, { locale, sourceLanguage } = 
       if (active && ++sections !== 1) return null;
       continue;
     }
-    // Older approved UR summaries author prose instead of named fields. Observe
-    // their first paragraph verbatim, never infer a sentence or translate one.
-    // Named fields anywhere in that section must use the scalar reader instead;
-    // malformed/mixed fields cannot be rescued by this compatibility profile.
+    // Legacy prose uses the first paragraph verbatim, without inference/translation.
+    // Any named field requires scalar reading; mixed/malformed fields cannot fall back.
     if (localizedGoal && sectionActive) {
-      const key = row.line.match(/^(?:- )?([\p{L}][\p{L}\p{N}_ -]*):[\t ]*/u)?.[1].toLowerCase();
+      const key = summaryKey(row.line.match(/^(?:- )?([\p{L}][\p{L}\p{N}_ -]*):[\t ]*/u)?.[1].toLowerCase());
       if (key && (summaryFields.has(key) || /^ac-[a-z0-9-]+$/iu.test(key))) return null;
     }
     if (!active) continue;
@@ -213,7 +211,7 @@ export function readAuthoredContent(text, profile, { locale, sourceLanguage } = 
       const scalar = row.line.match(localized
         ? /^(?:- )?([\p{L}][\p{L}\p{N}_ -]*?)([\t ]*\([^()\n]*\))?:[\t ]*([^\n]*)$/u
         : /^(?:- )?([\p{L}][\p{L}\p{N}_ -]*)():[\t ]*([^\n]*)$/u);
-      const key = scalar && (localized ? scalar[1].trimEnd() : scalar[1]).toLowerCase();
+      const key = summaryKey(scalar && (localized ? scalar[1].trimEnd() : scalar[1]).toLowerCase());
       const known = key && !scalar[2] && (localized ? summaryFields.has(key) || /^ac-[a-z0-9-]+$/iu.test(key) : spec.fields.includes(key));
       if (localized && key && !known) continue;
       if (!known) { active = false; continue; }

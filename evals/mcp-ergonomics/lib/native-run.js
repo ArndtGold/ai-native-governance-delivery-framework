@@ -7,6 +7,7 @@ import { join, relative, sep } from "node:path";
 import { estimateTokens, byteLength, normalizeText } from "./normalize.js";
 import { classifyNativeCall, isAgdfMcpCall, isAgdfShellCall, normalizeToolName } from "./native-tasks.js";
 import { isSdkInputValidationText } from "./classify.js";
+import { parse as parseJavaScript } from 'acorn';
 
 export const AGDF_MCP_TOOLS = Object.freeze(["agdf_dispatch", "agdf_inspect", "agdf_prepare", "agdf_record", "agdf_approve", "agdf_revise", "agdf_closeout"]);
 // SD SDD-007: with_skills = AGDF MCP tools, Skill, Read and the shell (Bash, and PowerShell as its
@@ -174,4 +175,188 @@ export function compareManifests(before, after) {
     for (const key of keys) if (before[area][key] !== after[area]?.[key]) changed.push(`${area}:${key}`);
   }
   return changed.sort();
+}
+
+export const CODEX_T4_FEATURES = Object.freeze({ shell_tool: false, memories: false, multi_agent: false,
+  apps: false, code_mode: false, code_mode_host: true, skip_host_skill_discovery: true });
+
+export function assertCodexT4HostReady(result) {
+  if (result.status !== 0 || !/^code_mode_host\s+.+?\s+true$/mu.test(result.stdout ?? '')) throw Error('CODE_MODE_HOST_UNAVAILABLE');
+}
+
+// Audit the code-mode wrapper, without evaluating model code. Only metadata,
+// local computation and the existing inspect tool may supply data in this task.
+export function pureInspectWrapper(code, earlierBindings = new Set()) {
+  let tree;
+  try { tree = parseJavaScript(code, { ecmaVersion: 'latest', sourceType: 'module', allowAwaitOutsideFunction: true }); } catch { return false; }
+  const globals = new Set(['ALL_TOOLS', 'tools', 'text', 'notify', 'store', 'load', 'JSON', 'Object', 'Promise', 'String', 'undefined']);
+  const forbidden = new Set(['constructor', 'prototype', '__proto__', 'globalThis', 'process', 'require', 'eval', 'Function', 'window', 'self', 'module', 'exports']);
+  const locals = new Set(earlierBindings), nodes = [];
+  const collect = (node, parent, key) => {
+    if (!node || typeof node !== 'object' || !node.type) return;
+    nodes.push({ node, parent, key });
+    if (node.type === 'VariableDeclarator' && node.id.type === 'Identifier') locals.add(node.id.name);
+    if (['ArrowFunctionExpression', 'FunctionExpression'].includes(node.type)) for (const param of node.params) if (param.type === 'Identifier') locals.add(param.name);
+    for (const [k, value] of Object.entries(node)) if (Array.isArray(value)) for (const child of value) collect(child, node, k); else collect(value, node, k);
+  };
+  collect(tree);
+  const types = new Set(['Program', 'VariableDeclaration', 'VariableDeclarator', 'Identifier', 'Literal', 'ExpressionStatement', 'CallExpression', 'MemberExpression',
+    'ArrowFunctionExpression', 'FunctionExpression', 'BinaryExpression', 'LogicalExpression', 'AwaitExpression', 'ObjectExpression', 'Property', 'ArrayExpression',
+    'TemplateLiteral', 'TemplateElement', 'UnaryExpression', 'ConditionalExpression', 'BlockStatement', 'ReturnStatement', 'ChainExpression', 'SpreadElement',
+    'IfStatement', 'WhileStatement', 'ForOfStatement', 'AssignmentExpression', 'UpdateExpression', 'BreakStatement']);
+  const methods = new Set(['filter', 'find', 'map', 'includes', 'endsWith', 'startsWith', 'test', 'join', 'slice', 'split', 'push', 'parse', 'stringify', 'keys', 'values', 'entries', 'fromEntries', 'all', 'resolve']);
+  const memberName = node => node?.computed ? node.property?.type === 'Literal' ? node.property.value : null : node?.property?.name;
+  const admittedTool = name => /^mcp__(?:agdf|plugin_agdf_agdf)__agdf_inspect$/u.test(name ?? '') || ['list_mcp_resources', 'list_mcp_resource_templates'].includes(name);
+  for (const { node, parent, key } of nodes) {
+    if (!types.has(node.type)) return false;
+    const dataKey = parent?.type === 'Property' && key === 'key' && !parent.computed && !parent.shorthand;
+    if (node.type === 'Identifier' && !dataKey && forbidden.has(node.name)) return false;
+    if (node.type === 'Identifier' && !dataKey
+      && !(parent?.type === 'MemberExpression' && key === 'property' && !parent.computed) && !globals.has(node.name) && !locals.has(node.name)) return false;
+    if (node.type === 'Identifier' && node.name === 'tools' && (parent?.type !== 'MemberExpression' || key !== 'object')) return false;
+    if (node.type === 'MemberExpression' && node.computed && node.property.type !== 'Literal') return false;
+    if (node.type === 'MemberExpression' && node.object?.name === 'tools' && (parent?.type !== 'CallExpression' || key !== 'callee')) return false;
+    if (node.type === 'MemberExpression' && (forbidden.has(memberName(node)) || node.object?.name === 'tools'
+      && !admittedTool(memberName(node)))) return false;
+    if (node.type === 'CallExpression') {
+      if (node.callee.type === 'Identifier') {
+        if (!['text', 'notify', 'store', 'load', 'String'].includes(node.callee.name) && !locals.has(node.callee.name)) return false;
+      } else if (node.callee.type !== 'MemberExpression' || !(methods.has(memberName(node.callee))
+        || admittedTool(memberName(node.callee)))) return false;
+    }
+    if (node.type === 'VariableDeclarator' && (node.id.type !== 'Identifier' || globals.has(node.id.name))) return false;
+    if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier' && globals.has(node.left.name)) return false;
+  }
+  for (const name of locals) earlierBindings.add(name);
+  return true;
+}
+
+// Supplemental qualification only. The original task/predicate/baseline stay unchanged.
+export function parseCodexT4Trace(jsonl, rolloutTexts = []) {
+  const streams = [], detours = [], models = new Set(), wrapperBindings = new Set(), wrappers = new Set(), warnings = [];
+  let complete = false, valid = true, usage = null;
+  for (const [index, text] of [jsonl, ...rolloutTexts].entries()) {
+    const items = new Map(); streams.push(items);
+    for (const line of text.split('\n').filter(line => line.trim())) {
+    let event;
+    try { event = JSON.parse(line); } catch { valid = false; continue; }
+    if (index === 0 && event.type === 'turn.completed') { complete = true; usage = event.usage ?? null; }
+    if (index === 0 && ['turn.failed', 'error'].includes(event.type)) valid = false;
+    if (event.type === 'turn_context' && event.payload?.model) models.add(event.payload.model);
+    const payload = event.payload;
+    if (event.type === 'response_item' && ['function_call', 'custom_tool_call'].includes(payload?.type)) {
+      if (['exec', 'functions.exec'].includes(payload.name)) {
+        if (!pureInspectWrapper(payload.input ?? payload.arguments ?? '', wrapperBindings)) detours.push('unverified_code_mode_wrapper');
+        wrappers.add(payload.call_id ?? payload.id);
+      } else if (!/^mcp__(?:agdf|plugin_agdf_agdf)__agdf_inspect$/u.test(payload.name ?? '')
+        && !/^(?:functions\.)?(?:update_plan|tool_search)$/u.test(payload.name ?? '')) detours.push(payload.name ?? 'unknown_function');
+    }
+    const item = event.item ?? payload?.item;
+    if (!item) continue;
+    const type = item.type?.replace(/([a-z0-9])([A-Z])/gu, '$1_$2').toLowerCase();
+    if (type === 'error') { warnings.push(item.message ?? 'host_error'); if (!/^Under-development features enabled:/u.test(item.message ?? '')) valid = false; continue; }
+    if (type === 'mcp_tool_call') {
+      if (!item.id) { valid = false; continue; }
+      if (['completed', 'failed'].includes(item.status) || !['completed', 'failed'].includes(items.get(item.id)?.status)) items.set(item.id, item);
+    } else if (!['reasoning', 'user_message', 'agent_message', 'plan_update', 'todo_list', 'tool_search'].includes(type)) detours.push(item.type ?? 'unknown_item');
+    }
+  }
+  // Exec JSON and rollouts name the same invocations differently. Reconcile the
+  // ordered invocation sequences, never deduplicate by arguments or page bytes:
+  // two real identical calls must remain two calls and fail a repeated-page audit.
+  const ordered = streams.map(stream => [...stream.values()]);
+  const canonical = value => JSON.stringify(value, function (key, child) {
+    return child && typeof child === 'object' && !Array.isArray(child) ? Object.fromEntries(Object.keys(child).sort().map(name => [name, child[name]])) : child;
+  });
+  const signature = item => { const call = item.invocation ?? item; return canonical([call.server ?? 'agdf', call.tool, call.arguments, item.status]); };
+  const primary = ordered[0].length ? ordered[0] : ordered.slice(1).find(stream => stream.length) ?? [];
+  for (const stream of ordered.slice(1)) if (primary.length && (stream.length !== primary.length || stream.some((item, i) => signature(item) !== signature(primary[i])))) valid = false;
+  const decode = item => {
+    let result = item.result ?? item.output;
+    if (typeof result === 'string') result = JSON.parse(result);
+    const isError = result?.isError === true || result?.is_error === true || Boolean(item.error) || item.status === 'failed';
+    if (item.status === 'failed' && (result?.isError === false || result?.is_error === false)) throw Error('conflicting_tool_status');
+    let text = result?.content?.filter(p => p.type === 'text').map(p => p.text).join('') ?? item.error?.message ?? '';
+    const structured = result?.structuredContent ?? result?.structured_content;
+    if (structured) text = JSON.stringify(structured);
+    if (!isError) {
+      let parsed = JSON.parse(text);
+      // Rollouts may serialize a CallToolResult as text; exec JSON unwraps it.
+      if (Array.isArray(parsed.content) && !parsed.report) {
+        parsed = parsed.structuredContent ?? parsed.structured_content ?? JSON.parse(parsed.content.filter(p => p.type === 'text').map(p => p.text).join(''));
+        text = JSON.stringify(parsed);
+      }
+    }
+    return { text, is_error: isError };
+  };
+  const calls = [];
+  const metadataDiscovery = [];
+  for (const [position, item] of primary.entries()) {
+    const invocation = item.invocation ?? item;
+    let input = invocation.arguments;
+    try {
+      if (typeof input === 'string') input = JSON.parse(input);
+      if (!input || !['completed', 'failed'].includes(item.status)) valid = false;
+      let result, successfulValue;
+      for (const stream of [primary, ...ordered.filter(stream => stream !== primary)]) {
+        if (!stream[position] || signature(stream[position]) !== signature(item)) continue;
+        const observation = stream[position], raw = observation.result ?? observation.output;
+        if (observation.status === 'failed' && (raw?.isError === false || raw?.is_error === false)) valid = false;
+        try {
+          const decoded = decode(observation);
+          if (result && result.is_error !== decoded.is_error) valid = false;
+          result ??= decoded;
+          if (!decoded.is_error) {
+            const value = canonical(JSON.parse(decoded.text));
+            if (successfulValue !== undefined && successfulValue !== value) valid = false;
+            successfulValue = value;
+          }
+        } catch {}
+      }
+      if (!result) { valid = false; continue; }
+      // Empty host metadata listings supply no binding or document content. They
+      // are discovery, not filesystem/resource reads; actual read helpers fail.
+      const metadataKey = { list_mcp_resources: 'resources', list_mcp_resource_templates: 'resourceTemplates' }[invocation.tool];
+      if (invocation.server === 'codex' && metadataKey) {
+        const data = JSON.parse(result.text);
+        if (item.status !== 'completed' || result.is_error || Object.keys(input).length || Object.keys(data).length !== 1 || !Array.isArray(data[metadataKey]) || data[metadataKey].length) detours.push('unverified_resource_metadata');
+        metadataDiscovery.push({ tool: invocation.tool, empty: data[metadataKey]?.length === 0 });
+        continue;
+      }
+      if (invocation.tool !== 'agdf_inspect' || invocation.server && !['agdf', 'plugin:agdf:agdf'].includes(invocation.server)) detours.push(invocation.tool ?? 'unknown_mcp');
+      calls.push({ id: item.id, name: 'mcp__plugin_agdf_agdf__agdf_inspect', input, result });
+    } catch { valid = false; }
+  }
+  return { calls, detours, trace_complete: complete && valid, observed_models: [...models], usage, wrappers: wrappers.size, warnings, metadata_discovery: metadataDiscovery };
+}
+
+export function strictT4DocumentFlow({ parsed, expectedBytes, binding, finalText }) {
+  const fail = reason => ({ check: 'strict_t4_document_flow_v1', success: false, reason });
+  if (!parsed.trace_complete || parsed.detours.length) return fail('incomplete_trace_or_forbidden_detour');
+  let discovered = false, offset = 0, nextCursor, complete = false, pages = 0;
+  const chunks = [], expectedDigest = `sha256:${createHash('sha256').update(expectedBytes).digest('hex')}`;
+  for (const call of parsed.calls) {
+    if (call.result.is_error) continue;
+    const result = JSON.parse(call.result.text), report = result?.report, input = call.input;
+    if (input?.operation === 'operation-contract' && input.module === 'agdf_prepare/presentation.prepare') {
+      const catalog = report?.presentation_catalog, candidate = catalog?.candidates?.[0];
+      if (!call.result.is_error && catalog?.state === 'unique' && catalog.complete_scan && catalog.total_candidates === 1 && catalog.candidates.length === 1
+        && candidate.presentation_id === binding.presentation_id && candidate.content_digest === expectedDigest
+        && Object.entries(binding).every(([key, value]) => candidate.read_arguments?.[key] === value)) discovered = true;
+    }
+    if (input?.operation !== 'presentation-document' || call.result.is_error) continue;
+    if (!discovered || complete || !Object.entries(binding).every(([key, value]) => input[key] === value)
+      || input.cursor !== nextCursor || !report?.available || typeof report.content !== 'string'
+      || report.presentation_id !== binding.presentation_id || report.target_id !== binding.target_id || report.run_id !== binding.run_id
+      || report.gate !== binding.gate || report.revision_id !== binding.expected_revision_id || report.content_digest !== expectedDigest
+      || report.byte_start !== offset || report.total_bytes !== expectedBytes.length) return fail('page_binding_order_or_discovery');
+    const bytes = Buffer.from(report.content, 'utf8');
+    if (bytes.length === 0 || report.byte_end !== offset + bytes.length || !expectedBytes.subarray(offset, report.byte_end).equals(bytes)) return fail('page_bytes_mismatch');
+    offset = report.byte_end; complete = report.complete === true; nextCursor = report.next_cursor ?? undefined;
+    if (complete !== (offset === expectedBytes.length) || complete !== (nextCursor === undefined)) return fail('invalid_completion');
+    chunks.push(bytes); ++pages;
+  }
+  if (!complete || !Buffer.concat(chunks).equals(expectedBytes)) return fail('document_incomplete');
+  if (typeof finalText !== 'string' || !finalText.includes(expectedBytes.toString('utf8'))) return fail('complete_user_delivery_unproven');
+  return { check: 'strict_t4_document_flow_v1', success: true, pages, bytes: offset, content_digest: expectedDigest, no_detours: true, complete_user_delivery: true };
 }

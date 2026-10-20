@@ -1,7 +1,7 @@
 import { validateRunPresentationEnvelope, PRESENTATION_ID_PATTERN as UUID, PRESENTATION_RECOVERY as recovery } from "./run-presentation-envelope.js";
 export { validateRunPresentationEnvelope } from "./run-presentation-envelope.js";
 import { randomUUID } from "node:crypto";
-import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
+import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, existsSync, openSync, opendirSync, readSync, writeFileSync } from "node:fs";
 import { fsyncDirectory } from "./run-state-writer.js";
 import { dirname, join } from "node:path";
 import { TextDecoder } from 'node:util';
@@ -10,9 +10,13 @@ import { readRun, rejected } from "./run-state-edits.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { hash } from "./run-presentation-render.js";
 import { resolveControlCommandTarget } from './approval-command-contract.js';
+import { REVISION_ID_PATTERN } from './run-identity.js';
 import { prepareRunContentState } from '../control-evaluation/run-state.js';
 import { previewForState } from './preview-review.js';
 import { previewSnapshotBinding, publishPreviewSnapshot, readPreviewSnapshot, validateCurrentPreviewRecord } from './preview-snapshot.js';
+
+// JSON Schema uses the pattern without RegExp flags.
+const DISCOVERABLE_UUID = new RegExp(REVISION_ID_PATTERN.source, 'u');
 
 export { renderReviewableApproval } from "./run-presentation-render.js";
 
@@ -138,9 +142,7 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck, checkpo
   }
 }
 
-export function validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId }) {
-  if (!UUID.test(presentationId ?? "")) return { reason: "presentation_required", recovery };
-  try {
+function readPresentationEnvelope(root, runId, presentationId) {
     const dir = join(checkedRunDirectory(root, runId), "presentations");
     directory(dir);
     const path = join(dir, `${presentationId}.json`);
@@ -151,12 +153,98 @@ export function validateRunPresentationRecord(root, { runId, gate, revisionId, p
     try {
       const actual = fstatSync(fd);
       if (!actual.isFile() || actual.dev !== stat.dev || actual.ino !== stat.ino || actual.size > 262144) throw new Error("presentation_path_invalid");
-      envelope = JSON.parse(readFileSync(fd, "utf8"));
+      envelope = JSON.parse(readBoundedSnapshot(fd, actual, 262144).toString('utf8'));
     } finally { closeSync(fd); }
-    return validateRunPresentationEnvelope(envelope, { runId, gate, revisionId, presentationId });
+    return envelope;
+}
+
+export function validateRunPresentationRecord(root, { runId, gate, revisionId, presentationId }) {
+  if (!UUID.test(presentationId ?? "")) return { reason: "presentation_required", recovery };
+  try {
+    return validateRunPresentationEnvelope(readPresentationEnvelope(root, runId, presentationId), { runId, gate, revisionId, presentationId });
   } catch (error) {
     return { reason: error.code === "ENOENT" ? "presentation_missing" : error.message, recovery: error.recovery ?? recovery };
   }
+}
+
+export const PRESENTATION_CATALOG_LIMITS = Object.freeze({ page_candidates: 16, record_files: 256, record_bytes: 1048576, directory_entries: 1024 });
+
+// Discovery is an observation of existing prepared records, never evidence of human
+// visibility. Reuse this owner's contained envelope/snapshot readers; no index/cache.
+export function readPresentationCatalog(root, { runId, revisionId, targetId, gate, cursor, workingDirectory, targetSource, primaryTarget, language }) {
+  const limits = PRESENTATION_CATALOG_LIMITS;
+  const base = { schema_version: '1', authorizes: false, binding: { target_id: targetId, run_id: runId, expected_revision_id: revisionId },
+    requested_gate: gate ?? null, limits, candidates: [], complete_scan: false, page_complete: false, next_cursor: null };
+  const fail = reason => ({ ...base, state: 'unavailable', reason, next_action: reason.includes('cursor') || reason.includes('changed')
+    ? 'Refresh the run binding; restart without a catalog cursor. Preserve exact original document bindings.'
+    : 'The catalog cannot establish absence or uniqueness. Use an exact known binding or ask the owner to restore availability; never select by recency.' });
+  try {
+    if (resolveControlCommandTarget(root).target_id !== targetId) return fail('target_binding_mismatch');
+    const runDir = checkedRunDirectory(root, runId), run = readRun(root, runId);
+    if (run.rejection || run.meta.revision_id !== revisionId || runSealState(root, run.content).status !== 'valid') return fail('operation_binding_stale_or_invalid');
+    const path = join(runDir, 'presentations');
+    const identity = stat => [stat.dev, stat.ino, stat.size, stat.mtimeMs, stat.ctimeMs].join(':');
+    const parents = [root, join(root, '.agdf'), join(root, '.agdf/control'), join(root, '.agdf/control/runs'), runDir];
+    const beforeParents = parents.map(p => identity(directory(p)));
+    let before;
+    try { before = identity(directory(path)); }
+    catch (error) {
+      if (error.code !== 'ENOENT' || cursor !== undefined) return fail('presentation_catalog_unavailable');
+      if (readRun(root, runId).content !== run.content || parents.some((p, i) => identity(directory(p)) !== beforeParents[i]) || existsSync(path)) return fail('presentation_catalog_changed');
+      return { ...base, state: 'none', reason: null, complete_scan: true, page_complete: true, total_candidates: 0, next_action: 'Report no prepared document. Preparation is separate; do not prepare during this read.' };
+    }
+    const ids = [], dir = opendirSync(path);
+    let entries = 0, entry;
+    try {
+      while ((entry = dir.readSync())) {
+        if (++entries > limits.directory_entries) return fail('presentation_catalog_directory_limit');
+        if (!entry.name.endsWith('.json') || !UUID.test(entry.name.slice(0, -5))) continue;
+        ids.push(entry.name.slice(0, -5));
+        if (ids.length > limits.record_files) return fail('presentation_catalog_record_limit');
+      }
+    } finally { dir.closeSync(); }
+    ids.sort();
+    const candidates = [], records = [], observedFiles = [];
+    let recordBytes = 0;
+    for (const id of ids) {
+      const stat = lstatSync(join(path, `${id}.json`));
+      recordBytes += stat.size;
+      if (recordBytes > limits.record_bytes) return fail('presentation_catalog_byte_limit');
+      const envelope = readPresentationEnvelope(root, runId, id), record = envelope?.record;
+      if (!record || !APPROVAL_GATES.includes(record.gate) || !DISCOVERABLE_UUID.test(id)
+        || !DISCOVERABLE_UUID.test(record.revision_id ?? '')) return fail('presentation_binding_invalid');
+      const checked = validateRunPresentationEnvelope(envelope, { runId, gate: record.gate, revisionId: record.revision_id, presentationId: id });
+      if (checked.reason) return fail(checked.reason);
+      // Old records without snapshots cannot establish a complete readable catalog.
+      if (![3, 4, 5].includes(record.schema_version)) return fail('presentation_document_snapshot_unavailable');
+      const documentPath = join(path, `${id}.document`), documentStat = lstatSync(documentPath);
+      new TextDecoder('utf-8', { fatal: true }).decode(readDocumentSnapshot(root, record));
+      observedFiles.push([join(path, `${id}.json`), identity(stat)], [documentPath, identity(documentStat)]);
+      if (identity(lstatSync(join(path, `${id}.json`))) !== identity(stat)) return fail('presentation_catalog_changed');
+      records.push([id, checked.digest]);
+      if (gate !== undefined && record.gate !== gate) continue;
+      candidates.push({ presentation_id: id, gate: record.gate, original_revision_id: record.revision_id,
+        prepared_status: 'prepared', applicability: record.revision_id === revisionId ? 'current' : 'historical',
+        content_digest: record.document_digest, document_language: record.document_language, total_bytes: record.document_bytes,
+        read_arguments: { operation: 'presentation-document', presentation_language: language, working_directory: workingDirectory,
+          target_source: targetSource, primary_target: primaryTarget, target_id: targetId, run_id: runId, gate: record.gate,
+          expected_revision_id: record.revision_id, presentation_id: id } });
+    }
+    const prefix = `${hash(JSON.stringify(['agdf-presentation-catalog/1', targetId, runId, revisionId, 'agdf_prepare/presentation.prepare', gate ?? null, records])).slice(7)}:`;
+    if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.startsWith(prefix) || !/^(0|[1-9][0-9]{0,6})$/u.test(cursor.slice(prefix.length)))) return fail('presentation_catalog_cursor_invalid');
+    const offset = cursor === undefined ? 0 : Number(cursor.slice(prefix.length));
+    if (offset % limits.page_candidates !== 0 || offset >= candidates.length && (offset !== 0 || cursor !== undefined)) return fail('presentation_catalog_cursor_invalid');
+    const fresh = readRun(root, runId);
+    if (fresh.rejection || fresh.content !== run.content || observedFiles.some(([p, stat]) => identity(lstatSync(p)) !== stat) || identity(directory(path)) !== before
+      || parents.some((p, i) => identity(directory(p)) !== beforeParents[i])) return fail('presentation_catalog_changed');
+    const end = Math.min(offset + limits.page_candidates, candidates.length);
+    return { ...base, state: candidates.length === 0 ? 'none' : candidates.length === 1 ? 'unique' : 'ambiguous', reason: null,
+      complete_scan: true, page_complete: end === candidates.length, total_candidates: candidates.length,
+      candidates: candidates.slice(offset, end), next_cursor: end < candidates.length ? `${prefix}${end}` : null,
+      next_action: candidates.length === 0 ? 'Report no prepared document; never create a replacement.' : candidates.length === 1
+        ? 'Use exact read_arguments; follow every document next_cursor.'
+        : 'Ask for record selection. Use next_cursor for more candidates; a partial page never proves uniqueness.' };
+  } catch { return fail('presentation_catalog_unavailable'); }
 }
 
 export function validateRunPresentation(root, input, { evaluateGateCheck }) {
@@ -184,10 +272,20 @@ function readDocumentSnapshot(root, record) {
   try {
     const actual = fstatSync(fd);
     if (!actual.isFile() || actual.ino !== stat.ino || actual.dev !== stat.dev || actual.size !== record.document_bytes) throw Error('presentation_document_invalid');
-    bytes = readFileSync(fd);
+    bytes = readBoundedSnapshot(fd, actual, 131072);
   } finally { closeSync(fd); }
   if (bytes.length !== record.document_bytes || hash(bytes) !== record.document_digest) throw Error('presentation_document_digest_mismatch');
   return bytes;
+}
+
+function readBoundedSnapshot(fd, before, maximum) {
+  if (before.size > maximum) throw Error('presentation_path_invalid');
+  const bytes = Buffer.alloc(before.size + 1);
+  let size = 0, count;
+  while (size < bytes.length && (count = readSync(fd, bytes, size, bytes.length - size, size)) > 0) size += count;
+  const after = fstatSync(fd);
+  if (size !== before.size || after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs) throw Error('presentation_state_changed');
+  return bytes.subarray(0, size);
 }
 
 export function readPresentationDocument(root, { runId, gate, revisionId, presentationId, targetId, cursor }) {

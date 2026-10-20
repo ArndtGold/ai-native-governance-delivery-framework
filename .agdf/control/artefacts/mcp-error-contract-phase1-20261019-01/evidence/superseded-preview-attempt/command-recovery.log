@@ -1,0 +1,26 @@
+npm notice run @agdf/mcp-server@0.14.5 test:run-command-flow
+npm notice run node ./test/run-command.test.js && node ./test/decision-resource.test.js && node ./test/whole-flow.test.js && node ./test/structured-flow.test.js && node ./test/revision-command.test.js && node ./test/expanded-source-revision.test.js
+Actual legacy/modern STDIO group discovery, strict confinement, canonical recording/replay/status and worker uncertainty passed; native host consent remains unqualified.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"content":[{"type":"text","text":"{\"schema_version\":\"1\",\"outcome\":\"rejected\",\"reason\":\"tool_result_invalid\",\"authorizes\":false}"},{"type":"text","text":"AGDF tool failed: tool_result_invalid. Effects are unconfirmed; do not assume rollback. Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."}],"structuredContent":{"schema_version":"1","outcome":"rejected","reason":"tool_result_invalid","authorizes":false},"isError":true}
++ actual - expected
+
++ undefined
+- 'available'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/decision-resource.test.js:101:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async withStdioClient (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/decision-resource.test.js:87:38 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 'available',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

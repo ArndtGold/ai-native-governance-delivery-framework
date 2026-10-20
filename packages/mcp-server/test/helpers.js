@@ -3,6 +3,7 @@ import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { fileURLToPath } from "node:url";
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 
 export const SERVER_COMMAND = process.execPath;
@@ -62,5 +63,5 @@ export async function withStdioClient({
 export const unresolvedArguments = Object.freeze({
   skill_id: "gate-check",
   presentation_language: "de",
-  working_directory: "/tmp",
+  working_directory: tmpdir(),
 });

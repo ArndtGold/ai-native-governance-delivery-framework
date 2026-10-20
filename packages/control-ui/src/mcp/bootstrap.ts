@@ -1,7 +1,8 @@
 export interface RenderBootstrap { sessionId: string; targetId: string; initialRunId?: string; generation: number }
 
 // Only scoped render metadata may initialize a reader; ordinary read results do not reset it.
-export function readRenderBootstrap(result: { _meta?: Record<string, unknown>; structuredContent?: unknown }): RenderBootstrap | null {
+export function readRenderBootstrap(result: { isError?: boolean; _meta?: Record<string, unknown>; structuredContent?: unknown }): RenderBootstrap | null {
+  if (result.isError) return null;
   const meta = result._meta?.agdf_cockpit;
   if (!meta || typeof meta !== 'object' || !result.structuredContent || typeof result.structuredContent !== 'object') return null;
   const data = result.structuredContent as Record<string, unknown>;

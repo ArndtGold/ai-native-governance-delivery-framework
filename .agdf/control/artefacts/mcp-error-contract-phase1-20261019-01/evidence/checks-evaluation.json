@@ -1,0 +1,77 @@
+[
+  {
+    "name": "protocol-after",
+    "command": [
+      "npm",
+      "run",
+      "eval:mcp-ergonomics:protocol",
+      "--",
+      "--out",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/protocol-after.json"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T18:45:25.991667+00:00",
+    "completed_at": "2026-10-19T18:46:52.451214+00:00",
+    "exit_code": 0,
+    "log": "protocol-after.log"
+  },
+  {
+    "name": "tools-after",
+    "command": [
+      "npm",
+      "run",
+      "eval:mcp-ergonomics:protocol",
+      "--",
+      "--capture-tools",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/tools-after.json"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T18:46:52.452621+00:00",
+    "completed_at": "2026-10-19T18:47:09.372287+00:00",
+    "exit_code": 0,
+    "log": "tools-after.log"
+  },
+  {
+    "name": "compare-historical",
+    "command": [
+      "node",
+      "evals/scripts/compare-mcp-ergonomics.js",
+      "--baseline",
+      "evals/mcp-ergonomics/baselines/2026-10-16-win32-x64",
+      "--protocol",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/protocol-after.json"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T18:47:09.372989+00:00",
+    "completed_at": "2026-10-19T18:47:09.872267+00:00",
+    "exit_code": 1,
+    "log": "compare-historical.log"
+  },
+  {
+    "name": "compare-tools",
+    "command": [
+      "node",
+      "evals/scripts/compare-mcp-ergonomics.js",
+      "--tools-before",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/tools-before.json",
+      "--tools-after",
+      "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/tools-after.json"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T18:47:09.872994+00:00",
+    "completed_at": "2026-10-19T18:47:10.329329+00:00",
+    "exit_code": 0,
+    "log": "compare-tools.log"
+  },
+  {
+    "name": "compare-current",
+    "command": [
+      "node",
+      "--input-type=module",
+      "--eval",
+      "import {readFileSync,writeFileSync} from 'node:fs';import {compareProtocol} from './evals/mcp-ergonomics/lib/aggregate.js';const e='.agdf/control/artefacts/mcp-error-contract-phase1-20261019-01/evidence/';const r=compareProtocol(JSON.parse(readFileSync(e+'protocol-before.json')),JSON.parse(readFileSync(e+'protocol-after.json')));writeFileSync(e+'compare-current.json',JSON.stringify(r,null,2)+'\\n');process.stdout.write(JSON.stringify({status:r.status,differences:r.differences.length})+'\\n');process.exitCode=r.status==='unchanged'?0:1;"
+    ],
+    "exit_code": 1,
+    "log": "compare-current.log"
+  }
+]

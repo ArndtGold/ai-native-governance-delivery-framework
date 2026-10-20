@@ -79,7 +79,19 @@ export function DecisionEntry({ bridge }: { bridge: CockpitBridge }) {
       if (current.current !== view || !bridge.app.getHostCapabilities()?.serverTools) throw Error('session_invalid');
       const result = await bridge.request(() => bridge.app.callServerTool({ name, arguments: argumentsValue }, { timeout: 10_000 }));
       if (current.current !== view) throw Error('session_invalid');
-      if (result.isError || !result.structuredContent) throw Error('result_unconfirmed');
+      if (!result.structuredContent) throw Error('result_unconfirmed');
+      if (result.isError) {
+        const negative = result.structuredContent as Record<string, unknown>, binding = negative.binding as Record<string, unknown> | undefined;
+        if (name !== 'agdf_decision_action' || negative.schema_version !== '1' || negative.authorizes !== false
+          || !['rejected', 'effect_unknown', 'recovery_required'].includes(String(negative.outcome))
+          || !['stale_revision', 'session_expired', 'permission_denied', 'resource_denied', 'host_ui_unsupported',
+            'app_only_mediation_not_qualified', 'decision_binding_changed', 'decision_binding_invalid', 'presentation_state_changed',
+            'presentation_version_decided', 'decision_pending', 'decision_result_unknown', 'effect_unknown', 'recovery_required',
+            'dispatch_timeout', 'dispatch_cancelled', 'generation_connection_lost', 'generation_response_unknown'].includes(String(negative.reason))
+          || negative.operation_id !== undefined && negative.operation_id !== argumentsValue.operation_id
+          || binding && (binding.target_id !== view.target.target_id || binding.run_id !== view.binding.run_id
+            || binding.expected_revision_id !== view.binding.expected_revision_id)) throw Error('result_unconfirmed');
+      }
       return result.structuredContent as Record<string, unknown>;
     };
     return {

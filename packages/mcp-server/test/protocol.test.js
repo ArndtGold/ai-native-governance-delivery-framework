@@ -48,7 +48,7 @@ for (const modern of [false, true]) {
       assert.equal(stale.structuredContent.report.diagnostics[0].code, 'artifact_revision_stale');
     } finally { rmSync(draft.root, { recursive: true, force: true }); }
     const inspectUnresolved = await client.callTool({ name: "agdf_inspect", arguments: { operation: "doctor", presentation_language: "de", working_directory: "/tmp" } });
-    assert.equal(inspectUnresolved.isError, undefined, `${protocol}:inspect`);
+    assert.equal(inspectUnresolved.isError, true, `${protocol}:inspect`);
     assert.equal(inspectUnresolved.structuredContent.outcome, "target_unresolved");
     assert.equal(inspectUnresolved.structuredContent.authorizes, false);
     assert.equal(inspectUnresolved.structuredContent.report, null);
@@ -75,7 +75,7 @@ for (const modern of [false, true]) {
         name: "agdf_dispatch",
         arguments: argumentsForLanguageCase(unresolvedArguments, row),
       });
-      assert.equal(result.isError, undefined, `${protocol}:${row.id}`);
+      assert.equal(result.isError, true, `${protocol}:${row.id}`);
       assert.equal(result.structuredContent.outcome, "target_unresolved", `${protocol}:${row.id}`);
       assert.equal(result.structuredContent.authorizes, false, `${protocol}:${row.id}`);
       assert.equal(result.structuredContent.presentation.presentation_language, row.expectedLocale, `${protocol}:${row.id}`);

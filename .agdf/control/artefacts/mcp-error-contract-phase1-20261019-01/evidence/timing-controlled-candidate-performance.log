@@ -1,0 +1,18 @@
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[849.82,943.728,998.811,1103.312,827.66,946.839,823.01,945.139,973.845,943.658,893.385,964.992,877.038,1008.048,865.532,839.513,832.658,826.555,1308.292,905.598],"cold_p95_ms":1103.312,"warm_dispatch_ms":[1264.457,742.725,975.909,732.768,744.696,1316.565,897.982,1162.19,1341.317,736.089,976.244,826.677,704.497,852.661,717.32,806.848,775.364,1005.993,724.383,759.546],"warm_p95_ms":1316.565}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: warm dispatch p95 exceeded 1000 ms: 1316.564565
+    at file:///private/tmp/agdf-mcp-timing-pair-ejrklazg/source/packages/mcp-server/test/performance.test.js:50:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

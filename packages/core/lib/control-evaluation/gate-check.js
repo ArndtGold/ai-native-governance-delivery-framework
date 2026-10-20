@@ -2,7 +2,7 @@ import { decisionRemediationOwner } from '../control-state/presentation-decision
 import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderDefinitionSourceRecovery, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
 import { interactionLocales, resolveConfiguredChatLanguage, resolveArtifactPresentationLanguages } from "../resources/context.js";
 import { observeDecisionContent, decisionContentRecovery } from './decision-content-readiness.js';
-import { evaluateDoctor } from "./doctor.js";
+import { evaluateDoctorWithRunState } from "./doctor.js";
 import { analyzeDeliveryMap, deriveQualityOutlook } from "./delivery-map.js";
 import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
 import { effectiveNextAllowedAction } from "./next-action.js";
@@ -319,8 +319,9 @@ function buildHumanPresentation(targetDir, runState, currentGate, presentationLo
 }
 
 export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) {
-  const doctorReport = evaluateDoctor(targetDir, selection, dependencies);
-  const runState = readRunState(targetDir, selection);
+  const observed = evaluateDoctorWithRunState(targetDir, selection, dependencies);
+  const doctorReport = observed.report;
+  const runState = observed.runState ?? readRunState(targetDir, selection);
   const verifiedChange = modeSliceDecision(runState) === "verified_change"
     ? evaluateVerifiedChange(targetDir, runState, dependencies)
     : null;

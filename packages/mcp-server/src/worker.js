@@ -4,11 +4,12 @@ const WORKER_URL = new URL("./worker-entry.js", import.meta.url);
 const PHASES = new Set(['runtime_provenance', 'operation', 'result']);
 
 export class DispatchExecutionError extends Error {
-  constructor(code, dispatch = 'unknown') {
+  constructor(code, dispatch = 'unknown', field) {
     super(code);
     this.name = "DispatchExecutionError";
     this.code = code;
     this.dispatch = dispatch;
+    this.facts = { code, dispatch, ...(field ? { field } : {}) };
   }
 }
 
@@ -28,9 +29,10 @@ export function createWorkerDispatchExecutor({
       return new Promise((resolve, reject) => {
         let settled = false, exited = false, completion;
         const started = performance.now(), deadline = started + timeoutMs;
-        const worker = new WorkerClass(WORKER_URL, {
+        let worker;
+        try { worker = new WorkerClass(WORKER_URL, {
           workerData: { surface, expectedVersion, commandGroups, argumentsValue, toolName: toolName ?? null },
-        });
+        }); } catch { reject(new DispatchExecutionError('dispatch_worker_failed', 'not_dispatched')); return; }
         event('worker_start', started);
         const current = { worker, timer: null, cleanupSignal: null, cancel: () => finish(reject, new DispatchExecutionError("dispatch_cancelled")) };
         active = current;
@@ -73,7 +75,8 @@ export function createWorkerDispatchExecutor({
           if (message?.type === 'phase') {
             if (PHASES.has(message.phase)) event(message.phase, started);
           } else if (message?.type === "result") finish(resolve, message.result);
-          else finish(reject, new DispatchExecutionError(message?.code ?? "dispatch_worker_failed"));
+          else if (message?.type === 'failure') finish(reject, new DispatchExecutionError(message.code, message.dispatch, message.field));
+          else finish(reject, new DispatchExecutionError('dispatch_worker_failed'));
         });
         worker.once("error", () => finish(reject, new DispatchExecutionError("dispatch_worker_failed")));
         worker.once("exit", () => {

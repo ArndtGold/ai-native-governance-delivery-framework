@@ -1,0 +1,47 @@
+[
+  {
+    "name": "mcp-performance-recheck",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/mcp-server",
+      "run",
+      "test:performance"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T17:28:34.440172+00:00",
+    "completed_at": "2026-10-19T17:30:06.903219+00:00",
+    "exit_code": 1,
+    "log": "mcp-performance-recheck.log"
+  },
+  {
+    "name": "browser-final-recheck",
+    "command": [
+      "npm",
+      "--prefix",
+      "packages/control-ui",
+      "run",
+      "test:browser",
+      "--",
+      "test/browser/sdk-trace.spec.mjs",
+      "test/browser/mcp-errors.spec.mjs"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T17:30:06.905306+00:00",
+    "completed_at": "2026-10-19T17:30:40.307105+00:00",
+    "exit_code": 0,
+    "log": "browser-final-recheck.log"
+  },
+  {
+    "name": "evaluation",
+    "command": [
+      "python3",
+      "/private/tmp/agdf-mcp-contract-eval.py"
+    ],
+    "cwd": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "started_at": "2026-10-19T17:30:40.309558+00:00",
+    "completed_at": "2026-10-19T17:32:53.143600+00:00",
+    "exit_code": 0,
+    "log": "evaluation.log"
+  }
+]

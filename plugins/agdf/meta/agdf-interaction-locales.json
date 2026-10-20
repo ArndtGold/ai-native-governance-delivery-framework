@@ -1326,6 +1326,29 @@
     "previewQuestions": "Open questions",
     "previewUnsupported": "This host could not display the isolated preview. Use supported access to the same checked version.",
     "previewLoading": "Opening the isolated preview…"
+   },
+   "mcpErrors": {
+    "failure": "AGDF tool failed:",
+    "effects": {
+     "not_dispatched": "This attempt did not dispatch an operation.",
+     "owner_reported": "The existing domain result remains authoritative for state and effects.",
+     "unknown": "Effects are unconfirmed; do not assume rollback."
+    },
+    "actions": {
+     "correct_input": "Correct the named input and retry only the eligible request.",
+     "confirm_target": "Supply the confirmed target_source and absolute primary_target; ask for a missing target choice.",
+     "refresh_binding": "Read the current state and refresh the binding or presentation; obtain a new approval where required.",
+     "obtain_authority": "Obtain the required permission, capability or deliberate human decision; do not bypass it.",
+     "inspect_operation": "Inspect operation-status with the original UUID and retain the exact payload before any eligible recovery.",
+     "retry_after_prerequisite": "Wait for the stated resource or execution prerequisite; retry only when eligible and effects are known.",
+     "repair_runtime": "Use the supported exact-version runtime repair, then recheck before retrying.",
+     "stop": "Stop and inspect supported diagnostics. Do not invent a repair, target or replacement operation."
+    },
+    "causes": {
+     "operation_source_invalid": "Check the referenced path, UTF-8 content and current canonical digest. Re-read the source reference; do not invent a path or hash.",
+     "presentation_missing": "Read the current binding and prepare its presentation. Obtain the required bound human reply before approval; do not substitute an old presentation.",
+     "closeout_not_ready": "Read the current gate and missing prerequisites. Complete required evidence and human decisions before closeout; this attempt cannot complete the Run."
+    }
    }
   },
   "de": {
@@ -2641,6 +2664,29 @@
     "previewQuestions": "Offene Fragen",
     "previewUnsupported": "Dieser Host konnte die isolierte Vorschau nicht anzeigen. Unterstützten Zugang zu derselben geprüften Version verwenden.",
     "previewLoading": "Die isolierte Vorschau wird geöffnet…"
+   },
+   "mcpErrors": {
+    "failure": "AGDF-Tool fehlgeschlagen:",
+    "effects": {
+     "not_dispatched": "Dieser Versuch hat keine Operation gestartet.",
+     "owner_reported": "Das fachliche Ergebnis bleibt für Zustand und Wirkung maßgeblich.",
+     "unknown": "Die Wirkung ist unbestätigt; kein Rollback annehmen."
+    },
+    "actions": {
+     "correct_input": "Die genannte Eingabe korrigieren und nur die zulässige Anfrage wiederholen.",
+     "confirm_target": "Bestätigte target_source und absolutes primary_target angeben; eine fehlende Zielentscheidung erfragen.",
+     "refresh_binding": "Aktuellen Stand lesen und Bindung oder Vorlage erneuern; nötige Freigabe neu einholen.",
+     "obtain_authority": "Erforderliche Berechtigung, Host-Fähigkeit oder bewusste menschliche Entscheidung einholen; nicht umgehen.",
+     "inspect_operation": "Zuerst operation-status mit der ursprünglichen UUID prüfen und den exakten Payload vor zulässiger Wiederaufnahme erhalten.",
+     "retry_after_prerequisite": "Die genannte Ressourcen- oder Ausführungsvoraussetzung abwarten; nur bei bekannter Wirkung zulässig wiederholen.",
+     "repair_runtime": "Den unterstützten Reparaturweg für eine versionsgleiche Runtime verwenden, danach vor Wiederholung erneut prüfen.",
+     "stop": "Stoppen und unterstützte Diagnosen prüfen. Keine Reparatur, kein Ziel und keine Ersatzoperation erfinden."
+    },
+    "causes": {
+     "operation_source_invalid": "Referenzierten path, UTF-8-Inhalt und aktuellen digest prüfen. Quellreferenz erneut lesen; keinen Pfad oder Hash erfinden.",
+     "presentation_missing": "Aktuelle Bindung und Präsentation vorbereiten. Gebundene menschliche Antwort vor der Freigabe einholen; keine alte Präsentation einsetzen.",
+     "closeout_not_ready": "Aktuelles Gate und fehlende Voraussetzungen lesen. Erforderliche Nachweise und menschliche Entscheidungen vor dem Abschluss erfüllen; jetzt kein Abschluss."
+    }
    }
   }
  }

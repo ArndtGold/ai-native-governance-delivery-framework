@@ -1,0 +1,19 @@
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[1648.279,1354.421,1429.188,2258.874,1815.426,1159.211,1042.542,986.862,893.913,977.648,844.302,846.518,867.755,882.732,817.484,839.602,839.003,852.712,879.731,856.264],"cold_p95_ms":1815.426,"warm_dispatch_ms":[1137.732,745.513,777.58,714.225,723.622,703.348,732.887,755.421,800.964,735.176,765.735,743.29,707.161,698,767.051,746.042,716.429,722.851,727.483,861.416],"warm_p95_ms":861.416}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 1815.426152
+    at file:///private/tmp/agdf-mcp-timing-pair-ejrklazg/source/packages/mcp-server/test/performance.test.js:49:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

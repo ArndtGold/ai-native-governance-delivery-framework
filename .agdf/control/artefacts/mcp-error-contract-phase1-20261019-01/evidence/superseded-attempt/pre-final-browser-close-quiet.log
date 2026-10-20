@@ -1,0 +1,41 @@
+npm notice run agdf-control-ui@0.0.0 test:browser
+npm notice run playwright test test/browser/decision-close-integration.spec.mjs
+
+Running 2 tests using 1 worker
+
+(node:14295) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/decision-close-integration.spec.mjs:15:1 › Automatic iframe disposal reaches the actual assembled Core and expires only its own view (synthetic host) (55.2s)
+  ✘  2 test/browser/decision-close-integration.spec.mjs:83:1 › Confirmed approval handoff retires its assembled Core session while keeping the receipt and exact historical document (synthetic host) (1.4m)
+
+
+  1) test/browser/decision-close-integration.spec.mjs:83:1 › Confirmed approval handoff retires its assembled Core session while keeping the receipt and exact historical document (synthetic host) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('iframe').contentFrame().getByText('Decision saved.', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('iframe').contentFrame().getByText('Decision saved.', { exact: true }) with timeout 5000ms
+      - waiting for locator('iframe').contentFrame().getByText('Decision saved.', { exact: true })
+
+
+      130 |       const frame = page.frameLocator('iframe');
+      131 |       await frame.getByRole('button', { name: view.labels.approve, exact: true }).click();
+    > 132 |       await expect(frame.getByText(view.labels.confirmed, { exact: true })).toBeVisible();
+          |                                                                             ^
+      133 |       await expect(frame.getByText(view.labels.nextRequested, { exact: true })).toBeVisible();
+      134 |       expect(await page.evaluate(() => window.coreHandoffs.length)).toBe(2);
+      135 |       const closes = exchange.filter(row => row.request.arguments?.operation === 'close');
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:132:77
+        at withStdioClient (/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server/test/helpers.js:52:5)
+        at /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/control-ui/test/browser/decision-close-integration.spec.mjs:107:5
+
+    Error Context: test-results/decision-close-integration-de8c8-al-document-synthetic-host-/error-context.md
+
+  1 failed
+    test/browser/decision-close-integration.spec.mjs:83:1 › Confirmed approval handoff retires its assembled Core session while keeping the receipt and exact historical document (synthetic host) 
+  1 passed (2.5m)

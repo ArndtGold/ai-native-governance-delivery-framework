@@ -2,6 +2,7 @@ import { extractField } from './verified-change.js';
 import { cleanStatusCell, filled, isPlaceholderValue, markdownSection, tableRows } from './shared.js';
 import { canonicalJson, digest } from '../control-state/approval-command-contract.js';
 import { readReportDecision } from './report-decision.js';
+import { inspectQaReports } from './qa-follow-up.js';
 
 export const closeoutConfirmation = (runId, revisionId, operationId, orDigest) => `Close Run: ${runId} ${revisionId} ${operationId} ${orDigest}`;
 const value = (text, field, label) => cleanStatusCell(extractField(text, field) || (label ? text.match(new RegExp(`^${label}:[ \\t]*(.*)$`, 'mu'))?.[1] : ''));
@@ -54,6 +55,10 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
       || value(report, 'accepted_qa_deviations_digest') !== state.qa_acceptance.digest)) fail('closeout_qa_deviations_not_disclosed');
     const qaAssociation = state.evidence_applicability?.by_step.get('QA');
     if (qaAssociation && qaAssociation.applicability !== 'current') fail('closeout_qa_association_not_current');
+    if (prepared && !state.qa_acceptance?.accepted) {
+      const quality = inspectQaReports('', state, state.run_id, 'pass', 64, true, { readArtefact });
+      if (quality.kind !== 'none' || quality.findings.length) fail('closeout_quality_unconfirmed');
+    }
     const context = closeoutContext(report);
     if (!['resolved', 'not_applicable'].includes(context.context_graph_reconciliation)
       || !['none', 'warning'].includes(context.context_graph_gate_effect) || context.context_graph_required_action !== 'none'

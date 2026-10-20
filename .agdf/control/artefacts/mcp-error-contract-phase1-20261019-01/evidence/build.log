@@ -1,0 +1,77 @@
+npm notice run build
+npm notice run node scripts/verify-ci.mjs --profile build
+[verify-ci] ui-dependencies
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 213 packages, and audited 214 packages in 17s
+
+107 packages are looking for funding
+  run `npm fund` for details
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+[verify-ci] ui-dependencies passed (18.6s)
+[verify-ci] ui-build
+npm notice run agdf-control-ui@0.0.0 build:mcp
+npm notice run node scripts/build-mcp.mjs
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 443 modules transformed.
+rendering chunks...
+✓ built in 1.25s
+{"schema_version":"1","uri":"ui://agdf/cockpit/v1.html","mime_type":"text/html;profile=mcp-app","bytes":1248647,"digest":"sha256:3bd59dc39ff946afacbd4806cfdf371f95f0808dbc62d549feba77b7e144d8ab","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 419 modules transformed.
+rendering chunks...
+✓ built in 910ms
+{"schema_version":"1","uri":"ui://agdf/decision/v1.html","mime_type":"text/html;profile=mcp-app","bytes":945203,"digest":"sha256:9fdd104eaaaf6c5793935717740dc1224fcfcb6385f522cc35e4b45db7136345","source_digest":"sha256:5818ad90fefec874d3f1a2b038f815c752610f4ebcdc10c05192cb879008ffc6"}
+[verify-ci] ui-build passed (6.5s)
+[verify-ci] generate
+[verify-ci] generate passed (6.8s)
+[verify-ci] build-contracts
+Build contracts passed (source references, three generated surfaces, 14 late-gate scenarios).
+[verify-ci] build-contracts passed (71.3s)
+[verify-ci] evals
+npm notice run create-agdf@0.14.5 eval:skills
+npm notice run node ../../evals/scripts/run-skill-evals.js
+AGDF skill evals: pass (113/113 cases; 14 skills; deterministic replay, not live host execution)
+[verify-ci] evals passed (1.4s)
+[verify-ci] compatibility-freshness
+npm notice run compatibility:check
+npm notice run node scripts/host-compatibility/run.mjs check
+{
+  "status": "pass",
+  "scenarios": {
+    "evaluated": 56,
+    "failed": 0
+  },
+  "source_fingerprint": "3e012732065a197940e6246b599d770564878d07b308deb7ba6b9ab7e839a1ed"
+}
+[verify-ci] compatibility-freshness passed (3.4s)
+[verify-ci] assemble
+[
+  {
+    "name": "create-agdf",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+[verify-ci] assemble passed (3.6s)

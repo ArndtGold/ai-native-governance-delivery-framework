@@ -101,7 +101,7 @@ for (const selection of [
 ]) {
   const before = calls;
   const accepted = await client.callTool({ name: "agdf_inspect", arguments: { ...inspectBase, ...selection } });
-  assert.equal(accepted.isError, undefined, JSON.stringify(selection));
+  assert.equal(accepted.isError, true, JSON.stringify(selection));
   assert.equal(accepted.structuredContent.authorizes, false);
   assert.equal(accepted.structuredContent.terminal, true, "unresolved targets stop");
   assert.equal(accepted.structuredContent.host_action.mode, "transmit_presentation_verbatim_and_stop");

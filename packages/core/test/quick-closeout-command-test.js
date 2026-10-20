@@ -79,6 +79,7 @@ try {
   assert.equal(runCli('run-approve', '--gate', 'UR', '--revision', cliRevision(), '--presentation', presentation.presentation_id, '--response', 'Approval: UR').outcome, 'approved');
   writeFileSync(join(root, cliPrefix, 'CODE_REVIEW.md'), '# Code Review\n- decision: pass\n');
   assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'review', '--decision', 'pass', '--evidence', 'Synthetic diff reviewed', '--source', `${cliPrefix}CODE_REVIEW.md`).outcome, 'recorded');
+  assert.match(readFileSync(cliPath, 'utf8'), /^\| CR \| +\| done \|/m, 'the CLI review step registers no CR file');
   const cliDispatch = () => core.dispatch({ skillId: 'gate-check', presentationLanguage: 'en', workingDirectory: root, primaryTarget: root,
     targetSource: 'continued_target', runId: cliRun, continueDelivery: true, surface: 'codex', expectedVersion: core.resources.pluginDefinition.version,
     skillSet: core.resources.pluginDefinition.skillSet, interactionLocales: core.resources.interactionLocales });
@@ -87,6 +88,7 @@ try {
   assert.equal(cliCloseout.continuation.skill_id, 'release-or');
   assert.deepEqual(cliCloseout.continuation.source_artifacts.map(source => source.type), ['UR', 'Brownfield Review']);
   assert.equal(runCli('run-step', '--revision', cliRevision(), '--step', 'closeout', '--result', 'Synthetic subtraction complete.', '--evidence', 'Disposable test result recorded.', '--risk', 'none', '--next', 'Optional VCS handoff.').current_gate, 'OR');
+  assert.equal(runSealState(root, readFileSync(cliPath, 'utf8')).status, 'valid');
   assert.equal(evaluateGateCheck(root, { runId: cliRun }).completion.fulfilled, true);
   assert.equal(cliDispatch().terminal, true);
   console.log('Actual disposable Quick command chain, mandatory CR, exact OR-lite confirmation, receipt replay and completed/backlog projection passed. No VCS command executed.');

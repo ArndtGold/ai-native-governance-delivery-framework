@@ -55,7 +55,10 @@ export function compactContinuation(root, report, input) {
       validation_commands: extractField(current.content, 'validation_commands'),
       escalation_target: evaluated.escalation_target,
     };
-  } else if (closeout) read('CR');
+  } else if (closeout && state.artefacts.get('CR')?.path) {
+    // The CLI review step records a done Code Review without a file; bind CR only when one is registered.
+    read('CR');
+  }
   return {
     phase: implementation ? 'compact_implementation' : 'compact_closeout',
     skill_id: implementation ? 'gate-check' : 'release-or',

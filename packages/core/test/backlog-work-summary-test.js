@@ -73,6 +73,13 @@ try {
   assert.equal(bounded.kind, 'source_unconfirmed'); assert.equal(bounded.sources.length, 64);
   pass('missing QA registration, invalid UTF-8, oversized report and bounded reference set stay explicit');
   writeFileSync(qa, report('pass'));
+  // A structured QA approval request waits for both reviews that closeout requires.
+  assert.equal(runWorkSummary(f.root, candidate('pass'), f.runPath).kind, 'work_pending');
+  for (const step of ['TP Review', 'Clean Implementation Review']) {
+    const path = prefix + step.replaceAll(' ', '_') + '.md';
+    writeFileSync(join(f.root, path), '# Evidence\n- decision: pass\n');
+    source = upsertTableRow(source, 'Artefacts', 0, step, [step, path, 'done', '']);
+  }
   assert.equal(runWorkSummary(f.root, candidate('pass'), f.runPath).kind, 'approval_pending');
   let approvedQa = upsertTableRow(candidate('pass'), 'Approvals', 0, 'QA', ['QA', 'approved', 'isolated fixture']);
   assert.equal(runWorkSummary(f.root, approvedQa, f.runPath).phase, 'UAT');

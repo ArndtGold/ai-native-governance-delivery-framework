@@ -1,0 +1,44 @@
+## Kurzfassung · UAT
+
+Run: `core-approval-lock-defects-20261017-01` · Gate: `UAT` · Revision: `5627a012-5b43-4ea7-8a64-11b45a5e09cc`
+
+- Ziel: Jeder Fehler wird an der frühesten sinnvollen Stelle erkannt oder tritt nicht mehr auf. Eine Zusammenfassung, deren später benötigte Felder nicht lesbar sind, wird vor `Approval: UR` mit einer genauen Meldung abgelehnt. Die Quality Readiness zeigt die tatsächlich erfasste Review-Entscheidung. Die Sperre eines vom Server aufgegebenen Workers blockiert spätere Schreibvorgänge nicht mehr, die Sperre eines lebenden Schreibers bleibt geschützt. Ein strukturierter Run kann nicht mehr über QA hinaus in einen Closeout geführt werden, den er nie aufzeichnen kann; ein Run, der schon in diesem Zustand ist, hat einen geregelten Weg zum Abschluss.
+- Geliefertes Ergebnis: D1: Unbekannte und qualifizierte Schlüssel beenden die lokalisierte Zusammenfassung nicht mehr; UR und QA lehnen unlesbare Pflichtfelder vor der Freigabe mit der erwarteten Zeile ab. D2: Ein mit done erfasstes Review gilt als bestanden. D3: Der MCP-Worker gibt eine verwaiste eigene Schreibsperre nach dem tatsächlichen Worker-Ende frei. D4: Approval: QA erst nach TP Review und Clean Implementation Review; bereits freigegebene Runs können fehlende Reviews nachtragen und abschließen. Alle zehn TP-Aufgaben erledigt; Code Review mit 19 behobenen Befunden, TP Review und Clean Implementation Review bestanden; alle Suiten grün bis auf den bekannten, maschinenabhängigen Performance-Test F09, der laut A/B-Vergleich keine Regression ist.
+- Technische QA: pass
+- Nachweisgrenzen: Nur Windows und Node 22 im Worktree geprüft; GitHub-CI nicht gelaufen, weil nichts committet ist; der Fix ist noch nicht installiert, der Run mcp-ergonomics-baseline-20261016-01 wurde nicht repariert; die Sackgasse ist nur mit einem nachgebildeten alten Core im Test nachgestellt; Reviews durch Agenten ohne menschliches Code Review.
+- Risiken und offene Punkte: Nachgetragene Reviews entstehen nach einer menschlichen Entscheidung und müssen im OR offengelegt werden; ein nachgetragenes nicht bestandenes Review hält den Abschluss dauerhaft an; ein abgebrochener Worker hinterlässt pro Fall einen offenen Datei-Handle; Performance-Test F09 bleibt maschinenabhängig; die Änderung ist uncommittet.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 14
+
+- QA: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/QA_REPORT.md · sha256:9ed206f3dc33c76ac9f36d3341799e48ff05e41aa8d89a7e3b011eb05a508b37
+- UR: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md · sha256:53d8c2ae91f23b9fe707ff92ba57284a2c23788ea26e5276c5ab3aebaf8cabf3
+
+## Vorliegende UAT-Evidenz
+
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_ANALYSIS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Review, UX Intent Definition · Stärke: exact cooperative association
+- CD+Tests · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/CD_TESTS.md · Deckt ab: UR, PRD, SD, TP, Brownfield Analysis · Stärke: exact cooperative association
+- CR · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/CODE_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- TP Review · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- Clean Implementation Review · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/CLEAN_IMPLEMENTATION_REVIEW.md · Deckt ab: UR, PRD, SD, TP, CD+Tests · Stärke: exact cooperative association
+- QA · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/QA_REPORT.md · Deckt ab: UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR · Stärke: exact cooperative association
+- Brownfield Analysis · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_ANALYSIS.md · Deckt ab: writer_owned_result_superseded · Stärke: ersetzt
+- Run creation · Quelle: run-create · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Gate request_change · Quelle: presentation d188f114-4dba-4e3f-8b97-5182de2a1812 · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- UR draft · Quelle: `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/SD_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Brownfield Review · Quelle: `.agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md` · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/TP_DERIVATION_REVIEW-02.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt
+- Artefact source binding · Quelle: .agdf/control/artefacts/core-approval-lock-defects-20261017-01/QA_DERIVATION_REVIEW-01.json · Deckt ab: no_writer_owned_association · Stärke: Zuordnung unbekannt

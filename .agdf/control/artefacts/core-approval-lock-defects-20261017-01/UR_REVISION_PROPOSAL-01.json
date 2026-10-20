@@ -1,0 +1,158 @@
+{
+  "schema_version": "2",
+  "policy_version": 2,
+  "initiating_phase": "PRD",
+  "target_id": "sha256:576b08a6b06a094d8ff6d723da764807869b3b5a2fe9a481316a4ad038b7a6ba",
+  "run_id": "core-approval-lock-defects-20261017-01",
+  "expected_revision_id": "14584006-cf12-4169-8054-fbe7c6b9f4f3",
+  "operation_id": "2a2f700b-05bf-42c1-9f28-a8d022314797",
+  "source_gate": "UR",
+  "reason": "Owner decision 2026-10-17: add a fourth AGDF core defect (D4) to this run. A structured run can reach a closeout dead end: QA and UAT approval are possible without TP Review and Clean Implementation Review, but closeout.record requires both with a pass decision, and internalStepEligibility no longer allows recording them once QA or UAT is approved (observed in run mcp-ergonomics-baseline-20261016-01).",
+  "intended_change": "Extend the UR with D4: problem statement, goal, scope item, acceptance signal, sources and risks for making the review requirement consistent between QA/UAT readiness and OR closeout (SD decides: block QA presentation without the reviews on structured routes, keep the reviews recordable before closeout, or both) with a regression test for the dead end. D1 to D3 stay unchanged in substance; the summary is updated accordingly.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+      "digest": "sha256:27603420814dc502caa8dff5a1e4a2b98312430e32efe32fbcd0bb2962c6f926"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD.md",
+      "digest": "sha256:33cd43965c7e16d2e3e698c64f9fd15a9c4bf7a063e9da0f6a45ecefd206a47a"
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Claude Code agent (claude-opus-5-5), cooperative impact review for Arndt Gold",
+    "earliest_source": "UR",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:6b141fe89d83134bab5f87853d91fbebc90e2ad977c8952977f7a25272b562ad",
+        "disposition": "reassess",
+        "reason": "A UR revision requires a fresh post-UR Brownfield Review; D4 adds closeout-readiness and internal-step eligibility owners."
+      }
+    ],
+    "implementation_evidence": "No implementation, tests or review results exist yet in this run; nothing to invalidate.",
+    "unresolved": []
+  },
+  "changed_statements": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+      "digest": "sha256:27603420814dc502caa8dff5a1e4a2b98312430e32efe32fbcd0bb2962c6f926",
+      "statement": "While closing run `mcp-ergonomics-baseline-20261016-01` on 2026-10-16/17, three AGDF core defects surfaced. That run is completed separately; its artefacts, approvals and receipts remain historical evidence and are not changed here.",
+      "intended_change": "State four defects and add the D4 problem paragraph (closeout dead end without TP Review and Clean Implementation Review).",
+      "reason": "Owner decision 2026-10-17: add a fourth AGDF core defect (D4) to this run. A structured run can reach a closeout dead end: QA and UAT approval are possible without TP Review and Clean Implementation Review, but closeout.record requires both with a pass decision, and internalStepEligibility no longer allows recording them once QA or UAT is approved (observed in run mcp-ergonomics-baseline-20261016-01)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+      "digest": "sha256:27603420814dc502caa8dff5a1e4a2b98312430e32efe32fbcd0bb2962c6f926",
+      "statement": "Each defect is either detected at the earliest point where it can be corrected cheaply, or it no longer occurs:",
+      "intended_change": "Add the D4 goal: a structured run cannot be approved past QA into a closeout it can never record; a run already in that state has a governed way to close.",
+      "reason": "Owner decision 2026-10-17: add a fourth AGDF core defect (D4) to this run. A structured run can reach a closeout dead end: QA and UAT approval are possible without TP Review and Clean Implementation Review, but closeout.record requires both with a pass decision, and internalStepEligibility no longer allows recording them once QA or UAT is approved (observed in run mcp-ergonomics-baseline-20261016-01)."
+    },
+    {
+      "type": "UR",
+      "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+      "digest": "sha256:27603420814dc502caa8dff5a1e4a2b98312430e32efe32fbcd0bb2962c6f926",
+      "statement": "4. Implementation happens on the feature branch `fix/agdf-core-approval-defects-20261017` in its own worktree, not on `main`. The owner commits.",
+      "intended_change": "Insert the D4 scope item before this item; acceptance signals, sources, risks and the localized summary gain the matching D4 statements.",
+      "reason": "Owner decision 2026-10-17: add a fourth AGDF core defect (D4) to this run. A structured run can reach a closeout dead end: QA and UAT approval are possible without TP Review and Clean Implementation Review, but closeout.record requires both with a pass decision, and internalStepEligibility no longer allows recording them once QA or UAT is approved (observed in run mcp-ergonomics-baseline-20261016-01)."
+    }
+  ],
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:6b141fe89d83134bab5f87853d91fbebc90e2ad977c8952977f7a25272b562ad",
+        "status": "done"
+      },
+      "record_digest": "sha256:59cea55d93c29f919af3e482042a389870cfd125aaa991f3c6045e1efe8fef9c",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "The UR scope grows by D4; every current analysis and evidence row must be reassessed against the revised UR."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:29bbd243dd4ed7ca3e417246f83aa5050d96d28ee433a6921c5596bc5ffd0e96",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "The UR scope grows by D4; every current analysis and evidence row must be reassessed against the revised UR."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/UR.md",
+        "digest": "sha256:27603420814dc502caa8dff5a1e4a2b98312430e32efe32fbcd0bb2962c6f926",
+        "status": "documented"
+      },
+      "record_digest": "sha256:d9fd224eefd3ff40b5f1f166d46ccdb6fd4437fcd1b507ca946221cef2b5066b",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "The UR scope grows by D4; every current analysis and evidence row must be reassessed against the revised UR."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:6b141fe89d83134bab5f87853d91fbebc90e2ad977c8952977f7a25272b562ad",
+        "status": "documented"
+      },
+      "record_digest": "sha256:02d76ea027e120888d7b01758dc6a9900f4c4ce4b54da54c41de51d87939c21d",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "The UR scope grows by D4; every current analysis and evidence row must be reassessed against the revised UR."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/artefacts/core-approval-lock-defects-20261017-01/PRD_DERIVATION_REVIEW-01.json",
+        "digest": "sha256:c59fcf3c2a7ad920d69a760df6549e3b94defc14c40fad0b06bc28131bbc2382",
+        "status": "documented"
+      },
+      "record_digest": "sha256:2e0fdcf03f0c4e1243f1b26a785900c04b034deeb12ef30554d8ba5c0ddede6c",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "The UR scope grows by D4; every current analysis and evidence row must be reassessed against the revised UR."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": "",
+        "digest": null,
+        "status": "documented"
+      },
+      "record_digest": "sha256:41ee1f06380fa207febfb2d9c14518a23af7d1a9fd1b091dd0d6bc4b1f5b4ee8",
+      "operation_id": null,
+      "source_set_digest": null,
+      "sources": [],
+      "association": "applicability_unknown",
+      "disposition": "reassess",
+      "reason": "The UR scope grows by D4; every current analysis and evidence row must be reassessed against the revised UR."
+    }
+  ]
+}

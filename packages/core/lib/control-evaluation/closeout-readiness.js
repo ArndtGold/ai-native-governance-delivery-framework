@@ -2,7 +2,10 @@ import { extractField } from './verified-change.js';
 import { cleanStatusCell, filled, isPlaceholderValue, markdownSection, tableRows } from './shared.js';
 import { canonicalJson, digest } from '../control-state/approval-command-contract.js';
 import { readReportDecision } from './report-decision.js';
+import { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType } from '../control-state/evidence-bindings.js';
 import { inspectQaReports } from './qa-follow-up.js';
+
+export { STRUCTURED_REQUIRED_REVIEWS, reviewArtefactType };
 
 export const closeoutConfirmation = (runId, revisionId, operationId, orDigest) => `Close Run: ${runId} ${revisionId} ${operationId} ${orDigest}`;
 const value = (text, field, label) => cleanStatusCell(extractField(text, field) || (label ? text.match(new RegExp(`^${label}:[ \\t]*(.*)$`, 'mu'))?.[1] : ''));
@@ -39,9 +42,9 @@ export function evaluateCloseoutReadiness(state, report, readArtefact, { prepare
       if (gate !== 'UAT' && (!state.artefacts.get(gate)?.path || !(gate === 'QA' && state.qa_acceptance?.accepted)
         && !['approved', ...(gate === 'QA' ? ['pass'] : [])].includes(state.artefacts.get(gate)?.status))) fail(`closeout_${gate.toLowerCase()}_artefact_missing`);
     }
-    const steps = ['Brownfield Analysis', 'CD+Tests', 'CR', ...(prepared ? ['TP Review', 'Clean Implementation Review'] : [])];
+    const steps = ['Brownfield Analysis', 'CD+Tests', 'CR', ...(prepared ? STRUCTURED_REQUIRED_REVIEWS : [])];
     for (const step of steps) {
-      const row = state.artefacts.get(step), association = state.evidence_applicability?.by_step.get(step);
+      const type = reviewArtefactType(state, step), row = state.artefacts.get(type), association = state.evidence_applicability?.by_step.get(type);
       const acceptedPlan = step === 'TP Review' && state.qa_acceptance?.accepted && row?.status === 'revise';
       if (!row || !acceptedPlan && !['done', ...(step === 'Brownfield Analysis' ? ['not_applicable'] : [])].includes(row.status) || association && association.applicability !== 'current') fail('closeout_review_unfulfilled:' + step);
       if (prepared && row?.status !== 'not_applicable') {

@@ -2,7 +2,7 @@
 
 Date: 2026-10-21
 Run: release-0200-codex-claude-20261020-01
-Status: three Codex implementation blockers repaired; final local CLI diagnostics 5/5 pass; native release qualification pending
+Status: Claude CLI on native Windows 5/5 validator-accepted (review/import pending); Desktop Code and Codex native release qualification pending
 Gate authority: none; this report does not approve QA, UAT, OR or publication.
 
 ## Prepared scope
@@ -83,7 +83,7 @@ The existing payload-budget owner recorded that assessment. Experimental-host co
 |---|---|---|---|
 | Codex CLI, native Linux; 0.157.1 / gpt-6-luna | Five cases | 0 | Pending |
 | Codex CLI, native Windows; 0.157.1 / gpt-6-luna | Five cases | 0 | Pending |
-| Claude CLI, native Windows on the other computer | Five cases | 0 | Pending |
+| Claude CLI, native Windows on the other computer | Five cases | 5 validator-accepted on candidate 5961f391; review/import pending | Review pending |
 | Claude Code in Windows Desktop app | Session, upgrade, recovery | 0 | Pending |
 
 The Windows app/CLI versions and actual model remain to be captured and frozen by preflight on
@@ -187,3 +187,23 @@ The formal release validator still rejects the local candidate as candidate_sour
 The required pinned Linux/Windows Codex matrix and the other computer's Windows Claude CLI/Desktop
 records remain open: accepted release observations are still 0/10 and 0/8. CD+Tests remains revise;
 reviews, QA, UAT and OR remain incomplete. Copilot and OpenCode remain experimental.
+
+## Claude CLI on native Windows (2026-10-21)
+
+Five Claude CLI release cases ran once each on the Windows test computer against the clean
+candidate 5961f3913205b6c741e16b44a85849ad65fbbbc2eafa33ccb7e627128a5dc7ea (source bbeae23e, head
+of PR #27). Tuple: Claude Code 2.1.302, claude-sonnet-5-5, win32/x64, Node v22.22.3. All five
+pass, and the release validator accepts each record; every removal is complete. The cases ran
+outside the packaged Claude Desktop app, whose install refusal remains in force.
+
+Two evidence-tooling defects were fixed first (bbeae23e): Claude error replies are now decoded,
+and executed calls are compared with the candidate's MCP dispatcher digest instead of the plugin
+runtime manifest digest. PR #27 also fixes the Windows owner lifetime and hides the facade console
+window (486b1965). The earlier attempt on candidate 0162491b (0/5 accepted) is retained.
+
+[Current CD+Tests report](CD_TESTS_CLAUDE_CLI_WINDOWS_INPUT.md),
+[evidence index](evidence/CLAUDE_CLI_WINDOWS_20261021/INDEX.json).
+
+Accepted release observations are now Codex 0/10, Claude CLI 5/5 pending review and Desktop 0/3.
+Import needs the complete Claude matrix and a completed review record. CD+Tests remains revise;
+reviews, QA, UAT and OR remain incomplete.

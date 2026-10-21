@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "evidence_class": "native_release_observation",
+  "release_qualified": false,
+  "review": "pending",
+  "candidate_id": "5961f3913205b6c741e16b44a85849ad65fbbbc2eafa33ccb7e627128a5dc7ea",
+  "source": {
+    "commit": "bbeae23ecea52f76c1efb0c28c70f914b4ad6f0a",
+    "dirty": false
+  },
+  "surface": "claude-cli",
+  "os": "win32",
+  "final_scenarios": [
+    "dispatch",
+    "failure_case",
+    "skill_continuation",
+    "upgrade",
+    "recovery"
+  ],
+  "attempts": [
+    "attempts/candidate-0162491b",
+    "attempts/packaged-app-refusal"
+  ],
+  "line_endings": "lf",
+  "files": [
+    {
+      "path": "CANDIDATE.json",
+      "bytes": 865405,
+      "sha256": "bc355dd370b71e04d3efbbb88ed8b63329e3f5dcc31ea691dc8c3cdca6d72828"
+    },
+    {
+      "path": "REQUIRED_CASES.json",
+      "bytes": 833,
+      "sha256": "4cac00bb97c179448e2a055848f65c84046b690c125ef201d7eb9614bca05b8c"
+    },
+    {
+      "path": "TUPLE_CLI.json",
+      "bytes": 387,
+      "sha256": "06766eb62e5a7874c2373b87c90be67adc80920594fd498516dfed4e26b5a4d4"
+    },
+    {
+      "path": "VALIDATION.log",
+      "bytes": 518,
+      "sha256": "d9fc831dc98fc40d811730d0967afa152779f185d4b9bb0749afae9d24c874ff"
+    },
+    {
+      "path": "attempts/candidate-0162491b/CANDIDATE.json",
+      "bytes": 865291,
+      "sha256": "a86bd8ef8a06c8da747b2715f7439d124c78c2a168a9663a27fe3df16b529c4c"
+    },
+    {
+      "path": "attempts/candidate-0162491b/TUPLE_CLI.json",
+      "bytes": 387,
+      "sha256": "329f9bb65b52a25765ff47bbfb604224aabf12b4c5c97559c95a7513a891c4a5"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-cli-run.log",
+      "bytes": 1516,
+      "sha256": "fcc1561c8f4daa77639138e6abb8d30705bc8931f228a739b4ab060aec5a85a2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/dispatch-process.json",
+      "bytes": 97669,
+      "sha256": "281b3974fc78f75efc2cfbc1023c54b7f5995b4b0da51b25b11d9765ef6c9177"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/observation.json",
+      "bytes": 2051,
+      "sha256": "b035fb7bafd39838b001b7721316d1d2ef7998118a9204cc81b37c5673ffed3a"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/release-records.json",
+      "bytes": 3306,
+      "sha256": "365186417da8787c2d0b0129d2ccc36a05a66d27ab6be21d1d1e04069777dbbc"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/summary.txt",
+      "bytes": 202,
+      "sha256": "c6e91d537a39f60d8b6c9b6b4e9ad4835db5619477254da19d4675cbbe69c2c4"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-47-58-915Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/failure_case-process.json",
+      "bytes": 58548,
+      "sha256": "c63d75ced049e542de50f39ace9b9085622499850a4c202436f211f979a74f53"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/observation.json",
+      "bytes": 1984,
+      "sha256": "c7612bcd952c68afe9c14d202d3f93161d962bdf9d0624fabcfbbc014d8c2343"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/release-records.json",
+      "bytes": 3247,
+      "sha256": "9f9d8e3af16faa63f8f1af6bd892d2239ec5a0dd37c0dc2ad78fa73d6bc1efba"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/summary.txt",
+      "bytes": 206,
+      "sha256": "0986d22dcbd3a899b3a870aff89d3a123facacd5e27df776c8ef8650bfac0ae3"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-48-56-139Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/observation.json",
+      "bytes": 2075,
+      "sha256": "2deae926468257edfd96df6b1db4ed096ce4093c4a5864b66aa38d8b7d26c4b3"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/release-records.json",
+      "bytes": 3350,
+      "sha256": "be4c910d3fe16940d3c4a98774f28584bc5a6072d4a57ea693045645c085f8ea"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/skill_continuation-process.json",
+      "bytes": 115237,
+      "sha256": "d793bc10cd5d7b2db2ff329f7b9ef557a8c69357399a90eb7e534e233ee559a8"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/summary.txt",
+      "bytes": 212,
+      "sha256": "7f5a8b15e99e6ad91c9f303ee1dc477749e2d86fdc7d8e5219e6e0a566686fcd"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-49-52-645Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/observation.json",
+      "bytes": 2329,
+      "sha256": "9ae4194c05c9700f54d84b0161b4b5233ca86f0e2c173b9f1d3b4062b941f1ac"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/release-records.json",
+      "bytes": 3592,
+      "sha256": "0b5197556d4c8eb7ec73c1e01f30675587f2fc7fd2bd1fc7efcdd97dd6e493e2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/summary.txt",
+      "bytes": 201,
+      "sha256": "3f5a22dd46da1a7c9572e65f83f94583118aa115f25e36b6663015e6e351cda3"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-50-51-819Z/upgrade-process.json",
+      "bytes": 34430,
+      "sha256": "48608787bbde76023d7f98cb07c3d223d9066d117d7c9da573270ec9bce8f064"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/observation.json",
+      "bytes": 2489,
+      "sha256": "dc17ee1de1d607b21f99a4718b1199132b1881b14cec4c429021b5a4786b1d5e"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/recovery-process.json",
+      "bytes": 66806,
+      "sha256": "99f885e26364d0f7f33da993a36a2aa89fc30ba0a10daa5929f0a2c50a8223c0"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/release-records.json",
+      "bytes": 3770,
+      "sha256": "c913719a3cf45f47531bf4aeb7bd6cdd4fd39a18dd6fd54ddb1077c0d886be13"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/summary.txt",
+      "bytes": 215,
+      "sha256": "c6cb1b666abb4bd28400749c956bf34498a043e5b26157984ae1a6c548fa5ef3"
+    },
+    {
+      "path": "attempts/candidate-0162491b/claude-host-e2e-2026-10-21T11-52-05-100Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/claude-host-e2e-2026-10-21T11-44-56-159Z-no-candidate-packaged-app/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/claude-host-e2e-2026-10-21T11-44-56-159Z-no-candidate-packaged-app/observation.json",
+      "bytes": 2660,
+      "sha256": "66efd224bdc688390ff83aeca90db050457f40949cfcaea83c6d41943a23a84c"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/claude-host-e2e-2026-10-21T11-44-56-159Z-no-candidate-packaged-app/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/claude-host-e2e-2026-10-21T11-44-56-159Z-no-candidate-packaged-app/summary.txt",
+      "bytes": 246,
+      "sha256": "6abafacfe33582b2857f1783807ca58e79aeaaf898904a79f06bd063f5b6556e"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/claude-host-e2e-2026-10-21T11-44-56-159Z-no-candidate-packaged-app/uninstall-process.json",
+      "bytes": 147,
+      "sha256": "1f2a40cca82184be0b959cdb1adba4c20d7d8b5b14578664019bb9e596e8df83"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/diag-install-packaged-app/install.stderr",
+      "bytes": 207,
+      "sha256": "61b561eb4dd1c33e0bbeddf1acb9fce551e97ceaa6a775f8e0432819a01d2800"
+    },
+    {
+      "path": "attempts/packaged-app-refusal/diag-install-packaged-app/install.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/claude-cli-run.log",
+      "bytes": 1466,
+      "sha256": "4f84b72dd94f2f60fb6dd85329be2bc508e7874e3d069c84c74dd890e610a76d"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/dispatch-process.json",
+      "bytes": 66882,
+      "sha256": "d26463fd8e76ad47095df7c404bebbc0362a4fdfd5d4cba050f2938f6a777ad2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/observation.json",
+      "bytes": 2051,
+      "sha256": "448265f0874792b8d02b68793d71c2ab90abf96d5613d632f05dcf4bd736fb1e"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/release-records.json",
+      "bytes": 3306,
+      "sha256": "c1423b664b8f8c6b1aa2f58010362b09208014982c6635a88be3fd0962ba1c12"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/summary.txt",
+      "bytes": 204,
+      "sha256": "84a9b080b71430049ddc04f603378f2a6a985892236a6f9e4350fb6a150b0605"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-10-26-883Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/failure_case-process.json",
+      "bytes": 58550,
+      "sha256": "9bb41f4d60836fc562c18c2cf458aaf734fdc8e9610f2456ef55a9bcd4fb02a6"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/observation.json",
+      "bytes": 2058,
+      "sha256": "e6f05a80c4d9883e20f9f00f185820aa2e1aa1514f5d8a04a1682941dd8050d2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/release-records.json",
+      "bytes": 3321,
+      "sha256": "e2970a590bacb5d82cd9ad2c9d998e99aa042bc625f1123ed52bc34e6a6e386f"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/summary.txt",
+      "bytes": 208,
+      "sha256": "748d2a5c232a49e67cb06c34c71f3c355958dc8508d030946c57d319b84a5b97"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-11-38-474Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/observation.json",
+      "bytes": 2075,
+      "sha256": "5af05de38045ab532e268961b2a3de1acb7291b0edf456239f0aee28d1c12a56"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/release-records.json",
+      "bytes": 3350,
+      "sha256": "bff34dcdb10429a3fc4dc72edc170ecbc0cb149598425ac375d28730f135b5ad"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/skill_continuation-process.json",
+      "bytes": 115239,
+      "sha256": "338cc04104b8e70d2646930d574df9cc04a871f1cf29cbd27a773165a6b6298d"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/summary.txt",
+      "bytes": 214,
+      "sha256": "797d565cd9a351277bdc285108a2609e6c8819cf2ea16d0651b5178ca4cba9b9"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-12-52-583Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/observation.json",
+      "bytes": 2329,
+      "sha256": "d53e119fd7ec056408188dcac9f062f28ef44a37675e55ff58ee5a2a22ef1860"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/release-records.json",
+      "bytes": 3592,
+      "sha256": "3776f96ad076a91488acd037ea82c8cfd14c4a36774aceef8ddb8237b4121f59"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/summary.txt",
+      "bytes": 203,
+      "sha256": "a33bbf40d4e6a6d670375186c74d2ae84be21f64deb00309296ef97ac8db432c"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-14-14-357Z/upgrade-process.json",
+      "bytes": 66815,
+      "sha256": "a763293c5b5e9668de77a73e67c90ba8ae34ae507ae40901bb6a4e47beaadfdb"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/host-process.json",
+      "bytes": 72,
+      "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/observation.json",
+      "bytes": 2489,
+      "sha256": "c9a9a0f0d2eceac7df5b7db928eff02ff74f13e5b12168789d8031b095ced754"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/recovery-process.json",
+      "bytes": 66818,
+      "sha256": "fa0cc24bf87e9452ab81578053cb724d941e03cea2240a07a205790fc5324aab"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/release-records.json",
+      "bytes": 3770,
+      "sha256": "b4a90987f624777b4cfebd96c2bf9cdc7b3028f01927c7595e4f29edfe2b38f1"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/removal-process.json",
+      "bytes": 115,
+      "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/summary.txt",
+      "bytes": 217,
+      "sha256": "a31a15345a1003dd497b81d9f92166afdb5b76629da3fbc8d39b16d078b17ff3"
+    },
+    {
+      "path": "final/claude-host-e2e-2026-10-21T12-15-30-259Z/uninstall-process.json",
+      "bytes": 106,
+      "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+    },
+    {
+      "path": "final/run-claude-cli-cases.cmd",
+      "bytes": 880,
+      "sha256": "709397c40d104c205f4768f554352307787a55af405755e529093cb6f8572e01"
+    }
+  ],
+  "normalization": {
+    "line_endings": "lf",
+    "trailing_whitespace_trimmed": [
+      "final/claude-cli-run.log",
+      "attempts/candidate-0162491b/claude-cli-run.log"
+    ],
+    "primary_captures_unchanged": true
+  }
+}

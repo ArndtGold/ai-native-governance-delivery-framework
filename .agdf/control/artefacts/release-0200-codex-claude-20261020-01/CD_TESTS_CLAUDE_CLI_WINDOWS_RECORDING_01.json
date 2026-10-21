@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "presentation_language": "de",
+  "working_directory": "C:\\Workspace\\ai-native-governance-delivery-framework",
+  "primary_target": "C:\\Workspace\\ai-native-governance-delivery-framework",
+  "target_source": "current_repository",
+  "target_id": "sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10",
+  "run_id": "release-0200-codex-claude-20261020-01",
+  "expected_revision_id": "06bf1cb3-921a-420a-9ee4-b5904c69e73c",
+  "operation_id": "555d7fa3-404d-4791-97da-781f13168451",
+  "assurance": "cooperative_local",
+  "command": {
+    "kind": "step.record",
+    "payload": {
+      "step": "internal",
+      "internal_step": "CD+Tests",
+      "source": {
+        "path": ".agdf/control/artefacts/release-0200-codex-claude-20261020-01/CD_TESTS_CLAUDE_CLI_WINDOWS_INPUT.md",
+        "digest": "sha256:e8b845ac48901c1c0596a6a885b47b24c51bc8ca1cc2047f5dddde125d915e33"
+      },
+      "decision": "revise",
+      "reason": "Windows-Owner-Lebensdauer und verstecktes Facade-Konsolenfenster (PR #27, 486b1965) sowie zwei Defekte der nativen Nachweis-Tooling (bbeae23e) behoben. Fünf native Claude-CLI-Fälle unter Windows auf dem sauberen Kandidaten 5961f391 bestanden und vom Release-Validator einzeln angenommen. Desktop Code (0/3), Review und Import der Claude-Nachweise, Codex Linux/Windows (0/10) und die finale gemeinsame Referenz bleiben offen.",
+      "covers": "T-006, T-007, T-009, T-010 Claude CLI Windows 5/5 validator-angenommen; E-008, E-009 behoben; E-001, E-002, E-003 (Desktop 0/3, Review/Import) bleiben offen"
+    }
+  },
+  "prior_rejected_attempt": {
+    "operation_id": "6b28d8d2-3bab-43b6-8be4-fe04919236c7",
+    "reason": "target_binding_mismatch",
+    "note": "Used the macOS target_id sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19 from earlier receipts; no operation was started. The runtime's operation-contract binding for this Windows checkout is sha256:afb31873efa91d892b9046631268d79f1c8cb43aa392c0ef5e4d2fd500293f10."
+  }
+}

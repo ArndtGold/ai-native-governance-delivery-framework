@@ -302,7 +302,7 @@ export function supervisePluginMcpFacade({ runtime, surface, cockpitDir, cockpit
     let acknowledged = false;
     const child = Fork(join(runtime.dispatcherRoot, 'lib/mcp-lifecycle/facade-entry.js'),
       [JSON.stringify({ runtime, surface, cockpitDir, cockpitMode, pluginRoot, token: claim.token, deadline_ns: deadlineNs })],
-      { env, stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
+      { env, windowsHide: true, stdio: ['inherit', 'inherit', 'inherit', 'ipc'], execArgv: [] });
     claim.bindOwnedChild(child, { confirmedEnd: () => acknowledged && child.exitCode === 0 && child.signalCode === null });
     // Queue shutdown over the private channel. A signal can arrive before the
     // SDK child has installed its handlers and would erase teardown evidence.

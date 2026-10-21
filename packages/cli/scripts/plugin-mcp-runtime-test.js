@@ -317,9 +317,11 @@ for (const mode of ['orderly', 'terminated', 'killed', 'startup-stop', 'startup-
           if (reply.id === 1 && reply.result) { send({ method: 'notifications/initialized' }); send({ id: 2, method: 'tools/list', params: {} }); }
           if (reply.id === 2 && reply.result?.tools?.some(tool => tool.name === 'agdf_dispatch')) {
             ready = true;
+            // The facade inherits this stdin; keep it open after a launcher
+            // kill so only the private channel, not MCP EOF, can close it.
             if (mode === 'killed') child.kill('SIGKILL');
-            if (mode === 'terminated') child.kill('SIGTERM');
-            child.stdin.end();
+            else if (mode === 'terminated') child.kill('SIGTERM');
+            else child.stdin.end();
           }
         }
       });
@@ -332,7 +334,7 @@ for (const mode of ['orderly', 'terminated', 'killed', 'startup-stop', 'startup-
           const deadline = performance.now() + 9000;
           while ((!existsSync(claims) || !readdirSync(claims).length) && performance.now() < deadline) await new Promise(resolve => setTimeout(resolve, 10));
           if (!existsSync(claims) || !readdirSync(claims).length) throw Error('startup_claim_not_observed');
-          ready = true; child.kill(killed ? 'SIGKILL' : 'SIGTERM'); child.stdin.end();
+          ready = true; child.kill(killed ? 'SIGKILL' : 'SIGTERM');
         })().catch(reject);
       } else send({ id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'owned-exit-regression', version: '1' } } });
     });

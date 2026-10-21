@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "kind": "agdf_claude_host_e2e",
+  "recorded_at": "2026-10-21T13:39:43.358Z",
+  "requested_model": "claude-sonnet-5-5",
+  "source": {
+    "commit": "97454ec2fcb0b4e194219ad31d962d4d8c24cae3",
+    "dirty": false
+  },
+  "scenario": "upgrade",
+  "host": {
+    "client": "claude-code-cli",
+    "version": "2.1.302",
+    "os": "win32",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "agdf": {
+    "version": "0.20.0"
+  },
+  "model": "claude-sonnet-5-5",
+  "steps": [
+    {
+      "name": "host",
+      "status": "pass",
+      "evidence": {
+        "version": "2.1.302"
+      }
+    },
+    {
+      "name": "install",
+      "status": "pass",
+      "evidence": {
+        "result": "success",
+        "effective_state": "plugin_ready_mcp_in_plugin"
+      }
+    },
+    {
+      "name": "control_fixture",
+      "status": "pass",
+      "evidence": {
+        "init_status": 0,
+        "run_create_status": 0
+      }
+    },
+    {
+      "name": "discovery",
+      "status": "pass",
+      "evidence": {
+        "mcp_list": "plugin:agdf:agdf: node <WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js - √ Connected"
+      }
+    },
+    {
+      "name": "upgrade",
+      "status": "pass",
+      "evidence": {
+        "exec_status": 0,
+        "calls": 1,
+        "unexpected_tools": [],
+        "observed_models": [
+          "claude-sonnet-5-5"
+        ],
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "runtime_digest": "602c03f9d5348230ff77caf9c2fb2c870a6385ad84ece5e2e8b6ae15b9e900d0",
+        "contracts_verified": false,
+        "preserved_foreign_state": true,
+        "permission_preserved": true,
+        "baseline": {
+          "version": "0.14.5",
+          "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+          "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+        }
+      }
+    },
+    {
+      "name": "removal",
+      "status": "pass",
+      "evidence": {
+        "mcp_listed": false,
+        "plugin_data": false,
+        "enabled": false,
+        "permission_rules": 0,
+        "user_mcp": false,
+        "installed_entry": false,
+        "kept_by_design": "agdf marketplace registration"
+      }
+    }
+  ],
+  "result": "pass"
+}

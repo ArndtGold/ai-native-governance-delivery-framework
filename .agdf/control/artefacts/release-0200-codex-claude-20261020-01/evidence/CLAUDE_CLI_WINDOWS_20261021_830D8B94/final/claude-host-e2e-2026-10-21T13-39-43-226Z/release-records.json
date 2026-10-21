@@ -1,0 +1,118 @@
+[
+  {
+    "schema_version": 2,
+    "id": "claude-20261021133943358-upgrade",
+    "recorded_at": "2026-10-21T13:39:43.358Z",
+    "environment": {
+      "host": "claude",
+      "surface": "cli",
+      "os": "win32",
+      "arch": "x64",
+      "version": "2.1.302",
+      "node": "v22.22.3",
+      "model": "claude-sonnet-5-5"
+    },
+    "tuple_digest": "6d128179ec098bd0d52149937d0864fbe845bd740a5f49af7f53341ab916aa4a",
+    "source": {
+      "commit": "97454ec2fcb0b4e194219ad31d962d4d8c24cae3",
+      "dirty": false
+    },
+    "candidate_id": "830d8b9414a6e7b4eb4080ff5ce64daeb4b064cbf5fffc8680c4d2876604ebff",
+    "policy_digest": "2582e6a9a0f3dcaec123e0d9e6ee616c9a7052638d96cf6daf1e647bbef34a9e",
+    "scenario": "upgrade",
+    "result": "pass",
+    "assurance": "native_process",
+    "loaded_identity": {
+      "version": "0.20.0",
+      "source_digest": "52cc5b73757f8dd311b2ec7f443d56e56e213a42533bdf6a8da72fc96a436b8c",
+      "runtime_digest": "321c8d192356506de66d54aabe3c39eaf20f08afabde6934e5711c685e84ce68"
+    },
+    "steps": [
+      {
+        "name": "host",
+        "status": "pass",
+        "evidence": {
+          "version": "2.1.302"
+        }
+      },
+      {
+        "name": "install",
+        "status": "pass",
+        "evidence": {
+          "result": "success",
+          "effective_state": "plugin_ready_mcp_in_plugin"
+        }
+      },
+      {
+        "name": "control_fixture",
+        "status": "pass",
+        "evidence": {
+          "init_status": 0,
+          "run_create_status": 0
+        }
+      },
+      {
+        "name": "discovery",
+        "status": "pass",
+        "evidence": {
+          "mcp_list": "plugin:agdf:agdf: node <WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js - √ Connected"
+        }
+      },
+      {
+        "name": "upgrade",
+        "status": "pass",
+        "evidence": {
+          "exec_status": 0,
+          "calls": 1,
+          "unexpected_tools": [],
+          "observed_models": [
+            "claude-sonnet-5-5"
+          ],
+          "outcome": "control_result",
+          "terminal": true,
+          "authorizes": false,
+          "runtime_digest": "602c03f9d5348230ff77caf9c2fb2c870a6385ad84ece5e2e8b6ae15b9e900d0",
+          "contracts_verified": false,
+          "preserved_foreign_state": true,
+          "permission_preserved": true,
+          "baseline": {
+            "version": "0.14.5",
+            "integrity": "sha512-ZC1fPJc0544Gq3KIIQdUFrTT/RNXnZi4LDy2aw4HP4gB8r/4uyAzJwK0fo+F/ncUP/dyCmqKyUY9GMUxuDs13w==",
+            "source_digest": "26a67e664c7436a6ce8b0be5379c70b5a6c645a1b9e0dd2cab60a20863775289"
+          }
+        }
+      },
+      {
+        "name": "removal",
+        "status": "pass",
+        "evidence": {
+          "mcp_listed": false,
+          "plugin_data": false,
+          "enabled": false,
+          "permission_rules": 0,
+          "user_mcp": false,
+          "installed_entry": false,
+          "kept_by_design": "agdf marketplace registration"
+        }
+      }
+    ],
+    "references": [
+      {
+        "path": "host-process.json",
+        "sha256": "7525d5c821728116ccebaa1d6ca1b56e646208287734baa9bcf45745dfb16fcc"
+      },
+      {
+        "path": "removal-process.json",
+        "sha256": "f76f6d4e50af09407b166969937b393c5b763c6a9a5467bc1087bae5f2eb01a2"
+      },
+      {
+        "path": "uninstall-process.json",
+        "sha256": "f8d6e5885ddc34a87099327335f365f8a9931d1ca56d75d23bcc244aeea70c2d"
+      },
+      {
+        "path": "upgrade-process.json",
+        "sha256": "c24c111032c59f67e366bfa5055142d9a112a9cdbb9325ab2f7ef1e794ebb469"
+      }
+    ]
+  }
+]

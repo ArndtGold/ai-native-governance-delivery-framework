@@ -2,7 +2,7 @@
 
 Date: 2026-10-21
 Run: release-0200-codex-claude-20261020-01
-Status: Claude CLI on native Windows 5/5 validator-accepted (review/import pending); Desktop Code and Codex native release qualification pending
+Status: Claude CLI on native Windows 5/5 validator-accepted on candidate 830d8b94 (review/import pending); Desktop Code and Codex native release qualification pending
 Gate authority: none; this report does not approve QA, UAT, OR or publication.
 
 ## Prepared scope
@@ -83,7 +83,7 @@ The existing payload-budget owner recorded that assessment. Experimental-host co
 |---|---|---|---|
 | Codex CLI, native Linux; 0.157.1 / gpt-6-luna | Five cases | 0 | Pending |
 | Codex CLI, native Windows; 0.157.1 / gpt-6-luna | Five cases | 0 | Pending |
-| Claude CLI, native Windows on the other computer | Five cases | 5 validator-accepted on candidate 5961f391; review/import pending | Review pending |
+| Claude CLI, native Windows on the other computer | Five cases | 5 validator-accepted on candidate 830d8b94; review/import pending | Review pending |
 | Claude Code in Windows Desktop app | Session, upgrade, recovery | 0 | Pending |
 
 The Windows app/CLI versions and actual model remain to be captured and frozen by preflight on
@@ -207,3 +207,20 @@ window (486b1965). The earlier attempt on candidate 0162491b (0/5 accepted) is r
 Accepted release observations are now Codex 0/10, Claude CLI 5/5 pending review and Desktop 0/3.
 Import needs the complete Claude matrix and a completed review record. CD+Tests remains revise;
 reviews, QA, UAT and OR remain incomplete.
+## CI partition repair and current candidate (2026-10-21)
+
+Guardrails run 39600811858 on 4c725e68 exhausted the Windows Packages budget in the packed
+control-command suite. e3a0a632 splits that suite into three planned parts after the existing
+source/phase pattern, and 97454ec2 validates the part selector before loading fixtures. Guardrails
+run 39609232214 on 97454ec2 completed with 118/118 jobs successful.
+
+The five Claude CLI cases were repeated on the resulting clean candidate
+830d8b9414a6e7b4eb4080ff5ce64daeb4b064cbf5fffc8680c4d2876604ebff (source 97454ec2) with the same
+tuple. All five pass and are accepted by the release validator; every removal is complete. They
+replace the records for candidate 5961f391, which remain stored as superseded evidence.
+
+[Current CD+Tests report](CD_TESTS_CLAUDE_CLI_WINDOWS_830D8B94_INPUT.md),
+[evidence index](evidence/CLAUDE_CLI_WINDOWS_20261021_830D8B94/INDEX.json).
+
+Accepted release observations: Codex 0/10, Claude CLI 5/5 pending review, Desktop 0/3 (to run on
+candidate 830d8b94). CD+Tests remains revise; reviews, QA, UAT and OR remain incomplete.
